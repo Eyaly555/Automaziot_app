@@ -8,7 +8,6 @@ import { isSupabaseConfigured } from '../lib/supabase';
 interface MeetingStore {
   currentMeeting: Meeting | null;
   meetings: Meeting[];
-  zohoToken: string | null;
 
   // Meeting actions
   createMeeting: (clientName: string) => void;
@@ -21,7 +20,6 @@ interface MeetingStore {
   updateZohoLastSync: (time: string) => void;
   setZohoSyncEnabled: (enabled: boolean) => void;
   loadMeetingByZohoId: (recordId: string) => Meeting | null;
-  setZohoToken: (token: string) => void;
 
   // Module actions
   updateModule: (moduleName: keyof Meeting['modules'], data: any) => void;
@@ -97,7 +95,6 @@ export const useMeetingStore = create<MeetingStore>()(
       meetings: [],
       timerInterval: null,
       wizardState: null,
-      zohoToken: null,
 
       createMeeting: (clientName) => {
         const meeting: Meeting = {
@@ -283,34 +280,6 @@ export const useMeetingStore = create<MeetingStore>()(
         return null;
       },
 
-      setZohoToken: (token) => {
-        set((state) => {
-          // Update the zohoToken in state
-          const newState: any = { zohoToken: token };
-
-          // If there's a current meeting with Zoho integration, update it
-          if (state.currentMeeting?.zohoIntegration) {
-            const updatedMeeting = {
-              ...state.currentMeeting,
-              zohoIntegration: {
-                ...state.currentMeeting.zohoIntegration,
-                token
-              }
-            };
-
-            // Save to localStorage with Zoho-specific key
-            const storageKey = getStorageKey(updatedMeeting);
-            localStorage.setItem(storageKey, JSON.stringify(updatedMeeting));
-
-            newState.currentMeeting = updatedMeeting;
-            newState.meetings = state.meetings.map(m =>
-              m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-            );
-          }
-
-          return { ...state, ...newState };
-        });
-      },
 
       updateModule: (moduleName, data) => {
         set((state) => {

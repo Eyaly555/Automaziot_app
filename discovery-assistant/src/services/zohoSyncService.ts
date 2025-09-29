@@ -1,20 +1,7 @@
 import { Meeting } from '../types';
-
-interface ZohoConfig {
-  apiBase: string;
-  accessToken: string;
-  module: string;
-  discoveryField: string;
-}
+import { syncMeetingWithZoho } from './zohoAPI';
 
 class ZohoSyncService {
-  private config: ZohoConfig = {
-    apiBase: import.meta.env.VITE_ZOHO_API_BASE || 'https://www.zohoapis.com/crm/v2',
-    accessToken: '', // Token will be passed dynamically
-    module: 'Potentials1',
-    discoveryField: 'Discovery_Progress'
-  };
-
   private compressData(meeting: Meeting): string {
     // Remove unnecessary fields for storage
     const compressed = {
@@ -34,156 +21,75 @@ class ZohoSyncService {
     }
   }
 
-  async syncToZoho(meeting: Meeting, token: string): Promise<boolean> {
-    if (!meeting.zohoIntegration?.recordId) {
-      throw new Error('No Zoho record ID found');
-    }
-
-    const compressedData = this.compressData(meeting);
-
-    // Check if data is too large (Zoho has field size limits)
-    if (compressedData.length > 30000) {
-      console.warn('Meeting data too large, truncating...');
-      // Implement truncation strategy
-    }
-
-    const requestBody = {
-      data: [{
-        id: meeting.zohoIntegration.recordId,
-        [this.config.discoveryField]: compressedData,
-        Discovery_Last_Update: new Date().toISOString(),
-        Discovery_Completion: `${this.calculateProgress(meeting)}%`
-      }]
-    };
-
+  /**
+   * Sync meeting to Zoho CRM using backend API
+   */
+  async syncToZoho(meeting: Meeting): Promise<boolean> {
     try {
-      const apiUrl = `${this.config.apiBase}/${this.config.module}/${meeting.zohoIntegration.recordId}`;
-      const response = await fetch(apiUrl, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Zoho-oauthtoken ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestBody)
+      const recordId = meeting.zohoIntegration?.recordId;
+
+      console.log('[ZohoSync] Syncing meeting to Zoho', {
+        meetingId: meeting.meetingId,
+        recordId
       });
 
-      if (response.status === 401) {
-        throw new Error('Authentication failed - needsRefresh');
-      }
+      const result = await syncMeetingWithZoho(meeting, recordId);
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(`Zoho API error: ${JSON.stringify(error)}`);
-      }
+      if (result.success) {
+        console.log('[ZohoSync] Successfully synced to Zoho', result);
 
-      return true;
+        // Update the record ID if it's a new record
+        if (result.recordId && !recordId) {
+          // Store the new record ID for future syncs
+          meeting.zohoIntegration = {
+            ...meeting.zohoIntegration,
+            recordId: result.recordId,
+            lastSync: new Date().toISOString()
+          };
+        }
+
+        return true;
+      } else {
+        console.error('[ZohoSync] Sync failed:', result.message);
+        return false;
+      }
     } catch (error) {
-      console.error('Sync to Zoho failed:', error);
-
-      // Store failed sync for retry
-      this.storeFailedSync(meeting);
-
-      throw error;
-    }
-  }
-
-  async loadFromZoho(recordId: string, token: string): Promise<Meeting | null> {
-    try {
-      const apiUrl = `${this.config.apiBase}/${this.config.module}/${recordId}?fields=${this.config.discoveryField}`;
-      const response = await fetch(apiUrl, {
-        headers: {
-          'Authorization': `Zoho-oauthtoken ${token}`
-        }
-      });
-
-      if (response.status === 401) {
-        throw new Error('Authentication failed - needsRefresh');
-      }
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          console.log('No Zoho record found');
-          return null;
-        }
-        throw new Error(`Zoho API error: ${response.status}`);
-      }
-
-      const result = await response.json();
-      const discoveryData = result.data?.[0]?.[this.config.discoveryField];
-
-      if (!discoveryData) return null;
-
-      return this.decompressData(discoveryData);
-    } catch (error) {
-      console.error('Load from Zoho failed:', error);
-      return null;
-    }
-  }
-
-  // Calculate meeting progress
-  private calculateProgress(meeting: Meeting): number {
-    const modules = ['overview', 'leadsAndSales', 'customerService', 'operations', 'reporting', 'aiAgents', 'systems', 'roi', 'planning'];
-    let filledModules = 0;
-
-    modules.forEach(moduleName => {
-      const module = meeting.modules[moduleName as keyof Meeting['modules']];
-      if (module && Object.keys(module).length > 0) {
-        // Check if module has meaningful data
-        const hasData = Object.values(module).some(value =>
-          value !== undefined && value !== null && value !== '' &&
-          !(Array.isArray(value) && value.length === 0)
-        );
-        if (hasData) filledModules++;
-      }
-    });
-
-    return Math.round((filledModules / modules.length) * 100);
-  }
-
-  // Retry mechanism for failed syncs
-  private storeFailedSync(meeting: Meeting) {
-    const failedSyncs = JSON.parse(localStorage.getItem('zoho_failed_syncs') || '[]');
-    failedSyncs.push({
-      meeting,
-      timestamp: new Date().toISOString(),
-      retryCount: 0
-    });
-    localStorage.setItem('zoho_failed_syncs', JSON.stringify(failedSyncs));
-  }
-
-  async retryFailedSyncs(token: string) {
-    const failedSyncs = JSON.parse(localStorage.getItem('zoho_failed_syncs') || '[]');
-    const stillFailed = [];
-
-    for (const sync of failedSyncs) {
-      try {
-        await this.syncToZoho(sync.meeting, token);
-      } catch (e) {
-        sync.retryCount++;
-        if (sync.retryCount < 3) {
-          stillFailed.push(sync);
-        }
-      }
-    }
-
-    localStorage.setItem('zoho_failed_syncs', JSON.stringify(stillFailed));
-  }
-
-  // Validate Zoho connection
-  async validateConnection(): Promise<boolean> {
-    try {
-      const response = await fetch(
-        `${this.config.apiBase}/users?type=CurrentUser`,
-        {
-          headers: {
-            'Authorization': `Zoho-oauthtoken ${this.config.accessToken}`
-          }
-        }
-      );
-      return response.ok;
-    } catch {
+      console.error('[ZohoSync] Error syncing to Zoho:', error);
       return false;
     }
+  }
+
+  /**
+   * Check if Zoho integration is available
+   * Now just checks if we're in Zoho context (widget or params)
+   */
+  isZohoAvailable(): boolean {
+    // Check if we're in Zoho widget context
+    if (typeof window !== 'undefined' && (window as any).ZOHO?.CRM) {
+      return true;
+    }
+
+    // Check if we have Zoho parameters in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.has('Entity') || urlParams.has('EntityId');
+  }
+
+  /**
+   * Get Zoho context from URL or widget
+   */
+  getZohoContext(): { entity?: string; entityId?: string; isWidget: boolean } {
+    // Check for Zoho widget
+    if (typeof window !== 'undefined' && (window as any).ZOHO?.CRM) {
+      return { isWidget: true };
+    }
+
+    // Check URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    return {
+      entity: urlParams.get('Entity') || undefined,
+      entityId: urlParams.get('EntityId') || undefined,
+      isWidget: false
+    };
   }
 }
 

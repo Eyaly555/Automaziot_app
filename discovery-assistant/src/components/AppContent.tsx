@@ -13,7 +13,6 @@ import { SystemsModule } from './Modules/Systems/SystemsModule';
 import { ROIModule } from './Modules/ROI/ROIModule';
 import { PlanningModule } from './Modules/Planning/PlanningModule';
 import { SummaryTab } from './Summary/SummaryTab';
-import { ZohoCallbackHandler } from './ZohoCallbackHandler';
 import { useAccessibility, useSkipToContent } from '../hooks/useAccessibility';
 
 export const AppContent = () => {
@@ -26,7 +25,6 @@ export const AppContent = () => {
       <Route path="/" element={<Dashboard />} />
       <Route path="/login" element={<Login />} />
       <Route path="/summary" element={<SummaryTab />} />
-      <Route path="/zoho/callback" element={<ZohoCallbackHandler />} />
       <Route path="/wizard" element={<WizardMode />} />
       <Route path="/wizard/:stepId" element={<WizardMode />} />
       <Route path="/settings/ai" element={<AISettings />} />

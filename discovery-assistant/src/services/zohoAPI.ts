@@ -1,0 +1,114 @@
+/**
+ * Zoho API Service for Frontend
+ * This service calls the backend API endpoints that handle Zoho authentication
+ */
+
+const API_BASE = '/api/zoho';
+
+/**
+ * Test Zoho connection
+ */
+export async function testZohoConnection(): Promise<{ success: boolean; organization?: any; message?: string }> {
+  try {
+    const response = await fetch(`${API_BASE}/test`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Failed to test Zoho connection:', error);
+    return { success: false, message: 'Failed to connect to Zoho' };
+  }
+}
+
+/**
+ * Sync meeting data with Zoho CRM
+ */
+export async function syncMeetingWithZoho(meeting: any, recordId?: string): Promise<{ success: boolean; recordId?: string; message?: string }> {
+  try {
+    const response = await fetch(`${API_BASE}/sync`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        meeting,
+        recordId,
+        module: 'Deals'
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Sync failed: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Failed to sync with Zoho:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Failed to sync with Zoho'
+    };
+  }
+}
+
+/**
+ * Get deal from Zoho
+ */
+export async function getZohoDeal(dealId: string): Promise<any> {
+  try {
+    const response = await fetch(`${API_BASE}/deals?dealId=${dealId}`);
+    if (!response.ok) {
+      throw new Error(`Failed to get deal: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to get Zoho deal:', error);
+    throw error;
+  }
+}
+
+/**
+ * Update deal in Zoho
+ */
+export async function updateZohoDeal(dealId: string, data: any): Promise<any> {
+  try {
+    const response = await fetch(`${API_BASE}/deals?dealId=${dealId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to update deal: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to update Zoho deal:', error);
+    throw error;
+  }
+}
+
+/**
+ * Create deal in Zoho
+ */
+export async function createZohoDeal(data: any): Promise<any> {
+  try {
+    const response = await fetch(`${API_BASE}/deals`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to create deal: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to create Zoho deal:', error);
+    throw error;
+  }
+}
