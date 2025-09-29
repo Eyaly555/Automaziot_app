@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useMeetingStore } from '../store/useMeetingStore';
 import { useZohoAuth } from '../hooks/useZohoAuth';
 
@@ -7,10 +8,13 @@ export const ZohoConsent: React.FC = () => {
   const [consent, setConsent] = useState<boolean | null>(null);
   const { setZohoSyncEnabled } = useMeetingStore();
   const { startAuth } = useZohoAuth();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     const savedConsent = localStorage.getItem('zoho_sync_consent');
-    if (savedConsent === null && window.location.search.includes('zohoRecordId')) {
+    const hasZohoRecordId = searchParams.has('zohoRecordId');
+
+    if (savedConsent === null && hasZohoRecordId) {
       setShowConsent(true);
     } else {
       setConsent(savedConsent === 'true');
@@ -18,7 +22,7 @@ export const ZohoConsent: React.FC = () => {
         setZohoSyncEnabled(true);
       }
     }
-  }, []);
+  }, [searchParams, setZohoSyncEnabled]);
 
   const handleConsent = (agreed: boolean) => {
     localStorage.setItem('zoho_sync_consent', agreed.toString());

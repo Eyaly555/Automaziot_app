@@ -4,6 +4,9 @@ import { useMeetingStore } from '../store/useMeetingStore';
 import { parseZohoParams, mapZohoToMeeting } from '../integrations/zoho/paramParser';
 import { zohoSyncService } from '../services/zohoSyncService';
 import { useZohoAuth } from './useZohoAuth';
+import { getZohoStorageKey, validateZohoParams, isTestMode } from '../utils/zohoHelpers';
+import { isTestZohoMode, getTestZohoParams, testZohoSync } from '../utils/testZohoMode';
+import { zohoRetryQueue } from '../services/zohoRetryQueue';
 
 export const useZohoIntegration = () => {
   const store = useMeetingStore();
@@ -14,11 +17,21 @@ export const useZohoIntegration = () => {
   const search = searchParams.toString();
 
   useEffect(() => {
+    // Check for test mode first
+    if (isTestZohoMode()) {
+      const testParams = getTestZohoParams();
+      if (testParams) {
+        setIsZohoMode(true);
+        createNewMeeting(testParams);
+        return;
+      }
+    }
+
     const params = parseZohoParams(search ? `?${search}` : '');
-    if (!params) return;
+    if (!params || !validateZohoParams(params)) return;
 
     setIsZohoMode(true);
-    const localKey = `discovery_zoho_${params.zohoRecordId}`;
+    const localKey = getZohoStorageKey(params.zohoRecordId);
     const existingData = localStorage.getItem(localKey);
 
     if (existingData) {
@@ -43,7 +56,7 @@ export const useZohoIntegration = () => {
         loadFromZoho(params.zohoRecordId);
       }
     }
-  }, []);
+  }, [search]);
 
   const createNewMeeting = (params: any) => {
     const mappedData = mapZohoToMeeting(params);
@@ -70,12 +83,28 @@ export const useZohoIntegration = () => {
     } catch (error) {
       setSyncStatus('error');
       console.error('Failed to load from Zoho:', error);
+
+      // Add to retry queue if we have a meeting structure
+      const meeting = store.currentMeeting;
+      if (meeting) {
+        zohoRetryQueue.addToQueue(meeting, 'load', error);
+      }
     }
   };
 
   const syncToZoho = async () => {
     const meeting = store.currentMeeting;
     if (!meeting?.zohoIntegration?.recordId) return;
+
+    // Handle test mode
+    if (isTestMode()) {
+      const result = await testZohoSync(meeting);
+      if (result.success) {
+        store.updateZohoLastSync(new Date().toISOString());
+        setSyncStatus('idle');
+      }
+      return;
+    }
 
     if (!token) {
       console.error('No token available for Zoho sync');
@@ -89,7 +118,7 @@ export const useZohoIntegration = () => {
     while (attempts < maxAttempts) {
       try {
         setSyncStatus('syncing');
-        await zohoSyncService.syncToZoho(meeting, token);
+        await zohoSyncService.syncToZoho(meeting, attempts === 0 ? token : newToken || token);
         store.updateZohoLastSync(new Date().toISOString());
         setSyncStatus('idle');
         return;
@@ -99,18 +128,23 @@ export const useZohoIntegration = () => {
         // Check if it's a 401 error that needs token refresh
         if (error.message?.includes('needsRefresh') && attempts < maxAttempts) {
           console.log('Token expired, refreshing...');
-          const newToken = await refreshToken();
+          var newToken = await refreshToken();
           if (!newToken) {
             setSyncStatus('error');
             console.error('Token refresh failed');
             return;
           }
-          // Retry with new token
+          // Token will be used in next iteration
           continue;
         }
 
         setSyncStatus('error');
         console.error('Sync to Zoho failed:', error);
+
+        // Add to retry queue
+        if (meeting) {
+          zohoRetryQueue.addToQueue(meeting, 'sync', error);
+        }
         return;
       }
     }
@@ -122,27 +156,33 @@ export const useZohoIntegration = () => {
 
     const syncTimer = setTimeout(() => {
       syncToZoho();
-    }, 5000); // 5 second debounce
+    }, 30000); // 30 second debounce for better performance
 
     return () => clearTimeout(syncTimer);
-  }, [store.currentMeeting?.modules]);
+  }, [store.currentMeeting?.modules, isZohoMode, syncToZoho]);
 
   // Sync on page unload
   useEffect(() => {
     const handleUnload = (e: BeforeUnloadEvent) => {
       if (isZohoMode && store.currentMeeting) {
         // Synchronous save to localStorage
-        const localKey = `discovery_zoho_${store.currentMeeting.zohoIntegration?.recordId}`;
+        const localKey = getZohoStorageKey(store.currentMeeting.zohoIntegration?.recordId || '');
         localStorage.setItem(localKey, JSON.stringify(store.currentMeeting));
 
-        // Attempt async sync (may not complete)
-        syncToZoho();
+        // Use sendBeacon for critical sync if available
+        if (navigator.sendBeacon && token) {
+          const syncData = JSON.stringify({
+            meeting: store.currentMeeting,
+            token: token
+          });
+          navigator.sendBeacon('/api/zoho/beacon-sync', syncData);
+        }
       }
     };
 
     window.addEventListener('beforeunload', handleUnload);
     return () => window.removeEventListener('beforeunload', handleUnload);
-  }, [isZohoMode, store.currentMeeting]);
+  }, [isZohoMode, store.currentMeeting, token]);
 
   return {
     isZohoMode,

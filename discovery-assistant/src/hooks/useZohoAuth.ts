@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMeetingStore } from '../store/useMeetingStore';
+import { tokenManager } from '../services/tokenManager';
 
 // Generate cryptographically random string for PKCE
 function generateRandomString(length: number): string {
@@ -28,6 +29,28 @@ export const useZohoAuth = () => {
   const navigate = useNavigate();
   const { setZohoToken } = useMeetingStore();
 
+  // Initialize token from storage
+  useEffect(() => {
+    const tokenData = tokenManager.getToken();
+    if (tokenData) {
+      setToken(tokenData.accessToken);
+      setZohoToken(tokenData.accessToken);
+    }
+
+    // Listen for token changes from other tabs
+    const unsubscribe = tokenManager.onTokenChange((event) => {
+      if (event.type === 'token_updated' && event.data) {
+        setToken(event.data.accessToken);
+        setZohoToken(event.data.accessToken);
+      } else if (event.type === 'token_cleared') {
+        setToken(null);
+        setZohoToken('');
+      }
+    });
+
+    return unsubscribe;
+  }, [setZohoToken]);
+
   // Start OAuth flow with PKCE
   const startAuth = async () => {
     try {
@@ -38,9 +61,14 @@ export const useZohoAuth = () => {
       const challenge = await generateCodeChallenge(verifier);
       const state = generateRandomString(32);
 
-      // Store temporarily in localStorage
-      localStorage.setItem('zoho_pkce_verifier', verifier);
-      localStorage.setItem('zoho_auth_state', state);
+      // Store temporarily in sessionStorage for better security
+      sessionStorage.setItem('zoho_pkce_verifier', verifier);
+      sessionStorage.setItem('zoho_auth_state', state);
+
+      // Store return URL to redirect back after auth
+      const currentUrl = window.location.href;
+      const returnUrl = currentUrl.split('?')[0] + (window.location.search || '');
+      sessionStorage.setItem('zoho_return_url', returnUrl);
 
       // Build authorization URL
       const authParams = new URLSearchParams({
@@ -83,15 +111,22 @@ export const useZohoAuth = () => {
       }
 
       const data = await response.json();
-      const accessToken = data.access_token;
 
-      // Update state and store
-      setToken(accessToken);
-      setZohoToken(accessToken);
+      // Store using tokenManager for secure storage and multi-tab sync
+      tokenManager.setToken({
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token,
+        expiresAt: Date.now() + (data.expires_in * 1000),
+        scope: data.scope
+      });
+
+      // Update local state
+      setToken(data.access_token);
+      setZohoToken(data.access_token);
 
       // Clean up temporary storage
-      localStorage.removeItem('zoho_pkce_verifier');
-      localStorage.removeItem('zoho_auth_state');
+      sessionStorage.removeItem('zoho_pkce_verifier');
+      sessionStorage.removeItem('zoho_auth_state');
 
       // Navigate back to root
       navigate('/', { replace: true });
@@ -106,24 +141,13 @@ export const useZohoAuth = () => {
   const refreshToken = async () => {
     try {
       setLoading(true);
+      const newToken = await tokenManager.refreshToken();
 
-      const response = await fetch('/api/zoho/refresh', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Token refresh failed');
+      if (newToken) {
+        // Update local state
+        setToken(newToken);
+        setZohoToken(newToken);
       }
-
-      const data = await response.json();
-      const newToken = data.access_token;
-
-      // Update state and store
-      setToken(newToken);
-      setZohoToken(newToken);
 
       return newToken;
     } catch (error) {
@@ -142,16 +166,16 @@ export const useZohoAuth = () => {
 
     if (code && state) {
       // Validate state
-      const storedState = localStorage.getItem('zoho_auth_state');
+      const storedState = sessionStorage.getItem('zoho_auth_state');
       if (state === storedState) {
-        const verifier = localStorage.getItem('zoho_pkce_verifier');
+        const verifier = sessionStorage.getItem('zoho_pkce_verifier');
         if (verifier) {
           handleCallback(code, verifier);
         }
       } else {
         console.error('State mismatch - possible CSRF attack');
-        localStorage.removeItem('zoho_pkce_verifier');
-        localStorage.removeItem('zoho_auth_state');
+        sessionStorage.removeItem('zoho_pkce_verifier');
+        sessionStorage.removeItem('zoho_auth_state');
       }
     }
   }, []);
