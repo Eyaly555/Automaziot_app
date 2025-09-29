@@ -9,7 +9,7 @@ import { CustomerServiceModule } from './Modules/CustomerService/CustomerService
 import { OperationsModule } from './Modules/Operations/OperationsModule';
 import { ReportingModule } from './Modules/Reporting/ReportingModule';
 import { AIAgentsModule } from './Modules/AIAgents/AIAgentsModule';
-import { SystemsModule } from './Modules/Systems/SystemsModule';
+import { SystemsModuleEnhanced } from './Modules/Systems/SystemsModuleEnhanced';
 import { ROIModule } from './Modules/ROI/ROIModule';
 import { PlanningModule } from './Modules/Planning/PlanningModule';
 import { SummaryTab } from './Summary/SummaryTab';
@@ -34,7 +34,7 @@ export const AppContent = () => {
       <Route path="/module/operations" element={<OperationsModule />} />
       <Route path="/module/reporting" element={<ReportingModule />} />
       <Route path="/module/aiAgents" element={<AIAgentsModule />} />
-      <Route path="/module/systems" element={<SystemsModule />} />
+      <Route path="/module/systems" element={<SystemsModuleEnhanced />} />
       <Route path="/module/roi" element={<ROIModule />} />
       <Route path="/module/planning" element={<PlanningModule />} />
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -20,7 +20,8 @@ import {
   ChevronDown,
   X,
   Wand2,
-  ClipboardList
+  ClipboardList,
+  Code
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { formatTime, formatCurrency, formatDate } from '../../utils/formatters';
@@ -28,6 +29,8 @@ import { calculateROI } from '../../utils/roiCalculator';
 import { ProgressBar } from '../Common/ProgressBar/ProgressBar';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
+import { generateTechnicalSpec } from '../../utils/technicalSpecGenerator';
+import { exportAsMarkdown, downloadMarkdown, downloadJSON } from '../../utils/exportTechnicalSpec';
 
 interface ModuleConfig {
   id: string;
@@ -321,6 +324,23 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
     setExportMenuOpen(false);
   };
 
+  const handleExportTechnicalSpec = () => {
+    if (!currentMeeting) return;
+
+    const spec = generateTechnicalSpec(currentMeeting);
+    const markdown = exportAsMarkdown(spec);
+    const filename = `technical-spec-${currentMeeting.clientName}-${new Date().toISOString().split('T')[0]}.md`;
+    downloadMarkdown(markdown, filename);
+    setExportMenuOpen(false);
+
+    // Also offer JSON export
+    const shouldExportJSON = confirm('האם ברצונך לייצא גם בפורמט JSON למפתחים?');
+    if (shouldExportJSON) {
+      const jsonFilename = `technical-spec-${currentMeeting.clientName}-${new Date().toISOString().split('T')[0]}.json`;
+      downloadJSON(spec, jsonFilename);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 relative" dir="rtl">
       {/* Confetti Animation */}
@@ -406,7 +426,18 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
                     </button>
 
                     {exportMenuOpen && (
-                      <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-50 animate-slideDown">
+                      <div className="absolute top-full right-0 mt-2 w-60 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-50 animate-slideDown">
+                        <button
+                          onClick={handleExportTechnicalSpec}
+                          className="w-full px-4 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 flex items-center gap-3 transition-all border-b-2 border-indigo-200"
+                        >
+                          <Code className="w-4 h-4 text-indigo-600" />
+                          <div className="flex-1 text-right">
+                            <div className="font-semibold text-indigo-600">מפרט טכני למפתחים</div>
+                            <div className="text-xs text-gray-500">Markdown + JSON</div>
+                          </div>
+                          <Sparkles className="w-3 h-3 text-yellow-500" />
+                        </button>
                         <button
                           onClick={handleExportJSON}
                           className="w-full px-4 py-3 hover:bg-gray-50 flex items-center gap-3 transition-colors"

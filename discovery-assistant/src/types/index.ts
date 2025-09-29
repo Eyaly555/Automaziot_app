@@ -312,11 +312,62 @@ export interface AICapability {
 
 // Module 7 - Systems
 export interface SystemsModule {
-  currentSystems?: SystemInfo[];
-  integrations?: Integration[];
-  dataQuality?: DataQuality;
+  currentSystems?: string[]; // Keep for backward compatibility
+  customSystems?: string;
+  detailedSystems?: DetailedSystemInfo[]; // NEW: Detailed system specifications
+  integrations?: {
+    level?: string;
+    issues?: string[];
+    manualDataTransfer?: string;
+  };
+  dataQuality?: {
+    overall?: string;
+    duplicates?: string;
+    completeness?: string;
+  };
+  apiWebhooks?: {
+    usage?: string;
+    webhooks?: string;
+    needs?: string[];
+  };
+  infrastructure?: {
+    hosting?: string;
+    security?: string[];
+    backup?: string;
+  };
 }
 
+// NEW: Detailed system specification
+export interface DetailedSystemInfo {
+  id: string;
+  category: string; // 'crm', 'erp', 'marketing_automation', etc.
+  specificSystem: string; // 'Salesforce', 'HubSpot', 'Zoho CRM', etc.
+  version?: string; // 'Enterprise', 'Professional', 'Free'
+  recordCount?: number; // How many records in the system
+  apiAccess: 'full' | 'limited' | 'none' | 'unknown';
+  satisfactionScore: 1 | 2 | 3 | 4 | 5;
+  mainPainPoints: string[];
+  integrationNeeds: SystemIntegrationNeed[];
+  migrationWillingness: 'eager' | 'open' | 'reluctant' | 'no';
+  monthlyUsers?: number;
+  criticalFeatures: string[];
+  dataVolume?: string; // 'small', 'medium', 'large', 'enterprise'
+  customNotes?: string;
+}
+
+export interface SystemIntegrationNeed {
+  id: string;
+  targetSystemId: string; // References another DetailedSystemInfo.id
+  targetSystemName: string;
+  integrationType: 'native' | 'api' | 'zapier' | 'n8n' | 'make' | 'manual' | 'other';
+  frequency: 'realtime' | 'hourly' | 'daily' | 'weekly' | 'manual';
+  dataFlow: 'bidirectional' | 'one-way-to' | 'one-way-from';
+  criticalityLevel: 'critical' | 'important' | 'nice-to-have';
+  currentStatus: 'working' | 'problematic' | 'missing';
+  specificNeeds?: string;
+}
+
+// Legacy types - keep for backward compatibility
 export interface SystemInfo {
   name: string;
   type: string;
