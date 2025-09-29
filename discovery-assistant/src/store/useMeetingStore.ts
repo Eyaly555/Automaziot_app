@@ -217,7 +217,11 @@ export const useMeetingStore = create<MeetingStore>()(
         }));
 
         // Save to localStorage with Zoho-specific key if applicable
-        localStorage.setItem(getStorageKey(meeting), JSON.stringify(meeting));
+        try {
+          localStorage.setItem(getStorageKey(meeting), JSON.stringify(meeting));
+        } catch (error) {
+          console.error('Failed to save meeting to localStorage:', error);
+        }
       },
 
       updateZohoLastSync: (time) => {
@@ -233,7 +237,11 @@ export const useMeetingStore = create<MeetingStore>()(
           };
 
           // Save to localStorage with Zoho-specific key
-          localStorage.setItem(getStorageKey(updatedMeeting), JSON.stringify(updatedMeeting));
+          try {
+            localStorage.setItem(getStorageKey(updatedMeeting), JSON.stringify(updatedMeeting));
+          } catch (error) {
+            console.error('Failed to save Zoho sync time to localStorage:', error);
+          }
 
           return {
             currentMeeting: updatedMeeting,
@@ -971,7 +979,11 @@ export const useMeetingStore = create<MeetingStore>()(
       },
 
       enableSync: (userId) => {
-        localStorage.setItem('userId', userId);
+        try {
+          localStorage.setItem('userId', userId);
+        } catch (error) {
+          console.error('Failed to save userId to localStorage:', error);
+        }
         set({ syncEnabled: true });
 
         // Perform initial sync

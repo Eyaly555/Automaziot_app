@@ -150,9 +150,13 @@ export class SyncService {
 
   // Handle failed sync items
   private handleFailedSync(item: SyncQueueItem): void {
-    const deadLetterQueue = JSON.parse(localStorage.getItem('deadLetterQueue') || '[]');
-    deadLetterQueue.push({ ...item, failedAt: Date.now() });
-    localStorage.setItem('deadLetterQueue', JSON.stringify(deadLetterQueue));
+    try {
+      const deadLetterQueue = JSON.parse(localStorage.getItem('deadLetterQueue') || '[]');
+      deadLetterQueue.push({ ...item, failedAt: Date.now() });
+      localStorage.setItem('deadLetterQueue', JSON.stringify(deadLetterQueue));
+    } catch (error) {
+      console.error('Failed to save to dead letter queue:', error);
+    }
   }
 
   // Sync meeting to Supabase
@@ -519,7 +523,11 @@ export class SyncService {
       retried++;
     }
 
-    localStorage.setItem('deadLetterQueue', '[]');
+    try {
+      localStorage.setItem('deadLetterQueue', '[]');
+    } catch (error) {
+      console.error('Failed to clear dead letter queue:', error);
+    }
     await this.processQueue();
 
     return {

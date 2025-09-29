@@ -71,7 +71,11 @@ export const useZohoIntegration = () => {
 
         // Also save to localStorage for offline access
         const localKey = getZohoStorageKey(params.zohoRecordId);
-        localStorage.setItem(localKey, JSON.stringify(meetingData));
+        try {
+          localStorage.setItem(localKey, JSON.stringify(meetingData));
+        } catch (error) {
+          console.error('Failed to save to localStorage (quota exceeded?):', error);
+        }
       } else {
         // No existing data in Zoho, check localStorage as fallback
         console.log('No Discovery data in Zoho, checking localStorage...');
