@@ -3,9 +3,19 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  // Load env file based on `mode` in the current working directory.
-  // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
-  const env = loadEnv(mode, process.cwd(), '')
+  // Check if we're building in Vercel
+  const isVercel = process.env.VERCEL === '1'
+
+  // Only load local env files if NOT in Vercel
+  // In Vercel, use the dashboard-configured environment variables
+  let env = {}
+  if (!isVercel) {
+    // Load env file based on `mode` in the current working directory.
+    // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
+    env = loadEnv(mode, process.cwd(), '')
+  } else {
+    console.log('Building in Vercel - using dashboard environment variables')
+  }
 
   return {
     plugins: [react()],
