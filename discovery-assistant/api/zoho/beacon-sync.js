@@ -41,7 +41,7 @@ export default async function handler(req, res) {
     // Prepare minimal update for speed
     const zohoData = {
       Discovery_Progress: JSON.stringify(meeting),
-      Discovery_Last_Update: new Date().toISOString(),
+      Discovery_Last_Update: new Date().toISOString().replace('Z', '+00:00'), // Zoho datetime format
       Discovery_Completion: `${progress}%`,
       Discovery_Status: progress === 100 ? 'Completed' : 'In Progress'
     };

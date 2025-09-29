@@ -55,9 +55,10 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  try {
-    const { meeting, recordId, module = 'Potentials1' } = req.body;
+  // Extract variables outside try block so they're accessible in catch
+  const { meeting, recordId, module = 'Potentials1' } = req.body || {};
 
+  try {
     if (!meeting) {
       return res.status(400).json({ error: 'Meeting data is required' });
     }
@@ -66,15 +67,16 @@ export default async function handler(req, res) {
     const progressPercentage = calculateProgress(meeting);
 
     // Prepare Zoho-compatible data from meeting - matching beacon-sync.js structure
+    const now = new Date();
     const zohoData = {
       Name: meeting.clientName || meeting.companyName || 'Discovery Meeting',
       Stage: 'Qualification',
       // Custom fields for Discovery data - this is what we save to Zoho
       Discovery_Progress: JSON.stringify(meeting), // Full meeting data as JSON
-      Discovery_Last_Update: new Date().toISOString(),
+      Discovery_Last_Update: now.toISOString().replace('Z', '+00:00'), // Zoho datetime format
       Discovery_Completion: `${progressPercentage}%`,
       Discovery_Status: progressPercentage === 100 ? 'Completed' : 'In Progress',
-      Discovery_Date: new Date().toISOString().split('T')[0],
+      Discovery_Date: now.toISOString().split('T')[0],
       Discovery_Modules_Completed: Object.keys(meeting.modules || {}).length,
       Discovery_Notes: JSON.stringify({
         contactName: meeting.contactName,
