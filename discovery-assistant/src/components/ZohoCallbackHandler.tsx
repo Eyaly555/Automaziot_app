@@ -86,8 +86,10 @@ export const ZohoCallbackHandler: React.FC = () => {
         // Redirect back to original Zoho record if available
         const returnUrl = sessionStorage.getItem('zoho_return_url');
         if (returnUrl) {
+          console.log('Redirecting back to:', returnUrl);
           sessionStorage.removeItem('zoho_return_url');
-          window.location.href = returnUrl;
+          // Use replace to prevent back button issues
+          window.location.replace(returnUrl);
         } else {
           setTimeout(() => navigate('/', { replace: true }), 2000);
         }

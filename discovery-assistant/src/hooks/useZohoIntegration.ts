@@ -31,13 +31,22 @@ export const useZohoIntegration = () => {
     if (!params || !validateZohoParams(params)) return;
 
     setIsZohoMode(true);
+
+    // Check if we're already viewing this record
+    const currentRecordId = store.currentMeeting?.zohoIntegration?.recordId;
+    if (currentRecordId === params.zohoRecordId) {
+      console.log('Already viewing this Zoho record');
+      return; // Already loaded the correct meeting
+    }
+
     const localKey = getZohoStorageKey(params.zohoRecordId);
     const existingData = localStorage.getItem(localKey);
 
     if (existingData) {
-      // Load existing meeting
+      // Load existing meeting for this specific Zoho record
       try {
         const meeting = JSON.parse(existingData);
+        console.log('Loading existing meeting for Zoho record:', params.zohoRecordId);
         store.loadMeeting(meeting.meetingId);
         // If sync is enabled but no token, start auth
         if (meeting.zohoIntegration?.syncEnabled && !token) {
@@ -49,6 +58,7 @@ export const useZohoIntegration = () => {
       }
     } else {
       // Create new meeting with Zoho data
+      console.log('Creating new meeting for Zoho record:', params.zohoRecordId);
       createNewMeeting(params);
 
       // Try to load from Zoho if available
@@ -61,8 +71,9 @@ export const useZohoIntegration = () => {
   const createNewMeeting = (params: any) => {
     const mappedData = mapZohoToMeeting(params);
     store.createOrLoadMeeting(mappedData);
-    // If Zoho integration detected, initiate auth
-    if (mappedData.zohoIntegration) {
+    // Only start auth if no token exists
+    if (mappedData.zohoIntegration && !token) {
+      console.log('No token found, starting OAuth flow');
       startAuth();
     }
   };

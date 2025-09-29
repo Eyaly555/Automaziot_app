@@ -32,7 +32,12 @@
       "mcp__vercel__get_project",
       "mcp__vercel__list_deployments",
       "mcp__vercel__get_deployment_build_logs",
-      "mcp__vercel__get_deployment"
+      "mcp__vercel__get_deployment",
+      "mcp__vercel__web_fetch_vercel_url",
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__evaluate_script",
+      "mcp__chrome-devtools__list_console_messages",
+      "mcp__chrome-devtools__take_snapshot"
     ],
     "deny": [],
     "ask": []

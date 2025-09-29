@@ -65,10 +65,10 @@ export const useZohoAuth = () => {
       sessionStorage.setItem('zoho_pkce_verifier', verifier);
       sessionStorage.setItem('zoho_auth_state', state);
 
-      // Store return URL to redirect back after auth
+      // Store return URL with all Zoho parameters to redirect back after auth
       const currentUrl = window.location.href;
-      const returnUrl = currentUrl.split('?')[0] + (window.location.search || '');
-      sessionStorage.setItem('zoho_return_url', returnUrl);
+      console.log('Storing return URL for OAuth:', currentUrl);
+      sessionStorage.setItem('zoho_return_url', currentUrl);
 
       // Build authorization URL
       const authParams = new URLSearchParams({
@@ -158,27 +158,8 @@ export const useZohoAuth = () => {
     }
   };
 
-  // Check for OAuth callback on mount
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    const state = urlParams.get('state');
-
-    if (code && state) {
-      // Validate state
-      const storedState = sessionStorage.getItem('zoho_auth_state');
-      if (state === storedState) {
-        const verifier = sessionStorage.getItem('zoho_pkce_verifier');
-        if (verifier) {
-          handleCallback(code, verifier);
-        }
-      } else {
-        console.error('State mismatch - possible CSRF attack');
-        sessionStorage.removeItem('zoho_pkce_verifier');
-        sessionStorage.removeItem('zoho_auth_state');
-      }
-    }
-  }, []);
+  // Remove the OAuth callback check here since ZohoCallbackHandler handles it
+  // This prevents double-processing of the OAuth callback
 
   return {
     startAuth,
