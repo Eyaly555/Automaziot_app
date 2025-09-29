@@ -65,7 +65,7 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
     const { autoResponse, channels, proactiveCommunication } = modules.customerService;
 
     // FAQ automation potential
-    if (autoResponse?.topQuestions) {
+    if (autoResponse?.topQuestions && Array.isArray(autoResponse.topQuestions)) {
       const totalFAQVolume = autoResponse.topQuestions.reduce(
         (sum, faq) => sum + (faq.frequencyPerDay || 0),
         0
@@ -75,7 +75,7 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
     }
 
     // Service channel optimization
-    if (channels) {
+    if (channels && Array.isArray(channels)) {
       const totalVolume = channels.reduce((sum, channel) => sum + (channel.volumePerDay || 0), 0);
       if (totalVolume > 50) {
         hoursSavedMonthly += totalVolume * 0.5 * 20 / 60; // 30 seconds saved per interaction
@@ -98,7 +98,7 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
     }
 
     // Document processing time
-    if (documentManagement?.documentTypes) {
+    if (documentManagement?.documentTypes && Array.isArray(documentManagement.documentTypes)) {
       const docTime = documentManagement.documentTypes.reduce(
         (sum, doc) => sum + ((doc.volumePerMonth || 0) * (doc.timePerDocument || 0)),
         0
@@ -116,7 +116,7 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
   if (modules.reporting) {
     const { scheduledReports } = modules.reporting;
 
-    if (scheduledReports) {
+    if (scheduledReports && Array.isArray(scheduledReports)) {
       const reportTime = scheduledReports.reduce(
         (sum, report) => {
           const freq = report.frequency === 'daily' ? 20 :

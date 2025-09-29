@@ -88,7 +88,7 @@ export class SmartRecommendationsEngine {
       }
 
       // FAQ automation potential
-      if (serviceData.autoResponse?.topQuestions) {
+      if (serviceData.autoResponse?.topQuestions && Array.isArray(serviceData.autoResponse.topQuestions)) {
         const totalFAQVolume = serviceData.autoResponse.topQuestions
           .reduce((sum, q) => sum + (q?.frequencyPerDay || 0), 0);
 
@@ -121,7 +121,7 @@ export class SmartRecommendationsEngine {
       }
 
       // Document processing time
-      if (opsData.documentManagement?.flows) {
+      if (opsData.documentManagement?.flows && Array.isArray(opsData.documentManagement.flows)) {
         const docTime = opsData.documentManagement.flows
           .reduce((sum, flow) => sum + (flow.volumePerMonth * flow.timePerDocument), 0);
         timeWastage += docTime / 60;
@@ -346,7 +346,7 @@ export class SmartRecommendationsEngine {
     if (!serviceData) return;
 
     // Chatbot for FAQs
-    if (serviceData.autoResponse?.topQuestions) {
+    if (serviceData.autoResponse?.topQuestions && Array.isArray(serviceData.autoResponse.topQuestions)) {
       const faqVolume = serviceData.autoResponse.topQuestions
         .reduce((sum, q) => sum + (q?.frequencyPerDay || 0), 0);
 
