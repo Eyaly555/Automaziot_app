@@ -18,14 +18,15 @@ export default async function handler(req, res) {
 
   try {
     // Test with a simple API call that works with ZohoCRM.modules.ALL scope
-    // Try to get deals to verify connection
-    const result = await zohoAPI('/crm/v6/Deals?per_page=1&fields=Deal_Name,Stage,Amount');
+    // Try to get Potentials1 records to verify connection
+    const result = await zohoAPI('/crm/v8/Potentials1?per_page=1&fields=Name,Stage,Amount,Discovery_Status');
 
     return res.status(200).json({
       success: true,
       message: 'Zoho connection successful',
-      test: 'Successfully connected to Zoho CRM',
-      hasDeals: result.data ? true : false,
+      test: 'Successfully connected to Zoho CRM Potentials1 module',
+      hasRecords: result.data ? true : false,
+      recordCount: result.data ? result.data.length : 0,
       info: result.info || {}
     });
 

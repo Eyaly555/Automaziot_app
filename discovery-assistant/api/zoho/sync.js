@@ -1,5 +1,5 @@
 // Vercel serverless function for syncing meeting data with Zoho CRM
-import { zohoAPI, updateRecord, createDeal, getRecords } from './service.js';
+import { zohoAPI, updateRecord } from './service.js';
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -17,28 +17,28 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { meeting, recordId, module = 'Deals' } = req.body;
+    const { meeting, recordId, module = 'Potentials1' } = req.body;
 
     if (!meeting) {
       return res.status(400).json({ error: 'Meeting data is required' });
     }
 
-    // Prepare Zoho-compatible data from meeting
+    // Prepare Zoho-compatible data from meeting - matching beacon-sync.js structure
     const zohoData = {
-      Deal_Name: meeting.companyName || meeting.contactName || 'Discovery Meeting',
+      Name: meeting.companyName || meeting.contactName || 'Discovery Meeting',
       Stage: 'Qualification',
-      Pipeline: 'Standard (Standard)',
-      // Custom fields for meeting data
+      // Custom fields for Discovery data - this is what we save to Zoho
+      Discovery_Progress: JSON.stringify(meeting), // Full meeting data as JSON
+      Discovery_Last_Update: new Date().toISOString(),
+      Discovery_Completion: `${meeting.progress || 0}%`,
       Discovery_Status: 'In Progress',
       Discovery_Date: new Date().toISOString().split('T')[0],
       Discovery_Modules_Completed: Object.keys(meeting.modules || {}).length,
-      Discovery_Progress: meeting.progress || 0,
       Discovery_Notes: JSON.stringify({
         contactName: meeting.contactName,
         role: meeting.role,
         industry: meeting.industry,
-        employeeCount: meeting.employeeCount,
-        modules: meeting.modules
+        employeeCount: meeting.employeeCount
       })
     };
 
@@ -57,23 +57,27 @@ export default async function handler(req, res) {
       // Update existing record
       console.log(`[Sync] Updating ${module} record ${recordId}`);
       result = await updateRecord(module, recordId, zohoData);
+      result.recordId = recordId;
     } else {
-      // Create new deal (or search for existing one by company name)
-      console.log(`[Sync] Creating new deal for ${meeting.companyName}`);
+      // Create new record (or search for existing one by company name)
+      console.log(`[Sync] Creating new ${module} record for ${meeting.companyName}`);
 
-      // First, try to find existing deal
-      const searchCriteria = `(Deal_Name:equals:${meeting.companyName})`;
-      const searchResult = await zohoAPI(`/crm/v6/Deals/search?criteria=${encodeURIComponent(searchCriteria)}`);
+      // First, try to find existing record
+      const searchCriteria = `(Name:equals:${meeting.companyName})`;
+      const searchResult = await zohoAPI(`/crm/v8/${module}/search?criteria=${encodeURIComponent(searchCriteria)}&fields=Name,Discovery_Status`);
 
       if (searchResult.data && searchResult.data.length > 0) {
-        // Update existing deal
-        const existingDealId = searchResult.data[0].id;
-        console.log(`[Sync] Found existing deal ${existingDealId}, updating...`);
-        result = await updateRecord('Deals', existingDealId, zohoData);
-        result.recordId = existingDealId;
+        // Update existing record
+        const existingRecordId = searchResult.data[0].id;
+        console.log(`[Sync] Found existing ${module} record ${existingRecordId}, updating...`);
+        result = await updateRecord(module, existingRecordId, zohoData);
+        result.recordId = existingRecordId;
       } else {
-        // Create new deal
-        result = await createDeal(zohoData);
+        // Create new record in Potentials1
+        result = await zohoAPI(`/crm/v8/${module}`, {
+          method: 'POST',
+          body: JSON.stringify({ data: [zohoData] })
+        });
         if (result.data && result.data.length > 0) {
           result.recordId = result.data[0].details.id;
         }

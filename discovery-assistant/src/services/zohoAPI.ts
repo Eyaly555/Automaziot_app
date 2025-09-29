@@ -20,6 +20,26 @@ export async function testZohoConnection(): Promise<{ success: boolean; organiza
 }
 
 /**
+ * Get Discovery data from Zoho record
+ */
+export async function getDiscoveryFromZoho(recordId: string): Promise<{ success: boolean; discoveryData?: any; message?: string }> {
+  try {
+    const response = await fetch(`${API_BASE}/get-discovery?recordId=${recordId}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch discovery data: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Failed to get discovery data from Zoho:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Failed to fetch discovery data'
+    };
+  }
+}
+
+/**
  * Sync meeting data with Zoho CRM
  */
 export async function syncMeetingWithZoho(meeting: any, recordId?: string): Promise<{ success: boolean; recordId?: string; message?: string }> {
@@ -32,7 +52,7 @@ export async function syncMeetingWithZoho(meeting: any, recordId?: string): Prom
       body: JSON.stringify({
         meeting,
         recordId,
-        module: 'Deals'
+        module: meeting.zohoIntegration?.module || 'Potentials1'
       })
     });
 

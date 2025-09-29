@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     }
 
     // Quick sync to Zoho - simplified for beacon
-    const zohoApiBase = process.env.ZOHO_API_BASE || 'https://www.zohoapis.com/crm/v2';
+    const zohoApiBase = process.env.ZOHO_API_BASE || 'https://www.zohoapis.com/crm/v8';
     const recordId = meeting.zohoIntegration?.recordId;
 
     if (!recordId) {

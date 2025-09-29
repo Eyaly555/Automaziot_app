@@ -6,6 +6,7 @@ import { zohoSyncService } from '../services/zohoSyncService';
 import { getZohoStorageKey, validateZohoParams, isTestMode } from '../utils/zohoHelpers';
 import { isTestZohoMode, getTestZohoParams, testZohoSync } from '../utils/testZohoMode';
 import { zohoRetryQueue } from '../services/zohoRetryQueue';
+import { getDiscoveryFromZoho } from '../services/zohoAPI';
 
 export const useZohoIntegration = () => {
   const store = useMeetingStore();
@@ -37,25 +38,81 @@ export const useZohoIntegration = () => {
       return; // Already loaded the correct meeting
     }
 
-    const localKey = getZohoStorageKey(params.zohoRecordId);
-    const existingData = localStorage.getItem(localKey);
+    // Load data from Zoho first (two-way sync!)
+    loadFromZoho(params);
+  }, [search]);
 
-    if (existingData) {
-      // Load existing meeting for this specific Zoho record
-      try {
-        const meeting = JSON.parse(existingData);
-        console.log('Loading existing meeting for Zoho record:', params.zohoRecordId);
-        store.loadMeeting(meeting.meetingId);
-      } catch (e) {
-        console.error('Failed to parse existing meeting data');
+  const loadFromZoho = async (params: any) => {
+    try {
+      console.log('Loading Discovery data from Zoho for record:', params.zohoRecordId);
+
+      // First, try to fetch existing data from Zoho
+      const zohoResult = await getDiscoveryFromZoho(params.zohoRecordId);
+
+      if (zohoResult.success && zohoResult.discoveryData?.meetingData) {
+        // Found existing meeting data in Zoho - load it
+        console.log('Found existing Discovery data in Zoho, loading...');
+        const meetingData = zohoResult.discoveryData.meetingData;
+
+        // Ensure the meeting has the correct Zoho integration info
+        meetingData.zohoIntegration = {
+          recordId: params.zohoRecordId,
+          module: 'Potentials1',
+          contactInfo: {
+            email: params.email,
+            phone: params.phone
+          },
+          lastSync: zohoResult.discoveryData.lastUpdate,
+          syncEnabled: true
+        };
+
+        // Load the meeting from Zoho data
+        store.createOrLoadMeeting(meetingData);
+
+        // Also save to localStorage for offline access
+        const localKey = getZohoStorageKey(params.zohoRecordId);
+        localStorage.setItem(localKey, JSON.stringify(meetingData));
+      } else {
+        // No existing data in Zoho, check localStorage as fallback
+        console.log('No Discovery data in Zoho, checking localStorage...');
+        const localKey = getZohoStorageKey(params.zohoRecordId);
+        const existingData = localStorage.getItem(localKey);
+
+        if (existingData) {
+          try {
+            const meeting = JSON.parse(existingData);
+            console.log('Loading from localStorage (will sync to Zoho)');
+            store.loadMeeting(meeting.meetingId);
+            // Trigger sync to save this to Zoho
+            setTimeout(() => syncToZoho(), 2000);
+          } catch (e) {
+            console.error('Failed to parse localStorage data');
+            createNewMeeting(params);
+          }
+        } else {
+          // No data anywhere - create new meeting
+          console.log('Creating new meeting for Zoho record:', params.zohoRecordId);
+          createNewMeeting(params);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load from Zoho, falling back to localStorage:', error);
+      // Fallback to localStorage if Zoho fetch fails
+      const localKey = getZohoStorageKey(params.zohoRecordId);
+      const existingData = localStorage.getItem(localKey);
+
+      if (existingData) {
+        try {
+          const meeting = JSON.parse(existingData);
+          store.loadMeeting(meeting.meetingId);
+        } catch (e) {
+          createNewMeeting(params);
+        }
+      } else {
         createNewMeeting(params);
       }
-    } else {
-      // Create new meeting with Zoho data
-      console.log('Creating new meeting for Zoho record:', params.zohoRecordId);
-      createNewMeeting(params);
     }
-  }, [search]);
+  };
 
   const createNewMeeting = (params: any) => {
     const mappedData = mapZohoToMeeting(params);

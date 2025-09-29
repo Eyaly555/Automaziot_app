@@ -126,7 +126,7 @@ async function zohoAPI(endpoint, options = {}) {
  * Get CRM modules (for testing connection)
  */
 async function getModules() {
-  return zohoAPI('/crm/v6/settings/modules');
+  return zohoAPI('/crm/v8/settings/modules');
 }
 
 /**
@@ -135,7 +135,7 @@ async function getModules() {
  */
 async function searchDeals(criteria) {
   const params = new URLSearchParams(criteria);
-  return zohoAPI(`/crm/v6/Deals/search?${params}`);
+  return zohoAPI(`/crm/v8/Potentials1/search?${params}`);
 }
 
 /**
@@ -143,7 +143,7 @@ async function searchDeals(criteria) {
  * @param {string} dealId - The deal ID
  */
 async function getDeal(dealId) {
-  return zohoAPI(`/crm/v6/Deals/${dealId}`);
+  return zohoAPI(`/crm/v8/Potentials1/${dealId}?fields=Discovery_Progress,Discovery_Status,Discovery_Date,Discovery_Completion,Discovery_Notes`);
 }
 
 /**
@@ -152,7 +152,7 @@ async function getDeal(dealId) {
  * @param {Object} data - The update data
  */
 async function updateDeal(dealId, data) {
-  return zohoAPI(`/crm/v6/Deals/${dealId}`, {
+  return zohoAPI(`/crm/v8/Potentials1/${dealId}`, {
     method: 'PUT',
     body: JSON.stringify({ data: [data] })
   });
@@ -163,7 +163,7 @@ async function updateDeal(dealId, data) {
  * @param {Object} data - The deal data
  */
 async function createDeal(data) {
-  return zohoAPI('/crm/v6/Deals', {
+  return zohoAPI('/crm/v8/Potentials1', {
     method: 'POST',
     body: JSON.stringify({ data: [data] })
   });
@@ -175,8 +175,12 @@ async function createDeal(data) {
  * @param {Object} params - Query parameters
  */
 async function getRecords(module, params = {}) {
+  // Add default fields if not specified
+  if (!params.fields && module === 'Potentials1') {
+    params.fields = 'Discovery_Progress,Discovery_Status,Discovery_Date,Discovery_Completion';
+  }
   const queryString = new URLSearchParams(params).toString();
-  const endpoint = `/crm/v6/${module}${queryString ? `?${queryString}` : ''}`;
+  const endpoint = `/crm/v8/${module}${queryString ? `?${queryString}` : ''}`;
   return zohoAPI(endpoint);
 }
 
@@ -187,7 +191,7 @@ async function getRecords(module, params = {}) {
  * @param {Object} data - The update data
  */
 async function updateRecord(module, recordId, data) {
-  return zohoAPI(`/crm/v6/${module}/${recordId}`, {
+  return zohoAPI(`/crm/v8/${module}/${recordId}`, {
     method: 'PUT',
     body: JSON.stringify({ data: [data] })
   });
