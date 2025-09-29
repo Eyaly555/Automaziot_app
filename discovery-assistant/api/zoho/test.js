@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   try {
     // Test with a simple API call that works with ZohoCRM.modules.ALL scope
     // Try to get deals to verify connection
-    const result = await zohoAPI('/crm/v6/Deals?per_page=1');
+    const result = await zohoAPI('/crm/v6/Deals?per_page=1&fields=Deal_Name,Stage,Amount');
 
     return res.status(200).json({
       success: true,
