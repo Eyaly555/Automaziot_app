@@ -1,7 +1,6 @@
 import React from 'react';
 import { useZohoIntegration } from '../hooks/useZohoIntegration';
 import { ZohoModeIndicator } from './ZohoModeIndicator';
-import { ZohoConsent } from './ZohoConsent';
 import { ZohoNotifications } from './ZohoNotifications';
 
 interface ZohoIntegrationWrapperProps {
@@ -15,7 +14,6 @@ export const ZohoIntegrationWrapper: React.FC<ZohoIntegrationWrapperProps> = ({ 
     <>
       {children}
       {isZohoMode && <ZohoModeIndicator />}
-      <ZohoConsent />
       <ZohoNotifications />
     </>
   );

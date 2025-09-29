@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useZohoIntegration } from '../hooks/useZohoIntegration';
-import { tokenManager } from '../services/tokenManager';
 
 interface Notification {
   id: string;
@@ -58,24 +57,6 @@ export const ZohoNotifications: React.FC = () => {
       });
     }
   }, [syncStatus, showSyncIndicator, syncToZoho]);
-
-  // Monitor token status
-  useEffect(() => {
-    const unsubscribe = tokenManager.onTokenChange((event) => {
-      if (event.type === 'token_expired') {
-        addNotification({
-          type: 'warning',
-          message: 'ההרשאה ל-Zoho פגה. נדרש אימות מחדש.',
-          action: {
-            label: 'התחבר מחדש',
-            onClick: () => window.location.href = '/'
-          }
-        });
-      }
-    });
-
-    return unsubscribe;
-  }, []);
 
   if (!isZohoMode) return null;
 

@@ -5,7 +5,6 @@
 
 import { Meeting } from '../types';
 import { zohoSyncService } from './zohoSyncService';
-import { tokenManager } from './tokenManager';
 import { formatZohoError } from '../utils/zohoHelpers';
 
 interface QueueItem {
@@ -100,29 +99,18 @@ class ZohoRetryQueue {
         continue;
       }
 
-      // Check if we have a valid token
-      const token = tokenManager.getToken();
-      if (!token) {
-        console.log('No token available, postponing retry');
-        item.nextRetryAt = Date.now() + 60000; // Try again in 1 minute
-        continue;
-      }
-
       try {
-        // Attempt the operation
+        // Attempt the operation - backend handles authentication
         if (item.operation === 'sync') {
-          await zohoSyncService.syncToZoho(item.meeting, token.accessToken);
-          console.log(`Successfully synced meeting ${item.meeting.meetingId}`);
-        } else if (item.operation === 'load') {
-          const recordId = item.meeting.zohoIntegration?.recordId;
-          if (recordId) {
-            await zohoSyncService.loadFromZoho(recordId, token.accessToken);
-            console.log(`Successfully loaded Zoho record ${recordId}`);
+          const success = await zohoSyncService.syncToZoho(item.meeting);
+          if (success) {
+            console.log(`Successfully synced meeting ${item.meeting.meetingId}`);
+            // Success - remove from queue
+            this.removeFromQueue(item.id);
+          } else {
+            throw new Error('Sync failed');
           }
         }
-
-        // Success - remove from queue
-        this.removeFromQueue(item.id);
 
       } catch (error: any) {
         // Failed - update retry info
@@ -131,15 +119,6 @@ class ZohoRetryQueue {
         item.nextRetryAt = this.calculateNextRetryTime(item.attempts);
 
         console.error(`Retry attempt ${item.attempts} failed:`, item.lastError);
-
-        // Check if token needs refresh
-        if (error.message?.includes('needsRefresh')) {
-          const newToken = await tokenManager.refreshToken();
-          if (!newToken) {
-            // Token refresh failed, postpone further
-            item.nextRetryAt = Date.now() + 300000; // 5 minutes
-          }
-        }
       }
     }
 
