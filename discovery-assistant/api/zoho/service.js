@@ -194,7 +194,7 @@ async function updateRecord(module, recordId, data) {
 }
 
 // Export the service functions
-module.exports = {
+export {
   getAccessToken,
   zohoAPI,
   getModules,
