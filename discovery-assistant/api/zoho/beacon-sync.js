@@ -1,4 +1,7 @@
 // Vercel serverless function for beacon sync (critical saves on page unload)
+// Uses server-side authentication for security
+import { updateRecord } from './service.js';
+
 export default async function handler(req, res) {
   // Handle both POST and OPTIONS for CORS
   if (req.method === 'OPTIONS') {
@@ -13,53 +16,47 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { meeting, token } = req.body;
+    const { meeting } = req.body;
 
-    if (!meeting || !token) {
-      return res.status(400).json({ error: 'Missing required data' });
+    if (!meeting) {
+      return res.status(400).json({ error: 'Meeting data is required' });
     }
 
-    // Quick sync to Zoho - simplified for beacon
-    const zohoApiBase = process.env.ZOHO_API_BASE || 'https://www.zohoapis.com/crm/v8';
     const recordId = meeting.zohoIntegration?.recordId;
 
     if (!recordId) {
       return res.status(400).json({ error: 'No Zoho record ID' });
     }
 
-    // Prepare minimal update
-    const requestBody = {
-      data: [{
-        id: recordId,
-        Discovery_Progress: JSON.stringify(meeting),
-        Discovery_Last_Update: new Date().toISOString(),
-        Discovery_Completion: `${meeting.progress || 0}%`
-      }]
+    // Calculate simple progress (beacon sync should be fast)
+    const calculateQuickProgress = (meeting) => {
+      if (!meeting?.modules) return 0;
+      const modules = Object.values(meeting.modules || {});
+      const nonEmpty = modules.filter(m => m && typeof m === 'object' && Object.keys(m).length > 0).length;
+      return Math.round((nonEmpty / 9) * 100);
     };
 
-    // Send to Zoho
-    const response = await fetch(
-      `${zohoApiBase}/Potentials1/${recordId}`,
-      {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Zoho-oauthtoken ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestBody)
-      }
-    );
+    const progress = calculateQuickProgress(meeting);
 
-    if (!response.ok) {
-      console.error('Beacon sync failed:', await response.text());
-      return res.status(response.status).json({ error: 'Sync failed' });
-    }
+    // Prepare minimal update for speed
+    const zohoData = {
+      Discovery_Progress: JSON.stringify(meeting),
+      Discovery_Last_Update: new Date().toISOString(),
+      Discovery_Completion: `${progress}%`,
+      Discovery_Status: progress === 100 ? 'Completed' : 'In Progress'
+    };
+
+    console.log(`[Beacon Sync] Saving record ${recordId} (${progress}% complete)`);
+
+    // Use service.js for authenticated update
+    await updateRecord('Potentials1', recordId, zohoData);
 
     return res.status(200).json({ success: true });
 
   } catch (error) {
-    console.error('Beacon sync error:', error);
+    console.error('[Beacon Sync] Error:', error.message);
     return res.status(500).json({
+      success: false,
       error: 'Internal server error',
       message: error.message
     });
