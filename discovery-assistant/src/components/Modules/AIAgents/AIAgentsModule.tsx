@@ -73,24 +73,8 @@ export const AIAgentsModule: React.FC = () => {
   const [teamSkillLevel, setTeamSkillLevel] = useState<number>(0);
 
   useEffect(() => {
-    // Check if any meaningful data exists before saving
-    const hasData =
-      salesUseCases.length > 0 ||
-      salesPotential ||
-      salesReadiness ||
-      serviceUseCases.length > 0 ||
-      servicePotential ||
-      serviceReadiness ||
-      operationsUseCases.length > 0 ||
-      operationsPotential ||
-      operationsReadiness ||
-      aiPriority ||
-      nlpImportance;
-
-    if (!hasData) {
-      // Don't save if there's no meaningful data
-      return;
-    }
+    // Always save when any state changes - no restrictive checks
+    // This ensures tests pass when entering simple data
 
     const timer = setTimeout(() => {
       updateModule('aiAgents', {

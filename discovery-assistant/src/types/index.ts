@@ -9,6 +9,8 @@ export interface Meeting {
   painPoints: PainPoint[];
   notes?: string;
   totalROI?: number;
+  customFieldValues?: CustomFieldValues;
+  wizardState?: WizardState;
 }
 
 export interface Modules {
@@ -373,4 +375,104 @@ export interface NextStep {
   responsible?: string;
   deadline?: Date;
   status?: 'pending' | 'in_progress' | 'completed';
+}
+
+// Wizard Mode Types
+export interface WizardState {
+  currentStep: number;
+  currentModuleIndex: number;
+  currentFieldIndex: number;
+  totalSteps: number;
+  completedSteps: Set<string>;
+  skippedSections: Set<string>;
+  navigationHistory: string[];
+  mode: 'wizard' | 'modular';
+}
+
+export interface WizardStep {
+  id: string;
+  moduleId: keyof Modules;
+  sectionName: string;
+  fields: WizardField[];
+  isOptional: boolean;
+  dependencies?: string[];
+}
+
+export interface WizardField {
+  name: string;
+  component: React.ComponentType<any>;
+  props: Record<string, any>;
+  validation?: any; // Will be ZodSchema when implemented
+  skipCondition?: (data: Meeting) => boolean;
+}
+
+// Custom Entries Types
+export interface CustomFieldValues {
+  [moduleId: string]: {
+    [fieldName: string]: SelectOption[];
+  };
+}
+
+export interface SelectOption {
+  value: string;
+  label: string;
+  isCustom?: boolean;
+  addedBy?: string;
+  addedAt?: Date;
+}
+
+export interface CustomizableField {
+  predefinedOptions: SelectOption[];
+  customOptions: SelectOption[];
+  allowCustom: boolean;
+  customPlaceholder?: string;
+  validateCustom?: (value: string) => boolean;
+}
+
+// AI Integration Types
+export interface AIConfig {
+  enabled: boolean;
+  provider: 'openai' | 'xai-grok' | 'custom';
+  apiKey?: string;
+  endpoint?: string;
+  model: string;
+  maxTokens: number;
+  temperature: number;
+  language: 'he' | 'en';
+  cacheResponses: boolean;
+  fallbackToStatic: boolean;
+}
+
+export interface AIRequest {
+  type: 'recommendation' | 'analysis' | 'summary';
+  context: Meeting;
+  prompt?: string;
+  language?: string;
+  maxTokens?: number;
+}
+
+export interface AIResponse {
+  content: string;
+  confidence: number;
+  tokens: number;
+  cached: boolean;
+  provider: string;
+  error?: string;
+}
+
+export interface AIRecommendation {
+  id: string;
+  title: string;
+  titleHebrew: string;
+  description: string;
+  descriptionHebrew: string;
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  effort: 'low' | 'medium' | 'high';
+  impact: 'low' | 'medium' | 'high';
+  category: string;
+  timeline: string;
+  dependencies: string[];
+  estimatedROI?: number;
+  aiGenerated: boolean;
+  confidence: number;
 }

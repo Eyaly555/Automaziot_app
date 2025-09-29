@@ -21,7 +21,9 @@
       "Bash(done)",
       "Bash(npm test)",
       "Bash(npm test:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "WebSearch",
+      "WebFetch(domain:www.automaziot.ai)"
     ],
     "deny": [],
     "ask": []

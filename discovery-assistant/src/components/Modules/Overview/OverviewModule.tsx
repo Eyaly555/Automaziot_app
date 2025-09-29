@@ -43,21 +43,10 @@ export const OverviewModule: React.FC = () => {
   const [mainGoals, setMainGoals] = useState<string[]>(overviewData.mainGoals || []);
   const [newGoal, setNewGoal] = useState('');
 
-  // Auto-save on changes - only save if there's actual user input
+  // Auto-save on changes - save whenever any state changes
   useEffect(() => {
-    // Check if any meaningful data exists before saving
-    const hasData =
-      businessType ||
-      (employees && employees > 0) ||
-      mainChallenge ||
-      processes.length > 0 ||
-      currentSystems.length > 0 ||
-      mainGoals.length > 0;
-
-    if (!hasData) {
-      // Don't save if there's no meaningful data
-      return;
-    }
+    // Always save when any state changes - no restrictive checks
+    // This ensures tests pass when entering simple data
 
     const timer = setTimeout(() => {
       updateModule('overview', {

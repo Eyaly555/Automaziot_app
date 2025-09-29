@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Meeting, PainPoint, ModuleProgress } from '../types';
+import { Meeting, PainPoint, ModuleProgress, WizardState, SelectOption } from '../types';
+import { WIZARD_STEPS } from '../config/wizardSteps';
+import { syncService } from '../services/syncService';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 interface MeetingStore {
   currentMeeting: Meeting | null;
@@ -32,6 +35,41 @@ interface MeetingStore {
   startTimer: () => void;
   stopTimer: () => void;
   timerInterval: number | null;
+
+  // Wizard state
+  wizardState: WizardState | null;
+
+  // Wizard actions
+  initializeWizard: () => void;
+  setWizardState: (state: WizardState | null) => void;
+  updateWizardProgress: (stepId: string) => void;
+  navigateWizardStep: (direction: 'next' | 'prev' | 'jump', target?: number) => void;
+  skipWizardSection: (sectionId: string) => void;
+  syncWizardToModules: () => void;
+  syncModulesToWizard: () => void;
+
+  // Custom field values
+  addCustomValue: (moduleId: string, fieldName: string, value: SelectOption) => void;
+  removeCustomValue: (moduleId: string, fieldName: string, value: string) => void;
+  getCustomValues: (moduleId: string, fieldName: string) => SelectOption[];
+
+  // Supabase sync
+  isSyncing: boolean;
+  lastSyncTime: Date | null;
+  syncError: string | null;
+  syncEnabled: boolean;
+
+  // Sync actions
+  syncMeeting: (meetingId?: string) => Promise<void>;
+  syncAllMeetings: () => Promise<void>;
+  pullMeetings: () => Promise<void>;
+  enableSync: (userId: string) => void;
+  disableSync: () => void;
+  getSyncStatus: () => { pending: number; failed: number; isOnline: boolean };
+  resolveConflict: (meetingId: string, resolution: 'local' | 'remote') => Promise<void>;
+
+  // Update meeting field with optional sync
+  updateMeetingField: (moduleId: string, field: string, value: any) => void;
 }
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -42,6 +80,7 @@ export const useMeetingStore = create<MeetingStore>()(
       currentMeeting: null,
       meetings: [],
       timerInterval: null,
+      wizardState: null,
 
       createMeeting: (clientName) => {
         const meeting: Meeting = {
@@ -406,6 +445,458 @@ export const useMeetingStore = create<MeetingStore>()(
           window.clearInterval(interval);
           set({ timerInterval: null });
         }
+      },
+
+      // Wizard methods
+      initializeWizard: () => {
+        const wizardState: WizardState = {
+          currentStep: 0,
+          currentModuleIndex: 0,
+          currentFieldIndex: 0,
+          totalSteps: WIZARD_STEPS.length,
+          completedSteps: new Set(),
+          skippedSections: new Set(),
+          navigationHistory: [],
+          mode: 'wizard'
+        };
+        set({ wizardState });
+
+        // Update meeting with wizard state
+        const meeting = get().currentMeeting;
+        if (meeting) {
+          get().updateMeeting({ wizardState });
+        }
+      },
+
+      setWizardState: (state) => {
+        set({ wizardState: state });
+        // Update meeting with wizard state
+        const meeting = get().currentMeeting;
+        if (meeting && state) {
+          get().updateMeeting({ wizardState: state });
+        }
+      },
+
+      updateWizardProgress: (stepId) => {
+        set((state) => {
+          if (!state.wizardState) return state;
+
+          const completedSteps = new Set(state.wizardState.completedSteps);
+          completedSteps.add(stepId);
+
+          const updatedWizardState = {
+            ...state.wizardState,
+            completedSteps
+          };
+
+          // Update meeting
+          if (state.currentMeeting) {
+            const updatedMeeting = {
+              ...state.currentMeeting,
+              wizardState: updatedWizardState
+            };
+
+            return {
+              ...state,
+              wizardState: updatedWizardState,
+              currentMeeting: updatedMeeting,
+              meetings: state.meetings.map(m =>
+                m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
+              )
+            };
+          }
+
+          return {
+            ...state,
+            wizardState: updatedWizardState
+          };
+        });
+      },
+
+      navigateWizardStep: (direction, target) => {
+        set((state) => {
+          if (!state.wizardState) return state;
+
+          let newStep = state.wizardState.currentStep;
+
+          switch (direction) {
+            case 'next':
+              newStep = Math.min(state.wizardState.currentStep + 1, state.wizardState.totalSteps - 1);
+              break;
+            case 'prev':
+              newStep = Math.max(state.wizardState.currentStep - 1, 0);
+              break;
+            case 'jump':
+              if (target !== undefined) {
+                newStep = Math.max(0, Math.min(target, state.wizardState.totalSteps - 1));
+              }
+              break;
+          }
+
+          const updatedWizardState = {
+            ...state.wizardState,
+            currentStep: newStep,
+            navigationHistory: [...state.wizardState.navigationHistory, WIZARD_STEPS[newStep]?.id || 'unknown']
+          };
+
+          return {
+            ...state,
+            wizardState: updatedWizardState
+          };
+        });
+      },
+
+      skipWizardSection: (sectionId) => {
+        set((state) => {
+          if (!state.wizardState) return state;
+
+          const skippedSections = new Set(state.wizardState.skippedSections);
+          skippedSections.add(sectionId);
+
+          const updatedWizardState = {
+            ...state.wizardState,
+            skippedSections
+          };
+
+          // Update meeting
+          if (state.currentMeeting) {
+            const updatedMeeting = {
+              ...state.currentMeeting,
+              wizardState: updatedWizardState
+            };
+
+            return {
+              ...state,
+              wizardState: updatedWizardState,
+              currentMeeting: updatedMeeting,
+              meetings: state.meetings.map(m =>
+                m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
+              )
+            };
+          }
+
+          return {
+            ...state,
+            wizardState: updatedWizardState
+          };
+        });
+      },
+
+      syncWizardToModules: () => {
+        // This is called when wizard data changes to sync to modules
+        // Since we're using the same updateModule function, data is already synced
+        // This is a placeholder for any additional sync logic needed
+        const meeting = get().currentMeeting;
+        if (meeting) {
+          // Trigger a save to ensure persistence
+          get().updateMeeting({ ...meeting });
+        }
+      },
+
+      syncModulesToWizard: () => {
+        // This is called when switching from modular to wizard mode
+        // to ensure wizard state reflects current module data
+        const meeting = get().currentMeeting;
+        const wizardState = get().wizardState;
+
+        if (meeting && wizardState) {
+          // Calculate which steps should be marked as completed based on module data
+          const completedSteps = new Set<string>();
+
+          WIZARD_STEPS.forEach(step => {
+            const moduleData = meeting.modules[step.moduleId];
+            if (moduleData && typeof moduleData === 'object') {
+              const hasData = Object.values(moduleData).some(value =>
+                value !== undefined && value !== null && value !== '' &&
+                !(Array.isArray(value) && value.length === 0)
+              );
+              if (hasData) {
+                completedSteps.add(step.id);
+              }
+            }
+          });
+
+          const updatedWizardState = {
+            ...wizardState,
+            completedSteps
+          };
+
+          get().setWizardState(updatedWizardState);
+        }
+      },
+
+      // Custom value methods
+      addCustomValue: (moduleId, fieldName, value) => {
+        set((state) => {
+          if (!state.currentMeeting) return state;
+
+          const customFieldValues = state.currentMeeting.customFieldValues || {};
+          if (!customFieldValues[moduleId]) {
+            customFieldValues[moduleId] = {};
+          }
+          if (!customFieldValues[moduleId][fieldName]) {
+            customFieldValues[moduleId][fieldName] = [];
+          }
+
+          customFieldValues[moduleId][fieldName].push({
+            ...value,
+            isCustom: true,
+            addedAt: new Date()
+          });
+
+          const updatedMeeting = {
+            ...state.currentMeeting,
+            customFieldValues
+          };
+
+          return {
+            currentMeeting: updatedMeeting,
+            meetings: state.meetings.map(m =>
+              m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
+            )
+          };
+        });
+      },
+
+      removeCustomValue: (moduleId, fieldName, value) => {
+        set((state) => {
+          if (!state.currentMeeting || !state.currentMeeting.customFieldValues) return state;
+
+          const customFieldValues = { ...state.currentMeeting.customFieldValues };
+          if (customFieldValues[moduleId] && customFieldValues[moduleId][fieldName]) {
+            customFieldValues[moduleId][fieldName] = customFieldValues[moduleId][fieldName].filter(
+              opt => opt.value !== value
+            );
+          }
+
+          const updatedMeeting = {
+            ...state.currentMeeting,
+            customFieldValues
+          };
+
+          return {
+            currentMeeting: updatedMeeting,
+            meetings: state.meetings.map(m =>
+              m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
+            )
+          };
+        });
+      },
+
+      getCustomValues: (moduleId, fieldName) => {
+        const meeting = get().currentMeeting;
+        if (!meeting || !meeting.customFieldValues) return [];
+
+        return meeting.customFieldValues[moduleId]?.[fieldName] || [];
+      },
+
+      // Supabase sync state
+      isSyncing: false,
+      lastSyncTime: null,
+      syncError: null,
+      syncEnabled: false,
+
+      // Sync actions
+      syncMeeting: async (meetingId) => {
+        const state = get();
+        const targetMeeting = meetingId
+          ? state.meetings.find(m => m.meetingId === meetingId)
+          : state.currentMeeting;
+
+        if (!targetMeeting || !isSupabaseConfigured()) {
+          return;
+        }
+
+        set({ isSyncing: true, syncError: null });
+
+        try {
+          // Get user ID from localStorage (set by AuthContext)
+          const userId = localStorage.getItem('userId');
+          if (!userId) {
+            throw new Error('User not authenticated');
+          }
+
+          const result = await syncService.syncMeeting(targetMeeting, userId);
+
+          if (result.success) {
+            set({
+              lastSyncTime: new Date(),
+              isSyncing: false
+            });
+          } else {
+            set({
+              syncError: result.error || 'Sync failed',
+              isSyncing: false
+            });
+          }
+        } catch (error) {
+          set({
+            syncError: error instanceof Error ? error.message : 'Sync failed',
+            isSyncing: false
+          });
+        }
+      },
+
+      syncAllMeetings: async () => {
+        const state = get();
+        if (!state.meetings.length || !isSupabaseConfigured()) {
+          return;
+        }
+
+        set({ isSyncing: true, syncError: null });
+
+        try {
+          const userId = localStorage.getItem('userId');
+          if (!userId) {
+            throw new Error('User not authenticated');
+          }
+
+          const result = await syncService.syncAllMeetings(state.meetings, userId);
+
+          if (result.success) {
+            set({
+              lastSyncTime: new Date(),
+              isSyncing: false
+            });
+          } else {
+            set({
+              syncError: result.error || 'Some meetings failed to sync',
+              isSyncing: false
+            });
+          }
+        } catch (error) {
+          set({
+            syncError: error instanceof Error ? error.message : 'Sync failed',
+            isSyncing: false
+          });
+        }
+      },
+
+      pullMeetings: async () => {
+        if (!isSupabaseConfigured()) {
+          return;
+        }
+
+        set({ isSyncing: true, syncError: null });
+
+        try {
+          const userId = localStorage.getItem('userId');
+          if (!userId) {
+            throw new Error('User not authenticated');
+          }
+
+          const result = await syncService.pullMeetings(userId);
+
+          if (result.meetings.length > 0) {
+            // Merge pulled meetings with local meetings
+            const localMeetings = get().meetings;
+            const mergedMeetings = [...localMeetings];
+
+            result.meetings.forEach(pulledMeeting => {
+              const existingIndex = mergedMeetings.findIndex(
+                m => m.meetingId === pulledMeeting.id
+              );
+
+              if (existingIndex >= 0) {
+                // Update existing meeting if remote is newer
+                const existing = mergedMeetings[existingIndex];
+                if (!existing.updatedAt ||
+                    new Date(pulledMeeting.updatedAt) > new Date(existing.updatedAt)) {
+                  mergedMeetings[existingIndex] = {
+                    ...pulledMeeting,
+                    meetingId: pulledMeeting.id // Ensure correct ID mapping
+                  };
+                }
+              } else {
+                // Add new meeting
+                mergedMeetings.push({
+                  ...pulledMeeting,
+                  meetingId: pulledMeeting.id
+                });
+              }
+            });
+
+            set({
+              meetings: mergedMeetings,
+              lastSyncTime: new Date(),
+              isSyncing: false
+            });
+          } else {
+            set({ isSyncing: false });
+          }
+        } catch (error) {
+          set({
+            syncError: error instanceof Error ? error.message : 'Pull failed',
+            isSyncing: false
+          });
+        }
+      },
+
+      enableSync: (userId) => {
+        localStorage.setItem('userId', userId);
+        set({ syncEnabled: true });
+
+        // Perform initial sync
+        get().pullMeetings();
+      },
+
+      disableSync: () => {
+        localStorage.removeItem('userId');
+        set({ syncEnabled: false });
+        syncService.stopAutoSync();
+      },
+
+      getSyncStatus: () => {
+        const status = syncService.getSyncStatus();
+        return {
+          pending: status.queueLength,
+          failed: syncService.getFailedSyncs().length,
+          isOnline: status.isOnline
+        };
+      },
+
+      resolveConflict: async (meetingId, resolution) => {
+        if (resolution === 'local') {
+          // Push local version to cloud
+          await get().syncMeeting(meetingId);
+        } else {
+          // Pull remote version
+          await get().pullMeetings();
+        }
+      },
+
+      updateMeetingField: (moduleId, field, value) => {
+        set((state) => {
+          if (!state.currentMeeting) return state;
+
+          const updatedModules = {
+            ...state.currentMeeting.modules,
+            [moduleId]: {
+              ...state.currentMeeting.modules[moduleId],
+              [field]: value
+            }
+          };
+
+          const updatedMeeting = {
+            ...state.currentMeeting,
+            modules: updatedModules,
+            updatedAt: new Date().toISOString()
+          };
+
+          // Auto-sync if enabled
+          if (state.syncEnabled && isSupabaseConfigured()) {
+            setTimeout(() => {
+              get().syncMeeting(updatedMeeting.meetingId);
+            }, 1000); // Debounce 1 second
+          }
+
+          return {
+            currentMeeting: updatedMeeting,
+            meetings: state.meetings.map(m =>
+              m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
+            )
+          };
+        });
       }
     }),
     {
@@ -413,3 +904,8 @@ export const useMeetingStore = create<MeetingStore>()(
     }
   )
 );
+
+// Expose store to window for testing and debugging
+if (typeof window !== 'undefined') {
+  (window as any).useMeetingStore = useMeetingStore;
+}

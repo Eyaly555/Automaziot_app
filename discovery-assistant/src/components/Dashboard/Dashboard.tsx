@@ -18,7 +18,8 @@ import {
   FileSpreadsheet,
   Sparkles,
   ChevronDown,
-  X
+  X,
+  Wand2
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { formatTime, formatCurrency, formatDate } from '../../utils/formatters';
@@ -60,7 +61,9 @@ export const Dashboard: React.FC = () => {
     startTimer,
     stopTimer,
     timerInterval,
-    exportMeeting
+    exportMeeting,
+    initializeWizard,
+    syncModulesToWizard
   } = useMeetingStore();
 
   const [showMeetingSelector, setShowMeetingSelector] = useState(false);
@@ -116,6 +119,13 @@ export const Dashboard: React.FC = () => {
     if (clientName) {
       createMeeting(clientName);
     }
+  };
+
+  const handleStartWizard = () => {
+    if (!currentMeeting) return;
+    initializeWizard();
+    syncModulesToWizard();
+    navigate('/wizard');
   };
 
   const handleLoadMeeting = (meetingId: string) => {
@@ -527,6 +537,38 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
                 {formatCurrency(roi?.totalMonthlySavings || 0)}
               </div>
               <p className="text-sm text-gray-600">חיסכון חודשי משוער</p>
+            </div>
+          </div>
+
+          {/* Wizard Mode Section */}
+          <div className="mb-8">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-white rounded-full shadow-sm">
+                    <Wand2 className="w-8 h-8 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800">מצב אשף מודרך</h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      עבור על כל המודולים בממשק אחד מודרך, צעד אחר צעד
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleStartWizard}
+                  className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-md"
+                >
+                  <Wand2 className="w-5 h-5" />
+                  <span>התחל במצב אשף</span>
+                </button>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2 text-xs">
+                <span className="px-2 py-1 bg-white rounded-md text-gray-600">✓ ניווט קל בין שלבים</span>
+                <span className="px-2 py-1 bg-white rounded-md text-gray-600">✓ דילוג על סעיפים אופציונליים</span>
+                <span className="px-2 py-1 bg-white rounded-md text-gray-600">✓ סיכום מלא בסוף</span>
+                <span className="px-2 py-1 bg-white rounded-md text-gray-600">✓ סנכרון אוטומטי עם המודולים</span>
+              </div>
             </div>
           </div>
 

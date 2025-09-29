@@ -40,7 +40,15 @@ export const NumberField: React.FC<NumberFieldProps> = ({
     } else {
       const num = parseFloat(val);
       if (!isNaN(num)) {
-        onChange(num);
+        // Validate against min/max constraints
+        let validatedNum = num;
+        if (min !== undefined && num < min) {
+          validatedNum = min;
+        }
+        if (max !== undefined && num > max) {
+          validatedNum = max;
+        }
+        onChange(validatedNum);
       }
     }
   };

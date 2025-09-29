@@ -1,4 +1,5 @@
 import { Meeting } from '../types';
+import { CustomValuesService } from '../services/customValuesService';
 
 export interface ROIMetrics {
   hoursSavedMonthly: number;
@@ -19,6 +20,7 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
   let moneySavedMonthly = 0;
   let lostLeadsValue = 0;
   let automationPotential = 0;
+  let customValueImpact = 0;
 
   // Return default values if meeting or modules are not initialized
   if (!meeting || !meeting.modules) {
@@ -33,7 +35,7 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
     };
   }
 
-  const { modules } = meeting;
+  const { modules, customFieldValues } = meeting;
 
   // Calculate from Leads and Sales module
   if (modules?.leadsAndSales) {
@@ -128,8 +130,99 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
     }
   }
 
-  // Calculate money saved
-  moneySavedMonthly = hoursSavedMonthly * HOURLY_RATE + lostLeadsValue;
+  // Process custom values from all modules
+  if (customFieldValues) {
+    // Process custom systems
+    if (customFieldValues.systems?.length > 0) {
+      const systemImpact = CustomValuesService.processCustomForROI(
+        customFieldValues.systems,
+        'systems'
+      );
+      customValueImpact += systemImpact;
+
+      // Estimate automation potential for custom systems
+      customFieldValues.systems.forEach(system => {
+        const potential = CustomValuesService.estimateAutomationPotential(
+          system.label,
+          'system'
+        );
+        automationPotential += potential / customFieldValues.systems.length;
+      });
+    }
+
+    // Process custom lead sources
+    if (customFieldValues.leadSources?.length > 0) {
+      const leadSourceImpact = CustomValuesService.processCustomForROI(
+        customFieldValues.leadSources,
+        'leadSources'
+      );
+      customValueImpact += leadSourceImpact;
+    }
+
+    // Process custom service channels
+    if (customFieldValues.serviceChannels?.length > 0) {
+      const channelImpact = CustomValuesService.processCustomForROI(
+        customFieldValues.serviceChannels,
+        'serviceChannels'
+      );
+      customValueImpact += channelImpact;
+
+      // Additional hours saved from automating custom channels
+      hoursSavedMonthly += customFieldValues.serviceChannels.length * 5; // 5 hours per custom channel
+    }
+
+    // Process custom processes from operations
+    if (customFieldValues.processes?.length > 0) {
+      const processImpact = CustomValuesService.processCustomForROI(
+        customFieldValues.processes,
+        'processes'
+      );
+      customValueImpact += processImpact;
+
+      // Each custom process identified is an automation opportunity
+      hoursSavedMonthly += customFieldValues.processes.length * 8; // 8 hours per custom process
+    }
+
+    // Process custom document types
+    if (customFieldValues.documentTypes?.length > 0) {
+      const docImpact = CustomValuesService.processCustomForROI(
+        customFieldValues.documentTypes,
+        'documents'
+      );
+      customValueImpact += docImpact;
+    }
+
+    // Process custom report types
+    if (customFieldValues.reportTypes?.length > 0) {
+      const reportImpact = CustomValuesService.processCustomForROI(
+        customFieldValues.reportTypes,
+        'reports'
+      );
+      customValueImpact += reportImpact;
+      hoursSavedMonthly += customFieldValues.reportTypes.length * 3; // 3 hours per custom report type
+    }
+
+    // Process custom AI use cases
+    if (customFieldValues.aiUseCases?.length > 0) {
+      const aiImpact = CustomValuesService.processCustomForROI(
+        customFieldValues.aiUseCases,
+        'ai'
+      );
+      customValueImpact += aiImpact;
+
+      // AI use cases have high automation potential
+      customFieldValues.aiUseCases.forEach(useCase => {
+        const potential = CustomValuesService.estimateAutomationPotential(
+          useCase.label,
+          'ai'
+        );
+        automationPotential += potential / customFieldValues.aiUseCases.length;
+      });
+    }
+  }
+
+  // Calculate money saved including custom value impact
+  moneySavedMonthly = hoursSavedMonthly * HOURLY_RATE + lostLeadsValue + customValueImpact;
 
   // Calculate payback period
   const paybackPeriod = moneySavedMonthly > 0
@@ -137,12 +230,17 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
     : 0;
 
   const totalMonthlySavings = moneySavedMonthly;
-  const breakdown = {
+  const breakdown: { [key: string]: number } = {
     'חיסכון בזמן עבודה': Math.round(hoursSavedMonthly * HOURLY_RATE),
     'מניעת אובדן לידים': Math.round(lostLeadsValue),
     'אוטומציה של תהליכים': Math.round(moneySavedMonthly * 0.3),
     'שיפור יעילות': Math.round(moneySavedMonthly * 0.2)
   };
+
+  // Add custom value impact to breakdown if present
+  if (customValueImpact > 0) {
+    breakdown['תהליכים מותאמים אישית'] = Math.round(customValueImpact);
+  }
 
   return {
     hoursSavedMonthly: Math.round(hoursSavedMonthly),
@@ -158,7 +256,8 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
 export const calculatePainPointValue = (
   severity: string,
   hoursSaved?: number,
-  potentialSaving?: number
+  potentialSaving?: number,
+  isCustom?: boolean
 ): number => {
   const severityMultiplier = {
     'low': 1,
@@ -168,5 +267,9 @@ export const calculatePainPointValue = (
   }[severity] || 1;
 
   const baseValue = (hoursSaved || 0) * HOURLY_RATE + (potentialSaving || 0);
-  return Math.round(baseValue * severityMultiplier);
+
+  // Custom values often require more effort but have higher impact
+  const customMultiplier = isCustom ? 1.2 : 1;
+
+  return Math.round(baseValue * severityMultiplier * customMultiplier);
 };
