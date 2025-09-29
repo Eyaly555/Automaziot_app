@@ -7,7 +7,23 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#3B82F6',
+        primary: {
+          DEFAULT: '#64FFDA',
+          hover: '#4DFFCC',
+          dark: '#4DFFCC',
+          light: 'rgba(100, 255, 218, 0.1)',
+          glow: 'rgba(100, 255, 218, 0.3)'
+        },
+        background: {
+          light: '#F8F9FA',
+          dark: '#0A192F',
+          darker: '#05091a'
+        },
+        text: {
+          light: '#2C2C2C',
+          dark: '#E2E8F5',
+          muted: '#6B7280'
+        },
         success: '#10B981',
         warning: '#F59E0B',
         danger: '#EF4444',
@@ -43,6 +59,7 @@ export default {
         'blink': 'blink 1s step-end infinite',
         'morphing': 'morphing 3s ease-in-out infinite',
         'gradient': 'gradient 3s ease infinite',
+        'gradientShift': 'gradientShift 15s ease infinite',
         'breathe': 'breathe 4s ease-in-out infinite',
         'pop': 'pop 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
         'unfold': 'unfold 0.5s cubic-bezier(0.165, 0.84, 0.44, 1)',
@@ -111,8 +128,8 @@ export default {
           '100%': { backgroundPosition: '200% 0' },
         },
         glow: {
-          '0%, 100%': { boxShadow: '0 0 5px rgba(59, 130, 246, 0.5)' },
-          '50%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.8)' },
+          '0%, 100%': { boxShadow: '0 0 5px rgba(100, 255, 218, 0.5)' },
+          '50%': { boxShadow: '0 0 20px rgba(100, 255, 218, 0.8)' },
         },
         ripple: {
           '0%': { transform: 'scale(0)', opacity: '1' },
@@ -173,6 +190,10 @@ export default {
           '50%': { borderRadius: '30% 60% 70% 40% / 50% 60% 30% 60%' },
         },
         gradient: {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
+        gradientShift: {
           '0%, 100%': { backgroundPosition: '0% 50%' },
           '50%': { backgroundPosition: '100% 50%' },
         },

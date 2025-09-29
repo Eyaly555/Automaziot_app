@@ -11,6 +11,16 @@ export interface Meeting {
   totalROI?: number;
   customFieldValues?: CustomFieldValues;
   wizardState?: WizardState;
+  zohoIntegration?: {
+    recordId: string;
+    module: 'Potentials1';
+    lastSyncTime?: string;
+    syncEnabled?: boolean;
+    contactInfo?: {
+      email?: string;
+      phone?: string;
+    };
+  };
 }
 
 export interface Modules {
@@ -60,6 +70,7 @@ export interface OverviewModule {
   processes?: string[];
   currentSystems?: string[];
   mainGoals?: string[];
+  budget?: string;
 }
 
 // Module 2 - Leads and Sales

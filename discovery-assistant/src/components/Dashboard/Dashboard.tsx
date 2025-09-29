@@ -19,7 +19,8 @@ import {
   Sparkles,
   ChevronDown,
   X,
-  Wand2
+  Wand2,
+  ClipboardList
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { formatTime, formatCurrency, formatDate } from '../../utils/formatters';
@@ -321,7 +322,7 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 relative" dir="rtl">
+    <div className="min-h-screen bg-gray-50 relative" dir="rtl">
       {/* Confetti Animation */}
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none z-50">
@@ -346,6 +347,12 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
+              {/* Logo */}
+              <img
+                src="/logo1.svg"
+                alt="AutomAIziot Logo"
+                className="h-10 w-auto"
+              />
               {currentMeeting ? (
                 <>
                   <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-lg">
@@ -371,13 +378,22 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
                   </div>
                 </>
               ) : (
-                <div className="text-lg font-semibold">Discovery Assistant</div>
+                <div className="text-lg font-semibold text-gray-700">Discovery Assistant</div>
               )}
             </div>
 
             <div className="flex items-center gap-3">
               {currentMeeting && (
                 <>
+                  {/* Summary Button */}
+                  <button
+                    onClick={() => navigate('/summary')}
+                    className="flex items-center gap-2 px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition-all duration-200"
+                  >
+                    <ClipboardList className="w-4 h-4" />
+                    <span>סיכום</span>
+                  </button>
+
                   {/* Export Menu */}
                   <div className="relative">
                     <button
@@ -581,9 +597,9 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
               return (
                 <div
                   key={module.id}
-                  className={`bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer ${
+                  className={`bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer ${
                     status.status === 'completed' ? 'ring-2 ring-green-500' :
-                    status.status === 'in-progress' ? 'ring-2 ring-blue-500' : ''
+                    status.status === 'in-progress' ? 'ring-2 ring-primary' : ''
                   }`}
                   onClick={() => handleModuleClick(module.id)}
                   onMouseEnter={() => setSelectedModuleDetails(module.id)}

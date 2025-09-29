@@ -49,6 +49,11 @@ export const Login: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div className="text-center">
+            <img
+              src="/logo1.svg"
+              alt="AutomAIziot Logo"
+              className="h-16 mx-auto mb-4"
+            />
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Discovery Assistant
             </h2>
@@ -62,7 +67,7 @@ export const Login: React.FC = () => {
               </p>
               <button
                 onClick={() => navigate('/')}
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="mt-4 btn-primary"
               >
                 המשך ללא התחברות
               </button>
@@ -147,6 +152,11 @@ export const Login: React.FC = () => {
         <div className="bg-white rounded-xl shadow-2xl p-8">
           {/* Header */}
           <div className="text-center mb-8">
+            <img
+              src="/logo1.svg"
+              alt="AutomAIziot Logo"
+              className="h-14 mx-auto mb-4"
+            />
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Discovery Assistant
             </h1>
@@ -306,7 +316,7 @@ export const Login: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center gap-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full btn-primary flex justify-center items-center gap-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
@@ -332,7 +342,7 @@ export const Login: React.FC = () => {
                     setError(null);
                     setSuccess(null);
                   }}
-                  className="w-full text-center text-sm text-blue-600 hover:text-blue-500"
+                  className="w-full text-center text-sm text-blue-600 hover:text-blue-700"
                 >
                   אין לך חשבון? הרשם כאן
                 </button>

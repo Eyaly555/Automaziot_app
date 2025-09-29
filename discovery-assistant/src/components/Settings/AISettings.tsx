@@ -203,7 +203,7 @@ export const AISettings: React.FC = () => {
       {/* Provider Selection */}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <BoltIcon className="h-5 w-5 text-blue-600" />
+          <BoltIcon className="h-5 w-5 text-primary" />
           בחר ספק AI
         </h3>
 
@@ -213,7 +213,7 @@ export const AISettings: React.FC = () => {
               key={provider.value}
               className={`flex items-start gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${
                 config.provider === provider.value
-                  ? 'border-blue-500 bg-blue-50'
+                  ? 'border-primary ring-2 ring-primary/20 bg-primary/5'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
@@ -238,7 +238,7 @@ export const AISettings: React.FC = () => {
       {config.provider !== 'local' && (
         <div className="bg-white rounded-lg shadow-sm p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <KeyIcon className="h-5 w-5 text-blue-600" />
+            <KeyIcon className="h-5 w-5 text-primary" />
             הגדרות API
           </h3>
 
@@ -417,7 +417,7 @@ export const AISettings: React.FC = () => {
           <button
             onClick={handleTestConnection}
             disabled={testing || !config.apiKey || config.provider === 'local'}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="btn-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {testing ? (
               <>
@@ -458,14 +458,14 @@ export const AISettings: React.FC = () => {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? 'שומר...' : 'שמור הגדרות'}
         </button>
       </div>
 
       {/* Info Box */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
         <div className="flex gap-3">
           <InformationCircleIcon className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-blue-800">

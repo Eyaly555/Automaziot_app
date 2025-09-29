@@ -8,12 +8,20 @@ import { isSupabaseConfigured } from '../lib/supabase';
 interface MeetingStore {
   currentMeeting: Meeting | null;
   meetings: Meeting[];
+  zohoToken: string | null;
 
   // Meeting actions
   createMeeting: (clientName: string) => void;
   updateMeeting: (updates: Partial<Meeting>) => void;
   loadMeeting: (meetingId: string) => void;
   deleteMeeting: (meetingId: string) => void;
+
+  // Zoho-specific actions
+  createOrLoadMeeting: (initialData: Partial<Meeting>) => void;
+  updateZohoLastSync: (time: string) => void;
+  setZohoSyncEnabled: (enabled: boolean) => void;
+  loadMeetingByZohoId: (recordId: string) => Meeting | null;
+  setZohoToken: (token: string) => void;
 
   // Module actions
   updateModule: (moduleName: keyof Meeting['modules'], data: any) => void;
@@ -74,6 +82,14 @@ interface MeetingStore {
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
+// Helper function to get localStorage key based on Zoho integration
+const getStorageKey = (meeting: Meeting | null): string => {
+  if (meeting?.zohoIntegration?.recordId) {
+    return `discovery_zoho_${meeting.zohoIntegration.recordId}`;
+  }
+  return meeting ? `discovery_standalone_${meeting.meetingId}` : 'discovery_temp';
+};
+
 export const useMeetingStore = create<MeetingStore>()(
   persist(
     (set, get) => ({
@@ -81,6 +97,7 @@ export const useMeetingStore = create<MeetingStore>()(
       meetings: [],
       timerInterval: null,
       wizardState: null,
+      zohoToken: null,
 
       createMeeting: (clientName) => {
         const meeting: Meeting = {
@@ -141,6 +158,158 @@ export const useMeetingStore = create<MeetingStore>()(
             ? null
             : state.currentMeeting
         }));
+      },
+
+      // Zoho-specific actions
+      createOrLoadMeeting: (initialData) => {
+        const state = get();
+
+        // If Zoho record ID provided, check for existing meeting
+        if (initialData.zohoIntegration?.recordId) {
+          const storageKey = `discovery_zoho_${initialData.zohoIntegration.recordId}`;
+          const existingData = localStorage.getItem(storageKey);
+
+          if (existingData) {
+            try {
+              const meeting = JSON.parse(existingData);
+              // Update with any new data from Zoho
+              const updatedMeeting = {
+                ...meeting,
+                ...initialData,
+                modules: {
+                  ...meeting.modules,
+                  ...(initialData.modules || {})
+                }
+              };
+              set({
+                currentMeeting: updatedMeeting,
+                meetings: [...state.meetings.filter(m => m.meetingId !== meeting.meetingId), updatedMeeting]
+              });
+              return;
+            } catch (e) {
+              console.error('Failed to parse existing meeting data:', e);
+            }
+          }
+        }
+
+        // Create new meeting with initial data
+        const meeting: Meeting = {
+          meetingId: generateId(),
+          clientName: initialData.clientName || 'New Client',
+          date: new Date(),
+          timer: 0,
+          modules: {
+            overview: initialData.modules?.overview || {},
+            leadsAndSales: initialData.modules?.leadsAndSales || {},
+            customerService: initialData.modules?.customerService || {},
+            operations: initialData.modules?.operations || {},
+            reporting: initialData.modules?.reporting || {},
+            aiAgents: initialData.modules?.aiAgents || {},
+            systems: initialData.modules?.systems || {},
+            roi: initialData.modules?.roi || {},
+            planning: initialData.modules?.planning || {}
+          },
+          painPoints: [],
+          notes: initialData.notes || '',
+          zohoIntegration: initialData.zohoIntegration
+        };
+
+        set((state) => ({
+          currentMeeting: meeting,
+          meetings: [...state.meetings, meeting]
+        }));
+
+        // Save to localStorage with Zoho-specific key if applicable
+        localStorage.setItem(getStorageKey(meeting), JSON.stringify(meeting));
+      },
+
+      updateZohoLastSync: (time) => {
+        set((state) => {
+          if (!state.currentMeeting?.zohoIntegration) return state;
+
+          const updatedMeeting = {
+            ...state.currentMeeting,
+            zohoIntegration: {
+              ...state.currentMeeting.zohoIntegration,
+              lastSyncTime: time
+            }
+          };
+
+          // Save to localStorage with Zoho-specific key
+          localStorage.setItem(getStorageKey(updatedMeeting), JSON.stringify(updatedMeeting));
+
+          return {
+            currentMeeting: updatedMeeting,
+            meetings: state.meetings.map(m =>
+              m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
+            )
+          };
+        });
+      },
+
+      setZohoSyncEnabled: (enabled) => {
+        set((state) => {
+          if (!state.currentMeeting?.zohoIntegration) return state;
+
+          const updatedMeeting = {
+            ...state.currentMeeting,
+            zohoIntegration: {
+              ...state.currentMeeting.zohoIntegration,
+              syncEnabled: enabled
+            }
+          };
+
+          return {
+            currentMeeting: updatedMeeting,
+            meetings: state.meetings.map(m =>
+              m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
+            )
+          };
+        });
+      },
+
+      loadMeetingByZohoId: (recordId) => {
+        const storageKey = `discovery_zoho_${recordId}`;
+        const data = localStorage.getItem(storageKey);
+
+        if (data) {
+          try {
+            return JSON.parse(data);
+          } catch (e) {
+            console.error('Failed to parse meeting data:', e);
+          }
+        }
+
+        return null;
+      },
+
+      setZohoToken: (token) => {
+        set((state) => {
+          // Update the zohoToken in state
+          const newState: any = { zohoToken: token };
+
+          // If there's a current meeting with Zoho integration, update it
+          if (state.currentMeeting?.zohoIntegration) {
+            const updatedMeeting = {
+              ...state.currentMeeting,
+              zohoIntegration: {
+                ...state.currentMeeting.zohoIntegration,
+                token
+              }
+            };
+
+            // Save to localStorage with Zoho-specific key
+            const storageKey = getStorageKey(updatedMeeting);
+            localStorage.setItem(storageKey, JSON.stringify(updatedMeeting));
+
+            newState.currentMeeting = updatedMeeting;
+            newState.meetings = state.meetings.map(m =>
+              m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
+            );
+          }
+
+          return { ...state, ...newState };
+        });
       },
 
       updateModule: (moduleName, data) => {

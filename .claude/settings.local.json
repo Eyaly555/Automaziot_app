@@ -23,7 +23,10 @@
       "Bash(npm test:*)",
       "Bash(find:*)",
       "WebSearch",
-      "WebFetch(domain:www.automaziot.ai)"
+      "WebFetch(domain:www.automaziot.ai)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(timeout 5 npm run dev)"
     ],
     "deny": [],
     "ask": []

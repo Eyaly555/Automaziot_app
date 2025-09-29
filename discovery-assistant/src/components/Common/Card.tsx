@@ -7,6 +7,7 @@ interface CardProps {
   className?: string;
   padding?: 'none' | 'sm' | 'md' | 'lg';
   actions?: React.ReactNode;
+  variant?: 'standard' | 'glass';
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -15,7 +16,8 @@ export const Card: React.FC<CardProps> = ({
   children,
   className = '',
   padding = 'md',
-  actions
+  actions,
+  variant = 'standard'
 }) => {
   const paddingClasses = {
     none: '',
@@ -24,14 +26,19 @@ export const Card: React.FC<CardProps> = ({
     lg: 'p-6 md:p-8'
   };
 
+  const variantClasses = {
+    standard: 'bg-white border border-gray-200 shadow-md hover:shadow-lg',
+    glass: 'bg-white border border-primary/20 shadow-md hover:shadow-lg'
+  };
+
   return (
-    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}>
+    <div className={`rounded-xl transition-all duration-300 hover:-translate-y-0.5 ${variantClasses[variant]} ${className}`}>
       {(title || subtitle || actions) && (
         <div className="border-b border-gray-200 px-4 md:px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
               {title && <h3 className="text-lg font-semibold text-gray-900">{title}</h3>}
-              {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
+              {subtitle && <p className="text-sm text-gray-600 mt-1">{subtitle}</p>}
             </div>
             {actions && <div>{actions}</div>}
           </div>

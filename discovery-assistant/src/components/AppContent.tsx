@@ -12,6 +12,7 @@ import { AIAgentsModule } from './Modules/AIAgents/AIAgentsModule';
 import { SystemsModule } from './Modules/Systems/SystemsModule';
 import { ROIModule } from './Modules/ROI/ROIModule';
 import { PlanningModule } from './Modules/Planning/PlanningModule';
+import { SummaryTab } from './Summary/SummaryTab';
 import { useAccessibility, useSkipToContent } from '../hooks/useAccessibility';
 
 export const AppContent = () => {
@@ -23,6 +24,8 @@ export const AppContent = () => {
     <Routes>
       <Route path="/" element={<Dashboard />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/summary" element={<SummaryTab />} />
+      <Route path="/zoho/callback" element={<div dir="rtl">מתבצע אימות...</div>} />
       <Route path="/wizard" element={<WizardMode />} />
       <Route path="/wizard/:stepId" element={<WizardMode />} />
       <Route path="/settings/ai" element={<AISettings />} />

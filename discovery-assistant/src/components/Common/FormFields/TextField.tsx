@@ -31,7 +31,9 @@ export const TextField: React.FC<TextFieldProps> = ({
   className = '',
   dir = 'rtl'
 }) => {
-  const baseClasses = `w-full px-3 py-2 border rounded-md shadow-sm focus:ring-primary focus:border-primary
+  const baseClasses = `w-full px-3 py-2 border rounded-lg shadow-sm transition-all duration-200
+    focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none
+    hover:border-gray-400
     ${error ? 'border-red-300' : 'border-gray-300'}
     ${disabled ? 'bg-gray-100' : 'bg-white'}`;
 
