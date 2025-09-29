@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useMeetingStore } from '../store/useMeetingStore';
 import { parseZohoParams, mapZohoToMeeting } from '../integrations/zoho/paramParser';
 import { zohoSyncService } from '../services/zohoSyncService';
@@ -9,9 +10,11 @@ export const useZohoIntegration = () => {
   const [isZohoMode, setIsZohoMode] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'error'>('idle');
   const { startAuth, token, refreshToken } = useZohoAuth();
+  const [searchParams] = useSearchParams();
+  const search = searchParams.toString();
 
   useEffect(() => {
-    const params = parseZohoParams(window.location.search);
+    const params = parseZohoParams(search ? `?${search}` : '');
     if (!params) return;
 
     setIsZohoMode(true);
