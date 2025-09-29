@@ -26,7 +26,8 @@
       "WebFetch(domain:www.automaziot.ai)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(timeout 5 npm run dev)"
+      "Bash(timeout 5 npm run dev)",
+      "WebFetch(domain:www.zoho.com)"
     ],
     "deny": [],
     "ask": []

@@ -10,7 +10,7 @@ interface ZohoConfig {
 class ZohoSyncService {
   private config: ZohoConfig = {
     apiBase: import.meta.env.VITE_ZOHO_API_BASE || 'https://www.zohoapis.com/crm/v2',
-    accessToken: import.meta.env.VITE_ZOHO_ACCESS_TOKEN || '',
+    accessToken: '', // Token will be passed dynamically
     module: 'Potentials1',
     discoveryField: 'Discovery_Progress'
   };

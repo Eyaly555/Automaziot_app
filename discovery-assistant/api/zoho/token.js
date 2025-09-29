@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     params.append('grant_type', 'authorization_code');
     params.append('client_id', process.env.ZOHO_CLIENT_ID || '');
     params.append('client_secret', process.env.ZOHO_CLIENT_SECRET || '');
-    params.append('redirect_uri', process.env.VITE_ZOHO_REDIRECT_URI || '');
+    params.append('redirect_uri', process.env.ZOHO_REDIRECT_URI || '');
     params.append('code', code);
     params.append('code_verifier', verifier);
 
@@ -38,16 +38,14 @@ export default async function handler(req, res) {
 
     const data = await tokenResponse.json();
 
-    // Store refresh token if provided (only on first authorization)
-    if (data.refresh_token) {
-      process.env.ZOHO_REFRESH_TOKEN = data.refresh_token;
-      // In production, you should store this securely in a database
-      console.log('Refresh token received and stored');
-    }
-
-    // Return access token to client
+    // Return all token data to client
     return res.status(200).json({
-      access_token: data.access_token
+      access_token: data.access_token,
+      refresh_token: data.refresh_token || null,
+      expires_in: data.expires_in || 3600,
+      scope: data.scope || '',
+      api_domain: data.api_domain || '',
+      token_type: data.token_type || 'Bearer'
     });
 
   } catch (error) {

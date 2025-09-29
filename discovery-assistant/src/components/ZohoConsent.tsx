@@ -14,13 +14,12 @@ export const ZohoConsent: React.FC = () => {
     const savedConsent = localStorage.getItem('zoho_sync_consent');
     const hasZohoRecordId = searchParams.has('zohoRecordId');
 
-    if (savedConsent === null && hasZohoRecordId) {
+    // Always show consent for Zoho records if not already consented
+    if (hasZohoRecordId && savedConsent !== 'true') {
       setShowConsent(true);
-    } else {
-      setConsent(savedConsent === 'true');
-      if (savedConsent === 'true') {
-        setZohoSyncEnabled(true);
-      }
+    } else if (savedConsent === 'true') {
+      setConsent(true);
+      setZohoSyncEnabled(true);
     }
   }, [searchParams, setZohoSyncEnabled]);
 

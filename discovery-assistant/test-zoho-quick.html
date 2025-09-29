@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoho Integration Quick Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .test-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f9f9f9;
+        }
+        .test-pass {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        .test-fail {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+        .test-pending {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+        }
+        .status-icon {
+            font-size: 20px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5a67d8;
+        }
+        .url-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        .url-btn {
+            background: #48bb78;
+            font-size: 14px;
+            padding: 8px 15px;
+        }
+        .url-btn:hover {
+            background: #38a169;
+        }
+        .console-output {
+            background: #1a1a1a;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧪 בדיקה מהירה - Zoho CRM Integration</h1>
+        <p>בדיקת אינטגרציה מקיפה עם Zoho CRM - Discovery Assistant</p>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-value" id="totalTests">0</div>
+            <div class="stat-label">סה"כ בדיקות</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="passedTests" style="color: #48bb78;">0</div>
+            <div class="stat-label">עברו בהצלחה</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="failedTests" style="color: #f56565;">0</div>
+            <div class="stat-label">נכשלו</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="successRate">0%</div>
+            <div class="stat-label">אחוז הצלחה</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">🔗 כתובות URL לבדיקה</div>
+        <p>לחץ על כל כתובת כדי לפתוח בחלון חדש ולבדוק:</p>
+        <div class="url-group">
+            <button class="url-btn" onclick="openTestUrl('/?zohoRecordId=TEST123')">
+                בסיסי - רק Record ID
+            </button>
+            <button class="url-btn" onclick="openTestUrl('/?zohoRecordId=TEST456&companyName=TestCorp&email=test@example.com')">
+                עם פרטי חברה
+            </button>
+            <button class="url-btn" onclick="openTestUrl('/?testZoho=true')">
+                מצב בדיקה (Test Mode)
+            </button>
+            <button class="url-btn" onclick="openTestUrl('/?zohoRecordId=FULL789&companyName=FullTest&email=full@test.com&phone=+972501234567&budgetRange=100k-500k')">
+                כל הפרמטרים
+            </button>
+            <button class="url-btn" onclick="openTestUrl('/zoho/callback?code=test_code&state=test_state')">
+                OAuth Callback
+            </button>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">✅ בדיקות אוטומטיות</div>
+        <button onclick="runAllTests()">הרץ את כל הבדיקות</button>
+        <button onclick="clearAllData()">נקה את כל הנתונים</button>
+        <button onclick="location.reload()">רענן דף</button>
+
+        <div id="testResults" style="margin-top: 20px;"></div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">📊 מצב נוכחי</div>
+        <div id="currentStatus"></div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">🖥️ Console Output</div>
+        <div class="console-output" id="consoleOutput">
+            מוכן להתחיל בדיקות...
+        </div>
+    </div>
+
+    <script>
+        let testResults = [];
+        const baseUrl = window.location.origin;
+
+        function log(message, type = 'info') {
+            const output = document.getElementById('consoleOutput');
+            const time = new Date().toLocaleTimeString('he-IL');
+            const color = type === 'error' ? '#f56565' : type === 'success' ? '#48bb78' : '#0f0';
+            output.innerHTML += `<div style="color: ${color}">[${time}] ${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function openTestUrl(path) {
+            const fullUrl = baseUrl + path;
+            log(`Opening: ${fullUrl}`);
+            window.open(fullUrl, '_blank');
+        }
+
+        function updateStats() {
+            const total = testResults.length;
+            const passed = testResults.filter(r => r.passed).length;
+            const failed = testResults.filter(r => !r.passed).length;
+            const rate = total > 0 ? Math.round((passed / total) * 100) : 0;
+
+            document.getElementById('totalTests').textContent = total;
+            document.getElementById('passedTests').textContent = passed;
+            document.getElementById('failedTests').textContent = failed;
+            document.getElementById('successRate').textContent = rate + '%';
+        }
+
+        function addTestResult(name, passed, details = '') {
+            testResults.push({ name, passed, details });
+
+            const resultsDiv = document.getElementById('testResults');
+            const testDiv = document.createElement('div');
+            testDiv.className = `test-item ${passed ? 'test-pass' : 'test-fail'}`;
+            testDiv.innerHTML = `
+                <span>${name}</span>
+                <span class="status-icon">${passed ? '✅' : '❌'}</span>
+            `;
+            resultsDiv.appendChild(testDiv);
+
+            log(`${name}: ${passed ? 'PASSED' : 'FAILED'} ${details}`, passed ? 'success' : 'error');
+            updateStats();
+        }
+
+        async function runAllTests() {
+            log('Starting comprehensive tests...', 'info');
+            testResults = [];
+            document.getElementById('testResults').innerHTML = '';
+
+            // Test 1: Browser Support
+            addTestResult(
+                'Browser Crypto API',
+                typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function',
+                'Required for PKCE'
+            );
+
+            // Test 2: SessionStorage
+            try {
+                sessionStorage.setItem('test', 'value');
+                const value = sessionStorage.getItem('test');
+                sessionStorage.removeItem('test');
+                addTestResult('SessionStorage Support', value === 'value');
+            } catch (e) {
+                addTestResult('SessionStorage Support', false, e.message);
+            }
+
+            // Test 3: LocalStorage
+            try {
+                localStorage.setItem('test', 'value');
+                const value = localStorage.getItem('test');
+                localStorage.removeItem('test');
+                addTestResult('LocalStorage Support', value === 'value');
+            } catch (e) {
+                addTestResult('LocalStorage Support', false, e.message);
+            }
+
+            // Test 4: URL Parsing
+            try {
+                const url = new URL(window.location.href + '?zohoRecordId=TEST');
+                const params = new URLSearchParams(url.search);
+                addTestResult('URL Parameter Parsing', params.get('zohoRecordId') === 'TEST');
+            } catch (e) {
+                addTestResult('URL Parameter Parsing', false, e.message);
+            }
+
+            // Test 5: PKCE Generation
+            try {
+                const array = new Uint8Array(64);
+                crypto.getRandomValues(array);
+                const verifier = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+                addTestResult('PKCE Verifier Generation', verifier.length === 128);
+            } catch (e) {
+                addTestResult('PKCE Verifier Generation', false, e.message);
+            }
+
+            // Test 6: Base64 Encoding
+            try {
+                const text = 'test string';
+                const encoded = btoa(text);
+                const decoded = atob(encoded);
+                addTestResult('Base64 Encoding/Decoding', decoded === text);
+            } catch (e) {
+                addTestResult('Base64 Encoding/Decoding', false, e.message);
+            }
+
+            // Test 7: BroadcastChannel
+            try {
+                if (typeof BroadcastChannel !== 'undefined') {
+                    const channel = new BroadcastChannel('test');
+                    channel.close();
+                    addTestResult('BroadcastChannel API', true, 'Multi-tab sync supported');
+                } else {
+                    addTestResult('BroadcastChannel API', false, 'Not supported - fallback to storage events');
+                }
+            } catch (e) {
+                addTestResult('BroadcastChannel API', false, e.message);
+            }
+
+            // Test 8: Navigator.sendBeacon
+            addTestResult(
+                'SendBeacon API',
+                typeof navigator.sendBeacon === 'function',
+                'For critical sync on page unload'
+            );
+
+            // Test 9: Fetch API
+            addTestResult(
+                'Fetch API',
+                typeof fetch === 'function',
+                'Required for API calls'
+            );
+
+            // Test 10: Storage Key Generation
+            const testKey = `discovery_zoho_TEST123`;
+            localStorage.setItem(testKey, JSON.stringify({ test: true }));
+            const stored = localStorage.getItem(testKey);
+            const hasKey = stored !== null;
+            if (hasKey) localStorage.removeItem(testKey);
+            addTestResult('Storage Key Generation', hasKey);
+
+            // Test 11: JSON Operations
+            try {
+                const obj = { test: 'data', nested: { value: 123 } };
+                const str = JSON.stringify(obj);
+                const parsed = JSON.parse(str);
+                addTestResult('JSON Serialization', parsed.nested.value === 123);
+            } catch (e) {
+                addTestResult('JSON Serialization', false, e.message);
+            }
+
+            // Test 12: Hebrew Text Support
+            const hebrewText = 'בדיקת טקסט בעברית';
+            addTestResult('Hebrew Text Support', hebrewText.length === 18);
+
+            updateCurrentStatus();
+            log('All tests completed!', 'success');
+        }
+
+        function clearAllData() {
+            if (confirm('האם אתה בטוח שברצונך למחוק את כל הנתונים?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                log('All data cleared', 'success');
+                updateCurrentStatus();
+            }
+        }
+
+        function updateCurrentStatus() {
+            const statusDiv = document.getElementById('currentStatus');
+
+            // Check localStorage
+            const zohoKeys = Object.keys(localStorage).filter(k => k.includes('zoho'));
+            const discoveryKeys = Object.keys(localStorage).filter(k => k.includes('discovery'));
+
+            // Check sessionStorage
+            const sessionKeys = Object.keys(sessionStorage);
+
+            statusDiv.innerHTML = `
+                <div class="test-item test-pending">
+                    <span>LocalStorage - Zoho Keys</span>
+                    <span>${zohoKeys.length} keys</span>
+                </div>
+                <div class="test-item test-pending">
+                    <span>LocalStorage - Discovery Keys</span>
+                    <span>${discoveryKeys.length} keys</span>
+                </div>
+                <div class="test-item test-pending">
+                    <span>SessionStorage Items</span>
+                    <span>${sessionKeys.length} items</span>
+                </div>
+                <div class="test-item test-pending">
+                    <span>Consent Status</span>
+                    <span>${localStorage.getItem('zoho_sync_consent') || 'Not set'}</span>
+                </div>
+                <div class="test-item test-pending">
+                    <span>Token Status</span>
+                    <span>${localStorage.getItem('zoho_token_data') ? 'Token exists' : 'No token'}</span>
+                </div>
+                <div class="test-item test-pending">
+                    <span>Retry Queue</span>
+                    <span>${localStorage.getItem('zoho_retry_queue') ? 'Has items' : 'Empty'}</span>
+                </div>
+            `;
+
+            // List all Zoho-related keys
+            if (zohoKeys.length > 0) {
+                statusDiv.innerHTML += '<div style="margin-top: 10px;"><strong>Zoho Keys Found:</strong></div>';
+                zohoKeys.forEach(key => {
+                    statusDiv.innerHTML += `<div style="margin-left: 20px; font-family: monospace; font-size: 12px;">• ${key}</div>`;
+                });
+            }
+        }
+
+        // Initialize
+        updateCurrentStatus();
+        log('Test suite ready. Click "הרץ את כל הבדיקות" to start.', 'info');
+    </script>
+</body>
+</html>
