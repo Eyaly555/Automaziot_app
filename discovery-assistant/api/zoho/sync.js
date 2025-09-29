@@ -73,7 +73,7 @@ export default async function handler(req, res) {
       Stage: 'Qualification',
       // Custom fields for Discovery data - this is what we save to Zoho
       Discovery_Progress: JSON.stringify(meeting), // Full meeting data as JSON
-      Discovery_Last_Update: now.toISOString().replace('Z', '+00:00'), // Zoho datetime format
+      Discovery_Last_Update: now.toISOString().split('.')[0] + '+00:00', // Zoho datetime format (no milliseconds)
       Discovery_Completion: `${progressPercentage}%`,
       Discovery_Status: progressPercentage === 100 ? 'Completed' : 'In Progress',
       Discovery_Date: now.toISOString().split('T')[0],
