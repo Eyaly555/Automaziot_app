@@ -31,6 +31,7 @@ import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import { generateTechnicalSpec } from '../../utils/technicalSpecGenerator';
 import { exportAsMarkdown, downloadMarkdown, downloadJSON } from '../../utils/exportTechnicalSpec';
+import { getSmartRecommendations } from '../../utils/smartRecommendationsEngine';
 
 interface ModuleConfig {
   id: string;
@@ -586,6 +587,88 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
               <p className="text-sm text-gray-600">חיסכון חודשי משוער</p>
             </div>
           </div>
+
+          {/* Phase 5: Smart Recommendations */}
+          {currentMeeting && overallProgress > 30 && (() => {
+            const recommendations = getSmartRecommendations(currentMeeting);
+            const topRecommendations = recommendations.slice(0, 3);
+
+            return topRecommendations.length > 0 ? (
+              <div className="mb-8">
+                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 shadow-md">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <Sparkles className="w-6 h-6 text-purple-600" />
+                      <h3 className="text-xl font-bold text-gray-900">המלצות אוטומציה חכמות</h3>
+                    </div>
+                    <span className="text-sm text-purple-700 font-medium">
+                      {recommendations.length} הזדמנויות זוהו
+                    </span>
+                  </div>
+
+                  <div className="space-y-3">
+                    {topRecommendations.map((rec, index) => (
+                      <div key={index} className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                rec.priority === 'קריטי' ? 'bg-red-100 text-red-700' :
+                                rec.priority === 'גבוה' ? 'bg-orange-100 text-orange-700' :
+                                rec.priority === 'בינוני' ? 'bg-yellow-100 text-yellow-700' :
+                                'bg-green-100 text-green-700'
+                              }`}>
+                                {rec.priority}
+                              </span>
+                              <span className={`px-2 py-1 rounded-full text-xs ${
+                                rec.type === 'quick_win' ? 'bg-green-50 text-green-700' :
+                                rec.type === 'missing_integration' ? 'bg-blue-50 text-blue-700' :
+                                rec.type === 'manual_data_entry' ? 'bg-purple-50 text-purple-700' :
+                                'bg-gray-50 text-gray-700'
+                              }`}>
+                                {rec.type === 'quick_win' && '⚡ Quick Win'}
+                                {rec.type === 'missing_integration' && '🔗 אינטגרציה חסרה'}
+                                {rec.type === 'manual_data_entry' && '✍️ הזנה ידנית'}
+                                {rec.type === 'high_volume' && '📊 נפח גבוה'}
+                              </span>
+                            </div>
+
+                            <h4 className="font-semibold text-gray-900 mb-1">{rec.title}</h4>
+                            <p className="text-sm text-gray-600 mb-2">{rec.description}</p>
+
+                            <div className="flex flex-wrap gap-2 text-xs">
+                              {rec.estimatedTimeSavings && (
+                                <span className="text-green-600">⏱️ {rec.estimatedTimeSavings}</span>
+                              )}
+                              {rec.estimatedCostSavings && (
+                                <span className="text-blue-600">💰 {rec.estimatedCostSavings}</span>
+                              )}
+                              {rec.suggestedTool && (
+                                <span className="text-purple-600">🛠️ {rec.suggestedTool}</span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="text-2xl">{index + 1}</div>
+                        </div>
+                      </div>
+                    ))}
+
+                    {recommendations.length > 3 && (
+                      <div className="text-center pt-2">
+                        <button
+                          onClick={() => navigate('/module/planning')}
+                          className="text-sm text-purple-700 hover:text-purple-900 font-medium"
+                        >
+                          צפה בכל {recommendations.length} ההמלצות ←
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : null;
+          })()}
 
           {/* Wizard Mode Section */}
           <div className="mb-8">

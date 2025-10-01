@@ -16,6 +16,8 @@ import { Card } from '../../Common/Card';
 import { CheckboxGroup, RadioGroup, SelectField, TextField } from '../../Common/FormFields';
 import { RatingField } from '../../Common/RatingField';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
+import { AIAgentUseCaseBuilder } from './AIAgentUseCaseBuilder';
+import { AIModelSelector } from './AIModelSelector';
 
 export const AIAgentsModule: React.FC = () => {
   const navigate = useNavigate();
@@ -601,6 +603,39 @@ export const AIAgentsModule: React.FC = () => {
                 </div>
               </div>
             </Card>
+          )}
+
+          {/* Phase 2: Advanced AI Agent Design Tools */}
+          {(salesUseCases.length > 0 || serviceUseCases.length > 0 || operationsUseCases.length > 0) && (
+            <div className="mt-8 space-y-6">
+              <div className="bg-gradient-to-r from-purple-100 to-indigo-100 p-6 rounded-lg">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+                  <Brain className="w-7 h-7 text-purple-600" />
+                  כלי תכנון AI מתקדמים
+                </h2>
+                <p className="text-gray-700">
+                  השתמש בכלים אלה כדי לתכנן בפירוט את סוכני ה-AI שלך ולבחור את המודל המתאים
+                </p>
+              </div>
+
+              {/* AI Use Case Builder */}
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Target className="w-6 h-6 text-blue-600" />
+                  בונה מקרי שימוש AI
+                </h3>
+                <AIAgentUseCaseBuilder />
+              </div>
+
+              {/* AI Model Selector */}
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Cpu className="w-6 h-6 text-green-600" />
+                  בחירת מודל AI מתאים
+                </h3>
+                <AIModelSelector />
+              </div>
+            </div>
           )}
         </div>
       </div>

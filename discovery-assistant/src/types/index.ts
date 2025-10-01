@@ -302,12 +302,64 @@ export interface AIAgentsModule {
   operations?: AICapability;
   priority?: 'sales' | 'service' | 'operations';
   naturalLanguageImportance?: 'critical' | 'important' | 'less_important';
+  // Phase 2: AI Agent Specification Builder
+  agentSpecs?: AIAgentUseCase[];
+  selectedModels?: AIModelSelection[];
 }
 
 export interface AICapability {
   useCases?: string[];
   potential?: 'high' | 'medium' | 'low';
   readiness?: 'ready' | 'needs_work' | 'not_ready';
+}
+
+// Phase 2: AI Agent Use Case Builder
+export interface AIAgentUseCase {
+  id: string;
+  name: string;
+  trigger: 'new_lead' | 'customer_question' | 'after_hours' | 'appointment_booking' | 'follow_up' | 'custom';
+  customTrigger?: string;
+  objective: string;
+  conversationFlow: ConversationFlowStep[];
+  knowledgeBaseRequirements: string[];
+  fallbackStrategy: 'human_handoff' | 'email_notification' | 'scheduled_callback' | 'faq_redirect';
+  successCriteria: string[];
+  expectedVolume: number;
+  priority: 'high' | 'medium' | 'low';
+  department: 'sales' | 'service' | 'operations';
+}
+
+export interface ConversationFlowStep {
+  id: string;
+  order: number;
+  action: string;
+  expectedResponse?: string;
+  nextStepCondition?: string;
+}
+
+// Phase 2: AI Model Selector
+export interface AIModelComparison {
+  modelId: string;
+  modelName: string;
+  provider: 'OpenAI' | 'Anthropic' | 'Google' | 'Other';
+  version: string;
+  costPer1MTokensInput: number;
+  costPer1MTokensOutput: number;
+  maxTokens: number;
+  hebrewSupport: 'excellent' | 'good' | 'basic' | 'none';
+  responseSpeed: 'fast' | 'medium' | 'slow';
+  contextWindow: number;
+  strengths: string[];
+  bestFor: string[];
+  limitations: string[];
+}
+
+export interface AIModelSelection {
+  useCaseId: string;
+  selectedModelId: string;
+  reasoning: string;
+  estimatedMonthlyCost: number;
+  estimatedTokensPerMonth: number;
 }
 
 // Module 7 - Systems
@@ -397,6 +449,56 @@ export interface ROIModule {
     paybackPeriod?: number;
     implementationCost?: number;
   };
+  // Phase 4: Advanced ROI fields
+  implementationCosts?: {
+    initialSetup?: number;
+    toolsAndLicenses?: number;
+    developerTime?: number;
+    training?: number;
+    total?: number;
+  };
+  ongoingCosts?: {
+    monthlySubscriptions?: number;
+    maintenanceHours?: number;
+    supportCosts?: number;
+    total?: number;
+  };
+  netSavings?: {
+    month12?: number;
+    month24?: number;
+    month36?: number;
+  };
+  paybackPeriodMonths?: number;
+  roiPercentages?: {
+    roi12Month?: number;
+    roi24Month?: number;
+    roi36Month?: number;
+  };
+  scenarios?: {
+    conservative?: ROIScenario;
+    realistic?: ROIScenario;
+    optimistic?: ROIScenario;
+  };
+  // Existing fields for form data
+  currentCosts?: {
+    manualHours?: string;
+    hourlyCost?: string;
+    toolsCost?: string;
+    errorCost?: string;
+    lostOpportunities?: string;
+  };
+  timeSavings?: {
+    automationPotential?: string;
+    processes?: string[];
+    implementation?: string;
+  };
+  investment?: {
+    range?: string;
+    paybackExpectation?: string;
+    budgetAvailable?: string;
+  };
+  successMetrics?: string[];
+  measurementFrequency?: string;
 }
 
 export interface ROICalculation {
@@ -405,6 +507,22 @@ export interface ROICalculation {
   hoursSaved?: number;
   moneySaved?: number;
   calculation?: string;
+}
+
+export interface ROIScenario {
+  name: string;
+  nameHebrew: string;
+  multiplier: number;
+  monthlySavings: number;
+  implementationCosts: number;
+  ongoingMonthlyCosts: number;
+  netSavings12Month: number;
+  netSavings24Month: number;
+  netSavings36Month: number;
+  paybackPeriod: number;
+  roi12Month: number;
+  roi24Month: number;
+  roi36Month: number;
 }
 
 // Module 9 - Planning

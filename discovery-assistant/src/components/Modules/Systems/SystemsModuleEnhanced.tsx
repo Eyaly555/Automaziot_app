@@ -8,6 +8,7 @@ import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 import { DetailedSystemCard } from './DetailedSystemCard';
 import { DetailedSystemInfo } from '../../../types';
 import { SYSTEM_CATEGORIES, getSystemLabel } from '../../../config/systemsDatabase';
+import { IntegrationVisualizer } from '../../Visualizations/IntegrationVisualizer';
 
 export const SystemsModuleEnhanced: React.FC = () => {
   const navigate = useNavigate();
@@ -441,6 +442,19 @@ export const SystemsModuleEnhanced: React.FC = () => {
               )}
             </div>
           </Card>
+
+          {/* Phase 3: Integration Architecture Visualizer */}
+          {detailedSystems.length > 0 && (
+            <div className="mt-8">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">🔗 מפת אינטגרציות</h2>
+                <p className="text-gray-700">
+                  תצוגה ויזואלית של מערכות וקישוריות ביניהן
+                </p>
+              </div>
+              <IntegrationVisualizer systems={detailedSystems} />
+            </div>
+          )}
         </div>
       </div>
     </div>

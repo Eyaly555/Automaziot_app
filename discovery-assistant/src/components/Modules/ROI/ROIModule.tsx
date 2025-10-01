@@ -6,6 +6,7 @@ import { Card } from '../../Common/Card';
 import { TextField, CheckboxGroup, RadioGroup, RatingField } from '../../Common/FormFields';
 import { formatCurrency } from '../../../utils/formatters';
 import { calculateROI } from '../../../utils/roiCalculator';
+import { ROIVisualization } from './ROIVisualization';
 
 export const ROIModule: React.FC = () => {
   const navigate = useNavigate();
@@ -341,6 +342,34 @@ export const ROIModule: React.FC = () => {
               )}
             </div>
           </Card>
+
+          {/* Advanced ROI Visualizations - Phase 4 */}
+          {roiData.scenarios && (
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">📊 ניתוח ROI מתקדם</h2>
+              <ROIVisualization
+                scenarios={roiData.scenarios}
+                implementationCosts={{
+                  initialSetup: roiData.implementationCosts * 0.3,
+                  toolsAndLicenses: roiData.implementationCosts * 0.1,
+                  developerTime: roiData.implementationCosts * 0.5,
+                  training: roiData.implementationCosts * 0.1,
+                  total: roiData.implementationCosts
+                }}
+                ongoingCosts={{
+                  monthlySubscriptions: roiData.ongoingMonthlyCosts * 0.5,
+                  maintenanceHours: roiData.ongoingMonthlyCosts * 0.4,
+                  supportCosts: roiData.ongoingMonthlyCosts * 0.1,
+                  total: roiData.ongoingMonthlyCosts
+                }}
+                netSavings={{
+                  month12: roiData.netSavings12Month,
+                  month24: roiData.netSavings24Month,
+                  month36: roiData.netSavings36Month
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
