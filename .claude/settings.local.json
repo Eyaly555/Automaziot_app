@@ -60,7 +60,8 @@
       "Bash(python:*)",
       "Bash(for file in AIAgents/AIAgentsModule.tsx AIAgents/AIAgentUseCaseBuilder.tsx AIAgents/AIModelSelector.tsx CustomerService/CustomerServiceModule.tsx LeadsAndSales/LeadsAndSalesModule.tsx Operations/OperationsModule.tsx Planning/PlanningModule.tsx Reporting/ReportingModule.tsx ROI/ROIModule.tsx Systems/SystemsModule.tsx Systems/SystemsModuleEnhanced.tsx)",
       "Bash(do sed -i 's/currentMeeting?.modules\\./currentMeeting?.modules?./g' \"$file\")",
-      "Bash(echo \"Fixed: $file\")"
+      "Bash(echo \"Fixed: $file\")",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []

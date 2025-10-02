@@ -18,32 +18,58 @@ export const ProposalModule: React.FC = () => {
 
   // Generate proposal when component mounts
   useEffect(() => {
-    if (!currentMeeting) return;
+    if (!currentMeeting) {
+      console.log('[ProposalModule] No current meeting available');
+      return;
+    }
+
+    console.log('[ProposalModule] Current meeting:', currentMeeting.meetingId, currentMeeting.clientName);
 
     // Check if proposal already exists
     const existingProposal = currentMeeting.modules?.proposal;
 
     if (existingProposal) {
+      console.log('[ProposalModule] Loading existing proposal');
       // Load existing proposal data
       setProposalSummary(existingProposal.summary);
       setProposedServices(existingProposal.proposedServices);
       setSelectedServices(existingProposal.selectedServices);
     } else {
-      // Generate new proposal
-      const { summary, proposedServices: services } = generateProposal(currentMeeting);
-      setProposalSummary(summary);
-      setProposedServices(services);
+      console.log('[ProposalModule] Generating new proposal...');
+      try {
+        // Generate new proposal
+        const { summary, proposedServices: services } = generateProposal(currentMeeting);
+        console.log('[ProposalModule] Generated summary:', summary);
+        console.log('[ProposalModule] Generated services count:', services.length);
 
-      // Initialize selected services (all selected by default, user can uncheck)
-      const initial: SelectedService[] = services.map(service => ({
-        ...service,
-        selected: service.relevanceScore >= 7, // Auto-select high relevance items
-        customPrice: undefined,
-        customDescription: undefined,
-        customDescriptionHe: undefined,
-        notes: undefined
-      }));
-      setSelectedServices(initial);
+        setProposalSummary(summary);
+        setProposedServices(services);
+
+        // Initialize selected services (all selected by default, user can uncheck)
+        const initial: SelectedService[] = services.map(service => ({
+          ...service,
+          selected: service.relevanceScore >= 7, // Auto-select high relevance items
+          customPrice: undefined,
+          customDescription: undefined,
+          customDescriptionHe: undefined,
+          notes: undefined
+        }));
+        setSelectedServices(initial);
+      } catch (error) {
+        console.error('[ProposalModule] Error generating proposal:', error);
+        // Set default empty proposal to unblock UI
+        setProposalSummary({
+          totalServices: 0,
+          totalAutomations: 0,
+          totalAIAgents: 0,
+          totalIntegrations: 0,
+          identifiedProcesses: 0,
+          potentialMonthlySavings: 0,
+          potentialWeeklySavingsHours: 0
+        });
+        setProposedServices([]);
+        setSelectedServices([]);
+      }
     }
   }, [currentMeeting]);
 
