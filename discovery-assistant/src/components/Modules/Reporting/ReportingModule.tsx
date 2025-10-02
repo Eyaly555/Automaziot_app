@@ -16,7 +16,7 @@ import { Alert, Report, KPI } from '../../../types';
 export const ReportingModule: React.FC = () => {
   const navigate = useNavigate();
   const { currentMeeting, updateModule } = useMeetingStore();
-  const moduleData = currentMeeting?.modules.reporting || {};
+  const moduleData = currentMeeting?.modules?.reporting || {};
 
   const [expandedSections, setExpandedSections] = useState<string[]>(['alerts']);
 

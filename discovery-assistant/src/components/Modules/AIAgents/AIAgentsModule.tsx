@@ -22,7 +22,7 @@ import { AIModelSelector } from './AIModelSelector';
 export const AIAgentsModule: React.FC = () => {
   const navigate = useNavigate();
   const { currentMeeting, updateModule } = useMeetingStore();
-  const moduleData = currentMeeting?.modules.aiAgents || {};
+  const moduleData = currentMeeting?.modules?.aiAgents || {};
 
   const [expandedSections, setExpandedSections] = useState<string[]>(['sales']);
 

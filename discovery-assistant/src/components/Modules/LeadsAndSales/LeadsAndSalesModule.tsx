@@ -34,7 +34,7 @@ const channelOptions = [
 export const LeadsAndSalesModule: React.FC = () => {
   const navigate = useNavigate();
   const { currentMeeting, updateModule } = useMeetingStore();
-  const moduleData = currentMeeting?.modules.leadsAndSales || {};
+  const moduleData = currentMeeting?.modules?.leadsAndSales || {};
 
   // Section states
   const [expandedSections, setExpandedSections] = useState<string[]>(['leadSources']);

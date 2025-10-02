@@ -13,7 +13,7 @@ import { IntegrationVisualizer } from '../../Visualizations/IntegrationVisualize
 export const SystemsModuleEnhanced: React.FC = () => {
   const navigate = useNavigate();
   const { currentMeeting, updateModule } = useMeetingStore();
-  const moduleData = currentMeeting?.modules.systems || {};
+  const moduleData = currentMeeting?.modules?.systems || {};
 
   // Current Systems (legacy checkboxes)
   const [currentSystems, setCurrentSystems] = useState<string[]>(moduleData.currentSystems || []);

@@ -44,7 +44,7 @@ interface Department {
 export const OperationsModule: React.FC = () => {
   const navigate = useNavigate();
   const { currentMeeting, updateModule } = useMeetingStore();
-  const moduleData = currentMeeting?.modules.operations || {};
+  const moduleData = currentMeeting?.modules?.operations || {};
 
   const [expandedSections, setExpandedSections] = useState<string[]>(['workProcesses']);
 

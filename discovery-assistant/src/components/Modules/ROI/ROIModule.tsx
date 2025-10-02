@@ -11,7 +11,7 @@ import { ROIVisualization } from './ROIVisualization';
 export const ROIModule: React.FC = () => {
   const navigate = useNavigate();
   const { currentMeeting, updateModule } = useMeetingStore();
-  const moduleData = currentMeeting?.modules.roi || {};
+  const moduleData = currentMeeting?.modules?.roi || {};
 
   // Current Costs
   const [currentManualHours, setCurrentManualHours] = useState(moduleData.currentCosts?.manualHours || '');

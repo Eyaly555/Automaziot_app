@@ -8,7 +8,7 @@ import { TextField, CheckboxGroup, RadioGroup, TextAreaField } from '../../Commo
 export const PlanningModule: React.FC = () => {
   const navigate = useNavigate();
   const { currentMeeting, updateModule, completeMeeting } = useMeetingStore();
-  const moduleData = currentMeeting?.modules.planning || {};
+  const moduleData = currentMeeting?.modules?.planning || {};
 
   // Vision & Goals
   const [vision, setVision] = useState(moduleData.vision || '');

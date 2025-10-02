@@ -42,7 +42,7 @@ const platformOptions = [
 export const CustomerServiceModule: React.FC = () => {
   const navigate = useNavigate();
   const { currentMeeting, updateModule } = useMeetingStore();
-  const moduleData: any = currentMeeting?.modules.customerService || {};
+  const moduleData: any = currentMeeting?.modules?.customerService || {};
 
   // Section states
   const [expandedSections, setExpandedSections] = useState<string[]>(['channels']);

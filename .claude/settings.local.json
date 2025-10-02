@@ -57,7 +57,10 @@
       "mcp__chrome-mcp-server__chrome_close_tabs",
       "Bash(mkdir:*)",
       "Bash(mv:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(for file in AIAgents/AIAgentsModule.tsx AIAgents/AIAgentUseCaseBuilder.tsx AIAgents/AIModelSelector.tsx CustomerService/CustomerServiceModule.tsx LeadsAndSales/LeadsAndSalesModule.tsx Operations/OperationsModule.tsx Planning/PlanningModule.tsx Reporting/ReportingModule.tsx ROI/ROIModule.tsx Systems/SystemsModule.tsx Systems/SystemsModuleEnhanced.tsx)",
+      "Bash(do sed -i 's/currentMeeting?.modules\\./currentMeeting?.modules?./g' \"$file\")",
+      "Bash(echo \"Fixed: $file\")"
     ],
     "deny": [],
     "ask": []

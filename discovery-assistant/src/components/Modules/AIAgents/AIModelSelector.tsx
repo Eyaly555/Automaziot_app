@@ -90,7 +90,7 @@ const AI_MODELS: AIModelComparison[] = [
 
 export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSelectModel }) => {
   const { updateModule, currentMeeting } = useMeetingStore();
-  const moduleData = currentMeeting?.modules.aiAgents || {};
+  const moduleData = currentMeeting?.modules?.aiAgents || {};
 
   const [selectedModelId, setSelectedModelId] = useState<string>('');
   const [showDetails, setShowDetails] = useState<string | null>(null);

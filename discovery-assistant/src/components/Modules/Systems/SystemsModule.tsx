@@ -9,7 +9,7 @@ import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 export const SystemsModule: React.FC = () => {
   const navigate = useNavigate();
   const { currentMeeting, updateModule } = useMeetingStore();
-  const moduleData = currentMeeting?.modules.systems || {};
+  const moduleData = currentMeeting?.modules?.systems || {};
 
   // Current Systems
   const [currentSystems, setCurrentSystems] = useState<string[]>(moduleData.currentSystems || []);

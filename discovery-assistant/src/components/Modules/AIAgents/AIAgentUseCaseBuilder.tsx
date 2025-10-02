@@ -19,7 +19,7 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
   onCancel
 }) => {
   const { updateModule, currentMeeting } = useMeetingStore();
-  const moduleData = currentMeeting?.modules.aiAgents || {};
+  const moduleData = currentMeeting?.modules?.aiAgents || {};
 
   // State for use case builder
   const [useCaseName, setUseCaseName] = useState(initialData?.name || '');

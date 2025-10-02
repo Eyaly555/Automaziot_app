@@ -32,7 +32,7 @@ const systemOptions = [
 export const OverviewModule: React.FC = () => {
   const navigate = useNavigate();
   const { currentMeeting, updateModule } = useMeetingStore();
-  const overviewData = currentMeeting?.modules.overview || {};
+  const overviewData = currentMeeting?.modules?.overview || {};
 
   const [businessType, setBusinessType] = useState(overviewData.businessType || '');
   const [employees, setEmployees] = useState(overviewData.employees);
