@@ -1,5 +1,85 @@
 // Main types for Discovery Assistant application
 
+// ============================================================================
+// PHASE TRACKING TYPES
+// ============================================================================
+
+export type MeetingPhase = 'discovery' | 'implementation_spec' | 'development' | 'completed';
+
+export type MeetingStatus =
+  | 'discovery_in_progress'
+  | 'discovery_complete'
+  | 'awaiting_client_decision'
+  | 'client_approved'
+  | 'spec_in_progress'
+  | 'spec_complete'
+  | 'dev_not_started'
+  | 'dev_in_progress'
+  | 'dev_testing'
+  | 'dev_ready_for_deployment'
+  | 'deployed'
+  | 'completed';
+
+export interface PhaseTransition {
+  fromPhase: MeetingPhase | null;
+  toPhase: MeetingPhase;
+  timestamp: Date;
+  transitionedBy: string;
+  notes?: string;
+}
+
+// Bilingual text support for Phase 3 (English UI)
+export interface BilingualText {
+  he: string;  // Hebrew
+  en: string;  // English
+}
+
+// ============================================================================
+// ZOHO INTEGRATION TYPES
+// ============================================================================
+
+export interface ZohoClientListItem {
+  recordId: string;
+  clientName: string;
+  companyName?: string;
+  phase: MeetingPhase;
+  status: MeetingStatus;
+  overallProgress: number;
+  phase2Progress?: number;
+  phase3Progress?: number;
+  lastModified: Date;
+  lastSync?: Date;
+  syncStatus: 'synced' | 'pending' | 'error';
+  owner?: string;
+  email?: string;
+  phone?: string;
+  discoveryDate?: Date;
+  discoveryModulesCompleted?: number;
+}
+
+export interface ZohoClientsCache {
+  lastFetch: Date;
+  clients: ZohoClientListItem[];
+  totalCount: number;
+}
+
+export interface ZohoSyncOptions {
+  force?: boolean; // Force sync even if recent
+  fullSync?: boolean; // Sync all data or just metadata
+  silent?: boolean; // Don't show UI feedback
+}
+
+export interface ZohoSyncResult {
+  success: boolean;
+  recordId?: string;
+  message?: string;
+  error?: string;
+}
+
+// ============================================================================
+// MAIN MEETING TYPE
+// ============================================================================
+
 export interface Meeting {
   meetingId: string;
   clientName: string;
@@ -11,6 +91,17 @@ export interface Meeting {
   totalROI?: number;
   customFieldValues?: CustomFieldValues;
   wizardState?: WizardState;
+
+  // NEW: Phase tracking
+  phase: MeetingPhase;
+  status: MeetingStatus;
+  phaseHistory: PhaseTransition[];
+
+  // NEW: Phase-specific data (imported from separate type files)
+  discoveryData?: any; // Phase 1 data is the 'modules' field above
+  implementationSpec?: ImplementationSpecData; // Defined in phase2.ts
+  developmentTracking?: DevelopmentTrackingData; // Defined in phase3.ts
+
   zohoIntegration?: {
     recordId: string;
     module: 'Potentials1';
@@ -656,3 +747,58 @@ export interface AIRecommendation {
   aiGenerated: boolean;
   confidence: number;
 }
+
+// ============================================================================
+// IMPORT & EXPORT PHASE 2 & PHASE 3 TYPES
+// ============================================================================
+
+// Re-export all Phase 2 types
+export type {
+  DetailedSystemSpec,
+  SystemAuthentication,
+  SystemModule,
+  SystemField,
+  FieldMapping,
+  DataMigration,
+  IntegrationFlow,
+  FlowTrigger,
+  FlowStep,
+  ErrorHandlingStrategy,
+  TestCase,
+  DetailedAIAgentSpec,
+  KnowledgeBase,
+  KnowledgeSource,
+  DetailedConversationFlow,
+  ConversationStep,
+  ConversationVariable,
+  ConversationBranch,
+  ConversationAction,
+  AIAgentIntegrations,
+  AIAgentTraining,
+  SampleConversation,
+  AIModelSelection,
+  AcceptanceCriteria,
+  FunctionalRequirement,
+  PerformanceRequirement,
+  SecurityRequirement,
+  UsabilityRequirement,
+  ImplementationSpecData,
+} from './phase2';
+
+// Re-export all Phase 3 types
+export type {
+  DevelopmentTask,
+  TaskTestCase,
+  Sprint,
+  ProjectProgress,
+  TeamMember,
+  Blocker,
+  DevelopmentTrackingData,
+  TaskTemplate,
+  TaskGenerationRule,
+  DeveloperReport,
+  JiraExport,
+  JiraIssue,
+  GitHubIssueExport,
+  GitHubIssue,
+} from './phase3';

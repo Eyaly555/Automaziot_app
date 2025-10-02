@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Meeting, PainPoint, ModuleProgress, WizardState, SelectOption } from '../types';
+import { Meeting, PainPoint, ModuleProgress, WizardState, SelectOption, MeetingPhase, MeetingStatus, PhaseTransition, ZohoClientListItem, ZohoClientsCache, ZohoSyncOptions } from '../types';
 import { WIZARD_STEPS } from '../config/wizardSteps';
 import { syncService } from '../services/syncService';
 import { isSupabaseConfigured } from '../lib/supabase';
@@ -8,6 +8,12 @@ import { isSupabaseConfigured } from '../lib/supabase';
 interface MeetingStore {
   currentMeeting: Meeting | null;
   meetings: Meeting[];
+
+  // NEW: Zoho clients list management
+  zohoClientsList: ZohoClientListItem[];
+  zohoClientsCache: ZohoClientsCache | null;
+  isLoadingClients: boolean;
+  clientsLoadError: string | null;
 
   // Meeting actions
   createMeeting: (clientName: string) => void;
@@ -76,6 +82,31 @@ interface MeetingStore {
 
   // Update meeting field with optional sync
   updateMeetingField: (moduleId: string, field: string, value: any) => void;
+
+  // NEW: Phase management actions
+  transitionPhase: (toPhase: MeetingPhase, notes?: string) => void;
+  updatePhaseStatus: (status: MeetingStatus) => void;
+  canTransitionTo: (phase: MeetingPhase) => boolean;
+  getPhaseProgress: (phase: MeetingPhase) => number;
+
+  // NEW: Task management actions (Phase 3)
+  addTask: (task: Omit<any, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateTask: (taskId: string, updates: Partial<any>) => void;
+  deleteTask: (taskId: string) => void;
+  assignTask: (taskId: string, assignee: string) => void;
+  updateTaskStatus: (taskId: string, status: 'todo' | 'in_progress' | 'in_review' | 'blocked' | 'done') => void;
+  addTaskTestCase: (taskId: string, testCase: any) => void;
+  updateTaskTestCase: (taskId: string, testCaseId: string, updates: Partial<any>) => void;
+  addBlocker: (taskId: string, blocker: any) => void;
+  resolveBlocker: (taskId: string, blockerId: string) => void;
+
+  // NEW: Zoho clients list actions
+  fetchZohoClients: (options?: { force?: boolean; filters?: any }) => Promise<void>;
+  loadClientFromZoho: (recordId: string) => Promise<void>;
+  syncCurrentToZoho: (options?: ZohoSyncOptions) => Promise<boolean>;
+  refreshClientsList: () => Promise<void>;
+  searchClients: (query: string) => Promise<ZohoClientListItem[]>;
+  clearClientsCache: () => void;
 }
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -96,6 +127,12 @@ export const useMeetingStore = create<MeetingStore>()(
       timerInterval: null,
       wizardState: null,
 
+      // NEW: Zoho clients list state
+      zohoClientsList: [],
+      zohoClientsCache: null,
+      isLoadingClients: false,
+      clientsLoadError: null,
+
       createMeeting: (clientName) => {
         const meeting: Meeting = {
           meetingId: generateId(),
@@ -114,7 +151,18 @@ export const useMeetingStore = create<MeetingStore>()(
             planning: {}
           },
           painPoints: [],
-          notes: ''
+          notes: '',
+          // NEW: Initialize phase tracking
+          phase: 'discovery',
+          status: 'discovery_in_progress',
+          phaseHistory: [{
+            fromPhase: null,
+            toPhase: 'discovery',
+            timestamp: new Date(),
+            transitionedBy: 'system'
+          }],
+          implementationSpec: undefined,
+          developmentTracking: undefined
         };
 
         set((state) => ({
@@ -1047,6 +1095,494 @@ export const useMeetingStore = create<MeetingStore>()(
             )
           };
         });
+      },
+
+      // ========================================================================
+      // PHASE MANAGEMENT
+      // ========================================================================
+
+      transitionPhase: (toPhase, notes) => {
+        set((state) => {
+          if (!state.currentMeeting) return state;
+
+          const transition: PhaseTransition = {
+            fromPhase: state.currentMeeting.phase,
+            toPhase,
+            timestamp: new Date(),
+            transitionedBy: 'user', // TODO: Get from auth when implemented
+            notes
+          };
+
+          // Update status based on phase
+          let newStatus: MeetingStatus;
+          switch (toPhase) {
+            case 'discovery':
+              newStatus = 'discovery_in_progress';
+              break;
+            case 'implementation_spec':
+              newStatus = 'spec_in_progress';
+              break;
+            case 'development':
+              newStatus = 'dev_not_started';
+              break;
+            case 'completed':
+              newStatus = 'completed';
+              break;
+            default:
+              newStatus = state.currentMeeting.status;
+          }
+
+          const updatedMeeting = {
+            ...state.currentMeeting,
+            phase: toPhase,
+            status: newStatus,
+            phaseHistory: [...state.currentMeeting.phaseHistory, transition]
+          };
+
+          return {
+            currentMeeting: updatedMeeting,
+            meetings: state.meetings.map(m =>
+              m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
+            )
+          };
+        });
+      },
+
+      updatePhaseStatus: (status) => {
+        set((state) => {
+          if (!state.currentMeeting) return state;
+
+          const updatedMeeting = {
+            ...state.currentMeeting,
+            status
+          };
+
+          return {
+            currentMeeting: updatedMeeting,
+            meetings: state.meetings.map(m =>
+              m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
+            )
+          };
+        });
+      },
+
+      canTransitionTo: (phase) => {
+        const state = get();
+        if (!state.currentMeeting) return false;
+
+        const currentPhase = state.currentMeeting.phase;
+
+        // Phase transition rules
+        const transitions: Record<MeetingPhase, MeetingPhase[]> = {
+          discovery: ['implementation_spec'],
+          implementation_spec: ['development', 'discovery'], // Can go back to discovery
+          development: ['completed', 'implementation_spec'], // Can go back to spec
+          completed: [] // Cannot transition from completed
+        };
+
+        return transitions[currentPhase]?.includes(phase) || false;
+      },
+
+      getPhaseProgress: (phase) => {
+        const state = get();
+        if (!state.currentMeeting) return 0;
+
+        switch (phase) {
+          case 'discovery':
+            // Use existing overall progress
+            return get().getOverallProgress();
+
+          case 'implementation_spec':
+            const spec = state.currentMeeting.implementationSpec;
+            if (!spec) return 0;
+            return spec.completionPercentage || 0;
+
+          case 'development':
+            const dev = state.currentMeeting.developmentTracking;
+            if (!dev || !dev.progress) return 0;
+            return dev.progress.progressPercentage || 0;
+
+          case 'completed':
+            return 100;
+
+          default:
+            return 0;
+        }
+      },
+
+      // Task management actions
+      addTask: (taskData) => {
+        const state = get();
+        if (!state.currentMeeting?.developmentTracking) return;
+
+        const newTask = {
+          ...taskData,
+          id: generateId(),
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+
+        const updatedTasks = [...state.currentMeeting.developmentTracking.tasks, newTask];
+
+        set({
+          currentMeeting: {
+            ...state.currentMeeting,
+            developmentTracking: {
+              ...state.currentMeeting.developmentTracking,
+              tasks: updatedTasks,
+              lastUpdated: new Date()
+            }
+          }
+        });
+      },
+
+      updateTask: (taskId, updates) => {
+        const state = get();
+        if (!state.currentMeeting?.developmentTracking) return;
+
+        const updatedTasks = state.currentMeeting.developmentTracking.tasks.map(task =>
+          task.id === taskId
+            ? { ...task, ...updates, updatedAt: new Date() }
+            : task
+        );
+
+        set({
+          currentMeeting: {
+            ...state.currentMeeting,
+            developmentTracking: {
+              ...state.currentMeeting.developmentTracking,
+              tasks: updatedTasks,
+              lastUpdated: new Date()
+            }
+          }
+        });
+      },
+
+      deleteTask: (taskId) => {
+        const state = get();
+        if (!state.currentMeeting?.developmentTracking) return;
+
+        const updatedTasks = state.currentMeeting.developmentTracking.tasks.filter(
+          task => task.id !== taskId
+        );
+
+        set({
+          currentMeeting: {
+            ...state.currentMeeting,
+            developmentTracking: {
+              ...state.currentMeeting.developmentTracking,
+              tasks: updatedTasks,
+              lastUpdated: new Date()
+            }
+          }
+        });
+      },
+
+      assignTask: (taskId, assignee) => {
+        get().updateTask(taskId, { assignedTo: assignee });
+      },
+
+      updateTaskStatus: (taskId, status) => {
+        get().updateTask(taskId, { status });
+      },
+
+      addTaskTestCase: (taskId, testCase) => {
+        const state = get();
+        if (!state.currentMeeting?.developmentTracking) return;
+
+        const task = state.currentMeeting.developmentTracking.tasks.find(t => t.id === taskId);
+        if (!task) return;
+
+        const newTestCase = {
+          ...testCase,
+          id: generateId()
+        };
+
+        get().updateTask(taskId, {
+          testCases: [...(task.testCases || []), newTestCase]
+        });
+      },
+
+      updateTaskTestCase: (taskId, testCaseId, updates) => {
+        const state = get();
+        if (!state.currentMeeting?.developmentTracking) return;
+
+        const task = state.currentMeeting.developmentTracking.tasks.find(t => t.id === taskId);
+        if (!task || !task.testCases) return;
+
+        const updatedTestCases = task.testCases.map(tc =>
+          tc.id === testCaseId ? { ...tc, ...updates } : tc
+        );
+
+        get().updateTask(taskId, { testCases: updatedTestCases });
+      },
+
+      addBlocker: (taskId, blocker) => {
+        const state = get();
+        if (!state.currentMeeting?.developmentTracking) return;
+
+        const newBlocker = {
+          ...blocker,
+          id: generateId(),
+          createdAt: new Date(),
+          resolved: false
+        };
+
+        const updatedBlockers = [
+          ...(state.currentMeeting.developmentTracking.blockers || []),
+          newBlocker
+        ];
+
+        set({
+          currentMeeting: {
+            ...state.currentMeeting,
+            developmentTracking: {
+              ...state.currentMeeting.developmentTracking,
+              blockers: updatedBlockers
+            }
+          }
+        });
+
+        // Also update task status to blocked
+        get().updateTaskStatus(taskId, 'blocked');
+      },
+
+      resolveBlocker: (taskId, blockerId) => {
+        const state = get();
+        if (!state.currentMeeting?.developmentTracking) return;
+
+        const updatedBlockers = state.currentMeeting.developmentTracking.blockers?.map(blocker =>
+          blocker.id === blockerId
+            ? { ...blocker, resolved: true, resolvedAt: new Date() }
+            : blocker
+        );
+
+        set({
+          currentMeeting: {
+            ...state.currentMeeting,
+            developmentTracking: {
+              ...state.currentMeeting.developmentTracking,
+              blockers: updatedBlockers
+            }
+          }
+        });
+      },
+
+      // ========================================================================
+      // ZOHO CLIENTS LIST MANAGEMENT
+      // ========================================================================
+
+      fetchZohoClients: async (options = {}) => {
+        set({ isLoadingClients: true, clientsLoadError: null });
+
+        try {
+          // Check cache first
+          const cache = get().zohoClientsCache;
+          const cacheAge = cache ? Date.now() - new Date(cache.lastFetch).getTime() : Infinity;
+
+          // Use cache if it's fresh (< 5 minutes) and not forced
+          if (!options.force && cache && cacheAge < 5 * 60 * 1000) {
+            console.log('[ZohoClients] Using cached data');
+            set({
+              zohoClientsList: cache.clients,
+              isLoadingClients: false
+            });
+            return;
+          }
+
+          // Fetch from Zoho API
+          console.log('[ZohoClients] Fetching from Zoho...');
+          const params = new URLSearchParams(options.filters || {});
+          const response = await fetch(`/api/zoho/potentials/list?${params}`);
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+
+          if (data.success && data.potentials) {
+            const newCache: ZohoClientsCache = {
+              lastFetch: new Date(),
+              clients: data.potentials,
+              totalCount: data.total || data.potentials.length
+            };
+
+            // Save to localStorage
+            try {
+              localStorage.setItem('zoho_clients_cache', JSON.stringify(newCache));
+            } catch (storageError) {
+              console.warn('[ZohoClients] Failed to cache in localStorage:', storageError);
+            }
+
+            set({
+              zohoClientsList: data.potentials,
+              zohoClientsCache: newCache,
+              isLoadingClients: false
+            });
+
+            console.log(`[ZohoClients] Loaded ${data.potentials.length} clients`);
+          } else {
+            throw new Error(data.message || 'Failed to fetch clients');
+          }
+        } catch (error) {
+          console.error('[ZohoClients] Fetch error:', error);
+          set({
+            clientsLoadError: error instanceof Error ? error.message : 'Failed to load clients',
+            isLoadingClients: false
+          });
+
+          // Try to load from localStorage cache as fallback
+          try {
+            const cachedData = localStorage.getItem('zoho_clients_cache');
+            if (cachedData) {
+              const cache = JSON.parse(cachedData);
+              set({ zohoClientsList: cache.clients || [] });
+              console.log('[ZohoClients] Loaded from localStorage fallback');
+            }
+          } catch (cacheError) {
+            console.error('[ZohoClients] Failed to load cache:', cacheError);
+          }
+        }
+      },
+
+      loadClientFromZoho: async (recordId: string) => {
+        try {
+          console.log('[ZohoClients] Loading client:', recordId);
+
+          // Try localStorage first for instant load
+          const localKey = `discovery_zoho_${recordId}`;
+          const localData = localStorage.getItem(localKey);
+
+          if (localData) {
+            try {
+              const meeting = JSON.parse(localData);
+              set({ currentMeeting: meeting });
+              console.log('[ZohoClients] Loaded from localStorage');
+            } catch (parseError) {
+              console.warn('[ZohoClients] Failed to parse local data');
+            }
+          }
+
+          // Fetch fresh data from Zoho
+          const response = await fetch(`/api/zoho/potentials/${recordId}/full`);
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+
+          if (data.success && data.meetingData) {
+            set({ currentMeeting: data.meetingData });
+
+            // Save to localStorage
+            try {
+              localStorage.setItem(localKey, JSON.stringify(data.meetingData));
+            } catch (storageError) {
+              console.warn('[ZohoClients] Failed to save to localStorage:', storageError);
+            }
+
+            console.log('[ZohoClients] Loaded fresh data from Zoho');
+          } else {
+            throw new Error(data.message || 'Failed to load client data');
+          }
+        } catch (error) {
+          console.error('[ZohoClients] Load error:', error);
+          throw error;
+        }
+      },
+
+      syncCurrentToZoho: async (options = {}) => {
+        const meeting = get().currentMeeting;
+        if (!meeting) {
+          console.warn('[ZohoSync] No current meeting to sync');
+          return false;
+        }
+
+        if (!options.silent) {
+          set({ isSyncing: true, syncError: null });
+        }
+
+        try {
+          const recordId = meeting.zohoIntegration?.recordId;
+          console.log('[ZohoSync] Syncing to Zoho...', { recordId, fullSync: options.fullSync });
+
+          const response = await fetch('/api/zoho/potentials/sync-full', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              meeting,
+              recordId,
+              fullSync: options.fullSync
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Update the meeting with new sync info
+            const updatedMeeting = {
+              ...meeting,
+              zohoIntegration: {
+                ...meeting.zohoIntegration,
+                recordId: data.recordId || recordId,
+                lastSyncTime: new Date().toISOString(),
+                syncEnabled: true
+              }
+            };
+
+            set({
+              currentMeeting: updatedMeeting,
+              isSyncing: false,
+              lastSyncTime: new Date()
+            });
+
+            console.log('[ZohoSync] Sync successful');
+            return true;
+          } else {
+            throw new Error(data.message || 'Sync failed');
+          }
+        } catch (error) {
+          console.error('[ZohoSync] Sync error:', error);
+          set({
+            syncError: error instanceof Error ? error.message : 'Sync failed',
+            isSyncing: false
+          });
+          return false;
+        }
+      },
+
+      refreshClientsList: async () => {
+        await get().fetchZohoClients({ force: true });
+      },
+
+      searchClients: async (query: string) => {
+        try {
+          const response = await fetch(`/api/zoho/potentials/search?q=${encodeURIComponent(query)}`);
+          const data = await response.json();
+
+          if (data.success && data.results) {
+            return data.results;
+          }
+          return [];
+        } catch (error) {
+          console.error('[ZohoClients] Search error:', error);
+          return [];
+        }
+      },
+
+      clearClientsCache: () => {
+        localStorage.removeItem('zoho_clients_cache');
+        set({
+          zohoClientsList: [],
+          zohoClientsCache: null
+        });
+        console.log('[ZohoClients] Cache cleared');
       }
     }),
     {

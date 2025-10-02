@@ -94,9 +94,77 @@ meeting.modules[moduleName] = {
 - **Tailwind CSS 3**: Styling (v4 causes PostCSS errors)
 - **jsPDF + html2canvas**: PDF generation from DOM elements
 
+## Multi-Phase Architecture
+
+The application now supports a 3-phase project lifecycle:
+
+### Phase 1: Discovery (Default)
+- 9 business analysis modules in Hebrew UI
+- ROI calculations and pain point tracking
+- Dashboard and wizard mode for data collection
+
+### Phase 2: Implementation Specification (`/phase2/*`)
+- Detailed system specs with authentication, modules, fields
+- Integration flow builder for system-to-system data flows
+- AI agent specifications with prompts, tools, guardrails
+- Acceptance criteria definitions
+- Data in `meeting.implementationSpec` (types in [phase2.ts](src/types/phase2.ts))
+
+### Phase 3: Development Tracking (`/phase3/*`)
+- Developer dashboard with task management
+- Sprint planning and progress tracking
+- System-focused views linking tasks to specs
+- Blocker management
+- English UI for technical team
+- Data in `meeting.developmentTracking` (types in [phase3.ts](src/types/phase3.ts))
+
+### Phase Transitions
+- Managed via `transitionPhase()` in useMeetingStore
+- Phase history tracked in `meeting.phaseHistory`
+- Status field tracks sub-states: discovery_in_progress → discovery_complete → client_approved → spec_in_progress → dev_in_progress → deployed
+
+## Zoho CRM Integration
+
+Optional integration available when `VITE_ENABLE_ZOHO_SYNC=true`:
+- Automatically syncs meetings to Zoho CRM Potentials module
+- URL parameters `Entity` and `EntityId` trigger Zoho context detection
+- Backend API handles OAuth refresh tokens (server-side only)
+- Client uses [zohoSyncService.ts](src/services/zohoSyncService.ts) to call backend API
+- Retry queue for failed syncs: [zohoRetryQueue.ts](src/services/zohoRetryQueue.ts)
+
+**Important**: Zoho credentials must be server-side only; never expose in client bundle.
+
+## Export Functionality
+
+Multiple export formats supported:
+- **PDF**: Full Hebrew report with charts using jsPDF + html2canvas
+- **Excel**: XLSX export with multiple sheets using xlsx library
+- **JSON**: Complete meeting data for backup/import
+- **English PDF**: Technical specification export (Phase 2) via [englishExport.ts](src/utils/englishExport.ts)
+- **Task Generation**: Automated task list generation from Phase 2 specs via [taskGenerator.ts](src/utils/taskGenerator.ts)
+
+## Environment Variables
+
+Critical variables (see [.env.example](.env.example)):
+- `VITE_ENABLE_ZOHO_SYNC`: Enable/disable Zoho integration
+- `VITE_SUPABASE_URL` & `VITE_SUPABASE_ANON_KEY`: Optional cloud sync
+- `VITE_AI_PROVIDER`, `VITE_AI_API_KEY`: AI-powered recommendations (optional)
+- `VITE_FEATURE_WIZARD_MODE`: Enable guided wizard flow
+- `ZOHO_REFRESH_TOKEN`, `ZOHO_CLIENT_ID`, `ZOHO_CLIENT_SECRET`: Backend only
+
+## Data Persistence Strategy
+
+1. **Primary**: localStorage with auto-save (1s debounce)
+2. **Optional**: Supabase for cloud sync when configured
+3. **Optional**: Zoho CRM for customer-facing integration
+4. **Conflict Resolution**: Manual resolution UI when sync conflicts occur
+5. **Storage Keys**: Different keys for Zoho mode vs. standalone mode
+
 ## Common Issues & Solutions
 
 1. **Module data not persisting**: Check localStorage debounce timing and store middleware
-2. **ROI calculations showing NaN**: Ensure all dependent modules have valid numeric data
+2. **ROI calculations showing NaN**: Ensure all dependent modules have valid numeric data in [roiCalculator.ts](src/utils/roiCalculator.ts)
 3. **PDF export cutting off content**: Adjust html2canvas scale and jsPDF page dimensions
 4. **Blank screen on load**: Check for import errors in browser console, verify all module exports
+5. **localStorage QuotaExceededError**: Meeting data exceeds 5-10MB limit; implement data compression or pagination
+6. **Zoho sync failing**: Verify backend API is running and refresh token is valid

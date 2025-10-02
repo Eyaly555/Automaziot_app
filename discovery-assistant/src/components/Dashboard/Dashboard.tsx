@@ -21,12 +21,14 @@ import {
   X,
   Wand2,
   ClipboardList,
-  Code
+  Code,
+  Users
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { formatTime, formatCurrency, formatDate } from '../../utils/formatters';
 import { calculateROI } from '../../utils/roiCalculator';
 import { ProgressBar } from '../Common/ProgressBar/ProgressBar';
+import { PhaseNavigator } from '../Common/PhaseNavigator';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import { generateTechnicalSpec } from '../../utils/technicalSpecGenerator';
@@ -66,6 +68,7 @@ export const Dashboard: React.FC = () => {
     startTimer,
     stopTimer,
     timerInterval,
+    zohoClientsList,
     exportMeeting,
     initializeWizard,
     syncModulesToWizard
@@ -344,6 +347,9 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
 
   return (
     <div className="min-h-screen bg-gray-50 relative" dir="rtl">
+      {/* Phase Navigator */}
+      {currentMeeting && <PhaseNavigator />}
+
       {/* Confetti Animation */}
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none z-50">
@@ -488,6 +494,20 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
                   </button>
                 </>
               )}
+
+              {/* All Clients Button */}
+              <button
+                onClick={() => navigate('/clients')}
+                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-md"
+              >
+                <Users className="w-4 h-4" />
+                <span>כל הלקוחות</span>
+                {zohoClientsList.length > 0 && (
+                  <span className="bg-indigo-800 text-xs px-2 py-0.5 rounded-full">
+                    {zohoClientsList.length}
+                  </span>
+                )}
+              </button>
 
               {/* New Meeting */}
               <button

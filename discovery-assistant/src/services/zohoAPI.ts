@@ -132,3 +132,105 @@ export async function createZohoDeal(data: any): Promise<any> {
     throw error;
   }
 }
+
+/**
+ * NEW: Get list of potentials (clients) from Zoho
+ */
+export async function getZohoPotentialsList(filters: any = {}): Promise<any> {
+  try {
+    const params = new URLSearchParams(filters);
+    const response = await fetch(`${API_BASE}/potentials/list?${params}`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to get potentials list: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to get Zoho potentials list:', error);
+    throw error;
+  }
+}
+
+/**
+ * NEW: Get full potential (client) data with meeting data
+ */
+export async function getZohoPotentialFull(recordId: string): Promise<any> {
+  try {
+    const response = await fetch(`${API_BASE}/potentials/${recordId}/full`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to get potential full data: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to get Zoho potential full data:', error);
+    throw error;
+  }
+}
+
+/**
+ * NEW: Sync full meeting data to Zoho
+ */
+export async function syncFullMeetingToZoho(meeting: any, recordId?: string): Promise<any> {
+  try {
+    const response = await fetch(`${API_BASE}/potentials/sync-full`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        meeting,
+        recordId,
+        module: 'Potentials1'
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to sync full meeting: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to sync full meeting to Zoho:', error);
+    throw error;
+  }
+}
+
+/**
+ * NEW: Update phase in Zoho potential
+ */
+export async function updateZohoPotentialPhase(recordId: string, phase: string, status: string, notes?: string): Promise<any> {
+  try {
+    const response = await fetch(`${API_BASE}/potentials/${recordId}/phase`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ phase, status, notes })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to update phase: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to update Zoho potential phase:', error);
+    throw error;
+  }
+}
+
+/**
+ * NEW: Search potentials by query
+ */
+export async function searchZohoPotentials(query: string): Promise<any> {
+  try {
+    const response = await fetch(`${API_BASE}/potentials/search?q=${encodeURIComponent(query)}`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to search potentials: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to search Zoho potentials:', error);
+    throw error;
+  }
+}
