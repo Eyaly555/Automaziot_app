@@ -10,7 +10,8 @@ export interface CheckboxOption {
 interface CheckboxGroupProps {
   label?: string;
   options: CheckboxOption[];
-  values: string[];
+  value?: string[]; // Support both 'value' and 'values' for compatibility
+  values?: string[];
   onChange: (values: string[]) => void;
   disabled?: boolean;
   helperText?: string;
@@ -21,18 +22,22 @@ interface CheckboxGroupProps {
 export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
   label,
   options,
-  values = [],
+  value,
+  values,
   onChange,
   disabled = false,
   helperText,
   className = '',
   columns = 1
 }) => {
-  const handleToggle = (value: string) => {
-    if (values.includes(value)) {
-      onChange(values.filter(v => v !== value));
+  // Support both 'value' and 'values' prop names
+  const selectedValues = Array.isArray(value) ? value : Array.isArray(values) ? values : [];
+
+  const handleToggle = (toggleValue: string) => {
+    if (selectedValues.includes(toggleValue)) {
+      onChange(selectedValues.filter(v => v !== toggleValue));
     } else {
-      onChange([...values, value]);
+      onChange([...selectedValues, toggleValue]);
     }
   };
 
@@ -60,16 +65,16 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
             <div className="relative">
               <input
                 type="checkbox"
-                checked={values.includes(option.value)}
+                checked={selectedValues.includes(option.value)}
                 onChange={() => !disabled && handleToggle(option.value)}
                 disabled={disabled}
                 className="sr-only"
               />
               <div className={`w-5 h-5 border-2 rounded flex items-center justify-center
-                ${values.includes(option.value)
+                ${selectedValues.includes(option.value)
                   ? 'bg-primary border-primary'
                   : 'bg-white border-gray-300'}`}>
-                {values.includes(option.value) && (
+                {selectedValues.includes(option.value) && (
                   <Check className="w-3 h-3 text-white" />
                 )}
               </div>

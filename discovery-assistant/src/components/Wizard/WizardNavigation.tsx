@@ -62,73 +62,92 @@ export const WizardNavigation: React.FC<WizardNavigationProps> = ({
   }, [canGoNext, canGoPrevious, onNext, onPrevious, onSkip]);
 
   return (
-    <div className="mt-8 border-t pt-6">
-      <div className="flex justify-between items-center">
-        {/* Previous Button */}
-        <button
-          onClick={onPrevious}
-          disabled={!canGoPrevious}
-          className={`
-            flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors
-            ${canGoPrevious
-              ? 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            }
-          `}
-          aria-label="חזור לשלב הקודם"
-        >
-          <ChevronRight className="w-5 h-5" />
-          <span>הקודם</span>
-        </button>
+    <div className="fixed left-6 top-1/2 -translate-y-1/2 z-10">
+      <div className="bg-white rounded-lg shadow-lg p-4 space-y-3 border border-gray-200">
+        {/* Step Counter */}
+        <div className="text-center pb-3 border-b border-gray-200">
+          <div className="text-xs text-gray-500 mb-1">שלב</div>
+          <div className="text-lg font-bold text-gray-900">
+            {currentStep} / {totalSteps}
+          </div>
+        </div>
 
-        {/* Center Info */}
-        <div className="flex items-center gap-4">
+        {/* Navigation Buttons */}
+        <div className="space-y-2">
+          {/* Previous Button */}
+          <button
+            onClick={onPrevious}
+            disabled={!canGoPrevious}
+            className={`
+              w-full flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium transition-all
+              ${canGoPrevious
+                ? 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 hover:shadow-md'
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+              }
+            `}
+            aria-label="חזור לשלב הקודם"
+            title="שלב קודם (→)"
+          >
+            <ChevronRight className="w-5 h-5" />
+            <span>הקודם</span>
+          </button>
+
+          {/* Skip Button */}
           {onSkip && (
             <button
               onClick={onSkip}
-              className="flex items-center gap-1 px-3 py-1 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 hover:bg-yellow-100 transition-all"
               aria-label="דלג על שלב זה"
+              title="דלג (Ctrl+S)"
             >
               <SkipForward className="w-4 h-4" />
               <span>דלג</span>
             </button>
           )}
 
-          <span className="text-sm text-gray-600">
-            שלב {currentStep} מתוך {totalSteps}
-          </span>
+          {/* Next/Complete Button */}
+          <button
+            onClick={onNext}
+            disabled={!canGoNext}
+            className={`
+              w-full flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium transition-all
+              ${canGoNext
+                ? isLastStep
+                  ? 'bg-green-600 text-white hover:bg-green-700 hover:shadow-lg'
+                  : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+              }
+            `}
+            aria-label={isLastStep ? 'סיים אשף' : 'המשך לשלב הבא'}
+            title={isLastStep ? 'סיום (Ctrl+Enter)' : 'שלב הבא (←)'}
+          >
+            <span>{isLastStep ? 'סיום' : 'הבא'}</span>
+            {isLastStep ? (
+              <Check className="w-5 h-5" />
+            ) : (
+              <ChevronLeft className="w-5 h-5" />
+            )}
+          </button>
         </div>
 
-        {/* Next/Complete Button */}
-        <button
-          onClick={onNext}
-          disabled={!canGoNext}
-          className={`
-            flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors
-            ${canGoNext
-              ? isLastStep
-                ? 'bg-green-600 text-white hover:bg-green-700'
-                : 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            }
-          `}
-          aria-label={isLastStep ? 'סיים אשף' : 'המשך לשלב הבא'}
-        >
-          <span>{isLastStep ? 'סיום' : 'הבא'}</span>
-          {isLastStep ? (
-            <Check className="w-5 h-5" />
-          ) : (
-            <ChevronLeft className="w-5 h-5" />
-          )}
-        </button>
-      </div>
-
-      {/* Keyboard Shortcuts Info */}
-      <div className="mt-4 flex justify-center">
-        <div className="text-xs text-gray-500 space-x-4 space-x-reverse">
-          <span>← / → לניווט</span>
-          <span>Ctrl+Enter להמשך</span>
-          {onSkip && <span>Ctrl+S לדילוג</span>}
+        {/* Keyboard Shortcuts Info */}
+        <div className="pt-3 border-t border-gray-200">
+          <div className="text-xs text-gray-500 space-y-1">
+            <div className="flex items-center gap-2">
+              <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">←/→</kbd>
+              <span>ניווט</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">Ctrl+↵</kbd>
+              <span>המשך</span>
+            </div>
+            {onSkip && (
+              <div className="flex items-center gap-2">
+                <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">Ctrl+S</kbd>
+                <span>דלג</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

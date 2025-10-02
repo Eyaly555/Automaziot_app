@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { Card } from '../Common/Card';
-import { WizardNavigation } from './WizardNavigation';
+import { WizardSidebar } from './WizardSidebar';
 import { WizardProgress } from './WizardProgress';
 import { WizardStepContent } from './WizardStepContent';
 import { WizardSummary } from './WizardSummary';
@@ -229,7 +229,15 @@ export const WizardMode: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
-      <div className="container mx-auto px-4 py-6">
+      {/* Sidebar with Module/Step Navigation */}
+      <WizardSidebar
+        currentStep={currentStep?.id || 'summary'}
+        completedSteps={Array.from(wizardState.completedSteps)}
+        skippedSteps={Array.from(wizardState.skippedSections)}
+        onStepClick={handleJumpToStep}
+      />
+
+      <div className="container mx-auto px-4 py-6 max-w-5xl ml-80">
         {/* Header */}
         <div className="mb-6">
           <div className="flex justify-between items-center">
@@ -250,17 +258,8 @@ export const WizardMode: React.FC = () => {
           </div>
         </div>
 
-        {/* Progress */}
-        <WizardProgress
-          currentStep={currentStep?.id || 'summary'}
-          completedSteps={Array.from(wizardState.completedSteps)}
-          skippedSteps={Array.from(wizardState.skippedSections)}
-          onStepClick={handleJumpToStep}
-          progress={calculateProgress()}
-        />
-
         {/* Main Content */}
-        <div className="mt-6">
+        <div className="mb-6">
           {showSummary ? (
             <WizardSummary
               meeting={currentMeeting}
@@ -279,16 +278,13 @@ export const WizardMode: React.FC = () => {
           ) : null}
         </div>
 
-        {/* Navigation */}
-        <WizardNavigation
-          onNext={handleNext}
-          onPrevious={handlePrevious}
-          onSkip={currentStep?.isOptional ? handleSkip : undefined}
-          canGoNext={true}
-          canGoPrevious={!(!currentStep && !showSummary)}
-          isLastStep={showSummary}
-          currentStep={wizardState.currentStep}
-          totalSteps={wizardState.totalSteps}
+        {/* Progress */}
+        <WizardProgress
+          currentStep={currentStep?.id || 'summary'}
+          completedSteps={Array.from(wizardState.completedSteps)}
+          skippedSteps={Array.from(wizardState.skippedSections)}
+          onStepClick={handleJumpToStep}
+          progress={calculateProgress()}
         />
       </div>
     </div>

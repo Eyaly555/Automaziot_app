@@ -73,98 +73,81 @@ export const WizardProgress: React.FC<WizardProgressProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
-      {/* Overall Progress Bar */}
-      <div className="mb-6">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium text-gray-700">התקדמות כללית</span>
-          <span className="text-sm font-medium text-gray-900">{progress}%</span>
+    <div className="bg-white rounded-lg shadow-sm p-4">
+      {/* Compact Progress Bar with Module Breakdown */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-semibold text-gray-900">התקדמות כללית</span>
+            <span className="text-xs text-gray-600">
+              ({completedSteps.length} / {WIZARD_STEPS.length} שלבים)
+            </span>
+          </div>
+          <span className="text-lg font-bold text-blue-600">{progress}%</span>
         </div>
-        <ProgressBar value={progress} className="h-2" />
+        <ProgressBar value={progress} className="h-2.5" />
       </div>
 
-      {/* Module Steps Grid */}
-      <div className="space-y-4">
+      {/* Compact Module Overview */}
+      <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2">
         {Object.entries(moduleGroups).map(([moduleId, steps]) => {
           const moduleCompleted = steps.every(step =>
             completedSteps.includes(step.id) || skippedSteps.includes(step.id)
           );
           const moduleInProgress = steps.some(step => step.id === currentStep);
+          const moduleCompletedCount = steps.filter(step =>
+            completedSteps.includes(step.id) || skippedSteps.includes(step.id)
+          ).length;
 
           return (
-            <div key={moduleId} className="border-b border-gray-200 pb-4 last:border-0">
-              {/* Module Header */}
-              <div className="flex items-center justify-between mb-3">
-                <h3 className={`text-sm font-semibold ${
-                  moduleCompleted ? 'text-green-600' :
-                  moduleInProgress ? 'text-blue-600' :
-                  'text-gray-700'
-                }`}>
+            <button
+              key={moduleId}
+              onClick={() => {
+                // Jump to first incomplete step in module or first step
+                const firstIncomplete = steps.find(s => !completedSteps.includes(s.id) && !skippedSteps.includes(s.id));
+                onStepClick(firstIncomplete?.id || steps[0].id);
+              }}
+              className={`
+                relative p-2 rounded-md border transition-all duration-200 hover:shadow-md
+                ${moduleCompleted
+                  ? 'bg-green-50 border-green-300 hover:bg-green-100'
+                  : moduleInProgress
+                    ? 'bg-blue-50 border-blue-400 ring-2 ring-blue-400'
+                    : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                }
+              `}
+              title={`${moduleNames[moduleId]} (${moduleCompletedCount}/${steps.length})`}
+            >
+              <div className="flex flex-col items-center gap-1">
+                {moduleCompleted && <Check className="w-4 h-4 text-green-600" />}
+                {!moduleCompleted && moduleInProgress && <Circle className="w-4 h-4 text-blue-600 fill-current" />}
+                {!moduleCompleted && !moduleInProgress && <Circle className="w-4 h-4 text-gray-400" />}
+
+                <span className={`
+                  text-xs font-medium text-center line-clamp-2
+                  ${moduleCompleted ? 'text-green-700' :
+                    moduleInProgress ? 'text-blue-700' :
+                    'text-gray-600'
+                  }
+                `}>
                   {moduleNames[moduleId]}
-                </h3>
-                {moduleCompleted && (
-                  <Check className="w-5 h-5 text-green-500" />
-                )}
-              </div>
+                </span>
 
-              {/* Steps within module */}
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                {steps.map((step) => {
-                  const status = getStepStatus(step.id);
-                  const isClickable = status === 'completed' || status === 'skipped' || status === 'current';
-
-                  return (
-                    <button
-                      key={step.id}
-                      onClick={() => isClickable && onStepClick(step.id)}
-                      disabled={!isClickable}
-                      className={`
-                        relative flex items-center gap-2 px-3 py-2 rounded-md text-xs
-                        transition-all duration-200
-                        ${isClickable ? 'cursor-pointer hover:shadow-md' : 'cursor-not-allowed opacity-50'}
-                        ${status === 'current' ? 'ring-2 ring-blue-500 ring-offset-2' : ''}
-                        ${status === 'completed' ? 'bg-green-50 hover:bg-green-100' :
-                          status === 'skipped' ? 'bg-yellow-50 hover:bg-yellow-100' :
-                          status === 'current' ? 'bg-blue-50 hover:bg-blue-100' :
-                          'bg-gray-50'
-                        }
-                      `}
-                      title={step.sectionName}
-                    >
-                      <span className={`
-                        flex items-center justify-center w-5 h-5 rounded-full
-                        ${getStepColor(status)}
-                      `}>
-                        {getStepIcon(status)}
-                      </span>
-                      <span className={`
-                        truncate flex-1 text-right
-                        ${status === 'completed' ? 'text-green-700' :
-                          status === 'skipped' ? 'text-yellow-700' :
-                          status === 'current' ? 'text-blue-700 font-semibold' :
-                          'text-gray-600'
-                        }
-                      `}>
-                        {step.sectionName}
-                      </span>
-                      {step.isOptional && status === 'pending' && (
-                        <span className="text-gray-400 text-xs">(אופציונלי)</span>
-                      )}
-                    </button>
-                  );
-                })}
+                <span className="text-xs text-gray-500">
+                  {moduleCompletedCount}/{steps.length}
+                </span>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>
 
       {/* Summary Section */}
-      <div className="mt-6 pt-4 border-t border-gray-200">
+      <div className="mt-4 pt-4 border-t border-gray-200">
         <button
           onClick={() => onStepClick('summary')}
           className={`
-            w-full flex items-center justify-center gap-2 px-4 py-3 rounded-md
+            w-full flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm
             transition-all duration-200 hover:shadow-md
             ${currentStep === 'summary'
               ? 'bg-blue-500 text-white ring-2 ring-blue-500 ring-offset-2'
@@ -174,27 +157,27 @@ export const WizardProgress: React.FC<WizardProgressProps> = ({
         >
           <span className="font-medium">סיכום וסקירה</span>
           {completedSteps.length === WIZARD_STEPS.filter(s => !s.isOptional).length && (
-            <Check className="w-5 h-5" />
+            <Check className="w-4 h-4" />
           )}
         </button>
       </div>
 
-      {/* Legend */}
-      <div className="mt-4 flex flex-wrap gap-4 text-xs text-gray-600">
+      {/* Compact Legend */}
+      <div className="mt-3 flex flex-wrap justify-center gap-3 text-xs text-gray-600">
         <div className="flex items-center gap-1">
-          <span className="w-4 h-4 rounded-full bg-green-500"></span>
+          <span className="w-3 h-3 rounded-full bg-green-500"></span>
           <span>הושלם</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="w-4 h-4 rounded-full bg-blue-500"></span>
-          <span>שלב נוכחי</span>
+          <span className="w-3 h-3 rounded-full bg-blue-500"></span>
+          <span>נוכחי</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="w-4 h-4 rounded-full bg-yellow-500"></span>
+          <span className="w-3 h-3 rounded-full bg-yellow-500"></span>
           <span>דולג</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="w-4 h-4 rounded-full bg-gray-300"></span>
+          <span className="w-3 h-3 rounded-full bg-gray-300"></span>
           <span>ממתין</span>
         </div>
       </div>
