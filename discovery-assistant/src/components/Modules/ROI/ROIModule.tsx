@@ -21,7 +21,7 @@ export const ROIModule: React.FC = () => {
   const [lostOpportunities, setLostOpportunities] = useState(moduleData.currentCosts?.lostOpportunities || '');
 
   // Time Savings
-  const [automationPotential, setAutomationPotential] = useState(moduleData.timeSavings?.automationPotential || '');
+  const [estimatedHoursSaved, setEstimatedHoursSaved] = useState(moduleData.timeSavings?.estimatedHoursSaved || '');
   const [processesToAutomate, setProcessesToAutomate] = useState<string[]>(moduleData.timeSavings?.processes || []);
   const [immediateVsGradual, setImmediateVsGradual] = useState(moduleData.timeSavings?.implementation || '');
 
@@ -48,7 +48,7 @@ export const ROIModule: React.FC = () => {
           lostOpportunities
         },
         timeSavings: {
-          automationPotential,
+          estimatedHoursSaved,
           processes: processesToAutomate,
           implementation: immediateVsGradual
         },
@@ -64,7 +64,7 @@ export const ROIModule: React.FC = () => {
 
     return () => clearTimeout(timer);
   }, [currentManualHours, averageHourlyCost, currentToolsCost, errorCostPerMonth,
-      lostOpportunities, automationPotential, processesToAutomate, immediateVsGradual,
+      lostOpportunities, estimatedHoursSaved, processesToAutomate, immediateVsGradual,
       investmentRange, paybackExpectation, budgetAvailable, successMetrics, measurementFrequency]);
 
   // Calculate current monthly cost
@@ -129,11 +129,11 @@ export const ROIModule: React.FC = () => {
               <div className="text-sm text-gray-600">זמן החזר השקעה</div>
             </div>
             <div className="bg-white rounded-lg p-4 text-center">
-              <Calculator className="w-8 h-8 text-orange-500 mx-auto mb-2" />
+              <Clock className="w-8 h-8 text-orange-500 mx-auto mb-2" />
               <div className="text-2xl font-bold text-orange-600">
-                {roiData.automationPotential}%
+                {roiData.hoursSavedMonthly} שעות
               </div>
-              <div className="text-sm text-gray-600">פוטנציאל אוטומציה</div>
+              <div className="text-sm text-gray-600">חיסכון בזמן חודשי</div>
             </div>
           </div>
         </div>
@@ -202,17 +202,13 @@ export const ROIModule: React.FC = () => {
           <Card title="8.2 פוטנציאל חיסכון בזמן"
             subtitle="כמה זמן אפשר לחסוך עם אוטומציה?">
             <div className="space-y-6">
-              <RadioGroup
-                label="אחוז פוטנציאל אוטומציה"
-                value={automationPotential}
-                onChange={setAutomationPotential}
-                options={[
-                  { value: '80-100', label: '80-100% - רוב התהליכים ניתנים לאוטומציה' },
-                  { value: '60-80', label: '60-80% - חלק ניכר ניתן לאוטומציה' },
-                  { value: '40-60', label: '40-60% - כמחצית מהתהליכים' },
-                  { value: '20-40', label: '20-40% - חלק קטן מהתהליכים' },
-                  { value: '0-20', label: '0-20% - מעט מאוד ניתן לאוטומציה' }
-                ]}
+              <TextField
+                label="הערכה: כמה שעות עבודה בשבוע ניתן לחסוך באוטומציה?"
+                value={estimatedHoursSaved}
+                onChange={setEstimatedHoursSaved}
+                type="number"
+                placeholder="לדוגמה: 20"
+                helperText="הערכה של סך השעות שניתן לחסוך מכל התהליכים המועמדים לאוטומציה"
               />
 
               <CheckboxGroup

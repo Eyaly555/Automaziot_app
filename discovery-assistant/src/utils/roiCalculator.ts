@@ -5,7 +5,6 @@ export interface ROIMetrics {
   hoursSavedMonthly: number;
   moneySavedMonthly: number;
   lostLeadsValue: number;
-  automationPotential: number;
   paybackPeriod: number;
   totalMonthlySavings: number;
   breakdown: { [key: string]: number };
@@ -152,7 +151,6 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
   let hoursSavedMonthly = 0;
   let moneySavedMonthly = 0;
   let lostLeadsValue = 0;
-  let automationPotential = 0;
   let customValueImpact = 0;
 
   // Return default values if meeting or modules are not initialized
@@ -161,7 +159,6 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
       hoursSavedMonthly: 0,
       moneySavedMonthly: 0,
       lostLeadsValue: 0,
-      automationPotential: 0,
       paybackPeriod: 0,
       totalMonthlySavings: 0,
       breakdown: {}
@@ -204,7 +201,6 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
         0
       );
       hoursSavedMonthly += (totalFAQVolume * 20 * 3) / 60; // 3 minutes per FAQ, 20 working days
-      automationPotential += totalFAQVolume > 10 ? 30 : totalFAQVolume * 3;
     }
 
     // Service channel optimization
@@ -279,7 +275,6 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
           system.label,
           'system'
         );
-        automationPotential += potential / customFieldValues.systems.length;
       });
     }
 
@@ -349,7 +344,6 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
           useCase.label,
           'ai'
         );
-        automationPotential += potential / customFieldValues.aiUseCases.length;
       });
     }
   }
@@ -424,7 +418,6 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
     hoursSavedMonthly: Math.round(hoursSavedMonthly),
     moneySavedMonthly: Math.round(moneySavedMonthly),
     lostLeadsValue: Math.round(lostLeadsValue),
-    automationPotential: Math.min(100, Math.round(automationPotential)),
     paybackPeriod: enhancedPaybackPeriod, // Now includes ongoing costs
     totalMonthlySavings: Math.round(totalMonthlySavings),
     breakdown,

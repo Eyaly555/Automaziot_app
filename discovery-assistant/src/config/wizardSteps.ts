@@ -10,7 +10,7 @@ import {
 } from '../components/Common/FormFields';
 
 export const WIZARD_STEPS: WizardStep[] = [
-  // Overview Module Steps
+  // ==================== OVERVIEW MODULE ====================
   {
     id: 'overview-basics',
     moduleId: 'overview',
@@ -62,80 +62,108 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'מהו האתגר המרכזי שלכם היום?',
           rows: 3
         }
-      },
+      }
+    ],
+    isOptional: false
+  },
+
+  // ==================== LEADS AND SALES MODULE ====================
+  // 2.1 מקורות וקליטת לידים
+  {
+    id: 'leads-sources-intake',
+    moduleId: 'leadsAndSales',
+    sectionName: '2.1 מקורות וקליטת לידים',
+    fields: [
       {
-        name: 'processes',
+        name: 'leadSources.channels',
         component: CheckboxGroup,
         props: {
-          label: 'תהליכים עיקריים בעסק',
+          label: 'ערוצי כניסה של לידים',
           options: [
-            { value: 'sales', label: 'מכירות' },
-            { value: 'service', label: 'שירות לקוחות' },
-            { value: 'marketing', label: 'שיווק' },
-            { value: 'operations', label: 'תפעול' },
-            { value: 'hr', label: 'משאבי אנוש' },
-            { value: 'finance', label: 'כספים' }
+            { value: 'website', label: 'אתר אינטרנט' },
+            { value: 'facebook', label: 'פייסבוק' },
+            { value: 'google', label: 'גוגל' },
+            { value: 'referrals', label: 'המלצות' },
+            { value: 'phone', label: 'טלפון' },
+            { value: 'email', label: 'אימייל' },
+            { value: 'whatsapp', label: 'WhatsApp' },
+            { value: 'instagram', label: 'אינסטגרם' },
+            { value: 'linkedin', label: 'לינקדאין' },
+            { value: 'tiktok', label: 'טיקטוק' },
+            { value: 'youtube', label: 'יוטיוב' },
+            { value: 'events', label: 'תערוכות/אירועים' },
+            { value: 'partners', label: 'שותפים עסקיים' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'leadSources.centralizationSystem',
+        component: SelectField,
+        props: {
+          label: 'איפה מרוכזים כל הלידים?',
+          options: [
+            { value: 'crm', label: 'CRM' },
+            { value: 'excel', label: 'Excel' },
+            { value: 'manual', label: 'רישום ידני' },
+            { value: 'scattered', label: 'מפוזר במקומות שונים' }
           ]
         }
       },
       {
-        name: 'mainGoals',
+        name: 'leadSources.commonIssues',
         component: CheckboxGroup,
         props: {
-          label: 'מטרות עיקריות לשנה הקרובה',
+          label: 'בעיות נפוצות בקליטת לידים',
           options: [
-            { value: 'efficiency', label: 'שיפור יעילות' },
-            { value: 'growth', label: 'צמיחה' },
-            { value: 'customer_satisfaction', label: 'שיפור שביעות רצון לקוחות' },
-            { value: 'cost_reduction', label: 'הפחתת עלויות' },
-            { value: 'innovation', label: 'חדשנות' }
-          ]
+            { value: 'channels_miss', label: 'יש ערוצים שהלידים מהם נופלים בין הכיסאות' },
+            { value: 'duplicates', label: 'כפילויות - אותו ליד נכנס כמה פעמים' },
+            { value: 'incomplete_info', label: 'מידע חסר בהרבה לידים' },
+            { value: 'slow_processing', label: 'זמן רב עד שליד מטופל' },
+            { value: 'lead_loss', label: 'לידים נופלים לגמרי' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'leadSources.processingTime',
+        component: NumberField,
+        props: {
+          label: 'זמן ממוצע לעיבוד ליד חדש (דקות)',
+          min: 0,
+          suffix: 'דקות'
+        }
+      },
+      {
+        name: 'leadSources.lostLeadCost',
+        component: NumberField,
+        props: {
+          label: 'עלות ליד שנפל (₪)',
+          min: 0,
+          suffix: '₪'
         }
       }
     ],
     isOptional: false
   },
 
-  // Leads and Sales Module Steps
+  // 2.2 Speed to Lead
   {
-    id: 'leads-sources',
+    id: 'leads-speed-to-lead',
     moduleId: 'leadsAndSales',
-    sectionName: 'מקורות לידים',
-    fields: [
-      {
-        name: 'leadSources',
-        component: CheckboxGroup,
-        props: {
-          label: 'מאילו מקורות מגיעים הלידים שלכם?',
-          options: [
-            { value: 'website', label: 'אתר אינטרנט' },
-            { value: 'facebook', label: 'פייסבוק' },
-            { value: 'google', label: 'גוגל' },
-            { value: 'referrals', label: 'המלצות' },
-            { value: 'events', label: 'אירועים' },
-            { value: 'cold', label: 'פנייה קרה' },
-            { value: 'partners', label: 'שותפים' }
-          ]
-        }
-      }
-    ],
-    isOptional: false
-  },
-  {
-    id: 'leads-response',
-    moduleId: 'leadsAndSales',
-    sectionName: 'מהירות תגובה',
+    sectionName: '2.2 מהירות תגובה (Speed to Lead)',
     fields: [
       {
         name: 'speedToLead.duringBusinessHours',
         component: SelectField,
         props: {
-          label: 'מהירות תגובה בשעות העבודה',
+          label: 'זמן תגובה בשעות עבודה',
           options: [
             { value: 'immediate', label: 'מיידי (עד 5 דקות)' },
-            { value: 'quick', label: 'מהיר (עד 30 דקות)' },
-            { value: 'moderate', label: 'בינוני (עד שעה)' },
-            { value: 'slow', label: 'איטי (מעל שעה)' }
+            { value: 'quick', label: 'מהיר (5-30 דקות)' },
+            { value: 'moderate', label: 'בינוני (30-60 דקות)' },
+            { value: 'slow', label: 'איטי (1-3 שעות)' },
+            { value: 'very_slow', label: 'איטי מאוד (מעל 3 שעות)' }
           ]
         }
       },
@@ -143,11 +171,23 @@ export const WIZARD_STEPS: WizardStep[] = [
         name: 'speedToLead.afterHours',
         component: SelectField,
         props: {
-          label: 'תגובה אחרי שעות העבודה',
+          label: 'מענה אחרי שעות עבודה',
           options: [
-            { value: 'no_response', label: 'אין תגובה' },
-            { value: 'partial', label: 'תגובה חלקית' },
-            { value: 'full', label: 'תגובה מלאה' }
+            { value: 'no_response', label: 'אין מענה' },
+            { value: 'partial', label: 'מענה חלקי (בוט/הודעה אוטומטית)' },
+            { value: 'full', label: 'מענה מלא' }
+          ]
+        }
+      },
+      {
+        name: 'speedToLead.weekendHolidays',
+        component: SelectField,
+        props: {
+          label: 'מענה בסופ"ש וחגים',
+          options: [
+            { value: 'no', label: 'לא' },
+            { value: 'limited', label: 'מוגבל' },
+            { value: 'yes', label: 'כן' }
           ]
         }
       },
@@ -155,48 +195,121 @@ export const WIZARD_STEPS: WizardStep[] = [
         name: 'speedToLead.unansweredPercentage',
         component: NumberField,
         props: {
-          label: 'אחוז לידים שלא נענים כלל',
+          label: 'אחוז לידים שלא זוכים למענה כלל',
           min: 0,
           max: 100,
           suffix: '%'
+        }
+      },
+      {
+        name: 'speedToLead.whenUnavailable',
+        component: TextAreaField,
+        props: {
+          label: 'מה קורה כאשר אף אחד לא זמין?',
+          rows: 2,
+          placeholder: 'תאר מה קורה ללידים כשאף אחד לא זמין...'
+        }
+      },
+      {
+        name: 'speedToLead.urgentVsRegular',
+        component: RadioGroup,
+        props: {
+          label: 'האם יש הבדלה בין לידים דחופים לרגילים?',
+          options: [
+            { value: 'yes', label: 'כן - יש תהליך להבדיל' },
+            { value: 'no', label: 'לא - כולם מטופלים אותו דבר' }
+          ]
         }
       }
     ],
     isOptional: false
   },
+
+  // 2.3 ניתוב וסיווג לידים
   {
-    id: 'leads-routing',
+    id: 'leads-routing-classification',
     moduleId: 'leadsAndSales',
-    sectionName: 'ניתוב לידים',
+    sectionName: '2.3 ניתוב וסיווג לידים',
     fields: [
       {
         name: 'leadRouting.method',
         component: SelectField,
         props: {
-          label: 'איך מחלקים לידים בין נציגים?',
+          label: 'שיטת חלוקת לידים',
           options: [
-            { value: 'rotation', label: 'רוטציה' },
+            { value: 'rotation', label: 'תורנות/רוטציה' },
             { value: 'expertise', label: 'לפי התמחות' },
             { value: 'territory', label: 'לפי טריטוריה' },
             { value: 'manual', label: 'ידני' }
           ]
         }
+      },
+      {
+        name: 'leadRouting.unavailableHandler',
+        component: TextAreaField,
+        props: {
+          label: 'מה קורה כשהנציג הרלוונטי לא זמין?',
+          rows: 2
+        }
+      },
+      {
+        name: 'leadRouting.hotLeadCriteria',
+        component: CheckboxGroup,
+        props: {
+          label: 'קריטריונים ללידים "חמים"',
+          options: [
+            { value: 'budget', label: 'תקציב גבוה' },
+            { value: 'urgency', label: 'דחיפות' },
+            { value: 'fit', label: 'התאמה מושלמת למוצר' },
+            { value: 'decision_maker', label: 'מקבל החלטות' },
+            { value: 'referral', label: 'הגיע מהמלצה' },
+            { value: 'large_org', label: 'ארגון גדול' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'leadRouting.aiClassificationPotential',
+        component: RadioGroup,
+        props: {
+          label: 'האם AI יכול לסייע בסיווג הלידים?',
+          options: [
+            { value: 'yes', label: 'כן - יש הרבה פרמטרים לסיווג' },
+            { value: 'maybe', label: 'אולי - צריך לבדוק' },
+            { value: 'no', label: 'לא - הסיווג פשוט' }
+          ]
+        }
       }
     ],
-    isOptional: true
+    isOptional: false
   },
+
+  // 2.4 מעקבים (Follow-up)
   {
     id: 'leads-followup',
     moduleId: 'leadsAndSales',
-    sectionName: 'אסטרטגיית מעקב',
+    sectionName: '2.4 מעקבים (Follow-up)',
     fields: [
       {
         name: 'followUp.attempts',
         component: NumberField,
         props: {
-          label: 'כמה ניסיונות מעקב נעשים?',
+          label: 'כמה ניסיונות מעקב בממוצע?',
           min: 1,
           max: 20
+        }
+      },
+      {
+        name: 'followUp.intervals.day1',
+        component: RadioGroup,
+        props: {
+          label: 'יום 1 - מתי המעקב הראשון?',
+          options: [
+            { value: 'immediate', label: 'מיד אחרי הפנייה' },
+            { value: 'same_day', label: 'באותו יום' },
+            { value: 'next_day', label: 'יום למחרת' }
+          ],
+          orientation: 'horizontal'
         }
       },
       {
@@ -205,18 +318,52 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'ערוצי מעקב',
           options: [
-            { value: 'whatsapp', label: 'וואטסאפ' },
+            { value: 'whatsapp', label: 'WhatsApp' },
             { value: 'sms', label: 'SMS' },
             { value: 'email', label: 'אימייל' },
-            { value: 'phone', label: 'טלפון' }
-          ]
+            { value: 'phone', label: 'טלפון' },
+            { value: 'linkedin', label: 'LinkedIn' },
+            { value: 'facebook', label: 'Facebook Messenger' }
+          ],
+          columns: 3
+        }
+      },
+      {
+        name: 'followUp.dropoffRate',
+        component: NumberField,
+        props: {
+          label: 'אחוז נשירה מחוסר מעקב',
+          min: 0,
+          max: 100,
+          suffix: '%'
+        }
+      },
+      {
+        name: 'followUp.notNowHandling',
+        component: TextAreaField,
+        props: {
+          label: 'איך מטפלים בלידים ש"לא עכשיו"?',
+          rows: 2,
+          placeholder: 'תאר את תהליך הטיפול בלידים שלא מוכנים כרגע...'
         }
       },
       {
         name: 'followUp.nurturing',
         component: RadioGroup,
         props: {
-          label: 'האם יש תהליך טיפוח לידים?',
+          label: 'האם יש תהליך Nurturing (חימום לידים)?',
+          options: [
+            { value: 'yes', label: 'כן - יש תהליך מסודר' },
+            { value: 'partial', label: 'חלקי - עושים קצת' },
+            { value: 'no', label: 'לא - אין תהליך' }
+          ]
+        }
+      },
+      {
+        name: 'followUp.automatedJourneys',
+        component: RadioGroup,
+        props: {
+          label: 'האם יש מסעות לקוח אוטומטיים?',
           options: [
             { value: 'yes', label: 'כן' },
             { value: 'no', label: 'לא' }
@@ -226,10 +373,12 @@ export const WIZARD_STEPS: WizardStep[] = [
     ],
     isOptional: false
   },
+
+  // 2.5 קביעת פגישות וזימונים
   {
     id: 'leads-appointments',
     moduleId: 'leadsAndSales',
-    sectionName: 'ניהול פגישות',
+    sectionName: '2.5 קביעת פגישות וזימונים',
     fields: [
       {
         name: 'appointments.avgSchedulingTime',
@@ -237,52 +386,171 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'זמן ממוצע לתיאום פגישה (בדקות)',
           min: 1,
-          max: 60
+          max: 120,
+          suffix: 'דקות'
+        }
+      },
+      {
+        name: 'appointments.messagesPerScheduling',
+        component: NumberField,
+        props: {
+          label: 'כמה הודעות/שיחות לתיאום בממוצע?',
+          min: 1,
+          max: 50
+        }
+      },
+      {
+        name: 'appointments.cancellationRate',
+        component: NumberField,
+        props: {
+          label: 'אחוז ביטולים',
+          min: 0,
+          max: 100,
+          suffix: '%'
         }
       },
       {
         name: 'appointments.noShowRate',
         component: NumberField,
         props: {
-          label: 'אחוז אי הגעה לפגישות',
+          label: 'אחוז No-Show (לא הגיעו)',
           min: 0,
           max: 100,
           suffix: '%'
         }
+      },
+      {
+        name: 'appointments.multipleParticipants',
+        component: RadioGroup,
+        props: {
+          label: 'האם פגישות דורשות תיאום של מספר משתתפים?',
+          options: [
+            { value: 'yes', label: 'כן - לעיתים קרובות' },
+            { value: 'sometimes', label: 'לפעמים' },
+            { value: 'no', label: 'לא' }
+          ]
+        }
+      },
+      {
+        name: 'appointments.changesPerWeek',
+        component: NumberField,
+        props: {
+          label: 'כמה שינויים/דחיות בשבוע?',
+          min: 0
+        }
+      },
+      {
+        name: 'appointments.reminders',
+        component: CheckboxGroup,
+        props: {
+          label: 'מתי שולחים תזכורות?',
+          options: [
+            { value: 'day_before', label: 'יום לפני' },
+            { value: 'hour_before', label: 'שעה לפני' },
+            { value: 'morning_of', label: 'בבוקר של היום' },
+            { value: 'other', label: 'אחר' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'appointments.reminderChannels',
+        component: CheckboxGroup,
+        props: {
+          label: 'ערוצי תזכורות',
+          options: [
+            { value: 'sms', label: 'SMS' },
+            { value: 'whatsapp', label: 'WhatsApp' },
+            { value: 'email', label: 'אימייל' },
+            { value: 'phone', label: 'שיחת טלפון' }
+          ],
+          columns: 2
+        }
       }
     ],
-    isOptional: true
+    isOptional: false
   },
 
-  // Customer Service Module Steps
+  // ==================== CUSTOMER SERVICE MODULE ====================
+  // 3.1 ערוצי שירות רב-ערוצי
   {
-    id: 'service-channels',
+    id: 'service-multichannel',
     moduleId: 'customerService',
-    sectionName: 'ערוצי שירות',
+    sectionName: '3.1 ערוצי שירות רב-ערוצי',
     fields: [
       {
-        name: 'channels',
+        name: 'channels.active',
         component: CheckboxGroup,
         props: {
           label: 'באילו ערוצים אתם נותנים שירות?',
           options: [
             { value: 'phone', label: 'טלפון' },
+            { value: 'whatsapp', label: 'WhatsApp' },
             { value: 'email', label: 'אימייל' },
-            { value: 'whatsapp', label: 'וואטסאפ' },
+            { value: 'facebook', label: 'פייסבוק' },
+            { value: 'instagram', label: 'אינסטגרם' },
             { value: 'chat', label: 'צ\'אט באתר' },
-            { value: 'social', label: 'רשתות חברתיות' },
-            { value: 'inperson', label: 'פרונטלי' }
+            { value: 'sms', label: 'SMS' },
+            { value: 'inperson', label: 'פרונטלי' },
+            { value: 'telegram', label: 'טלגרם' },
+            { value: 'tiktok', label: 'טיקטוק' },
+            { value: 'linkedin', label: 'לינקדאין' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'channels.crossChannelIssue',
+        component: RadioGroup,
+        props: {
+          label: 'האם לקוחות פונים באותו נושא בכמה ערוצים?',
+          options: [
+            { value: 'critical', label: 'כן, זו בעיה קריטית' },
+            { value: 'minor', label: 'קורה, אבל לא משהו קריטי' },
+            { value: 'no', label: 'לא, אין כזו בעיה' }
+          ]
+        }
+      },
+      {
+        name: 'channels.unificationMethod',
+        component: RadioGroup,
+        props: {
+          label: 'איך מאחדים פניות מערוצים שונים?',
+          options: [
+            { value: 'unified_system', label: 'מערכת מאוחדת - הכל במקום אחד' },
+            { value: 'manual', label: 'ידני - עוברים בין מערכות' },
+            { value: 'none', label: 'לא מאחדים - כל ערוץ עובד בנפרד' }
           ]
         }
       }
     ],
     isOptional: false
   },
+
+  // 3.2 מענה אוטומטי ושאלות נפוצות
   {
     id: 'service-autoresponse',
     moduleId: 'customerService',
-    sectionName: 'מענה אוטומטי',
+    sectionName: '3.2 מענה אוטומטי ושאלות נפוצות',
     fields: [
+      {
+        name: 'autoResponse.repeatingRequests',
+        component: CheckboxGroup,
+        props: {
+          label: 'בקשות שירות חוזרות',
+          options: [
+            { value: 'status_check', label: 'בדיקת סטטוס הזמנה' },
+            { value: 'update_details', label: 'עדכון פרטים' },
+            { value: 'generate_docs', label: 'הפקת מסמכים' },
+            { value: 'cancel_service', label: 'ביטול שירות' },
+            { value: 'schedule', label: 'קביעת תור' },
+            { value: 'payment_inquiry', label: 'בירור תשלום' },
+            { value: 'technical_support', label: 'תמיכה טכנית' },
+            { value: 'refund', label: 'בקשת החזר כספי' }
+          ],
+          columns: 2
+        }
+      },
       {
         name: 'autoResponse.automationPotential',
         component: NumberField,
@@ -294,34 +562,88 @@ export const WIZARD_STEPS: WizardStep[] = [
         }
       }
     ],
-    isOptional: true
+    isOptional: false
   },
+
+  // 3.3 תקשורת יזומה ועדכונים
   {
     id: 'service-proactive',
     moduleId: 'customerService',
-    sectionName: 'תקשורת יזומה',
+    sectionName: '3.3 תקשורת יזומה ועדכונים',
     fields: [
+      {
+        name: 'proactiveCommunication.updateStages',
+        component: CheckboxGroup,
+        props: {
+          label: 'שלבי עדכון יזומים',
+          options: [
+            { value: 'post_purchase', label: 'אחרי רכישה' },
+            { value: 'during_process', label: 'במהלך תהליך' },
+            { value: 'before_completion', label: 'לפני סיום' },
+            { value: 'periodic', label: 'תקופתי' },
+            { value: 'milestones', label: 'באבני דרך' },
+            { value: 'post_resolution', label: 'אחרי פתרון בעיה' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'proactiveCommunication.customerNeeds',
+        component: TextAreaField,
+        props: {
+          label: 'מה חשוב ללקוחות לדעת?',
+          rows: 3,
+          placeholder: 'תאר מה הלקוחות רוצים לדעת בכל שלב...'
+        }
+      },
       {
         name: 'proactiveCommunication.frequency',
         component: SelectField,
         props: {
-          label: 'תדירות תקשורת יזומה',
+          label: 'תדירות תקשורת עם לקוחות',
           options: [
             { value: 'daily', label: 'יומי' },
             { value: 'weekly', label: 'שבועי' },
             { value: 'monthly', label: 'חודשי' },
+            { value: 'quarterly', label: 'רבעוני' },
             { value: 'rarely', label: 'נדיר' },
             { value: 'never', label: 'אף פעם' }
           ]
         }
+      },
+      {
+        name: 'proactiveCommunication.contentType',
+        component: CheckboxGroup,
+        props: {
+          label: 'סוג תקשורת',
+          options: [
+            { value: 'marketing', label: 'שיווקית' },
+            { value: 'value', label: 'ערך מוסף' },
+            { value: 'updates', label: 'עדכונים' },
+            { value: 'educational', label: 'חינוכי' },
+            { value: 'seasonal', label: 'עונתי' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'proactiveCommunication.preparationHours',
+        component: NumberField,
+        props: {
+          label: 'שעות הכנת עדכונים בשבוע',
+          min: 0,
+          suffix: 'שעות'
+        }
       }
     ],
-    isOptional: true
+    isOptional: false
   },
+
+  // 3.4 ניהול קהילות ואירועים
   {
     id: 'service-community',
     moduleId: 'customerService',
-    sectionName: 'ניהול קהילה',
+    sectionName: '3.4 ניהול קהילות ואירועים',
     fields: [
       {
         name: 'communityManagement.exists',
@@ -333,230 +655,680 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'no', label: 'לא' }
           ]
         }
+      },
+      {
+        name: 'communityManagement.size',
+        component: NumberField,
+        props: {
+          label: 'גודל הקהילה',
+          min: 0
+        },
+        skipCondition: (data) => data.modules.customerService?.communityManagement?.exists !== 'yes'
+      },
+      {
+        name: 'communityManagement.platforms',
+        component: CheckboxGroup,
+        props: {
+          label: 'פלטפורמות',
+          options: [
+            { value: 'facebook', label: 'Facebook Group' },
+            { value: 'whatsapp', label: 'WhatsApp Groups' },
+            { value: 'telegram', label: 'Telegram' },
+            { value: 'discord', label: 'Discord' },
+            { value: 'slack', label: 'Slack' },
+            { value: 'forum', label: 'פורום' },
+            { value: 'instagram', label: 'Instagram' },
+            { value: 'youtube', label: 'YouTube' }
+          ],
+          columns: 2
+        },
+        skipCondition: (data) => data.modules.customerService?.communityManagement?.exists !== 'yes'
+      },
+      {
+        name: 'communityManagement.challenges',
+        component: CheckboxGroup,
+        props: {
+          label: 'אתגרים בניהול הקהילה',
+          options: [
+            { value: 'list_management', label: 'ניהול רשימות' },
+            { value: 'personalization', label: 'תקשורת מותאמת אישית' },
+            { value: 'low_engagement', label: 'Engagement נמוך' },
+            { value: 'moderation', label: 'מודרציה' },
+            { value: 'spam', label: 'ספאם' },
+            { value: 'multiple_platforms', label: 'ניהול מספר פלטפורמות' }
+          ],
+          columns: 2
+        },
+        skipCondition: (data) => data.modules.customerService?.communityManagement?.exists !== 'yes'
+      },
+      {
+        name: 'communityManagement.eventsPerMonth',
+        component: NumberField,
+        props: {
+          label: 'אירועים/וובינרים לחודש',
+          min: 0
+        }
+      },
+      {
+        name: 'communityManagement.registrationManagement',
+        component: RadioGroup,
+        props: {
+          label: 'ניהול הרשמות',
+          options: [
+            { value: 'manual', label: 'ידני' },
+            { value: 'system', label: 'מערכת' },
+            { value: 'mixed', label: 'משולב' }
+          ]
+        }
+      },
+      {
+        name: 'communityManagement.attendanceRate',
+        component: NumberField,
+        props: {
+          label: 'אחוז הגעה בפועל',
+          min: 0,
+          max: 100,
+          suffix: '%'
+        }
       }
     ],
-    isOptional: true
+    isOptional: false
   },
+
+  // 3.5 ניהול מוניטין ומשוב
   {
     id: 'service-reputation',
     moduleId: 'customerService',
-    sectionName: 'ניהול מוניטין',
+    sectionName: '3.5 ניהול מוניטין ומשוב',
     fields: [
+      {
+        name: 'reputationManagement.feedbackTiming',
+        component: CheckboxGroup,
+        props: {
+          label: 'מתי אוספים משוב?',
+          options: [
+            { value: 'post_purchase', label: 'אחרי רכישה' },
+            { value: 'periodic', label: 'תקופתי' },
+            { value: 'post_service', label: 'אחרי שירות' },
+            { value: 'post_complaint', label: 'אחרי תלונה' },
+            { value: 'random', label: 'אקראי' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'reputationManagement.collectionMethod',
+        component: CheckboxGroup,
+        props: {
+          label: 'איך אוספים משוב?',
+          options: [
+            { value: 'form', label: 'טופס' },
+            { value: 'call', label: 'שיחת טלפון' },
+            { value: 'sms', label: 'SMS' },
+            { value: 'email', label: 'אימייל' },
+            { value: 'whatsapp', label: 'WhatsApp' },
+            { value: 'app', label: 'אפליקציה' }
+          ],
+          columns: 3
+        }
+      },
+      {
+        name: 'reputationManagement.responseRate',
+        component: NumberField,
+        props: {
+          label: 'אחוז תגובה למשוב',
+          min: 0,
+          max: 100,
+          suffix: '%'
+        }
+      },
+      {
+        name: 'reputationManagement.actionTaken',
+        component: TextAreaField,
+        props: {
+          label: 'מה עושים עם המשוב?',
+          rows: 2,
+          placeholder: 'תאר איך משתמשים במשוב שנאסף...'
+        }
+      },
       {
         name: 'reputationManagement.reviewsPerMonth',
         component: NumberField,
         props: {
           label: 'כמה ביקורות מקבלים בחודש?',
-          min: 0,
-          max: 1000
+          min: 0
+        }
+      },
+      {
+        name: 'reputationManagement.platforms',
+        component: CheckboxGroup,
+        props: {
+          label: 'פלטפורמות ביקורות',
+          options: [
+            { value: 'google', label: 'Google' },
+            { value: 'facebook', label: 'Facebook' },
+            { value: 'website', label: 'אתר' },
+            { value: 'tripadvisor', label: 'TripAdvisor' },
+            { value: 'yelp', label: 'Yelp' },
+            { value: 'zap', label: 'זאפ' }
+          ],
+          columns: 3
+        }
+      },
+      {
+        name: 'reputationManagement.encouragementStrategy',
+        component: TextAreaField,
+        props: {
+          label: 'אסטרטגיה לעידוד ביקורות חיוביות',
+          rows: 2
+        }
+      },
+      {
+        name: 'reputationManagement.negativeHandling',
+        component: TextAreaField,
+        props: {
+          label: 'איך מטפלים בביקורות שליליות?',
+          rows: 2
         }
       }
     ],
-    isOptional: true
+    isOptional: false
   },
+
+  // 3.6 Onboarding לקוחות חדשים
   {
     id: 'service-onboarding',
     moduleId: 'customerService',
-    sectionName: 'תהליך הטמעה',
+    sectionName: '3.6 תהליך הטמעה (Onboarding)',
     fields: [
       {
         name: 'onboarding.steps',
         component: TextAreaField,
         props: {
           label: 'תאר את תהליך ההטמעה של לקוחות חדשים',
-          rows: 3
-        }
-      }
-    ],
-    isOptional: true
-  },
-
-  // Operations Module Steps
-  {
-    id: 'operations-systems',
-    moduleId: 'operations',
-    sectionName: 'סנכרון מערכות',
-    fields: [
-      {
-        name: 'systemSync.manualWork',
-        component: NumberField,
-        props: {
-          label: 'שעות עבודה ידנית בשבוע על העברת נתונים',
-          min: 0,
-          max: 168
+          rows: 3,
+          placeholder: 'תאר את השלבים מרגע שלקוח חדש מצטרף...'
         }
       },
       {
-        name: 'systemSync.duplicateData',
+        name: 'onboarding.followUpChecks',
+        component: CheckboxGroup,
+        props: {
+          label: 'בדיקות Follow-up',
+          options: [
+            { value: '3_days', label: 'אחרי 3 ימים' },
+            { value: '1_week', label: 'אחרי שבוע' },
+            { value: '2_weeks', label: 'אחרי שבועיים' },
+            { value: '1_month', label: 'אחרי חודש' },
+            { value: '3_months', label: 'אחרי 3 חודשים' },
+            { value: '6_months', label: 'אחרי חצי שנה' }
+          ],
+          columns: 3
+        }
+      },
+      {
+        name: 'onboarding.missingDataAlerts',
         component: RadioGroup,
         props: {
-          label: 'האם יש כפילויות במידע בין מערכות?',
+          label: 'האם יש התראות על חוסרים בתהליך?',
           options: [
-            { value: 'yes', label: 'כן' },
-            { value: 'no', label: 'לא' }
+            { value: 'yes', label: 'כן - יש מערכת התראות' },
+            { value: 'no', label: 'לא - אין התראות' }
           ]
+        }
+      },
+      {
+        name: 'onboarding.commonIssues',
+        component: TextAreaField,
+        props: {
+          label: 'בעיות נפוצות בקליטה',
+          rows: 2,
+          placeholder: 'תאר בעיות נפוצות שמתעוררות בתהליך הקליטה...'
         }
       }
     ],
     isOptional: false
   },
+
+  // ==================== OPERATIONS MODULE ====================
+  // 4.1 תהליכי עבודה
+  {
+    id: 'operations-workflows',
+    moduleId: 'operations',
+    sectionName: '4.1 תהליכי עבודה',
+    fields: [
+      {
+        name: 'workProcesses.commonFailures',
+        component: CheckboxGroup,
+        props: {
+          label: 'נקודות כשל נפוצות',
+          options: [
+            { value: 'manual_errors', label: 'טעויות אנוש' },
+            { value: 'system_crashes', label: 'קריסות מערכת' },
+            { value: 'missing_info', label: 'מידע חסר' },
+            { value: 'communication', label: 'תקשורת לקויה' },
+            { value: 'approval_delays', label: 'עיכובי אישורים' },
+            { value: 'resource_shortage', label: 'מחסור במשאבים' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'workProcesses.errorTrackingSystem',
+        component: SelectField,
+        props: {
+          label: 'מערכת מעקב שגיאות',
+          options: [
+            { value: 'none', label: 'אין מעקב' },
+            { value: 'manual', label: 'רישום ידני' },
+            { value: 'excel', label: 'Excel' },
+            { value: 'system', label: 'מערכת ייעודית' },
+            { value: 'crm', label: 'ב-CRM' }
+          ]
+        }
+      },
+      {
+        name: 'workProcesses.processDocumentation',
+        component: TextAreaField,
+        props: {
+          label: 'תיעוד תהליכים',
+          rows: 3,
+          placeholder: 'איך מתועדים התהליכים בארגון? האם יש נהלי עבודה כתובים?'
+        }
+      },
+      {
+        name: 'workProcesses.automationReadiness',
+        component: NumberField,
+        props: {
+          label: 'בשלות לאוטומציה (0-100%)',
+          min: 0,
+          max: 100,
+          suffix: '%'
+        }
+      }
+    ],
+    isOptional: false
+  },
+
+  // 4.2 ניהול מסמכים
   {
     id: 'operations-documents',
     moduleId: 'operations',
-    sectionName: 'ניהול מסמכים',
+    sectionName: '4.2 ניהול מסמכים',
     fields: [
       {
-        name: 'documentManagement.storage',
+        name: 'documentManagement.storageLocations',
+        component: CheckboxGroup,
+        props: {
+          label: 'מיקומי אחסון',
+          options: [
+            { value: 'google_drive', label: 'Google Drive' },
+            { value: 'dropbox', label: 'Dropbox' },
+            { value: 'sharepoint', label: 'SharePoint' },
+            { value: 'local_server', label: 'שרת מקומי' },
+            { value: 'physical', label: 'ארכיב פיזי' },
+            { value: 'cloud', label: 'ענן אחר' }
+          ],
+          columns: 3
+        }
+      },
+      {
+        name: 'documentManagement.searchDifficulties',
+        component: TextAreaField,
+        props: {
+          label: 'קשיים באיתור מסמכים',
+          rows: 3,
+          placeholder: 'תאר קשיים באיתור מסמכים, זמן חיפוש ממוצע, בעיות בארגון התיקיות...'
+        }
+      },
+      {
+        name: 'documentManagement.versionControlMethod',
         component: SelectField,
         props: {
-          label: 'איפה שומרים מסמכים?',
+          label: 'בקרת גרסאות',
           options: [
-            { value: 'cloud', label: 'ענן (Google Drive, Dropbox)' },
-            { value: 'local', label: 'שרת מקומי' },
-            { value: 'mixed', label: 'משולב' },
-            { value: 'physical', label: 'פיזי בלבד' }
+            { value: 'none', label: 'אין בקרת גרסאות' },
+            { value: 'manual_naming', label: 'שמות ידניים (v1, v2)' },
+            { value: 'system', label: 'מערכת אוטומטית' },
+            { value: 'sharepoint', label: 'SharePoint versions' },
+            { value: 'git', label: 'Git או דומה' }
           ]
         }
       },
       {
-        name: 'documentManagement.organization',
-        component: SelectField,
+        name: 'documentManagement.approvalWorkflow',
+        component: TextAreaField,
         props: {
-          label: 'רמת ארגון המסמכים',
-          options: [
-            { value: 'organized', label: 'מאורגן' },
-            { value: 'messy', label: 'לא מאורגן' }
-          ]
+          label: 'תהליכי אישור',
+          rows: 2,
+          placeholder: 'תאר את שרשרת האישורים הנדרשת למסמכים שונים'
+        }
+      },
+      {
+        name: 'documentManagement.documentRetention',
+        component: NumberField,
+        props: {
+          label: 'תקופת שמירת מסמכים (שנים)',
+          min: 0,
+          suffix: 'שנים'
         }
       }
     ],
-    isOptional: true
+    isOptional: false
   },
+
+  // 4.3 ניהול פרויקטים
   {
     id: 'operations-projects',
     moduleId: 'operations',
-    sectionName: 'ניהול פרויקטים',
+    sectionName: '4.3 ניהול פרויקטים',
     fields: [
       {
-        name: 'projectManagement.trackingTool',
-        component: TextField,
+        name: 'projectManagement.tools',
+        component: CheckboxGroup,
         props: {
-          label: 'באיזה כלי משתמשים לניהול פרויקטים?',
-          placeholder: 'Monday, Asana, Excel...'
+          label: 'כלי ניהול פרויקטים',
+          options: [
+            { value: 'monday', label: 'Monday.com' },
+            { value: 'asana', label: 'Asana' },
+            { value: 'trello', label: 'Trello' },
+            { value: 'jira', label: 'Jira' },
+            { value: 'notion', label: 'Notion' },
+            { value: 'excel', label: 'Excel' },
+            { value: 'ms_project', label: 'MS Project' }
+          ],
+          columns: 3
         }
       },
       {
-        name: 'projectManagement.bottlenecks',
-        component: TextAreaField,
+        name: 'projectManagement.taskCreationSources',
+        component: CheckboxGroup,
         props: {
-          label: 'מהם הצווארי בקבוק העיקריים?',
-          rows: 2
+          label: 'מקורות יצירת משימות',
+          options: [
+            { value: 'email', label: 'אימייל' },
+            { value: 'meetings', label: 'ישיבות' },
+            { value: 'phone', label: 'שיחות טלפון' },
+            { value: 'whatsapp', label: 'WhatsApp' },
+            { value: 'crm', label: 'CRM' },
+            { value: 'customers', label: 'פניות לקוחות' },
+            { value: 'internal', label: 'יוזמות פנימיות' }
+          ],
+          columns: 2
         }
-      }
-    ],
-    isOptional: true
-  },
-  {
-    id: 'operations-financial',
-    moduleId: 'operations',
-    sectionName: 'תהליכים פיננסיים',
-    fields: [
+      },
       {
-        name: 'financialProcesses.invoicing.volumePerMonth',
+        name: 'projectManagement.resourceAllocationMethod',
+        component: SelectField,
+        props: {
+          label: 'שיטת הקצאת משאבים',
+          options: [
+            { value: 'none', label: 'אין שיטה מסודרת' },
+            { value: 'manual', label: 'ידני לפי זמינות' },
+            { value: 'rotation', label: 'תורנות' },
+            { value: 'skills', label: 'לפי כישורים' },
+            { value: 'automated', label: 'אוטומטי במערכת' }
+          ]
+        }
+      },
+      {
+        name: 'projectManagement.timelineAccuracy',
         component: NumberField,
         props: {
-          label: 'כמה חשבוניות בחודש?',
+          label: 'דיוק בהערכת זמנים (0-100%)',
           min: 0,
-          max: 10000
+          max: 100,
+          suffix: '%'
         }
       },
       {
-        name: 'financialProcesses.invoicing.avgTimePerInvoice',
+        name: 'projectManagement.projectVisibility',
+        component: RadioGroup,
+        props: {
+          label: 'שקיפות סטטוס פרויקטים',
+          options: [
+            { value: 'none', label: 'אין שקיפות' },
+            { value: 'meetings', label: 'רק בישיבות' },
+            { value: 'dashboard', label: 'דשבורד משותף' },
+            { value: 'realtime', label: 'עדכון בזמן אמת' }
+          ],
+          orientation: 'horizontal'
+        }
+      },
+      {
+        name: 'projectManagement.deadlineMissRate',
         component: NumberField,
         props: {
-          label: 'זמן ממוצע להפקת חשבונית (דקות)',
-          min: 1,
-          max: 60
+          label: 'אחוז פרויקטים שחורגים מלוח הזמנים',
+          min: 0,
+          max: 100,
+          suffix: '%'
         }
       }
     ],
-    isOptional: true
+    isOptional: false
   },
+
+  // 4.4 משאבי אנוש
   {
     id: 'operations-hr',
     moduleId: 'operations',
-    sectionName: 'תהליכי HR',
+    sectionName: '4.4 משאבי אנוש',
     fields: [
       {
-        name: 'hr.onboarding.totalTime',
+        name: 'hr.onboardingSteps',
         component: NumberField,
         props: {
-          label: 'זמן כולל לקליטת עובד חדש (שעות)',
-          min: 1,
-          max: 200
+          label: 'מספר שלבים בקליטת עובד',
+          min: 0
         }
       },
       {
-        name: 'hr.management.attendance',
-        component: SelectField,
-        props: {
-          label: 'איך מנהלים נוכחות?',
-          options: [
-            { value: 'system', label: 'מערכת נוכחות' },
-            { value: 'excel', label: 'אקסל' },
-            { value: 'manual', label: 'ידני' },
-            { value: 'none', label: 'לא מנהלים' }
-          ]
-        }
-      }
-    ],
-    isOptional: true
-  },
-  {
-    id: 'operations-crossdept',
-    moduleId: 'operations',
-    sectionName: 'תהליכים בין מחלקות',
-    fields: [
-      {
-        name: 'crossDepartment.statusChecks.timePerDay',
+        name: 'hr.onboardingDuration',
         component: NumberField,
         props: {
-          label: 'זמן יומי על בדיקת סטטוסים (דקות)',
+          label: 'משך קליטת עובד (ימים)',
           min: 0,
-          max: 480
+          suffix: 'ימים'
+        }
+      },
+      {
+        name: 'hr.trainingRequirements',
+        component: CheckboxGroup,
+        props: {
+          label: 'דרישות הדרכה',
+          options: [
+            { value: 'product', label: 'הכרת המוצר' },
+            { value: 'systems', label: 'הכרת מערכות' },
+            { value: 'procedures', label: 'נהלי עבודה' },
+            { value: 'safety', label: 'בטיחות' },
+            { value: 'compliance', label: 'ציות ורגולציה' },
+            { value: 'soft_skills', label: 'מיומנויות רכות' },
+            { value: 'technical', label: 'הכשרה טכנית' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'hr.performanceReviewFrequency',
+        component: SelectField,
+        props: {
+          label: 'תדירות הערכות עובדים',
+          options: [
+            { value: 'none', label: 'אין הערכות' },
+            { value: 'annual', label: 'שנתי' },
+            { value: 'biannual', label: 'חצי שנתי' },
+            { value: 'quarterly', label: 'רבעוני' },
+            { value: 'monthly', label: 'חודשי' }
+          ]
+        }
+      },
+      {
+        name: 'hr.employeeTurnoverRate',
+        component: NumberField,
+        props: {
+          label: 'שיעור תחלופת עובדים שנתי',
+          min: 0,
+          max: 100,
+          suffix: '%'
+        }
+      },
+      {
+        name: 'hr.hrSystemsInUse',
+        component: CheckboxGroup,
+        props: {
+          label: 'מערכות HR בשימוש',
+          options: [
+            { value: 'hilan', label: 'חילן' },
+            { value: 'priority', label: 'Priority' },
+            { value: 'sap', label: 'SAP' },
+            { value: 'workday', label: 'Workday' },
+            { value: 'excel', label: 'Excel' },
+            { value: 'paper', label: 'ידני/נייר' }
+          ],
+          columns: 3
         }
       }
     ],
-    isOptional: true
+    isOptional: false
   },
 
-  // Reporting Module Steps
+  // 4.5 לוגיסטיקה
+  {
+    id: 'operations-logistics',
+    moduleId: 'operations',
+    sectionName: '4.5 לוגיסטיקה',
+    fields: [
+      {
+        name: 'logistics.inventoryMethod',
+        component: SelectField,
+        props: {
+          label: 'שיטת ניהול מלאי',
+          options: [
+            { value: 'none', label: 'אין ניהול מלאי' },
+            { value: 'manual', label: 'ספירה ידנית' },
+            { value: 'excel', label: 'Excel' },
+            { value: 'erp', label: 'מערכת ERP' },
+            { value: 'wms', label: 'מערכת WMS' },
+            { value: 'rfid', label: 'RFID/ברקוד' }
+          ]
+        }
+      },
+      {
+        name: 'logistics.shippingProcesses',
+        component: CheckboxGroup,
+        props: {
+          label: 'תהליכי משלוח',
+          options: [
+            { value: 'self_delivery', label: 'משלוח עצמי' },
+            { value: 'courier', label: 'חברות שליחויות' },
+            { value: 'post', label: 'דואר ישראל' },
+            { value: 'pickup', label: 'איסוף עצמי' },
+            { value: 'dropshipping', label: 'Dropshipping' },
+            { value: 'third_party', label: 'צד שלישי' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'logistics.supplierCount',
+        component: NumberField,
+        props: {
+          label: 'מספר ספקים פעילים',
+          min: 0
+        }
+      },
+      {
+        name: 'logistics.orderFulfillmentTime',
+        component: NumberField,
+        props: {
+          label: 'זמן ממוצע למימוש הזמנה (ימים)',
+          min: 0,
+          suffix: 'ימים'
+        }
+      },
+      {
+        name: 'logistics.warehouseOperations',
+        component: CheckboxGroup,
+        props: {
+          label: 'פעולות מחסן',
+          options: [
+            { value: 'receiving', label: 'קבלת סחורה' },
+            { value: 'quality_check', label: 'בדיקת איכות' },
+            { value: 'storage', label: 'אחסון' },
+            { value: 'picking', label: 'ליקוט' },
+            { value: 'packing', label: 'אריזה' },
+            { value: 'shipping', label: 'משלוח' },
+            { value: 'returns', label: 'החזרות' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'logistics.deliveryIssues',
+        component: TextAreaField,
+        props: {
+          label: 'בעיות במשלוחים',
+          rows: 3,
+          placeholder: 'תאר בעיות נפוצות במשלוחים, איחורים, נזקים...'
+        }
+      },
+      {
+        name: 'logistics.returnProcessTime',
+        component: NumberField,
+        props: {
+          label: 'זמן טיפול בהחזרה (ימים)',
+          min: 0,
+          suffix: 'ימים'
+        }
+      },
+      {
+        name: 'logistics.inventoryAccuracy',
+        component: NumberField,
+        props: {
+          label: 'דיוק מלאי (0-100%)',
+          min: 0,
+          max: 100,
+          suffix: '%'
+        }
+      }
+    ],
+    isOptional: false
+  },
+
+  // ==================== REPORTING MODULE ====================
+  // 5.1 התראות בזמן אמת
   {
     id: 'reporting-alerts',
     moduleId: 'reporting',
-    sectionName: 'התראות בזמן אמת',
+    sectionName: '5.1 התראות בזמן אמת',
     fields: [
       {
-        name: 'realTimeAlerts',
+        name: 'criticalAlerts',
         component: CheckboxGroup,
         props: {
-          label: 'על מה תרצו לקבל התראות?',
+          label: 'התראות קריטיות שחייבות להיות',
           options: [
             { value: 'new_lead', label: 'ליד חדש' },
-            { value: 'sale', label: 'מכירה' },
-            { value: 'complaint', label: 'תלונה' },
-            { value: 'system_error', label: 'תקלה במערכת' },
-            { value: 'target_achievement', label: 'השגת יעד' }
-          ]
+            { value: 'payment_received', label: 'תשלום התקבל' },
+            { value: 'payment_failed', label: 'תשלום נכשל' },
+            { value: 'system_error', label: 'תקלת מערכת' },
+            { value: 'customer_complaint', label: 'תלונת לקוח' },
+            { value: 'stock_low', label: 'מלאי נמוך' },
+            { value: 'deadline_approaching', label: 'דדליין מתקרב' }
+          ],
+          columns: 2
         }
       }
     ],
-    isOptional: true
+    isOptional: false
   },
+
+  // 5.2 דוחות מתוזמנים
   {
     id: 'reporting-reports',
     moduleId: 'reporting',
-    sectionName: 'דוחות קבועים',
+    sectionName: '5.2 דוחות מתוזמנים',
     fields: [
       {
         name: 'scheduledReports',
@@ -569,16 +1341,19 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'service', label: 'דוח שירות' },
             { value: 'financial', label: 'דוח פיננסי' },
             { value: 'operations', label: 'דוח תפעולי' }
-          ]
+          ],
+          columns: 2
         }
       }
     ],
-    isOptional: true
+    isOptional: false
   },
+
+  // 5.3 KPIs ודשבורדים
   {
     id: 'reporting-kpis',
     moduleId: 'reporting',
-    sectionName: 'מדדי ביצוע',
+    sectionName: '5.3 KPIs ודשבורדים',
     fields: [
       {
         name: 'kpis',
@@ -588,15 +1363,7 @@ export const WIZARD_STEPS: WizardStep[] = [
           rows: 3,
           placeholder: 'רשום את המדדים המרכזיים...'
         }
-      }
-    ],
-    isOptional: true
-  },
-  {
-    id: 'reporting-dashboards',
-    moduleId: 'reporting',
-    sectionName: 'דשבורדים',
-    fields: [
+      },
       {
         name: 'dashboards.exists',
         component: RadioGroup,
@@ -614,145 +1381,85 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'האם הדשבורדים בזמן אמת?',
           options: [
-            { value: 'yes', label: 'כן' },
-            { value: 'no', label: 'לא' }
+            { value: 'yes', label: 'כן, מתעדכן אוטומטית' },
+            { value: 'no', label: 'לא, עדכון ידני' }
           ]
         },
-        skipCondition: (data) => !data.modules.reporting?.dashboards?.exists
+        skipCondition: (data) => data.modules.reporting?.dashboards?.exists !== 'yes'
+      },
+      {
+        name: 'dashboards.anomalyDetection',
+        component: RadioGroup,
+        props: {
+          label: 'זיהוי חריגות',
+          options: [
+            { value: 'automatic', label: 'אוטומטי' },
+            { value: 'manual', label: 'ידני' },
+            { value: 'none', label: 'אין' }
+          ],
+          orientation: 'horizontal'
+        },
+        skipCondition: (data) => data.modules.reporting?.dashboards?.exists !== 'yes'
       }
     ],
-    isOptional: true
+    isOptional: false
   },
 
-  // AI Agents Module Steps
+  // ==================== AI AGENTS MODULE ====================
+  // 6.1 AI במכירות
   {
     id: 'ai-sales',
     moduleId: 'aiAgents',
-    sectionName: 'AI במכירות',
+    sectionName: '6.1 AI במכירות',
     fields: [
       {
         name: 'sales.useCases',
         component: CheckboxGroup,
         props: {
-          label: 'אילו תהליכים במכירות מתאימים לאוטומציה?',
+          label: 'מקרי שימוש אפשריים',
           options: [
-            { value: 'lead_qualification', label: 'סינון לידים' },
-            { value: 'first_contact', label: 'פנייה ראשונה' },
-            { value: 'appointment_scheduling', label: 'תיאום פגישות' },
-            { value: 'price_quotes', label: 'הצעות מחיר' },
-            { value: 'followup', label: 'מעקב' }
-          ]
+            { value: 'lead_qualification', label: 'סיווג לידים אוטומטי' },
+            { value: 'first_contact', label: 'שיחה ראשונית עם לידים' },
+            { value: 'appointment_scheduling', label: 'תיאום פגישות אוטומטי' },
+            { value: 'price_quotes', label: 'הצעות מחיר אוטומטיות' },
+            { value: 'follow_up', label: 'מעקבים אוטומטיים' },
+            { value: 'nurturing', label: 'טיפוח לידים ארוך טווח' },
+            { value: 'sales_insights', label: 'ניתוח ותובנות מכירות' },
+            { value: 'personalization', label: 'התאמה אישית ללקוחות' },
+            { value: 'predictive', label: 'חיזוי סגירת עסקאות' },
+            { value: 'chatbot', label: 'בוט מכירות חכם' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'sales.customUseCase',
+        component: TextField,
+        props: {
+          label: 'מקרה שימוש נוסף',
+          placeholder: 'תאר מקרה שימוש ספציפי נוסף...'
         }
       },
       {
         name: 'sales.potential',
-        component: SelectField,
+        component: RatingField,
         props: {
-          label: 'פוטנציאל AI במכירות',
-          options: [
-            { value: 'high', label: 'גבוה' },
-            { value: 'medium', label: 'בינוני' },
-            { value: 'low', label: 'נמוך' }
-          ]
-        }
-      }
-    ],
-    isOptional: true
-  },
-  {
-    id: 'ai-service',
-    moduleId: 'aiAgents',
-    sectionName: 'AI בשירות',
-    fields: [
-      {
-        name: 'service.useCases',
-        component: CheckboxGroup,
-        props: {
-          label: 'אילו תהליכי שירות מתאימים לאוטומציה?',
-          options: [
-            { value: 'chatbot', label: 'צ\'אטבוט 24/7' },
-            { value: 'sentiment', label: 'ניתוח סנטימנט' },
-            { value: 'auto_response', label: 'מענה אוטומטי' },
-            { value: 'routing', label: 'ניתוב פניות' },
-            { value: 'knowledge', label: 'מאגר ידע חכם' }
-          ]
+          label: 'פוטנציאל השפעה על המכירות (1-5)',
+          helperText: 'עד כמה AI יכול להשפיע על תהליכי המכירות?'
         }
       },
       {
-        name: 'service.potential',
+        name: 'sales.readiness',
         component: SelectField,
         props: {
-          label: 'פוטנציאל AI בשירות',
+          label: 'מוכנות ליישום',
           options: [
-            { value: 'high', label: 'גבוה' },
-            { value: 'medium', label: 'בינוני' },
-            { value: 'low', label: 'נמוך' }
-          ]
-        }
-      }
-    ],
-    isOptional: true
-  },
-  {
-    id: 'ai-operations',
-    moduleId: 'aiAgents',
-    sectionName: 'AI בתפעול',
-    fields: [
-      {
-        name: 'operations.useCases',
-        component: CheckboxGroup,
-        props: {
-          label: 'אילו תהליכי תפעול מתאימים לאוטומציה?',
-          options: [
-            { value: 'document_processing', label: 'עיבוד מסמכים' },
-            { value: 'data_entry', label: 'הזנת נתונים' },
-            { value: 'invoice_processing', label: 'עיבוד חשבוניות' },
-            { value: 'email_sorting', label: 'מיון אימיילים' },
-            { value: 'report_generation', label: 'הפקת דוחות' }
-          ]
-        }
-      },
-      {
-        name: 'operations.potential',
-        component: SelectField,
-        props: {
-          label: 'פוטנציאל AI בתפעול',
-          options: [
-            { value: 'high', label: 'גבוה' },
-            { value: 'medium', label: 'בינוני' },
-            { value: 'low', label: 'נמוך' }
-          ]
-        }
-      }
-    ],
-    isOptional: true
-  },
-  {
-    id: 'ai-general',
-    moduleId: 'aiAgents',
-    sectionName: 'הגדרות AI כלליות',
-    fields: [
-      {
-        name: 'priority',
-        component: SelectField,
-        props: {
-          label: 'איפה הכי חשוב להטמיע AI?',
-          options: [
-            { value: 'sales', label: 'מכירות' },
-            { value: 'service', label: 'שירות' },
-            { value: 'operations', label: 'תפעול' }
-          ]
-        }
-      },
-      {
-        name: 'naturalLanguageImportance',
-        component: SelectField,
-        props: {
-          label: 'חשיבות עיבוד שפה טבעית בעברית',
-          options: [
-            { value: 'critical', label: 'קריטי' },
-            { value: 'important', label: 'חשוב' },
-            { value: 'less_important', label: 'פחות חשוב' }
+            { value: '', label: 'בחר...' },
+            { value: 'immediate', label: 'מיידי - אפשר להתחיל מחר' },
+            { value: 'short', label: 'טווח קצר - תוך 3 חודשים' },
+            { value: 'medium', label: 'טווח בינוני - תוך 6 חודשים' },
+            { value: 'long', label: 'טווח ארוך - מעל 6 חודשים' },
+            { value: 'not_ready', label: 'לא מוכנים כרגע' }
           ]
         }
       }
@@ -760,11 +1467,208 @@ export const WIZARD_STEPS: WizardStep[] = [
     isOptional: false
   },
 
-  // Systems Module Steps
+  // 6.2 AI בשירות
+  {
+    id: 'ai-service',
+    moduleId: 'aiAgents',
+    sectionName: '6.2 AI בשירות לקוחות',
+    fields: [
+      {
+        name: 'service.useCases',
+        component: CheckboxGroup,
+        props: {
+          label: 'מקרי שימוש אפשריים',
+          options: [
+            { value: 'chatbot', label: "צ'אטבוט 24/7" },
+            { value: 'sentiment', label: 'ניתוח סנטימנט' },
+            { value: 'auto_response', label: 'תגובות אוטומטיות' },
+            { value: 'routing', label: 'ניתוב חכם לנציגים' },
+            { value: 'knowledge_base', label: 'מאגר ידע חכם' },
+            { value: 'voice_assistant', label: 'עוזר קולי' },
+            { value: 'ticket_classification', label: 'סיווג פניות אוטומטי' },
+            { value: 'priority', label: 'תעדוף אוטומטי' },
+            { value: 'translation', label: 'תרגום אוטומטי' },
+            { value: 'summary', label: 'סיכום שיחות' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'service.customUseCase',
+        component: TextField,
+        props: {
+          label: 'מקרה שימוש נוסף',
+          placeholder: 'תאר מקרה שימוש ספציפי נוסף...'
+        }
+      },
+      {
+        name: 'service.potential',
+        component: RatingField,
+        props: {
+          label: 'פוטנציאל השפעה על השירות (1-5)',
+          helperText: 'עד כמה AI יכול לשפר את השירות?'
+        }
+      },
+      {
+        name: 'service.readiness',
+        component: SelectField,
+        props: {
+          label: 'מוכנות ליישום',
+          options: [
+            { value: '', label: 'בחר...' },
+            { value: 'immediate', label: 'מיידי - אפשר להתחיל מחר' },
+            { value: 'short', label: 'טווח קצר - תוך 3 חודשים' },
+            { value: 'medium', label: 'טווח בינוני - תוך 6 חודשים' },
+            { value: 'long', label: 'טווח ארוך - מעל 6 חודשים' },
+            { value: 'not_ready', label: 'לא מוכנים כרגע' }
+          ]
+        }
+      }
+    ],
+    isOptional: false
+  },
+
+  // 6.3 AI בתפעול
+  {
+    id: 'ai-operations',
+    moduleId: 'aiAgents',
+    sectionName: '6.3 AI בתפעול',
+    fields: [
+      {
+        name: 'operations.useCases',
+        component: CheckboxGroup,
+        props: {
+          label: 'מקרי שימוש אפשריים',
+          options: [
+            { value: 'document_processing', label: 'עיבוד מסמכים אוטומטי' },
+            { value: 'data_entry', label: 'הזנת נתונים אוטומטית' },
+            { value: 'invoice_processing', label: 'עיבוד חשבוניות' },
+            { value: 'email_sorting', label: 'מיון וניתוב מיילים' },
+            { value: 'report_generation', label: 'יצירת דוחות אוטומטית' },
+            { value: 'scheduling', label: 'תזמון משימות חכם' },
+            { value: 'quality_control', label: 'בקרת איכות אוטומטית' },
+            { value: 'inventory', label: 'ניהול מלאי חכם' },
+            { value: 'predictive_maintenance', label: 'תחזוקה חזויה' },
+            { value: 'workflow_optimization', label: 'אופטימיזציה של תהליכים' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'operations.customUseCase',
+        component: TextField,
+        props: {
+          label: 'מקרה שימוש נוסף',
+          placeholder: 'תאר מקרה שימוש ספציפי נוסף...'
+        }
+      },
+      {
+        name: 'operations.potential',
+        component: RatingField,
+        props: {
+          label: 'פוטנציאל השפעה על התפעול (1-5)',
+          helperText: 'עד כמה AI יכול לייעל את התפעול?'
+        }
+      },
+      {
+        name: 'operations.readiness',
+        component: SelectField,
+        props: {
+          label: 'מוכנות ליישום',
+          options: [
+            { value: '', label: 'בחר...' },
+            { value: 'immediate', label: 'מיידי - אפשר להתחיל מחר' },
+            { value: 'short', label: 'טווח קצר - תוך 3 חודשים' },
+            { value: 'medium', label: 'טווח בינוני - תוך 6 חודשים' },
+            { value: 'long', label: 'טווח ארוך - מעל 6 חודשים' },
+            { value: 'not_ready', label: 'לא מוכנים כרגע' }
+          ]
+        }
+      }
+    ],
+    isOptional: false
+  },
+
+  // 6.4 הגדרות AI כלליות
+  {
+    id: 'ai-general',
+    moduleId: 'aiAgents',
+    sectionName: '6.4 הגדרות AI כלליות',
+    fields: [
+      {
+        name: 'priority',
+        component: RadioGroup,
+        props: {
+          label: 'עדיפות להתחלה',
+          options: [
+            { value: 'sales', label: 'AI במכירות - להגדיל הכנסות' },
+            { value: 'service', label: 'AI בשירות - לשפר חווית לקוח' },
+            { value: 'operations', label: 'AI בתפעול - לחסוך עלויות' },
+            { value: 'all', label: 'כל התחומים במקביל' },
+            { value: 'pilot', label: 'פיילוט קטן בתחום אחד' }
+          ]
+        }
+      },
+      {
+        name: 'naturalLanguageImportance',
+        component: RatingField,
+        props: {
+          label: 'חשיבות שפה טבעית בעברית (1-5)',
+          helperText: 'עד כמה חשוב שה-AI יבין וידבר עברית טבעית?'
+        }
+      },
+      {
+        name: 'currentAITools',
+        component: CheckboxGroup,
+        props: {
+          label: 'כלי AI בשימוש כיום',
+          options: [
+            { value: 'chatgpt', label: 'ChatGPT' },
+            { value: 'claude', label: 'Claude' },
+            { value: 'gemini', label: 'Google Gemini' },
+            { value: 'copilot', label: 'Microsoft Copilot' },
+            { value: 'custom', label: 'פתרון מותאם אישית' },
+            { value: 'none', label: 'אין שימוש כרגע' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'aiBarriers',
+        component: CheckboxGroup,
+        props: {
+          label: 'חסמים להטמעת AI',
+          options: [
+            { value: 'budget', label: 'תקציב' },
+            { value: 'skills', label: 'חוסר בידע/מיומנויות' },
+            { value: 'data', label: 'איכות או זמינות נתונים' },
+            { value: 'integration', label: 'קושי באינטגרציה' },
+            { value: 'resistance', label: 'התנגדות לשינוי' },
+            { value: 'security', label: 'חששות אבטחה' },
+            { value: 'regulation', label: 'רגולציה' },
+            { value: 'trust', label: 'חוסר אמון בטכנולוגיה' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'teamSkillLevel',
+        component: RatingField,
+        props: {
+          label: 'רמת מיומנות הצוות בטכנולוגיה (1-5)',
+          helperText: 'עד כמה הצוות מוכן טכנולוגית?'
+        }
+      }
+    ],
+    isOptional: false
+  },
+
+  // ==================== SYSTEMS MODULE ====================
+  // 7.1 מערכות קיימות
   {
     id: 'systems-current',
     moduleId: 'systems',
-    sectionName: 'מערכות קיימות',
+    sectionName: '7.1 מערכות קיימות',
     fields: [
       {
         name: 'currentSystems',
@@ -772,205 +1676,691 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'אילו מערכות קיימות בארגון?',
           options: [
-            { value: 'crm', label: 'CRM' },
-            { value: 'erp', label: 'ERP' },
-            { value: 'marketing', label: 'מערכת שיווק' },
-            { value: 'helpdesk', label: 'מערכת תמיכה' },
+            { value: 'crm', label: 'CRM (מערכת ניהול קשרי לקוחות)' },
+            { value: 'erp', label: 'ERP (מערכת ניהול משאבים)' },
+            { value: 'marketing_automation', label: 'אוטומציית שיווק' },
+            { value: 'helpdesk', label: 'מערכת תמיכה/כרטוס' },
             { value: 'accounting', label: 'מערכת הנהלת חשבונות' },
-            { value: 'project', label: 'ניהול פרויקטים' },
-            { value: 'hr', label: 'מערכת HR' },
-            { value: 'inventory', label: 'מערכת מלאי' }
+            { value: 'project_management', label: 'ניהול פרויקטים' },
+            { value: 'hr_system', label: 'מערכת משאבי אנוש' },
+            { value: 'inventory', label: 'ניהול מלאי' },
+            { value: 'ecommerce', label: 'מסחר אלקטרוני' },
+            { value: 'bi_analytics', label: 'BI וניתוח נתונים' }
           ],
-          allowCustom: true // Enable custom entries
+          columns: 2,
+          allowCustom: true
+        }
+      },
+      {
+        name: 'customSystems',
+        component: TextField,
+        props: {
+          label: 'מערכות נוספות (אם יש)',
+          placeholder: 'רשום מערכות נוספות מופרדות בפסיק...'
         }
       }
     ],
     isOptional: false
   },
+
+  // 7.2 אינטגרציות
   {
     id: 'systems-integrations',
     moduleId: 'systems',
-    sectionName: 'אינטגרציות',
+    sectionName: '7.2 אינטגרציות',
     fields: [
       {
-        name: 'integrations',
-        component: TextAreaField,
+        name: 'integrations.level',
+        component: RadioGroup,
         props: {
-          label: 'תאר את האינטגרציות הקיימות והבעיות',
-          rows: 3,
-          placeholder: 'למשל: CRM לא מסונכרן עם מערכת החשבוניות...'
-        }
-      }
-    ],
-    isOptional: true
-  },
-  {
-    id: 'systems-dataquality',
-    moduleId: 'systems',
-    sectionName: 'איכות נתונים',
-    fields: [
-      {
-        name: 'dataQuality.duplicates',
-        component: SelectField,
-        props: {
-          label: 'כמות כפילויות במערכות',
+          label: 'רמת אינטגרציה בין מערכות',
           options: [
-            { value: 'many', label: 'הרבה' },
-            { value: 'some', label: 'קצת' },
-            { value: 'none', label: 'אין' }
+            { value: 'full', label: 'מלאה - הכל מסונכרן אוטומטית' },
+            { value: 'partial', label: 'חלקית - חלק מהמערכות מחוברות' },
+            { value: 'minimal', label: 'מינימלית - רוב המערכות נפרדות' },
+            { value: 'none', label: 'אין - כל מערכת עובדת בנפרד' }
           ]
         }
       },
       {
-        name: 'dataQuality.accuracy',
-        component: SelectField,
+        name: 'integrations.issues',
+        component: CheckboxGroup,
         props: {
-          label: 'רמת דיוק הנתונים',
+          label: 'בעיות באינטגרציה',
           options: [
-            { value: 'high', label: 'גבוהה' },
-            { value: 'medium', label: 'בינונית' },
-            { value: 'low', label: 'נמוכה' }
+            { value: 'sync_delays', label: 'עיכובים בסנכרון' },
+            { value: 'data_loss', label: 'אובדן מידע במעבר' },
+            { value: 'duplicate_entry', label: 'הזנות כפולות' },
+            { value: 'format_issues', label: 'בעיות פורמט/תאימות' },
+            { value: 'limited_fields', label: 'העברת שדות מוגבלת' },
+            { value: 'manual_updates', label: 'צורך בעדכון ידני' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'integrations.manualDataTransfer',
+        component: RadioGroup,
+        props: {
+          label: 'כמה זמן מושקע בהעברת נתונים ידנית?',
+          options: [
+            { value: 'none', label: 'אין צורך - הכל אוטומטי' },
+            { value: '1-2_hours', label: '1-2 שעות בשבוע' },
+            { value: '3-5_hours', label: '3-5 שעות בשבוע' },
+            { value: '6-10_hours', label: '6-10 שעות בשבוע' },
+            { value: 'over_10', label: 'מעל 10 שעות בשבוע' }
+          ]
+        }
+      }
+    ],
+    isOptional: false
+  },
+
+  // 7.3 איכות נתונים
+  {
+    id: 'systems-dataquality',
+    moduleId: 'systems',
+    sectionName: '7.3 איכות נתונים',
+    fields: [
+      {
+        name: 'dataQuality.overall',
+        component: RadioGroup,
+        props: {
+          label: 'איכות נתונים כללית',
+          options: [
+            { value: 'excellent', label: 'מצוינת - נתונים נקיים ומדויקים' },
+            { value: 'good', label: 'טובה - בעיות מינוריות' },
+            { value: 'average', label: 'בינונית - יש בעיות שצריך לטפל' },
+            { value: 'poor', label: 'גרועה - הרבה בעיות ואי דיוקים' }
+          ]
+        }
+      },
+      {
+        name: 'dataQuality.duplicates',
+        component: RadioGroup,
+        props: {
+          label: 'כמות נתונים כפולים',
+          options: [
+            { value: 'none', label: 'אין כפילויות' },
+            { value: 'minimal', label: 'מעט (פחות מ-5%)' },
+            { value: 'moderate', label: 'בינוני (5-15%)' },
+            { value: 'high', label: 'הרבה (מעל 15%)' }
           ]
         }
       },
       {
         name: 'dataQuality.completeness',
-        component: NumberField,
+        component: RadioGroup,
         props: {
-          label: 'אחוז שלמות הנתונים',
-          min: 0,
-          max: 100,
-          suffix: '%'
+          label: 'שלמות הנתונים',
+          options: [
+            { value: 'complete', label: 'מלא - כל השדות החשובים מלאים' },
+            { value: 'mostly_complete', label: 'רוב השדות מלאים' },
+            { value: 'partial', label: 'חלקי - חסרים הרבה נתונים' },
+            { value: 'poor', label: 'חסר - רוב השדות ריקים' }
+          ]
         }
       }
     ],
-    isOptional: true
+    isOptional: false
   },
 
-  // ROI Module Steps
+  // 7.4 ממשקי API ו-Webhooks
+  {
+    id: 'systems-api',
+    moduleId: 'systems',
+    sectionName: '7.4 ממשקי API ו-Webhooks',
+    fields: [
+      {
+        name: 'apiWebhooks.usage',
+        component: RadioGroup,
+        props: {
+          label: 'שימוש ב-API',
+          options: [
+            { value: 'extensive', label: 'נרחב - משתמשים בהרבה ממשקים' },
+            { value: 'moderate', label: 'בינוני - כמה ממשקים פעילים' },
+            { value: 'minimal', label: 'מינימלי - שימוש בסיסי' },
+            { value: 'none', label: 'אין שי��וש בכלל' }
+          ]
+        }
+      },
+      {
+        name: 'apiWebhooks.webhooks',
+        component: RadioGroup,
+        props: {
+          label: 'שימוש ב-Webhooks',
+          options: [
+            { value: 'active', label: 'פעיל - מקבלים התראות בזמן אמת' },
+            { value: 'limited', label: 'מוגבל - רק לדברים קריטיים' },
+            { value: 'none', label: 'אין שימוש' },
+            { value: 'dont_know', label: 'לא יודע מה זה' }
+          ]
+        }
+      },
+      {
+        name: 'apiWebhooks.needs',
+        component: CheckboxGroup,
+        props: {
+          label: 'צרכי ממשקים',
+          options: [
+            { value: 'real_time_sync', label: 'סנכרון בזמן אמת' },
+            { value: 'automated_workflows', label: 'תהליכי עבודה אוטומטיים' },
+            { value: 'external_integrations', label: 'חיבור לשירותים חיצוניים' },
+            { value: 'data_export', label: 'ייצוא נתונים אוטומטי' },
+            { value: 'event_triggers', label: 'טריגרים לאירועים' },
+            { value: 'custom_reports', label: 'דוחות מותאמים אישית' }
+          ],
+          columns: 2
+        }
+      }
+    ],
+    isOptional: false
+  },
+
+  // 7.5 תשתית ואבטחה
+  {
+    id: 'systems-infrastructure',
+    moduleId: 'systems',
+    sectionName: '7.5 תשתית ואבטחה',
+    fields: [
+      {
+        name: 'infrastructure.hosting',
+        component: RadioGroup,
+        props: {
+          label: 'סוג אירוח',
+          options: [
+            { value: 'cloud', label: 'ענן מלא (AWS, Azure, Google)' },
+            { value: 'hybrid', label: 'היברידי - חלק ענן חלק מקומי' },
+            { value: 'on_premise', label: 'מקומי - שרתים בארגון' },
+            { value: 'mixed_saas', label: 'שילוב של שירותי SaaS' }
+          ]
+        }
+      },
+      {
+        name: 'infrastructure.security',
+        component: CheckboxGroup,
+        props: {
+          label: 'אמצעי אבטחה',
+          options: [
+            { value: 'ssl', label: 'הצפנת SSL' },
+            { value: '2fa', label: 'אימות דו-שלבי' },
+            { value: 'regular_backups', label: 'גיבויים סדירים' },
+            { value: 'access_control', label: 'בקרת גישה והרשאות' },
+            { value: 'audit_logs', label: 'לוגים וביקורת' },
+            { value: 'encryption', label: 'הצפנת נתונים' },
+            { value: 'vpn', label: 'גישה דרך VPN' },
+            { value: 'firewall', label: 'חומת אש' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'infrastructure.backup',
+        component: RadioGroup,
+        props: {
+          label: 'תדירות גיבויים',
+          options: [
+            { value: 'real_time', label: 'זמן אמת - רפליקציה מתמדת' },
+            { value: 'hourly', label: 'כל שעה' },
+            { value: 'daily', label: 'יומי' },
+            { value: 'weekly', label: 'שבועי' },
+            { value: 'monthly', label: 'חודשי' },
+            { value: 'none', label: 'אין גיבויים קבועים' }
+          ]
+        }
+      }
+    ],
+    isOptional: false
+  },
+
+  // ==================== ROI MODULE ====================
+  // 8.1 עלויות נוכחיות
   {
     id: 'roi-current-costs',
     moduleId: 'roi',
-    sectionName: 'עלויות נוכחיות',
+    sectionName: '8.1 ניתוח עלויות נוכחיות',
     fields: [
       {
-        name: 'calculations',
-        component: TextAreaField,
+        name: 'currentCosts.manualHours',
+        component: NumberField,
         props: {
-          label: 'הערות לגבי עלויות נוכחיות',
-          rows: 2,
-          placeholder: 'עלויות נוספות שיש לקחת בחשבון...'
+          label: 'שעות עבודה ידנית בשבוע',
+          min: 0,
+          placeholder: 'לדוגמה: 40'
+        }
+      },
+      {
+        name: 'currentCosts.hourlyCost',
+        component: NumberField,
+        props: {
+          label: 'עלות שעת עבודה ממוצעת (₪)',
+          min: 0,
+          suffix: '₪',
+          placeholder: 'לדוגמה: 100'
+        }
+      },
+      {
+        name: 'currentCosts.toolsCost',
+        component: NumberField,
+        props: {
+          label: 'עלות כלים וסופטוור חודשית (₪)',
+          min: 0,
+          suffix: '₪',
+          placeholder: 'לדוגמה: 5000'
+        }
+      },
+      {
+        name: 'currentCosts.errorCost',
+        component: NumberField,
+        props: {
+          label: 'עלות טעויות וטיפול בהן לחודש (₪)',
+          min: 0,
+          suffix: '₪',
+          placeholder: 'לדוגמה: 2000'
+        }
+      },
+      {
+        name: 'currentCosts.lostOpportunities',
+        component: NumberField,
+        props: {
+          label: 'הערכת הפסדים מהחמצת הזדמנויות לחודש (₪)',
+          min: 0,
+          suffix: '₪',
+          placeholder: 'לקוחות שלא טופלו, עסקאות שלא נסגרו...'
         }
       }
     ],
-    isOptional: true
-  },
-  {
-    id: 'roi-summary',
-    moduleId: 'roi',
-    sectionName: 'סיכום ROI',
-    fields: [
-      {
-        name: 'summary',
-        component: TextAreaField,
-        props: {
-          label: 'הערות נוספות לחישוב ROI',
-          rows: 2
-        }
-      }
-    ],
-    isOptional: true
+    isOptional: false
   },
 
-  // Planning Module Steps
+  // 8.2 פוטנציאל חיסכון בזמן
+  {
+    id: 'roi-time-savings',
+    moduleId: 'roi',
+    sectionName: '8.2 פוטנציאל חיסכון בזמן',
+    fields: [
+      {
+        name: 'timeSavings.estimatedHoursSaved',
+        component: NumberField,
+        props: {
+          label: 'הערכה: כמה שעות עבודה בשבוע ניתן לחסוך באוטומציה?',
+          helperText: 'הערכה של סך השעות שניתן לחסוך מכל התהליכים המועמדים לאוטומציה',
+          min: 0,
+          suffix: 'שעות/שבוע'
+        }
+      },
+      {
+        name: 'timeSavings.processes',
+        component: CheckboxGroup,
+        props: {
+          label: 'תהליכים עיקריים לאוטומציה',
+          options: [
+            { value: 'lead_management', label: 'ניהול וטיפול בלידים' },
+            { value: 'customer_service', label: 'שירות לקוחות' },
+            { value: 'data_entry', label: 'הזנת נתונים' },
+            { value: 'reporting', label: 'הפקת דוחות' },
+            { value: 'invoicing', label: 'הפקת חשבוניות' },
+            { value: 'email_marketing', label: 'שיווק באימייל' },
+            { value: 'appointment_scheduling', label: 'תיאום פגישות' },
+            { value: 'document_processing', label: 'עיבוד מסמכים' },
+            { value: 'inventory_management', label: 'ניהול מלאי' },
+            { value: 'hr_processes', label: 'תהליכי HR' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'timeSavings.implementation',
+        component: RadioGroup,
+        props: {
+          label: 'קצב יישום האוטומציה',
+          options: [
+            { value: 'immediate', label: 'מיידי - תוך חודש' },
+            { value: 'quick', label: 'מהיר - תוך 3 חודשים' },
+            { value: 'moderate', label: 'מתון - תוך 6 חודשים' },
+            { value: 'gradual', label: 'הדרגתי - תוך שנה' }
+          ]
+        }
+      }
+    ],
+    isOptional: false
+  },
+
+  // 8.3 השקעה והחזר
+  {
+    id: 'roi-investment',
+    moduleId: 'roi',
+    sectionName: '8.3 השקעה והחזר',
+    fields: [
+      {
+        name: 'investment.range',
+        component: RadioGroup,
+        props: {
+          label: 'טווח השקעה מתוכנן',
+          options: [
+            { value: 'under_10k', label: 'עד 10,000 ₪' },
+            { value: '10k_50k', label: '10,000 - 50,000 ₪' },
+            { value: '50k_100k', label: '50,000 - 100,000 ₪' },
+            { value: '100k_250k', label: '100,000 - 250,000 ₪' },
+            { value: 'over_250k', label: 'מעל 250,000 ₪' }
+          ]
+        }
+      },
+      {
+        name: 'investment.paybackExpectation',
+        component: RadioGroup,
+        props: {
+          label: 'ציפייה לזמן החזר השקעה',
+          options: [
+            { value: '3_months', label: 'עד 3 חודשים' },
+            { value: '6_months', label: 'עד 6 חודשים' },
+            { value: '12_months', label: 'עד שנה' },
+            { value: '18_months', label: 'עד שנה וחצי' },
+            { value: '24_months', label: 'עד שנתיים' },
+            { value: 'over_24', label: 'מעל שנתיים' }
+          ]
+        }
+      },
+      {
+        name: 'investment.budgetAvailable',
+        component: RadioGroup,
+        props: {
+          label: 'זמינות תקציב',
+          options: [
+            { value: 'immediate', label: 'זמין מיידית' },
+            { value: 'next_quarter', label: 'ברבעון הבא' },
+            { value: 'next_year', label: 'בשנה הבאה' },
+            { value: 'needs_approval', label: 'דורש אישור מיוחד' },
+            { value: 'not_available', label: 'אין תקציב כרגע' }
+          ]
+        }
+      }
+    ],
+    isOptional: false
+  },
+
+  // 8.4 מדדי הצלחה
+  {
+    id: 'roi-success-metrics',
+    moduleId: 'roi',
+    sectionName: '8.4 מדדי הצלחה',
+    fields: [
+      {
+        name: 'successMetrics',
+        component: CheckboxGroup,
+        props: {
+          label: 'מדדים לבחינת הצלחה',
+          options: [
+            { value: 'time_saved', label: 'חיסכון בזמן' },
+            { value: 'cost_reduction', label: 'הפחתת עלויות' },
+            { value: 'revenue_increase', label: 'גידול בהכנסות' },
+            { value: 'customer_satisfaction', label: 'שביעות רצון לקוחות' },
+            { value: 'employee_satisfaction', label: 'שביעות רצון עובדים' },
+            { value: 'error_reduction', label: 'הפחתת טעויות' },
+            { value: 'process_speed', label: 'מהירות תהליכים' },
+            { value: 'lead_conversion', label: 'המרת לידים' },
+            { value: 'response_time', label: 'זמן תגובה' },
+            { value: 'data_quality', label: 'איכות נתונים' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'measurementFrequency',
+        component: RadioGroup,
+        props: {
+          label: 'תדירות מדידה',
+          options: [
+            { value: 'daily', label: 'יומי' },
+            { value: 'weekly', label: 'שבועי' },
+            { value: 'monthly', label: 'חודשי' },
+            { value: 'quarterly', label: 'רבעוני' },
+            { value: 'annually', label: 'שנתי' }
+          ],
+          orientation: 'horizontal'
+        }
+      }
+    ],
+    isOptional: false
+  },
+
+  // ==================== PLANNING MODULE ====================
+  // 9.1 חזון ויעדים
   {
     id: 'planning-vision',
     moduleId: 'planning',
-    sectionName: 'חזון ומטרות',
+    sectionName: '9.1 חזון ויעדים',
     fields: [
       {
         name: 'vision',
         component: TextAreaField,
         props: {
-          label: 'מהו החזון שלכם לאוטומציה בארגון?',
-          rows: 3
+          label: 'חזון לאחר יישום האוטומציה',
+          rows: 3,
+          placeholder: 'תאר איך הארגון ייראה אחרי יישום מוצלח...'
+        }
+      },
+      {
+        name: 'primaryGoals',
+        component: CheckboxGroup,
+        props: {
+          label: 'יעדים עיקריים',
+          options: [
+            { value: 'efficiency', label: 'שיפור יעילות תפעולית ב-50%+' },
+            { value: 'customer_satisfaction', label: 'העלאת שביעות רצון לקוחות' },
+            { value: 'revenue_growth', label: 'הגדלת הכנסות ב-20%+' },
+            { value: 'cost_reduction', label: 'הפחתת עלויות ב-30%+' },
+            { value: 'scale', label: 'יכולת להגדיל פעילות בלי תוספת כוח אדם' },
+            { value: 'quality', label: 'שיפור איכות ודיוק' },
+            { value: 'speed', label: 'זמני תגובה מהירים יותר' },
+            { value: 'innovation', label: 'יצירת יכולות חדשות' },
+            { value: 'competitive', label: 'יתרון תחרותי בשוק' },
+            { value: 'employee_satisfaction', label: 'שיפור חוויית עובדים' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'timeframe',
+        component: RadioGroup,
+        props: {
+          label: 'מסגרת זמן ליישום החזון',
+          options: [
+            { value: '3_months', label: '3 חודשים - יישום מהיר' },
+            { value: '6_months', label: '6 חודשים - קצב סביר' },
+            { value: '12_months', label: 'שנה - יישום מקיף' },
+            { value: '18_months', label: 'שנה וחצי - טרנספורמציה מלאה' },
+            { value: 'over_18', label: 'מעל שנה וחצי - פרויקט ארוך טווח' }
+          ]
         }
       }
     ],
     isOptional: false
   },
+
+  // 9.2 תעדוף
   {
     id: 'planning-priorities',
     moduleId: 'planning',
-    sectionName: 'סדרי עדיפויות',
+    sectionName: '9.2 תעדוף',
     fields: [
       {
-        name: 'priorities',
+        name: 'priorities.top',
         component: CheckboxGroup,
         props: {
-          label: 'מהן 3 העדיפויות העליונות?',
+          label: 'פריוריטי טופ (3 הדברים הכי חשובים)',
           options: [
-            { value: 'sales_automation', label: 'אוטומציית מכירות' },
-            { value: 'service_improvement', label: 'שיפור שירות' },
-            { value: 'operational_efficiency', label: 'יעילות תפעולית' },
-            { value: 'reporting_dashboards', label: 'דוחות ודשבורדים' },
-            { value: 'system_integration', label: 'אינטגרציה בין מערכות' },
-            { value: 'ai_implementation', label: 'הטמעת AI' }
+            { value: 'lead_automation', label: 'אוטומציית ניהול לידים' },
+            { value: 'customer_response', label: 'מענה אוטומטי ללקוחות' },
+            { value: 'data_integration', label: 'אינטגרציה בין מערכות' },
+            { value: 'reporting', label: 'דוחות אוטומטיים' },
+            { value: 'workflow_automation', label: 'אוטומציית תהליכי עבודה' },
+            { value: 'ai_implementation', label: 'הטמעת AI' },
+            { value: 'data_quality', label: 'שיפור איכות נתונים' },
+            { value: 'process_optimization', label: 'אופטימיזציה של תהליכים' }
           ],
-          max: 3
+          columns: 2
+        }
+      },
+      {
+        name: 'priorities.quickWins',
+        component: CheckboxGroup,
+        props: {
+          label: 'Quick Wins (ניתן ליישם מהר)',
+          options: [
+            { value: 'email_templates', label: 'תבניות אימייל אוטומטיות' },
+            { value: 'basic_chatbot', label: 'צ\'אטבוט בסיסי' },
+            { value: 'simple_integrations', label: 'אינטגרציות פשוטות' },
+            { value: 'automated_notifications', label: 'התראות אוטומטיות' },
+            { value: 'basic_reporting', label: 'דוחות בסיסיים' },
+            { value: 'form_automation', label: 'אוטומציית טפסים' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'priorities.longTerm',
+        component: CheckboxGroup,
+        props: {
+          label: 'פרויקטים לטווח ארוך',
+          options: [
+            { value: 'full_crm', label: 'CRM מלא ומותאם' },
+            { value: 'ai_agents', label: 'סוכני AI מתקדמים' },
+            { value: 'predictive_analytics', label: 'ניתוח חזוי' },
+            { value: 'complete_automation', label: 'אוטומציה מלאה של התהליך' },
+            { value: 'custom_platform', label: 'פלטפורמה מותאמת אישית' },
+            { value: 'ml_models', label: 'מודלי למידת מכונה' }
+          ],
+          columns: 2
         }
       }
     ],
     isOptional: false
   },
+
+  // 9.3 גישת יישום
   {
-    id: 'planning-kpis',
+    id: 'planning-implementation',
     moduleId: 'planning',
-    sectionName: 'יעדים ומדדים',
+    sectionName: '9.3 גישת יישום',
     fields: [
       {
-        name: 'kpis',
-        component: TextAreaField,
+        name: 'implementation.approach',
+        component: RadioGroup,
         props: {
-          label: 'מהם היעדים המדידים שתרצו להשיג?',
-          rows: 3,
-          placeholder: 'למשל: הפחתת זמן תגובה ב-50%, הגדלת מכירות ב-20%...'
+          label: 'גישת יישום מועדפת',
+          options: [
+            { value: 'pilot', label: 'פיילוט במחלקה אחת ואז הרחבה' },
+            { value: 'phased', label: 'בשלבים - מודול אחרי מודול' },
+            { value: 'parallel', label: 'במקביל - כמה פרויקטים יחד' },
+            { value: 'big_bang', label: 'Big Bang - הכל בבת אחת' },
+            { value: 'agile', label: 'Agile - ספרינטים ושיפור מתמיד' }
+          ]
+        }
+      },
+      {
+        name: 'implementation.team',
+        component: RadioGroup,
+        props: {
+          label: 'מעורבות הצוות',
+          options: [
+            { value: 'full', label: 'מעורבות מלאה - כולם שותפים' },
+            { value: 'champions', label: 'צוות מוביל + אלופים בכל מחלקה' },
+            { value: 'it_led', label: 'בהובלת IT עם תמיכת מחלקות' },
+            { value: 'external', label: 'ספק חיצוני עם ליווי פנימי' },
+            { value: 'mixed', label: 'שילוב של פנימי וחיצוני' }
+          ]
+        }
+      },
+      {
+        name: 'implementation.training',
+        component: RadioGroup,
+        props: {
+          label: 'צורך בהדרכות',
+          options: [
+            { value: 'extensive', label: 'נרחב - הדרכות מעמיקות לכולם' },
+            { value: 'moderate', label: 'בינוני - הדרכות למשתמשי מפתח' },
+            { value: 'minimal', label: 'מינימלי - רק הדרכות בסיסיות' },
+            { value: 'none', label: 'לא נדרש - הכלים אינטואיטיביים' }
+          ]
         }
       }
     ],
-    isOptional: true
+    isOptional: false
   },
+
+  // 9.4 צעדים הבאים
   {
     id: 'planning-nextsteps',
     moduleId: 'planning',
-    sectionName: 'צעדים הבאים',
+    sectionName: '9.4 צעדים הבאים',
     fields: [
       {
-        name: 'nextSteps',
+        name: 'nextSteps.immediate',
         component: TextAreaField,
         props: {
-          label: 'מהם הצעדים הבאים שצריך לעשות?',
-          rows: 3
+          label: 'פעולות מיידיות (תוך שבוע)',
+          rows: 3,
+          placeholder: 'רשום 3-5 פעולות קונקרטיות שיקרו השבוע...'
+        }
+      },
+      {
+        name: 'nextSteps.followUp',
+        component: TextField,
+        props: {
+          label: 'תאריך פגישת המשך',
+          type: 'date'
+        }
+      },
+      {
+        name: 'nextSteps.decisionMakers',
+        component: TextField,
+        props: {
+          label: 'מקבלי החלטות מרכזיים',
+          placeholder: 'שמות ותפקידים של מקבלי ההחלטות...'
         }
       }
     ],
     isOptional: false
   },
+
+  // 9.5 סיכונים ותמיכה
   {
-    id: 'planning-questions',
+    id: 'planning-risks',
     moduleId: 'planning',
-    sectionName: 'שאלות פתוחות',
+    sectionName: '9.5 סיכונים ותמיכה',
     fields: [
       {
-        name: 'openQuestions',
+        name: 'risks',
+        component: CheckboxGroup,
+        props: {
+          label: 'סיכונים עיקריים',
+          options: [
+            { value: 'budget', label: 'מגבלות תקציב' },
+            { value: 'resistance', label: 'התנגדות לשינוי' },
+            { value: 'technical', label: 'אתגרים טכניים' },
+            { value: 'time', label: 'לוחות זמנים צפופים' },
+            { value: 'skills', label: 'חוסר במיומנויות' },
+            { value: 'integration', label: 'קשיי אינטגרציה' },
+            { value: 'data', label: 'איכות נתונים גרועה' },
+            { value: 'vendor', label: 'תלות בספקים' },
+            { value: 'compliance', label: 'דרישות רגולציה' },
+            { value: 'scale', label: 'קושי בהרחבה' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'additionalSupport',
         component: TextAreaField,
         props: {
-          label: 'האם יש שאלות פתוחות שנותרו?',
-          rows: 2
+          label: 'תמיכה נוספת נדרשת',
+          rows: 2,
+          placeholder: 'איזה סוג תמיכה, ייעוץ או משאבים נדרשים להצלחה...'
         }
       }
     ],
-    isOptional: true
+    isOptional: false
   }
 ];
 

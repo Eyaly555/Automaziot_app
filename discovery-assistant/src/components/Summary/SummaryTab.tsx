@@ -62,17 +62,6 @@ export const SummaryTab: React.FC = () => {
           )}
         </div>
 
-        {currentMeeting.modules.overview?.mainGoals && currentMeeting.modules.overview.mainGoals.length > 0 && (
-          <div className="mt-4">
-            <span className="text-gray-600 text-sm">יעדים עיקריים:</span>
-            <ul className="list-disc list-inside mt-1">
-              {currentMeeting.modules.overview.mainGoals.map((goal, idx) => (
-                <li key={idx} className="text-gray-800">{goal}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
         {currentMeeting.zohoIntegration?.contactInfo && (
           <div className="mt-4 grid grid-cols-2 gap-4">
             {currentMeeting.zohoIntegration.contactInfo.email && (
