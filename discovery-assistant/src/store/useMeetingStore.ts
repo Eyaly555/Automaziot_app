@@ -800,30 +800,57 @@ export const useMeetingStore = create<MeetingStore>()(
         const meeting = get().currentMeeting;
         const wizardState = get().wizardState;
 
-        if (meeting && wizardState) {
-          // Calculate which steps should be marked as completed based on module data
-          const completedSteps = new Set<string>();
-
-          WIZARD_STEPS.forEach(step => {
-            const moduleData = meeting.modules[step.moduleId];
-            if (moduleData && typeof moduleData === 'object') {
-              const hasData = Object.values(moduleData).some(value =>
-                value !== undefined && value !== null && value !== '' &&
-                !(Array.isArray(value) && value.length === 0)
-              );
-              if (hasData) {
-                completedSteps.add(step.id);
-              }
-            }
-          });
-
-          const updatedWizardState = {
-            ...wizardState,
-            completedSteps
-          };
-
-          get().setWizardState(updatedWizardState);
+        // Guard: ensure we have the required data
+        if (!meeting || !wizardState) {
+          console.warn('[syncModulesToWizard] Missing meeting or wizardState');
+          return;
         }
+
+        // If modules doesn't exist, initialize it
+        if (!meeting.modules) {
+          console.warn('[syncModulesToWizard] No modules found, initializing empty modules');
+          const updatedMeeting = {
+            ...meeting,
+            modules: {
+              overview: {},
+              leadsAndSales: {},
+              customerService: {},
+              operations: {},
+              reporting: {},
+              aiAgents: {},
+              systems: {},
+              roi: {},
+              planning: {}
+            }
+          };
+          get().updateMeeting(updatedMeeting);
+          return;
+        }
+
+        // Calculate which steps should be marked as completed based on module data
+        const completedSteps = new Set<string>();
+
+        WIZARD_STEPS.forEach(step => {
+          if (!step.moduleId) return;
+
+          const moduleData = meeting.modules[step.moduleId];
+          if (moduleData && typeof moduleData === 'object') {
+            const hasData = Object.values(moduleData).some(value =>
+              value !== undefined && value !== null && value !== '' &&
+              !(Array.isArray(value) && value.length === 0)
+            );
+            if (hasData) {
+              completedSteps.add(step.id);
+            }
+          }
+        });
+
+        const updatedWizardState = {
+          ...wizardState,
+          completedSteps
+        };
+
+        get().setWizardState(updatedWizardState);
       },
 
       // Custom value methods

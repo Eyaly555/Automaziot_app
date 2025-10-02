@@ -65,28 +65,61 @@ function calculateOverallProgress(meeting) {
 }
 
 /**
+ * Calculate overall progress from modules data
+ */
+function calculateModuleProgress(meeting) {
+  if (!meeting.modules) return 0;
+
+  const moduleKeys = Object.keys(meeting.modules);
+  if (moduleKeys.length === 0) return 0;
+
+  let totalFields = 0;
+  let completedFields = 0;
+
+  moduleKeys.forEach(moduleKey => {
+    const moduleData = meeting.modules[moduleKey];
+    if (moduleData && typeof moduleData === 'object') {
+      const fields = Object.values(moduleData);
+      totalFields += fields.length;
+
+      fields.forEach(value => {
+        // Count as completed if it has meaningful data
+        if (value !== undefined && value !== null && value !== '' &&
+            !(Array.isArray(value) && value.length === 0)) {
+          completedFields++;
+        }
+      });
+    }
+  });
+
+  return totalFields > 0 ? Math.round((completedFields / totalFields) * 100) : 0;
+}
+
+/**
  * Transform meeting data to Zoho format
  */
 function transformToZohoFormat(meeting) {
-  // Build meeting data with meetingInfo and characterization
+  // CRITICAL FIX: Store the modules data that the frontend uses
   const meetingData = {
-    meetingInfo: meeting.meetingInfo,
-    characterization: meeting.characterization
+    modules: meeting.modules || {},
+    painPoints: meeting.painPoints || [],
+    notes: meeting.notes || '',
+    phaseHistory: meeting.phaseHistory || []
   };
 
-  // Calculate progress values
-  const overallProgress = calculateOverallProgress(meeting);
-  const phase2Progress = meeting.metadata?.phase2Progress || 0;
-  const phase3Progress = meeting.metadata?.phase3Progress || 0;
+  // Calculate progress from actual module data
+  const overallProgress = calculateModuleProgress(meeting);
+  const phase2Progress = meeting.implementationSpec?.completionPercentage || 0;
+  const phase3Progress = meeting.developmentTracking?.progress?.progressPercentage || 0;
 
   // Build Zoho record
   const zohoRecord = {
     // Basic fields
-    Name: meeting.meetingInfo?.contactName || 'Unnamed Client',
-    Company_s_Name: meeting.meetingInfo?.companyName,
-    Email: meeting.meetingInfo?.email,
-    Phone: meeting.meetingInfo?.phone,
-    Discovery_Date: meeting.meetingInfo?.meetingDate,
+    Name: meeting.clientName || meeting.zohoIntegration?.dealName || 'Unnamed Client',
+    Company_s_Name: meeting.modules?.overview?.companyName || '',
+    Email: meeting.modules?.overview?.email || '',
+    Phone: meeting.modules?.overview?.phone || '',
+    Discovery_Date: meeting.date || new Date().toISOString(),
 
     // Phase and status
     Current_Phase: meeting.phase || 'discovery',
@@ -103,8 +136,8 @@ function transformToZohoFormat(meeting) {
 
     // JSON data fields (compressed if needed)
     Meeting_Data_JS: compressJSONField(meetingData, 'Meeting_Data_JS'),
-    Implementation_Spec_Data: compressJSONField(meeting.phase2, 'Implementation_Spec_Data'),
-    Development_Tracking_Data: compressJSONField(meeting.phase3, 'Development_Tracking_Data')
+    Implementation_Spec_Data: compressJSONField(meeting.implementationSpec, 'Implementation_Spec_Data'),
+    Development_Tracking_Data: compressJSONField(meeting.developmentTracking, 'Development_Tracking_Data')
   };
 
   return zohoRecord;

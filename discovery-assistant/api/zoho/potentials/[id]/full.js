@@ -32,89 +32,48 @@ function transformToFullMeeting(record) {
     meetingId: `zoho-${record.id}`,
     phase: record.Current_Phase || 'discovery',
     status: record.Status || 'not_started',
+    clientName: record.Name || '',
+    date: record.Discovery_Date || new Date().toISOString(),
+    timer: 0,
 
-    // Meeting info from meeting data
-    meetingInfo: meetingData?.meetingInfo || {
-      companyName: record.Company_s_Name || '',
-      contactName: record.Name || '',
-      contactRole: '',
-      meetingDate: record.Discovery_Date || new Date().toISOString(),
-      industry: '',
-      companySize: '',
-      email: record.Email || '',
-      phone: record.Phone || ''
+    // CRITICAL FIX: Add modules object that the frontend expects
+    modules: meetingData?.modules || {
+      overview: {},
+      leadsAndSales: {},
+      customerService: {},
+      operations: {},
+      reporting: {},
+      aiAgents: {},
+      systems: {},
+      roi: {},
+      planning: {}
     },
 
-    // Discovery phase data
-    characterization: meetingData?.characterization || {
-      businessGoals: { content: '', isComplete: false },
-      currentProcesses: { content: '', isComplete: false },
-      painPoints: { content: '', isComplete: false },
-      stakeholders: { content: '', isComplete: false },
-      successMetrics: { content: '', isComplete: false },
-      constraints: { content: '', isComplete: false }
-    },
-
-    // Phase 2 data
-    phase2: phase2Data || {
-      systemRequirements: {
-        functionalRequirements: [],
-        technicalRequirements: [],
-        integrationNeeds: [],
-        securityRequirements: []
-      },
-      processFlows: [],
-      dataModels: [],
-      userStories: [],
-      acceptanceCriteria: {}
-    },
-
-    // Phase 3 data
-    phase3: phase3Data || {
-      technicalSpec: {
-        architecture: '',
-        technologies: [],
-        infrastructure: '',
-        scalability: ''
-      },
-      developmentPlan: {
-        milestones: [],
-        sprints: [],
-        dependencies: []
-      },
-      testingStrategy: {
-        unitTests: [],
-        integrationTests: [],
-        e2eTests: [],
-        performanceTests: []
-      },
-      deploymentPlan: {
-        environments: [],
-        cicd: '',
-        monitoring: '',
-        rollback: ''
-      }
-    },
+    painPoints: meetingData?.painPoints || [],
+    notes: meetingData?.notes || '',
 
     // Zoho integration info
     zohoIntegration: {
       recordId: record.id,
       syncEnabled: true,
-      lastSync: record.Last_Sync_Timestamp || new Date().toISOString(),
+      lastSyncTime: record.Last_Sync_Timestamp || new Date().toISOString(),
       syncStatus: record.Sync_Stat || 'synced',
       moduleName: 'Potentials1'
     },
 
-    // Additional metadata
-    metadata: {
-      createdAt: record.Created_Time,
-      modifiedAt: record.Modified_Time,
-      owner: record.Owner?.name || null,
-      dealName: record.Name,
-      overallProgress: parseFloat(record.Overall_Progress_Percent) || 0,
-      phase2Progress: parseFloat(record.Phase2_Progress_Percent) || 0,
-      phase3Progress: parseFloat(record.Phase3_Progress_Percent) || 0
-    }
+    // Phase tracking
+    phaseHistory: meetingData?.phaseHistory || [{
+      fromPhase: null,
+      toPhase: record.Current_Phase || 'discovery',
+      timestamp: record.Created_Time || new Date().toISOString(),
+      transitionedBy: record.Owner?.name || 'system'
+    }],
+
+    // Phase 2 data (Implementation Spec)
+    implementationSpec: phase2Data,
+
+    // Phase 3 data (Development Tracking)
+    developmentTracking: phase3Data
   };
 
   return meeting;
