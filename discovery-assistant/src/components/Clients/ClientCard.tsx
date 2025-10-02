@@ -42,7 +42,7 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onClick, selecte
         label: 'Completed'
       }
     };
-    return configs[phase];
+    return configs[phase] || configs.discovery;
   };
 
   const getSyncStatusConfig = (status: 'synced' | 'pending' | 'error') => {
@@ -66,7 +66,7 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onClick, selecte
         label: 'שגיאה'
       }
     };
-    return configs[status];
+    return configs[status] || configs.synced;
   };
 
   const phaseConfig = getPhaseConfig(client.phase);
