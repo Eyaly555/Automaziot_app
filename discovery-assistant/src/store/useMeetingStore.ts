@@ -569,6 +569,13 @@ export const useMeetingStore = create<MeetingStore>()(
 
         // Calculate actual progress for each module
         modules.forEach(module => {
+          // Guard against undefined modules object
+          if (!meeting.modules) {
+            module.completed = 0;
+            module.status = 'empty';
+            return;
+          }
+
           const moduleData = meeting.modules[module.moduleId as keyof Meeting['modules']];
           let completed = 0;
 

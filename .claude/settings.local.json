@@ -56,7 +56,8 @@
       "mcp__chrome-mcp-server__chrome_keyboard",
       "mcp__chrome-mcp-server__chrome_close_tabs",
       "Bash(mkdir:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []

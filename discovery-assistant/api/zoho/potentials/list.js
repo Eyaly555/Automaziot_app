@@ -39,10 +39,35 @@ function transformToClientListItem(record) {
     discoveryModulesCompleted = moduleKeys.filter(key => modules[key]?.isComplete).length;
   }
 
+  // Extract client name from various sources, prioritizing structured data
+  let clientName = 'Unnamed Client';
+
+  // First try: Discovery_Progress JSON (legacy format)
+  let discoveryProgress = null;
+  try {
+    discoveryProgress = record.Discovery_Progress ? JSON.parse(record.Discovery_Progress) : null;
+    if (discoveryProgress?.clientName) {
+      clientName = discoveryProgress.clientName;
+    }
+  } catch (e) {
+    // Ignore parse errors
+  }
+
+  // If not found in Discovery_Progress, try other fields
+  if (clientName === 'Unnamed Client') {
+    clientName = record.Potentials_Name ||
+                 record.Companys_Name ||
+                 meetingData?.meetingInfo?.companyName ||
+                 meetingData?.meetingInfo?.contactName ||
+                 record.Phone ||
+                 record.Email ||
+                 'Unnamed Client';
+  }
+
   return {
     recordId: record.id,
-    clientName: record.Potentials_Name || record.Companys_Name || record.Phone || record.Email || 'Unnamed Client',
-    companyName: record.Companys_Name || null,
+    clientName: clientName,
+    companyName: record.Companys_Name || meetingData?.meetingInfo?.companyName || null,
     phase: record.Current_Phase || 'discovery',
     status: record.Status || 'not_started',
     overallProgress: parseFloat(record.Overall_Progress_Percent) || 0,
@@ -107,7 +132,8 @@ export default async function handler(req, res) {
         'Meeting_Data_JS',
         'Implementation_Spec_Data',
         'Development_Tracking_Data',
-        'Discovery_Date'
+        'Discovery_Date',
+        'Discovery_Progress'
       ].join(',')
     };
 
