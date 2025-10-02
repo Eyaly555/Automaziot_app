@@ -654,7 +654,7 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
                             </div>
 
                             <h4 className="font-semibold text-gray-900 mb-1">{rec.title}</h4>
-                            <p className="text-sm text-gray-600 mb-2">{rec.description}</p>
+                            <p className="text-sm text-gray-600 mb-2">{rec.description || 'לא זמין תיאור'}</p>
 
                             <div className="flex flex-wrap gap-2 text-xs">
                               {rec.estimatedTimeSavings && (
