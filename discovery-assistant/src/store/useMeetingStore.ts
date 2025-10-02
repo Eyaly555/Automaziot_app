@@ -192,6 +192,17 @@ export const useMeetingStore = create<MeetingStore>()(
       loadMeeting: (meetingId) => {
         set((state) => {
           const meeting = state.meetings.find(m => m.meetingId === meetingId);
+          if (meeting) {
+            // Ensure phase and status exist (for backward compatibility with old data)
+            if (!meeting.phase) meeting.phase = 'discovery';
+            if (!meeting.status) meeting.status = 'discovery_in_progress';
+            if (!meeting.phaseHistory) meeting.phaseHistory = [{
+              fromPhase: null,
+              toPhase: meeting.phase,
+              timestamp: new Date(),
+              transitionedBy: 'system'
+            }];
+          }
           return { currentMeeting: meeting || null };
         });
       },
@@ -217,6 +228,15 @@ export const useMeetingStore = create<MeetingStore>()(
           if (existingData) {
             try {
               const meeting = JSON.parse(existingData);
+              // Ensure phase and status exist (for backward compatibility with old data)
+              if (!meeting.phase) meeting.phase = initialData.phase || 'discovery';
+              if (!meeting.status) meeting.status = initialData.status || 'discovery_in_progress';
+              if (!meeting.phaseHistory) meeting.phaseHistory = initialData.phaseHistory || [{
+                fromPhase: null,
+                toPhase: meeting.phase,
+                timestamp: new Date(),
+                transitionedBy: 'system'
+              }];
               // Update with any new data from Zoho
               const updatedMeeting = {
                 ...meeting,
@@ -224,7 +244,10 @@ export const useMeetingStore = create<MeetingStore>()(
                 modules: {
                   ...meeting.modules,
                   ...(initialData.modules || {})
-                }
+                },
+                phase: initialData.phase || meeting.phase,
+                status: initialData.status || meeting.status,
+                phaseHistory: initialData.phaseHistory || meeting.phaseHistory
               };
               set({
                 currentMeeting: updatedMeeting,
@@ -256,6 +279,17 @@ export const useMeetingStore = create<MeetingStore>()(
           },
           painPoints: [],
           notes: initialData.notes || '',
+          // Initialize phase tracking with defaults from initialData or fallback to 'discovery'
+          phase: initialData.phase || 'discovery',
+          status: initialData.status || 'discovery_in_progress',
+          phaseHistory: initialData.phaseHistory || [{
+            fromPhase: null,
+            toPhase: initialData.phase || 'discovery',
+            timestamp: new Date(),
+            transitionedBy: 'system'
+          }],
+          implementationSpec: initialData.implementationSpec,
+          developmentTracking: initialData.developmentTracking,
           zohoIntegration: initialData.zohoIntegration
         };
 
@@ -327,7 +361,17 @@ export const useMeetingStore = create<MeetingStore>()(
 
         if (data) {
           try {
-            return JSON.parse(data);
+            const meeting = JSON.parse(data);
+            // Ensure phase and status exist (for backward compatibility with old data)
+            if (!meeting.phase) meeting.phase = 'discovery';
+            if (!meeting.status) meeting.status = 'discovery_in_progress';
+            if (!meeting.phaseHistory) meeting.phaseHistory = [{
+              fromPhase: null,
+              toPhase: meeting.phase,
+              timestamp: new Date(),
+              transitionedBy: 'system'
+            }];
+            return meeting;
           } catch (e) {
             console.error('Failed to parse meeting data:', e);
           }
@@ -609,6 +653,15 @@ export const useMeetingStore = create<MeetingStore>()(
       importMeeting: (data) => {
         try {
           const meeting = JSON.parse(data);
+          // Ensure phase and status exist (for backward compatibility with old data)
+          if (!meeting.phase) meeting.phase = 'discovery';
+          if (!meeting.status) meeting.status = 'discovery_in_progress';
+          if (!meeting.phaseHistory) meeting.phaseHistory = [{
+            fromPhase: null,
+            toPhase: meeting.phase,
+            timestamp: new Date(),
+            transitionedBy: 'system'
+          }];
           set((state) => ({
             currentMeeting: meeting,
             meetings: [...state.meetings.filter(m => m.meetingId !== meeting.meetingId), meeting]
@@ -1021,6 +1074,16 @@ export const useMeetingStore = create<MeetingStore>()(
             const mergedMeetings = [...localMeetings];
 
             result.meetings.forEach(pulledMeeting => {
+              // Ensure phase and status exist (for backward compatibility with old data)
+              if (!pulledMeeting.phase) pulledMeeting.phase = 'discovery';
+              if (!pulledMeeting.status) pulledMeeting.status = 'discovery_in_progress';
+              if (!pulledMeeting.phaseHistory) pulledMeeting.phaseHistory = [{
+                fromPhase: null,
+                toPhase: pulledMeeting.phase,
+                timestamp: new Date(),
+                transitionedBy: 'system'
+              }];
+
               const existingIndex = mergedMeetings.findIndex(
                 m => m.meetingId === pulledMeeting.id
               );
@@ -1491,6 +1554,15 @@ export const useMeetingStore = create<MeetingStore>()(
           if (localData) {
             try {
               const meeting = JSON.parse(localData);
+              // Ensure phase and status exist (for backward compatibility with old data)
+              if (!meeting.phase) meeting.phase = 'discovery';
+              if (!meeting.status) meeting.status = 'discovery_in_progress';
+              if (!meeting.phaseHistory) meeting.phaseHistory = [{
+                fromPhase: null,
+                toPhase: meeting.phase,
+                timestamp: new Date(),
+                transitionedBy: 'system'
+              }];
               set({ currentMeeting: meeting });
               console.log('[ZohoClients] Loaded from localStorage');
             } catch (parseError) {
@@ -1508,11 +1580,22 @@ export const useMeetingStore = create<MeetingStore>()(
           const data = await response.json();
 
           if (data.success && data.meetingData) {
-            set({ currentMeeting: data.meetingData });
+            const meeting = data.meetingData;
+            // Ensure phase and status exist (for backward compatibility with old data)
+            if (!meeting.phase) meeting.phase = 'discovery';
+            if (!meeting.status) meeting.status = 'discovery_in_progress';
+            if (!meeting.phaseHistory) meeting.phaseHistory = [{
+              fromPhase: null,
+              toPhase: meeting.phase,
+              timestamp: new Date(),
+              transitionedBy: 'system'
+            }];
+
+            set({ currentMeeting: meeting });
 
             // Save to localStorage
             try {
-              localStorage.setItem(localKey, JSON.stringify(data.meetingData));
+              localStorage.setItem(localKey, JSON.stringify(meeting));
             } catch (storageError) {
               console.warn('[ZohoClients] Failed to save to localStorage:', storageError);
             }

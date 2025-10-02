@@ -36,7 +36,7 @@ export const PhaseNavigator: React.FC = () => {
 
   if (!currentMeeting) return null;
 
-  const currentPhase = currentMeeting.phase;
+  const currentPhase = currentMeeting.phase || 'discovery'; // Fallback to 'discovery' if phase is undefined
   const phases: MeetingPhase[] = ['discovery', 'implementation_spec', 'development', 'completed'];
 
   const getPhaseStatus = (phase: MeetingPhase) => {
@@ -53,7 +53,7 @@ export const PhaseNavigator: React.FC = () => {
     if (phase === currentPhase) return;
 
     if (canTransitionTo(phase)) {
-      if (confirm(`האם אתה בטוח שברצונך לעבור לשלב "${PHASE_CONFIG[phase].nameHe}"?`)) {
+      if (confirm(`האם אתה בטוח שברצונך לעבור לשלב "${PHASE_CONFIG[phase]?.nameHe || phase}"?`)) {
         // Transition phase in local store
         transitionPhase(phase);
 
@@ -101,12 +101,12 @@ export const PhaseNavigator: React.FC = () => {
                         <CheckCircle className="w-7 h-7" />
                       </div>
                     )}
-                    {status === 'current' && (
+                    {status === 'current' && config && (
                       <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-lg animate-pulse">
                         <span className="text-lg font-bold">{config.number}</span>
                       </div>
                     )}
-                    {status === 'next' && (
+                    {status === 'next' && config && (
                       <div className="w-12 h-12 rounded-full bg-blue-100 border-2 border-blue-600 flex items-center justify-center text-blue-600">
                         <span className="text-lg font-bold">{config.number}</span>
                       </div>
@@ -135,21 +135,23 @@ export const PhaseNavigator: React.FC = () => {
                   </div>
 
                   {/* Label */}
-                  <div className="mt-2 text-center">
-                    <div className={`text-sm font-semibold ${
-                      status === 'current' ? 'text-blue-600' :
-                      status === 'completed' ? 'text-green-600' :
-                      status === 'next' ? 'text-gray-700' :
-                      'text-gray-400'
-                    }`}>
-                      {config.nameHe}
-                    </div>
-                    {status === 'current' && progress > 0 && (
-                      <div className="text-xs text-gray-500 mt-1">
-                        {progress}% הושלם
+                  {config && (
+                    <div className="mt-2 text-center">
+                      <div className={`text-sm font-semibold ${
+                        status === 'current' ? 'text-blue-600' :
+                        status === 'completed' ? 'text-green-600' :
+                        status === 'next' ? 'text-gray-700' :
+                        'text-gray-400'
+                      }`}>
+                        {config.nameHe}
                       </div>
-                    )}
-                  </div>
+                      {status === 'current' && progress > 0 && (
+                        <div className="text-xs text-gray-500 mt-1">
+                          {progress}% הושלם
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Arrow Between Phases */}
@@ -173,11 +175,13 @@ export const PhaseNavigator: React.FC = () => {
 
         {/* Current Phase Description */}
         <div className="text-center mt-4">
-          <p className="text-sm text-gray-600">
-            {PHASE_CONFIG[currentPhase].description}
-          </p>
+          {PHASE_CONFIG[currentPhase] && (
+            <p className="text-sm text-gray-600">
+              {PHASE_CONFIG[currentPhase].description}
+            </p>
+          )}
           <p className="text-xs text-gray-500 mt-1">
-            סטטוס: {currentMeeting.status.replace(/_/g, ' ')}
+            סטטוס: {currentMeeting.status?.replace(/_/g, ' ') || 'לא זמין'}
           </p>
         </div>
       </div>
