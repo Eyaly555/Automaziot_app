@@ -112,6 +112,13 @@ function transformToZohoFormat(meeting) {
   const phase2Progress = meeting.implementationSpec?.completionPercentage || 0;
   const phase3Progress = meeting.developmentTracking?.progress?.progressPercentage || 0;
 
+  // Format dates for Zoho
+  // Discovery_Date expects date format: YYYY-MM-DD
+  const discoveryDate = meeting.date ? new Date(meeting.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+
+  // Last_Sync_Timestamp expects datetime format: YYYY-MM-DDTHH:mm:ss+00:00
+  const lastSyncTimestamp = new Date().toISOString().replace('Z', '+00:00');
+
   // Build Zoho record
   const zohoRecord = {
     // Basic fields
@@ -119,7 +126,7 @@ function transformToZohoFormat(meeting) {
     Company_s_Name: meeting.modules?.overview?.companyName || '',
     Email: meeting.modules?.overview?.email || '',
     Phone: meeting.modules?.overview?.phone || '',
-    Discovery_Date: meeting.date || new Date().toISOString(),
+    Discovery_Date: discoveryDate,
 
     // Phase and status
     Current_Phase: meeting.phase || 'discovery',
@@ -131,7 +138,7 @@ function transformToZohoFormat(meeting) {
     Phase3_Progress_Percent: phase3Progress,
 
     // Sync metadata
-    Last_Sync_Timestamp: new Date().toISOString(),
+    Last_Sync_Timestamp: lastSyncTimestamp,
     Sync_Stat: 'synced',
 
     // JSON data fields (compressed if needed)
