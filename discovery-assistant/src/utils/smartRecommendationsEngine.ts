@@ -193,7 +193,7 @@ export class SmartRecommendationsEngine {
   private detectHighVolumeTasks(): void {
     // Check FAQ volume
     const faqs = this.meeting.modules.customerService?.autoResponse?.topQuestions || [];
-    const totalFAQs = faqs.reduce((sum, q) => sum + (q.frequencyPerDay || 0), 0);
+    const totalFAQs = Array.isArray(faqs) ? faqs.reduce((sum, q) => sum + (q.frequencyPerDay || 0), 0) : 0;
 
     if (totalFAQs > 50) {
       this.patterns.push({
@@ -207,7 +207,7 @@ export class SmartRecommendationsEngine {
 
     // Check lead volume
     const leadSources = this.meeting.modules.leadsAndSales?.leadSources || [];
-    const totalLeads = leadSources.reduce((sum, s) => sum + (s.volumePerMonth || 0), 0);
+    const totalLeads = Array.isArray(leadSources) ? leadSources.reduce((sum, s) => sum + (s.volumePerMonth || 0), 0) : 0;
 
     if (totalLeads > 200 && this.meeting.modules.leadsAndSales?.speedToLead?.duringBusinessHours === 'manual') {
       this.patterns.push({
