@@ -4,6 +4,7 @@ import { Meeting, PainPoint, ModuleProgress, WizardState, SelectOption, MeetingP
 import { WIZARD_STEPS } from '../config/wizardSteps';
 import { syncService } from '../services/syncService';
 import { isSupabaseConfigured } from '../lib/supabase';
+import { supabaseService, isSupabaseConfigured as isSupabaseReady } from '../services/supabaseService';
 
 interface MeetingStore {
   currentMeeting: Meeting | null;
@@ -117,6 +118,30 @@ const getStorageKey = (meeting: Meeting | null): string => {
     return `discovery_zoho_${meeting.zohoIntegration.recordId}`;
   }
   return meeting ? `discovery_standalone_${meeting.meetingId}` : 'discovery_temp';
+};
+
+// Debounced save to Supabase (saves 5 seconds after last change)
+let saveTimeout: NodeJS.Timeout | null = null;
+const debouncedSaveToSupabase = (meeting: Meeting) => {
+  if (!isSupabaseReady()) {
+    return; // Supabase not configured, skip
+  }
+
+  // Clear previous timeout
+  if (saveTimeout) {
+    clearTimeout(saveTimeout);
+  }
+
+  // Set new timeout
+  saveTimeout = setTimeout(async () => {
+    console.log('[Store] Saving to Supabase (debounced)...');
+    const result = await supabaseService.saveMeeting(meeting);
+    if (result.success) {
+      console.log('[Store] Saved to Supabase successfully');
+    } else {
+      console.error('[Store] Failed to save to Supabase:', result.error);
+    }
+  }, 5000); // 5 seconds delay
 };
 
 export const useMeetingStore = create<MeetingStore>()(
@@ -395,6 +420,9 @@ export const useMeetingStore = create<MeetingStore>()(
               }
             }
           };
+
+          // Save to Supabase (debounced)
+          debouncedSaveToSupabase(updatedMeeting);
 
           return {
             currentMeeting: updatedMeeting,
@@ -1547,14 +1575,27 @@ export const useMeetingStore = create<MeetingStore>()(
         try {
           console.log('[ZohoClients] Loading client:', recordId);
 
-          // Try localStorage first for instant load
+          // STEP 1: Try Supabase first (fastest and most reliable)
+          if (isSupabaseReady()) {
+            console.log('[ZohoClients] Trying Supabase...');
+            const meeting = await supabaseService.loadMeeting(recordId);
+
+            if (meeting) {
+              console.log('[ZohoClients] ✅ Loaded from Supabase');
+              set({ currentMeeting: meeting });
+              return; // Success! Exit early
+            }
+            console.log('[ZohoClients] No data in Supabase, trying Zoho...');
+          }
+
+          // STEP 2: Try localStorage for instant load (fallback)
           const localKey = `discovery_zoho_${recordId}`;
           const localData = localStorage.getItem(localKey);
 
           if (localData) {
             try {
               const meeting = JSON.parse(localData);
-              // Ensure phase and status exist (for backward compatibility with old data)
+              // Ensure phase and status exist (for backward compatibility)
               if (!meeting.phase) meeting.phase = 'discovery';
               if (!meeting.status) meeting.status = 'discovery_in_progress';
               if (!meeting.phaseHistory) meeting.phaseHistory = [{
@@ -1570,7 +1611,7 @@ export const useMeetingStore = create<MeetingStore>()(
             }
           }
 
-          // Fetch fresh data from Zoho
+          // STEP 3: Fetch from Zoho API
           const response = await fetch(`/api/zoho/potentials/${recordId}/full`);
 
           if (!response.ok) {
@@ -1581,7 +1622,7 @@ export const useMeetingStore = create<MeetingStore>()(
 
           if (data.success && data.meetingData) {
             const meeting = data.meetingData;
-            // Ensure phase and status exist (for backward compatibility with old data)
+            // Ensure phase and status exist
             if (!meeting.phase) meeting.phase = 'discovery';
             if (!meeting.status) meeting.status = 'discovery_in_progress';
             if (!meeting.phaseHistory) meeting.phaseHistory = [{
@@ -1593,14 +1634,20 @@ export const useMeetingStore = create<MeetingStore>()(
 
             set({ currentMeeting: meeting });
 
-            // Save to localStorage
+            // STEP 4: Save to Supabase for next time
+            if (isSupabaseReady()) {
+              console.log('[ZohoClients] Saving to Supabase...');
+              await supabaseService.saveMeeting(meeting);
+            }
+
+            // Also save to localStorage as fallback
             try {
               localStorage.setItem(localKey, JSON.stringify(meeting));
             } catch (storageError) {
               console.warn('[ZohoClients] Failed to save to localStorage:', storageError);
             }
 
-            console.log('[ZohoClients] Loaded fresh data from Zoho');
+            console.log('[ZohoClients] ✅ Loaded from Zoho');
           } else {
             throw new Error(data.message || 'Failed to load client data');
           }
