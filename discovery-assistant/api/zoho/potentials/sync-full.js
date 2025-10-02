@@ -116,9 +116,9 @@ function transformToZohoFormat(meeting) {
   // Discovery_Date expects date format: YYYY-MM-DD
   const discoveryDate = meeting.date ? new Date(meeting.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
 
-  // Last_Sync_Timestamp expects datetime format
-  // Try standard ISO format with milliseconds: YYYY-MM-DDTHH:mm:ss.sssZ
-  const lastSyncTimestamp = new Date().toISOString();
+  // Last_Sync_Timestamp expects datetime format: YYYY-MM-DDTHH:mm:ss+00:00 (no milliseconds)
+  // Same format as Discovery_Last_Update field
+  const lastSyncTimestamp = new Date().toISOString().split('.')[0] + '+00:00';
 
   // Build Zoho record
   const zohoRecord = {
