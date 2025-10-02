@@ -13,7 +13,7 @@ import { ReportingModule } from './Modules/Reporting/ReportingModule';
 import { AIAgentsModule } from './Modules/AIAgents/AIAgentsModule';
 import { SystemsModuleEnhanced } from './Modules/Systems/SystemsModuleEnhanced';
 import { ROIModule } from './Modules/ROI/ROIModule';
-import { PlanningModule } from './Modules/Planning/PlanningModule';
+import { ProposalModule } from './Modules/Proposal/ProposalModule';
 import { SummaryTab } from './Summary/SummaryTab';
 import { ImplementationSpecDashboard } from './Phase2/ImplementationSpecDashboard';
 import { SystemDeepDive } from './Phase2/SystemDeepDive';
@@ -74,7 +74,8 @@ export const AppContent = () => {
       <Route path="/module/aiAgents" element={<AIAgentsModule />} />
       <Route path="/module/systems" element={<SystemsModuleEnhanced />} />
       <Route path="/module/roi" element={<ROIModule />} />
-      <Route path="/module/planning" element={<PlanningModule />} />
+      <Route path="/module/proposal" element={<ProposalModule />} />
+      <Route path="/module/planning" element={<ProposalModule />} /> {/* Keep for backward compatibility */}
       <Route path="/phase2" element={<ImplementationSpecDashboard />} />
       <Route path="/phase2/systems/new" element={<SystemDeepDive />} />
       <Route path="/phase2/systems/:systemId" element={<SystemDeepDive />} />

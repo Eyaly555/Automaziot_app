@@ -1,14 +1,147 @@
-import React, { useState, useMemo } from 'react';
-import { Calendar, TrendingDown, Clock, CheckCircle, AlertCircle, Plus } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Calendar, TrendingDown, Clock, CheckCircle, AlertCircle, Plus, Languages } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { Sprint, DevelopmentTask } from '../../types/phase3';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
+type Language = 'he' | 'en';
+
+const translations = {
+  he: {
+    title: 'תצוגת ספרינט',
+    subtitle: 'מעקב אחר התקדמות ומהירות הספרינט',
+    createSprint: 'צור ספרינט',
+    noData: 'אין נתוני מעקב פיתוח זמינים',
+    stats: {
+      totalTasks: 'סה"כ משימות',
+      completed: 'הושלם',
+      inProgress: 'בתהליך',
+      blocked: 'חסום'
+    },
+    burndown: {
+      title: 'תרשים Burndown',
+      subtitle: 'מעקב אחר עבודה נותרת לאורך זמן',
+      idealBurndown: 'Burndown אידיאלי',
+      actualBurndown: 'Burndown בפועל',
+      day: 'יום'
+    },
+    sprintDetails: {
+      title: 'פרטי ספרינט',
+      goal: 'מטרת ספרינט',
+      duration: 'משך',
+      totalHours: 'סה"כ שעות',
+      hoursEstimated: 'שעות משוערות',
+      hoursCompleted: 'שעות שהושלמו',
+      velocity: 'מהירות',
+      storyPoints: 'נקודות סיפור'
+    },
+    taskList: {
+      title: 'משימות ב',
+      noTasks: 'אין משימות שהוקצו לספרינט זה עדיין',
+      assignedTo: 'מוקצה ל',
+      hoursEstimated: 'שעות משוערות'
+    },
+    status: {
+      planned: 'מתוכנן',
+      active: 'פעיל',
+      completed: 'הושלם',
+      todo: 'לביצוע',
+      in_progress: 'בתהליך',
+      in_review: 'בבדיקה',
+      blocked: 'חסום',
+      done: 'הושלם'
+    },
+    priority: {
+      critical: 'קריטי',
+      high: 'גבוה',
+      medium: 'בינוני',
+      low: 'נמוך'
+    },
+    noSprints: {
+      title: 'אין ספרינטים עדיין',
+      description: 'צור את הספרינט הראשון שלך כדי להתחיל במעקב אחר התקדמות',
+      createFirst: 'צור ספרינט ראשון'
+    },
+    noSprintsCreated: 'לא נוצרו ספרינטים עדיין'
+  },
+  en: {
+    title: 'Sprint View',
+    subtitle: 'Track sprint progress and velocity',
+    createSprint: 'Create Sprint',
+    noData: 'No development tracking data available',
+    stats: {
+      totalTasks: 'Total Tasks',
+      completed: 'Completed',
+      inProgress: 'In Progress',
+      blocked: 'Blocked'
+    },
+    burndown: {
+      title: 'Burndown Chart',
+      subtitle: 'Tracking remaining work over time',
+      idealBurndown: 'Ideal Burndown',
+      actualBurndown: 'Actual Burndown',
+      day: 'Day'
+    },
+    sprintDetails: {
+      title: 'Sprint Details',
+      goal: 'Sprint Goal',
+      duration: 'Duration',
+      totalHours: 'Total Hours',
+      hoursEstimated: 'h estimated',
+      hoursCompleted: 'h completed',
+      velocity: 'Velocity',
+      storyPoints: 'story points'
+    },
+    taskList: {
+      title: 'Tasks in',
+      noTasks: 'No tasks assigned to this sprint yet',
+      assignedTo: 'Assigned to',
+      hoursEstimated: 'h estimated'
+    },
+    status: {
+      planned: 'planned',
+      active: 'active',
+      completed: 'completed',
+      todo: 'to do',
+      in_progress: 'in progress',
+      in_review: 'in review',
+      blocked: 'blocked',
+      done: 'done'
+    },
+    priority: {
+      critical: 'CRITICAL',
+      high: 'HIGH',
+      medium: 'MEDIUM',
+      low: 'LOW'
+    },
+    noSprints: {
+      title: 'No Sprints Yet',
+      description: 'Create your first sprint to start tracking progress',
+      createFirst: 'Create First Sprint'
+    },
+    noSprintsCreated: 'No sprints created yet'
+  }
+};
+
 export const SprintView: React.FC = () => {
   const { currentMeeting, updateMeeting } = useMeetingStore();
   const [selectedSprint, setSelectedSprint] = useState<string | null>(null);
   const [showCreateSprint, setShowCreateSprint] = useState(false);
+  const [language, setLanguage] = useState<Language>('he');
+
+  useEffect(() => {
+    const saved = localStorage.getItem('phase3_language');
+    if (saved) setLanguage(saved as Language);
+  }, []);
+
+  const toggleLanguage = () => {
+    const newLang = language === 'he' ? 'en' : 'he';
+    setLanguage(newLang);
+    localStorage.setItem('phase3_language', newLang);
+  };
+
+  const t = translations[language];
 
   const sprints = currentMeeting?.developmentTracking?.sprints || [];
   const tasks = currentMeeting?.developmentTracking?.tasks || [];
@@ -93,29 +226,40 @@ export const SprintView: React.FC = () => {
 
   if (!currentMeeting?.developmentTracking) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-12" dir={language === 'he' ? 'rtl' : 'ltr'}>
         <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-        <p className="text-gray-600">No development tracking data available</p>
+        <p className="text-gray-600">{t.noData}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-gray-50 py-8 px-4" dir={language === 'he' ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Sprint View</h1>
-            <p className="text-gray-600 mt-1">Track sprint progress and velocity</p>
+            <h1 className="text-3xl font-bold text-gray-900">{t.title}</h1>
+            <p className="text-gray-600 mt-1">{t.subtitle}</p>
           </div>
-          <button
-            onClick={handleCreateSprint}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Create Sprint
-          </button>
+          <div className="flex items-center gap-4">
+            {/* Language Toggle */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+            >
+              <Languages className="w-5 h-5" />
+              <span className="font-medium">{language === 'he' ? 'English' : 'עברית'}</span>
+            </button>
+
+            <button
+              onClick={handleCreateSprint}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              {t.createSprint}
+            </button>
+          </div>
         </div>
 
         {/* Sprint Selector */}
@@ -141,17 +285,17 @@ export const SprintView: React.FC = () => {
                 >
                   <div className="font-medium text-gray-900">{sprint.name}</div>
                   <div className="text-sm text-gray-600 mt-1">
-                    {new Date(sprint.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} -{' '}
-                    {new Date(sprint.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    {new Date(sprint.startDate).toLocaleDateString(language === 'he' ? 'he-IL' : 'en-US', { month: 'short', day: 'numeric' })} -{' '}
+                    {new Date(sprint.endDate).toLocaleDateString(language === 'he' ? 'he-IL' : 'en-US', { month: 'short', day: 'numeric' })}
                   </div>
                   <span className={`inline-block mt-2 px-2 py-1 rounded text-xs ${statusColors[sprint.status]}`}>
-                    {sprint.status}
+                    {t.status[sprint.status as keyof typeof t.status]}
                   </span>
                 </button>
               );
             })}
             {sprints.length === 0 && (
-              <div className="text-gray-500 text-sm">No sprints created yet</div>
+              <div className="text-gray-500 text-sm">{t.noSprintsCreated}</div>
             )}
           </div>
         </div>
@@ -162,7 +306,7 @@ export const SprintView: React.FC = () => {
             <div className="grid grid-cols-4 gap-4 mb-6">
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600 text-sm">Total Tasks</span>
+                  <span className="text-gray-600 text-sm">{t.stats.totalTasks}</span>
                   <Calendar className="w-5 h-5 text-gray-400" />
                 </div>
                 <div className="text-3xl font-bold text-gray-900">{sprintStats.total}</div>
@@ -170,7 +314,7 @@ export const SprintView: React.FC = () => {
 
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600 text-sm">Completed</span>
+                  <span className="text-gray-600 text-sm">{t.stats.completed}</span>
                   <CheckCircle className="w-5 h-5 text-green-500" />
                 </div>
                 <div className="text-3xl font-bold text-green-600">{sprintStats.completed}</div>
@@ -181,7 +325,7 @@ export const SprintView: React.FC = () => {
 
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600 text-sm">In Progress</span>
+                  <span className="text-gray-600 text-sm">{t.stats.inProgress}</span>
                   <Clock className="w-5 h-5 text-blue-500" />
                 </div>
                 <div className="text-3xl font-bold text-blue-600">{sprintStats.inProgress}</div>
@@ -189,7 +333,7 @@ export const SprintView: React.FC = () => {
 
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600 text-sm">Blocked</span>
+                  <span className="text-gray-600 text-sm">{t.stats.blocked}</span>
                   <AlertCircle className="w-5 h-5 text-red-500" />
                 </div>
                 <div className="text-3xl font-bold text-red-600">{sprintStats.blocked}</div>
@@ -200,8 +344,8 @@ export const SprintView: React.FC = () => {
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Burndown Chart</h2>
-                  <p className="text-sm text-gray-600 mt-1">Tracking remaining work over time</p>
+                  <h2 className="text-xl font-bold text-gray-900">{t.burndown.title}</h2>
+                  <p className="text-sm text-gray-600 mt-1">{t.burndown.subtitle}</p>
                 </div>
                 <TrendingDown className="w-6 h-6 text-gray-400" />
               </div>
@@ -292,39 +436,39 @@ export const SprintView: React.FC = () => {
               <div className="flex items-center justify-center space-x-6 mt-8 text-sm">
                 <div className="flex items-center">
                   <div className="w-8 h-0.5 bg-blue-400 border-dashed border-t-2 border-blue-400 mr-2"></div>
-                  <span className="text-gray-600">Ideal Burndown</span>
+                  <span className="text-gray-600">{t.burndown.idealBurndown}</span>
                 </div>
                 <div className="flex items-center">
                   <div className="w-8 h-0.5 bg-blue-600 mr-2"></div>
-                  <span className="text-gray-600">Actual Burndown</span>
+                  <span className="text-gray-600">{t.burndown.actualBurndown}</span>
                 </div>
               </div>
             </div>
 
             {/* Sprint Details */}
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Sprint Details</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">{t.sprintDetails.title}</h2>
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <div className="text-sm text-gray-600 mb-1">Sprint Goal</div>
+                  <div className="text-sm text-gray-600 mb-1">{t.sprintDetails.goal}</div>
                   <div className="font-medium text-gray-900">{activeSprint.goal}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600 mb-1">Duration</div>
+                  <div className="text-sm text-gray-600 mb-1">{t.sprintDetails.duration}</div>
                   <div className="font-medium text-gray-900">
-                    {new Date(activeSprint.startDate).toLocaleDateString('en-US')} -{' '}
-                    {new Date(activeSprint.endDate).toLocaleDateString('en-US')}
+                    {new Date(activeSprint.startDate).toLocaleDateString(language === 'he' ? 'he-IL' : 'en-US')} -{' '}
+                    {new Date(activeSprint.endDate).toLocaleDateString(language === 'he' ? 'he-IL' : 'en-US')}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600 mb-1">Total Hours</div>
-                  <div className="font-medium text-gray-900">{sprintStats.totalHours}h estimated</div>
-                  <div className="text-sm text-gray-600">{sprintStats.completedHours}h completed</div>
+                  <div className="text-sm text-gray-600 mb-1">{t.sprintDetails.totalHours}</div>
+                  <div className="font-medium text-gray-900">{sprintStats.totalHours}{t.sprintDetails.hoursEstimated}</div>
+                  <div className="text-sm text-gray-600">{sprintStats.completedHours}{t.sprintDetails.hoursCompleted}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600 mb-1">Velocity</div>
+                  <div className="text-sm text-gray-600 mb-1">{t.sprintDetails.velocity}</div>
                   <div className="font-medium text-gray-900">
-                    {activeSprint.actualVelocity || 0} story points
+                    {activeSprint.actualVelocity || 0} {t.sprintDetails.storyPoints}
                   </div>
                 </div>
               </div>
@@ -332,11 +476,11 @@ export const SprintView: React.FC = () => {
 
             {/* Task List */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Tasks in {activeSprint.name}</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">{t.taskList.title} {activeSprint.name}</h2>
               {sprintTasks.length === 0 ? (
                 <div className="text-center py-12">
                   <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No tasks assigned to this sprint yet</p>
+                  <p className="text-gray-600">{t.taskList.noTasks}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -365,15 +509,15 @@ export const SprintView: React.FC = () => {
                           <div className="flex items-center space-x-3 mb-1">
                             <h3 className="font-medium text-gray-900">{task.title}</h3>
                             <span className={`px-2 py-1 rounded text-xs ${statusColors[task.status]}`}>
-                              {task.status.replace('_', ' ')}
+                              {t.status[task.status as keyof typeof t.status]}
                             </span>
                           </div>
                           <div className="flex items-center space-x-4 text-sm text-gray-600">
                             <span className={priorityColors[task.priority]}>
-                              {task.priority.toUpperCase()}
+                              {t.priority[task.priority as keyof typeof t.priority]}
                             </span>
-                            <span>{task.estimatedHours}h estimated</span>
-                            {task.assignedTo && <span>Assigned to {task.assignedTo}</span>}
+                            <span>{task.estimatedHours}{t.taskList.hoursEstimated}</span>
+                            {task.assignedTo && <span>{t.taskList.assignedTo} {task.assignedTo}</span>}
                           </div>
                         </div>
                         {task.status === 'done' && (
@@ -391,14 +535,14 @@ export const SprintView: React.FC = () => {
         {!activeSprint && sprints.length === 0 && (
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
             <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-medium text-gray-900 mb-2">No Sprints Yet</h3>
-            <p className="text-gray-600 mb-6">Create your first sprint to start tracking progress</p>
+            <h3 className="text-xl font-medium text-gray-900 mb-2">{t.noSprints.title}</h3>
+            <p className="text-gray-600 mb-6">{t.noSprints.description}</p>
             <button
               onClick={handleCreateSprint}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 inline-flex items-center"
             >
               <Plus className="w-5 h-5 mr-2" />
-              Create First Sprint
+              {t.noSprints.createFirst}
             </button>
           </div>
         )}

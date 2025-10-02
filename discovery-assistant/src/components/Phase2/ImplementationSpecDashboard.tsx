@@ -15,17 +15,21 @@ import {
   FileText,
   Download,
   Copy,
-  FileDown
+  FileDown,
+  ClipboardList
 } from 'lucide-react';
-import { ImplementationSpecData } from '../../types';
+import { ImplementationSpecData, CollectedRequirements } from '../../types';
 import { exportToMarkdown, exportToText, copyToClipboard } from '../../utils/englishExport';
+import { RequirementsNavigator } from '../Requirements/RequirementsNavigator';
+import { getServiceById } from '../../config/servicesDatabase';
+import { getRequirementsTemplate } from '../../config/serviceRequirementsTemplates';
 
-type SpecSection = 'systems' | 'integrations' | 'ai_agents' | 'acceptance';
+type SpecSection = 'requirements' | 'systems' | 'integrations' | 'ai_agents' | 'acceptance';
 
 export const ImplementationSpecDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { currentMeeting, updateMeeting, transitionPhase, canTransitionTo } = useMeetingStore();
-  const [selectedSection, setSelectedSection] = useState<SpecSection>('systems');
+  const [selectedSection, setSelectedSection] = useState<SpecSection>('requirements');
 
   if (!currentMeeting) {
     return (
@@ -66,7 +70,21 @@ export const ImplementationSpecDashboard: React.FC = () => {
 
   const spec = currentMeeting.implementationSpec!;
 
+  // Get selected services from proposal
+  const selectedServices = currentMeeting.modules?.proposal?.selectedServices || [];
+  const requirements = currentMeeting.modules?.requirements || [];
+
+  // Filter services that actually have requirement templates
+  const servicesWithRequirements = selectedServices.filter((serviceId: string) =>
+    getRequirementsTemplate(serviceId) !== null
+  );
+
   // Calculate completion percentages
+  // Requirements: Check if all services with templates have requirements collected
+  const requirementsProgress = servicesWithRequirements.length > 0
+    ? (requirements.length / servicesWithRequirements.length * 100)
+    : 100; // If no services need requirements, consider complete
+
   const systemsProgress = spec.systems.length > 0 ?
     (spec.systems.filter(s => s.authentication.credentialsProvided).length / spec.systems.length * 100) : 0;
 
@@ -83,10 +101,19 @@ export const ImplementationSpecDashboard: React.FC = () => {
      spec.acceptanceCriteria.usability.length) > 0 ? 50 : 0;
 
   const overallProgress = Math.round(
-    (systemsProgress + integrationsProgress + aiAgentsProgress + acceptanceProgress) / 4
+    (requirementsProgress + systemsProgress + integrationsProgress + aiAgentsProgress + acceptanceProgress) / 5
   );
 
   const sections = [
+    {
+      id: 'requirements' as SpecSection,
+      name: 'איסוף דרישות',
+      icon: ClipboardList,
+      color: 'indigo',
+      count: requirements.length,
+      progress: requirementsProgress,
+      description: 'דרישות טכניות מפורטות לכל שירות'
+    },
     {
       id: 'systems' as SpecSection,
       name: 'מפרט מערכות',
@@ -168,6 +195,31 @@ export const ImplementationSpecDashboard: React.FC = () => {
       alert('שגיאה בהעתקה');
     }
   };
+
+  const handleRequirementsComplete = (allRequirements: CollectedRequirements[]) => {
+    updateMeeting({
+      modules: {
+        ...currentMeeting.modules,
+        requirements: allRequirements
+      }
+    });
+    // Move to next section after requirements are complete
+    setSelectedSection('systems');
+  };
+
+  // If requirements are not complete and requirements section is selected, show full RequirementsNavigator
+  if (selectedSection === 'requirements' && requirementsProgress < 100) {
+    return (
+      <div id="requirements-navigator">
+        <RequirementsNavigator
+          meeting={currentMeeting}
+          onComplete={handleRequirementsComplete}
+          onBack={() => navigate('/')}
+          language="he"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
@@ -282,16 +334,83 @@ export const ImplementationSpecDashboard: React.FC = () => {
             <h2 className="text-2xl font-bold text-gray-900">
               {sections.find(s => s.id === selectedSection)?.name}
             </h2>
-            <button
-              onClick={() => navigate(`/phase2/${selectedSection}/new`)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-            >
-              <Plus className="w-5 h-5" />
-              הוסף חדש
-            </button>
+            {selectedSection !== 'requirements' && (
+              <button
+                onClick={() => navigate(`/phase2/${selectedSection}/new`)}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
+                <Plus className="w-5 h-5" />
+                הוסף חדש
+              </button>
+            )}
           </div>
 
           {/* Content based on selected section */}
+          {selectedSection === 'requirements' && (
+            <div className="space-y-4">
+              {requirementsProgress >= 100 ? (
+                <div className="space-y-4">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <CheckSquare className="w-6 h-6 text-green-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-green-900">איסוף הדרישות הושלם</h3>
+                        <p className="text-sm text-green-700">נאספו דרישות עבור {requirements.length} שירותים</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Show collected requirements summary */}
+                  {requirements.map((req: CollectedRequirements) => {
+                    const service = getServiceById(req.serviceId);
+                    return (
+                      <div
+                        key={req.serviceId}
+                        className="p-6 border border-gray-200 rounded-lg bg-white"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <ClipboardList className="w-8 h-8 text-indigo-600" />
+                            <div>
+                              <h3 className="text-lg font-semibold text-gray-900">
+                                {service?.nameHe || req.serviceId}
+                              </h3>
+                              <p className="text-sm text-gray-600">
+                                הושלם בתאריך: {req.completedAt ? new Date(req.completedAt).toLocaleDateString('he-IL') : 'לא הושלם'}
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {req.completedSections.length} סעיפים הושלמו
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <ClipboardList className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600 mb-4">יש לאסוף דרישות טכניות עבור השירותים שנבחרו</p>
+                  <button
+                    onClick={() => {
+                      // Navigate to requirements gathering
+                      const requirementsSection = document.getElementById('requirements-navigator');
+                      if (requirementsSection) {
+                        requirementsSection.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                    className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                  >
+                    התחל באיסוף דרישות
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           {selectedSection === 'systems' && (
             <div className="space-y-4">
               {spec.systems.length === 0 ? (

@@ -14,10 +14,145 @@ import {
   Clock,
   TrendingUp,
   ArrowLeft,
-  Play
+  Play,
+  Languages
 } from 'lucide-react';
 
 type ViewMode = 'kanban' | 'list' | 'sprint' | 'system' | 'team';
+type Language = 'he' | 'en';
+
+const translations = {
+  he: {
+    title: 'דשבורד מפתחים',
+    project: 'פרויקט',
+    viewModes: {
+      kanban: 'קנבן',
+      list: 'רשימה',
+      sprint: 'ספרינט',
+      system: 'מערכת',
+      team: 'צוות'
+    },
+    stats: {
+      totalTasks: 'משימות כוללות',
+      completed: 'הושלם',
+      done: 'בוצע',
+      inProgress: 'בתהליך',
+      blocked: 'חסום',
+      projectHealth: 'בריאות הפרויקט',
+      onTrack: 'על המסלול',
+      atRisk: 'בסיכון',
+      behind: 'מאחור'
+    },
+    filters: {
+      title: 'סינון',
+      allStatuses: 'כל הסטטוסים',
+      toDo: 'לביצוע',
+      inProgress: 'בתהליך',
+      inReview: 'בבדיקה',
+      blocked: 'חסום',
+      done: 'הושלם',
+      allPriorities: 'כל העדיפויות',
+      critical: 'קריטי',
+      high: 'גבוה',
+      medium: 'בינוני',
+      low: 'נמוך',
+      showing: 'מציג',
+      of: 'מתוך',
+      tasks: 'משימות'
+    },
+    progress: {
+      overall: 'התקדמות כללית',
+      hoursEstimated: 'שעות משוערות',
+      hoursActual: 'שעות בפועל',
+      hoursRemaining: 'שעות נותרות'
+    },
+    errors: {
+      noProject: 'לא נמצא פרויקט',
+      backToDashboard: 'חזרה לדשבורד',
+      specRequired: 'נדרשת מפרט יישום',
+      specRequiredDesc: 'השלם את מפרט היישום בשלב 2 לפני יצירת משימות פיתוח.',
+      goToPhase2: 'עבור לשלב 2'
+    },
+    statusLabels: {
+      todo: 'לביצוע',
+      in_progress: 'בתהליך',
+      in_review: 'בבדיקה',
+      blocked: 'חסום',
+      done: 'הושלם'
+    },
+    comingSoon: {
+      sprint: 'תצוגת ספרינט בקרוב',
+      system: 'תצוגת מערכת בקרוב',
+      team: 'תצוגת צוות בקרוב',
+      underDevelopment: 'תצוגה זו בפיתוח'
+    }
+  },
+  en: {
+    title: 'Developer Dashboard',
+    project: 'Project',
+    viewModes: {
+      kanban: 'Kanban',
+      list: 'List',
+      sprint: 'Sprint',
+      system: 'System',
+      team: 'Team'
+    },
+    stats: {
+      totalTasks: 'Total Tasks',
+      completed: 'Completed',
+      done: 'done',
+      inProgress: 'In Progress',
+      blocked: 'Blocked',
+      projectHealth: 'Project Health',
+      onTrack: 'On Track',
+      atRisk: 'At Risk',
+      behind: 'Behind'
+    },
+    filters: {
+      title: 'Filters',
+      allStatuses: 'All Statuses',
+      toDo: 'To Do',
+      inProgress: 'In Progress',
+      inReview: 'In Review',
+      blocked: 'Blocked',
+      done: 'Done',
+      allPriorities: 'All Priorities',
+      critical: 'Critical',
+      high: 'High',
+      medium: 'Medium',
+      low: 'Low',
+      showing: 'Showing',
+      of: 'of',
+      tasks: 'tasks'
+    },
+    progress: {
+      overall: 'Overall Progress',
+      hoursEstimated: 'hours estimated',
+      hoursActual: 'hours actual',
+      hoursRemaining: 'hours remaining'
+    },
+    errors: {
+      noProject: 'No Project Found',
+      backToDashboard: 'Back to Dashboard',
+      specRequired: 'Implementation Spec Required',
+      specRequiredDesc: 'Complete the implementation specification in Phase 2 before generating development tasks.',
+      goToPhase2: 'Go to Phase 2'
+    },
+    statusLabels: {
+      todo: 'To Do',
+      in_progress: 'In Progress',
+      in_review: 'In Review',
+      blocked: 'Blocked',
+      done: 'Done'
+    },
+    comingSoon: {
+      sprint: 'Sprint view coming soon',
+      system: 'System view coming soon',
+      team: 'Team view coming soon',
+      underDevelopment: 'This view is under development'
+    }
+  }
+};
 
 export const DeveloperDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -25,6 +160,20 @@ export const DeveloperDashboard: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('kanban');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterPriority, setFilterPriority] = useState<string>('all');
+  const [language, setLanguage] = useState<Language>('he');
+
+  useEffect(() => {
+    const saved = localStorage.getItem('phase3_language');
+    if (saved) setLanguage(saved as Language);
+  }, []);
+
+  const toggleLanguage = () => {
+    const newLang = language === 'he' ? 'en' : 'he';
+    setLanguage(newLang);
+    localStorage.setItem('phase3_language', newLang);
+  };
+
+  const t = translations[language];
 
   // Initialize development tracking if needed
   useEffect(() => {
@@ -84,14 +233,14 @@ export const DeveloperDashboard: React.FC = () => {
 
   if (!currentMeeting) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center" dir={language === 'he' ? 'rtl' : 'ltr'}>
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">No Project Found</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">{t.errors.noProject}</h2>
           <button
             onClick={() => navigate('/')}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            Back to Dashboard
+            {t.errors.backToDashboard}
           </button>
         </div>
       </div>
@@ -100,18 +249,18 @@ export const DeveloperDashboard: React.FC = () => {
 
   if (!currentMeeting.developmentTracking) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center" dir={language === 'he' ? 'rtl' : 'ltr'}>
         <div className="text-center max-w-md">
           <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Implementation Spec Required</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">{t.errors.specRequired}</h2>
           <p className="text-gray-600 mb-6">
-            Complete the implementation specification in Phase 2 before generating development tasks.
+            {t.errors.specRequiredDesc}
           </p>
           <button
             onClick={() => navigate('/phase2')}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            Go to Phase 2
+            {t.errors.goToPhase2}
           </button>
         </div>
       </div>
@@ -150,7 +299,7 @@ export const DeveloperDashboard: React.FC = () => {
   const healthColor = getHealthColor();
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100" dir={language === 'he' ? 'rtl' : 'ltr'}>
       {/* Header */}
       <div className="bg-white border-b border-gray-200 shadow-sm">
         <div className="container mx-auto px-4 py-6">
@@ -163,33 +312,44 @@ export const DeveloperDashboard: React.FC = () => {
                 <ArrowLeft className="w-6 h-6" />
               </button>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Development Dashboard</h1>
-                <p className="text-gray-600 mt-1">Project: {currentMeeting.clientName}</p>
+                <h1 className="text-3xl font-bold text-gray-900">{t.title}</h1>
+                <p className="text-gray-600 mt-1">{t.project}: {currentMeeting.clientName}</p>
               </div>
             </div>
 
-            {/* View Mode Switcher */}
-            <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
-              {[
-                { mode: 'kanban' as ViewMode, icon: LayoutGrid, label: 'Kanban' },
-                { mode: 'list' as ViewMode, icon: List, label: 'List' },
-                { mode: 'sprint' as ViewMode, icon: Calendar, label: 'Sprint' },
-                { mode: 'system' as ViewMode, icon: FolderTree, label: 'System' },
-                { mode: 'team' as ViewMode, icon: Users, label: 'Team' }
-              ].map(({ mode, icon: Icon, label }) => (
-                <button
-                  key={mode}
-                  onClick={() => setViewMode(mode)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
-                    viewMode === mode
-                      ? 'bg-white shadow-sm text-blue-600'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium">{label}</span>
-                </button>
-              ))}
+            <div className="flex items-center gap-4">
+              {/* Language Toggle */}
+              <button
+                onClick={toggleLanguage}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+              >
+                <Languages className="w-5 h-5" />
+                <span className="font-medium">{language === 'he' ? 'English' : 'עברית'}</span>
+              </button>
+
+              {/* View Mode Switcher */}
+              <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+                {[
+                  { mode: 'kanban' as ViewMode, icon: LayoutGrid, label: t.viewModes.kanban },
+                  { mode: 'list' as ViewMode, icon: List, label: t.viewModes.list },
+                  { mode: 'sprint' as ViewMode, icon: Calendar, label: t.viewModes.sprint },
+                  { mode: 'system' as ViewMode, icon: FolderTree, label: t.viewModes.system },
+                  { mode: 'team' as ViewMode, icon: Users, label: t.viewModes.team }
+                ].map(({ mode, icon: Icon, label }) => (
+                  <button
+                    key={mode}
+                    onClick={() => setViewMode(mode)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                      viewMode === mode
+                        ? 'bg-white shadow-sm text-blue-600'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className="font-medium">{label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -202,7 +362,7 @@ export const DeveloperDashboard: React.FC = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Tasks</p>
+                <p className="text-sm text-gray-600 mb-1">{t.stats.totalTasks}</p>
                 <p className="text-3xl font-bold text-gray-900">{tasks.length}</p>
               </div>
               <List className="w-10 h-10 text-blue-600" />
@@ -213,19 +373,19 @@ export const DeveloperDashboard: React.FC = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Completed</p>
+                <p className="text-sm text-gray-600 mb-1">{t.stats.completed}</p>
                 <p className="text-3xl font-bold text-green-600">{doneTasks.length}</p>
               </div>
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
-            <div className="mt-2 text-xs text-gray-500">{progressPercentage}% done</div>
+            <div className="mt-2 text-xs text-gray-500">{progressPercentage}% {t.stats.done}</div>
           </div>
 
           {/* In Progress */}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">In Progress</p>
+                <p className="text-sm text-gray-600 mb-1">{t.stats.inProgress}</p>
                 <p className="text-3xl font-bold text-blue-600">{inProgressTasks.length}</p>
               </div>
               <Play className="w-10 h-10 text-blue-600" />
@@ -236,7 +396,7 @@ export const DeveloperDashboard: React.FC = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Blocked</p>
+                <p className="text-sm text-gray-600 mb-1">{t.stats.blocked}</p>
                 <p className="text-3xl font-bold text-red-600">{blockedTasks.length}</p>
               </div>
               <AlertTriangle className="w-10 h-10 text-red-600" />
@@ -247,15 +407,15 @@ export const DeveloperDashboard: React.FC = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Project Health</p>
+                <p className="text-sm text-gray-600 mb-1">{t.stats.projectHealth}</p>
                 <p className={`text-2xl font-bold ${
                   healthColor === 'green' ? 'text-green-600' :
                   healthColor === 'yellow' ? 'text-yellow-600' :
                   'text-red-600'
                 }`}>
-                  {healthColor === 'green' ? '🟢 On Track' :
-                   healthColor === 'yellow' ? '🟡 At Risk' :
-                   '🔴 Behind'}
+                  {healthColor === 'green' ? `🟢 ${t.stats.onTrack}` :
+                   healthColor === 'yellow' ? `🟡 ${t.stats.atRisk}` :
+                   `🔴 ${t.stats.behind}`}
                 </p>
               </div>
               <TrendingUp className={`w-10 h-10 ${
@@ -270,7 +430,7 @@ export const DeveloperDashboard: React.FC = () => {
         {/* Progress Bar */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Overall Progress</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t.progress.overall}</h3>
             <span className="text-2xl font-bold text-blue-600">{progressPercentage}%</span>
           </div>
           <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
@@ -280,27 +440,27 @@ export const DeveloperDashboard: React.FC = () => {
             />
           </div>
           <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
-            <span>{progress.hoursEstimated} hours estimated</span>
-            <span>{progress.hoursActual} hours actual</span>
-            <span>{progress.hoursRemaining} hours remaining</span>
+            <span>{progress.hoursEstimated} {t.progress.hoursEstimated}</span>
+            <span>{progress.hoursActual} {t.progress.hoursActual}</span>
+            <span>{progress.hoursRemaining} {t.progress.hoursRemaining}</span>
           </div>
         </div>
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow p-4 mb-6 flex items-center gap-4">
-          <span className="font-semibold text-gray-700">Filters:</span>
+          <span className="font-semibold text-gray-700">{t.filters.title}:</span>
 
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           >
-            <option value="all">All Statuses</option>
-            <option value="todo">To Do</option>
-            <option value="in_progress">In Progress</option>
-            <option value="in_review">In Review</option>
-            <option value="blocked">Blocked</option>
-            <option value="done">Done</option>
+            <option value="all">{t.filters.allStatuses}</option>
+            <option value="todo">{t.filters.toDo}</option>
+            <option value="in_progress">{t.filters.inProgress}</option>
+            <option value="in_review">{t.filters.inReview}</option>
+            <option value="blocked">{t.filters.blocked}</option>
+            <option value="done">{t.filters.done}</option>
           </select>
 
           <select
@@ -308,15 +468,15 @@ export const DeveloperDashboard: React.FC = () => {
             onChange={(e) => setFilterPriority(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           >
-            <option value="all">All Priorities</option>
-            <option value="critical">Critical</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
+            <option value="all">{t.filters.allPriorities}</option>
+            <option value="critical">{t.filters.critical}</option>
+            <option value="high">{t.filters.high}</option>
+            <option value="medium">{t.filters.medium}</option>
+            <option value="low">{t.filters.low}</option>
           </select>
 
-          <span className="ml-auto text-sm text-gray-600">
-            Showing {filteredTasks.length} of {tasks.length} tasks
+          <span className={`${language === 'he' ? 'mr-auto' : 'ml-auto'} text-sm text-gray-600`}>
+            {t.filters.showing} {filteredTasks.length} {t.filters.of} {tasks.length} {t.filters.tasks}
           </span>
         </div>
 
@@ -369,18 +529,11 @@ export const DeveloperDashboard: React.FC = () => {
           <div className="grid grid-cols-5 gap-6">
             {['todo', 'in_progress', 'in_review', 'blocked', 'done'].map(status => {
               const statusTasks = filteredTasks.filter(t => t.status === status);
-              const statusLabels = {
-                todo: 'To Do',
-                in_progress: 'In Progress',
-                in_review: 'In Review',
-                blocked: 'Blocked',
-                done: 'Done'
-              };
 
               return (
                 <div key={status} className="bg-gray-50 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900">{statusLabels[status as keyof typeof statusLabels]}</h3>
+                    <h3 className="font-semibold text-gray-900">{t.statusLabels[status as keyof typeof t.statusLabels]}</h3>
                     <span className="text-sm text-gray-600">{statusTasks.length}</span>
                   </div>
                   <div className="space-y-3">
@@ -410,12 +563,12 @@ export const DeveloperDashboard: React.FC = () => {
         {(viewMode === 'sprint' || viewMode === 'system' || viewMode === 'team') && (
           <div className="bg-white rounded-lg shadow p-12 text-center">
             <p className="text-gray-600 text-lg mb-4">
-              {viewMode === 'sprint' && 'Sprint view coming soon'}
-              {viewMode === 'system' && 'System view coming soon'}
-              {viewMode === 'team' && 'Team view coming soon'}
+              {viewMode === 'sprint' && t.comingSoon.sprint}
+              {viewMode === 'system' && t.comingSoon.system}
+              {viewMode === 'team' && t.comingSoon.team}
             </p>
             <p className="text-sm text-gray-500">
-              This view is under development
+              {t.comingSoon.underDevelopment}
             </p>
           </div>
         )}

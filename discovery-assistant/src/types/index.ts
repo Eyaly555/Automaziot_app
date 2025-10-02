@@ -1,5 +1,11 @@
 // Main types for Discovery Assistant application
 
+// Re-export proposal types
+export * from './proposal';
+
+// Re-export service requirements types
+export * from './serviceRequirements';
+
 // ============================================================================
 // PHASE TRACKING TYPES
 // ============================================================================
@@ -123,7 +129,9 @@ export interface Modules {
   aiAgents: AIAgentsModule;
   systems: SystemsModule;
   roi: ROIModule;
-  planning: PlanningModule;
+  proposal?: any; // ProposalData from types/proposal.ts
+  planning?: PlanningModule; // Keep for backward compatibility
+  requirements?: CollectedRequirements[]; // Requirements for selected services
 }
 
 export interface ModuleProgress {

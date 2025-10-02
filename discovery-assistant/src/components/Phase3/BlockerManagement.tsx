@@ -1,10 +1,107 @@
-import React, { useMemo } from 'react';
-import { AlertTriangle, CheckCircle, Clock, User, MessageSquare } from 'lucide-react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { AlertTriangle, CheckCircle, Clock, User, MessageSquare, Languages } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { Blocker } from '../../types/phase3';
 
+type Language = 'he' | 'en';
+
+const translations = {
+  he: {
+    title: 'ניהול חסימות',
+    subtitle: 'מעקב ופתרון חסימות המשפיעות על הפיתוח',
+    noData: 'אין נתוני מעקב פיתוח זמינים',
+    stats: {
+      activeBlockers: 'חסימות פעילות',
+      critical: 'קריטי',
+      high: 'גבוה',
+      medium: 'בינוני',
+      resolved: 'נפתרו'
+    },
+    activeSection: {
+      title: 'חסימות פעילות',
+      blocker: 'חסימה',
+      blockers: 'חסימות'
+    },
+    resolvedSection: {
+      title: 'חסימות שנפתרו',
+      resolved: 'נפתר',
+      timeToResolve: 'זמן לפתרון',
+      day: 'יום',
+      days: 'ימים',
+      reportedBy: 'דווח על ידי'
+    },
+    noBlockers: {
+      title: 'אין חסימות',
+      description: 'טרם דווחו חסימות.'
+    },
+    noActiveBlockers: {
+      title: 'אין חסימות פעילות',
+      description: 'מצוין! כל החסימות נפתרו.'
+    },
+    resolutionNotes: 'הערות פתרון',
+    resolution: 'פתרון',
+    resolve: 'פתור',
+    today: 'היום',
+    daysAgo: 'לפני',
+    hoursEstimated: 'שעות משוערות'
+  },
+  en: {
+    title: 'Blocker Management',
+    subtitle: 'Track and resolve blockers affecting development',
+    noData: 'No development tracking data available',
+    stats: {
+      activeBlockers: 'Active Blockers',
+      critical: 'Critical',
+      high: 'High',
+      medium: 'Medium',
+      resolved: 'Resolved'
+    },
+    activeSection: {
+      title: 'Active Blockers',
+      blocker: 'blocker',
+      blockers: 'blockers'
+    },
+    resolvedSection: {
+      title: 'Resolved Blockers',
+      resolved: 'Resolved',
+      timeToResolve: 'Time to resolve',
+      day: 'day',
+      days: 'days',
+      reportedBy: 'Reported by'
+    },
+    noBlockers: {
+      title: 'No Blockers',
+      description: 'No blockers have been reported yet.'
+    },
+    noActiveBlockers: {
+      title: 'No Active Blockers',
+      description: 'Great! All blockers have been resolved.'
+    },
+    resolutionNotes: 'Resolution Notes',
+    resolution: 'Resolution',
+    resolve: 'Resolve',
+    today: 'Today',
+    daysAgo: 'ago',
+    hoursEstimated: 'h'
+  }
+};
+
 export const BlockerManagement: React.FC = () => {
   const { currentMeeting, resolveBlocker, updateTask } = useMeetingStore();
+  const [language, setLanguage] = useState<Language>('he');
+
+  useEffect(() => {
+    const saved = localStorage.getItem('phase3_language');
+    if (saved) setLanguage(saved as Language);
+  }, []);
+
+  const toggleLanguage = () => {
+    const newLang = language === 'he' ? 'en' : 'he';
+    setLanguage(newLang);
+    localStorage.setItem('phase3_language', newLang);
+  };
+
+  const t = translations[language];
 
   const blockers = currentMeeting?.developmentTracking?.blockers || [];
   const tasks = currentMeeting?.developmentTracking?.tasks || [];
@@ -64,29 +161,39 @@ export const BlockerManagement: React.FC = () => {
 
   if (!currentMeeting?.developmentTracking) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir={language === 'he' ? 'rtl' : 'ltr'}>
         <div className="text-center">
           <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600">No development tracking data available</p>
+          <p className="text-gray-600">{t.noData}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-gray-50 py-8 px-4" dir={language === 'he' ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Blocker Management</h1>
-          <p className="text-gray-600 mt-1">Track and resolve blockers affecting development</p>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">{t.title}</h1>
+            <p className="text-gray-600 mt-1">{t.subtitle}</p>
+          </div>
+          {/* Language Toggle */}
+          <button
+            onClick={toggleLanguage}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+          >
+            <Languages className="w-5 h-5" />
+            <span className="font-medium">{language === 'he' ? 'English' : 'עברית'}</span>
+          </button>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-5 gap-4 mb-6">
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm">Active Blockers</span>
+              <span className="text-gray-600 text-sm">{t.stats.activeBlockers}</span>
               <AlertTriangle className="w-5 h-5 text-red-500" />
             </div>
             <div className="text-3xl font-bold text-red-600">{activeBlockers.length}</div>
@@ -94,7 +201,7 @@ export const BlockerManagement: React.FC = () => {
 
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm">Critical</span>
+              <span className="text-gray-600 text-sm">{t.stats.critical}</span>
               <AlertTriangle className="w-5 h-5 text-red-600" />
             </div>
             <div className="text-3xl font-bold text-red-700">{blockersBySevertiy.critical}</div>
@@ -102,7 +209,7 @@ export const BlockerManagement: React.FC = () => {
 
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm">High</span>
+              <span className="text-gray-600 text-sm">{t.stats.high}</span>
               <AlertTriangle className="w-5 h-5 text-orange-600" />
             </div>
             <div className="text-3xl font-bold text-orange-600">{blockersBySevertiy.high}</div>
@@ -110,7 +217,7 @@ export const BlockerManagement: React.FC = () => {
 
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm">Medium</span>
+              <span className="text-gray-600 text-sm">{t.stats.medium}</span>
               <AlertTriangle className="w-5 h-5 text-yellow-600" />
             </div>
             <div className="text-3xl font-bold text-yellow-600">{blockersBySevertiy.medium}</div>
@@ -118,7 +225,7 @@ export const BlockerManagement: React.FC = () => {
 
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 text-sm">Resolved</span>
+              <span className="text-gray-600 text-sm">{t.stats.resolved}</span>
               <CheckCircle className="w-5 h-5 text-green-500" />
             </div>
             <div className="text-3xl font-bold text-green-600">{resolvedBlockers.length}</div>
@@ -130,7 +237,7 @@ export const BlockerManagement: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
               <AlertTriangle className="w-6 h-6 text-red-600 mr-2" />
-              Active Blockers ({activeBlockers.length})
+              {t.activeSection.title} ({activeBlockers.length})
             </h2>
 
             <div className="space-y-6">
@@ -153,7 +260,7 @@ export const BlockerManagement: React.FC = () => {
                         </div>
                       </div>
                       <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
-                        {taskBlockers.length} {taskBlockers.length === 1 ? 'blocker' : 'blockers'}
+                        {taskBlockers.length} {taskBlockers.length === 1 ? t.activeSection.blocker : t.activeSection.blockers}
                       </span>
                     </div>
                   </div>
@@ -175,7 +282,7 @@ export const BlockerManagement: React.FC = () => {
                                 </span>
                                 <span className="text-sm text-gray-600 flex items-center">
                                   <Clock className="w-3 h-3 mr-1" />
-                                  {daysAgo === 0 ? 'Today' : `${daysAgo} ${daysAgo === 1 ? 'day' : 'days'} ago`}
+                                  {daysAgo === 0 ? t.today : `${t.daysAgo} ${daysAgo} ${daysAgo === 1 ? t.resolvedSection.day : t.resolvedSection.days}`}
                                 </span>
                                 {blocker.reportedBy && (
                                   <span className="text-sm text-gray-600 flex items-center">
@@ -190,7 +297,7 @@ export const BlockerManagement: React.FC = () => {
                                   <div className="flex items-start">
                                     <MessageSquare className="w-4 h-4 text-blue-600 mr-2 mt-0.5" />
                                     <div>
-                                      <div className="text-xs text-blue-800 font-medium mb-1">Resolution Notes</div>
+                                      <div className="text-xs text-blue-800 font-medium mb-1">{t.resolutionNotes}</div>
                                       <div className="text-sm text-blue-900">{blocker.resolution}</div>
                                     </div>
                                   </div>
@@ -202,7 +309,7 @@ export const BlockerManagement: React.FC = () => {
                               className="ml-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center text-sm"
                             >
                               <CheckCircle className="w-4 h-4 mr-2" />
-                              Resolve
+                              {t.resolve}
                             </button>
                           </div>
                         </div>
@@ -216,8 +323,8 @@ export const BlockerManagement: React.FC = () => {
         ) : (
           <div className="bg-white rounded-lg shadow-sm p-12 text-center mb-6">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h3 className="text-xl font-medium text-gray-900 mb-2">No Active Blockers</h3>
-            <p className="text-gray-600">Great! All blockers have been resolved.</p>
+            <h3 className="text-xl font-medium text-gray-900 mb-2">{t.noActiveBlockers.title}</h3>
+            <p className="text-gray-600">{t.noActiveBlockers.description}</p>
           </div>
         )}
 
@@ -226,7 +333,7 @@ export const BlockerManagement: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
               <CheckCircle className="w-6 h-6 text-green-600 mr-2" />
-              Resolved Blockers ({resolvedBlockers.length})
+              {t.resolvedSection.title} ({resolvedBlockers.length})
             </h2>
 
             <div className="space-y-3">
@@ -255,14 +362,14 @@ export const BlockerManagement: React.FC = () => {
                         <p className="text-gray-700 mb-2">{blocker.description}</p>
                         {blocker.resolution && (
                           <div className="bg-green-50 border border-green-200 rounded p-2 mb-2">
-                            <div className="text-xs text-green-800 font-medium mb-1">Resolution</div>
+                            <div className="text-xs text-green-800 font-medium mb-1">{t.resolution}</div>
                             <div className="text-sm text-green-900">{blocker.resolution}</div>
                           </div>
                         )}
                         <div className="flex items-center space-x-4 text-xs text-gray-500">
-                          <span>Resolved {resolvedDate?.toLocaleDateString('en-US')}</span>
-                          <span>Time to resolve: {daysToResolve} {daysToResolve === 1 ? 'day' : 'days'}</span>
-                          {blocker.reportedBy && <span>Reported by {blocker.reportedBy}</span>}
+                          <span>{t.resolvedSection.resolved} {resolvedDate?.toLocaleDateString(language === 'he' ? 'he-IL' : 'en-US')}</span>
+                          <span>{t.resolvedSection.timeToResolve}: {daysToResolve} {daysToResolve === 1 ? t.resolvedSection.day : t.resolvedSection.days}</span>
+                          {blocker.reportedBy && <span>{t.resolvedSection.reportedBy} {blocker.reportedBy}</span>}
                         </div>
                       </div>
                     </div>
@@ -277,8 +384,8 @@ export const BlockerManagement: React.FC = () => {
         {blockers.length === 0 && (
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
             <AlertTriangle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-medium text-gray-900 mb-2">No Blockers</h3>
-            <p className="text-gray-600">No blockers have been reported yet.</p>
+            <h3 className="text-xl font-medium text-gray-900 mb-2">{t.noBlockers.title}</h3>
+            <p className="text-gray-600">{t.noBlockers.description}</p>
           </div>
         )}
       </div>
