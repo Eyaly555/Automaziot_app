@@ -41,7 +41,7 @@ function transformToClientListItem(record) {
 
   return {
     recordId: record.id,
-    clientName: record.Potentials_Name || 'Unnamed Client',
+    clientName: record.Potentials_Name || record.Companys_Name || record.Phone || record.Email || 'Unnamed Client',
     companyName: record.Companys_Name || null,
     phase: record.Current_Phase || 'discovery',
     status: record.Status || 'not_started',

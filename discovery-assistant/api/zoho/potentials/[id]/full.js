@@ -193,7 +193,7 @@ export default async function handler(req, res) {
     // Return success response
     return res.status(200).json({
       success: true,
-      meeting,
+      meetingData: meeting,
       recordId: record.id
     });
 
