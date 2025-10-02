@@ -55,8 +55,8 @@ function transformToClientListItem(record) {
 
   // If not found in Discovery_Progress, try other fields
   if (clientName === 'Unnamed Client') {
-    clientName = record.Potentials_Name ||
-                 record.Companys_Name ||
+    clientName = record.Name ||
+                 record.Company_s_Name ||
                  meetingData?.meetingInfo?.companyName ||
                  meetingData?.meetingInfo?.contactName ||
                  record.Phone ||
@@ -67,7 +67,7 @@ function transformToClientListItem(record) {
   return {
     recordId: record.id,
     clientName: clientName,
-    companyName: record.Companys_Name || meetingData?.meetingInfo?.companyName || null,
+    companyName: record.Company_s_Name || meetingData?.meetingInfo?.companyName || null,
     phase: record.Current_Phase || 'discovery',
     status: record.Status || 'not_started',
     overallProgress: parseFloat(record.Overall_Progress_Percent) || 0,
@@ -76,7 +76,7 @@ function transformToClientListItem(record) {
     lastModified: record.Modified_Time,
     lastSync: record.Last_Sync_Timestamp || null,
     syncStatus: record.Sync_Stat || 'synced',
-    owner: record.Potentials_Owner?.name || null,
+    owner: record.Owner?.name || null,
     email: record.Email || null,
     phone: record.Phone || null,
     discoveryDate: meetingData?.meetingInfo?.meetingDate || record.Discovery_Date || null,
@@ -116,11 +116,11 @@ export default async function handler(req, res) {
       // Request all fields we need
       fields: [
         'id',
-        'Potentials_Name',
-        'Companys_Name',
+        'Name',
+        'Company_s_Name',
         'Email',
         'Phone',
-        'Potentials_Owner',
+        'Owner',
         'Modified_Time',
         'Current_Phase',
         'Status',

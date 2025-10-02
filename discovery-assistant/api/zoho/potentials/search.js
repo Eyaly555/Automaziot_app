@@ -42,8 +42,8 @@ function transformToClientListItem(record) {
 
   return {
     recordId: record.id,
-    clientName: record.Potentials_Name || 'Unnamed Client',
-    companyName: record.Companys_Name || null,
+    clientName: record.Name || 'Unnamed Client',
+    companyName: record.Company_s_Name || null,
     phase: record.Current_Phase || 'discovery',
     status: record.Status || 'not_started',
     overallProgress: parseFloat(record.Overall_Progress_Percent) || 0,
@@ -52,7 +52,7 @@ function transformToClientListItem(record) {
     lastModified: record.Modified_Time,
     lastSync: record.Last_Sync_Timestamp || null,
     syncStatus: record.Sync_Stat || 'synced',
-    owner: record.Potentials_Owner?.name || null,
+    owner: record.Owner?.name || null,
     email: record.Email || null,
     phone: record.Phone || null,
     discoveryDate: meetingData?.meetingInfo?.meetingDate || record.Discovery_Date || null,
@@ -67,8 +67,8 @@ function buildSearchCriteria(query) {
   // Zoho search criteria: (field:operator:value)
   // We'll search across multiple fields with OR
   const searchFields = [
-    `(Potentials_Name:contains:${query})`,
-    `(Companys_Name:contains:${query})`,
+    `(Name:contains:${query})`,
+    `(Company_s_Name:contains:${query})`,
     `(Email:contains:${query})`,
     `(Phone:contains:${query})`
   ];
@@ -120,11 +120,11 @@ export default async function handler(req, res) {
       per_page: Math.min(parseInt(per_page), 200), // Zoho max is 200
       fields: [
         'id',
-        'Potentials_Name',
-        'Companys_Name',
+        'Name',
+        'Company_s_Name',
         'Email',
         'Phone',
-        'Potentials_Owner',
+        'Owner',
         'Modified_Time',
         'Discovery_Date',
         'Current_Phase',

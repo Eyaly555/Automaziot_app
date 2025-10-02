@@ -82,8 +82,8 @@ function transformToZohoFormat(meeting) {
   // Build Zoho record
   const zohoRecord = {
     // Basic fields
-    Potentials_Name: meeting.meetingInfo?.contactName || 'Unnamed Client',
-    Companys_Name: meeting.meetingInfo?.companyName,
+    Name: meeting.meetingInfo?.contactName || 'Unnamed Client',
+    Company_s_Name: meeting.meetingInfo?.companyName,
     Email: meeting.meetingInfo?.email,
     Phone: meeting.meetingInfo?.phone,
     Discovery_Date: meeting.meetingInfo?.meetingDate,

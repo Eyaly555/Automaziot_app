@@ -35,8 +35,8 @@ function transformToFullMeeting(record) {
 
     // Meeting info from meeting data
     meetingInfo: meetingData?.meetingInfo || {
-      companyName: record.Companys_Name || '',
-      contactName: record.Potentials_Name || '',
+      companyName: record.Company_s_Name || '',
+      contactName: record.Name || '',
       contactRole: '',
       meetingDate: record.Discovery_Date || new Date().toISOString(),
       industry: '',
@@ -109,8 +109,8 @@ function transformToFullMeeting(record) {
     metadata: {
       createdAt: record.Created_Time,
       modifiedAt: record.Modified_Time,
-      owner: record.Potentials_Owner?.name || null,
-      dealName: record.Potentials_Name,
+      owner: record.Owner?.name || null,
+      dealName: record.Name,
       overallProgress: parseFloat(record.Overall_Progress_Percent) || 0,
       phase2Progress: parseFloat(record.Phase2_Progress_Percent) || 0,
       phase3Progress: parseFloat(record.Phase3_Progress_Percent) || 0
@@ -149,11 +149,11 @@ export default async function handler(req, res) {
     // Build endpoint with all required fields
     const fields = [
       'id',
-      'Potentials_Name',
-      'Companys_Name',
+      'Name',
+      'Company_s_Name',
       'Email',
       'Phone',
-      'Potentials_Owner',
+      'Owner',
       'Created_Time',
       'Modified_Time',
       'Discovery_Date',
@@ -188,7 +188,7 @@ export default async function handler(req, res) {
     const record = response.data[0];
     const meeting = transformToFullMeeting(record);
 
-    console.log(`[Potentials Full] Successfully fetched full data for: ${record.Potentials_Name}`);
+    console.log(`[Potentials Full] Successfully fetched full data for: ${record.Name}`);
 
     // Return success response
     return res.status(200).json({

@@ -93,6 +93,12 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onClick, selecte
             {client.companyName && (
               <p className="text-sm text-gray-500 truncate">{client.companyName}</p>
             )}
+            {client.phone && (
+              <p className="text-xs text-gray-400 truncate">📞 {client.phone}</p>
+            )}
+            {client.email && (
+              <p className="text-xs text-gray-400 truncate">✉️ {client.email}</p>
+            )}
           </div>
         </div>
 
