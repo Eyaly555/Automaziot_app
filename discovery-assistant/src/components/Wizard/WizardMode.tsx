@@ -72,29 +72,23 @@ export const WizardMode: React.FC = () => {
     // Get current module data
     const moduleData = currentMeeting.modules[moduleId] || {};
 
-    // Update nested field if necessary
-    if (fieldParts.length > 1) {
-      const topLevelField = fieldParts[0];
-      const nestedField = fieldParts.slice(1).join('.');
+    // Helper function to set nested value
+    const setNestedValue = (obj: any, path: string[], value: any): any => {
+      if (path.length === 1) {
+        return { ...obj, [path[0]]: value };
+      }
 
-      // Create nested structure if it doesn't exist
-      const topLevelValue = moduleData[topLevelField] || {};
-      const updatedValue = {
-        ...topLevelValue,
-        [nestedField]: value
+      const [first, ...rest] = path;
+      return {
+        ...obj,
+        [first]: setNestedValue(obj[first] || {}, rest, value)
       };
+    };
 
-      updateModule(moduleId, {
-        ...moduleData,
-        [topLevelField]: updatedValue
-      });
-    } else {
-      // Simple field update
-      updateModule(moduleId, {
-        ...moduleData,
-        [fieldPath]: value
-      });
-    }
+    // Update nested field
+    const updatedModuleData = setNestedValue(moduleData, fieldParts, value);
+
+    updateModule(moduleId, updatedModuleData);
 
     // Clear error for this field
     setErrors(prev => {
