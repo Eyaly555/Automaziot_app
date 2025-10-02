@@ -58,6 +58,8 @@ export const AppContent = () => {
     <>
     <Routes>
       <Route path="/" element={<Dashboard />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/meeting/:recordId" element={<Dashboard />} />
       <Route path="/clients" element={<ClientsListView />} />
       <Route path="/login" element={<Login />} />
       <Route path="/summary" element={<SummaryTab />} />
