@@ -1,11 +1,12 @@
-// GET /api/zoho/potentials/list
-// Returns a list of all clients from Zoho Potentials1 module
-// Supports filtering by phase, status, and pagination
+// GET /api/zoho/potentials/search
+// Search for clients by name, company, email, or phone
+// Returns matching clients in list format
 
-import { zohoAPI } from './service.js';
+import { zohoAPI } from '../service.js';
 
 /**
  * Parse and transform Zoho record to client list item format
+ * (Reused from potentials-list.js)
  */
 function transformToClientListItem(record) {
   // Parse JSON fields safely
@@ -60,7 +61,24 @@ function transformToClientListItem(record) {
 }
 
 /**
- * Main handler for GET /api/zoho/potentials/list
+ * Build search criteria for Zoho API
+ */
+function buildSearchCriteria(query) {
+  // Zoho search criteria: (field:operator:value)
+  // We'll search across multiple fields with OR
+  const searchFields = [
+    `(Potentials_Name:contains:${query})`,
+    `(Companys_Name:contains:${query})`,
+    `(Email:contains:${query})`,
+    `(Phone:contains:${query})`
+  ];
+
+  // Join with 'or' operator
+  return searchFields.join('or');
+}
+
+/**
+ * Main handler for GET /api/zoho/potentials/search
  */
 export default async function handler(req, res) {
   // Only allow GET requests
@@ -72,23 +90,34 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Extract query parameters
-    const {
-      phase,
-      status,
-      page = '1',
-      per_page = '200',
-      sort_by = 'Modified_Time',
-      sort_order = 'desc'
-    } = req.query;
+    // Extract search query
+    const { q, query, page = '1', per_page = '50' } = req.query;
+    const searchQuery = q || query;
 
-    // Build Zoho API request parameters
+    // Validate search query
+    if (!searchQuery || searchQuery.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing search query parameter (q or query)'
+      });
+    }
+
+    if (searchQuery.length < 2) {
+      return res.status(400).json({
+        success: false,
+        error: 'Search query must be at least 2 characters'
+      });
+    }
+
+    console.log(`[Search] Searching for: "${searchQuery}"`);
+
+    // Build search criteria
+    const criteria = buildSearchCriteria(searchQuery.trim());
+
+    // Build API parameters
     const params = {
       page: parseInt(page),
       per_page: Math.min(parseInt(per_page), 200), // Zoho max is 200
-      sort_by,
-      sort_order,
-      // Request all fields we need
       fields: [
         'id',
         'Potentials_Name',
@@ -97,6 +126,7 @@ export default async function handler(req, res) {
         'Phone',
         'Potentials_Owner',
         'Modified_Time',
+        'Discovery_Date',
         'Current_Phase',
         'Status',
         'Overall_Progress_Percent',
@@ -106,68 +136,78 @@ export default async function handler(req, res) {
         'Sync_Stat',
         'Meeting_Data_JS',
         'Implementation_Spec_Data',
-        'Development_Tracking_Data',
-        'Discovery_Date'
+        'Development_Tracking_Data'
       ].join(',')
     };
 
-    // Add filters if provided
-    const criteria = [];
-    if (phase) {
-      criteria.push(`(Current_Phase:equals:${phase})`);
-    }
-    if (status) {
-      criteria.push(`(Status:equals:${status})`);
-    }
-
-    // Build query string
+    // Build endpoint
     const queryString = new URLSearchParams(params).toString();
-    let endpoint = `/crm/v8/Potentials1?${queryString}`;
+    const endpoint = `/crm/v8/Potentials1/search?${queryString}&criteria=${encodeURIComponent(criteria)}`;
 
-    // Add criteria if exists
-    if (criteria.length > 0) {
-      endpoint += `&criteria=${encodeURIComponent(criteria.join('and'))}`;
-    }
-
-    console.log('[Potentials List] Fetching from Zoho:', endpoint);
+    console.log('[Search] Zoho endpoint:', endpoint);
 
     // Make the API call
     const response = await zohoAPI(endpoint);
 
     // Check if we got data
     if (!response || !response.data) {
-      console.log('[Potentials List] No data returned from Zoho');
+      console.log('[Search] No results found');
       return res.status(200).json({
         success: true,
-        potentials: [],
+        results: [],
         total: 0,
-        page: parseInt(page),
-        per_page: parseInt(per_page),
-        more_records: false
+        query: searchQuery
       });
     }
 
     // Transform records
-    const potentials = response.data.map(transformToClientListItem);
+    const results = response.data.map(transformToClientListItem);
 
-    console.log(`[Potentials List] Successfully fetched ${potentials.length} records`);
+    console.log(`[Search] Found ${results.length} results for: "${searchQuery}"`);
 
     // Return success response
     return res.status(200).json({
       success: true,
-      potentials,
-      total: response.info?.count || potentials.length,
+      results,
+      total: response.info?.count || results.length,
+      query: searchQuery,
       page: parseInt(page),
-      per_page: parseInt(per_page),
-      more_records: response.info?.more_records || false
+      per_page: parseInt(per_page)
     });
 
   } catch (error) {
-    console.error('[Potentials List] Error:', error);
+    console.error('[Search] Error:', error);
+
+    // Zoho search API returns 204 when no results found
+    if (error.message.includes('204')) {
+      return res.status(200).json({
+        success: true,
+        results: [],
+        total: 0,
+        query: req.query.q || req.query.query
+      });
+    }
+
+    // Handle other errors
+    if (error.message.includes('401')) {
+      return res.status(401).json({
+        success: false,
+        error: 'Authentication failed',
+        message: 'Please check Zoho credentials'
+      });
+    }
+
+    if (error.message.includes('INVALID_REQUEST')) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid search query',
+        message: error.message
+      });
+    }
 
     return res.status(500).json({
       success: false,
-      error: 'Failed to fetch potentials list',
+      error: 'Failed to search potentials',
       message: error.message,
       details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });

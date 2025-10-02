@@ -2,7 +2,7 @@
 // Returns full client data including all phases (Discovery, Phase2, Phase3)
 // Used when loading a specific client into the application
 
-import { zohoAPI } from './service.js';
+import { zohoAPI } from '../../service.js';
 
 /**
  * Parse JSON field safely

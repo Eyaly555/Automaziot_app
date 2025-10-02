@@ -2,7 +2,7 @@
 // Syncs complete meeting data to Zoho (create or update)
 // Handles compression for large JSON fields
 
-import { zohoAPI } from './service.js';
+import { zohoAPI } from '../service.js';
 
 /**
  * Compress JSON data if it exceeds Zoho's field limit

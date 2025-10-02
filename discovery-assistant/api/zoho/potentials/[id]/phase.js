@@ -2,7 +2,7 @@
 // Quick update for phase transitions
 // Lightweight endpoint for updating phase/status without full sync
 
-import { zohoAPI } from './service.js';
+import { zohoAPI } from '../../service.js';
 
 /**
  * Validate phase value
