@@ -11,6 +11,7 @@ import {
   RadioGroup
 } from '../../Common/FormFields';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
+import { PhaseReadOnlyBanner } from '../../Common/PhaseReadOnlyBanner';
 import { Alert, Report, KPI } from '../../../types';
 
 export const ReportingModule: React.FC = () => {
@@ -144,6 +145,9 @@ export const ReportingModule: React.FC = () => {
 
       {/* Content */}
       <div className="container mx-auto px-4 py-6 max-w-4xl">
+        {/* Phase Read-Only Banner */}
+        <PhaseReadOnlyBanner moduleName="דוחות והתראות" />
+
         <div className="space-y-4">
           {/* 5.1 Real-Time Alerts */}
           <Card>
@@ -166,7 +170,8 @@ export const ReportingModule: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium mb-3">התראות מוגדרות</label>
                   <div className="space-y-2 mb-4">
-                    {alerts.map((alert, index) => (
+                    {/* Defensive check: Ensure alerts is an array before mapping */}
+                    {Array.isArray(alerts) && alerts.map((alert, index) => (
                       <div key={index} className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg">
                         <Bell className="w-4 h-4 text-orange-500" />
                         <span className="font-medium">{alert.type}</span>
@@ -281,7 +286,8 @@ export const ReportingModule: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium mb-3">דוחות קיימים</label>
                   <div className="space-y-2 mb-4">
-                    {reports.map((report, index) => (
+                    {/* Defensive check: Ensure reports is an array before mapping */}
+                    {Array.isArray(reports) && reports.map((report, index) => (
                       <div key={index} className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
                         <FileText className="w-4 h-4 text-blue-500" />
                         <span className="font-medium">{report.name}</span>
@@ -388,7 +394,8 @@ export const ReportingModule: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium mb-3">5 KPIs מרכזיים</label>
                   <div className="space-y-2 mb-4">
-                    {kpis.map((kpi, index) => (
+                    {/* Defensive check: Ensure kpis is an array before mapping */}
+                    {Array.isArray(kpis) && kpis.map((kpi, index) => (
                       <div key={index} className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                         <span className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
                           {index + 1}

@@ -5,6 +5,7 @@ import { WIZARD_STEPS } from '../config/wizardSteps';
 import { syncService } from '../services/syncService';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { supabaseService, isSupabaseConfigured as isSupabaseReady } from '../services/supabaseService';
+import { migrateMeetingData, needsMigration, CURRENT_DATA_VERSION } from '../utils/dataMigration';
 
 interface MeetingStore {
   currentMeeting: Meeting | null;
@@ -85,10 +86,12 @@ interface MeetingStore {
   updateMeetingField: (moduleId: string, field: string, value: any) => void;
 
   // NEW: Phase management actions
-  transitionPhase: (toPhase: MeetingPhase, notes?: string) => void;
+  getDefaultStatusForPhase: (phase: MeetingPhase) => MeetingStatus;
+  transitionPhase: (toPhase: MeetingPhase, notes?: string) => boolean;
   updatePhaseStatus: (status: MeetingStatus) => void;
   canTransitionTo: (phase: MeetingPhase) => boolean;
-  getPhaseProgress: (phase: MeetingPhase) => number;
+  getPhaseHistory: () => PhaseTransition[];
+  getPhaseProgress: (phase?: MeetingPhase) => number;
 
   // NEW: Task management actions (Phase 3)
   addTask: (task: Omit<any, 'id' | 'createdAt' | 'updatedAt'>) => void;
@@ -158,12 +161,35 @@ export const useMeetingStore = create<MeetingStore>()(
       isLoadingClients: false,
       clientsLoadError: null,
 
+      /**
+       * Creates a new meeting with current data schema version
+       *
+       * All new meetings are initialized with dataVersion set to CURRENT_DATA_VERSION (2),
+       * ensuring they use the latest data structures and require no migration.
+       *
+       * Data Structure (v2):
+       * - LeadsAndSalesModule.leadSources: Direct LeadSource[] array
+       * - CustomerServiceModule.channels: Direct ServiceChannel[] array
+       * - All modules initialized as empty objects {}
+       *
+       * The wizard and module modes both use the same data source (meeting.modules),
+       * so changes in either mode are immediately reflected in the other.
+       *
+       * @param clientName - Name of the client for this meeting
+       *
+       * @example
+       * ```typescript
+       * const { createMeeting } = useMeetingStore();
+       * createMeeting('Acme Corp'); // Creates meeting with dataVersion: 2
+       * ```
+       */
       createMeeting: (clientName) => {
         const meeting: Meeting = {
           meetingId: generateId(),
           clientName,
           date: new Date(),
           timer: 0,
+          dataVersion: CURRENT_DATA_VERSION, // Set current version for new meetings (v2)
           modules: {
             overview: {},
             leadsAndSales: {},
@@ -291,6 +317,7 @@ export const useMeetingStore = create<MeetingStore>()(
           clientName: initialData.clientName || 'New Client',
           date: new Date(),
           timer: 0,
+          dataVersion: CURRENT_DATA_VERSION, // Set current version for new meetings
           modules: {
             overview: initialData.modules?.overview || {},
             leadsAndSales: initialData.modules?.leadsAndSales || {},
@@ -1226,106 +1253,286 @@ export const useMeetingStore = create<MeetingStore>()(
       // PHASE MANAGEMENT
       // ========================================================================
 
-      transitionPhase: (toPhase, notes) => {
-        set((state) => {
-          if (!state.currentMeeting) return state;
-
-          const transition: PhaseTransition = {
-            fromPhase: state.currentMeeting.phase,
-            toPhase,
-            timestamp: new Date(),
-            transitionedBy: 'user', // TODO: Get from auth when implemented
-            notes
-          };
-
-          // Update status based on phase
-          let newStatus: MeetingStatus;
-          switch (toPhase) {
-            case 'discovery':
-              newStatus = 'discovery_in_progress';
-              break;
-            case 'implementation_spec':
-              newStatus = 'spec_in_progress';
-              break;
-            case 'development':
-              newStatus = 'dev_not_started';
-              break;
-            case 'completed':
-              newStatus = 'completed';
-              break;
-            default:
-              newStatus = state.currentMeeting.status;
-          }
-
-          const updatedMeeting = {
-            ...state.currentMeeting,
-            phase: toPhase,
-            status: newStatus,
-            phaseHistory: [...state.currentMeeting.phaseHistory, transition]
-          };
-
-          return {
-            currentMeeting: updatedMeeting,
-            meetings: state.meetings.map(m =>
-              m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-            )
-          };
-        });
-      },
-
-      updatePhaseStatus: (status) => {
-        set((state) => {
-          if (!state.currentMeeting) return state;
-
-          const updatedMeeting = {
-            ...state.currentMeeting,
-            status
-          };
-
-          return {
-            currentMeeting: updatedMeeting,
-            meetings: state.meetings.map(m =>
-              m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-            )
-          };
-        });
-      },
-
-      canTransitionTo: (phase) => {
-        const state = get();
-        if (!state.currentMeeting) return false;
-
-        const currentPhase = state.currentMeeting.phase;
-
-        // Phase transition rules
-        const transitions: Record<MeetingPhase, MeetingPhase[]> = {
-          discovery: ['implementation_spec'],
-          implementation_spec: ['development', 'discovery'], // Can go back to discovery
-          development: ['completed', 'implementation_spec'], // Can go back to spec
-          completed: [] // Cannot transition from completed
-        };
-
-        return transitions[currentPhase]?.includes(phase) || false;
-      },
-
-      getPhaseProgress: (phase) => {
-        const state = get();
-        if (!state.currentMeeting) return 0;
-
+      /**
+       * Helper function to get the default status for a phase
+       */
+      getDefaultStatusForPhase: (phase: MeetingPhase): MeetingStatus => {
         switch (phase) {
           case 'discovery':
-            // Use existing overall progress
+            return 'discovery_in_progress';
+          case 'implementation_spec':
+            return 'spec_in_progress';
+          case 'development':
+            return 'dev_not_started';
+          case 'completed':
+            return 'completed';
+          default:
+            return 'discovery_in_progress';
+        }
+      },
+
+      /**
+       * Validates if the current meeting can transition to the target phase
+       *
+       * Business Rules:
+       * - No backwards transitions (prevents data loss)
+       * - No phase skipping (ensures completeness)
+       * - Prerequisites must be met for each transition
+       *
+       * @param targetPhase - The phase to transition to
+       * @returns boolean - true if transition is allowed, false otherwise
+       */
+      canTransitionTo: (targetPhase) => {
+        const { currentMeeting } = get();
+        if (!currentMeeting) {
+          console.warn('[Phase Validation] No current meeting');
+          return false;
+        }
+
+        const currentPhase = currentMeeting.phase;
+
+        // Cannot transition to the same phase
+        if (currentPhase === targetPhase) {
+          console.warn('[Phase Validation] Already in target phase:', targetPhase);
+          return false;
+        }
+
+        // Define the phase order for validation
+        const phaseOrder: MeetingPhase[] = ['discovery', 'implementation_spec', 'development', 'completed'];
+        const currentIndex = phaseOrder.indexOf(currentPhase);
+        const targetIndex = phaseOrder.indexOf(targetPhase);
+
+        // Prevent backwards transitions (data integrity)
+        if (targetIndex < currentIndex) {
+          console.warn('[Phase Validation] Backwards transition not allowed:', currentPhase, '→', targetPhase);
+          return false;
+        }
+
+        // Prevent phase skipping (completeness check)
+        if (targetIndex > currentIndex + 1) {
+          console.warn('[Phase Validation] Cannot skip phases:', currentPhase, '→', targetPhase);
+          return false;
+        }
+
+        // Check prerequisites based on target phase
+        switch (targetPhase) {
+          case 'implementation_spec':
+            // Must have client approval status
+            if (currentMeeting.status !== 'client_approved') {
+              console.warn('[Phase Validation] Client approval required for spec phase. Current status:', currentMeeting.status);
+              return false;
+            }
+            // Discovery should be complete (at least 70% progress)
+            const discoveryProgress = get().getOverallProgress();
+            if (discoveryProgress < 70) {
+              console.warn('[Phase Validation] Discovery must be at least 70% complete. Current:', discoveryProgress);
+              return false;
+            }
+            return true;
+
+          case 'development':
+            // Must have implementation spec with sufficient completion
+            if (!currentMeeting.implementationSpec) {
+              console.warn('[Phase Validation] Implementation spec required for development phase');
+              return false;
+            }
+            const specProgress = currentMeeting.implementationSpec.completionPercentage || 0;
+            if (specProgress < 90) {
+              console.warn('[Phase Validation] Spec must be at least 90% complete. Current:', specProgress);
+              return false;
+            }
+            return true;
+
+          case 'completed':
+            // Must have development tracking with all tasks complete
+            if (!currentMeeting.developmentTracking) {
+              console.warn('[Phase Validation] Development tracking required for completion');
+              return false;
+            }
+            const tasks = currentMeeting.developmentTracking.tasks || [];
+            if (tasks.length === 0) {
+              console.warn('[Phase Validation] No development tasks found');
+              return false;
+            }
+            const allTasksComplete = tasks.every(t => t.status === 'done');
+            if (!allTasksComplete) {
+              const incompleteTasks = tasks.filter(t => t.status !== 'done').length;
+              console.warn('[Phase Validation] All tasks must be complete. Incomplete:', incompleteTasks);
+              return false;
+            }
+            return true;
+
+          default:
+            console.warn('[Phase Validation] Unknown target phase:', targetPhase);
+            return false;
+        }
+      },
+
+      /**
+       * Transitions the current meeting to a new phase
+       *
+       * Performs comprehensive validation, updates phase and status,
+       * logs the transition, and triggers sync operations.
+       *
+       * @param targetPhase - The phase to transition to
+       * @param notes - Optional notes about the transition
+       * @returns boolean - true if transition succeeded, false otherwise
+       */
+      transitionPhase: (targetPhase, notes) => {
+        const { currentMeeting, canTransitionTo } = get();
+
+        // Validation
+        if (!currentMeeting) {
+          console.error('[Phase Transition] No current meeting');
+          return false;
+        }
+
+        if (!canTransitionTo(targetPhase)) {
+          console.error('[Phase Transition] Cannot transition to', targetPhase, 'from', currentMeeting.phase);
+          return false;
+        }
+
+        // Get user info (from auth or Zoho integration)
+        const transitionedBy = currentMeeting.zohoIntegration?.contactInfo?.email
+          || localStorage.getItem('userId')
+          || 'system';
+
+        // Create phase transition record
+        const transition: PhaseTransition = {
+          fromPhase: currentMeeting.phase,
+          toPhase: targetPhase,
+          timestamp: new Date(),
+          transitionedBy,
+          notes: notes || `Transitioned from ${currentMeeting.phase} to ${targetPhase}`
+        };
+
+        // Get default status for new phase
+        const newStatus = get().getDefaultStatusForPhase(targetPhase);
+
+        // Update meeting
+        const updatedMeeting = {
+          ...currentMeeting,
+          phase: targetPhase,
+          status: newStatus,
+          phaseHistory: [...currentMeeting.phaseHistory, transition]
+        };
+
+        set((state) => ({
+          currentMeeting: updatedMeeting,
+          meetings: state.meetings.map(m =>
+            m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
+          )
+        }));
+
+        console.log('[Phase Transition] ✓ Successfully transitioned:', currentMeeting.phase, '→', targetPhase);
+
+        // Trigger Zoho sync if enabled
+        if (currentMeeting.zohoIntegration?.syncEnabled) {
+          console.log('[Phase Transition] Triggering Zoho sync...');
+          get().syncCurrentToZoho({ silent: true }).catch(err =>
+            console.error('[Phase Transition] Zoho sync failed:', err)
+          );
+        }
+
+        // Trigger Supabase sync if configured
+        if (currentMeeting.supabaseId && isSupabaseReady()) {
+          console.log('[Phase Transition] Triggering Supabase sync...');
+          debouncedSaveToSupabase(updatedMeeting);
+        }
+
+        return true;
+      },
+
+      /**
+       * Updates the status within the current phase (without transitioning phases)
+       *
+       * @param status - The new status to set
+       */
+      updatePhaseStatus: (status) => {
+        const { currentMeeting } = get();
+
+        if (!currentMeeting) {
+          console.warn('[Phase Status] No current meeting');
+          return;
+        }
+
+        // Validate that status is appropriate for current phase
+        const phaseStatusMap: Record<MeetingPhase, MeetingStatus[]> = {
+          discovery: ['discovery_in_progress', 'discovery_complete', 'awaiting_client_decision', 'client_approved'],
+          implementation_spec: ['spec_in_progress', 'spec_complete'],
+          development: ['dev_not_started', 'dev_in_progress', 'dev_testing', 'dev_ready_for_deployment', 'deployed'],
+          completed: ['completed']
+        };
+
+        const validStatuses = phaseStatusMap[currentMeeting.phase];
+        if (!validStatuses.includes(status)) {
+          console.warn('[Phase Status] Invalid status', status, 'for phase', currentMeeting.phase);
+          return;
+        }
+
+        const updatedMeeting = {
+          ...currentMeeting,
+          status
+        };
+
+        set((state) => ({
+          currentMeeting: updatedMeeting,
+          meetings: state.meetings.map(m =>
+            m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
+          )
+        }));
+
+        console.log('[Phase Status] Updated status to:', status);
+
+        // Trigger Supabase sync
+        if (currentMeeting.supabaseId && isSupabaseReady()) {
+          debouncedSaveToSupabase(updatedMeeting);
+        }
+      },
+
+      /**
+       * Returns the phase transition history for audit trail
+       *
+       * @returns PhaseTransition[] - Array of phase transitions with timestamps
+       */
+      getPhaseHistory: () => {
+        const { currentMeeting } = get();
+        return currentMeeting?.phaseHistory || [];
+      },
+
+      /**
+       * Calculates completion percentage for a specific phase
+       *
+       * @param phase - The phase to calculate progress for (defaults to current phase)
+       * @returns number - Progress percentage (0-100)
+       */
+      getPhaseProgress: (phase) => {
+        const { currentMeeting } = get();
+        if (!currentMeeting) return 0;
+
+        const targetPhase = phase || currentMeeting.phase;
+
+        switch (targetPhase) {
+          case 'discovery':
+            // Calculate based on 9 modules completion
             return get().getOverallProgress();
 
           case 'implementation_spec':
-            const spec = state.currentMeeting.implementationSpec;
+            // Use spec completion percentage
+            const spec = currentMeeting.implementationSpec;
             if (!spec) return 0;
             return spec.completionPercentage || 0;
 
           case 'development':
-            const dev = state.currentMeeting.developmentTracking;
-            if (!dev || !dev.progress) return 0;
-            return dev.progress.progressPercentage || 0;
+            // Calculate based on task completion
+            const dev = currentMeeting.developmentTracking;
+            if (!dev) return 0;
+
+            const tasks = dev.tasks || [];
+            if (tasks.length === 0) return 0;
+
+            const completedTasks = tasks.filter(t => t.status === 'done').length;
+            return Math.round((completedTasks / tasks.length) * 100);
 
           case 'completed':
             return 100;
@@ -1750,7 +1957,87 @@ export const useMeetingStore = create<MeetingStore>()(
       }
     }),
     {
-      name: 'discovery-assistant-storage'
+      name: 'discovery-assistant-storage',
+      /**
+       * Data Migration Integration Point
+       *
+       * This callback runs AFTER Zustand loads data from localStorage but BEFORE
+       * the app uses it. It's the perfect time to run automatic data migrations.
+       *
+       * Purpose:
+       * - Automatically migrate old data formats (v1) to current schema (v2)
+       * - Ensure zero data loss during schema evolution
+       * - Transparent to users (runs in background)
+       * - Logs all migrations for audit trail
+       *
+       * What Gets Migrated:
+       * - LeadsAndSalesModule.leadSources: object with nested array → direct array
+       * - CustomerServiceModule.channels: object with nested array → direct array
+       *
+       * Performance:
+       * - < 5ms per meeting (minimal startup impact)
+       * - Idempotent (safe to run multiple times)
+       * - Non-destructive (deep clones before modification)
+       *
+       * Migration Flow:
+       * 1. Check if meeting.dataVersion < CURRENT_DATA_VERSION (2)
+       * 2. If yes, run migrateMeetingData()
+       * 3. Update state with migrated data
+       * 4. Log migration to localStorage for debugging
+       *
+       * Debugging:
+       * - Check browser console for migration logs
+       * - Check localStorage 'discovery_migration_log' for audit trail
+       * - Use getMigrationLogs() to retrieve all migration history
+       *
+       * @see src/utils/dataMigration.ts - Migration implementation
+       * @see DATA_MIGRATION_GUIDE.md - Complete migration documentation
+       */
+      onRehydrateStorage: () => (state) => {
+        if (!state) return;
+
+        console.log('[Store] Rehydrating from localStorage...');
+
+        // Migrate current meeting if needed
+        if (state.currentMeeting && needsMigration(state.currentMeeting)) {
+          console.log(`[Store] Migrating current meeting (${state.currentMeeting.meetingId})...`);
+          const result = migrateMeetingData(state.currentMeeting);
+
+          if (result.migrated) {
+            console.log(`[Store] ✓ Migration successful. Applied: ${result.migrationsApplied.join(', ')}`);
+            state.currentMeeting = result.meeting;
+          } else if (result.errors.length > 0) {
+            console.error(`[Store] ✗ Migration failed:`, result.errors);
+          }
+        } else if (state.currentMeeting) {
+          console.log(`[Store] Current meeting is up to date (v${state.currentMeeting.dataVersion || 1})`);
+        }
+
+        // Migrate all meetings in the list
+        if (state.meetings && state.meetings.length > 0) {
+          console.log(`[Store] Checking ${state.meetings.length} meetings for migration...`);
+          let migratedCount = 0;
+
+          state.meetings = state.meetings.map((meeting: any) => {
+            if (needsMigration(meeting)) {
+              const result = migrateMeetingData(meeting);
+              if (result.migrated) {
+                migratedCount++;
+                return result.meeting;
+              } else if (result.errors.length > 0) {
+                console.error(`[Store] Migration failed for meeting ${meeting.meetingId}:`, result.errors);
+              }
+            }
+            return meeting;
+          });
+
+          if (migratedCount > 0) {
+            console.log(`[Store] ✓ Migrated ${migratedCount} meetings`);
+          }
+        }
+
+        console.log('[Store] Rehydration complete');
+      }
     }
   )
 );

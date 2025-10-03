@@ -13,6 +13,7 @@ import {
   TextAreaField
 } from '../../Common/FormFields';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
+import { PhaseReadOnlyBanner } from '../../Common/PhaseReadOnlyBanner';
 import { LeadSource } from '../../../types';
 
 const channelOptions = [
@@ -40,18 +41,21 @@ export const LeadsAndSalesModule: React.FC = () => {
   const [expandedSections, setExpandedSections] = useState<string[]>(['leadSources']);
   const [tooltipVisible, setTooltipVisible] = useState<string | null>(null);
 
-  // 2.1 Lead Sources - Enhanced
+  // 2.1 Lead Sources - Direct array format (migrated in v2)
+  // Data migration handled by dataMigration.ts on load
   const [leadSources, setLeadSources] = useState<LeadSource[]>(moduleData.leadSources || []);
   const [newSource, setNewSource] = useState({ channel: '', volumePerMonth: 0, quality: 3 });
   const [customChannel, setCustomChannel] = useState('');
-  const [centralSystem, setCentralSystem] = useState(moduleData.leadSources?.centralSystem || '');
-  const [commonIssues, setCommonIssues] = useState<string[]>(moduleData.leadSources?.commonIssues || []);
-  const [missingOpportunities, setMissingOpportunities] = useState(moduleData.leadSources?.missingOpportunities || '');
-  const [fallingLeadsPerMonth, setFallingLeadsPerMonth] = useState(moduleData.leadSources?.fallingLeadsPerMonth || 0);
-  const [duplicatesFrequency, setDuplicatesFrequency] = useState(moduleData.leadSources?.duplicatesFrequency || '');
-  const [missingInfoPercent, setMissingInfoPercent] = useState(moduleData.leadSources?.missingInfoPercent || 0);
-  const [timeToProcessLead, setTimeToProcessLead] = useState(moduleData.leadSources?.timeToProcessLead || 0);
-  const [costPerLostLead, setCostPerLostLead] = useState(moduleData.leadSources?.costPerLostLead || 0);
+
+  // Top-level properties (moved from nested object in v2 migration)
+  const [centralSystem, setCentralSystem] = useState(moduleData.centralSystem || '');
+  const [commonIssues, setCommonIssues] = useState<string[]>(moduleData.commonIssues || []);
+  const [missingOpportunities, setMissingOpportunities] = useState(moduleData.missingOpportunities || '');
+  const [fallingLeadsPerMonth, setFallingLeadsPerMonth] = useState(moduleData.fallingLeadsPerMonth || 0);
+  const [duplicatesFrequency, setDuplicatesFrequency] = useState(moduleData.duplicatesFrequency || '');
+  const [missingInfoPercent, setMissingInfoPercent] = useState(moduleData.missingInfoPercent || 0);
+  const [timeToProcessLead, setTimeToProcessLead] = useState(moduleData.timeToProcessLead || 0);
+  const [costPerLostLead, setCostPerLostLead] = useState(moduleData.costPerLostLead || 0);
 
   // 2.2 Speed to Lead - Enhanced
   const [responseTime, setResponseTime] = useState(moduleData.speedToLead?.duringBusinessHours || '');
@@ -104,17 +108,16 @@ export const LeadsAndSalesModule: React.FC = () => {
 
     const timer = setTimeout(() => {
       updateModule('leadsAndSales', {
-        leadSources: {
-          sources: leadSources,
-          centralSystem,
-          commonIssues,
-          missingOpportunities,
-          fallingLeadsPerMonth,
-          duplicatesFrequency,
-          missingInfoPercent,
-          timeToProcessLead,
-          costPerLostLead
-        },
+        // Direct array format (v2 structure)
+        leadSources,
+        centralSystem,
+        commonIssues,
+        missingOpportunities,
+        fallingLeadsPerMonth,
+        duplicatesFrequency,
+        missingInfoPercent,
+        timeToProcessLead,
+        costPerLostLead,
         speedToLead: {
           duringBusinessHours: responseTime,
           responseTimeUnit,
@@ -200,6 +203,12 @@ export const LeadsAndSalesModule: React.FC = () => {
   };
 
   const handleRemoveLeadSource = (index: number) => {
+    // DEFENSIVE: Verify leadSources is an array before filtering
+    if (!Array.isArray(leadSources)) {
+      console.error('Cannot remove lead source: leadSources is not an array', leadSources);
+      setLeadSources([]);
+      return;
+    }
     setLeadSources(leadSources.filter((_, i) => i !== index));
   };
 
@@ -219,6 +228,15 @@ export const LeadsAndSalesModule: React.FC = () => {
     if (dropOffRate > 20) score += 20;
     if (!hasNurturing) score += 10;
     return Math.min(score, 100);
+  };
+
+  // DEFENSIVE: Calculate total lead volume safely
+  const calculateTotalLeadVolume = (): number => {
+    if (!Array.isArray(leadSources)) {
+      console.warn('leadSources is not an array, returning 0 for total volume');
+      return 0;
+    }
+    return leadSources.reduce((sum, source) => sum + (source.volumePerMonth || 0), 0);
   };
 
   return (
@@ -260,6 +278,9 @@ export const LeadsAndSalesModule: React.FC = () => {
 
       {/* Content with Animations */}
       <div className="container mx-auto px-4 py-6 max-w-4xl">
+        {/* Phase Read-Only Banner */}
+        <PhaseReadOnlyBanner moduleName="לידים ומכירות" />
+
         <div className="space-y-4">
           {/* 2.1 Lead Sources - Fully Enhanced */}
           <Card className="transform transition-all duration-300 hover:shadow-xl">
@@ -298,7 +319,8 @@ export const LeadsAndSalesModule: React.FC = () => {
                     </div>
                   </label>
                   <div className="space-y-3">
-                    {leadSources.map((source, index) => (
+                    {/* DEFENSIVE: Verify leadSources is array before mapping */}
+                    {Array.isArray(leadSources) && leadSources.map((source, index) => (
                       <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                         <span className="font-medium min-w-[100px]">
                           {channelOptions.find(o => o.value === source.channel)?.label || source.channel}
@@ -506,7 +528,8 @@ export const LeadsAndSalesModule: React.FC = () => {
                       הזדמנות לאוטומציה
                     </div>
                     <p className="text-sm text-green-700 mt-1">
-                      אוטומציה של קליטת לידים יכולה לחסוך {timeToProcessLead * leadSources.reduce((sum, s) => sum + s.volumePerMonth, 0) / 60} שעות בחודש
+                      {/* DEFENSIVE: Use safe calculation helper */}
+                      אוטומציה של קליטת לידים יכולה לחסוך {Math.round(timeToProcessLead * calculateTotalLeadVolume() / 60)} שעות בחודש
                     </p>
                   </div>
                 )}

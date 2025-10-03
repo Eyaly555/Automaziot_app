@@ -232,91 +232,49 @@ const analyzeOperationsModule = (meeting: Meeting, suggestions: SuggestionContex
   const ops = meeting.modules?.operations;
   if (!ops) return;
 
-  // 1. If has multiple systems without sync → suggest integration
-  const systems = ops.systemSync?.systems || [];
-  const hasManualTransfer = ops.systemSync?.dataTransferMethod === 'manual';
-  const manualWorkHours = ops.systemSync?.manualWork || 0;
-
-  if (systems.length >= 2 && (hasManualTransfer || manualWorkHours >= 3)) {
-    if (systems.length <= 3) {
-      addSuggestion(suggestions, 'auto-system-sync', {
-        reason: `${systems.length} systems with manual data transfer (${manualWorkHours}h/week) - integration will save 90%`,
-        reasonHe: `${systems.length} מערכות עם העברה ידנית (${manualWorkHours}שעות/שבוע) - אינטגרציה תחסוך 90%`,
-        relevanceScore: 10,
-        dataSource: ['operations.systemSync'],
-        relatedData: { systems: systems.length, hoursPerWeek: manualWorkHours }
-      });
-    } else {
-      addSuggestion(suggestions, 'auto-multi-system', {
-        reason: `${systems.length} systems need integration - save ${manualWorkHours} hours/week`,
-        reasonHe: `${systems.length} מערכות צריכות אינטגרציה - חיסכון ${manualWorkHours} שעות/שבוע`,
-        relevanceScore: 10,
-        dataSource: ['operations.systemSync'],
-        relatedData: { systems: systems.length, hoursPerWeek: manualWorkHours }
-      });
-    }
-  }
+  // DEPRECATED: systemSync property removed in OperationsModule v2
+  // Lines 236-257 removed - old code checked ops.systemSync for system integration needs
+  // Future: Could analyze workProcesses or projectManagement for integration opportunities
 
   // 2. If has document management needs → suggest automation
-  const docTypes = ops.documentManagement?.documentTypes || [];
-  const totalDocVolume = docTypes.reduce((sum, doc) => sum + (doc.volumePerMonth || 0), 0);
-  const totalDocTime = docTypes.reduce((sum, doc) =>
-    sum + ((doc.volumePerMonth || 0) * (doc.timePerDocument || 0)), 0);
+  const docFlows = ops.documentManagement?.flows || [];
+  const totalDocVolume = docFlows.reduce((sum, flow) => sum + (flow.volumePerMonth || 0), 0);
 
-  if (totalDocVolume >= 50 || totalDocTime >= 20) {
+  if (totalDocVolume >= 50) {
     addSuggestion(suggestions, 'auto-document-mgmt', {
-      reason: `${totalDocVolume} documents/month taking ${Math.round(totalDocTime)} hours - automation will save 70%`,
-      reasonHe: `${totalDocVolume} מסמכים/חודש לוקחים ${Math.round(totalDocTime)} שעות - אוטומציה תחסוך 70%`,
+      reason: `${totalDocVolume} document flows/month - automation will save 70%`,
+      reasonHe: `${totalDocVolume} זרימות מסמכים/חודש - אוטומציה תחסוך 70%`,
       relevanceScore: 8,
       dataSource: ['operations.documentManagement'],
-      relatedData: { volume: totalDocVolume, hours: totalDocTime }
+      relatedData: { volume: totalDocVolume }
     });
   }
 
-  // 3. If has project management bottlenecks → suggest automation
-  const bottlenecks = ops.projectManagement?.bottlenecks || [];
-  if (bottlenecks.length >= 2) {
+  // 3. If has project management issues → suggest automation
+  const projectIssues = ops.projectManagement?.issues || [];
+  if (projectIssues.length >= 2) {
     addSuggestion(suggestions, 'auto-project-mgmt', {
-      reason: `${bottlenecks.length} project management bottlenecks identified - automation will streamline`,
-      reasonHe: `${bottlenecks.length} צווארי בקבוק בניהול פרויקטים - אוטומציה תייעל`,
+      reason: `${projectIssues.length} project management issues identified - automation will streamline`,
+      reasonHe: `${projectIssues.length} בעיות בניהול פרויקטים - אוטומציה תייעל`,
       relevanceScore: 7,
       dataSource: ['operations.projectManagement'],
-      relatedData: { bottlenecks: bottlenecks.length }
+      relatedData: { issues: projectIssues.length }
     });
   }
 
-  // 4. If has financial process issues → suggest automation
-  const invoicing = ops.financialProcesses?.invoicing;
-  const invoiceVolume = invoicing?.volumePerMonth || 0;
-  const invoiceTime = invoicing?.avgTimePerInvoice || 0;
-  if (invoiceVolume >= 20 || (invoiceVolume * invoiceTime >= 10)) {
-    addSuggestion(suggestions, 'auto-financial', {
-      reason: `${invoiceVolume} invoices/month - automation will save ${Math.round(invoiceVolume * invoiceTime * 0.7)} hours/month`,
-      reasonHe: `${invoiceVolume} חשבוניות/חודש - אוטומציה תחסוך ${Math.round(invoiceVolume * invoiceTime * 0.7)} שעות/חודש`,
-      relevanceScore: 8,
-      dataSource: ['operations.financialProcesses'],
-      relatedData: { volume: invoiceVolume, timePerInvoice: invoiceTime }
-    });
-  }
+  // DEPRECATED: financialProcesses.invoicing removed in OperationsModule v2
+  // Lines 289-299 removed - old code checked invoicing volume and time
+  // Future: Could check documentManagement.flows for invoice-related workflows
 
-  // 5. If has cross-department issues → suggest workflow automation
-  const transfers = ops.crossDepartment?.transfers || [];
-  const problematicTransfers = transfers.filter(t => t.status === 'problematic');
-  if (problematicTransfers.length >= 2) {
-    addSuggestion(suggestions, 'auto-cross-dept', {
-      reason: `${problematicTransfers.length} problematic department handoffs - automation will fix`,
-      reasonHe: `${problematicTransfers.length} העברות בעייתיות בין מחלקות - אוטומציה תפתור`,
-      relevanceScore: 9,
-      dataSource: ['operations.crossDepartment'],
-      relatedData: { problematic: problematicTransfers.length }
-    });
-  }
+  // DEPRECATED: crossDepartment property removed in OperationsModule v2
+  // Lines 303-312 removed - old code checked transfers for problematic handoffs
+  // Future: Could analyze workProcesses for cross-department workflow issues
 
   // 6. If has approval processes → automate them
-  if (docTypes.length >= 3 || systems.length >= 2) {
+  if (docFlows.length >= 3) {
     addSuggestion(suggestions, 'auto-approval-workflow', {
-      reason: 'Multiple processes require approvals - automation will speed up by 80%',
-      reasonHe: 'תהליכים מרובים דורשים אישורים - אוטומציה תזרז ב-80%',
+      reason: 'Multiple document flows require approvals - automation will speed up by 80%',
+      reasonHe: 'זרימות מסמכים מרובות דורשות אישורים - אוטומציה תזרז ב-80%',
       relevanceScore: 7,
       dataSource: ['operations'],
       relatedData: {}

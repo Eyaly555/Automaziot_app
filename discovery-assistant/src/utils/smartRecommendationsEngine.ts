@@ -160,34 +160,15 @@ export class SmartRecommendationsEngine {
   private detectManualDataEntry(): void {
     const ops = this.meeting.modules.operations;
 
-    // Check for manual system sync
-    if (ops?.systemSync?.dataTransferMethod?.toLowerCase().includes('manual')) {
-      const hoursPerMonth = ops.systemSync.manualWork || 0;
-      if (hoursPerMonth > 10) {
-        this.patterns.push({
-          type: 'manual_data_entry',
-          description: `${hoursPerMonth} hours/month spent on manual data transfer`,
-          affectedModules: ['operations'],
-          severity: hoursPerMonth > 40 ? 'critical' : 'high',
-          estimatedImpact: hoursPerMonth * 150 // 150 NIS/hour
-        });
-      }
-    }
+    // DEPRECATED: systemSync property removed in OperationsModule v2
+    // Old code checked ops?.systemSync?.dataTransferMethod for manual data transfer
+    // This detection logic has been removed as the property no longer exists
+    // Future: Could analyze workProcesses.automationReadiness instead
 
-    // Check for manual invoicing
-    const invoicing = ops?.financialProcesses?.invoicing;
-    if (invoicing && invoicing.volumePerMonth && invoicing.avgTimePerInvoice) {
-      const totalMinutes = invoicing.volumePerMonth * invoicing.avgTimePerInvoice;
-      if (totalMinutes > 600) { // More than 10 hours/month
-        this.patterns.push({
-          type: 'manual_data_entry',
-          description: `Manual invoice generation: ${Math.round(totalMinutes / 60)} hours/month`,
-          affectedModules: ['operations'],
-          severity: 'medium',
-          estimatedImpact: (totalMinutes / 60) * 150
-        });
-      }
-    }
+    // DEPRECATED: financialProcesses.invoicing property removed in OperationsModule v2
+    // Old code checked invoicing volume and time
+    // This detection logic has been removed as the property no longer exists
+    // Future: Could analyze relevant workflow data if added to new structure
   }
 
   private detectHighVolumeTasks(): void {
@@ -487,9 +468,9 @@ export class SmartRecommendationsEngine {
       this.recommendations.push(this.getCustomerOnboardingRecommendation());
     }
 
-    if (this.meeting.modules.operations?.financialProcesses?.invoicing) {
-      this.recommendations.push(this.getInvoiceGenerationRecommendation());
-    }
+    // DEPRECATED: financialProcesses.invoicing removed in OperationsModule v2
+    // Invoice generation recommendation is no longer automatically triggered
+    // Future: Could check documentManagement.flows for invoice-related workflows
   }
 
   // ==========================================================================

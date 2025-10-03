@@ -219,25 +219,24 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
 
   // Calculate from Operations module
   if (modules?.operations) {
-    const { systemSync, documentManagement, projectManagement } = modules.operations;
+    const { workProcesses, documentManagement, projectManagement } = modules.operations;
 
-    // System sync manual work
-    if (systemSync?.manualWork) {
-      hoursSavedMonthly += systemSync.manualWork * 20; // Daily manual work * 20 working days
-    }
+    // DEPRECATED: systemSync.manualWork removed in OperationsModule v2
+    // Old code: hoursSavedMonthly += systemSync.manualWork * 20
+    // Future: Could use workProcesses.automationReadiness as a multiplier
 
-    // Document processing time
-    if (documentManagement?.documentTypes && Array.isArray(documentManagement.documentTypes)) {
-      const docTime = documentManagement.documentTypes.reduce(
-        (sum, doc) => sum + ((doc.volumePerMonth || 0) * (doc.timePerDocument || 0)),
+    // Document processing time - updated to use new structure
+    if (documentManagement?.flows && Array.isArray(documentManagement.flows)) {
+      const docTime = documentManagement.flows.reduce(
+        (sum, flow) => sum + (flow.volumePerMonth || 0) * 5, // Estimate 5 minutes per flow
         0
       );
       hoursSavedMonthly += docTime / 60 * 0.7; // 70% time saving
     }
 
-    // Project management inefficiencies
-    if (projectManagement?.bottlenecks && projectManagement.bottlenecks.length > 0) {
-      hoursSavedMonthly += projectManagement.bottlenecks.length * 10; // 10 hours per bottleneck
+    // Project management inefficiencies - updated to use issues instead of bottlenecks
+    if (projectManagement?.issues && projectManagement.issues.length > 0) {
+      hoursSavedMonthly += projectManagement.issues.length * 10; // 10 hours per issue
     }
   }
 

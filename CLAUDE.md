@@ -156,6 +156,201 @@ Optional persistent storage, authentication, and real-time collaboration:
 
 ## Key Concepts
 
+### Data Structure Unification (Wizard-Module Sync)
+
+The application features a sophisticated **two-tier architecture** for data collection that was unified in Sprint 1 (March 2025):
+
+#### Two Collection Modes, One Data Source
+
+1. **Wizard Mode** (`/wizard`): Guided step-by-step data collection
+   - Linear progression through 9 business modules
+   - Field-by-field validation and guidance
+   - Progress tracking with skip capability
+   - Ideal for first-time users
+   - Configured in [wizardSteps.ts](/src/config/wizardSteps.ts)
+
+2. **Module Mode** (`/dashboard`, `/module/*`): Direct module access
+   - Non-linear navigation
+   - Complete module views with all fields
+   - Expert-friendly interface
+   - Flexible data entry
+
+**Critical Principle**: Both modes read from and write to the **same underlying data structure**: `meeting.modules[moduleName]`
+
+This ensures:
+- Data entered in wizard appears immediately in modules
+- Module changes reflect in wizard progress
+- No data duplication or sync conflicts
+- Single source of truth for all module data
+
+#### Data Flow Pattern
+
+```
+User Input (Wizard or Module)
+         ↓
+updateModule('moduleName', data)
+         ↓
+meeting.modules[moduleName]  ← Single source of truth
+         ↓
+Auto-save to localStorage
+         ↓
+Optional sync to Supabase/Zoho
+```
+
+### Data Migration System
+
+The application includes an automatic data migration system that runs transparently on app load. This system handles schema evolution while ensuring **zero data loss**.
+
+#### Why Migration Matters
+
+As the application evolves, data structures change. The migration system:
+- Automatically detects old data formats
+- Converts them to current schema
+- Preserves all user data
+- Logs all migrations for audit trail
+- Handles edge cases gracefully
+
+#### Migration Architecture
+
+**Location**: [src/utils/dataMigration.ts](/src/utils/dataMigration.ts)
+
+**Integration Point**: [src/store/useMeetingStore.ts](/src/store/useMeetingStore.ts) - `onRehydrateStorage` callback
+
+**When It Runs**:
+- Automatically on app load (via Zustand rehydration)
+- Before any meeting data is used
+- Transparent to users
+
+**How It Works**:
+1. App loads → Zustand loads data from localStorage
+2. Migration check: `needsMigration(meeting)`
+3. If needed: `migrateMeetingData(meeting)` runs
+4. Updated data replaces old data in store
+5. Migration logged to localStorage
+6. App continues normally
+
+**Performance**: < 5ms per meeting, minimal startup impact
+
+#### Version History
+
+**v1 (Legacy - Pre-Sprint 1)**:
+```typescript
+// LeadsAndSales - OLD structure
+{
+  leadSources: {
+    sources: LeadSource[],      // Array nested in object
+    centralSystem?: string,
+    commonIssues?: string[]
+  }
+}
+
+// CustomerService - OLD structure
+{
+  channels: {
+    list: ServiceChannel[],     // Array nested in object
+    multiChannelIssue?: string,
+    unificationMethod?: string
+  }
+}
+```
+
+**v2 (Current - March 2025)**:
+```typescript
+// LeadsAndSales - NEW structure
+{
+  leadSources: LeadSource[],    // Direct array (flat)
+  centralSystem?: string,       // Top-level property
+  commonIssues?: string[],      // Top-level property
+  leadSourcesMetadata?: any     // Preserved legacy data
+}
+
+// CustomerService - NEW structure
+{
+  channels: ServiceChannel[],   // Direct array (flat)
+  multiChannelIssue?: string,   // Top-level property
+  unificationMethod?: string,   // Top-level property
+  channelsMetadata?: any        // Preserved legacy data
+}
+```
+
+**Benefits of v2**:
+- Better TypeScript type safety
+- Simpler component logic (no nested access)
+- Easier Array.isArray() checks
+- Consistent with wizard field structure
+- Aligns with other modules (Operations, Reporting, etc.)
+
+#### Migration Guarantees
+
+1. **Non-Destructive**: Original data deep-cloned before modification
+2. **Idempotent**: Safe to run multiple times
+3. **Error Handling**: Try-catch per module with detailed logging
+4. **Data Preservation**: Metadata saved to separate fields if present
+5. **Validation**: Post-migration checks ensure structure correctness
+6. **Audit Trail**: All migrations logged with timestamps
+
+#### Accessing Migration Logs
+
+Migration logs are stored in localStorage under `discovery_migration_log`:
+
+```typescript
+import { getMigrationLogs, generateMigrationReport } from './utils/dataMigration';
+
+// Get all logs
+const logs = getMigrationLogs();
+console.log(logs);
+
+// Get formatted report
+const report = generateMigrationReport();
+console.log(report);
+```
+
+#### Adding New Migrations (For Future Development)
+
+When adding v2→v3 migrations:
+
+1. Update version constant:
+   ```typescript
+   export const CURRENT_DATA_VERSION = 3;
+   ```
+
+2. Create migration function:
+   ```typescript
+   function migrateV2ToV3(result: MigrationResult): void {
+     // Your migration logic
+     if (/* migration successful */) {
+       result.migrationsApplied.push('migration_description');
+     }
+   }
+   ```
+
+3. Call in `migrateMeetingData`:
+   ```typescript
+   if (currentVersion < 3) {
+     migrateV2ToV3(result);
+   }
+   ```
+
+4. Update TypeScript interfaces in [src/types/index.ts](/src/types/index.ts)
+
+5. Write comprehensive tests in [src/utils/__tests__/dataMigration.test.ts](/src/utils/__tests__/dataMigration.test.ts)
+
+6. Update this documentation
+
+**Reference**: See [DATA_MIGRATION_GUIDE.md](/discovery-assistant/DATA_MIGRATION_GUIDE.md) for complete migration documentation
+
+### Data Format Versions
+
+The application tracks data versions in `meeting.dataVersion`:
+
+| Version | Date | Changes | Migration Function |
+|---------|------|---------|-------------------|
+| 1 | Legacy | Original nested object structures | N/A |
+| 2 | March 2025 | LeadsAndSales and CustomerService flattened to arrays | `migrateV1ToV2()` |
+| 3+ | Future | TBD | TBD |
+
+All new meetings created are automatically set to `dataVersion: 2` (current).
+
 ### Meeting Object Structure
 
 The `Meeting` type ([src/types/index.ts](/src/types/index.ts)) is the root data structure:
@@ -169,16 +364,19 @@ interface Meeting {
   notes?: string;
   totalROI?: number;
 
+  // Data migration tracking (v2 current)
+  dataVersion?: number; // Current: 2 (auto-migrated on load)
+
   // Phase tracking
   phase: MeetingPhase; // 'discovery' | 'implementation_spec' | 'development' | 'completed'
   status: MeetingStatus; // Detailed status like 'discovery_in_progress', 'client_approved', etc.
   phaseHistory: PhaseTransition[];
 
-  // Phase 1 - Discovery data
+  // Phase 1 - Discovery data (wizard-module unified source)
   modules: {
     overview: OverviewModule;
-    leadsAndSales: LeadsAndSalesModule;
-    customerService: CustomerServiceModule;
+    leadsAndSales: LeadsAndSalesModule;        // v2: leadSources is direct array
+    customerService: CustomerServiceModule;    // v2: channels is direct array
     operations: OperationsModule;
     reporting: ReportingModule;
     aiAgents: AIAgentsModule;
@@ -189,7 +387,7 @@ interface Meeting {
   };
   painPoints: PainPoint[];
   customFieldValues?: CustomFieldValues;
-  wizardState?: WizardState;
+  wizardState?: WizardState;                   // Wizard progress tracking
 
   // Phase 2 - Implementation Spec data (NOT phase2Data)
   implementationSpec?: {
@@ -222,7 +420,11 @@ interface Meeting {
 }
 ```
 
-**IMPORTANT**: The property names are `implementationSpec` and `developmentTracking`, NOT `phase2Data` or `phase3Data`.
+**IMPORTANT**:
+- Property names are `implementationSpec` and `developmentTracking`, NOT `phase2Data` or `phase3Data`
+- `dataVersion` tracks schema version (current: 2)
+- Migration runs automatically on app load via `onRehydrateStorage`
+- Both wizard and modules use the same `meeting.modules[moduleName]` data source
 
 ### Wizard System
 
@@ -470,11 +672,128 @@ Use standardized form components from [src/components/Common/FormFields/](/src/c
 
 ### Module Components
 
-Module components follow a pattern:
-- Located in [src/components/Modules/{ModuleName}/](/src/components/Modules/)
-- Accept optional module data prop
-- Use `updateModule` to save changes
-- Include pain point flagging capability
+Module components follow a consistent pattern with **defensive programming** for data migration compatibility:
+
+**Location**: [src/components/Modules/{ModuleName}/](/src/components/Modules/)
+
+**Standard Pattern**:
+```typescript
+export const ModuleNameModule: React.FC = () => {
+  const { currentMeeting, updateModule } = useMeetingStore();
+  const moduleData = currentMeeting?.modules?.moduleName || {};
+
+  // Initialize state with optional chaining and defaults
+  const [fieldArray, setFieldArray] = useState<Type[]>(
+    moduleData?.fieldArray || []
+  );
+
+  // Save changes to store
+  const handleSave = () => {
+    updateModule('moduleName', {
+      fieldArray,
+      otherField
+    });
+  };
+};
+```
+
+**Key Principles**:
+
+1. **Optional Chaining**: Always use `?.` when accessing nested properties
+   ```typescript
+   const data = currentMeeting?.modules?.leadsAndSales?.leadSources;
+   ```
+
+2. **Array.isArray() Checks**: Before using `.map()`, `.filter()`, etc.
+   ```typescript
+   if (Array.isArray(leadSources)) {
+     leadSources.map(source => { /* safe */ });
+   }
+   ```
+
+3. **Default Values**: Use `||` or `??` for safe defaults
+   ```typescript
+   const sources = moduleData?.leadSources || [];
+   const channels = moduleData?.channels ?? [];
+   ```
+
+4. **Initialization Helpers**: For complex initializations
+   ```typescript
+   // Example from LeadsAndSalesModule.tsx
+   function initializeLeadSources(data: any): LeadSource[] {
+     if (!data) return [];
+     if (Array.isArray(data)) return data;
+     if (data.sources && Array.isArray(data.sources)) return data.sources;
+     return [];
+   }
+   ```
+
+5. **Pain Point Flagging**: All modules include pain point capability
+   ```typescript
+   import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
+
+   <PainPointFlag
+     module="moduleName"
+     subModule="sectionName"
+     description="User-provided pain point description"
+   />
+   ```
+
+**Data Migration Compatibility**:
+
+Modules are designed to work with both v1 (legacy) and v2 (current) data formats:
+
+```typescript
+// This works for both formats:
+const leadSources = moduleData?.leadSources || [];
+
+// v1: moduleData.leadSources might be {sources: [...]}
+// v2: moduleData.leadSources is direct array [...]
+// Migration converts v1→v2 on load, but components are defensive
+```
+
+**Example: LeadsAndSalesModule**
+
+[src/components/Modules/LeadsAndSales/LeadsAndSalesModule.tsx](/src/components/Modules/LeadsAndSales/LeadsAndSalesModule.tsx):
+
+```typescript
+// Line 43-45: Direct array format (v2)
+const [leadSources, setLeadSources] = useState<LeadSource[]>(
+  moduleData.leadSources || []  // Handles undefined gracefully
+);
+
+// Line 50-57: Top-level properties (v2)
+const [centralSystem, setCentralSystem] = useState(moduleData.centralSystem || '');
+const [commonIssues, setCommonIssues] = useState<string[]>(moduleData.commonIssues || []);
+
+// Array.isArray() check before rendering
+{Array.isArray(leadSources) && leadSources.map(source => (
+  <div key={source.channel}>{source.channel}</div>
+))}
+```
+
+**Example: CustomerServiceModule**
+
+[src/components/Modules/CustomerService/CustomerServiceModule.tsx](/src/components/Modules/CustomerService/CustomerServiceModule.tsx):
+
+```typescript
+// Line 51-53: Direct array format (v2)
+const [channels, setChannels] = useState<ServiceChannel[]>(
+  moduleData?.channels || []  // Optional chaining + default
+);
+
+// Line 58-59: Top-level properties (v2)
+const [multiChannelIssue, setMultiChannelIssue] = useState(moduleData?.multiChannelIssue || '');
+```
+
+**Common Module Features**:
+- Accordion/expandable sections for better UX
+- Real-time auto-save via `updateModule`
+- Progress indicators
+- Validation feedback
+- Pain point flagging
+- Tooltip help text
+- Custom field value support
 
 ### Export Functionality
 
@@ -550,41 +869,172 @@ The application is primarily in Hebrew with bilingual support:
 - **Debouncing**: Form inputs debounced to reduce updates
 - **Memoization**: React.memo on expensive components
 
+## Troubleshooting Data Issues
+
+### Problem: Module crashes with ".map is not a function" error
+
+**Cause**: Array field is actually an object (v1 format) or undefined
+
+**Solution**:
+1. Data migration should automatically fix this on app load
+2. Check browser console for migration logs
+3. Check localStorage `discovery_migration_log` for audit trail
+4. If migration didn't run, try clearing cache and reloading
+
+**Manual Check**:
+```typescript
+import { validateMigration } from './utils/dataMigration';
+
+const meeting = useMeetingStore.getState().currentMeeting;
+const result = validateMigration(meeting);
+console.log(result); // { valid: boolean, issues: string[] }
+```
+
+**Prevention**: Always use `Array.isArray()` checks before `.map()` operations
+
+### Problem: Old data not appearing after update
+
+**Cause**: Data might be in v1 format and migration didn't preserve it
+
+**Solution**:
+1. Check migration logs in localStorage
+2. Look for `leadSourcesMetadata` or `channelsMetadata` fields
+3. Legacy data is preserved but needs manual review
+4. Migration runs automatically on first load
+
+**Check Migration Status**:
+```typescript
+import { getMigrationLogs, generateMigrationReport } from './utils/dataMigration';
+
+const logs = getMigrationLogs();
+console.log(logs);
+
+const report = generateMigrationReport();
+console.log(report);
+```
+
+### Problem: Wizard and module showing different data
+
+**Cause**: Both should read from same source but state might be stale
+
+**Solution**:
+1. Both wizard and modules read from `meeting.modules[moduleName]`
+2. Ensure component is using `useMeetingStore` hook
+3. Check that `updateModule` is being called on changes
+4. Verify no local state holding stale data
+
+**Debug Pattern**:
+```typescript
+const { currentMeeting } = useMeetingStore();
+console.log('Module data:', currentMeeting?.modules?.leadsAndSales);
+console.log('DataVersion:', currentMeeting?.dataVersion); // Should be 2
+```
+
+### Problem: Data migration not running
+
+**Cause**: onRehydrateStorage callback not being triggered
+
+**Solution**:
+1. Ensure Zustand persist middleware is configured
+2. Check that `needsMigration()` returns true for old data
+3. Verify `CURRENT_DATA_VERSION` is set correctly
+4. Look for errors in browser console during app load
+
+**Manual Migration** (as fallback):
+```typescript
+import { migrateMeetingData } from './utils/dataMigration';
+
+const meeting = useMeetingStore.getState().currentMeeting;
+const result = migrateMeetingData(meeting);
+
+if (result.migrated) {
+  console.log('Migrated successfully:', result.migrationsApplied);
+  // Manually update store if needed
+  useMeetingStore.setState({ currentMeeting: result.meeting });
+}
+```
+
+### Problem: TypeError when accessing nested module properties
+
+**Cause**: Module data structure undefined or malformed
+
+**Solution**:
+1. Always use optional chaining: `meeting?.modules?.leadsAndSales?.leadSources`
+2. Provide default values: `moduleData?.leadSources || []`
+3. Add initialization helpers for complex structures
+4. Use TypeScript for compile-time safety
+
+### Problem: Performance issues on app load
+
+**Cause**: Migration running on many meetings
+
+**Solution**:
+1. Migration is < 5ms per meeting, minimal impact
+2. Check if too many meetings in localStorage (> 100)
+3. Consider implementing pagination or archiving old meetings
+4. Migration logs limited to 50 entries to prevent bloat
+
 ## Important Gotchas
 
 1. **Property Names**:
    - Use `meeting.phase` not `meeting.currentPhase`
    - Use `meeting.implementationSpec` not `meeting.phase2Data`
    - Use `meeting.developmentTracking` not `meeting.phase3Data`
+   - Use `meeting.dataVersion` to track schema version (current: 2)
 
 2. **Optional Chaining**:
    - Always use `?.` when accessing nested properties
    - Example: `meeting?.modules?.systems?.currentSystems`
+   - Required for migration compatibility
 
-3. **Zoho Integration**:
+3. **Array Checks**:
+   - Always use `Array.isArray(data)` before `.map()`, `.filter()`, etc.
+   - Never assume arrays are arrays (could be objects in v1 data)
+   - Use defaults: `const items = data || []`
+
+4. **Initialization Helpers**:
+   - Create helper functions for complex data initialization
+   - Example: `initializeLeadSources(data)` in LeadsAndSalesModule
+   - Handles both v1 (nested object) and v2 (direct array) formats
+   - Defensive against undefined/null/malformed data
+
+5. **Data Migration**:
+   - Migration runs automatically on app load - don't manually convert data
+   - Check `meeting.dataVersion` to verify migration status
+   - All new meetings start at `dataVersion: 2`
+   - Migration logs stored in localStorage for debugging
+
+6. **Zoho Integration**:
    - Backend API must be running for Zoho features
    - Check `meeting.zohoIntegration?.syncEnabled` before syncing
    - URL params parsed on mount via paramParser
 
-4. **Supabase**:
+7. **Supabase**:
    - Always check `isSupabaseConfigured()` before Supabase operations
    - App works in degraded mode without Supabase
    - Use optimistic updates for better UX
 
-5. **Module Updates**:
+8. **Module Updates**:
    - Use `updateModule()` not direct state mutation
    - Module names are camelCase: `leadsAndSales`, `customerService`
    - Updates trigger auto-save and sync
+   - Both wizard and modules update same data source
 
-6. **Phase Transitions**:
+9. **Phase Transitions**:
    - Validate with `canTransitionTo()` before transitioning
    - Transitions are one-way (no backwards transitions)
    - All transitions logged in `phaseHistory`
 
-7. **Custom Field Values**:
-   - Stored per-module, per-field
-   - Persist across sessions
-   - Sync to Supabase if configured
+10. **Custom Field Values**:
+    - Stored per-module, per-field
+    - Persist across sessions
+    - Sync to Supabase if configured
+
+11. **Wizard-Module Sync**:
+    - Both modes share `meeting.modules[moduleName]` as single source
+    - No separate wizard data structure
+    - `wizardState` tracks progress, not data
+    - Changes in either mode immediately visible in the other
 
 ## Development Workflow
 

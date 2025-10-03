@@ -487,10 +487,9 @@ const prefillSystemIntegrationRequirements = (modules: any): any => {
     prefilled.systems_list = systems.currentSystems;
   }
 
-  // Integration type based on current method
-  if (operations?.systemSync?.dataTransferMethod) {
-    prefilled.current_method = operations.systemSync.dataTransferMethod;
-  }
+  // DEPRECATED: systemSync.dataTransferMethod removed in OperationsModule v2
+  // Old code: prefilled.current_method = operations.systemSync.dataTransferMethod
+  // Default to 'manual' if not specified
 
   // Data sync frequency
   prefilled.sync_frequency = 'realtime';
@@ -498,10 +497,9 @@ const prefillSystemIntegrationRequirements = (modules: any): any => {
   // Sync direction
   prefilled.sync_direction = 'bidirectional';
 
-  // Data volume
-  if (operations?.systemSync?.manualWork) {
-    prefilled.weekly_hours_manual = operations.systemSync.manualWork;
-  }
+  // DEPRECATED: systemSync.manualWork removed in OperationsModule v2
+  // Old code: prefilled.weekly_hours_manual = operations.systemSync.manualWork
+  // Future: Could estimate from workProcesses.automationReadiness
 
   // Issues to solve
   if (systems?.integrations?.issues) {

@@ -22,18 +22,21 @@ import {
   Wand2,
   ClipboardList,
   Code,
-  Users
+  Users,
+  Lock,
+  Info
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { formatTime, formatCurrency, formatDate } from '../../utils/formatters';
 import { calculateROI } from '../../utils/roiCalculator';
 import { ProgressBar } from '../Common/ProgressBar/ProgressBar';
-import { PhaseNavigator } from '../Common/PhaseNavigator';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import { generateTechnicalSpec } from '../../utils/technicalSpecGenerator';
 import { exportAsMarkdown, downloadMarkdown, downloadJSON } from '../../utils/exportTechnicalSpec';
 import { getSmartRecommendations } from '../../utils/smartRecommendationsEngine';
+import { NextStepsGenerator } from '../NextSteps/NextStepsGenerator';
+import { ExportMenu } from '../Common/ExportMenu';
 
 interface ModuleConfig {
   id: string;
@@ -347,9 +350,6 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
 
   return (
     <div className="min-h-screen bg-gray-50 relative" dir="rtl">
-      {/* Phase Navigator */}
-      {currentMeeting && <PhaseNavigator />}
-
       {/* Confetti Animation */}
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none z-50">
@@ -422,67 +422,7 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
                   </button>
 
                   {/* Export Menu */}
-                  <div className="relative">
-                    <button
-                      onClick={() => setExportMenuOpen(!exportMenuOpen)}
-                      className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all duration-200"
-                    >
-                      <Download className="w-4 h-4" />
-                      <span>ייצוא</span>
-                      <ChevronDown className={`w-4 h-4 transition-transform ${exportMenuOpen ? 'rotate-180' : ''}`} />
-                    </button>
-
-                    {exportMenuOpen && (
-                      <div className="absolute top-full right-0 mt-2 w-60 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-50 animate-slideDown">
-                        <button
-                          onClick={handleExportTechnicalSpec}
-                          className="w-full px-4 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 flex items-center gap-3 transition-all border-b-2 border-indigo-200"
-                        >
-                          <Code className="w-4 h-4 text-indigo-600" />
-                          <div className="flex-1 text-right">
-                            <div className="font-semibold text-indigo-600">מפרט טכני למפתחים</div>
-                            <div className="text-xs text-gray-500">Markdown + JSON</div>
-                          </div>
-                          <Sparkles className="w-3 h-3 text-yellow-500" />
-                        </button>
-                        <button
-                          onClick={handleExportJSON}
-                          className="w-full px-4 py-3 hover:bg-gray-50 flex items-center gap-3 transition-colors"
-                        >
-                          <FileText className="w-4 h-4 text-blue-600" />
-                          <span>JSON</span>
-                        </button>
-                        <button
-                          onClick={handleExportPDF}
-                          className="w-full px-4 py-3 hover:bg-gray-50 flex items-center gap-3 transition-colors"
-                        >
-                          <FileText className="w-4 h-4 text-red-600" />
-                          <span>PDF</span>
-                        </button>
-                        <button
-                          onClick={handleExportExcel}
-                          className="w-full px-4 py-3 hover:bg-gray-50 flex items-center gap-3 transition-colors"
-                        >
-                          <FileSpreadsheet className="w-4 h-4 text-green-600" />
-                          <span>Excel</span>
-                        </button>
-                        <button
-                          onClick={handleExportWhatsApp}
-                          className="w-full px-4 py-3 hover:bg-gray-50 flex items-center gap-3 transition-colors"
-                        >
-                          <MessageCircle className="w-4 h-4 text-green-500" />
-                          <span>WhatsApp</span>
-                        </button>
-                        <button
-                          onClick={handleExportEmail}
-                          className="w-full px-4 py-3 hover:bg-gray-50 flex items-center gap-3 transition-colors"
-                        >
-                          <Mail className="w-4 h-4 text-purple-600" />
-                          <span>Email</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  <ExportMenu variant="button" />
 
                   {/* Switch Meeting */}
                   <button
@@ -564,6 +504,60 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
       {/* Main Content */}
       {currentMeeting ? (
         <div className="container mx-auto px-4 py-8">
+          {/* Phase Warning Banner */}
+          {currentMeeting.phase !== 'discovery' && (
+            <div className="mb-6 p-4 bg-blue-50 border-r-4 border-blue-500 rounded-lg shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  {currentMeeting.phase === 'implementation_spec' ? (
+                    <Code className="w-6 h-6 text-blue-600" />
+                  ) : currentMeeting.phase === 'development' ? (
+                    <Users className="w-6 h-6 text-blue-600" />
+                  ) : (
+                    <Info className="w-6 h-6 text-blue-600" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-blue-900 mb-1">
+                    {currentMeeting.phase === 'implementation_spec' && 'שלב מפרט יישום - תצוגת קריאה בלבד'}
+                    {currentMeeting.phase === 'development' && 'Development Phase - Discovery View Only'}
+                    {currentMeeting.phase === 'completed' && 'פרויקט הושלם - תצוגת קריאה בלבד'}
+                  </h3>
+                  <p className="text-sm text-blue-700">
+                    {currentMeeting.phase === 'implementation_spec' && (
+                      <>
+                        נתוני הגילוי נעולים לעריכה. עבור ל
+                        <button
+                          onClick={() => navigate('/phase2')}
+                          className="mx-1 underline font-semibold hover:text-blue-900"
+                        >
+                          מפרט היישום
+                        </button>
+                        להמשך העבודה.
+                      </>
+                    )}
+                    {currentMeeting.phase === 'development' && (
+                      <>
+                        Discovery data is locked for editing. Go to
+                        <button
+                          onClick={() => navigate('/phase3')}
+                          className="mx-1 underline font-semibold hover:text-blue-900"
+                        >
+                          Development Dashboard
+                        </button>
+                        to continue work.
+                      </>
+                    )}
+                    {currentMeeting.phase === 'completed' && 'הפרויקט הושלם. נתוני הגילוי זמינים לצפייה בלבד.'}
+                  </p>
+                </div>
+                <div className="flex-shrink-0">
+                  <Lock className="w-5 h-5 text-blue-500" />
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Progress Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {/* Overall Progress */}
@@ -606,6 +600,11 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
               </div>
               <p className="text-sm text-gray-600">חיסכון חודשי משוער</p>
             </div>
+          </div>
+
+          {/* Next Steps Generator - Always show for guidance */}
+          <div className="mb-8">
+            <NextStepsGenerator />
           </div>
 
           {/* Phase 5: Smart Recommendations */}

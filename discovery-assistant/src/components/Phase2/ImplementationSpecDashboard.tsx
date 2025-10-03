@@ -23,6 +23,7 @@ import { exportToMarkdown, exportToText, copyToClipboard } from '../../utils/eng
 import { RequirementsNavigator } from '../Requirements/RequirementsNavigator';
 import { getServiceById } from '../../config/servicesDatabase';
 import { getRequirementsTemplate } from '../../config/serviceRequirementsTemplates';
+import { ExportMenu } from '../Common/ExportMenu';
 
 type SpecSection = 'requirements' | 'systems' | 'integrations' | 'ai_agents' | 'acceptance';
 
@@ -238,33 +239,8 @@ export const ImplementationSpecDashboard: React.FC = () => {
                 <div className="text-sm text-gray-600">השלמה</div>
               </div>
 
-              {/* Export Buttons */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleExportMarkdown}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                  title="ייצוא למפתחים (Markdown)"
-                >
-                  <FileDown className="w-4 h-4" />
-                  <span>Markdown</span>
-                </button>
-                <button
-                  onClick={handleExportText}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-                  title="ייצוא טקסט"
-                >
-                  <FileText className="w-4 h-4" />
-                  <span>Text</span>
-                </button>
-                <button
-                  onClick={handleCopyToClipboard}
-                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
-                  title="העתק ללוח"
-                >
-                  <Copy className="w-4 h-4" />
-                  <span>העתק</span>
-                </button>
-              </div>
+              {/* Export Menu */}
+              <ExportMenu variant="button" />
 
               <button
                 onClick={() => navigate('/')}

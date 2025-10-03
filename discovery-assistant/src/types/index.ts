@@ -98,6 +98,9 @@ export interface Meeting {
   customFieldValues?: CustomFieldValues;
   wizardState?: WizardState;
 
+  // Data migration tracking
+  dataVersion?: number; // Current version: 2 (see dataMigration.ts)
+
   // NEW: Phase tracking
   phase: MeetingPhase;
   status: MeetingStatus;
@@ -172,13 +175,54 @@ export interface OverviewModule {
   budget?: string;
 }
 
-// Module 2 - Leads and Sales
+/**
+ * Module 2 - Leads and Sales
+ *
+ * Tracks lead generation sources, response times, routing methods, follow-up strategies,
+ * and appointment scheduling processes.
+ *
+ * @note Data structure migrated in v2 (March 2025):
+ *       - leadSources changed from nested object {sources: LeadSource[]} to direct LeadSource[] array
+ *       - Nested properties (centralSystem, commonIssues, etc.) moved to top level for better type safety
+ *
+ * @see dataMigration.ts - migrateV1ToV2() for migration logic
+ * @see LeadsAndSalesModule.tsx - initializeLeadSources() for backward-compatible data loading
+ *
+ * @example
+ * ```typescript
+ * const module: LeadsAndSalesModule = {
+ *   leadSources: [
+ *     { channel: 'website', volumePerMonth: 100, quality: 4 },
+ *     { channel: 'facebook', volumePerMonth: 50, quality: 3 }
+ *   ],
+ *   centralSystem: 'Zoho CRM',
+ *   commonIssues: ['duplicates', 'missing_info']
+ * };
+ * ```
+ */
 export interface LeadsAndSalesModule {
-  leadSources: LeadSource[];
-  speedToLead: SpeedToLead;
-  leadRouting: LeadRouting;
-  followUp: FollowUpStrategy;
-  appointments: AppointmentManagement;
+  // Lead Sources Section - Direct array format (migrated from nested object in v2)
+  leadSources?: LeadSource[];
+  centralSystem?: string;
+  commonIssues?: string[];
+  missingOpportunities?: string;
+  fallingLeadsPerMonth?: number;
+  duplicatesFrequency?: string;
+  missingInfoPercent?: number;
+  timeToProcessLead?: number;
+  costPerLostLead?: number;
+
+  // Speed to Lead Section
+  speedToLead?: SpeedToLead;
+
+  // Lead Routing Section
+  leadRouting?: LeadRouting;
+
+  // Follow Up Section
+  followUp?: FollowUpStrategy;
+
+  // Appointments Section
+  appointments?: AppointmentManagement;
 }
 
 export interface LeadSource {
@@ -187,45 +231,153 @@ export interface LeadSource {
   quality?: 1 | 2 | 3 | 4 | 5;
 }
 
+/**
+ * Speed to Lead metrics and response time tracking
+ *
+ * @property duringBusinessHours - Response time during business hours (e.g., "5 minutes", "1 hour")
+ * @property responseTimeUnit - Unit for response time measurement (minutes, hours, days)
+ * @property afterHours - Response capability after business hours
+ * @property weekends - Response capability on weekends
+ * @property unansweredPercentage - Percentage of leads that go unanswered (0-100)
+ * @property whatHappensWhenUnavailable - What happens when sales team is unavailable
+ * @property urgentVsRegular - Whether urgent leads are differentiated from regular leads
+ * @property urgentHandling - How urgent leads are handled differently
+ * @property opportunity - Identified opportunity for improvement in speed to lead
+ */
 export interface SpeedToLead {
   duringBusinessHours?: string;
+  responseTimeUnit?: 'minutes' | 'hours' | 'days';
   afterHours?: 'no_response' | 'partial' | 'full';
   weekends?: 'no_response' | 'partial' | 'full';
   unansweredPercentage?: number;
+  whatHappensWhenUnavailable?: string;
+  urgentVsRegular?: boolean;
+  urgentHandling?: string;
+  opportunity?: string;
 }
 
+/**
+ * Lead Routing configuration and methods
+ *
+ * @property method - Array of routing methods used (can use multiple simultaneously)
+ * @property methodDetails - Detailed description of how routing methods work
+ * @property unavailableAgentHandling - What happens when assigned agent is unavailable
+ * @property hotLeadCriteria - Criteria that define a "hot" lead
+ * @property customHotLeadCriteria - Custom user-defined hot lead criteria
+ * @property hotLeadPriority - How hot leads are prioritized
+ * @property aiPotential - Potential for AI to improve lead routing
+ */
 export interface LeadRouting {
-  method?: 'rotation' | 'expertise' | 'territory' | 'manual';
+  method?: string[]; // Changed from single value to array for multiple methods
+  methodDetails?: string;
   unavailableAgentHandling?: string;
   hotLeadCriteria?: string[];
+  customHotLeadCriteria?: string;
+  hotLeadPriority?: string;
+  aiPotential?: string;
 }
 
+/**
+ * Follow-Up Strategy configuration
+ *
+ * @property attempts - Number of follow-up attempts before giving up
+ * @property day1Interval - Follow-up interval on day 1
+ * @property day3Interval - Follow-up interval on day 3
+ * @property day7Interval - Follow-up interval on day 7
+ * @property intervals - Legacy: Array of follow-up intervals (kept for backward compatibility)
+ * @property channels - Channels used for follow-up (whatsapp, sms, email, phone)
+ * @property dropOffRate - Percentage of leads that drop off during follow-up (0-100)
+ * @property notNowHandling - How "not now" leads are handled
+ * @property nurturing - Whether lead nurturing is implemented
+ * @property nurturingDescription - Description of nurturing process
+ * @property customerJourneyOpportunity - Identified opportunity for customer journey improvement
+ */
 export interface FollowUpStrategy {
   attempts?: number;
-  intervals?: number[];
+  day1Interval?: string;
+  day3Interval?: string;
+  day7Interval?: string;
+  intervals?: number[]; // Legacy field
   channels?: ('whatsapp' | 'sms' | 'email' | 'phone')[];
   dropOffRate?: number;
+  notNowHandling?: string;
   nurturing?: boolean;
+  nurturingDescription?: string;
+  customerJourneyOpportunity?: string;
 }
 
+/**
+ * Appointment Management and Scheduling
+ *
+ * @property avgSchedulingTime - Average time (in minutes) to schedule an appointment
+ * @property messagesPerScheduling - Average number of messages exchanged to schedule
+ * @property cancellationRate - Percentage of appointments that get cancelled (0-100)
+ * @property noShowRate - Percentage of appointments where client doesn't show (0-100)
+ * @property multipleParticipants - Whether appointments involve multiple participants
+ * @property changesPerWeek - Number of appointment changes/reschedulings per week
+ * @property reminders - Reminder configuration
+ * @property criticalPain - Whether appointment scheduling is a critical pain point
+ */
 export interface AppointmentManagement {
   avgSchedulingTime?: number;
+  messagesPerScheduling?: number;
   cancellationRate?: number;
   noShowRate?: number;
+  multipleParticipants?: boolean;
+  changesPerWeek?: number;
   reminders?: {
     when: string[];
     channels: string[];
+    customTime?: string;
   };
+  criticalPain?: boolean;
 }
 
-// Module 3 - Customer Service
+/**
+ * Module 3 - Customer Service
+ *
+ * Tracks customer support channels, auto-response capabilities, proactive communication,
+ * community management, reputation monitoring, and customer onboarding processes.
+ *
+ * @note Data structure migrated in v2 (March 2025):
+ *       - channels changed from nested object {list: ServiceChannel[]} to direct ServiceChannel[] array
+ *       - Nested properties (multiChannelIssue, unificationMethod) moved to top level for better type safety
+ *
+ * @see dataMigration.ts - migrateV1ToV2() for migration logic
+ * @see CustomerServiceModule.tsx - initializeChannels() for backward-compatible data loading
+ *
+ * @example
+ * ```typescript
+ * const module: CustomerServiceModule = {
+ *   channels: [
+ *     { type: 'whatsapp', volumePerDay: 50, responseTime: '5 minutes' },
+ *     { type: 'email', volumePerDay: 30, responseTime: '2 hours' }
+ *   ],
+ *   multiChannelIssue: 'Messages getting lost between channels',
+ *   unificationMethod: 'Using shared inbox'
+ * };
+ * ```
+ */
 export interface CustomerServiceModule {
-  channels: ServiceChannel[];
-  autoResponse: AutoResponse;
-  proactiveCommunication: ProactiveCommunication;
-  communityManagement: CommunityManagement;
-  reputationManagement: ReputationManagement;
-  onboarding: CustomerOnboarding;
+  // Service Channels Section - Direct array format (migrated from nested object in v2)
+  channels?: ServiceChannel[];
+  multiChannelIssue?: string;
+  unificationMethod?: string;
+
+  // Auto Response Section
+  autoResponse?: AutoResponse;
+
+  // Proactive Communication Section
+  proactiveCommunication?: ProactiveCommunication;
+
+  // Community Management Section
+  communityManagement?: CommunityManagement;
+
+  // Reputation Management Section
+  reputationManagement?: ReputationManagement;
+
+  // Onboarding Section
+  onboarding?: CustomerOnboarding;
 }
 
 export interface ServiceChannel {
@@ -246,118 +398,290 @@ export interface FAQ {
   frequencyPerDay?: number;
 }
 
+/**
+ * Proactive Communication configuration
+ *
+ * @property updateTriggers - Events/triggers that require customer updates
+ * @property updateChannelMapping - Mapping of update types to communication channels
+ * @property whatMattersToCustomers - What customers care most about hearing updates on
+ * @property frequency - How often proactive communication happens
+ * @property type - Types of proactive communication (newsletters, updates, etc.)
+ * @property channels - Legacy: Communication channels (kept for backward compatibility)
+ * @property timeSpentWeekly - Hours per week spent on proactive communication
+ */
 export interface ProactiveCommunication {
   updateTriggers?: string[];
-  channels?: string[];
+  updateChannelMapping?: {[key: string]: string};
+  whatMattersToCustomers?: string;
   frequency?: string;
+  type?: string[];
+  channels?: string[]; // Legacy field
   timeSpentWeekly?: number;
 }
 
+/**
+ * Community Management configuration
+ *
+ * @property exists - Whether a customer community exists
+ * @property size - Number of community members
+ * @property platforms - Platforms where community exists (Facebook, Discord, etc.)
+ * @property challenges - Challenges in managing the community
+ * @property eventsPerMonth - Number of community events per month
+ * @property registrationMethod - How event registrations are managed
+ * @property actualAttendanceRate - Percentage of registered attendees who actually show up
+ * @property eventAutomationOpportunity - Opportunity to automate event management
+ */
 export interface CommunityManagement {
   exists: boolean;
   size?: number;
   platforms?: string[];
   challenges?: string[];
+  eventsPerMonth?: number;
+  registrationMethod?: string;
+  actualAttendanceRate?: number;
+  eventAutomationOpportunity?: string;
 }
 
+/**
+ * Reputation Management configuration
+ *
+ * @property feedbackCollection - How and when customer feedback is collected
+ * @property whatDoWithFeedback - What the business does with collected feedback
+ * @property reviewsPerMonth - Number of online reviews received per month
+ * @property platforms - Review platforms being monitored (Google, Facebook, etc.)
+ * @property positiveReviewStrategy - Strategy for handling positive reviews
+ * @property negativeReviewStrategy - Strategy for handling negative reviews
+ * @property sentimentDetectionOpportunity - Opportunity for sentiment analysis automation
+ * @property strategy - Legacy: General reputation strategy (kept for backward compatibility)
+ */
 export interface ReputationManagement {
   feedbackCollection?: {
     when: string[];
     how: string[];
     responseRate?: number;
   };
+  whatDoWithFeedback?: string;
   reviewsPerMonth?: number;
   platforms?: string[];
-  strategy?: string;
+  positiveReviewStrategy?: string;
+  negativeReviewStrategy?: string;
+  sentimentDetectionOpportunity?: string;
+  strategy?: string; // Legacy field
 }
 
+/**
+ * Customer Onboarding configuration
+ *
+ * @property steps - Onboarding process steps with timing
+ * @property followUpChecks - Follow-up checks during onboarding
+ * @property missingAlerts - Whether automated alerts are missing in onboarding
+ * @property commonIssues - Common issues encountered during onboarding
+ */
 export interface CustomerOnboarding {
   steps?: OnboardingStep[];
   followUpChecks?: string[];
-  commonIssues?: string[];
+  missingAlerts?: boolean;
+  commonIssues?: string;
 }
+
+/**
+ * Individual onboarding step
+ *
+ * @property name - Name of the onboarding step
+ * @property time - How long this step takes (e.g., "2 hours", "1 day")
+ * @property duration - Legacy: Duration of step (kept for backward compatibility)
+ */
 
 export interface OnboardingStep {
   name: string;
-  duration?: string;
+  time?: string;
+  duration?: string; // Legacy field
 }
 
-// Module 4 - Operations
+/**
+ * Module 4 - Operations
+ *
+ * Tracks operational workflows, documentation, project management, human resources, and logistics.
+ * This module captures internal business processes across five key operational areas.
+ *
+ * @note Data structure matches OperationsModule.tsx component (lines 229-273)
+ *
+ * @property workProcesses - Business process workflows and automation readiness assessment
+ * @property documentManagement - Document storage, search, approval workflows, and version control
+ * @property projectManagement - Project tracking, task management, resource allocation, and timeline accuracy
+ * @property hr - Human resources processes including onboarding, training, and employee management
+ * @property logistics - Inventory management, shipping processes, supplier relations, and warehouse operations
+ *
+ * @example
+ * ```typescript
+ * const operations: OperationsModule = {
+ *   workProcesses: {
+ *     processes: [
+ *       {
+ *         name: 'Order Processing',
+ *         description: 'From order receipt to fulfillment',
+ *         stepCount: 8,
+ *         bottleneck: 'Manual approval step',
+ *         failurePoint: 'Missing customer info',
+ *         estimatedTime: 45
+ *       }
+ *     ],
+ *     commonFailures: ['manual_errors', 'missing_info'],
+ *     errorTrackingSystem: 'excel',
+ *     processDocumentation: 'Stored in shared drive',
+ *     automationReadiness: 70
+ *   }
+ * };
+ * ```
+ */
 export interface OperationsModule {
-  systemSync: SystemSync;
-  documentManagement: DocumentManagement;
-  projectManagement: ProjectManagement;
-  financialProcesses: FinancialProcesses;
-  hr: HRProcesses;
-  crossDepartment: CrossDepartmentFlow;
+  /** Work process workflows and bottleneck analysis */
+  workProcesses?: {
+    /** List of business processes with detailed workflow information */
+    processes: WorkProcess[];
+    /** Common failure points across processes */
+    commonFailures: string[];
+    /** System used for tracking errors (none, manual, excel, system, crm) */
+    errorTrackingSystem: string;
+    /** How processes are documented in the organization */
+    processDocumentation: string;
+    /** Readiness for automation (0-100%) */
+    automationReadiness: number;
+  };
+
+  /** Document management and workflows */
+  documentManagement?: {
+    /** Document flows with volume and time metrics */
+    flows: DocumentFlow[];
+    /** Where documents are stored (google_drive, dropbox, sharepoint, local_server, physical, cloud) */
+    storageLocations: string[];
+    /** Description of difficulties in finding documents */
+    searchDifficulties: string;
+    /** Version control method (none, manual_naming, system, sharepoint, git) */
+    versionControlMethod: string;
+    /** Description of approval workflow process */
+    approvalWorkflow: string;
+    /** Document retention period in years */
+    documentRetention: number;
+  };
+
+  /** Project management and tracking */
+  projectManagement?: {
+    /** Project management tools in use (monday, asana, trello, jira, notion, excel, ms_project) */
+    tools: string[];
+    /** Sources of task creation (email, meetings, phone, whatsapp, crm, customers, internal) */
+    taskCreationSources: string[];
+    /** Identified issues in project management */
+    issues: ProjectIssue[];
+    /** Method for resource allocation (none, manual, rotation, skills, automated) */
+    resourceAllocationMethod: string;
+    /** Accuracy of time estimates (0-100%) */
+    timelineAccuracy: number;
+    /** Project visibility/transparency level (none, meetings, dashboard, realtime) */
+    projectVisibility: string;
+    /** Percentage of projects that miss deadlines (0-100) */
+    deadlineMissRate: number;
+  };
+
+  /** Human resources management */
+  hr?: {
+    /** Organizational departments with employee counts */
+    departments: Department[];
+    /** Number of steps in employee onboarding process */
+    onboardingSteps: number;
+    /** Duration of onboarding in days */
+    onboardingDuration: number;
+    /** Training requirements for employees */
+    trainingRequirements: string[];
+    /** Frequency of performance reviews (none, annual, biannual, quarterly, monthly) */
+    performanceReviewFrequency: string;
+    /** Annual employee turnover rate (0-100%) */
+    employeeTurnoverRate: number;
+    /** HR systems in use (hilan, priority, sap, workday, excel, paper) */
+    hrSystemsInUse: string[];
+  };
+
+  /** Logistics and supply chain */
+  logistics?: {
+    /** Inventory management method (none, manual, excel, erp, wms, rfid) */
+    inventoryMethod: string;
+    /** Shipping processes (self_delivery, courier, post, pickup, dropshipping, third_party) */
+    shippingProcesses: string[];
+    /** Number of active suppliers */
+    supplierCount: number;
+    /** Average time to fulfill an order in days */
+    orderFulfillmentTime: number;
+    /** Warehouse operations performed (receiving, quality_check, storage, picking, packing, shipping, returns) */
+    warehouseOperations: string[];
+    /** Description of common delivery issues */
+    deliveryIssues: string;
+    /** Time to process a return in days */
+    returnProcessTime: number;
+    /** Inventory accuracy percentage (0-100%) */
+    inventoryAccuracy: number;
+  };
 }
 
-export interface SystemSync {
-  systems?: string[];
-  dataTransferMethod?: string;
-  duplicateData?: boolean;
-  manualWork?: number;
+/**
+ * Individual work process specification
+ *
+ * @property name - Name of the business process
+ * @property description - Brief description of what the process does
+ * @property stepCount - Number of steps in the process
+ * @property bottleneck - Main bottleneck or slowdown point in the process
+ * @property failurePoint - Most common point where the process fails
+ * @property estimatedTime - Estimated time to complete the process in minutes
+ */
+export interface WorkProcess {
+  name: string;
+  description: string;
+  stepCount: number;
+  bottleneck: string;
+  failurePoint: string;
+  estimatedTime: number;
 }
 
-export interface DocumentManagement {
-  documentTypes?: DocumentType[];
-  storage?: string;
-  organization?: 'organized' | 'messy';
-  incomingDocuments?: string[];
-  accuracyRequired?: 'high' | 'medium' | 'low';
-}
-
-export interface DocumentType {
+/**
+ * Document flow specification
+ *
+ * @property type - Type of document (e.g., "Invoice", "Contract", "Report")
+ * @property volumePerMonth - Number of documents of this type processed per month
+ * @property timePerDocument - Time spent processing each document in minutes
+ * @property requiresApproval - Whether this document type requires approval
+ * @property versionControlNeeded - Whether version control is needed for this document type
+ */
+export interface DocumentFlow {
   type: string;
-  volumePerMonth?: number;
-  timePerDocument?: number;
+  volumePerMonth: number;
+  timePerDocument: number;
+  requiresApproval: boolean;
+  versionControlNeeded: boolean;
 }
 
-export interface ProjectManagement {
-  taskCreation?: string[];
-  allocation?: 'automatic' | 'manual' | 'rotation';
-  trackingTool?: string;
-  bottlenecks?: string[];
-  delayImpact?: string;
+/**
+ * Project management issue
+ *
+ * @property area - Area where the issue occurs (e.g., "Resource allocation", "Timeline estimation")
+ * @property frequency - How often the issue occurs (e.g., "Daily", "Weekly", "Monthly")
+ * @property impact - Impact level of the issue on project success
+ */
+export interface ProjectIssue {
+  area: string;
+  frequency: string;
+  impact: 'high' | 'medium' | 'low';
 }
 
-export interface FinancialProcesses {
-  invoicing?: {
-    volumePerMonth?: number;
-    avgTimePerInvoice?: number;
-    errors?: string[];
-  };
-  payments?: {
-    trackingMethod?: string;
-    reconciliationTime?: number;
-  };
-}
-
-export interface HRProcesses {
-  onboarding?: {
-    steps?: string[];
-    systemsToUpdate?: number;
-    totalTime?: number;
-  };
-  management?: {
-    attendance?: string;
-    vacation?: string;
-    communication?: string;
-  };
-}
-
-export interface CrossDepartmentFlow {
-  transfers?: DepartmentTransfer[];
-  statusChecks?: {
-    timePerDay?: number;
-    mostTimeConsuming?: string;
-  };
-}
-
-export interface DepartmentTransfer {
-  from: string;
-  to: string;
-  status: 'smooth' | 'problematic';
+/**
+ * Organizational department
+ *
+ * @property name - Name of the department
+ * @property employeeCount - Number of employees in the department
+ * @property systems - Systems used by this department
+ */
+export interface Department {
+  name: string;
+  employeeCount: number;
+  systems: string[];
 }
 
 // Module 5 - Reporting

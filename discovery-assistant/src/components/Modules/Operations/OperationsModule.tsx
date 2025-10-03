@@ -11,6 +11,7 @@ import {
   RadioGroup
 } from '../../Common/FormFields';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
+import { PhaseReadOnlyBanner } from '../../Common/PhaseReadOnlyBanner';
 
 interface WorkProcess {
   name: string;
@@ -410,6 +411,9 @@ export const OperationsModule: React.FC = () => {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6 max-w-5xl">
+        {/* Phase Read-Only Banner */}
+        <PhaseReadOnlyBanner moduleName="תפעול פנימי" />
+
         <div className="space-y-4">
 
           {/* Module Overview Card */}
@@ -463,7 +467,8 @@ export const OperationsModule: React.FC = () => {
                     <Info className="w-4 h-4 text-gray-400" />
                   </label>
                   <div className="space-y-3 mb-4">
-                    {workProcesses.map((process, index) => (
+                    {/* Defensive check: Ensure workProcesses is an array before mapping */}
+                    {Array.isArray(workProcesses) && workProcesses.map((process, index) => (
                       <div key={index} className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
@@ -659,7 +664,8 @@ export const OperationsModule: React.FC = () => {
                     זרימת מסמכים
                   </label>
                   <div className="space-y-3 mb-4">
-                    {documentFlows.map((flow, index) => (
+                    {/* Defensive check: Ensure documentFlows is an array before mapping */}
+                    {Array.isArray(documentFlows) && documentFlows.map((flow, index) => (
                       <div key={index} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
@@ -862,7 +868,8 @@ export const OperationsModule: React.FC = () => {
                     בעיות בניהול פרויקטים
                   </label>
                   <div className="space-y-2 mb-3">
-                    {projectIssues.map((issue, index) => (
+                    {/* Defensive check: Ensure projectIssues is an array before mapping */}
+                    {Array.isArray(projectIssues) && projectIssues.map((issue, index) => (
                       <div key={index} className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
                         <div className="flex-1">
                           <span className="font-medium">{issue.area}</span>
@@ -1036,7 +1043,8 @@ export const OperationsModule: React.FC = () => {
                     מחלקות וכוח אדם
                   </label>
                   <div className="space-y-2 mb-3">
-                    {departments.map((dept, index) => (
+                    {/* Defensive check: Ensure departments is an array before mapping */}
+                    {Array.isArray(departments) && departments.map((dept, index) => (
                       <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                         <Users className="w-5 h-5 text-gray-600" />
                         <span className="font-medium">{dept.name}</span>

@@ -12,6 +12,7 @@ import {
   TextAreaField
 } from '../../Common/FormFields';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
+import { PhaseReadOnlyBanner } from '../../Common/PhaseReadOnlyBanner';
 import { ServiceChannel, FAQ } from '../../../types';
 
 const channelOptions = [
@@ -48,12 +49,15 @@ export const CustomerServiceModule: React.FC = () => {
   const [expandedSections, setExpandedSections] = useState<string[]>(['channels']);
   const [tooltipVisible, setTooltipVisible] = useState<string | null>(null);
 
-  // 3.1 Service Channels - Enhanced
+  // 3.1 Service Channels - Direct array format (migrated in v2)
+  // Data migration handled by dataMigration.ts on load
   const [channels, setChannels] = useState<ServiceChannel[]>(moduleData?.channels || []);
   const [newChannel, setNewChannel] = useState({ type: '', volumePerDay: 0, responseTime: '', availability: '' });
   const [customChannelName, setCustomChannelName] = useState('');
-  const [multiChannelIssue, setMultiChannelIssue] = useState(moduleData?.channels?.multiChannelIssue || '');
-  const [unificationMethod, setUnificationMethod] = useState(moduleData?.channels?.unificationMethod || '');
+
+  // Top-level properties (moved from nested object in v2 migration)
+  const [multiChannelIssue, setMultiChannelIssue] = useState(moduleData?.multiChannelIssue || '');
+  const [unificationMethod, setUnificationMethod] = useState(moduleData?.unificationMethod || '');
 
   // 3.2 Auto Response - Enhanced with Top 10 structure
   const [topQuestions, setTopQuestions] = useState<FAQ[]>(
@@ -112,11 +116,10 @@ export const CustomerServiceModule: React.FC = () => {
 
     const timer = setTimeout(() => {
       updateModule('customerService', {
-        channels: {
-          list: channels,
-          multiChannelIssue,
-          unificationMethod
-        },
+        // Direct array format (v2 structure)
+        channels,
+        multiChannelIssue,
+        unificationMethod,
         autoResponse: {
           topQuestions,
           commonRequests,
@@ -191,7 +194,9 @@ export const CustomerServiceModule: React.FC = () => {
   const handleAddChannel = () => {
     const channelType = customChannelName || newChannel.type;
     if (channelType) {
-      setChannels([...channels, {
+      // Defensive check: Ensure channels is an array before spreading
+      const currentChannels = Array.isArray(channels) ? channels : [];
+      setChannels([...currentChannels, {
         type: channelType,
         volumePerDay: newChannel.volumePerDay,
         responseTime: newChannel.responseTime,
@@ -268,6 +273,9 @@ export const CustomerServiceModule: React.FC = () => {
 
       {/* Content with Animations */}
       <div className="container mx-auto px-4 py-6 max-w-4xl">
+        {/* Phase Read-Only Banner */}
+        <PhaseReadOnlyBanner moduleName="שירות לקוחות" />
+
         <div className="space-y-4">
           {/* 3.1 Service Channels - Fully Enhanced */}
           <Card className="transform transition-all duration-300 hover:shadow-xl">
@@ -307,7 +315,8 @@ export const CustomerServiceModule: React.FC = () => {
                   </label>
 
                   <div className="space-y-3">
-                    {channels.map((channel, index) => (
+                    {/* Defensive check: Ensure channels is an array before mapping */}
+                    {Array.isArray(channels) && channels.map((channel, index) => (
                       <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                         <MessageCircle className="w-4 h-4 text-green-500" />
                         <span className="font-medium min-w-[100px]">
@@ -385,7 +394,8 @@ export const CustomerServiceModule: React.FC = () => {
                 </div>
 
                 {/* Pain Point Detection */}
-                {channels.reduce((sum, ch) => sum + ch.volumePerDay!, 0) > 100 && (
+                {/* Defensive check: Ensure channels is an array before using reduce */}
+                {(Array.isArray(channels) && channels.reduce((sum, ch) => sum + (ch.volumePerDay || 0), 0) > 100) && (
                   <PainPointFlag
                     module="customerService"
                     subModule="channels"

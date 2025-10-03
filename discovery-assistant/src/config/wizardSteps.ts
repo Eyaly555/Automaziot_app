@@ -62,6 +62,70 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'מהו האתגר המרכזי שלכם היום?',
           rows: 3
         }
+      },
+      {
+        name: 'processes',
+        component: CheckboxGroup,
+        props: {
+          label: 'תהליכים עסקיים עיקריים',
+          options: [
+            { value: 'sales', label: 'מכירות' },
+            { value: 'marketing', label: 'שיווק' },
+            { value: 'service', label: 'שירות לקוחות' },
+            { value: 'operations', label: 'תפעול' },
+            { value: 'finance', label: 'כספים' },
+            { value: 'hr', label: 'משאבי אנוש' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'currentSystems',
+        component: CheckboxGroup,
+        props: {
+          label: 'מערכות קיימות',
+          options: [
+            { value: 'crm', label: 'CRM' },
+            { value: 'erp', label: 'ERP' },
+            { value: 'excel', label: 'Excel' },
+            { value: 'accounting', label: 'חשבונאות' },
+            { value: 'marketing', label: 'שיווק' },
+            { value: 'ecommerce', label: 'מסחר אלקטרוני' },
+            { value: 'none', label: 'אין' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'mainGoals',
+        component: CheckboxGroup,
+        props: {
+          label: 'מטרות עיקריות',
+          options: [
+            { value: 'save_time', label: 'חיסכון בזמן' },
+            { value: 'reduce_errors', label: 'הפחתת טעויות' },
+            { value: 'improve_service', label: 'שיפור שירות' },
+            { value: 'increase_sales', label: 'הגדלת מכירות' },
+            { value: 'better_data', label: 'נתונים טובים יותר' },
+            { value: 'scale', label: 'התרחבות' }
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'budget',
+        component: SelectField,
+        props: {
+          label: 'טווח תקציב',
+          options: [
+            { value: 'under_10k', label: 'עד 10,000 ₪' },
+            { value: '10k-30k', label: '10,000-30,000 ₪' },
+            { value: '30k-50k', label: '30,000-50,000 ₪' },
+            { value: '50k-100k', label: '50,000-100,000 ₪' },
+            { value: 'over_100k', label: 'מעל 100,000 ₪' },
+            { value: 'flexible', label: 'גמיש' }
+          ]
+        }
       }
     ],
     isOptional: false
@@ -168,6 +232,18 @@ export const WIZARD_STEPS: WizardStep[] = [
         }
       },
       {
+        name: 'speedToLead.responseTimeUnit',
+        component: SelectField,
+        props: {
+          label: 'יחידת מדידה לזמן תגובה',
+          options: [
+            { value: 'minutes', label: 'דקות' },
+            { value: 'hours', label: 'שעות' },
+            { value: 'days', label: 'ימים' }
+          ]
+        }
+      },
+      {
         name: 'speedToLead.afterHours',
         component: SelectField,
         props: {
@@ -220,6 +296,24 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'no', label: 'לא - כולם מטופלים אותו דבר' }
           ]
         }
+      },
+      {
+        name: 'speedToLead.urgentHandling',
+        component: TextAreaField,
+        props: {
+          label: 'איך מטפלים בלידים דחופים באופן שונה?',
+          rows: 2,
+          placeholder: 'תאר את ההבדל בטיפול בלידים דחופים...'
+        }
+      },
+      {
+        name: 'speedToLead.opportunity',
+        component: TextAreaField,
+        props: {
+          label: 'הזדמנות לשיפור במהירות תגובה',
+          rows: 2,
+          placeholder: 'איפה רואים הזדמנות לשפר את מהירות התגובה?'
+        }
       }
     ],
     isOptional: false
@@ -233,15 +327,26 @@ export const WIZARD_STEPS: WizardStep[] = [
     fields: [
       {
         name: 'leadRouting.method',
-        component: SelectField,
+        component: CheckboxGroup,
         props: {
-          label: 'שיטת חלוקת לידים',
+          label: 'שיטות חלוקת לידים (ניתן לבחור מספר)',
           options: [
             { value: 'rotation', label: 'תורנות/רוטציה' },
             { value: 'expertise', label: 'לפי התמחות' },
             { value: 'territory', label: 'לפי טריטוריה' },
+            { value: 'load_balancing', label: 'איזון עומסים' },
             { value: 'manual', label: 'ידני' }
-          ]
+          ],
+          columns: 2
+        }
+      },
+      {
+        name: 'leadRouting.methodDetails',
+        component: TextAreaField,
+        props: {
+          label: 'פירוט שיטת החלוקה',
+          rows: 2,
+          placeholder: 'תאר בפירוט איך עובדת שיטת חלוקת הלידים...'
         }
       },
       {
@@ -269,15 +374,30 @@ export const WIZARD_STEPS: WizardStep[] = [
         }
       },
       {
-        name: 'leadRouting.aiClassificationPotential',
-        component: RadioGroup,
+        name: 'leadRouting.customHotLeadCriteria',
+        component: TextAreaField,
         props: {
-          label: 'האם AI יכול לסייע בסיווג הלידים?',
-          options: [
-            { value: 'yes', label: 'כן - יש הרבה פרמטרים לסיווג' },
-            { value: 'maybe', label: 'אולי - צריך לבדוק' },
-            { value: 'no', label: 'לא - הסיווג פשוט' }
-          ]
+          label: 'קריטריונים נוספים ללידים חמים (אופציונלי)',
+          rows: 2,
+          placeholder: 'תאר קריטריונים ספציפיים נוספים שלכם...'
+        }
+      },
+      {
+        name: 'leadRouting.hotLeadPriority',
+        component: TextAreaField,
+        props: {
+          label: 'איך מתעדפים לידים חמים?',
+          rows: 2,
+          placeholder: 'תאר את תהליך התעדוף והטיפול בלידים חמים...'
+        }
+      },
+      {
+        name: 'leadRouting.aiPotential',
+        component: TextAreaField,
+        props: {
+          label: 'פוטנציאל ל-AI בניתוב לידים',
+          rows: 2,
+          placeholder: 'איפה AI יכול לסייע בניתוב וסיווג הלידים?'
         }
       }
     ],
@@ -300,7 +420,7 @@ export const WIZARD_STEPS: WizardStep[] = [
         }
       },
       {
-        name: 'followUp.intervals.day1',
+        name: 'followUp.day1Interval',
         component: RadioGroup,
         props: {
           label: 'יום 1 - מתי המעקב הראשון?',
@@ -308,6 +428,34 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'immediate', label: 'מיד אחרי הפנייה' },
             { value: 'same_day', label: 'באותו יום' },
             { value: 'next_day', label: 'יום למחרת' }
+          ],
+          orientation: 'horizontal'
+        }
+      },
+      {
+        name: 'followUp.day3Interval',
+        component: RadioGroup,
+        props: {
+          label: 'יום 3 - תדירות מעקב',
+          options: [
+            { value: 'twice_daily', label: 'פעמיים ביום' },
+            { value: 'daily', label: 'פעם ביום' },
+            { value: 'every_two_days', label: 'כל יומיים' },
+            { value: 'none', label: 'לא עושים מעקב ביום 3' }
+          ],
+          orientation: 'horizontal'
+        }
+      },
+      {
+        name: 'followUp.day7Interval',
+        component: RadioGroup,
+        props: {
+          label: 'יום 7 - תדירות מעקב',
+          options: [
+            { value: 'daily', label: 'יומי' },
+            { value: 'every_few_days', label: 'כל כמה ימים' },
+            { value: 'weekly', label: 'שבועי' },
+            { value: 'none', label: 'לא עושים מעקב ביום 7' }
           ],
           orientation: 'horizontal'
         }
@@ -360,14 +508,21 @@ export const WIZARD_STEPS: WizardStep[] = [
         }
       },
       {
-        name: 'followUp.automatedJourneys',
-        component: RadioGroup,
+        name: 'followUp.nurturingDescription',
+        component: TextAreaField,
         props: {
-          label: 'האם יש מסעות לקוח אוטומטיים?',
-          options: [
-            { value: 'yes', label: 'כן' },
-            { value: 'no', label: 'לא' }
-          ]
+          label: 'תיאור תהליך הנרטורינג',
+          rows: 2,
+          placeholder: 'תאר את תהליך חימום הלידים (אם קיים)...'
+        }
+      },
+      {
+        name: 'followUp.customerJourneyOpportunity',
+        component: TextAreaField,
+        props: {
+          label: 'הזדמנות לשיפור במסע הלקוח',
+          rows: 2,
+          placeholder: 'איפה רואים הזדמנות לשפר את מסע הלקוח?'
         }
       }
     ],
@@ -466,6 +621,26 @@ export const WIZARD_STEPS: WizardStep[] = [
           ],
           columns: 2
         }
+      },
+      {
+        name: 'appointments.reminders.customTime',
+        component: TextField,
+        props: {
+          label: 'זמן תזכורת מותאם אישית (אופציונלי)',
+          placeholder: 'לדוגמה: שעתיים לפני, 30 דקות לפני...'
+        }
+      },
+      {
+        name: 'appointments.criticalPain',
+        component: RadioGroup,
+        props: {
+          label: 'האם תיאום פגישות הוא נקודת כאב קריטית?',
+          options: [
+            { value: 'yes', label: 'כן - זה מאתגר מאוד' },
+            { value: 'somewhat', label: 'במידה מסוימת' },
+            { value: 'no', label: 'לא - זה זורם טוב' }
+          ]
+        }
       }
     ],
     isOptional: false
@@ -509,6 +684,15 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'minor', label: 'קורה, אבל לא משהו קריטי' },
             { value: 'no', label: 'לא, אין כזו בעיה' }
           ]
+        }
+      },
+      {
+        name: 'multiChannelIssue',
+        component: TextAreaField,
+        props: {
+          label: 'תיאור בעיית ריבוי ערוצים',
+          rows: 2,
+          placeholder: 'תאר מה קורה כשלקוח פונה בכמה ערוצים על אותו נושא...'
         }
       },
       {
@@ -572,10 +756,10 @@ export const WIZARD_STEPS: WizardStep[] = [
     sectionName: '3.3 תקשורת יזומה ועדכונים',
     fields: [
       {
-        name: 'proactiveCommunication.updateStages',
+        name: 'proactiveCommunication.updateTriggers',
         component: CheckboxGroup,
         props: {
-          label: 'שלבי עדכון יזומים',
+          label: 'מה מעורר צורך בעדכון ללקוח?',
           options: [
             { value: 'post_purchase', label: 'אחרי רכישה' },
             { value: 'during_process', label: 'במהלך תהליך' },
@@ -585,6 +769,24 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'post_resolution', label: 'אחרי פתרון בעיה' }
           ],
           columns: 2
+        }
+      },
+      {
+        name: 'proactiveCommunication.updateChannelMapping',
+        component: TextAreaField,
+        props: {
+          label: 'איזה עדכון באיזה ערוץ?',
+          rows: 3,
+          placeholder: 'תאר איזה סוג עדכונים שולחים באיזה ערוץ (SMS, WhatsApp, Email, וכו...)...'
+        }
+      },
+      {
+        name: 'proactiveCommunication.whatMattersToCustomers',
+        component: TextAreaField,
+        props: {
+          label: 'מה באמת חשוב ללקוחות לדעת?',
+          rows: 3,
+          placeholder: 'תאר את המידע הכי חשוב שלקוחות רוצים לקבל...'
         }
       },
       {

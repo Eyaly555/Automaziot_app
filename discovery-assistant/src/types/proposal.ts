@@ -69,6 +69,14 @@ export interface ProposalData {
   expectedROIMonths: number;
   monthlySavings: number;
   customNotes?: string;
+
+  // Client approval fields
+  approvalSignature?: string; // Base64 image data
+  approvedBy?: string; // Client name
+  approvedAt?: string; // ISO timestamp
+  approvalNotes?: string; // Additional client notes
+  rejectionFeedback?: string; // Feedback if rejected
+  rejectedAt?: string; // ISO timestamp
 }
 
 export interface ProposalExport {

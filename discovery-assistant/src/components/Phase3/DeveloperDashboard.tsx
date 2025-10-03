@@ -17,6 +17,7 @@ import {
   Play,
   Languages
 } from 'lucide-react';
+import { ExportMenu } from '../Common/ExportMenu';
 
 type ViewMode = 'kanban' | 'list' | 'sprint' | 'system' | 'team';
 type Language = 'he' | 'en';
@@ -318,6 +319,9 @@ export const DeveloperDashboard: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-4">
+              {/* Export Menu */}
+              <ExportMenu variant="button" />
+
               {/* Language Toggle */}
               <button
                 onClick={toggleLanguage}

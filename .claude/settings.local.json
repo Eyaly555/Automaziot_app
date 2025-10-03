@@ -61,7 +61,14 @@
       "Bash(for file in AIAgents/AIAgentsModule.tsx AIAgents/AIAgentUseCaseBuilder.tsx AIAgents/AIModelSelector.tsx CustomerService/CustomerServiceModule.tsx LeadsAndSales/LeadsAndSalesModule.tsx Operations/OperationsModule.tsx Planning/PlanningModule.tsx Reporting/ReportingModule.tsx ROI/ROIModule.tsx Systems/SystemsModule.tsx Systems/SystemsModuleEnhanced.tsx)",
       "Bash(do sed -i 's/currentMeeting?.modules\\./currentMeeting?.modules?./g' \"$file\")",
       "Bash(echo \"Fixed: $file\")",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(for dir in */)",
+      "Bash(do echo \"=== $dir%/ ===\")",
+      "Bash(wc:*)",
+      "Bash(awk:*)",
+      "Bash(for:*)",
+      "Bash(do echo \"=== $dir ===\")",
+      "Bash(do echo \"=== Module: $dir%/ ===\")"
     ],
     "deny": [],
     "ask": []
