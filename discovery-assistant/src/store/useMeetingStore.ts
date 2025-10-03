@@ -115,6 +115,26 @@ interface MeetingStore {
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
+/**
+ * Normalizes phase names to lowercase to handle legacy/Zoho data with capitalized phases
+ *
+ * This prevents "Discovery" from Zoho being treated as different from "discovery" in the app.
+ * Also ensures backward compatibility with old data that might have capitalized phases.
+ *
+ * @param phase - The phase value (potentially capitalized)
+ * @returns Normalized phase in lowercase
+ */
+const normalizePhase = (phase: string | undefined): MeetingPhase => {
+  if (!phase) return 'discovery';
+  const normalized = phase.toLowerCase();
+  // Validate it's a valid phase
+  if (['discovery', 'implementation_spec', 'development', 'completed'].includes(normalized)) {
+    return normalized as MeetingPhase;
+  }
+  console.warn('[Store] Invalid phase value:', phase, '- defaulting to discovery');
+  return 'discovery';
+};
+
 // Helper function to get localStorage key based on Zoho integration
 const getStorageKey = (meeting: Meeting | null): string => {
   if (meeting?.zohoIntegration?.recordId) {
@@ -244,8 +264,10 @@ export const useMeetingStore = create<MeetingStore>()(
         set((state) => {
           const meeting = state.meetings.find(m => m.meetingId === meetingId);
           if (meeting) {
-            // Ensure phase and status exist (for backward compatibility with old data)
-            if (!meeting.phase) meeting.phase = 'discovery';
+            // Normalize phase (handle capitalized phases from Zoho/legacy data)
+            meeting.phase = normalizePhase(meeting.phase as any);
+
+            // Ensure status exists (for backward compatibility with old data)
             if (!meeting.status) meeting.status = 'discovery_in_progress';
             if (!meeting.phaseHistory) meeting.phaseHistory = [{
               fromPhase: null,
@@ -279,12 +301,14 @@ export const useMeetingStore = create<MeetingStore>()(
           if (existingData) {
             try {
               const meeting = JSON.parse(existingData);
-              // Ensure phase and status exist (for backward compatibility with old data)
-              if (!meeting.phase) meeting.phase = initialData.phase || 'discovery';
+              // Normalize phase (handle capitalized phases from Zoho/legacy data)
+              const normalizedPhase = normalizePhase(initialData.phase as any || meeting.phase as any);
+
+              // Ensure status exists (for backward compatibility with old data)
               if (!meeting.status) meeting.status = initialData.status || 'discovery_in_progress';
               if (!meeting.phaseHistory) meeting.phaseHistory = initialData.phaseHistory || [{
                 fromPhase: null,
-                toPhase: meeting.phase,
+                toPhase: normalizedPhase,
                 timestamp: new Date(),
                 transitionedBy: 'system'
               }];
@@ -296,7 +320,7 @@ export const useMeetingStore = create<MeetingStore>()(
                   ...meeting.modules,
                   ...(initialData.modules || {})
                 },
-                phase: initialData.phase || meeting.phase,
+                phase: normalizedPhase,
                 status: initialData.status || meeting.status,
                 phaseHistory: initialData.phaseHistory || meeting.phaseHistory
               };
@@ -312,6 +336,9 @@ export const useMeetingStore = create<MeetingStore>()(
         }
 
         // Create new meeting with initial data
+        // Normalize phase from initialData (handle capitalized phases from Zoho)
+        const normalizedPhase = normalizePhase(initialData.phase as any);
+
         const meeting: Meeting = {
           meetingId: generateId(),
           clientName: initialData.clientName || 'New Client',
@@ -331,12 +358,12 @@ export const useMeetingStore = create<MeetingStore>()(
           },
           painPoints: [],
           notes: initialData.notes || '',
-          // Initialize phase tracking with defaults from initialData or fallback to 'discovery'
-          phase: initialData.phase || 'discovery',
+          // Initialize phase tracking with normalized phase
+          phase: normalizedPhase,
           status: initialData.status || 'discovery_in_progress',
           phaseHistory: initialData.phaseHistory || [{
             fromPhase: null,
-            toPhase: initialData.phase || 'discovery',
+            toPhase: normalizedPhase,
             timestamp: new Date(),
             transitionedBy: 'system'
           }],
@@ -414,8 +441,10 @@ export const useMeetingStore = create<MeetingStore>()(
         if (data) {
           try {
             const meeting = JSON.parse(data);
-            // Ensure phase and status exist (for backward compatibility with old data)
-            if (!meeting.phase) meeting.phase = 'discovery';
+            // Normalize phase (handle capitalized phases from Zoho/legacy data)
+            meeting.phase = normalizePhase(meeting.phase as any);
+
+            // Ensure status exists (for backward compatibility with old data)
             if (!meeting.status) meeting.status = 'discovery_in_progress';
             if (!meeting.phaseHistory) meeting.phaseHistory = [{
               fromPhase: null,
@@ -708,8 +737,10 @@ export const useMeetingStore = create<MeetingStore>()(
       importMeeting: (data) => {
         try {
           const meeting = JSON.parse(data);
-          // Ensure phase and status exist (for backward compatibility with old data)
-          if (!meeting.phase) meeting.phase = 'discovery';
+          // Normalize phase (handle capitalized phases from Zoho/legacy data)
+          meeting.phase = normalizePhase(meeting.phase as any);
+
+          // Ensure status exists (for backward compatibility with old data)
           if (!meeting.status) meeting.status = 'discovery_in_progress';
           if (!meeting.phaseHistory) meeting.phaseHistory = [{
             fromPhase: null,
@@ -1129,8 +1160,10 @@ export const useMeetingStore = create<MeetingStore>()(
             const mergedMeetings = [...localMeetings];
 
             result.meetings.forEach(pulledMeeting => {
-              // Ensure phase and status exist (for backward compatibility with old data)
-              if (!pulledMeeting.phase) pulledMeeting.phase = 'discovery';
+              // Normalize phase (handle capitalized phases from Zoho/legacy data)
+              pulledMeeting.phase = normalizePhase(pulledMeeting.phase as any);
+
+              // Ensure status exists (for backward compatibility with old data)
               if (!pulledMeeting.status) pulledMeeting.status = 'discovery_in_progress';
               if (!pulledMeeting.phaseHistory) pulledMeeting.phaseHistory = [{
                 fromPhase: null,
@@ -1289,33 +1322,35 @@ export const useMeetingStore = create<MeetingStore>()(
           return false;
         }
 
-        const currentPhase = currentMeeting.phase;
+        // Normalize phase names to lowercase (handle legacy/Zoho data with capitalized phases)
+        const currentPhase = (currentMeeting.phase?.toLowerCase() || 'discovery') as MeetingPhase;
+        const normalizedTargetPhase = (targetPhase?.toLowerCase() || 'discovery') as MeetingPhase;
 
         // Cannot transition to the same phase
-        if (currentPhase === targetPhase) {
-          console.warn('[Phase Validation] Already in target phase:', targetPhase);
+        if (currentPhase === normalizedTargetPhase) {
+          console.warn('[Phase Validation] Already in target phase:', normalizedTargetPhase);
           return false;
         }
 
         // Define the phase order for validation
         const phaseOrder: MeetingPhase[] = ['discovery', 'implementation_spec', 'development', 'completed'];
         const currentIndex = phaseOrder.indexOf(currentPhase);
-        const targetIndex = phaseOrder.indexOf(targetPhase);
+        const targetIndex = phaseOrder.indexOf(normalizedTargetPhase);
 
         // Prevent backwards transitions (data integrity)
         if (targetIndex < currentIndex) {
-          console.warn('[Phase Validation] Backwards transition not allowed:', currentPhase, '→', targetPhase);
+          console.warn('[Phase Validation] Backwards transition not allowed:', currentPhase, '→', normalizedTargetPhase);
           return false;
         }
 
         // Prevent phase skipping (completeness check)
         if (targetIndex > currentIndex + 1) {
-          console.warn('[Phase Validation] Cannot skip phases:', currentPhase, '→', targetPhase);
+          console.warn('[Phase Validation] Cannot skip phases:', currentPhase, '→', normalizedTargetPhase);
           return false;
         }
 
         // Check prerequisites based on target phase
-        switch (targetPhase) {
+        switch (normalizedTargetPhase) {
           case 'implementation_spec':
             // Must have client approval status
             if (currentMeeting.status !== 'client_approved') {
@@ -1363,7 +1398,7 @@ export const useMeetingStore = create<MeetingStore>()(
             return true;
 
           default:
-            console.warn('[Phase Validation] Unknown target phase:', targetPhase);
+            console.warn('[Phase Validation] Unknown target phase:', normalizedTargetPhase);
             return false;
         }
       },
@@ -1788,6 +1823,9 @@ export const useMeetingStore = create<MeetingStore>()(
             const meeting = await supabaseService.loadMeeting(recordId);
 
             if (meeting) {
+              // Normalize phase (handle capitalized phases from Zoho/legacy data)
+              meeting.phase = normalizePhase(meeting.phase as any);
+
               console.log('[ZohoClients] ✅ Loaded from Supabase');
               set({ currentMeeting: meeting });
               return; // Success! Exit early
@@ -1802,8 +1840,10 @@ export const useMeetingStore = create<MeetingStore>()(
           if (localData) {
             try {
               const meeting = JSON.parse(localData);
-              // Ensure phase and status exist (for backward compatibility)
-              if (!meeting.phase) meeting.phase = 'discovery';
+              // Normalize phase (handle capitalized phases from Zoho/legacy data)
+              meeting.phase = normalizePhase(meeting.phase as any);
+
+              // Ensure status exists (for backward compatibility)
               if (!meeting.status) meeting.status = 'discovery_in_progress';
               if (!meeting.phaseHistory) meeting.phaseHistory = [{
                 fromPhase: null,
@@ -1829,8 +1869,10 @@ export const useMeetingStore = create<MeetingStore>()(
 
           if (data.success && data.meetingData) {
             const meeting = data.meetingData;
-            // Ensure phase and status exist
-            if (!meeting.phase) meeting.phase = 'discovery';
+            // Normalize phase (handle capitalized phases from Zoho/legacy data)
+            meeting.phase = normalizePhase(meeting.phase as any);
+
+            // Ensure status exists (for backward compatibility)
             if (!meeting.status) meeting.status = 'discovery_in_progress';
             if (!meeting.phaseHistory) meeting.phaseHistory = [{
               fromPhase: null,
