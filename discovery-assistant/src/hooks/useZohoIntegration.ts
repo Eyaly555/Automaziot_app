@@ -16,30 +16,34 @@ export const useZohoIntegration = () => {
   const search = searchParams.toString();
 
   useEffect(() => {
-    // Check for test mode first
-    if (isTestZohoMode()) {
-      const testParams = getTestZohoParams();
-      if (testParams) {
-        setIsZohoMode(true);
-        createNewMeeting(testParams);
-        return;
+    const initializeZoho = async () => {
+      // Check for test mode first
+      if (isTestZohoMode()) {
+        const testParams = getTestZohoParams();
+        if (testParams) {
+          setIsZohoMode(true);
+          await createNewMeeting(testParams);
+          return;
+        }
       }
-    }
 
-    const params = parseZohoParams(search ? `?${search}` : '');
-    if (!params || !validateZohoParams(params)) return;
+      const params = parseZohoParams(search ? `?${search}` : '');
+      if (!params || !validateZohoParams(params)) return;
 
-    setIsZohoMode(true);
+      setIsZohoMode(true);
 
-    // Check if we're already viewing this record
-    const currentRecordId = store.currentMeeting?.zohoIntegration?.recordId;
-    if (currentRecordId === params.zohoRecordId) {
-      console.log('Already viewing this Zoho record');
-      return; // Already loaded the correct meeting
-    }
+      // Check if we're already viewing this record
+      const currentRecordId = store.currentMeeting?.zohoIntegration?.recordId;
+      if (currentRecordId === params.zohoRecordId) {
+        console.log('Already viewing this Zoho record');
+        return; // Already loaded the correct meeting
+      }
 
-    // Load data from Zoho first (two-way sync!)
-    loadFromZoho(params);
+      // Load data from Zoho first (two-way sync!)
+      await loadFromZoho(params);
+    };
+
+    initializeZoho();
   }, [search]);
 
   const loadFromZoho = async (params: any) => {
@@ -67,7 +71,7 @@ export const useZohoIntegration = () => {
         };
 
         // Load the meeting from Zoho data
-        store.createOrLoadMeeting(meetingData);
+        await store.createOrLoadMeeting(meetingData);
 
         // Also save to localStorage for offline access
         const localKey = getZohoStorageKey(params.zohoRecordId);
@@ -86,17 +90,18 @@ export const useZohoIntegration = () => {
           try {
             const meeting = JSON.parse(existingData);
             console.log('Loading from localStorage (will sync to Zoho)');
-            store.loadMeeting(meeting.meetingId);
+            // Use createOrLoadMeeting to check Supabase first
+            await store.createOrLoadMeeting(meeting);
             // Trigger sync to save this to Zoho
             setTimeout(() => syncToZoho(), 2000);
           } catch (e) {
             console.error('Failed to parse localStorage data');
-            createNewMeeting(params);
+            await createNewMeeting(params);
           }
         } else {
           // No data anywhere - create new meeting
           console.log('Creating new meeting for Zoho record:', params.zohoRecordId);
-          createNewMeeting(params);
+          await createNewMeeting(params);
         }
       }
     } catch (error) {
@@ -108,19 +113,20 @@ export const useZohoIntegration = () => {
       if (existingData) {
         try {
           const meeting = JSON.parse(existingData);
-          store.loadMeeting(meeting.meetingId);
+          // Use createOrLoadMeeting to check Supabase first
+          await store.createOrLoadMeeting(meeting);
         } catch (e) {
-          createNewMeeting(params);
+          await createNewMeeting(params);
         }
       } else {
-        createNewMeeting(params);
+        await createNewMeeting(params);
       }
     }
   };
 
-  const createNewMeeting = (params: any) => {
+  const createNewMeeting = async (params: any) => {
     const mappedData = mapZohoToMeeting(params);
-    store.createOrLoadMeeting(mappedData);
+    await store.createOrLoadMeeting(mappedData);
   };
 
   const syncToZoho = async () => {

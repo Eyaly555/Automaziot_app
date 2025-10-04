@@ -24,7 +24,7 @@ interface MeetingStore {
   deleteMeeting: (meetingId: string) => void;
 
   // Zoho-specific actions
-  createOrLoadMeeting: (initialData: Partial<Meeting>) => void;
+  createOrLoadMeeting: (initialData: Partial<Meeting>) => Promise<void>;
   updateZohoLastSync: (time: string) => void;
   setZohoSyncEnabled: (enabled: boolean) => void;
   loadMeetingByZohoId: (recordId: string) => Meeting | null;
@@ -290,12 +290,70 @@ export const useMeetingStore = create<MeetingStore>()(
       },
 
       // Zoho-specific actions
-      createOrLoadMeeting: (initialData) => {
+      createOrLoadMeeting: async (initialData) => {
         const state = get();
 
         // If Zoho record ID provided, check for existing meeting
         if (initialData.zohoIntegration?.recordId) {
-          const storageKey = `discovery_zoho_${initialData.zohoIntegration.recordId}`;
+          const recordId = initialData.zohoIntegration.recordId;
+
+          // STEP 1: Check Supabase first (for cross-device data)
+          if (isSupabaseReady()) {
+            console.log('[Store] Checking Supabase for existing meeting:', recordId);
+            try {
+              const supabaseMeeting = await supabaseService.loadMeeting(recordId);
+
+              if (supabaseMeeting) {
+                console.log('[Store] ✅ Found existing meeting in Supabase, loading...');
+                // Normalize phase (handle capitalized phases from Zoho/legacy data)
+                const normalizedPhase = normalizePhase(initialData.phase as any || supabaseMeeting.phase as any);
+
+                // Ensure status exists (for backward compatibility)
+                if (!supabaseMeeting.status) supabaseMeeting.status = initialData.status || 'discovery_in_progress';
+                if (!supabaseMeeting.phaseHistory) supabaseMeeting.phaseHistory = initialData.phaseHistory || [{
+                  fromPhase: null,
+                  toPhase: normalizedPhase,
+                  timestamp: new Date(),
+                  transitionedBy: 'system'
+                }];
+
+                // Update with any new data from Zoho
+                const updatedMeeting = {
+                  ...supabaseMeeting,
+                  ...initialData,
+                  modules: {
+                    ...supabaseMeeting.modules,
+                    ...(initialData.modules || {})
+                  },
+                  phase: normalizedPhase,
+                  status: initialData.status || supabaseMeeting.status,
+                  phaseHistory: initialData.phaseHistory || supabaseMeeting.phaseHistory
+                };
+
+                set({
+                  currentMeeting: updatedMeeting,
+                  meetings: [...state.meetings.filter(m => m.meetingId !== supabaseMeeting.meetingId), updatedMeeting]
+                });
+
+                // Also update localStorage
+                try {
+                  const storageKey = `discovery_zoho_${recordId}`;
+                  localStorage.setItem(storageKey, JSON.stringify(updatedMeeting));
+                } catch (error) {
+                  console.error('[Store] Failed to update localStorage:', error);
+                }
+
+                return; // Meeting found and loaded - exit
+              }
+              console.log('[Store] No meeting found in Supabase, checking localStorage...');
+            } catch (error) {
+              console.error('[Store] Error checking Supabase:', error);
+              // Continue to localStorage check
+            }
+          }
+
+          // STEP 2: Check localStorage (fallback)
+          const storageKey = `discovery_zoho_${recordId}`;
           const existingData = localStorage.getItem(storageKey);
 
           if (existingData) {
@@ -328,11 +386,21 @@ export const useMeetingStore = create<MeetingStore>()(
                 currentMeeting: updatedMeeting,
                 meetings: [...state.meetings.filter(m => m.meetingId !== meeting.meetingId), updatedMeeting]
               });
-              return;
+
+              // Save to Supabase for cross-device sync
+              if (isSupabaseReady()) {
+                console.log('[Store] Saving localStorage meeting to Supabase for sync...');
+                await supabaseService.saveMeeting(updatedMeeting);
+              }
+
+              return; // Meeting found in localStorage - exit
             } catch (e) {
-              console.error('Failed to parse existing meeting data:', e);
+              console.error('[Store] Failed to parse existing meeting data:', e);
             }
           }
+
+          // STEP 3: No existing meeting found - create new one
+          console.log('[Store] No existing meeting found, creating new one for:', recordId);
         }
 
         // Create new meeting with initial data
@@ -381,7 +449,13 @@ export const useMeetingStore = create<MeetingStore>()(
         try {
           localStorage.setItem(getStorageKey(meeting), JSON.stringify(meeting));
         } catch (error) {
-          console.error('Failed to save meeting to localStorage:', error);
+          console.error('[Store] Failed to save meeting to localStorage:', error);
+        }
+
+        // Save to Supabase immediately for new meetings
+        if (isSupabaseReady() && meeting.zohoIntegration?.recordId) {
+          console.log('[Store] Saving new meeting to Supabase...');
+          await supabaseService.saveMeeting(meeting);
         }
       },
 
