@@ -68,7 +68,8 @@
       "Bash(awk:*)",
       "Bash(for:*)",
       "Bash(do echo \"=== $dir ===\")",
-      "Bash(do echo \"=== Module: $dir%/ ===\")"
+      "Bash(do echo \"=== Module: $dir%/ ===\")",
+      "mcp__chrome-mcp-server__chrome_send_command_to_inject_script"
     ],
     "deny": [],
     "ask": []

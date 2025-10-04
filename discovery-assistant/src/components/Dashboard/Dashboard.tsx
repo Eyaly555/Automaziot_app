@@ -63,7 +63,6 @@ export const Dashboard: React.FC = () => {
   const {
     currentMeeting,
     meetings,
-    createMeeting,
     loadMeeting,
     deleteMeeting,
     getModuleProgress,
@@ -95,6 +94,13 @@ export const Dashboard: React.FC = () => {
     };
   }, []);
 
+  // Redirect to clients list if no current meeting
+  useEffect(() => {
+    if (!currentMeeting) {
+      navigate('/clients');
+    }
+  }, [currentMeeting, navigate]);
+
   // Check for 100% completion
   useEffect(() => {
     if (overallProgress === 100 && !showConfetti) {
@@ -115,21 +121,11 @@ export const Dashboard: React.FC = () => {
 
   const handleModuleClick = (moduleId: string) => {
     if (!currentMeeting) {
-      const clientName = prompt('שם הלקוח:');
-      if (clientName) {
-        createMeeting(clientName);
-        setTimeout(() => navigate(`/module/${moduleId}`), 100);
-      }
+      // Redirect to clients list if no meeting selected
+      navigate('/clients');
       return;
     }
     navigate(`/module/${moduleId}`);
-  };
-
-  const handleNewMeeting = () => {
-    const clientName = prompt('שם הלקוח:');
-    if (clientName) {
-      createMeeting(clientName);
-    }
   };
 
   const handleStartWizard = () => {
@@ -447,15 +443,6 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
                     {zohoClientsList.length}
                   </span>
                 )}
-              </button>
-
-              {/* New Meeting */}
-              <button
-                onClick={handleNewMeeting}
-                className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-md"
-              >
-                <Plus className="w-4 h-4" />
-                <span>פגישה חדשה</span>
               </button>
             </div>
           </div>
@@ -813,6 +800,10 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
           )}
         </div>
       ) : (
+        /* LEGACY: Welcome screen - Currently unreachable due to redirect in useEffect (line 99-103)
+         * Will be replaced with auth-based landing page in future implementation
+         * Code preserved for reference and future authentication system integration
+         */
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-2xl mx-auto text-center">
             <div className="bg-white rounded-xl shadow-lg p-12">
@@ -822,11 +813,11 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
               </p>
               <div className="flex gap-4 justify-center">
                 <button
-                  onClick={handleNewMeeting}
+                  onClick={() => navigate('/clients')}
                   className="px-8 py-4 bg-primary hover:bg-blue-600 text-white rounded-lg text-lg font-semibold transition-all duration-200 hover:scale-105 shadow-lg"
                 >
                   <Plus className="w-5 h-5 inline mr-2" />
-                  התחל פגישה חדשה
+                  בחר לקוח
                 </button>
                 {meetings.length > 0 && (
                   <button

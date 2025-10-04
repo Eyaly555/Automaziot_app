@@ -47,7 +47,7 @@ export const ClientsListView: React.FC = () => {
     setSelectedClient(recordId);
     try {
       await loadClientFromZoho(recordId);
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       console.error('Failed to load client:', error);
       alert('שגיאה בטעינת הלקוח. אנא נסה שוב.');
