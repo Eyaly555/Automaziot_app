@@ -1,5 +1,28 @@
 // Main types for Discovery Assistant application
 
+// ============================================================================
+// NEW UX SYSTEM TYPES (Design System, Forms, Navigation, Feedback, Progress)
+// ============================================================================
+
+// Re-export design system types
+export * from './design-system';
+
+// Re-export form types
+export * from './forms';
+
+// Re-export navigation types
+export * from './navigation';
+
+// Re-export feedback types
+export * from './feedback';
+
+// Re-export progress types
+export * from './progress';
+
+// ============================================================================
+// EXISTING MODULE TYPES
+// ============================================================================
+
 // Re-export proposal types
 export * from './proposal';
 
