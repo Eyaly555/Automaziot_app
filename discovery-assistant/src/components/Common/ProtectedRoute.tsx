@@ -73,7 +73,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
               icon: '⚠️'
             }
           );
-          navigate('/');
+          navigate('/dashboard');
           setIsValidating(false);
         }
         return;
@@ -175,7 +175,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const navigateToPhaseRoute = (phase: MeetingPhase) => {
     switch (phase) {
       case 'discovery':
-        navigate('/');
+        navigate('/dashboard');
         break;
       case 'implementation_spec':
         navigate('/phase2');
@@ -187,7 +187,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         navigate('/summary');
         break;
       default:
-        navigate('/');
+        navigate('/dashboard');
     }
   };
 

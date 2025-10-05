@@ -143,7 +143,7 @@ export const WizardMode: React.FC = () => {
   const handleNext = () => {
     if (showSummary) {
       // Complete wizard
-      navigate('/');
+      navigate('/dashboard');
       return;
     }
 
@@ -200,7 +200,7 @@ export const WizardMode: React.FC = () => {
   const handleExitWizard = () => {
     // Sync all data before exiting
     syncWizardToModules();
-    navigate('/');
+    navigate('/dashboard');
   };
 
   // Calculate progress

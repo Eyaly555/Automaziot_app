@@ -38,7 +38,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">לא נמצאה פגישה</h2>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/dashboard')}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             חזרה לדשבורד
@@ -215,7 +215,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
         <RequirementsNavigator
           meeting={currentMeeting}
           onComplete={handleRequirementsComplete}
-          onBack={() => navigate('/')}
+          onBack={() => navigate('/dashboard')}
           language="he"
         />
       </div>
@@ -243,7 +243,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
               <ExportMenu variant="button" />
 
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/dashboard')}
                 className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
               >
                 חזרה לדשבורד

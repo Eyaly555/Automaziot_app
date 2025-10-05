@@ -249,7 +249,7 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
   const navigateToPhase = (phase: MeetingPhase) => {
     switch (phase) {
       case 'discovery':
-        navigate('/');
+        navigate('/dashboard');
         break;
       case 'implementation_spec':
         navigate('/phase2');

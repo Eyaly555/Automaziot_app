@@ -261,7 +261,7 @@ export const ProposalModule: React.FC = () => {
 
     updateModule('proposal', proposalData);
     completeMeeting();
-    navigate('/');
+    navigate('/dashboard');
   };
 
   const updateFilters = (newFilters: Partial<Filters>) => {
@@ -305,7 +305,7 @@ export const ProposalModule: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/dashboard')}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <ArrowRight className="w-5 h-5" />
@@ -742,7 +742,7 @@ export const ProposalModule: React.FC = () => {
           {/* Action Buttons */}
           <div className="flex gap-4 justify-end border-t pt-6">
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/dashboard')}
               className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               חזור

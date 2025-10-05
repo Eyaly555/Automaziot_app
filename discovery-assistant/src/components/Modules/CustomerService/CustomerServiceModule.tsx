@@ -242,7 +242,7 @@ export const CustomerServiceModule: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/dashboard')}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-all duration-200 hover:scale-110"
                 aria-label="חזרה לדשבורד"
               >

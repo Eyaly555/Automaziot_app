@@ -67,7 +67,7 @@ export const PlanningModule: React.FC = () => {
 
   const handleComplete = () => {
     completeMeeting();
-    navigate('/');
+    navigate('/dashboard');
   };
 
   // Get pain points count from all modules
@@ -80,7 +80,7 @@ export const PlanningModule: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/dashboard')}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <ArrowRight className="w-5 h-5" />

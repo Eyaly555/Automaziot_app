@@ -238,7 +238,7 @@ export const DeveloperDashboard: React.FC = () => {
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">{t.errors.noProject}</h2>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/dashboard')}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             {t.errors.backToDashboard}
@@ -307,7 +307,7 @@ export const DeveloperDashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/dashboard')}
                 className="p-2 hover:bg-gray-100 rounded-lg transition"
               >
                 <ArrowLeft className="w-6 h-6" />

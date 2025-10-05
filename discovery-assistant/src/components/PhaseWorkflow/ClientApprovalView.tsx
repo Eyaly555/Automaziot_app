@@ -144,7 +144,7 @@ export const ClientApprovalView: React.FC = () => {
   // Redirect if no proposal exists
   useEffect(() => {
     if (!currentMeeting) {
-      navigate('/');
+      navigate('/dashboard');
       return;
     }
     if (!proposalData || selectedServices.length === 0) {

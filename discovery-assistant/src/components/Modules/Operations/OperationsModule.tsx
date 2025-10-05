@@ -369,7 +369,7 @@ export const OperationsModule: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/dashboard')}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-all duration-300 hover:scale-110"
               >
                 <ArrowRight className="w-5 h-5" />
@@ -377,7 +377,7 @@ export const OperationsModule: React.FC = () => {
 
               {/* Breadcrumbs */}
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span className="hover:text-gray-900 cursor-pointer" onClick={() => navigate('/')}>
+                <span className="hover:text-gray-900 cursor-pointer" onClick={() => navigate('/dashboard')}>
                   ראשי
                 </span>
                 <span>/</span>

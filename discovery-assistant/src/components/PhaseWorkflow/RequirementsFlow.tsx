@@ -126,7 +126,7 @@ export const RequirementsFlow: React.FC<RequirementsFlowProps> = ({
               : 'Please create a new meeting or load an existing one to continue.'}
           </p>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/dashboard')}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             {language === 'he' ? 'חזור לדשבורד' : 'Back to Dashboard'}
