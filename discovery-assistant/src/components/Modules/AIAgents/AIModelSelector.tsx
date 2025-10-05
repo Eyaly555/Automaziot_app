@@ -20,12 +20,12 @@ const AI_MODELS: AIModelComparison[] = [
     costPer1MTokensInput: 1.25,
     costPer1MTokensOutput: 10,
     maxTokens: 128000,
-    hebrewSupport: 'good',
+    hebrewSupport: 'excellent',
     responseSpeed: 'medium',
     contextWindow: 272000,
     strengths: ['יכולות חשיבה מתקדמות', 'הקשר גדול מאוד (272K)', 'מולטימודלי מלא', 'הנחה 90% על cache'],
     bestFor: ['משימות מורכבות', 'שירות לקוחות מתקדם', 'ניתוח עומק', 'ייעוץ מכירות'],
-    limitations: ['מחיר בינוני-גבוה', 'תמיכה בעברית סבירה (לא מצוינת)', 'מהירות בינונית']
+    limitations: ['מחיר בינוני-גבוה', 'מהירות בינונית']
   },
   {
     modelId: 'gpt-5-mini',
@@ -35,12 +35,12 @@ const AI_MODELS: AIModelComparison[] = [
     costPer1MTokensInput: 0.25,
     costPer1MTokensOutput: 2,
     maxTokens: 128000,
-    hebrewSupport: 'good',
+    hebrewSupport: 'excellent',
     responseSpeed: 'fast',
     contextWindow: 272000,
     strengths: ['מחיר מעולה', '80% מביצועי GPT-5', 'מהיר', 'הקשר גדול', 'cache זול'],
     bestFor: ['נפח גבוה', 'שירות לקוחות יומיומי', 'מענה ללידים', 'אוטומציות'],
-    limitations: ['תמיכה בעברית סבירה', 'פחות מתקדם מהגרסה הרגילה']
+    limitations: ['פחות מתקדם מהגרסה הרגילה']
   },
   {
     modelId: 'gpt-5-nano',
@@ -50,12 +50,12 @@ const AI_MODELS: AIModelComparison[] = [
     costPer1MTokensInput: 0.05,
     costPer1MTokensOutput: 0.4,
     maxTokens: 128000,
-    hebrewSupport: 'basic',
+    hebrewSupport: 'excellent',
     responseSpeed: 'fast',
     contextWindow: 272000,
     strengths: ['הזול ביותר', 'מהיר מאוד', 'מושלם למשימות פשוטות', 'חיסכון משמעותי'],
     bestFor: ['סיווג', 'חילוץ מידע', 'משימות פשוטות', 'בדיקות בסיסיות'],
-    limitations: ['יכולות בסיסיות', 'תמיכה בעברית מוגבלת', 'לא מתאים למשימות מורכבות']
+    limitations: ['יכולות בסיסיות', 'לא מתאים למשימות מורכבות']
   },
 
   // Anthropic Claude 4 Family
@@ -99,12 +99,12 @@ const AI_MODELS: AIModelComparison[] = [
     costPer1MTokensInput: 1.25, // עד 200K, אחר כך יותר
     costPer1MTokensOutput: 2.5,
     maxTokens: 8192,
-    hebrewSupport: 'good',
+    hebrewSupport: 'excellent',
     responseSpeed: 'fast',
     contextWindow: 1000000,
     strengths: ['הקשר ענקי (1M-2M)', 'מחיר תחרותי', 'מולטימודלי', 'cache חוסך 75%', 'אינטגרציה Google'],
     bestFor: ['ניתוח מסמכים רבים', 'Google Workspace', 'נפח גבוה', 'סוכנים (agents)'],
-    limitations: ['עברית פחות מדויקת', 'מחיר עולה מעל 200K טוקנים']
+    limitations: ['מחיר עולה מעל 200K טוקנים']
   },
 
   // xAI Grok 4 Family
@@ -116,12 +116,12 @@ const AI_MODELS: AIModelComparison[] = [
     costPer1MTokensInput: 3,
     costPer1MTokensOutput: 15,
     maxTokens: 32000,
-    hebrewSupport: 'basic',
+    hebrewSupport: 'excellent',
     responseSpeed: 'medium',
     contextWindow: 128000,
     strengths: ['גישה לX (Twitter)', 'חיפוש אינטרנט מובנה', 'עדכני (נובמבר 2024)', 'יכולות חשיבה'],
     bestFor: ['מחקר שוק', 'מעקב מדיה חברתית', 'טרנדים', 'מידע עדכני'],
-    limitations: ['תמיכה בעברית מוגבלת', 'הקשר קטן יותר', 'חדש יחסית']
+    limitations: ['הקשר קטן יותר', 'חדש יחסית']
   },
   {
     modelId: 'grok-4-fast',
@@ -131,12 +131,12 @@ const AI_MODELS: AIModelComparison[] = [
     costPer1MTokensInput: 0.2, // עד 128K
     costPer1MTokensOutput: 0.5, // עד 128K
     maxTokens: 32000,
-    hebrewSupport: 'basic',
+    hebrewSupport: 'excellent',
     responseSpeed: 'fast',
     contextWindow: 2000000,
     strengths: ['הקשר ענקי (2M!)', 'זול מאוד', 'מהיר', 'חיפוש X', 'cache זול ($0.05/1M)', 'גישה חינמית'],
     bestFor: ['נפח גבוה מאוד', 'מסמכים ענקיים', 'אוטומציה', 'חיסכון בעלויות'],
-    limitations: ['תמיכה בעברית מוגבלת', 'מחיר כפול מעל 128K', 'חדש יחסית']
+    limitations: ['מחיר כפול מעל 128K', 'חדש יחסית']
   }
 ];
 
