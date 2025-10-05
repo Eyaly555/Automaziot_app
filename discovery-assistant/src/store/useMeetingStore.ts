@@ -551,6 +551,39 @@ export const useMeetingStore = create<MeetingStore>()(
             }
           };
 
+          // BIDIRECTIONAL SYNC: Overview ↔ LeadsAndSales/CustomerService
+          // If overview.leadSources is updated, sync to leadsAndSales.leadSources
+          if (moduleName === 'overview' && data.leadSources !== undefined) {
+            updatedMeeting.modules.leadsAndSales = {
+              ...updatedMeeting.modules.leadsAndSales,
+              leadSources: data.leadSources
+            };
+          }
+
+          // If leadsAndSales.leadSources is updated, sync to overview.leadSources
+          if (moduleName === 'leadsAndSales' && data.leadSources !== undefined) {
+            updatedMeeting.modules.overview = {
+              ...updatedMeeting.modules.overview,
+              leadSources: data.leadSources
+            };
+          }
+
+          // If overview.serviceChannels is updated, sync to customerService.channels
+          if (moduleName === 'overview' && data.serviceChannels !== undefined) {
+            updatedMeeting.modules.customerService = {
+              ...updatedMeeting.modules.customerService,
+              channels: data.serviceChannels
+            };
+          }
+
+          // If customerService.channels is updated, sync to overview.serviceChannels
+          if (moduleName === 'customerService' && data.channels !== undefined) {
+            updatedMeeting.modules.overview = {
+              ...updatedMeeting.modules.overview,
+              serviceChannels: data.channels
+            };
+          }
+
           // Save to Supabase (debounced)
           debouncedSaveToSupabase(updatedMeeting);
 

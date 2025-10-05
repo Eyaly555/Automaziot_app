@@ -13,7 +13,8 @@
       "Read(//c/Users/eyaly/.config/**)",
       "Bash(echo $APPDATA)",
       "Bash(ls:*)",
-      "Bash(claude mcp add:*)"
+      "Bash(claude mcp add:*)",
+      "Read(//c//**)"
     ],
     "deny": [],
     "ask": []

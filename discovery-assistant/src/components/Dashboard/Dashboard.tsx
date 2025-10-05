@@ -48,7 +48,8 @@ interface ModuleConfig {
 }
 
 const modules: ModuleConfig[] = [
-  { id: 'overview', name: 'סקירה כללית', icon: '1️⃣', subModules: 0, description: 'מידע בסיסי על העסק, סוג העסק, מספר עובדים ויעדים' },
+  { id: 'overview', name: 'סקירה כללית', icon: '1️⃣', subModules: 0, description: 'מידע בסיסי על העסק, תחומי עניין ומקורות לידים' },
+  { id: 'essentialDetails', name: 'איפיון ממוקד', icon: '⭐', subModules: 0, description: 'שאלות ממוקדות בהתאם לתחומי העניין שבחרת' },
   { id: 'leadsAndSales', name: 'לידים ומכירות', icon: '2️⃣', subModules: 5, description: 'מקורות לידים, תהליך מכירה, זמני תגובה וניהול אפשרויות' },
   { id: 'customerService', name: 'שירות לקוחות', icon: '3️⃣', subModules: 6, description: 'ערוצי תמיכה, זמני תגובה, אונבורדינג ותקשורת פרואקטיבית' },
   { id: 'operations', name: 'תפעול פנימי', icon: '4️⃣', subModules: 6, description: 'ניהול מלאי, ספקים, תהליכים ובקרת איכות' },

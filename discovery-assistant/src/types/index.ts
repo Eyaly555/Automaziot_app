@@ -148,6 +148,7 @@ export interface Meeting {
 
 export interface Modules {
   overview: OverviewModule;
+  essentialDetails?: EssentialDetailsModule; // NEW: Dynamic discovery module
   leadsAndSales: LeadsAndSalesModule;
   customerService: CustomerServiceModule;
   operations: OperationsModule;
@@ -158,6 +159,71 @@ export interface Modules {
   proposal?: any; // ProposalData from types/proposal.ts
   planning?: PlanningModule; // Keep for backward compatibility
   requirements?: CollectedRequirements[]; // Requirements for selected services
+}
+
+// NEW: Essential Details Module - Dynamic based on focus areas
+export interface EssentialDetailsModule {
+  // Lead Capture & Management (shown if focusAreas includes 'lead_capture')
+  leadManagement?: {
+    whatHappensWhenLeadArrives?: string;
+    whoResponsible?: string;
+    timeToFirstContact?: string;
+    leadTrackingMethod?: string;
+    leadLossReasons?: string[];
+  };
+
+  // Sales Process (shown if focusAreas includes 'sales_process')
+  salesProcess?: {
+    salesStages?: string[];
+    stageCriteria?: { stage: string; criteria: string }[];
+    averageSalesCycle?: number; // days
+    conversionRate?: number; // percentage
+    opportunityTrackingMethod?: string;
+    mainSalesBottleneck?: string;
+  };
+
+  // Customer Service (shown if focusAreas includes 'customer_service')
+  customerServiceDetails?: {
+    averageResponseTime?: string;
+    ticketCategories?: string[];
+    escalationProcess?: string;
+    customerSatisfaction?: number; // 1-10
+    repeatIssues?: string[];
+  };
+
+  // Automation Opportunities (shown if focusAreas includes 'automation')
+  automationOpportunities?: {
+    repetitiveProcesses?: { name: string; frequency: string; timePerExecution: number }[];
+    manualDataEntry?: string[];
+    automationPriority?: string;
+  };
+
+  // CRM & Systems (shown if focusAreas includes 'crm_upgrade' or crmStatus !== 'none')
+  systemsDetails?: {
+    currentCrmName?: string;
+    crmUsage?: string; // how they use it today
+    crmLimitations?: string[];
+    desiredFeatures?: string[];
+    integrationNeeds?: string[];
+    userCount?: number;
+    dataVolume?: string;
+  };
+
+  // Reporting & Analytics (shown if focusAreas includes 'reporting')
+  reportingDetails?: {
+    criticalReports?: string[];
+    reportingFrequency?: string;
+    dataGaps?: string[];
+    decisionMakingChallenges?: string;
+  };
+
+  // AI Agents (shown if focusAreas includes 'ai_agents')
+  aiDetails?: {
+    aiUseCases?: string[];
+    aiReadiness?: string;
+    dataAvailability?: string;
+    expectedOutcomes?: string[];
+  };
 }
 
 export interface ModuleProgress {
@@ -192,11 +258,36 @@ export interface OverviewModule {
   businessType?: string;
   employees?: number;
   mainChallenge?: string;
-  processes?: string[];
-  currentSystems?: string[];
-  mainGoals?: string[];
   budget?: string;
+
+  // NEW: Lead Sources (moved from LeadsAndSales 2.1)
+  leadSources?: LeadSource[];
+  leadCaptureChannels?: string[]; // website, phone, chat, etc.
+  leadStorageMethod?: string; // excel, crm, email, paper
+
+  // NEW: Service Channels (moved from CustomerService 3.1)
+  serviceChannels?: ServiceChannel[];
+  serviceVolume?: string; // daily/weekly volume estimate
+  serviceSystemExists?: boolean;
+
+  // NEW: Focus Areas - what the client wants to improve
+  focusAreas?: FocusArea[];
+
+  // NEW: CRM Status
+  crmStatus?: 'none' | 'basic' | 'full';
+  crmName?: string;
+  crmSatisfaction?: 1 | 2 | 3 | 4 | 5;
 }
+
+// Focus areas that drive Essential Details module
+export type FocusArea =
+  | 'lead_capture'        // קליטת לידים וניהול ראשוני
+  | 'sales_process'       // ניהול תהליך המכירה
+  | 'customer_service'    // ניהול שירות לקוחות
+  | 'automation'          // אוטומציה של תהליכים
+  | 'crm_upgrade'         // שדרוג/החלפת CRM
+  | 'reporting'           // דיווח וניתוח נתונים
+  | 'ai_agents';          // אוטומציה מבוססת AI
 
 /**
  * Module 2 - Leads and Sales

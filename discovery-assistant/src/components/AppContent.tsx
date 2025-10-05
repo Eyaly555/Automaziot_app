@@ -6,6 +6,7 @@ import { WizardMode } from './Wizard/WizardMode';
 import { Login } from './Auth/Login';
 import { AISettings } from './Settings/AISettings';
 import { OverviewModule } from './Modules/Overview/OverviewModule';
+import { EssentialDetailsModule } from './Modules/EssentialDetails/EssentialDetailsModule';
 import { LeadsAndSalesModule } from './Modules/LeadsAndSales/LeadsAndSalesModule';
 import { CustomerServiceModule } from './Modules/CustomerService/CustomerServiceModule';
 import { OperationsModule } from './Modules/Operations/OperationsModule';
@@ -101,6 +102,7 @@ export const AppContent = () => {
         <Route path="/wizard/:stepId" element={<WizardMode />} />
         <Route path="/settings/ai" element={<AISettings />} />
         <Route path="/module/overview" element={<OverviewModule />} />
+        <Route path="/module/essentialDetails" element={<EssentialDetailsModule />} />
         <Route path="/module/leadsAndSales" element={<LeadsAndSalesModule />} />
         <Route path="/module/customerService" element={<CustomerServiceModule />} />
         <Route path="/module/operations" element={<OperationsModule />} />

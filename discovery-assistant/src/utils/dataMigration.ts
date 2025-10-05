@@ -6,9 +6,14 @@
  *
  * Version History:
  * - v1: Original structure (legacy data from localStorage)
- * - v2: Current structure (March 2025)
+ * - v2: March 2025
  *   - LeadsAndSalesModule.leadSources: object with sources property → LeadSource[] array
  *   - CustomerServiceModule.channels: object with list property → ServiceChannel[] array
+ * - v3: October 2025 - Overview Module Refactor
+ *   - Removed: OverviewModule.processes, mainGoals, currentSystems
+ *   - Added: leadSources, leadCaptureChannels, serviceChannels, focusAreas, crmStatus
+ *   - Added new module: essentialDetails
+ *   - Data moved from LeadsAndSales 2.1 and CustomerService 3.1 to Overview
  */
 
 import { Meeting, LeadsAndSalesModule, CustomerServiceModule, LeadSource, ServiceChannel } from '../types';
@@ -17,7 +22,7 @@ import { Meeting, LeadsAndSalesModule, CustomerServiceModule, LeadSource, Servic
 // CONSTANTS
 // ============================================================================
 
-export const CURRENT_DATA_VERSION = 2;
+export const CURRENT_DATA_VERSION = 3;
 export const MIGRATION_LOG_KEY = 'discovery_migration_log';
 
 // ============================================================================
@@ -113,6 +118,11 @@ export function migrateMeetingData(meeting: any): MigrationResult {
     // Migration 1→2: LeadsAndSales and CustomerService structure changes
     if (currentVersion < 2) {
       migrateV1ToV2(result);
+    }
+
+    // Migration 2→3: Overview Module Refactor
+    if (currentVersion < 3) {
+      migrateV2ToV3(result);
     }
 
     // Update final version if migrations succeeded
@@ -313,6 +323,174 @@ function migrateV1ToV2(result: MigrationResult): void {
   }
 
   console.log(`[DataMigration v1→v2] Complete. Applied ${result.migrationsApplied.length} migrations, ${result.errors.length} errors`);
+}
+
+/**
+ * Migrates from v2 to v3
+ * - Overview: Remove processes, mainGoals, currentSystems
+ * - Overview: Add leadSources, serviceChannels from other modules (sync bidirectionally)
+ * - Overview: Add focusAreas, crmStatus
+ * - Initialize essentialDetails module
+ */
+function migrateV2ToV3(result: MigrationResult): void {
+  const meeting = result.meeting;
+
+  console.log('[DataMigration v2→v3] Starting Overview module refactor...');
+
+  // Guard: Ensure modules object exists
+  if (!meeting.modules) {
+    console.warn('[DataMigration v2→v3] No modules object found, initializing...');
+    meeting.modules = {};
+    result.migrationsApplied.push('initialized_empty_modules');
+  }
+
+  // ========================================
+  // MIGRATION 1: Remove deprecated Overview fields
+  // ========================================
+  try {
+    if (!meeting.modules.overview) {
+      meeting.modules.overview = {};
+      result.migrationsApplied.push('overview_initialized');
+    }
+
+    const overview = meeting.modules.overview as any;
+
+    // Remove deprecated fields (but keep data in case we need to restore)
+    const deprecatedData: any = {};
+
+    if (overview.processes !== undefined) {
+      deprecatedData.processes = overview.processes;
+      delete overview.processes;
+      result.migrationsApplied.push('overview_removed_processes');
+    }
+
+    if (overview.mainGoals !== undefined) {
+      deprecatedData.mainGoals = overview.mainGoals;
+      delete overview.mainGoals;
+      result.migrationsApplied.push('overview_removed_mainGoals');
+    }
+
+    if (overview.currentSystems !== undefined) {
+      deprecatedData.currentSystems = overview.currentSystems;
+      delete overview.currentSystems;
+      result.migrationsApplied.push('overview_removed_currentSystems');
+    }
+
+    // Store deprecated data in metadata for potential recovery
+    if (Object.keys(deprecatedData).length > 0) {
+      overview._deprecatedFields_v2 = deprecatedData;
+      result.migrationsApplied.push('overview_stored_deprecated_data');
+    }
+
+  } catch (error) {
+    result.errors.push(`Overview cleanup failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error('[DataMigration v2→v3] Overview cleanup error:', error);
+  }
+
+  // ========================================
+  // MIGRATION 2: Copy leadSources from LeadsAndSales to Overview
+  // ========================================
+  try {
+    const overview = meeting.modules.overview as any;
+    const leadsAndSales = meeting.modules.leadsAndSales as any;
+
+    // Copy leadSources if exists in LeadsAndSales and not in Overview
+    if (leadsAndSales?.leadSources && Array.isArray(leadsAndSales.leadSources)) {
+      if (!overview.leadSources || !Array.isArray(overview.leadSources) || overview.leadSources.length === 0) {
+        overview.leadSources = JSON.parse(JSON.stringify(leadsAndSales.leadSources));
+        result.migrationsApplied.push('overview_copied_leadSources_from_leadsAndSales');
+      }
+    }
+
+    // Initialize empty array if still undefined
+    if (!overview.leadSources) {
+      overview.leadSources = [];
+      result.migrationsApplied.push('overview_initialized_leadSources_empty');
+    }
+
+  } catch (error) {
+    result.errors.push(`LeadSources migration failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error('[DataMigration v2→v3] LeadSources error:', error);
+  }
+
+  // ========================================
+  // MIGRATION 3: Copy serviceChannels from CustomerService to Overview
+  // ========================================
+  try {
+    const overview = meeting.modules.overview as any;
+    const customerService = meeting.modules.customerService as any;
+
+    // Copy channels if exists in CustomerService and not in Overview
+    if (customerService?.channels && Array.isArray(customerService.channels)) {
+      if (!overview.serviceChannels || !Array.isArray(overview.serviceChannels) || overview.serviceChannels.length === 0) {
+        overview.serviceChannels = JSON.parse(JSON.stringify(customerService.channels));
+        result.migrationsApplied.push('overview_copied_serviceChannels_from_customerService');
+      }
+    }
+
+    // Initialize empty array if still undefined
+    if (!overview.serviceChannels) {
+      overview.serviceChannels = [];
+      result.migrationsApplied.push('overview_initialized_serviceChannels_empty');
+    }
+
+  } catch (error) {
+    result.errors.push(`ServiceChannels migration failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error('[DataMigration v2→v3] ServiceChannels error:', error);
+  }
+
+  // ========================================
+  // MIGRATION 4: Initialize new Overview fields
+  // ========================================
+  try {
+    const overview = meeting.modules.overview as any;
+
+    // Initialize focusAreas if not exists
+    if (!overview.focusAreas) {
+      overview.focusAreas = [];
+      result.migrationsApplied.push('overview_initialized_focusAreas');
+    }
+
+    // Initialize CRM status based on existing data
+    if (!overview.crmStatus) {
+      // Try to infer from systems module
+      const systems = meeting.modules.systems as any;
+      if (systems?.currentSystems && Array.isArray(systems.currentSystems) && systems.currentSystems.length > 0) {
+        // Check if any CRM-like system exists
+        const hasCRM = systems.currentSystems.some((sys: string) =>
+          sys.toLowerCase().includes('crm') ||
+          sys.toLowerCase().includes('salesforce') ||
+          sys.toLowerCase().includes('hubspot') ||
+          sys.toLowerCase().includes('zoho')
+        );
+        overview.crmStatus = hasCRM ? 'full' : 'basic';
+        result.migrationsApplied.push('overview_inferred_crmStatus_from_systems');
+      } else {
+        overview.crmStatus = 'none';
+        result.migrationsApplied.push('overview_defaulted_crmStatus_none');
+      }
+    }
+
+  } catch (error) {
+    result.errors.push(`Overview new fields initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error('[DataMigration v2→v3] Overview new fields error:', error);
+  }
+
+  // ========================================
+  // MIGRATION 5: Initialize essentialDetails module
+  // ========================================
+  try {
+    if (!meeting.modules.essentialDetails) {
+      meeting.modules.essentialDetails = {};
+      result.migrationsApplied.push('essentialDetails_initialized');
+    }
+
+  } catch (error) {
+    result.errors.push(`EssentialDetails initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error('[DataMigration v2→v3] EssentialDetails error:', error);
+  }
+
+  console.log(`[DataMigration v2→v3] Complete. Applied ${result.migrationsApplied.length} migrations, ${result.errors.length} errors`);
 }
 
 // ============================================================================
