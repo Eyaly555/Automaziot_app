@@ -21,6 +21,8 @@ import {
   ErrorHandlingStrategy,
   TestCase
 } from '../../types/phase2';
+import { IntegrationFlowToolbar } from './IntegrationFlowToolbar';
+import { Button, Input, Select, TextArea } from '../Base';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -86,6 +88,31 @@ export const IntegrationFlowBuilder: React.FC = () => {
   });
 
   const [activeTab, setActiveTab] = useState<'basic' | 'steps' | 'errors' | 'tests'>('basic');
+
+  // Undo/redo state
+  const [history, setHistory] = useState<IntegrationFlow[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+
+  const saveToHistory = (newFlow: IntegrationFlow) => {
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push(newFlow);
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+  };
+
+  const handleUndo = () => {
+    if (historyIndex > 0) {
+      setHistoryIndex(historyIndex - 1);
+      setFlow(history[historyIndex - 1]);
+    }
+  };
+
+  const handleRedo = () => {
+    if (historyIndex < history.length - 1) {
+      setHistoryIndex(historyIndex + 1);
+      setFlow(history[historyIndex + 1]);
+    }
+  };
 
   const handleSave = () => {
     if (!currentMeeting) return;
@@ -205,6 +232,26 @@ export const IntegrationFlowBuilder: React.FC = () => {
           </div>
         </div>
 
+        {/* Integration Flow Toolbar */}
+        <IntegrationFlowToolbar
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          onSave={handleSave}
+          canUndo={historyIndex > 0}
+          canRedo={historyIndex < history.length - 1}
+          stepCount={flow.steps.length}
+          completionPercentage={
+            Math.round(
+              ((flow.name ? 1 : 0) +
+                (flow.sourceSystem && flow.targetSystem ? 1 : 0) +
+                (flow.steps.length > 0 ? 1 : 0) +
+                (flow.testCases.length > 0 ? 1 : 0)) /
+                4 *
+                100
+            )
+          }
+        />
+
         {/* Tab Navigation */}
         <div className="bg-white rounded-lg shadow-sm mb-6">
           <div className="flex border-b">
@@ -232,51 +279,50 @@ export const IntegrationFlowBuilder: React.FC = () => {
             {/* Basic Info Tab */}
             {activeTab === 'basic' && (
               <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    שם האינטגרציה *
-                  </label>
-                  <input
-                    type="text"
-                    value={flow.name}
-                    onChange={(e) => setFlow({ ...flow, name: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="לדוגמה: סנכרון לידים מ-Salesforce ל-Zoho CRM"
-                  />
-                </div>
+                <Input
+                  label="שם האינטגרציה *"
+                  value={flow.name}
+                  onChange={(e) => {
+                    const newFlow = { ...flow, name: e.target.value };
+                    setFlow(newFlow);
+                    saveToHistory(newFlow);
+                  }}
+                  placeholder="לדוגמה: סנכרון לידים מ-Salesforce ל-Zoho CRM"
+                  required
+                />
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      מערכת מקור *
-                    </label>
-                    <select
-                      value={flow.sourceSystem}
-                      onChange={(e) => setFlow({ ...flow, sourceSystem: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">בחר מערכת</option>
-                      {availableSystems.map(sys => (
-                        <option key={sys.id} value={sys.id}>{sys.name}</option>
-                      ))}
-                    </select>
-                  </div>
+                  <Select
+                    label="מערכת מקור *"
+                    value={flow.sourceSystem}
+                    onChange={(e) => {
+                      const newFlow = { ...flow, sourceSystem: e.target.value };
+                      setFlow(newFlow);
+                      saveToHistory(newFlow);
+                    }}
+                    required
+                  >
+                    <option value="">בחר מערכת</option>
+                    {availableSystems.map(sys => (
+                      <option key={sys.id} value={sys.id}>{sys.name}</option>
+                    ))}
+                  </Select>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      מערכת יעד *
-                    </label>
-                    <select
-                      value={flow.targetSystem}
-                      onChange={(e) => setFlow({ ...flow, targetSystem: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">בחר מערכת</option>
-                      {availableSystems.map(sys => (
-                        <option key={sys.id} value={sys.id}>{sys.name}</option>
-                      ))}
-                    </select>
-                  </div>
+                  <Select
+                    label="מערכת יעד *"
+                    value={flow.targetSystem}
+                    onChange={(e) => {
+                      const newFlow = { ...flow, targetSystem: e.target.value };
+                      setFlow(newFlow);
+                      saveToHistory(newFlow);
+                    }}
+                    required
+                  >
+                    <option value="">בחר מערכת</option>
+                    {availableSystems.map(sys => (
+                      <option key={sys.id} value={sys.id}>{sys.name}</option>
+                    ))}
+                  </Select>
                 </div>
 
                 <div>
@@ -305,55 +351,50 @@ export const IntegrationFlowBuilder: React.FC = () => {
                 </div>
 
                 {flow.trigger.type === 'schedule' && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      תזמון
-                    </label>
-                    <input
-                      type="text"
-                      value={flow.trigger.schedule || ''}
-                      onChange={(e) => setFlow({
+                  <Input
+                    label="תזמון"
+                    value={flow.trigger.schedule || ''}
+                    onChange={(e) => {
+                      const newFlow = {
                         ...flow,
                         trigger: { ...flow.trigger, schedule: e.target.value }
-                      })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      placeholder="לדוגמה: 0 */5 * * * (כל 5 דקות)"
-                    />
-                  </div>
+                      };
+                      setFlow(newFlow);
+                      saveToHistory(newFlow);
+                    }}
+                    placeholder="לדוגמה: 0 */5 * * * (כל 5 דקות)"
+                  />
                 )}
 
                 {flow.trigger.type === 'event' && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      שם האירוע
-                    </label>
-                    <input
-                      type="text"
-                      value={flow.trigger.eventName || ''}
-                      onChange={(e) => setFlow({
+                  <Input
+                    label="שם האירוע"
+                    value={flow.trigger.eventName || ''}
+                    onChange={(e) => {
+                      const newFlow = {
                         ...flow,
                         trigger: { ...flow.trigger, eventName: e.target.value }
-                      })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      placeholder="לדוגמה: lead.created"
-                    />
-                  </div>
+                      };
+                      setFlow(newFlow);
+                      saveToHistory(newFlow);
+                    }}
+                    placeholder="לדוגמה: lead.created"
+                  />
                 )}
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    תדירות ריצה
-                  </label>
-                  <select
-                    value={flow.frequency}
-                    onChange={(e) => setFlow({ ...flow, frequency: e.target.value as any })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  >
-                    {FREQUENCY_OPTIONS.map(({ value, label }) => (
-                      <option key={value} value={value}>{label}</option>
-                    ))}
-                  </select>
-                </div>
+                <Select
+                  label="תדירות ריצה"
+                  value={flow.frequency}
+                  onChange={(e) => {
+                    const newFlow = { ...flow, frequency: e.target.value as any };
+                    setFlow(newFlow);
+                    saveToHistory(newFlow);
+                  }}
+                >
+                  {FREQUENCY_OPTIONS.map(({ value, label }) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </Select>
               </div>
             )}
 
@@ -644,19 +685,19 @@ export const IntegrationFlowBuilder: React.FC = () => {
 
         {/* Actions */}
         <div className="flex justify-between">
-          <button
+          <Button
+            variant="outline"
             onClick={() => navigate('/phase2')}
-            className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
           >
             ביטול
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="primary"
             onClick={handleSave}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2 space-x-reverse"
+            icon={<Save className="w-4 h-4" />}
           >
-            <Save className="w-4 h-4" />
-            <span>שמור אינטגרציה</span>
-          </button>
+            שמור אינטגרציה
+          </Button>
         </div>
       </div>
     </div>

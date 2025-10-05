@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { TrendingUp, Users, Clock, Target, Award, AlertTriangle, BarChart3 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
+import { Card } from '../Base/Card';
 
 export const ProgressTracking: React.FC = () => {
   const { currentMeeting } = useMeetingStore();
@@ -130,7 +131,7 @@ export const ProgressTracking: React.FC = () => {
 
         {/* Key Metrics */}
         <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <Card>
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-600 text-sm">Overall Progress</span>
               <TrendingUp className="w-5 h-5 text-green-500" />
@@ -145,9 +146,9 @@ export const ProgressTracking: React.FC = () => {
                 style={{ width: `${overallMetrics.progress}%` }}
               />
             </div>
-          </div>
+          </Card>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <Card>
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-600 text-sm">Hours Progress</span>
               <Clock className="w-5 h-5 text-blue-500" />
@@ -162,9 +163,9 @@ export const ProgressTracking: React.FC = () => {
                 style={{ width: `${overallMetrics.hoursProgress}%` }}
               />
             </div>
-          </div>
+          </Card>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <Card>
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-600 text-sm">Time Variance</span>
               <Target className="w-5 h-5 text-purple-500" />
@@ -175,9 +176,9 @@ export const ProgressTracking: React.FC = () => {
             <div className="text-sm text-gray-500 mt-1">
               {overallMetrics.variancePercent > 0 ? '+' : ''}{overallMetrics.variancePercent}%
             </div>
-          </div>
+          </Card>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <Card>
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-600 text-sm">Blocked Tasks</span>
               <AlertTriangle className="w-5 h-5 text-red-500" />
@@ -186,7 +187,7 @@ export const ProgressTracking: React.FC = () => {
             <div className="text-sm text-gray-500 mt-1">
               {overallMetrics.inProgressTasks} in progress
             </div>
-          </div>
+          </Card>
         </div>
 
         {/* Status Distribution */}

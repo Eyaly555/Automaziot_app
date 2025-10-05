@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMeetingStore } from '../../store/useMeetingStore';
-import { Card } from '../Common/Card';
+import { Card, Button } from '../Base';
 import { WizardSidebar } from './WizardSidebar';
 import { WizardProgress } from './WizardProgress';
 import { WizardStepContent } from './WizardStepContent';
 import { WizardSummary } from './WizardSummary';
+import { WizardStepNavigation } from './WizardStepNavigation';
 import { WIZARD_STEPS, getStepById, getNextStep, getPreviousStep } from '../../config/wizardSteps';
 import { WizardState, WizardStep } from '../../types';
 
@@ -243,17 +244,21 @@ export const WizardMode: React.FC = () => {
                 {showSummary ? 'סיכום' : currentStep?.sectionName}
               </p>
             </div>
-            <button
+            <Button
               onClick={handleExitWizard}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              variant="outline"
+              size="md"
             >
               יציאה לדשבורד
-            </button>
+            </Button>
           </div>
         </div>
 
+        {/* Step Navigation */}
+        <WizardStepNavigation />
+
         {/* Main Content */}
-        <div className="mb-6">
+        <div className="mb-6 mt-6">
           {showSummary ? (
             <WizardSummary
               meeting={currentMeeting}

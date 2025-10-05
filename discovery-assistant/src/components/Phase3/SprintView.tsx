@@ -2,6 +2,9 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Calendar, TrendingDown, Clock, CheckCircle, AlertCircle, Plus, Languages } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { Sprint, DevelopmentTask } from '../../types/phase3';
+import { Button } from '../Base/Button';
+import { Card } from '../Base/Card';
+import { Badge } from '../Base/Badge';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -252,13 +255,13 @@ export const SprintView: React.FC = () => {
               <span className="font-medium">{language === 'he' ? 'English' : 'עברית'}</span>
             </button>
 
-            <button
+            <Button
               onClick={handleCreateSprint}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+              variant="primary"
             >
               <Plus className="w-4 h-4 mr-2" />
               {t.createSprint}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -304,15 +307,15 @@ export const SprintView: React.FC = () => {
           <>
             {/* Sprint Overview */}
             <div className="grid grid-cols-4 gap-4 mb-6">
-              <div className="bg-white rounded-lg shadow-sm p-6">
+              <Card>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-gray-600 text-sm">{t.stats.totalTasks}</span>
                   <Calendar className="w-5 h-5 text-gray-400" />
                 </div>
                 <div className="text-3xl font-bold text-gray-900">{sprintStats.total}</div>
-              </div>
+              </Card>
 
-              <div className="bg-white rounded-lg shadow-sm p-6">
+              <Card>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-gray-600 text-sm">{t.stats.completed}</span>
                   <CheckCircle className="w-5 h-5 text-green-500" />
@@ -321,23 +324,23 @@ export const SprintView: React.FC = () => {
                 <div className="text-sm text-gray-500 mt-1">
                   {sprintStats.total > 0 ? Math.round((sprintStats.completed / sprintStats.total) * 100) : 0}%
                 </div>
-              </div>
+              </Card>
 
-              <div className="bg-white rounded-lg shadow-sm p-6">
+              <Card>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-gray-600 text-sm">{t.stats.inProgress}</span>
                   <Clock className="w-5 h-5 text-blue-500" />
                 </div>
                 <div className="text-3xl font-bold text-blue-600">{sprintStats.inProgress}</div>
-              </div>
+              </Card>
 
-              <div className="bg-white rounded-lg shadow-sm p-6">
+              <Card>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-gray-600 text-sm">{t.stats.blocked}</span>
                   <AlertCircle className="w-5 h-5 text-red-500" />
                 </div>
                 <div className="text-3xl font-bold text-red-600">{sprintStats.blocked}</div>
-              </div>
+              </Card>
             </div>
 
             {/* Burndown Chart */}
@@ -537,13 +540,14 @@ export const SprintView: React.FC = () => {
             <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-medium text-gray-900 mb-2">{t.noSprints.title}</h3>
             <p className="text-gray-600 mb-6">{t.noSprints.description}</p>
-            <button
+            <Button
               onClick={handleCreateSprint}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 inline-flex items-center"
+              variant="primary"
+              size="lg"
             >
               <Plus className="w-5 h-5 mr-2" />
               {t.noSprints.createFirst}
-            </button>
+            </Button>
           </div>
         )}
       </div>

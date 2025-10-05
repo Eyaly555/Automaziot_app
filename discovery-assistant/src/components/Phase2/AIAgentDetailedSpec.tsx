@@ -22,6 +22,7 @@ import {
   AIAgentTraining,
   AIModelSelection
 } from '../../types/phase2';
+import { Input, Select, TextArea, Button } from '../Base';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -333,18 +334,13 @@ export const AIAgentDetailedSpec: React.FC = () => {
             {/* Basic Info Tab */}
             {activeTab === 'basic' && (
               <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    שם הסוכן *
-                  </label>
-                  <input
-                    type="text"
-                    value={agent.name}
-                    onChange={(e) => setAgent({ ...agent, name: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="לדוגמה: סוכן תמיכה - שירות לקוחות"
-                  />
-                </div>
+                <Input
+                  label="שם הסוכן *"
+                  value={agent.name}
+                  onChange={(e) => setAgent({ ...agent, name: e.target.value })}
+                  placeholder="לדוגמה: סוכן תמיכה - שירות לקוחות"
+                  required
+                />
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -512,24 +508,19 @@ export const AIAgentDetailedSpec: React.FC = () => {
             {/* Conversation Flow Tab */}
             {activeTab === 'conversation' && (
               <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ברכה פותחת
-                  </label>
-                  <textarea
-                    value={agent.conversationFlow.greeting}
-                    onChange={(e) => setAgent({
-                      ...agent,
-                      conversationFlow: {
-                        ...agent.conversationFlow,
-                        greeting: e.target.value
-                      }
-                    })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    rows={3}
-                    placeholder="שלום! אני כאן לעזור לך. במה אוכל לסייע?"
-                  />
-                </div>
+                <TextArea
+                  label="ברכה פותחת"
+                  value={agent.conversationFlow.greeting}
+                  onChange={(e) => setAgent({
+                    ...agent,
+                    conversationFlow: {
+                      ...agent.conversationFlow,
+                      greeting: e.target.value
+                    }
+                  })}
+                  rows={3}
+                  placeholder="שלום! אני כאן לעזור לך. במה אוכל לסייע?"
+                />
 
                 <div>
                   <div className="flex items-center justify-between mb-3">
@@ -593,24 +584,19 @@ export const AIAgentDetailedSpec: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    תגובת ברירת מחדל
-                  </label>
-                  <textarea
-                    value={agent.conversationFlow.fallbackResponse}
-                    onChange={(e) => setAgent({
-                      ...agent,
-                      conversationFlow: {
-                        ...agent.conversationFlow,
-                        fallbackResponse: e.target.value
-                      }
-                    })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    rows={2}
-                    placeholder="סליחה, לא הבנתי. אוכל לעזור במשהו אחר?"
-                  />
-                </div>
+                <TextArea
+                  label="תגובת ברירת מחדל"
+                  value={agent.conversationFlow.fallbackResponse}
+                  onChange={(e) => setAgent({
+                    ...agent,
+                    conversationFlow: {
+                      ...agent.conversationFlow,
+                      fallbackResponse: e.target.value
+                    }
+                  })}
+                  rows={2}
+                  placeholder="סליחה, לא הבנתי. אוכל לעזור במשהו אחר?"
+                />
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -683,24 +669,18 @@ export const AIAgentDetailedSpec: React.FC = () => {
                   </div>
 
                   {agent.integrations.crmEnabled && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        מערכת CRM
-                      </label>
-                      <input
-                        type="text"
-                        value={agent.integrations.crmSystem}
-                        onChange={(e) => setAgent({
-                          ...agent,
-                          integrations: {
-                            ...agent.integrations,
-                            crmSystem: e.target.value
-                          }
-                        })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                        placeholder="Zoho CRM / Salesforce / HubSpot"
-                      />
-                    </div>
+                    <Input
+                      label="מערכת CRM"
+                      value={agent.integrations.crmSystem}
+                      onChange={(e) => setAgent({
+                        ...agent,
+                        integrations: {
+                          ...agent.integrations,
+                          crmSystem: e.target.value
+                        }
+                      })}
+                      placeholder="Zoho CRM / Salesforce / HubSpot"
+                    />
                   )}
 
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
@@ -1056,19 +1036,19 @@ export const AIAgentDetailedSpec: React.FC = () => {
 
         {/* Actions */}
         <div className="flex justify-between">
-          <button
+          <Button
+            variant="outline"
             onClick={() => navigate('/phase2')}
-            className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
           >
             ביטול
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="primary"
             onClick={handleSave}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2 space-x-reverse"
+            icon={<Save className="w-4 h-4" />}
           >
-            <Save className="w-4 h-4" />
-            <span>שמור סוכן AI</span>
-          </button>
+            שמור סוכן AI
+          </Button>
         </div>
       </div>
     </div>

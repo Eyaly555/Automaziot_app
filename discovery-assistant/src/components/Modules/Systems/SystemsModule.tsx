@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Database, Link2, Shield, Cloud, AlertTriangle } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
-import { Card } from '../../Common/Card';
-import { TextField, CheckboxGroup, RadioGroup, RatingField } from '../../Common/FormFields';
+import { Card, Input, Button } from '../../Base';
+import { CheckboxGroup, RadioGroup, RatingField } from '../../Common/FormFields';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 
 export const SystemsModule: React.FC = () => {
@@ -74,20 +74,22 @@ export const SystemsModule: React.FC = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button
+              <Button
                 onClick={() => navigate('/dashboard')}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                variant="ghost"
+                size="sm"
               >
                 <ArrowRight className="w-5 h-5" />
-              </button>
+              </Button>
               <h1 className="text-xl font-semibold">💻 מערכות וטכנולוגיה</h1>
             </div>
-            <button
+            <Button
               onClick={() => navigate('/module/roi')}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors"
+              variant="primary"
+              size="md"
             >
               המשך למודול הבא
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -117,11 +119,12 @@ export const SystemsModule: React.FC = () => {
                 columns={2}
               />
 
-              <TextField
+              <Input
                 label="מערכות נוספות (אם יש)"
                 value={customSystems}
                 onChange={setCustomSystems}
                 placeholder="רשום מערכות נוספות מופרדות בפסיק..."
+                dir="rtl"
               />
 
               {currentSystems.length === 0 && (

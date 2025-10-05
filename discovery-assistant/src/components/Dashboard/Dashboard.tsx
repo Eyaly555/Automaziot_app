@@ -29,7 +29,8 @@ import {
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { formatTime, formatCurrency, formatDate } from '../../utils/formatters';
 import { calculateROI } from '../../utils/roiCalculator';
-import { ProgressBar } from '../Common/ProgressBar/ProgressBar';
+import { Button, Card, Badge, ProgressBar } from '../Base';
+import { ModuleProgressCard } from '../Modules/ModuleProgressCard';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import { generateTechnicalSpec } from '../../utils/technicalSpecGenerator';
@@ -47,15 +48,15 @@ interface ModuleConfig {
 }
 
 const modules: ModuleConfig[] = [
-  { id: 'overview', name: 'סקירה כללית', icon: '1️⃣', subModules: 0 },
-  { id: 'leadsAndSales', name: 'לידים ומכירות', icon: '2️⃣', subModules: 5 },
-  { id: 'customerService', name: 'שירות לקוחות', icon: '3️⃣', subModules: 6 },
-  { id: 'operations', name: 'תפעול פנימי', icon: '4️⃣', subModules: 6 },
-  { id: 'reporting', name: 'דוחות והתראות', icon: '5️⃣', subModules: 3 },
-  { id: 'aiAgents', name: 'סוכני AI', icon: '6️⃣', subModules: 3 },
-  { id: 'systems', name: 'מערכות וטכנולוגיה', icon: '7️⃣', subModules: 0 },
-  { id: 'roi', name: 'ROI וכימות', icon: '8️⃣', subModules: 0 },
-  { id: 'planning', name: 'סיכום ותכנון', icon: '9️⃣', subModules: 5 }
+  { id: 'overview', name: 'סקירה כללית', icon: '1️⃣', subModules: 0, description: 'מידע בסיסי על העסק, סוג העסק, מספר עובדים ויעדים' },
+  { id: 'leadsAndSales', name: 'לידים ומכירות', icon: '2️⃣', subModules: 5, description: 'מקורות לידים, תהליך מכירה, זמני תגובה וניהול אפשרויות' },
+  { id: 'customerService', name: 'שירות לקוחות', icon: '3️⃣', subModules: 6, description: 'ערוצי תמיכה, זמני תגובה, אונבורדינג ותקשורת פרואקטיבית' },
+  { id: 'operations', name: 'תפעול פנימי', icon: '4️⃣', subModules: 6, description: 'ניהול מלאי, ספקים, תהליכים ובקרת איכות' },
+  { id: 'reporting', name: 'דוחות והתראות', icon: '5️⃣', subModules: 3, description: 'דוחות נוכחיים, כלי BI, מקורות נתונים ותהליכי החלטה' },
+  { id: 'aiAgents', name: 'סוכני AI', icon: '6️⃣', subModules: 3, description: 'מקרי שימוש ב-AI במכירות, שירות ותפעול' },
+  { id: 'systems', name: 'מערכות וטכנולוגיה', icon: '7️⃣', subModules: 0, description: 'מלאי מערכות נוכחיות, אינטגרציות וצרכים טכנולוגיים' },
+  { id: 'roi', name: 'ROI וכימות', icon: '8️⃣', subModules: 0, description: 'ניתוח עלויות, חיסכון זמן ותחזיות החזר השקעה' },
+  { id: 'planning', name: 'סיכום ותכנון', icon: '9️⃣', subModules: 5, description: 'סיכום ממצאים, המלצות והצעדים הבאים' }
 ];
 
 export const Dashboard: React.FC = () => {
@@ -78,7 +79,6 @@ export const Dashboard: React.FC = () => {
 
   const [showMeetingSelector, setShowMeetingSelector] = useState(false);
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
-  const [selectedModuleDetails, setSelectedModuleDetails] = useState<string | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
 
   const moduleProgress = getModuleProgress();
@@ -108,16 +108,6 @@ export const Dashboard: React.FC = () => {
       setTimeout(() => setShowConfetti(false), 5000);
     }
   }, [overallProgress]);
-
-  const getModuleStatus = (moduleId: string) => {
-    const progress = moduleProgress.find(m => m.moduleId === moduleId);
-    if (!progress) return { icon: '⚪', status: 'not-started', progress: 0 };
-
-    const progressPercent = progress.total > 0 ? (progress.completed / progress.total) * 100 : 0;
-    if (progressPercent === 0) return { icon: '⚪', status: 'not-started', progress: 0 };
-    if (progressPercent === 100) return { icon: '✅', status: 'completed', progress: 100 };
-    return { icon: '🔄', status: 'in-progress', progress: progressPercent };
-  };
 
   const handleModuleClick = (moduleId: string) => {
     if (!currentMeeting) {
@@ -409,41 +399,44 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
               {currentMeeting && (
                 <>
                   {/* Summary Button */}
-                  <button
+                  <Button
                     onClick={() => navigate('/summary')}
-                    className="flex items-center gap-2 px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition-all duration-200"
+                    variant="ghost"
+                    icon={<ClipboardList className="w-4 h-4" />}
+                    className="bg-purple-100 hover:bg-purple-200 text-purple-700"
                   >
-                    <ClipboardList className="w-4 h-4" />
-                    <span>סיכום</span>
-                  </button>
+                    סיכום
+                  </Button>
 
                   {/* Export Menu */}
                   <ExportMenu variant="button" />
 
                   {/* Switch Meeting */}
-                  <button
+                  <Button
                     onClick={() => setShowMeetingSelector(!showMeetingSelector)}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-all duration-200"
+                    variant="ghost"
+                    icon={<RefreshCw className="w-4 h-4" />}
+                    className="bg-blue-100 hover:bg-blue-200 text-blue-700"
                   >
-                    <RefreshCw className="w-4 h-4" />
-                    <span>החלף פגישה</span>
-                  </button>
+                    החלף פגישה
+                  </Button>
                 </>
               )}
 
               {/* All Clients Button */}
-              <button
+              <Button
                 onClick={() => navigate('/clients')}
-                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-md"
+                variant="primary"
+                icon={<Users className="w-4 h-4" />}
+                className="bg-indigo-600 hover:bg-indigo-700 shadow-md"
               >
-                <Users className="w-4 h-4" />
-                <span>כל הלקוחות</span>
+                כל הלקוחות
                 {zohoClientsList.length > 0 && (
-                  <span className="bg-indigo-800 text-xs px-2 py-0.5 rounded-full">
+                  <Badge variant="primary" size="sm" className="bg-indigo-800 border-indigo-900 mr-1">
                     {zohoClientsList.length}
-                  </span>
+                  </Badge>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -548,13 +541,13 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
           {/* Progress Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {/* Overall Progress */}
-            <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <Card variant="elevated" padding="md" hoverable className="transform hover:-translate-y-1 transition-all duration-300">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-700">התקדמות כללית</h3>
                 <TrendingUp className="w-6 h-6 text-blue-500" />
               </div>
               <div className="relative mb-2">
-                <ProgressBar value={overallProgress} showPercentage={false} className="h-3" />
+                <ProgressBar value={overallProgress} showPercentage={false} size="md" animated />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="text-sm font-bold text-white drop-shadow-lg">{overallProgress}%</span>
                 </div>
@@ -562,10 +555,10 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
               <p className="text-sm text-gray-600">
                 {moduleProgress.filter(m => m.completed === m.total && m.total > 0).length} מתוך {modules.length} מודולים הושלמו
               </p>
-            </div>
+            </Card>
 
             {/* Pain Points */}
-            <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <Card variant="elevated" padding="md" hoverable className="transform hover:-translate-y-1 transition-all duration-300">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-700">כאבים שזוהו</h3>
                 <AlertCircle className="w-6 h-6 text-orange-500" />
@@ -574,10 +567,10 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
               <p className="text-sm text-gray-600">
                 נקודות כאב הדורשות התייחסות
               </p>
-            </div>
+            </Card>
 
             {/* ROI Potential */}
-            <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <Card variant="elevated" padding="md" hoverable className="transform hover:-translate-y-1 transition-all duration-300">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-700">פוטנציאל ROI</h3>
                 <Sparkles className="w-6 h-6 text-green-500" />
@@ -586,7 +579,7 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
                 {formatCurrency(roi?.totalMonthlySavings || 0)}
               </div>
               <p className="text-sm text-gray-600">חיסכון חודשי משוער</p>
-            </div>
+            </Card>
           </div>
 
           {/* Next Steps Generator - Always show for guidance */}
@@ -614,29 +607,35 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
 
                   <div className="space-y-3">
                     {topRecommendations.map((rec, index) => (
-                      <div key={index} className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all">
+                      <Card key={index} variant="default" padding="md" hoverable>
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
-                              <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                                rec.priority === 'קריטי' ? 'bg-red-100 text-red-700' :
-                                rec.priority === 'גבוה' ? 'bg-orange-100 text-orange-700' :
-                                rec.priority === 'בינוני' ? 'bg-yellow-100 text-yellow-700' :
-                                'bg-green-100 text-green-700'
-                              }`}>
+                              <Badge
+                                variant={
+                                  rec.priority === 'קריטי' ? 'danger' :
+                                  rec.priority === 'גבוה' ? 'warning' :
+                                  rec.priority === 'בינוני' ? 'info' :
+                                  'success'
+                                }
+                                size="sm"
+                              >
                                 {rec.priority}
-                              </span>
-                              <span className={`px-2 py-1 rounded-full text-xs ${
-                                rec.type === 'quick_win' ? 'bg-green-50 text-green-700' :
-                                rec.type === 'missing_integration' ? 'bg-blue-50 text-blue-700' :
-                                rec.type === 'manual_data_entry' ? 'bg-purple-50 text-purple-700' :
-                                'bg-gray-50 text-gray-700'
-                              }`}>
+                              </Badge>
+                              <Badge
+                                variant={
+                                  rec.type === 'quick_win' ? 'success' :
+                                  rec.type === 'missing_integration' ? 'primary' :
+                                  rec.type === 'manual_data_entry' ? 'info' :
+                                  'gray'
+                                }
+                                size="sm"
+                              >
                                 {rec.type === 'quick_win' && '⚡ Quick Win'}
                                 {rec.type === 'missing_integration' && '🔗 אינטגרציה חסרה'}
                                 {rec.type === 'manual_data_entry' && '✍️ הזנה ידנית'}
                                 {rec.type === 'high_volume' && '📊 נפח גבוה'}
-                              </span>
+                              </Badge>
                             </div>
 
                             <h4 className="font-semibold text-gray-900 mb-1">{rec.title}</h4>
@@ -657,7 +656,7 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
 
                           <div className="text-2xl">{index + 1}</div>
                         </div>
-                      </div>
+                      </Card>
                     ))}
 
                     {recommendations.length > 3 && (
@@ -678,7 +677,7 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
 
           {/* Wizard Mode Section */}
           <div className="mb-8">
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300">
+            <Card variant="highlighted" padding="lg" className="bg-gradient-to-r from-blue-50 to-indigo-50 hover:shadow-lg transition-all duration-300">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-white rounded-full shadow-sm">
@@ -691,112 +690,62 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
                     </p>
                   </div>
                 </div>
-                <button
+                <Button
                   onClick={handleStartWizard}
-                  className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-md"
+                  variant="primary"
+                  icon={<Wand2 className="w-5 h-5" />}
+                  size="lg"
+                  className="shadow-md hover:scale-105"
                 >
-                  <Wand2 className="w-5 h-5" />
-                  <span>התחל במצב אשף</span>
-                </button>
+                  התחל במצב אשף
+                </Button>
               </div>
               <div className="mt-4 flex flex-wrap gap-2 text-xs">
-                <span className="px-2 py-1 bg-white rounded-md text-gray-600">✓ ניווט קל בין שלבים</span>
-                <span className="px-2 py-1 bg-white rounded-md text-gray-600">✓ דילוג על סעיפים אופציונליים</span>
-                <span className="px-2 py-1 bg-white rounded-md text-gray-600">✓ סיכום מלא בסוף</span>
-                <span className="px-2 py-1 bg-white rounded-md text-gray-600">✓ סנכרון אוטומטי עם המודולים</span>
+                <Badge variant="gray" size="sm" className="bg-white">✓ ניווט קל בין שלבים</Badge>
+                <Badge variant="gray" size="sm" className="bg-white">✓ דילוג על סעיפים אופציונליים</Badge>
+                <Badge variant="gray" size="sm" className="bg-white">✓ סיכום מלא בסוף</Badge>
+                <Badge variant="gray" size="sm" className="bg-white">✓ סנכרון אוטומטי עם המודולים</Badge>
               </div>
-            </div>
+            </Card>
           </div>
 
           {/* Modules Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {modules.map(module => {
-              const status = getModuleStatus(module.id);
-              const isExpanded = selectedModuleDetails === module.id;
-
-              return (
-                <div
-                  key={module.id}
-                  className={`bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer ${
-                    status.status === 'completed' ? 'ring-2 ring-green-500' :
-                    status.status === 'in-progress' ? 'ring-2 ring-primary' : ''
-                  }`}
-                  onClick={() => handleModuleClick(module.id)}
-                  onMouseEnter={() => setSelectedModuleDetails(module.id)}
-                  onMouseLeave={() => setSelectedModuleDetails(null)}
-                >
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{module.icon}</span>
-                        <div>
-                          <h3 className="font-semibold text-gray-800">{module.name}</h3>
-                          {module.subModules !== undefined && module.subModules > 0 && (
-                            <p className="text-xs text-gray-500 mt-1">
-                              └ {module.subModules} תת-מודולים
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <span className="text-2xl animate-pulse">{status.icon}</span>
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div className="mb-3">
-                      <ProgressBar value={status.progress} className="h-2" />
-                    </div>
-
-                    {/* Status Text */}
-                    <div className="flex items-center justify-between text-sm">
-                      <span className={`font-medium ${
-                        status.status === 'completed' ? 'text-green-600' :
-                        status.status === 'in-progress' ? 'text-blue-600' :
-                        'text-gray-400'
-                      }`}>
-                        {status.status === 'completed' ? 'הושלם' :
-                         status.status === 'in-progress' ? 'בתהליך' :
-                         'טרם התחיל'}
-                      </span>
-                      <span className="text-gray-500">{status.progress}%</span>
-                    </div>
-
-                    {/* Expandable Details */}
-                    {isExpanded && module.subModules !== undefined && module.subModules > 0 && (
-                      <div className="mt-4 pt-4 border-t border-gray-200 animate-slideDown">
-                        <p className="text-xs text-gray-600">
-                          {status.status === 'not-started' ? 'לחץ להתחיל במודול זה' :
-                           status.status === 'in-progress' ? 'לחץ להמשיך במילוי' :
-                           'לחץ לעיון וערכה'}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+            {modules.map(module => (
+              <ModuleProgressCard
+                key={module.id}
+                moduleId={module.id}
+                moduleName={module.name}
+                icon={module.icon}
+                description={module.description || ''}
+                route={`/module/${module.id}`}
+              />
+            ))}
           </div>
 
           {/* Quick Actions */}
           {overallProgress === 100 && (
-            <div className="mt-8 bg-green-50 rounded-xl p-6 text-center animate-slideUp">
+            <Card variant="default" padding="lg" className="mt-8 bg-green-50 text-center animate-slideUp">
               <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
               <h3 className="text-xl font-semibold text-green-800 mb-2">מצוין! הערכת Discovery הושלמה</h3>
               <p className="text-green-700 mb-4">כל המודולים מולאו בהצלחה. כעת ניתן לייצא את הנתונים ולהכין הצעת פתרון.</p>
               <div className="flex gap-3 justify-center">
-                <button
+                <Button
                   onClick={handleExportPDF}
-                  className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                  variant="success"
+                  size="lg"
                 >
                   ייצא דוח PDF
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => navigate('/module/roi')}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                  variant="primary"
+                  size="lg"
                 >
                   צפה בניתוח ROI
-                </button>
+                </Button>
               </div>
-            </div>
+            </Card>
           )}
         </div>
       ) : (
@@ -806,29 +755,32 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
          */
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-2xl mx-auto text-center">
-            <div className="bg-white rounded-xl shadow-lg p-12">
+            <Card variant="elevated" padding="lg" className="shadow-lg">
               <h1 className="text-3xl font-bold mb-4 text-gray-800">ברוכים הבאים ל-Discovery Assistant</h1>
               <p className="text-lg text-gray-600 mb-8">
                 כלי מקצועי לביצוע פגישות Discovery ואיתור הזדמנויות לאוטומציה
               </p>
               <div className="flex gap-4 justify-center">
-                <button
+                <Button
                   onClick={() => navigate('/clients')}
-                  className="px-8 py-4 bg-primary hover:bg-blue-600 text-white rounded-lg text-lg font-semibold transition-all duration-200 hover:scale-105 shadow-lg"
+                  variant="primary"
+                  size="lg"
+                  icon={<Plus className="w-5 h-5" />}
+                  className="shadow-lg hover:scale-105"
                 >
-                  <Plus className="w-5 h-5 inline mr-2" />
                   בחר לקוח
-                </button>
+                </Button>
                 {meetings.length > 0 && (
-                  <button
+                  <Button
                     onClick={() => setShowMeetingSelector(true)}
-                    className="px-8 py-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-lg font-semibold transition-all duration-200"
+                    variant="secondary"
+                    size="lg"
                   >
                     טען פגישה קיימת
-                  </button>
+                  </Button>
                 )}
               </div>
-            </div>
+            </Card>
           </div>
         </div>
       )}

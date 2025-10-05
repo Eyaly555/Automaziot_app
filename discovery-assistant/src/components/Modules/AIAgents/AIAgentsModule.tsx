@@ -12,8 +12,8 @@ import {
   Settings
 } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
-import { Card } from '../../Common/Card';
-import { CheckboxGroup, RadioGroup, SelectField, TextField } from '../../Common/FormFields';
+import { Card, Input, Select } from '../../Base';
+import { CheckboxGroup, RadioGroup } from '../../Common/FormFields';
 import { RatingField } from '../../Common/RatingField';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 import { AIAgentUseCaseBuilder } from './AIAgentUseCaseBuilder';
@@ -246,11 +246,12 @@ export const AIAgentsModule: React.FC = () => {
                   columns={2}
                 />
 
-                <TextField
+                <Input
                   label="מקרה שימוש נוסף"
                   value={salesCustomUseCase}
-                  onChange={setSalesCustomUseCase}
+                  onChange={(val) => setSalesCustomUseCase(val)}
                   placeholder="תאר מקרה שימוש ספציפי נוסף..."
+                  dir="rtl"
                 />
 
                 <RatingField
@@ -260,10 +261,10 @@ export const AIAgentsModule: React.FC = () => {
                   helperText="עד כמה AI יכול להשפיע על תהליכי המכירות?"
                 />
 
-                <SelectField
+                <Select
                   label="מוכנות ליישום"
                   value={salesReadiness}
-                  onChange={setSalesReadiness}
+                  onChange={(val) => setSalesReadiness(val)}
                   options={[
                     { value: '', label: 'בחר...' },
                     { value: 'immediate', label: 'מיידי - אפשר להתחיל מחר' },
@@ -272,6 +273,7 @@ export const AIAgentsModule: React.FC = () => {
                     { value: 'long', label: 'טווח ארוך - מעל 6 חודשים' },
                     { value: 'not_ready', label: 'לא מוכנים כרגע' }
                   ]}
+                  dir="rtl"
                 />
 
                 {salesUseCases.length > 5 && salesPotential === 'high' && (
@@ -342,11 +344,12 @@ export const AIAgentsModule: React.FC = () => {
                   columns={2}
                 />
 
-                <TextField
+                <Input
                   label="מקרה שימוש נוסף"
                   value={serviceCustomUseCase}
-                  onChange={setServiceCustomUseCase}
+                  onChange={(val) => setServiceCustomUseCase(val)}
                   placeholder="תאר מקרה שימוש ספציפי נוסף..."
+                  dir="rtl"
                 />
 
                 <RatingField
@@ -356,10 +359,10 @@ export const AIAgentsModule: React.FC = () => {
                   helperText="עד כמה AI יכול לשפר את השירות?"
                 />
 
-                <SelectField
+                <Select
                   label="מוכנות ליישום"
                   value={serviceReadiness}
-                  onChange={setServiceReadiness}
+                  onChange={(val) => setServiceReadiness(val)}
                   options={[
                     { value: '', label: 'בחר...' },
                     { value: 'immediate', label: 'מיידי - אפשר להתחיל מחר' },
@@ -368,6 +371,7 @@ export const AIAgentsModule: React.FC = () => {
                     { value: 'long', label: 'טווח ארוך - מעל 6 חודשים' },
                     { value: 'not_ready', label: 'לא מוכנים כרגע' }
                   ]}
+                  dir="rtl"
                 />
 
                 {serviceUseCases.includes('chatbot') && servicePotential === 'high' && (
@@ -438,11 +442,12 @@ export const AIAgentsModule: React.FC = () => {
                   columns={2}
                 />
 
-                <TextField
+                <Input
                   label="מקרה שימוש נוסף"
                   value={operationsCustomUseCase}
-                  onChange={setOperationsCustomUseCase}
+                  onChange={(val) => setOperationsCustomUseCase(val)}
                   placeholder="תאר מקרה שימוש ספציפי נוסף..."
+                  dir="rtl"
                 />
 
                 <RatingField
@@ -452,10 +457,10 @@ export const AIAgentsModule: React.FC = () => {
                   helperText="עד כמה AI יכול לייעל את התפעול?"
                 />
 
-                <SelectField
+                <Select
                   label="מוכנות ליישום"
                   value={operationsReadiness}
-                  onChange={setOperationsReadiness}
+                  onChange={(val) => setOperationsReadiness(val)}
                   options={[
                     { value: '', label: 'בחר...' },
                     { value: 'immediate', label: 'מיידי - אפשר להתחיל מחר' },
@@ -464,6 +469,7 @@ export const AIAgentsModule: React.FC = () => {
                     { value: 'long', label: 'טווח ארוך - מעל 6 חודשים' },
                     { value: 'not_ready', label: 'לא מוכנים כרגע' }
                   ]}
+                  dir="rtl"
                 />
               </div>
             )}
@@ -546,10 +552,10 @@ export const AIAgentsModule: React.FC = () => {
                   columns={2}
                 />
 
-                <SelectField
+                <Select
                   label="איכות הנתונים הקיימים"
                   value={dataQuality}
-                  onChange={setDataQuality}
+                  onChange={(val) => setDataQuality(val)}
                   options={[
                     { value: '', label: 'בחר...' },
                     { value: 'high', label: 'גבוהה - נתונים נקיים ומסודרים' },
@@ -557,6 +563,7 @@ export const AIAgentsModule: React.FC = () => {
                     { value: 'low', label: 'נמוכה - דורש עבודה רבה' },
                     { value: 'unknown', label: 'לא ברור' }
                   ]}
+                  dir="rtl"
                 />
 
                 <RatingField

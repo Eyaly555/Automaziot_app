@@ -3,13 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Plus, X, ChevronDown, MessageCircle, Calendar, Star, Info, Lightbulb, Sparkles, AlertTriangle } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Card } from '../../Common/Card';
+import { Input, Select, TextArea, Button } from '../../Base';
 import {
-  TextField,
-  NumberField,
-  SelectField,
   CheckboxGroup,
-  RadioGroup,
-  TextAreaField
+  RadioGroup
 } from '../../Common/FormFields';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 import { PhaseReadOnlyBanner } from '../../Common/PhaseReadOnlyBanner';
@@ -338,34 +335,38 @@ export const CustomerServiceModule: React.FC = () => {
 
                   {/* Add New Channel */}
                   <div className="mt-4 grid grid-cols-1 md:grid-cols-5 gap-2">
-                    <SelectField
+                    <Select
                       value={newChannel.type}
                       onChange={(v) => setNewChannel({ ...newChannel, type: v })}
                       options={channelOptions}
                       placeholder="בחר ערוץ"
+                      dir="rtl"
                     />
-                    <TextField
+                    <Input
                       value={customChannelName}
                       onChange={setCustomChannelName}
                       placeholder="או ערוץ מותאם..."
+                      dir="rtl"
                     />
-                    <NumberField
-                      value={newChannel.volumePerDay}
-                      onChange={(v) => setNewChannel({ ...newChannel, volumePerDay: v || 0 })}
+                    <Input
+                      type="number"
+                      value={newChannel.volumePerDay?.toString() || ''}
+                      onChange={(v) => setNewChannel({ ...newChannel, volumePerDay: v ? parseInt(v) : 0 })}
                       placeholder="נפח/יום"
-                      min={0}
+                      dir="rtl"
                     />
-                    <TextField
+                    <Input
                       value={newChannel.responseTime}
                       onChange={(v) => setNewChannel({ ...newChannel, responseTime: v })}
                       placeholder="זמן תגובה"
+                      dir="rtl"
                     />
-                    <button
+                    <Button
                       onClick={handleAddChannel}
-                      className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-all duration-200 hover:scale-110 shadow-md"
+                      variant="primary"
                     >
                       <Plus className="w-5 h-5" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -384,13 +385,16 @@ export const CustomerServiceModule: React.FC = () => {
                     ]}
                   />
 
-                  <TextAreaField
-                    label="איך מאחדים פניות מערוצים שונים?"
-                    value={unificationMethod}
-                    onChange={setUnificationMethod}
-                    placeholder="תאר את התהליך לאיחוד פניות..."
-                    rows={2}
-                  />
+                  <div>
+                    <label className="block text-sm font-medium mb-2">איך מאחדים פניות מערוצים שונים?</label>
+                    <TextArea
+                      value={unificationMethod}
+                      onChange={setUnificationMethod}
+                      placeholder="תאר את התהליך לאיחוד פניות..."
+                      rows={2}
+                      dir="rtl"
+                    />
+                  </div>
                 </div>
 
                 {/* Pain Point Detection */}
@@ -446,18 +450,20 @@ export const CustomerServiceModule: React.FC = () => {
                         <span className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
                           {index + 1}
                         </span>
-                        <TextField
+                        <Input
                           value={q.question}
                           onChange={(v) => handleUpdateQuestion(index, 'question', v)}
                           placeholder={`שאלה מספר ${index + 1}...`}
                           className="flex-1"
+                          dir="rtl"
                         />
-                        <NumberField
-                          value={q.frequencyPerDay}
-                          onChange={(v) => handleUpdateQuestion(index, 'frequencyPerDay', v || 0)}
+                        <Input
+                          type="number"
+                          value={q.frequencyPerDay?.toString() || ''}
+                          onChange={(v) => handleUpdateQuestion(index, 'frequencyPerDay', v ? parseInt(v) : 0)}
                           placeholder="תדירות/יום"
                           className="w-32"
-                          min={0}
+                          dir="rtl"
                         />
                       </div>
                     ))}
@@ -485,18 +491,19 @@ export const CustomerServiceModule: React.FC = () => {
 
                   {/* Add Custom Request */}
                   <div className="mt-3 flex gap-2">
-                    <TextField
+                    <Input
                       value={customRequest}
                       onChange={setCustomRequest}
                       placeholder="הוסף בקשת שירות מותאמת..."
                       className="flex-1"
+                      dir="rtl"
                     />
-                    <button
+                    <Button
                       onClick={handleAddCustomRequest}
-                      className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-all duration-200"
+                      variant="primary"
                     >
                       <Plus className="w-4 h-4" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -571,7 +578,7 @@ export const CustomerServiceModule: React.FC = () => {
                              trigger === 'periodic' ? 'תקופתי' :
                              trigger === 'milestone' ? 'באבני דרך' : 'אחרי פתרון בעיה'}:
                           </span>
-                          <SelectField
+                          <Select
                             value={updateChannelMapping[trigger] || ''}
                             onChange={(v) => setUpdateChannelMapping({...updateChannelMapping, [trigger]: v})}
                             options={[
@@ -583,6 +590,7 @@ export const CustomerServiceModule: React.FC = () => {
                             ]}
                             placeholder="בחר ערוץ"
                             className="flex-1"
+                            dir="rtl"
                           />
                         </div>
                       ))}
@@ -591,13 +599,16 @@ export const CustomerServiceModule: React.FC = () => {
                 </div>
 
                 {/* What Matters to Customers */}
-                <TextAreaField
-                  label="מה חשוב ללקוחות לדעת?"
-                  value={whatMattersToCustomers}
-                  onChange={setWhatMattersToCustomers}
-                  placeholder="איזה מידע הלקוחות שלכם הכי רוצים לקבל?"
-                  rows={2}
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">מה חשוב ללקוחות לדעת?</label>
+                  <TextArea
+                    value={whatMattersToCustomers}
+                    onChange={setWhatMattersToCustomers}
+                    placeholder="איזה מידע הלקוחות שלכם הכי רוצים לקבל?"
+                    rows={2}
+                    dir="rtl"
+                  />
+                </div>
 
                 {/* Keep in Touch */}
                 <div className="bg-blue-50 p-4 rounded-lg space-y-4">
@@ -633,14 +644,16 @@ export const CustomerServiceModule: React.FC = () => {
                 </div>
 
                 {/* Time Investment */}
-                <NumberField
-                  label="זמן הכנת עדכונים (שעות/שבוע)"
-                  value={weeklyTimeSpent}
-                  onChange={setWeeklyTimeSpent}
-                  suffix="שעות"
-                  min={0}
-                  helperText="כמה זמן משקיעים בהכנת תוכן ועדכונים?"
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">זמן הכנת עדכונים (שעות/שבוע)</label>
+                  <Input
+                    type="number"
+                    value={weeklyTimeSpent?.toString() || ''}
+                    onChange={(v) => setWeeklyTimeSpent(v ? parseInt(v) : 0)}
+                    dir="rtl"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">כמה זמן משקיעים בהכנת תוכן ועדכונים?</p>
+                </div>
 
                 {/* Pain Point Detection */}
                 {weeklyTimeSpent > 10 && (
@@ -690,14 +703,16 @@ export const CustomerServiceModule: React.FC = () => {
                 {communityExists && (
                   <>
                     {/* Community Size */}
-                    <NumberField
-                      label="גודל הקהילה"
-                      value={communitySize}
-                      onChange={setCommunitySize}
-                      suffix="חברים"
-                      min={0}
-                      helperText="כמה חברים פעילים בקהילה?"
-                    />
+                    <div>
+                      <label className="block text-sm font-medium mb-2">גודל הקהילה</label>
+                      <Input
+                        type="number"
+                        value={communitySize?.toString() || ''}
+                        onChange={(v) => setCommunitySize(v ? parseInt(v) : 0)}
+                        dir="rtl"
+                      />
+                      <p className="text-sm text-gray-500 mt-1">כמה חברים פעילים בקהילה?</p>
+                    </div>
 
                     {/* Platforms */}
                     <div>
@@ -711,18 +726,19 @@ export const CustomerServiceModule: React.FC = () => {
 
                       {/* Add Custom Platform */}
                       <div className="mt-3 flex gap-2">
-                        <TextField
+                        <Input
                           value={customPlatform}
                           onChange={setCustomPlatform}
                           placeholder="הוסף פלטפורמה מותאמת..."
                           className="flex-1"
+                          dir="rtl"
                         />
-                        <button
+                        <Button
                           onClick={handleAddCustomPlatform}
-                          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-all duration-200"
+                          variant="primary"
                         >
                           <Plus className="w-4 h-4" />
-                        </button>
+                        </Button>
                       </div>
                     </div>
 
@@ -750,13 +766,15 @@ export const CustomerServiceModule: React.FC = () => {
                     אירועים/וובינרים
                   </h4>
 
-                  <NumberField
-                    label="תדירות"
-                    value={eventsPerMonth}
-                    onChange={setEventsPerMonth}
-                    suffix="בחודש"
-                    min={0}
-                  />
+                  <div>
+                    <label className="block text-sm font-medium mb-2">תדירות</label>
+                    <Input
+                      type="number"
+                      value={eventsPerMonth?.toString() || ''}
+                      onChange={(v) => setEventsPerMonth(v ? parseInt(v) : 0)}
+                      dir="rtl"
+                    />
+                  </div>
 
                   {eventsPerMonth > 0 && (
                     <>
@@ -772,14 +790,15 @@ export const CustomerServiceModule: React.FC = () => {
                         orientation="horizontal"
                       />
 
-                      <NumberField
-                        label="% הגעה בפועל"
-                        value={actualAttendanceRate}
-                        onChange={setActualAttendanceRate}
-                        suffix="%"
-                        min={0}
-                        max={100}
-                      />
+                      <div>
+                        <label className="block text-sm font-medium mb-2">% הגעה בפועל</label>
+                        <Input
+                          type="number"
+                          value={actualAttendanceRate?.toString() || ''}
+                          onChange={(v) => setActualAttendanceRate(v ? parseInt(v) : 0)}
+                          dir="rtl"
+                        />
+                      </div>
 
                       {/* Event Automation Opportunity */}
                       <div className="bg-green-50 p-3 rounded-lg">
@@ -787,11 +806,12 @@ export const CustomerServiceModule: React.FC = () => {
                           <Lightbulb className="w-4 h-4" />
                           פוטנציאל: "אוטומציית הרשמות ותזכורות?"
                         </div>
-                        <TextAreaField
+                        <TextArea
                           value={eventAutomationOpportunity}
                           onChange={setEventAutomationOpportunity}
                           placeholder="איך אוטומציה יכולה לשפר את ניהול האירועים?"
                           rows={2}
+                          dir="rtl"
                         />
                       </div>
                     </>
@@ -864,22 +884,26 @@ export const CustomerServiceModule: React.FC = () => {
                     columns={3}
                   />
 
-                  <NumberField
-                    label="% תגובה למשוב"
-                    value={feedbackResponseRate}
-                    onChange={setFeedbackResponseRate}
-                    suffix="%"
-                    min={0}
-                    max={100}
-                  />
+                  <div>
+                    <label className="block text-sm font-medium mb-2">% תגובה למשוב</label>
+                    <Input
+                      type="number"
+                      value={feedbackResponseRate?.toString() || ''}
+                      onChange={(v) => setFeedbackResponseRate(v ? parseInt(v) : 0)}
+                      dir="rtl"
+                    />
+                  </div>
 
-                  <TextAreaField
-                    label="מה עושים עם המשוב?"
-                    value={whatDoWithFeedback}
-                    onChange={setWhatDoWithFeedback}
-                    placeholder="איך מנתחים ומשתמשים במשוב שמתקבל?"
-                    rows={2}
-                  />
+                  <div>
+                    <label className="block text-sm font-medium mb-2">מה עושים עם המשוב?</label>
+                    <TextArea
+                      value={whatDoWithFeedback}
+                      onChange={setWhatDoWithFeedback}
+                      placeholder="איך מנתחים ומשתמשים במשוב שמתקבל?"
+                      rows={2}
+                      dir="rtl"
+                    />
+                  </div>
                 </div>
 
                 {/* Reviews */}
@@ -889,12 +913,15 @@ export const CustomerServiceModule: React.FC = () => {
                     ביקורות
                   </h4>
 
-                  <NumberField
-                    label="כמות ביקורות בחודש"
-                    value={reviewsPerMonth}
-                    onChange={setReviewsPerMonth}
-                    min={0}
-                  />
+                  <div>
+                    <label className="block text-sm font-medium mb-2">כמות ביקורות בחודש</label>
+                    <Input
+                      type="number"
+                      value={reviewsPerMonth?.toString() || ''}
+                      onChange={(v) => setReviewsPerMonth(v ? parseInt(v) : 0)}
+                      dir="rtl"
+                    />
+                  </div>
 
                   <CheckboxGroup
                     label="פלטפורמות ביקורות"
@@ -915,22 +942,27 @@ export const CustomerServiceModule: React.FC = () => {
                   <div>
                     <label className="block text-sm font-medium mb-2">אסטרטגיה</label>
 
-                    <TextAreaField
-                      label="עידוד ביקורות חיוביות"
-                      value={positiveReviewStrategy}
-                      onChange={setPositiveReviewStrategy}
-                      placeholder="איך מעודדים לקוחות מרוצים לכתוב ביקורת?"
-                      rows={2}
-                      className="mb-3"
-                    />
+                    <div className="mb-3">
+                      <label className="block text-sm font-medium mb-2">עידוד ביקורות חיוביות</label>
+                      <TextArea
+                        value={positiveReviewStrategy}
+                        onChange={setPositiveReviewStrategy}
+                        placeholder="איך מעודדים לקוחות מרוצים לכתוב ביקורת?"
+                        rows={2}
+                        dir="rtl"
+                      />
+                    </div>
 
-                    <TextAreaField
-                      label="טיפול בביקורות שליליות"
-                      value={negativeReviewStrategy}
-                      onChange={setNegativeReviewStrategy}
-                      placeholder="איך מטפלים בביקורות שליליות?"
-                      rows={2}
-                    />
+                    <div>
+                      <label className="block text-sm font-medium mb-2">טיפול בביקורות שליליות</label>
+                      <TextArea
+                        value={negativeReviewStrategy}
+                        onChange={setNegativeReviewStrategy}
+                        placeholder="איך מטפלים בביקורות שליליות?"
+                        rows={2}
+                        dir="rtl"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -940,11 +972,12 @@ export const CustomerServiceModule: React.FC = () => {
                     <Sparkles className="w-5 h-5" />
                     "מערכת שמזהה מרוצים/לא מרוצים ומטפלת?"
                   </div>
-                  <TextAreaField
+                  <TextArea
                     value={sentimentDetectionOpportunity}
                     onChange={setSentimentDetectionOpportunity}
                     placeholder="איך זיהוי סנטימנט אוטומטי יכול לעזור?"
                     rows={2}
+                    dir="rtl"
                   />
                 </div>
 
@@ -1004,24 +1037,26 @@ export const CustomerServiceModule: React.FC = () => {
 
                   {/* Add New Step */}
                   <div className="flex gap-2">
-                    <TextField
+                    <Input
                       value={newOnboardingStep.name}
                       onChange={(v) => setNewOnboardingStep({...newOnboardingStep, name: v})}
                       placeholder="שם השלב..."
                       className="flex-1"
+                      dir="rtl"
                     />
-                    <TextField
+                    <Input
                       value={newOnboardingStep.time}
                       onChange={(v) => setNewOnboardingStep({...newOnboardingStep, time: v})}
                       placeholder="זמן (למשל: 5 דקות)"
                       className="w-40"
+                      dir="rtl"
                     />
-                    <button
+                    <Button
                       onClick={handleAddOnboardingStep}
-                      className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-all duration-200"
+                      variant="primary"
                     >
                       <Plus className="w-5 h-5" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -1060,11 +1095,12 @@ export const CustomerServiceModule: React.FC = () => {
                     <AlertTriangle className="w-4 h-4" />
                     בעיות נפוצות בקליטה
                   </div>
-                  <TextAreaField
+                  <TextArea
                     value={commonOnboardingIssues}
                     onChange={setCommonOnboardingIssues}
                     placeholder="תאר בעיות חוזרות בתהליך הקליטה..."
                     rows={2}
+                    dir="rtl"
                   />
                 </div>
 

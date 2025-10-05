@@ -24,6 +24,7 @@ import { RequirementsNavigator } from '../Requirements/RequirementsNavigator';
 import { getServiceById } from '../../config/servicesDatabase';
 import { getRequirementsTemplate } from '../../config/serviceRequirementsTemplates';
 import { ExportMenu } from '../Common/ExportMenu';
+import { Card, Button, Badge } from '../Base';
 
 type SpecSection = 'requirements' | 'systems' | 'integrations' | 'ai_agents' | 'acceptance';
 
@@ -242,12 +243,12 @@ export const ImplementationSpecDashboard: React.FC = () => {
               {/* Export Menu */}
               <ExportMenu variant="button" />
 
-              <button
+              <Button
+                variant="outline"
                 onClick={() => navigate('/dashboard')}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
               >
                 חזרה לדשבורד
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -311,13 +312,13 @@ export const ImplementationSpecDashboard: React.FC = () => {
               {sections.find(s => s.id === selectedSection)?.name}
             </h2>
             {selectedSection !== 'requirements' && (
-              <button
+              <Button
+                variant="primary"
                 onClick={() => navigate(`/phase2/${selectedSection}/new`)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                icon={<Plus className="w-5 h-5" />}
               >
-                <Plus className="w-5 h-5" />
                 הוסף חדש
-              </button>
+              </Button>
             )}
           </div>
 
@@ -568,13 +569,14 @@ export const ImplementationSpecDashboard: React.FC = () => {
                   המפרט הטכני הושלם ב-{overallProgress}%. ניתן כעת לעבור לשלב הפיתוח ולייצר משימות אוטומטית.
                 </p>
               </div>
-              <button
+              <Button
+                variant="success"
                 onClick={handleCompleteSpec}
-                className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition shadow-lg"
+                icon={<ArrowRight className="w-5 h-5" />}
+                iconPosition="right"
               >
-                <span>המשך לפיתוח</span>
-                <ArrowRight className="w-5 h-5" />
-              </button>
+                המשך לפיתוח
+              </Button>
             </div>
           </div>
         )}

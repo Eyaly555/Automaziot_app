@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { DetailedSystemSpec, SystemModule, SystemField, SystemAuthentication, DataMigration } from '../../types';
 import { Server, Save, ArrowLeft, Plus, Trash2, Key, Database, FileText } from 'lucide-react';
+import { SystemSpecProgress } from './SystemSpecProgress';
+import { Input, Select, TextArea, Button } from '../Base';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -107,19 +109,35 @@ export const SystemDeepDive: React.FC = () => {
                 <p className="text-gray-600 text-sm">מפרט טכני מלא</p>
               </div>
             </div>
-            <button
+            <Button
               onClick={handleSave}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              variant="primary"
+              icon={<Save className="w-5 h-5" />}
             >
-              <Save className="w-5 h-5" />
               שמור
-            </button>
+            </Button>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
+        {/* Progress Component */}
+        <SystemSpecProgress
+          completionPercentage={
+            Math.round(
+              ((system.systemName ? 25 : 0) +
+                (system.authentication.credentialsProvided ? 25 : 0) +
+                (system.modules.length > 0 ? 25 : 0) +
+                (system.dataMigration.required ? 25 : 0)) /
+                1
+            )
+          }
+          authComplete={system.authentication.credentialsProvided}
+          modulesCount={system.modules.length}
+          migrationRequired={system.dataMigration.required}
+        />
+
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
           {/* Tabs */}
           <div className="border-b border-gray-200">
@@ -151,80 +169,60 @@ export const SystemDeepDive: React.FC = () => {
             {activeTab === 'auth' && (
               <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      שם המערכת *
-                    </label>
-                    <input
-                      type="text"
-                      value={system.systemName}
-                      onChange={(e) => setSystem({ ...system, systemName: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="לדוגמה: Salesforce, HubSpot, Zoho CRM"
-                    />
-                  </div>
+                  <Input
+                    label="שם המערכת *"
+                    value={system.systemName}
+                    onChange={(e) => setSystem({ ...system, systemName: e.target.value })}
+                    placeholder="לדוגמה: Salesforce, HubSpot, Zoho CRM"
+                    required
+                  />
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      שיטת אימות *
-                    </label>
-                    <select
-                      value={system.authentication.method}
-                      onChange={(e) => setSystem({
-                        ...system,
-                        authentication: {
-                          ...system.authentication,
-                          method: e.target.value as any
-                        }
-                      })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="oauth">OAuth 2.0</option>
-                      <option value="api_key">API Key</option>
-                      <option value="basic_auth">Basic Auth</option>
-                      <option value="jwt">JWT Token</option>
-                      <option value="custom">Custom</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    API Endpoint
-                  </label>
-                  <input
-                    type="url"
-                    value={system.authentication.apiEndpoint}
+                  <Select
+                    label="שיטת אימות *"
+                    value={system.authentication.method}
                     onChange={(e) => setSystem({
                       ...system,
                       authentication: {
                         ...system.authentication,
-                        apiEndpoint: e.target.value
+                        method: e.target.value as any
                       }
                     })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="https://api.example.com/v1"
-                  />
+                    required
+                  >
+                    <option value="oauth">OAuth 2.0</option>
+                    <option value="api_key">API Key</option>
+                    <option value="basic_auth">Basic Auth</option>
+                    <option value="jwt">JWT Token</option>
+                    <option value="custom">Custom</option>
+                  </Select>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Rate Limits
-                  </label>
-                  <input
-                    type="text"
-                    value={system.authentication.rateLimits}
-                    onChange={(e) => setSystem({
-                      ...system,
-                      authentication: {
-                        ...system.authentication,
-                        rateLimits: e.target.value
-                      }
-                    })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="לדוגמה: 1000 requests/hour"
-                  />
-                </div>
+                <Input
+                  label="API Endpoint"
+                  type="url"
+                  value={system.authentication.apiEndpoint}
+                  onChange={(e) => setSystem({
+                    ...system,
+                    authentication: {
+                      ...system.authentication,
+                      apiEndpoint: e.target.value
+                    }
+                  })}
+                  placeholder="https://api.example.com/v1"
+                />
+
+                <Input
+                  label="Rate Limits"
+                  value={system.authentication.rateLimits}
+                  onChange={(e) => setSystem({
+                    ...system,
+                    authentication: {
+                      ...system.authentication,
+                      rateLimits: e.target.value
+                    }
+                  })}
+                  placeholder="לדוגמה: 1000 requests/hour"
+                />
 
                 <div className="flex items-center gap-6">
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -261,24 +259,19 @@ export const SystemDeepDive: React.FC = () => {
                 </div>
 
                 {system.authentication.method === 'custom' && (
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      פרטי אימות מותאם
-                    </label>
-                    <textarea
-                      value={system.authentication.customAuthDetails || ''}
-                      onChange={(e) => setSystem({
-                        ...system,
-                        authentication: {
-                          ...system.authentication,
-                          customAuthDetails: e.target.value
-                        }
-                      })}
-                      rows={4}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      placeholder="תאר את שיטת האימות המותאמת..."
-                    />
-                  </div>
+                  <TextArea
+                    label="פרטי אימות מותאם"
+                    value={system.authentication.customAuthDetails || ''}
+                    onChange={(e) => setSystem({
+                      ...system,
+                      authentication: {
+                        ...system.authentication,
+                        customAuthDetails: e.target.value
+                      }
+                    })}
+                    rows={4}
+                    placeholder="תאר את שיטת האימות המותאמת..."
+                  />
                 )}
               </div>
             )}
@@ -313,31 +306,20 @@ export const SystemDeepDive: React.FC = () => {
                       <div key={module.id} className="p-6 border border-gray-200 rounded-lg">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1 grid grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                שם המודול
-                              </label>
-                              <input
-                                type="text"
-                                value={module.name}
-                                onChange={(e) => updateModule(module.id, { name: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                placeholder="לדוגמה: Contacts, Deals, Products"
-                              />
-                            </div>
+                            <Input
+                              label="שם המודול"
+                              value={module.name}
+                              onChange={(e) => updateModule(module.id, { name: e.target.value })}
+                              placeholder="לדוגמה: Contacts, Deals, Products"
+                            />
 
-                            <div>
-                              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                מספר רשומות
-                              </label>
-                              <input
-                                type="number"
-                                value={module.recordCount}
-                                onChange={(e) => updateModule(module.id, { recordCount: parseInt(e.target.value) || 0 })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                placeholder="0"
-                              />
-                            </div>
+                            <Input
+                              label="מספר רשומות"
+                              type="number"
+                              value={module.recordCount.toString()}
+                              onChange={(e) => updateModule(module.id, { recordCount: parseInt(e.target.value) || 0 })}
+                              placeholder="0"
+                            />
                           </div>
 
                           <button
@@ -391,66 +373,51 @@ export const SystemDeepDive: React.FC = () => {
                 {system.dataMigration.required && (
                   <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          מספר רשומות להעברה
-                        </label>
-                        <input
-                          type="number"
-                          value={system.dataMigration.recordCount}
-                          onChange={(e) => setSystem({
-                            ...system,
-                            dataMigration: {
-                              ...system.dataMigration,
-                              recordCount: parseInt(e.target.value) || 0
-                            }
-                          })}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          שנות נתונים היסטוריים
-                        </label>
-                        <input
-                          type="number"
-                          value={system.dataMigration.historicalDataYears}
-                          onChange={(e) => setSystem({
-                            ...system,
-                            dataMigration: {
-                              ...system.dataMigration,
-                              historicalDataYears: parseInt(e.target.value) || 0
-                            }
-                          })}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        שיטת העברה
-                      </label>
-                      <select
-                        value={system.dataMigration.migrationMethod}
+                      <Input
+                        label="מספר רשומות להעברה"
+                        type="number"
+                        value={system.dataMigration.recordCount.toString()}
                         onChange={(e) => setSystem({
                           ...system,
                           dataMigration: {
                             ...system.dataMigration,
-                            migrationMethod: e.target.value as any
+                            recordCount: parseInt(e.target.value) || 0
                           }
                         })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="api">API</option>
-                        <option value="csv_export">CSV Export</option>
-                        <option value="csv_import">CSV Import</option>
-                        <option value="database_dump">Database Dump</option>
-                        <option value="manual">Manual</option>
-                        <option value="etl_tool">ETL Tool</option>
-                      </select>
+                      />
+
+                      <Input
+                        label="שנות נתונים היסטוריים"
+                        type="number"
+                        value={system.dataMigration.historicalDataYears.toString()}
+                        onChange={(e) => setSystem({
+                          ...system,
+                          dataMigration: {
+                            ...system.dataMigration,
+                            historicalDataYears: parseInt(e.target.value) || 0
+                          }
+                        })}
+                      />
                     </div>
+
+                    <Select
+                      label="שיטת העברה"
+                      value={system.dataMigration.migrationMethod}
+                      onChange={(e) => setSystem({
+                        ...system,
+                        dataMigration: {
+                          ...system.dataMigration,
+                          migrationMethod: e.target.value as any
+                        }
+                      })}
+                    >
+                      <option value="api">API</option>
+                      <option value="csv_export">CSV Export</option>
+                      <option value="csv_import">CSV Import</option>
+                      <option value="database_dump">Database Dump</option>
+                      <option value="manual">Manual</option>
+                      <option value="etl_tool">ETL Tool</option>
+                    </Select>
 
                     <div className="space-y-3">
                       <label className="flex items-center gap-2 cursor-pointer">
@@ -502,24 +469,19 @@ export const SystemDeepDive: React.FC = () => {
                       </label>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        תוכנית rollback
-                      </label>
-                      <textarea
-                        value={system.dataMigration.rollbackPlan}
-                        onChange={(e) => setSystem({
-                          ...system,
-                          dataMigration: {
-                            ...system.dataMigration,
-                            rollbackPlan: e.target.value
-                          }
-                        })}
-                        rows={4}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        placeholder="תאר את תהליך החזרה למצב קודם במקרה של בעיה..."
-                      />
-                    </div>
+                    <TextArea
+                      label="תוכנית rollback"
+                      value={system.dataMigration.rollbackPlan}
+                      onChange={(e) => setSystem({
+                        ...system,
+                        dataMigration: {
+                          ...system.dataMigration,
+                          rollbackPlan: e.target.value
+                        }
+                      })}
+                      rows={4}
+                      placeholder="תאר את תהליך החזרה למצב קודם במקרה של בעיה..."
+                    />
                   </div>
                 )}
               </div>
@@ -527,14 +489,11 @@ export const SystemDeepDive: React.FC = () => {
 
             {/* Technical Notes (always at bottom) */}
             <div className="mt-8">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                הערות טכניות
-              </label>
-              <textarea
+              <TextArea
+                label="הערות טכניות"
                 value={system.technicalNotes}
                 onChange={(e) => setSystem({ ...system, technicalNotes: e.target.value })}
                 rows={6}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 placeholder="הערות נוספות למפתחים..."
               />
             </div>

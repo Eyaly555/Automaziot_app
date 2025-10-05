@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Save, Plus, X } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
-import { Card } from '../../Common/Card';
-import { TextField, NumberField, SelectField, CheckboxGroup } from '../../Common/FormFields';
+import { Card, Input, Select, TextArea, Button } from '../../Base';
+import { CheckboxGroup } from '../../Common/FormFields';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
+import type { Option } from '../../Base';
 
 const businessTypeOptions = [
   { value: 'b2b', label: 'B2B' },
@@ -91,20 +92,22 @@ export const OverviewModule: React.FC = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button
+              <Button
                 onClick={() => navigate('/dashboard')}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                variant="ghost"
+                size="sm"
               >
                 <ArrowRight className="w-5 h-5" />
-              </button>
+              </Button>
               <h1 className="text-xl font-semibold">סקירה כללית</h1>
             </div>
-            <button
+            <Button
               onClick={() => navigate('/module/leadsAndSales')}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors"
+              variant="primary"
+              size="md"
             >
               המשך למודול הבא
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -115,31 +118,34 @@ export const OverviewModule: React.FC = () => {
           {/* Basic Information */}
           <Card title="מידע בסיסי" subtitle="פרטים כלליים על העסק">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <SelectField
+              <Select
                 label="סוג העסק"
                 value={businessType}
                 onChange={setBusinessType}
                 options={businessTypeOptions}
                 placeholder="בחר סוג עסק"
+                dir="rtl"
               />
-              <NumberField
+              <Input
                 label="מספר עובדים"
-                value={employees}
-                onChange={setEmployees}
-                min={1}
+                type="number"
+                value={employees?.toString() || ''}
+                onChange={(val) => setEmployees(val ? parseInt(val) : undefined)}
                 placeholder="0"
+                dir="rtl"
               />
             </div>
           </Card>
 
           {/* Main Challenge */}
           <Card title="אתגר מרכזי" subtitle="מה הבעיה העיקרית שאתם מנסים לפתור?">
-            <TextField
+            <TextArea
+              label="תיאור האתגר"
               value={mainChallenge}
               onChange={setMainChallenge}
-              multiline
               rows={4}
               placeholder="תאר את האתגר המרכזי של העסק כיום..."
+              dir="rtl"
             />
             <div className="mt-3">
               <PainPointFlag
@@ -155,18 +161,21 @@ export const OverviewModule: React.FC = () => {
           <Card title="תהליכים עסקיים" subtitle="אילו תהליכים מרכזיים קיימים בעסק?">
             <div className="space-y-4">
               <div className="flex gap-2">
-                <TextField
+                <Input
+                  label=""
                   value={newProcess}
                   onChange={setNewProcess}
                   placeholder="הוסף תהליך..."
-                  className="flex-1"
+                  dir="rtl"
                 />
-                <button
+                <Button
                   onClick={handleAddProcess}
-                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  variant="primary"
+                  size="md"
+                  className="mt-[3px]"
                 >
                   <Plus className="w-5 h-5" />
-                </button>
+                </Button>
               </div>
               {processes.length > 0 && (
                 <div className="space-y-2">
@@ -200,18 +209,21 @@ export const OverviewModule: React.FC = () => {
           <Card title="יעדים מרכזיים" subtitle="מה אתם רוצים להשיג מתהליך האוטומציה?">
             <div className="space-y-4">
               <div className="flex gap-2">
-                <TextField
+                <Input
+                  label=""
                   value={newGoal}
                   onChange={setNewGoal}
                   placeholder="הוסף יעד..."
-                  className="flex-1"
+                  dir="rtl"
                 />
-                <button
+                <Button
                   onClick={handleAddGoal}
-                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  variant="primary"
+                  size="md"
+                  className="mt-[3px]"
                 >
                   <Plus className="w-5 h-5" />
-                </button>
+                </Button>
               </div>
               {mainGoals.length > 0 && (
                 <div className="space-y-2">

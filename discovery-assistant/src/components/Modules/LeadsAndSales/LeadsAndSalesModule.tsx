@@ -2,15 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Plus, X, ChevronDown, ChevronUp, Clock, DollarSign, AlertTriangle, Lightbulb, Flame, Sparkles, Info } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
-import { Card } from '../../Common/Card';
+import { Card, Input, Select, TextArea, Button } from '../../Base';
 import {
-  TextField,
   NumberField,
-  SelectField,
   CheckboxGroup,
   RadioGroup,
-  RatingField,
-  TextAreaField
+  RatingField
 } from '../../Common/FormFields';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 import { PhaseReadOnlyBanner } from '../../Common/PhaseReadOnlyBanner';
@@ -364,18 +361,20 @@ export const LeadsAndSalesModule: React.FC = () => {
 
                   {/* Add New Channel */}
                   <div className="mt-3 flex gap-2">
-                    <SelectField
+                    <Select
                       value={newSource.channel}
                       onChange={(v) => setNewSource({ ...newSource, channel: v })}
                       options={channelOptions}
                       placeholder="בחר ערוץ"
                       className="flex-1"
+                      dir="rtl"
                     />
-                    <TextField
+                    <Input
                       value={customChannel}
-                      onChange={setCustomChannel}
+                      onChange={(val) => setCustomChannel(val)}
                       placeholder="או הוסף ערוץ מותאם..."
                       className="flex-1"
+                      dir="rtl"
                     />
                     <NumberField
                       value={newSource.volumePerMonth}
@@ -402,18 +401,21 @@ export const LeadsAndSalesModule: React.FC = () => {
                 </div>
 
                 {/* Central System */}
-                <SelectField
-                  label="מערכת ריכוז"
-                  value={centralSystem}
-                  onChange={setCentralSystem}
-                  options={[
-                    { value: 'crm', label: 'CRM' },
-                    { value: 'excel', label: 'Excel' },
-                    { value: 'manual', label: 'ידני' },
-                    { value: 'scattered', label: 'מפוזר' }
-                  ]}
-                  helperText="איפה אתם מרכזים את כל הלידים?"
-                />
+                <div>
+                  <Select
+                    label="מערכת ריכוז"
+                    value={centralSystem}
+                    onChange={(val) => setCentralSystem(val)}
+                    options={[
+                      { value: 'crm', label: 'CRM' },
+                      { value: 'excel', label: 'Excel' },
+                      { value: 'manual', label: 'ידני' },
+                      { value: 'scattered', label: 'מפוזר' }
+                    ]}
+                    dir="rtl"
+                  />
+                  <p className="mt-1 text-sm text-gray-500">איפה אתם מרכזים את כל הלידים?</p>
+                </div>
 
                 {/* Common Issues */}
                 <div>
@@ -430,12 +432,13 @@ export const LeadsAndSalesModule: React.FC = () => {
                   />
 
                   {commonIssues.includes('missing_opportunities') && (
-                    <TextField
+                    <Input
                       label="איזה ערוצים מפספסים הזדמנויות?"
                       value={missingOpportunities}
-                      onChange={setMissingOpportunities}
+                      onChange={(val) => setMissingOpportunities(val)}
                       placeholder="פרט איזה ערוצים ולמה..."
                       className="mt-3"
+                      dir="rtl"
                     />
                   )}
 
@@ -451,10 +454,10 @@ export const LeadsAndSalesModule: React.FC = () => {
                   )}
 
                   {commonIssues.includes('duplicates') && (
-                    <SelectField
+                    <Select
                       label="תדירות כפילויות"
                       value={duplicatesFrequency}
-                      onChange={setDuplicatesFrequency}
+                      onChange={(val) => setDuplicatesFrequency(val)}
                       options={[
                         { value: 'daily', label: 'יומי' },
                         { value: 'weekly', label: 'שבועי' },
@@ -462,6 +465,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                         { value: 'rare', label: 'נדיר' }
                       ]}
                       className="mt-3"
+                      dir="rtl"
                     />
                   )}
 
@@ -565,16 +569,17 @@ export const LeadsAndSalesModule: React.FC = () => {
                     className="flex-1"
                     min={0}
                   />
-                  <SelectField
+                  <Select
                     label="יחידה"
                     value={responseTimeUnit}
-                    onChange={setResponseTimeUnit}
+                    onChange={(val) => setResponseTimeUnit(val)}
                     options={[
                       { value: 'minutes', label: 'דקות' },
                       { value: 'hours', label: 'שעות' },
                       { value: 'days', label: 'ימים' }
                     ]}
                     className="w-32"
+                    dir="rtl"
                   />
                 </div>
 
@@ -615,12 +620,13 @@ export const LeadsAndSalesModule: React.FC = () => {
                     max={100}
                   />
 
-                  <TextAreaField
+                  <TextArea
                     label="מה קורה כשלא זמינים?"
                     value={whatHappensWhenUnavailable}
-                    onChange={setWhatHappensWhenUnavailable}
+                    onChange={(val) => setWhatHappensWhenUnavailable(val)}
                     placeholder="תאר מה קורה ללידים כשאין מי שעונה..."
                     rows={2}
+                    dir="rtl"
                   />
 
                   <div>
@@ -635,12 +641,13 @@ export const LeadsAndSalesModule: React.FC = () => {
                       orientation="horizontal"
                     />
                     {urgentVsRegular && (
-                      <TextField
+                      <Input
                         label="איך מבדילים?"
                         value={urgentHandling}
-                        onChange={setUrgentHandling}
+                        onChange={(val) => setUrgentHandling(val)}
                         placeholder="תאר את התהליך..."
                         className="mt-3"
+                        dir="rtl"
                       />
                     )}
                   </div>
@@ -652,11 +659,12 @@ export const LeadsAndSalesModule: React.FC = () => {
                     <Lightbulb className="w-5 h-5" />
                     הזדמנות: "מענה תוך 30 שניות - איך ישפיע על העסק?"
                   </div>
-                  <TextAreaField
+                  <TextArea
                     value={speedToLeadOpportunity}
-                    onChange={setSpeedToLeadOpportunity}
+                    onChange={(val) => setSpeedToLeadOpportunity(val)}
                     placeholder="חשבו איך מענה מיידי יכול לשפר את אחוזי ההמרה שלכם..."
                     rows={2}
+                    dir="rtl"
                   />
                 </div>
 
@@ -707,23 +715,25 @@ export const LeadsAndSalesModule: React.FC = () => {
                     onChange={setRoutingMethod}
                   />
                   {(routingMethod.includes('expertise') || routingMethod.includes('territory')) && (
-                    <TextField
+                    <Input
                       label="פרט את השיטה"
                       value={routingMethodDetails}
-                      onChange={setRoutingMethodDetails}
+                      onChange={(val) => setRoutingMethodDetails(val)}
                       placeholder="תאר איך מחליטים מי מקבל איזה ליד..."
                       className="mt-3"
+                      dir="rtl"
                     />
                   )}
                 </div>
 
                 {/* Unavailable Agent Handling */}
-                <TextAreaField
+                <TextArea
                   label="מה קורה כשנציג לא זמין?"
                   value={unavailableHandling}
-                  onChange={setUnavailableHandling}
+                  onChange={(val) => setUnavailableHandling(val)}
                   placeholder="תאר את התהליך כשהנציג המיועד לא זמין..."
                   rows={2}
+                  dir="rtl"
                 />
 
                 {/* Hot Lead Classification */}
@@ -745,11 +755,12 @@ export const LeadsAndSalesModule: React.FC = () => {
 
                   {/* Add Custom Criteria */}
                   <div className="mt-3 flex gap-2">
-                    <TextField
+                    <Input
                       value={customHotLeadCriteria}
-                      onChange={setCustomHotLeadCriteria}
+                      onChange={(val) => setCustomHotLeadCriteria(val)}
                       placeholder="הוסף קריטריון מותאם..."
                       className="flex-1"
+                      dir="rtl"
                     />
                     <button
                       onClick={handleAddCustomHotLeadCriteria}
@@ -761,12 +772,13 @@ export const LeadsAndSalesModule: React.FC = () => {
                 </div>
 
                 {/* Hot Lead Priority */}
-                <TextAreaField
+                <TextArea
                   label="איך מוודאים טיפול בלידים חמים קודם?"
                   value={hotLeadPriority}
-                  onChange={setHotLeadPriority}
+                  onChange={(val) => setHotLeadPriority(val)}
                   placeholder="תאר את התהליך לוידוא טיפול מיידי בלידים חמים..."
                   rows={2}
+                  dir="rtl"
                 />
 
                 {/* AI Potential */}
@@ -775,11 +787,12 @@ export const LeadsAndSalesModule: React.FC = () => {
                     <Sparkles className="w-5 h-5" />
                     פוטנציאל AI: "סוכן שמבצע שיחה ראשונית ומסווג?"
                   </div>
-                  <TextAreaField
+                  <TextArea
                     value={aiPotentialRouting}
-                    onChange={setAiPotentialRouting}
+                    onChange={(val) => setAiPotentialRouting(val)}
                     placeholder="איך AI יכול לעזור בסיווג וניתוב לידים?"
                     rows={2}
+                    dir="rtl"
                   />
                 </div>
               </div>
@@ -818,23 +831,26 @@ export const LeadsAndSalesModule: React.FC = () => {
 
                   {/* Interval Times */}
                   <div className="grid grid-cols-3 gap-4 mt-4">
-                    <TextField
+                    <Input
                       label="מרווח יום 1"
                       value={followUpDay1}
-                      onChange={setFollowUpDay1}
+                      onChange={(val) => setFollowUpDay1(val)}
                       placeholder="למשל: 2 שעות"
+                      dir="rtl"
                     />
-                    <TextField
+                    <Input
                       label="מרווח יום 3"
                       value={followUpDay3}
-                      onChange={setFollowUpDay3}
+                      onChange={(val) => setFollowUpDay3(val)}
                       placeholder="למשל: בוקר"
+                      dir="rtl"
                     />
-                    <TextField
+                    <Input
                       label="מרווח יום 7"
                       value={followUpDay7}
-                      onChange={setFollowUpDay7}
+                      onChange={(val) => setFollowUpDay7(val)}
                       placeholder="למשל: אחה״צ"
+                      dir="rtl"
                     />
                   </div>
                 </div>
@@ -894,12 +910,13 @@ export const LeadsAndSalesModule: React.FC = () => {
                       orientation="horizontal"
                     />
                     {hasNurturing && (
-                      <TextField
+                      <Input
                         label="תאר את התהליך"
                         value={nurturingDescription}
-                        onChange={setNurturingDescription}
+                        onChange={(val) => setNurturingDescription(val)}
                         placeholder="איך מחממים לידים קרים?"
                         className="mt-3"
+                        dir="rtl"
                       />
                     )}
                   </div>
@@ -911,11 +928,12 @@ export const LeadsAndSalesModule: React.FC = () => {
                     <Lightbulb className="w-5 h-5" />
                     מסעות לקוח: "רוצים nurturing אוטומטי מותאם?"
                   </div>
-                  <TextAreaField
+                  <TextArea
                     value={customerJourneyOpportunity}
-                    onChange={setCustomerJourneyOpportunity}
+                    onChange={(val) => setCustomerJourneyOpportunity(val)}
                     placeholder="איך מסע לקוח אוטומטי יכול לשפר את ההמרות?"
                     rows={2}
+                    dir="rtl"
                   />
                 </div>
 
@@ -1034,11 +1052,12 @@ export const LeadsAndSalesModule: React.FC = () => {
                     />
 
                     {reminderWhen.includes('custom') && (
-                      <TextField
+                      <Input
                         label="זמן מותאם"
                         value={customReminderTime}
-                        onChange={setCustomReminderTime}
+                        onChange={(val) => setCustomReminderTime(val)}
                         placeholder="מתי שולחים תזכורת?"
+                        dir="rtl"
                       />
                     )}
 

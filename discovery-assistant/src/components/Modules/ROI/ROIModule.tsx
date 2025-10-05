@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Calculator, TrendingUp, Clock, DollarSign } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
-import { Card } from '../../Common/Card';
-import { TextField, CheckboxGroup, RadioGroup, RatingField } from '../../Common/FormFields';
+import { Card, Input, Button } from '../../Base';
+import { CheckboxGroup, RadioGroup, RatingField } from '../../Common/FormFields';
 import { formatCurrency } from '../../../utils/formatters';
 import { calculateROI } from '../../../utils/roiCalculator';
 import { ROIVisualization } from './ROIVisualization';
@@ -86,20 +86,22 @@ export const ROIModule: React.FC = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button
+              <Button
                 onClick={() => navigate('/dashboard')}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                variant="ghost"
+                size="sm"
               >
                 <ArrowRight className="w-5 h-5" />
-              </button>
+              </Button>
               <h1 className="text-xl font-semibold">💰 ROI וכימות</h1>
             </div>
-            <button
+            <Button
               onClick={() => navigate('/module/planning')}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors"
+              variant="primary"
+              size="md"
             >
               המשך למודול הבא
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -144,45 +146,50 @@ export const ROIModule: React.FC = () => {
             subtitle="כמה עולים התהליכים הידניים היום?">
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
-                <TextField
+                <Input
                   label="שעות עבודה ידנית בשבוע"
                   value={currentManualHours}
                   onChange={setCurrentManualHours}
                   type="number"
                   placeholder="לדוגמה: 40"
+                  dir="rtl"
                 />
-                <TextField
+                <Input
                   label="עלות שעת עבודה ממוצעת (₪)"
                   value={averageHourlyCost}
                   onChange={setAverageHourlyCost}
                   type="number"
                   placeholder="לדוגמה: 100"
+                  dir="rtl"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <TextField
+                <Input
                   label="עלות כלים וסופטוור חודשית (₪)"
                   value={currentToolsCost}
                   onChange={setCurrentToolsCost}
                   type="number"
                   placeholder="לדוגמה: 5000"
+                  dir="rtl"
                 />
-                <TextField
+                <Input
                   label="עלות טעויות וטיפול בהן לחודש (₪)"
                   value={errorCostPerMonth}
                   onChange={setErrorCostPerMonth}
                   type="number"
                   placeholder="לדוגמה: 2000"
+                  dir="rtl"
                 />
               </div>
 
-              <TextField
+              <Input
                 label="הערכת הפסדים מהחמצת הזדמנויות לחודש (₪)"
                 value={lostOpportunities}
                 onChange={setLostOpportunities}
                 type="number"
                 placeholder="לקוחות שלא טופלו, עסקאות שלא נסגרו..."
+                dir="rtl"
               />
 
               {currentMonthlyCost > 0 && (
@@ -202,13 +209,14 @@ export const ROIModule: React.FC = () => {
           <Card title="8.2 פוטנציאל חיסכון בזמן"
             subtitle="כמה זמן אפשר לחסוך עם אוטומציה?">
             <div className="space-y-6">
-              <TextField
+              <Input
                 label="הערכה: כמה שעות עבודה בשבוע ניתן לחסוך באוטומציה?"
                 value={estimatedHoursSaved}
                 onChange={setEstimatedHoursSaved}
                 type="number"
                 placeholder="לדוגמה: 20"
-                helperText="הערכה של סך השעות שניתן לחסוך מכל התהליכים המועמדים לאוטומציה"
+                helpText="הערכה של סך השעות שניתן לחסוך מכל התהליכים המועמדים לאוטומציה"
+                dir="rtl"
               />
 
               <CheckboxGroup

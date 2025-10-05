@@ -2,6 +2,8 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { AlertTriangle, CheckCircle, Clock, User, MessageSquare, Languages } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { Blocker } from '../../types/phase3';
+import { Button } from '../Base/Button';
+import { Card } from '../Base/Card';
 
 type Language = 'he' | 'en';
 
@@ -191,45 +193,45 @@ export const BlockerManagement: React.FC = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-5 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <Card>
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-600 text-sm">{t.stats.activeBlockers}</span>
               <AlertTriangle className="w-5 h-5 text-red-500" />
             </div>
             <div className="text-3xl font-bold text-red-600">{activeBlockers.length}</div>
-          </div>
+          </Card>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <Card>
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-600 text-sm">{t.stats.critical}</span>
               <AlertTriangle className="w-5 h-5 text-red-600" />
             </div>
             <div className="text-3xl font-bold text-red-700">{blockersBySevertiy.critical}</div>
-          </div>
+          </Card>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <Card>
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-600 text-sm">{t.stats.high}</span>
               <AlertTriangle className="w-5 h-5 text-orange-600" />
             </div>
             <div className="text-3xl font-bold text-orange-600">{blockersBySevertiy.high}</div>
-          </div>
+          </Card>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <Card>
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-600 text-sm">{t.stats.medium}</span>
               <AlertTriangle className="w-5 h-5 text-yellow-600" />
             </div>
             <div className="text-3xl font-bold text-yellow-600">{blockersBySevertiy.medium}</div>
-          </div>
+          </Card>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <Card>
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-600 text-sm">{t.stats.resolved}</span>
               <CheckCircle className="w-5 h-5 text-green-500" />
             </div>
             <div className="text-3xl font-bold text-green-600">{resolvedBlockers.length}</div>
-          </div>
+          </Card>
         </div>
 
         {/* Active Blockers */}
@@ -304,13 +306,14 @@ export const BlockerManagement: React.FC = () => {
                                 </div>
                               )}
                             </div>
-                            <button
+                            <Button
                               onClick={() => handleResolveBlocker(taskId, blocker.id)}
-                              className="ml-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center text-sm"
+                              variant="success"
+                              size="sm"
                             >
                               <CheckCircle className="w-4 h-4 mr-2" />
                               {t.resolve}
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       );

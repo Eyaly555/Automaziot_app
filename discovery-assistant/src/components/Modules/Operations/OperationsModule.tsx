@@ -3,10 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Plus, X, ChevronDown, ChevronUp, Info, Sparkles, AlertTriangle, Settings, FileText, FolderOpen, Users, Package } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Card } from '../../Common/Card';
+import { Input, Select, TextArea, Button } from '../../Base';
 import {
-  TextField,
-  NumberField,
-  SelectField,
   CheckboxGroup,
   RadioGroup
 } from '../../Common/FormFields';
@@ -503,47 +501,53 @@ export const OperationsModule: React.FC = () => {
                   <div className="bg-blue-50 p-4 rounded-lg space-y-3">
                     <h4 className="font-medium text-blue-900">הוסף תהליך חדש</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <TextField
+                      <Input
                         value={newProcess.name}
                         onChange={(v) => setNewProcess({ ...newProcess, name: v })}
                         placeholder="שם התהליך"
+                        dir="rtl"
                       />
-                      <TextField
+                      <Input
                         value={newProcess.description}
                         onChange={(v) => setNewProcess({ ...newProcess, description: v })}
                         placeholder="תיאור קצר"
+                        dir="rtl"
                       />
-                      <NumberField
-                        value={newProcess.stepCount}
-                        onChange={(v) => setNewProcess({ ...newProcess, stepCount: v || 0 })}
+                      <Input
+                        type="number"
+                        value={newProcess.stepCount?.toString() || ''}
+                        onChange={(v) => setNewProcess({ ...newProcess, stepCount: v ? parseInt(v) : 0 })}
                         placeholder="מספר שלבים"
-                        min={0}
+                        dir="rtl"
                       />
-                      <NumberField
-                        value={newProcess.estimatedTime}
-                        onChange={(v) => setNewProcess({ ...newProcess, estimatedTime: v || 0 })}
+                      <Input
+                        type="number"
+                        value={newProcess.estimatedTime?.toString() || ''}
+                        onChange={(v) => setNewProcess({ ...newProcess, estimatedTime: v ? parseInt(v) : 0 })}
                         placeholder="זמן משוער (דקות)"
-                        min={0}
+                        dir="rtl"
                       />
-                      <TextField
+                      <Input
                         value={newProcess.bottleneck}
                         onChange={(v) => setNewProcess({ ...newProcess, bottleneck: v })}
                         placeholder="צוואר בקבוק עיקרי"
+                        dir="rtl"
                       />
-                      <TextField
+                      <Input
                         value={newProcess.failurePoint}
                         onChange={(v) => setNewProcess({ ...newProcess, failurePoint: v })}
                         placeholder="נקודת כשל נפוצה"
+                        dir="rtl"
                       />
                     </div>
-                    <button
+                    <Button
                       onClick={addWorkProcess}
-                      className="w-full md:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700
-                               transition-all duration-300 flex items-center gap-2"
+                      variant="primary"
+                      className="w-full md:w-auto"
                     >
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-4 h-4 mr-2" />
                       הוסף תהליך
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -564,28 +568,33 @@ export const OperationsModule: React.FC = () => {
                 />
 
                 {/* Error Tracking */}
-                <SelectField
-                  label="מערכת מעקב שגיאות"
-                  value={errorTrackingSystem}
-                  onChange={setErrorTrackingSystem}
-                  options={[
-                    { value: 'none', label: 'אין מעקב' },
-                    { value: 'manual', label: 'רישום ידני' },
-                    { value: 'excel', label: 'Excel' },
-                    { value: 'system', label: 'מערכת ייעודית' },
-                    { value: 'crm', label: 'ב-CRM' }
-                  ]}
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">מערכת מעקב שגיאות</label>
+                  <Select
+                    value={errorTrackingSystem}
+                    onChange={setErrorTrackingSystem}
+                    options={[
+                      { value: 'none', label: 'אין מעקב' },
+                      { value: 'manual', label: 'רישום ידני' },
+                      { value: 'excel', label: 'Excel' },
+                      { value: 'system', label: 'מערכת ייעודית' },
+                      { value: 'crm', label: 'ב-CRM' }
+                    ]}
+                    dir="rtl"
+                  />
+                </div>
 
                 {/* Process Documentation */}
-                <TextField
-                  label="תיעוד תהליכים"
-                  value={processDocumentation}
-                  onChange={setProcessDocumentation}
-                  multiline
-                  rows={3}
-                  placeholder="איך מתועדים התהליכים בארגון? האם יש נהלי עבודה כתובים?"
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">תיעוד תהליכים</label>
+                  <TextArea
+                    value={processDocumentation}
+                    onChange={setProcessDocumentation}
+                    rows={3}
+                    placeholder="איך מתועדים התהליכים בארגון? האם יש נהלי עבודה כתובים?"
+                    dir="rtl"
+                  />
+                </div>
 
                 {/* Automation Readiness */}
                 <div>
@@ -694,22 +703,25 @@ export const OperationsModule: React.FC = () => {
 
                   {/* Add Document Flow */}
                   <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
-                    <TextField
+                    <Input
                       value={newDocFlow.type}
                       onChange={(v) => setNewDocFlow({ ...newDocFlow, type: v })}
                       placeholder="סוג מסמך"
+                      dir="rtl"
                     />
-                    <NumberField
-                      value={newDocFlow.volumePerMonth}
-                      onChange={(v) => setNewDocFlow({ ...newDocFlow, volumePerMonth: v || 0 })}
+                    <Input
+                      type="number"
+                      value={newDocFlow.volumePerMonth?.toString() || ''}
+                      onChange={(v) => setNewDocFlow({ ...newDocFlow, volumePerMonth: v ? parseInt(v) : 0 })}
                       placeholder="כמות בחודש"
-                      min={0}
+                      dir="rtl"
                     />
-                    <NumberField
-                      value={newDocFlow.timePerDocument}
-                      onChange={(v) => setNewDocFlow({ ...newDocFlow, timePerDocument: v || 0 })}
+                    <Input
+                      type="number"
+                      value={newDocFlow.timePerDocument?.toString() || ''}
+                      onChange={(v) => setNewDocFlow({ ...newDocFlow, timePerDocument: v ? parseInt(v) : 0 })}
                       placeholder="דקות למסמך"
-                      min={0}
+                      dir="rtl"
                     />
                     <div className="flex items-center gap-2">
                       <input
@@ -720,12 +732,12 @@ export const OperationsModule: React.FC = () => {
                       />
                       <label className="text-sm">דורש אישור</label>
                     </div>
-                    <button
+                    <Button
                       onClick={addDocumentFlow}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                      variant="primary"
                     >
                       <Plus className="w-5 h-5" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -746,45 +758,55 @@ export const OperationsModule: React.FC = () => {
                 />
 
                 {/* Search Difficulties */}
-                <TextField
-                  label="קשיים באיתור מסמכים"
-                  value={searchDifficulties}
-                  onChange={setSearchDifficulties}
-                  multiline
-                  rows={3}
-                  placeholder="תאר קשיים באיתור מסמכים, זמן חיפוש ממוצע, בעיות בארגון התיקיות..."
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">קשיים באיתור מסמכים</label>
+                  <TextArea
+                    value={searchDifficulties}
+                    onChange={setSearchDifficulties}
+                    rows={3}
+                    placeholder="תאר קשיים באיתור מסמכים, זמן חיפוש ממוצע, בעיות בארגון התיקיות..."
+                    dir="rtl"
+                  />
+                </div>
 
                 {/* Version Control */}
-                <SelectField
-                  label="בקרת גרסאות"
-                  value={versionControlMethod}
-                  onChange={setVersionControlMethod}
-                  options={[
-                    { value: 'none', label: 'אין בקרת גרסאות' },
-                    { value: 'manual_naming', label: 'שמות ידניים (v1, v2)' },
-                    { value: 'system', label: 'מערכת אוטומטית' },
-                    { value: 'sharepoint', label: 'SharePoint versions' },
-                    { value: 'git', label: 'Git או דומה' }
-                  ]}
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">בקרת גרסאות</label>
+                  <Select
+                    value={versionControlMethod}
+                    onChange={setVersionControlMethod}
+                    options={[
+                      { value: 'none', label: 'אין בקרת גרסאות' },
+                      { value: 'manual_naming', label: 'שמות ידניים (v1, v2)' },
+                      { value: 'system', label: 'מערכת אוטומטית' },
+                      { value: 'sharepoint', label: 'SharePoint versions' },
+                      { value: 'git', label: 'Git או דומה' }
+                    ]}
+                    dir="rtl"
+                  />
+                </div>
 
                 {/* Approval Workflow */}
-                <TextField
-                  label="תהליכי אישור"
-                  value={approvalWorkflow}
-                  onChange={setApprovalWorkflow}
-                  placeholder="תאר את שרשרת האישורים הנדרשת למסמכים שונים"
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">תהליכי אישור</label>
+                  <Input
+                    value={approvalWorkflow}
+                    onChange={setApprovalWorkflow}
+                    placeholder="תאר את שרשרת האישורים הנדרשת למסמכים שונים"
+                    dir="rtl"
+                  />
+                </div>
 
                 {/* Document Retention */}
-                <NumberField
-                  label="תקופת שמירת מסמכים (שנים)"
-                  value={documentRetention}
-                  onChange={setDocumentRetention}
-                  min={0}
-                  suffix="שנים"
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">תקופת שמירת מסמכים (שנים)</label>
+                  <Input
+                    type="number"
+                    value={documentRetention?.toString() || ''}
+                    onChange={(v) => setDocumentRetention(v ? parseInt(v) : 0)}
+                    dir="rtl"
+                  />
+                </div>
 
                 {/* Pain Points */}
                 {documentFlows.reduce((sum, f) => sum + (f.volumePerMonth * f.timePerDocument), 0) > 2000 && (
@@ -895,17 +917,19 @@ export const OperationsModule: React.FC = () => {
                     ))}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                    <TextField
+                    <Input
                       value={newProjectIssue.area}
                       onChange={(v) => setNewProjectIssue({ ...newProjectIssue, area: v })}
                       placeholder="תחום הבעיה"
+                      dir="rtl"
                     />
-                    <TextField
+                    <Input
                       value={newProjectIssue.frequency}
                       onChange={(v) => setNewProjectIssue({ ...newProjectIssue, frequency: v })}
                       placeholder="תדירות"
+                      dir="rtl"
                     />
-                    <SelectField
+                    <Select
                       value={newProjectIssue.impact}
                       onChange={(v) => setNewProjectIssue({ ...newProjectIssue, impact: v as 'high' | 'medium' | 'low' })}
                       options={[
@@ -913,29 +937,33 @@ export const OperationsModule: React.FC = () => {
                         { value: 'medium', label: 'השפעה בינונית' },
                         { value: 'low', label: 'השפעה נמוכה' }
                       ]}
+                      dir="rtl"
                     />
-                    <button
+                    <Button
                       onClick={addProjectIssue}
-                      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                      variant="primary"
                     >
                       <Plus className="w-5 h-5" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
                 {/* Resource Allocation */}
-                <SelectField
-                  label="שיטת הקצאת משאבים"
-                  value={resourceAllocationMethod}
-                  onChange={setResourceAllocationMethod}
-                  options={[
-                    { value: 'none', label: 'אין שיטה מסודרת' },
-                    { value: 'manual', label: 'ידני לפי זמינות' },
-                    { value: 'rotation', label: 'תורנות' },
-                    { value: 'skills', label: 'לפי כישורים' },
-                    { value: 'automated', label: 'אוטומטי במערכת' }
-                  ]}
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">שיטת הקצאת משאבים</label>
+                  <Select
+                    value={resourceAllocationMethod}
+                    onChange={setResourceAllocationMethod}
+                    options={[
+                      { value: 'none', label: 'אין שיטה מסודרת' },
+                      { value: 'manual', label: 'ידני לפי זמינות' },
+                      { value: 'rotation', label: 'תורנות' },
+                      { value: 'skills', label: 'לפי כישורים' },
+                      { value: 'automated', label: 'אוטומטי במערכת' }
+                    ]}
+                    dir="rtl"
+                  />
+                </div>
 
                 {/* Timeline Accuracy */}
                 <div>
@@ -977,14 +1005,15 @@ export const OperationsModule: React.FC = () => {
                 />
 
                 {/* Deadline Miss Rate */}
-                <NumberField
-                  label="אחוז פרויקטים שחורגים מלוח הזמנים"
-                  value={deadlineMissRate}
-                  onChange={setDeadlineMissRate}
-                  min={0}
-                  max={100}
-                  suffix="%"
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">אחוז פרויקטים שחורגים מלוח הזמנים</label>
+                  <Input
+                    type="number"
+                    value={deadlineMissRate?.toString() || ''}
+                    onChange={(v) => setDeadlineMissRate(v ? parseInt(v) : 0)}
+                    dir="rtl"
+                  />
+                </div>
 
                 {/* Pain Points */}
                 {deadlineMissRate > 30 && (
@@ -1059,41 +1088,48 @@ export const OperationsModule: React.FC = () => {
                     ))}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    <TextField
+                    <Input
                       value={newDepartment.name}
                       onChange={(v) => setNewDepartment({ ...newDepartment, name: v })}
                       placeholder="שם מחלקה"
+                      dir="rtl"
                     />
-                    <NumberField
-                      value={newDepartment.employeeCount}
-                      onChange={(v) => setNewDepartment({ ...newDepartment, employeeCount: v || 0 })}
+                    <Input
+                      type="number"
+                      value={newDepartment.employeeCount?.toString() || ''}
+                      onChange={(v) => setNewDepartment({ ...newDepartment, employeeCount: v ? parseInt(v) : 0 })}
                       placeholder="מספר עובדים"
-                      min={0}
+                      dir="rtl"
                     />
-                    <button
+                    <Button
                       onClick={addDepartment}
-                      className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+                      variant="primary"
                     >
                       <Plus className="w-5 h-5" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
                 {/* Onboarding */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <NumberField
-                    label="מספר שלבים בקליטת עובד"
-                    value={onboardingSteps}
-                    onChange={setOnboardingSteps}
-                    min={0}
-                  />
-                  <NumberField
-                    label="משך קליטת עובד (ימים)"
-                    value={onboardingDuration}
-                    onChange={setOnboardingDuration}
-                    min={0}
-                    suffix="ימים"
-                  />
+                  <div>
+                    <label className="block text-sm font-medium mb-2">מספר שלבים בקליטת עובד</label>
+                    <Input
+                      type="number"
+                      value={onboardingSteps?.toString() || ''}
+                      onChange={(v) => setOnboardingSteps(v ? parseInt(v) : 0)}
+                      dir="rtl"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">משך קליטת עובד (ימים)</label>
+                    <Input
+                      type="number"
+                      value={onboardingDuration?.toString() || ''}
+                      onChange={(v) => setOnboardingDuration(v ? parseInt(v) : 0)}
+                      dir="rtl"
+                    />
+                  </div>
                 </div>
 
                 {/* Training Requirements */}
@@ -1114,28 +1150,32 @@ export const OperationsModule: React.FC = () => {
                 />
 
                 {/* Performance Reviews */}
-                <SelectField
-                  label="תדירות הערכות עובדים"
-                  value={performanceReviewFrequency}
-                  onChange={setPerformanceReviewFrequency}
-                  options={[
-                    { value: 'none', label: 'אין הערכות' },
-                    { value: 'annual', label: 'שנתי' },
-                    { value: 'biannual', label: 'חצי שנתי' },
-                    { value: 'quarterly', label: 'רבעוני' },
-                    { value: 'monthly', label: 'חודשי' }
-                  ]}
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">תדירות הערכות עובדים</label>
+                  <Select
+                    value={performanceReviewFrequency}
+                    onChange={setPerformanceReviewFrequency}
+                    options={[
+                      { value: 'none', label: 'אין הערכות' },
+                      { value: 'annual', label: 'שנתי' },
+                      { value: 'biannual', label: 'חצי שנתי' },
+                      { value: 'quarterly', label: 'רבעוני' },
+                      { value: 'monthly', label: 'חודשי' }
+                    ]}
+                    dir="rtl"
+                  />
+                </div>
 
                 {/* Turnover Rate */}
-                <NumberField
-                  label="שיעור תחלופת עובדים שנתי"
-                  value={employeeTurnoverRate}
-                  onChange={setEmployeeTurnoverRate}
-                  min={0}
-                  max={100}
-                  suffix="%"
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">שיעור תחלופת עובדים שנתי</label>
+                  <Input
+                    type="number"
+                    value={employeeTurnoverRate?.toString() || ''}
+                    onChange={(v) => setEmployeeTurnoverRate(v ? parseInt(v) : 0)}
+                    dir="rtl"
+                  />
+                </div>
 
                 {/* HR Systems */}
                 <CheckboxGroup
@@ -1205,19 +1245,22 @@ export const OperationsModule: React.FC = () => {
               <div className="mt-6 space-y-6 animate-fadeIn">
 
                 {/* Inventory Method */}
-                <SelectField
-                  label="שיטת ניהול מלאי"
-                  value={inventoryMethod}
-                  onChange={setInventoryMethod}
-                  options={[
-                    { value: 'none', label: 'אין ניהול מלאי' },
-                    { value: 'manual', label: 'ספירה ידנית' },
-                    { value: 'excel', label: 'Excel' },
-                    { value: 'erp', label: 'מערכת ERP' },
-                    { value: 'wms', label: 'מערכת WMS' },
-                    { value: 'rfid', label: 'RFID/ברקוד' }
-                  ]}
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">שיטת ניהול מלאי</label>
+                  <Select
+                    value={inventoryMethod}
+                    onChange={setInventoryMethod}
+                    options={[
+                      { value: 'none', label: 'אין ניהול מלאי' },
+                      { value: 'manual', label: 'ספירה ידנית' },
+                      { value: 'excel', label: 'Excel' },
+                      { value: 'erp', label: 'מערכת ERP' },
+                      { value: 'wms', label: 'מערכת WMS' },
+                      { value: 'rfid', label: 'RFID/ברקוד' }
+                    ]}
+                    dir="rtl"
+                  />
+                </div>
 
                 {/* Shipping Processes */}
                 <CheckboxGroup
@@ -1236,21 +1279,26 @@ export const OperationsModule: React.FC = () => {
                 />
 
                 {/* Supplier Management */}
-                <NumberField
-                  label="מספר ספקים פעילים"
-                  value={supplierCount}
-                  onChange={setSupplierCount}
-                  min={0}
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">מספר ספקים פעילים</label>
+                  <Input
+                    type="number"
+                    value={supplierCount?.toString() || ''}
+                    onChange={(v) => setSupplierCount(v ? parseInt(v) : 0)}
+                    dir="rtl"
+                  />
+                </div>
 
                 {/* Order Fulfillment */}
-                <NumberField
-                  label="זמן ממוצע למימוש הזמנה (ימים)"
-                  value={orderFulfillmentTime}
-                  onChange={setOrderFulfillmentTime}
-                  min={0}
-                  suffix="ימים"
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">זמן ממוצע למימוש הזמנה (ימים)</label>
+                  <Input
+                    type="number"
+                    value={orderFulfillmentTime?.toString() || ''}
+                    onChange={(v) => setOrderFulfillmentTime(v ? parseInt(v) : 0)}
+                    dir="rtl"
+                  />
+                </div>
 
                 {/* Warehouse Operations */}
                 <CheckboxGroup
@@ -1270,23 +1318,27 @@ export const OperationsModule: React.FC = () => {
                 />
 
                 {/* Delivery Issues */}
-                <TextField
-                  label="בעיות במשלוחים"
-                  value={deliveryIssues}
-                  onChange={setDeliveryIssues}
-                  multiline
-                  rows={3}
-                  placeholder="תאר בעיות נפוצות במשלוחים, איחורים, נזקים..."
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">בעיות במשלוחים</label>
+                  <TextArea
+                    value={deliveryIssues}
+                    onChange={setDeliveryIssues}
+                    rows={3}
+                    placeholder="תאר בעיות נפוצות במשלוחים, איחורים, נזקים..."
+                    dir="rtl"
+                  />
+                </div>
 
                 {/* Return Process */}
-                <NumberField
-                  label="זמן טיפול בהחזרה (ימים)"
-                  value={returnProcessTime}
-                  onChange={setReturnProcessTime}
-                  min={0}
-                  suffix="ימים"
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">זמן טיפול בהחזרה (ימים)</label>
+                  <Input
+                    type="number"
+                    value={returnProcessTime?.toString() || ''}
+                    onChange={(v) => setReturnProcessTime(v ? parseInt(v) : 0)}
+                    dir="rtl"
+                  />
+                </div>
 
                 {/* Inventory Accuracy */}
                 <div>

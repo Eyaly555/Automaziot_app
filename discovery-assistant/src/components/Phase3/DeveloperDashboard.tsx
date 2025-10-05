@@ -18,6 +18,10 @@ import {
   Languages
 } from 'lucide-react';
 import { ExportMenu } from '../Common/ExportMenu';
+import { TaskQuickFilters } from './TaskQuickFilters';
+import { Button } from '../Base/Button';
+import { Card } from '../Base/Card';
+import { Badge } from '../Base/Badge';
 
 type ViewMode = 'kanban' | 'list' | 'sprint' | 'system' | 'team';
 type Language = 'he' | 'en';
@@ -237,12 +241,13 @@ export const DeveloperDashboard: React.FC = () => {
       <div className="min-h-screen bg-gray-100 flex items-center justify-center" dir={language === 'he' ? 'rtl' : 'ltr'}>
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">{t.errors.noProject}</h2>
-          <button
+          <Button
             onClick={() => navigate('/dashboard')}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            variant="primary"
+            size="lg"
           >
             {t.errors.backToDashboard}
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -257,12 +262,13 @@ export const DeveloperDashboard: React.FC = () => {
           <p className="text-gray-600 mb-6">
             {t.errors.specRequiredDesc}
           </p>
-          <button
+          <Button
             onClick={() => navigate('/phase2')}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            variant="primary"
+            size="lg"
           >
             {t.errors.goToPhase2}
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -270,6 +276,7 @@ export const DeveloperDashboard: React.FC = () => {
 
   const tracking = currentMeeting.developmentTracking;
   const progress = tracking.progress;
+  const sprints = tracking.sprints || [];
 
   // Calculate real-time stats
   const tasks = tracking.tasks;
@@ -281,7 +288,37 @@ export const DeveloperDashboard: React.FC = () => {
 
   const progressPercentage = Math.round((doneTasks.length / tasks.length) * 100);
 
-  // Filter tasks
+  // Extract unique systems from tasks
+  const uniqueSystems = Array.from(new Set(tasks.map(t => t.system).filter(Boolean)));
+
+  // Build filter options for TaskQuickFilters
+  const filterOptions = {
+    sprints: sprints.map(s => ({
+      id: s.sprintId,
+      label: s.name,
+      count: tasks.filter(t => t.sprintId === s.sprintId).length
+    })),
+    systems: uniqueSystems.map(sys => ({
+      id: sys,
+      label: sys,
+      count: tasks.filter(t => t.system === sys).length
+    })),
+    priorities: [
+      { id: 'critical', label: t.filters.critical, count: tasks.filter(t => t.priority === 'critical').length },
+      { id: 'high', label: t.filters.high, count: tasks.filter(t => t.priority === 'high').length },
+      { id: 'medium', label: t.filters.medium, count: tasks.filter(t => t.priority === 'medium').length },
+      { id: 'low', label: t.filters.low, count: tasks.filter(t => t.priority === 'low').length }
+    ],
+    statuses: [
+      { id: 'todo', label: t.filters.toDo, count: todoTasks.length },
+      { id: 'in_progress', label: t.filters.inProgress, count: inProgressTasks.length },
+      { id: 'in_review', label: t.filters.inReview, count: inReviewTasks.length },
+      { id: 'blocked', label: t.filters.blocked, count: blockedTasks.length },
+      { id: 'done', label: t.filters.done, count: doneTasks.length }
+    ]
+  };
+
+  // Filter tasks based on active filters
   let filteredTasks = tasks;
   if (filterStatus !== 'all') {
     filteredTasks = filteredTasks.filter(t => t.status === filterStatus);
@@ -363,7 +400,7 @@ export const DeveloperDashboard: React.FC = () => {
       <div className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-6">
           {/* Total Tasks */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <Card>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">{t.stats.totalTasks}</p>
@@ -371,10 +408,10 @@ export const DeveloperDashboard: React.FC = () => {
               </div>
               <List className="w-10 h-10 text-blue-600" />
             </div>
-          </div>
+          </Card>
 
           {/* Completed */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <Card>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">{t.stats.completed}</p>
@@ -383,10 +420,10 @@ export const DeveloperDashboard: React.FC = () => {
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
             <div className="mt-2 text-xs text-gray-500">{progressPercentage}% {t.stats.done}</div>
-          </div>
+          </Card>
 
           {/* In Progress */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <Card>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">{t.stats.inProgress}</p>
@@ -394,10 +431,10 @@ export const DeveloperDashboard: React.FC = () => {
               </div>
               <Play className="w-10 h-10 text-blue-600" />
             </div>
-          </div>
+          </Card>
 
           {/* Blocked */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <Card>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">{t.stats.blocked}</p>
@@ -405,10 +442,10 @@ export const DeveloperDashboard: React.FC = () => {
               </div>
               <AlertTriangle className="w-10 h-10 text-red-600" />
             </div>
-          </div>
+          </Card>
 
           {/* Health */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <Card>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">{t.stats.projectHealth}</p>
@@ -428,11 +465,11 @@ export const DeveloperDashboard: React.FC = () => {
                 'text-red-600'
               }`} />
             </div>
-          </div>
+          </Card>
         </div>
 
         {/* Progress Bar */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <Card className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">{t.progress.overall}</h3>
             <span className="text-2xl font-bold text-blue-600">{progressPercentage}%</span>
@@ -448,40 +485,26 @@ export const DeveloperDashboard: React.FC = () => {
             <span>{progress.hoursActual} {t.progress.hoursActual}</span>
             <span>{progress.hoursRemaining} {t.progress.hoursRemaining}</span>
           </div>
-        </div>
+        </Card>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6 flex items-center gap-4">
-          <span className="font-semibold text-gray-700">{t.filters.title}:</span>
+        <div className="mb-6">
+          <TaskQuickFilters
+            filters={filterOptions}
+            activeFilters={{
+              status: filterStatus === 'all' ? undefined : filterStatus,
+              priority: filterPriority === 'all' ? undefined : filterPriority
+            }}
+            onChange={(filters) => {
+              setFilterStatus(filters.status || 'all');
+              setFilterPriority(filters.priority || 'all');
+            }}
+          />
 
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">{t.filters.allStatuses}</option>
-            <option value="todo">{t.filters.toDo}</option>
-            <option value="in_progress">{t.filters.inProgress}</option>
-            <option value="in_review">{t.filters.inReview}</option>
-            <option value="blocked">{t.filters.blocked}</option>
-            <option value="done">{t.filters.done}</option>
-          </select>
-
-          <select
-            value={filterPriority}
-            onChange={(e) => setFilterPriority(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">{t.filters.allPriorities}</option>
-            <option value="critical">{t.filters.critical}</option>
-            <option value="high">{t.filters.high}</option>
-            <option value="medium">{t.filters.medium}</option>
-            <option value="low">{t.filters.low}</option>
-          </select>
-
-          <span className={`${language === 'he' ? 'mr-auto' : 'ml-auto'} text-sm text-gray-600`}>
+          {/* Filter results count */}
+          <div className="mt-3 text-sm text-gray-600 text-center">
             {t.filters.showing} {filteredTasks.length} {t.filters.of} {tasks.length} {t.filters.tasks}
-          </span>
+          </div>
         </div>
 
         {/* Task List/Kanban View */}

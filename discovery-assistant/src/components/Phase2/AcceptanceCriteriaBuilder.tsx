@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { AcceptanceCriteria } from '../../types/phase2';
+import { Input, Select, TextArea, Button } from '../Base';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -581,26 +582,21 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
             {/* Deployment Criteria Tab */}
             {activeTab === 'deployment' && (
               <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    סביבת פריסה ראשונית
-                  </label>
-                  <select
-                    value={criteria.deploymentCriteria.environment}
-                    onChange={(e) => setCriteria({
-                      ...criteria,
-                      deploymentCriteria: {
-                        ...criteria.deploymentCriteria,
-                        environment: e.target.value as any
-                      }
-                    })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                  >
-                    <option value="staging">Staging</option>
-                    <option value="production">Production</option>
-                    <option value="dev">Development</option>
-                  </select>
-                </div>
+                <Select
+                  label="סביבת פריסה ראשונית"
+                  value={criteria.deploymentCriteria.environment}
+                  onChange={(e) => setCriteria({
+                    ...criteria,
+                    deploymentCriteria: {
+                      ...criteria.deploymentCriteria,
+                      environment: e.target.value as any
+                    }
+                  })}
+                >
+                  <option value="staging">Staging</option>
+                  <option value="production">Production</option>
+                  <option value="dev">Development</option>
+                </Select>
 
                 <div>
                   <div className="flex items-center justify-between mb-3">
@@ -674,24 +670,19 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    תוכנית Rollback
-                  </label>
-                  <textarea
-                    value={criteria.deploymentCriteria.rollbackPlan}
-                    onChange={(e) => setCriteria({
-                      ...criteria,
-                      deploymentCriteria: {
-                        ...criteria.deploymentCriteria,
-                        rollbackPlan: e.target.value
-                      }
-                    })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                    rows={4}
-                    placeholder="מה עושים אם הפריסה נכשלת? כיצד חוזרים לגרסה הקודמת?"
-                  />
-                </div>
+                <TextArea
+                  label="תוכנית Rollback"
+                  value={criteria.deploymentCriteria.rollbackPlan}
+                  onChange={(e) => setCriteria({
+                    ...criteria,
+                    deploymentCriteria: {
+                      ...criteria.deploymentCriteria,
+                      rollbackPlan: e.target.value
+                    }
+                  })}
+                  rows={4}
+                  placeholder="מה עושים אם הפריסה נכשלת? כיצד חוזרים לגרסה הקודמת?"
+                />
 
                 <div>
                   <div className="flex items-center justify-between mb-3">
@@ -824,19 +815,19 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
 
         {/* Actions */}
         <div className="flex justify-between">
-          <button
+          <Button
+            variant="outline"
             onClick={() => navigate('/phase2')}
-            className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
           >
             ביטול
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="primary"
             onClick={handleSave}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2 space-x-reverse"
+            icon={<Save className="w-4 h-4" />}
           >
-            <Save className="w-4 h-4" />
-            <span>שמור קריטריונים</span>
-          </button>
+            שמור קריטריונים
+          </Button>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Server, CheckCircle, Clock, AlertCircle, TrendingUp, Languages } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
+import { Card } from '../Base/Card';
 
 type Language = 'he' | 'en';
 
@@ -202,15 +203,15 @@ export const SystemView: React.FC = () => {
 
         {/* Overall Stats */}
         <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <Card>
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-600 text-sm">{t.stats.totalSystems}</span>
               <Server className="w-5 h-5 text-gray-400" />
             </div>
             <div className="text-3xl font-bold text-gray-900">{systems.length}</div>
-          </div>
+          </Card>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <Card>
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-600 text-sm">{t.stats.totalTasks}</span>
               <CheckCircle className="w-5 h-5 text-blue-500" />
@@ -219,17 +220,17 @@ export const SystemView: React.FC = () => {
             <div className="text-sm text-gray-500 mt-1">
               {overallStats.completedTasks} {t.stats.completed}
             </div>
-          </div>
+          </Card>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <Card>
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-600 text-sm">{t.stats.overallProgress}</span>
               <TrendingUp className="w-5 h-5 text-green-500" />
             </div>
             <div className="text-3xl font-bold text-green-600">{overallStats.progress}%</div>
-          </div>
+          </Card>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <Card>
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-600 text-sm">{t.stats.totalHours}</span>
               <Clock className="w-5 h-5 text-purple-500" />
@@ -238,7 +239,7 @@ export const SystemView: React.FC = () => {
             <div className="text-sm text-gray-500 mt-1">
               {overallStats.completedHours}{t.stats.hoursCompleted}
             </div>
-          </div>
+          </Card>
         </div>
 
         {/* System Cards */}

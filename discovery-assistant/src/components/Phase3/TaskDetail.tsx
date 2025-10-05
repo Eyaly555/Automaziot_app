@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { X, Save, Clock, User, AlertCircle, CheckCircle, FileText, Plus, Trash2 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { DevelopmentTask } from '../../types/phase3';
+import { Button } from '../Base/Button';
+import { Input } from '../Base/Input';
+import { TextArea } from '../Base/TextArea';
+import { Select } from '../Base/Select';
+import { Badge } from '../Base/Badge';
 
 interface TaskDetailProps {
   task: DevelopmentTask;
@@ -290,13 +295,13 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                 <div className="text-center py-12">
                   <CheckCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-600 mb-4">No test cases yet</p>
-                  <button
+                  <Button
                     onClick={handleAddTestCase}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    variant="primary"
                   >
                     <Plus className="w-4 h-4 inline mr-2" />
                     Add First Test Case
-                  </button>
+                  </Button>
                 </div>
               ) : (
                 <>
@@ -392,13 +397,14 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                     <p className="text-sm text-red-700 mb-3">
                       If this task is blocked, report it here so the team can help resolve it.
                     </p>
-                    <button
+                    <Button
                       onClick={handleAddBlocker}
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm"
+                      variant="danger"
+                      size="sm"
                     >
                       <Plus className="w-4 h-4 inline mr-2" />
                       Report Blocker
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -421,19 +427,19 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
             Last updated: {new Date(editedTask.updatedAt).toLocaleString('en-US')}
           </div>
           <div className="flex space-x-3">
-            <button
+            <Button
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
+              variant="secondary"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleSave}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+              variant="primary"
             >
               <Save className="w-4 h-4 mr-2" />
               Save Changes
-            </button>
+            </Button>
           </div>
         </div>
       </div>

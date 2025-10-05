@@ -7,7 +7,7 @@ import {
   TrendingUp, Calendar, Plus
 } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
-import { Card } from '../../Common/Card';
+import { Card, Input, Select } from '../../Base';
 import { generateProposal } from '../../../utils/proposalEngine';
 import { ProposedService, SelectedService, ProposalData } from '../../../types/proposal';
 import {
@@ -415,40 +415,39 @@ export const ProposalModule: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Search */}
-            <div className="relative">
-              <Search className="absolute right-3 top-3 text-gray-400" size={18} />
-              <input
-                type="text"
-                placeholder="חפש שירות..."
-                value={filters.searchQuery}
-                onChange={(e) => updateFilters({ searchQuery: e.target.value })}
-                className="w-full pr-10 pl-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
+            <Input
+              placeholder="חפש שירות..."
+              value={filters.searchQuery}
+              onChange={(val) => updateFilters({ searchQuery: val })}
+              icon={<Search size={18} />}
+              dir="rtl"
+            />
 
             {/* Complexity filter */}
-            <select
+            <Select
               value={filters.complexity}
-              onChange={(e) => updateFilters({ complexity: e.target.value as any })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="all">כל רמות המורכבות</option>
-              <option value="simple">נמוכה</option>
-              <option value="medium">בינונית</option>
-              <option value="complex">גבוהה</option>
-            </select>
+              onChange={(val) => updateFilters({ complexity: val as any })}
+              options={[
+                { value: 'all', label: 'כל רמות המורכבות' },
+                { value: 'simple', label: 'נמוכה' },
+                { value: 'medium', label: 'בינונית' },
+                { value: 'complex', label: 'גבוהה' }
+              ]}
+              dir="rtl"
+            />
 
             {/* Price range */}
-            <select
+            <Select
               value={filters.priceRange}
-              onChange={(e) => updateFilters({ priceRange: e.target.value as any })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="all">כל טווחי המחירים</option>
-              <option value="0-10000">עד ₪10,000</option>
-              <option value="10000-25000">₪10,000 - ₪25,000</option>
-              <option value="25000+">₪25,000+</option>
-            </select>
+              onChange={(val) => updateFilters({ priceRange: val as any })}
+              options={[
+                { value: 'all', label: 'כל טווחי המחירים' },
+                { value: '0-10000', label: 'עד ₪10,000' },
+                { value: '10000-25000', label: '₪10,000 - ₪25,000' },
+                { value: '25000+', label: '₪25,000+' }
+              ]}
+              dir="rtl"
+            />
 
             {/* Actions */}
             <div className="flex gap-2">

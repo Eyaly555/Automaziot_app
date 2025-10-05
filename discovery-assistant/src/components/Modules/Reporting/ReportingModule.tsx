@@ -2,17 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Plus, X, ChevronDown, ChevronUp, Bell, FileText, BarChart3 } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
-import { Card } from '../../Common/Card';
+import { Card, Input, Select, Button } from '../../Base';
 import {
-  TextField,
-  NumberField,
-  SelectField,
   CheckboxGroup,
   RadioGroup
 } from '../../Common/FormFields';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 import { PhaseReadOnlyBanner } from '../../Common/PhaseReadOnlyBanner';
 import { Alert, Report, KPI } from '../../../types';
+import type { Option } from '../../Base';
 
 export const ReportingModule: React.FC = () => {
   const navigate = useNavigate();
@@ -190,12 +188,13 @@ export const ReportingModule: React.FC = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <TextField
+                    <Input
                       value={newAlert.type}
                       onChange={(v) => setNewAlert({ ...newAlert, type: v })}
                       placeholder="סוג התראה (לדוגמה: ליד חדש, תשלום התקבל)"
+                      dir="rtl"
                     />
-                    <SelectField
+                    <Select
                       value={newAlert.channel}
                       onChange={(v) => setNewAlert({ ...newAlert, channel: v })}
                       options={[
@@ -207,14 +206,16 @@ export const ReportingModule: React.FC = () => {
                         { value: 'system', label: 'מערכת' }
                       ]}
                       placeholder="ערוץ התראה"
+                      dir="rtl"
                     />
-                    <TextField
+                    <Input
                       value={newAlert.recipients}
                       onChange={(v) => setNewAlert({ ...newAlert, recipients: v })}
                       placeholder="נמענים (מופרדים בפסיק)"
+                      dir="rtl"
                     />
                     <div className="flex gap-2">
-                      <SelectField
+                      <Select
                         value={newAlert.frequency}
                         onChange={(v) => setNewAlert({ ...newAlert, frequency: v })}
                         options={[
@@ -225,13 +226,14 @@ export const ReportingModule: React.FC = () => {
                         ]}
                         placeholder="תדירות"
                         className="flex-1"
+                        dir="rtl"
                       />
-                      <button
+                      <Button
                         onClick={handleAddAlert}
-                        className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600"
+                        variant="primary"
                       >
                         <Plus className="w-5 h-5" />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -307,12 +309,13 @@ export const ReportingModule: React.FC = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <TextField
+                    <Input
                       value={newReport.name}
                       onChange={(v) => setNewReport({ ...newReport, name: v })}
                       placeholder="שם הדוח"
+                      dir="rtl"
                     />
-                    <SelectField
+                    <Select
                       value={newReport.frequency}
                       onChange={(v) => setNewReport({ ...newReport, frequency: v })}
                       options={[
@@ -324,27 +327,29 @@ export const ReportingModule: React.FC = () => {
                         { value: 'yearly', label: 'שנתי' }
                       ]}
                       placeholder="תדירות"
+                      dir="rtl"
                     />
-                    <NumberField
-                      value={newReport.timeToCreate}
-                      onChange={(v) => setNewReport({ ...newReport, timeToCreate: v || 0 })}
+                    <Input
+                      type="number"
+                      value={newReport.timeToCreate?.toString() || ''}
+                      onChange={(v) => setNewReport({ ...newReport, timeToCreate: v ? parseInt(v) : 0 })}
                       placeholder="זמן הכנה (דקות)"
-                      suffix="דקות"
-                      min={0}
+                      dir="rtl"
                     />
                     <div className="flex gap-2">
-                      <TextField
+                      <Input
                         value={newReport.distribution}
                         onChange={(v) => setNewReport({ ...newReport, distribution: v })}
                         placeholder="רשימת תפוצה (מופרדים בפסיק)"
                         className="flex-1"
+                        dir="rtl"
                       />
-                      <button
+                      <Button
                         onClick={handleAddReport}
-                        className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600"
+                        variant="primary"
                       >
                         <Plus className="w-5 h-5" />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -419,12 +424,13 @@ export const ReportingModule: React.FC = () => {
 
                   {kpis.length < 5 && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <TextField
+                      <Input
                         value={newKpi.name}
                         onChange={(v) => setNewKpi({ ...newKpi, name: v })}
                         placeholder="שם ה-KPI"
+                        dir="rtl"
                       />
-                      <SelectField
+                      <Select
                         value={newKpi.measured}
                         onChange={(v) => setNewKpi({ ...newKpi, measured: v })}
                         options={[
@@ -434,9 +440,10 @@ export const ReportingModule: React.FC = () => {
                           { value: 'not', label: 'לא נמדד' }
                         ]}
                         placeholder="איך נמדד?"
+                        dir="rtl"
                       />
                       <div className="flex gap-2">
-                        <SelectField
+                        <Select
                           value={newKpi.frequency}
                           onChange={(v) => setNewKpi({ ...newKpi, frequency: v })}
                           options={[
@@ -447,13 +454,14 @@ export const ReportingModule: React.FC = () => {
                           ]}
                           placeholder="תדירות"
                           className="flex-1"
+                          dir="rtl"
                         />
-                        <button
+                        <Button
                           onClick={handleAddKpi}
-                          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600"
+                          variant="primary"
                         >
                           <Plus className="w-5 h-5" />
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   )}
