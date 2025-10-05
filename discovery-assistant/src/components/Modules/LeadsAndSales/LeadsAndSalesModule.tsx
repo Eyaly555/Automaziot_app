@@ -565,11 +565,10 @@ export const LeadsAndSalesModule: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     זמן תגובה בשעות עבודה
                   </label>
-                  <div className="flex gap-3 items-end">
+                  <div className="grid grid-cols-2 gap-3">
                     <NumberField
                       value={responseTime}
                       onChange={setResponseTime}
-                      className="flex-1"
                       min={0}
                       placeholder="הזן מספר"
                     />
@@ -581,7 +580,6 @@ export const LeadsAndSalesModule: React.FC = () => {
                         { value: 'hours', label: 'שעות' },
                         { value: 'days', label: 'ימים' }
                       ]}
-                      className="w-40"
                       dir="rtl"
                     />
                   </div>
