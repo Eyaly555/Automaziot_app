@@ -55,7 +55,7 @@ export const LeadsAndSalesModule: React.FC = () => {
   const [costPerLostLead, setCostPerLostLead] = useState(moduleData.costPerLostLead || 0);
 
   // 2.2 Speed to Lead - Enhanced
-  const [responseTime, setResponseTime] = useState(moduleData.speedToLead?.duringBusinessHours || '');
+  const [responseTime, setResponseTime] = useState<number | undefined>(moduleData.speedToLead?.duringBusinessHours || undefined);
   const [responseTimeUnit, setResponseTimeUnit] = useState(moduleData.speedToLead?.responseTimeUnit || 'minutes');
   const [afterHoursResponse, setAfterHoursResponse] = useState(moduleData.speedToLead?.afterHours || '');
   const [weekendResponse, setWeekendResponse] = useState(moduleData.speedToLead?.weekends || '');
@@ -561,26 +561,30 @@ export const LeadsAndSalesModule: React.FC = () => {
             {expandedSections.includes('speedToLead') && (
               <div className="mt-6 space-y-6 animate-slideDown">
                 {/* Response Time During Business Hours */}
-                <div className="flex gap-3">
-                  <NumberField
-                    label="זמן תגובה בשעות עבודה"
-                    value={responseTime}
-                    onChange={setResponseTime}
-                    className="flex-1"
-                    min={0}
-                  />
-                  <Select
-                    label="יחידה"
-                    value={responseTimeUnit}
-                    onChange={(val) => setResponseTimeUnit(val)}
-                    options={[
-                      { value: 'minutes', label: 'דקות' },
-                      { value: 'hours', label: 'שעות' },
-                      { value: 'days', label: 'ימים' }
-                    ]}
-                    className="w-32"
-                    dir="rtl"
-                  />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    זמן תגובה בשעות עבודה
+                  </label>
+                  <div className="flex gap-3 items-end">
+                    <NumberField
+                      value={responseTime}
+                      onChange={setResponseTime}
+                      className="flex-1"
+                      min={0}
+                      placeholder="הזן מספר"
+                    />
+                    <Select
+                      value={responseTimeUnit}
+                      onChange={(val) => setResponseTimeUnit(val)}
+                      options={[
+                        { value: 'minutes', label: 'דקות' },
+                        { value: 'hours', label: 'שעות' },
+                        { value: 'days', label: 'ימים' }
+                      ]}
+                      className="w-40"
+                      dir="rtl"
+                    />
+                  </div>
                 </div>
 
                 {/* After Hours Response */}
