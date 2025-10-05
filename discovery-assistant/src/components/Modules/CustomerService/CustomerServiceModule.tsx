@@ -1036,19 +1036,17 @@ export const CustomerServiceModule: React.FC = () => {
                   </div>
 
                   {/* Add New Step */}
-                  <div className="flex gap-2">
+                  <div className="grid grid-cols-[2fr_1fr_auto] gap-2">
                     <Input
                       value={newOnboardingStep.name}
                       onChange={(v) => setNewOnboardingStep({...newOnboardingStep, name: v})}
                       placeholder="שם השלב..."
-                      className="flex-1"
                       dir="rtl"
                     />
                     <Input
                       value={newOnboardingStep.time}
                       onChange={(v) => setNewOnboardingStep({...newOnboardingStep, time: v})}
                       placeholder="זמן (למשל: 5 דקות)"
-                      className="w-40"
                       dir="rtl"
                     />
                     <Button

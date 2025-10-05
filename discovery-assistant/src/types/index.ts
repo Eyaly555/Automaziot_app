@@ -783,11 +783,11 @@ export interface ConversationFlowStep {
   nextStepCondition?: string;
 }
 
-// Phase 2: AI Model Selector
+// Phase 2: AI Model Selector (Updated October 2025)
 export interface AIModelComparison {
   modelId: string;
   modelName: string;
-  provider: 'OpenAI' | 'Anthropic' | 'Google' | 'Other';
+  provider: 'OpenAI' | 'Anthropic' | 'Google' | 'xAI' | 'Other';
   version: string;
   costPer1MTokensInput: number;
   costPer1MTokensOutput: number;

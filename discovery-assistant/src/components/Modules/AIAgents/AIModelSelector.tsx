@@ -9,82 +9,134 @@ interface AIModelSelectorProps {
   onSelectModel?: (modelId: string) => void;
 }
 
-// Model data with Hebrew support and pricing
+// Model data with Hebrew support and pricing (Updated October 2025)
 const AI_MODELS: AIModelComparison[] = [
+  // OpenAI GPT-5 Family
   {
-    modelId: 'gpt-4-turbo',
-    modelName: 'GPT-4 Turbo',
+    modelId: 'gpt-5',
+    modelName: 'GPT-5',
     provider: 'OpenAI',
-    version: 'gpt-4-turbo-preview',
-    costPer1MTokensInput: 10,
-    costPer1MTokensOutput: 30,
-    maxTokens: 4096,
-    hebrewSupport: 'excellent',
+    version: 'gpt-5-2025-08-07',
+    costPer1MTokensInput: 1.25,
+    costPer1MTokensOutput: 10,
+    maxTokens: 128000,
+    hebrewSupport: 'good',
     responseSpeed: 'medium',
-    contextWindow: 128000,
-    strengths: ['הבנת הקשר מצוינת', 'תגובות מפורטות', 'יכולות חשיבה מתקדמות'],
-    bestFor: ['שירות לקוחות מורכב', 'ייעוץ מכירות', 'תשובות טכניות'],
-    limitations: ['מחיר גבוה', 'מהירות בינונית']
+    contextWindow: 272000,
+    strengths: ['יכולות חשיבה מתקדמות', 'הקשר גדול מאוד (272K)', 'מולטימודלי מלא', 'הנחה 90% על cache'],
+    bestFor: ['משימות מורכבות', 'שירות לקוחות מתקדם', 'ניתוח עומק', 'ייעוץ מכירות'],
+    limitations: ['מחיר בינוני-גבוה', 'תמיכה בעברית סבירה (לא מצוינת)', 'מהירות בינונית']
   },
   {
-    modelId: 'gpt-3.5-turbo',
-    modelName: 'GPT-3.5 Turbo',
+    modelId: 'gpt-5-mini',
+    modelName: 'GPT-5 Mini',
     provider: 'OpenAI',
-    version: 'gpt-3.5-turbo',
-    costPer1MTokensInput: 0.5,
-    costPer1MTokensOutput: 1.5,
-    maxTokens: 4096,
+    version: 'gpt-5-mini-2025-08-07',
+    costPer1MTokensInput: 0.25,
+    costPer1MTokensOutput: 2,
+    maxTokens: 128000,
     hebrewSupport: 'good',
     responseSpeed: 'fast',
-    contextWindow: 16385,
-    strengths: ['מחיר נמוך', 'מהירות גבוהה', 'מספיק לרוב המשימות'],
-    bestFor: ['מענה ראשוני ללידים', 'שאלות נפוצות', 'טפסים'],
-    limitations: ['פחות מתקדם', 'הקשר קצר יותר']
+    contextWindow: 272000,
+    strengths: ['מחיר מעולה', '80% מביצועי GPT-5', 'מהיר', 'הקשר גדול', 'cache זול'],
+    bestFor: ['נפח גבוה', 'שירות לקוחות יומיומי', 'מענה ללידים', 'אוטומציות'],
+    limitations: ['תמיכה בעברית סבירה', 'פחות מתקדם מהגרסה הרגילה']
   },
   {
-    modelId: 'claude-3-opus',
-    modelName: 'Claude 3 Opus',
-    provider: 'Anthropic',
-    version: 'claude-3-opus-20240229',
-    costPer1MTokensInput: 15,
-    costPer1MTokensOutput: 75,
-    maxTokens: 4096,
-    hebrewSupport: 'excellent',
-    responseSpeed: 'medium',
-    contextWindow: 200000,
-    strengths: ['הקשר ארוך מאוד', 'מדויק ומהימן', 'עברית מצוינת'],
-    bestFor: ['ניתוח מסמכים', 'תמיכה טכנית מורכבת', 'שיחות ארוכות'],
-    limitations: ['מחיר גבוה מאוד', 'לא המהיר ביותר']
+    modelId: 'gpt-5-nano',
+    modelName: 'GPT-5 Nano',
+    provider: 'OpenAI',
+    version: 'gpt-5-nano-2025-08-07',
+    costPer1MTokensInput: 0.05,
+    costPer1MTokensOutput: 0.4,
+    maxTokens: 128000,
+    hebrewSupport: 'basic',
+    responseSpeed: 'fast',
+    contextWindow: 272000,
+    strengths: ['הזול ביותר', 'מהיר מאוד', 'מושלם למשימות פשוטות', 'חיסכון משמעותי'],
+    bestFor: ['סיווג', 'חילוץ מידע', 'משימות פשוטות', 'בדיקות בסיסיות'],
+    limitations: ['יכולות בסיסיות', 'תמיכה בעברית מוגבלת', 'לא מתאים למשימות מורכבות']
   },
+
+  // Anthropic Claude 4 Family
   {
-    modelId: 'claude-3.5-sonnet',
-    modelName: 'Claude 3.5 Sonnet',
+    modelId: 'claude-sonnet-4.5',
+    modelName: 'Claude Sonnet 4.5',
     provider: 'Anthropic',
-    version: 'claude-3-5-sonnet-20241022',
+    version: 'claude-sonnet-4.5-20250929',
     costPer1MTokensInput: 3,
     costPer1MTokensOutput: 15,
     maxTokens: 8192,
     hebrewSupport: 'excellent',
     responseSpeed: 'fast',
     contextWindow: 200000,
-    strengths: ['יחס מחיר/ביצועים מצוין', 'מהיר', 'עברית מצוינת'],
-    bestFor: ['כל סוגי המשימות', 'שירות לקוחות', 'מכירות'],
-    limitations: ['פחות מתקדם מ-Opus']
+    strengths: ['עברית מושלמת', 'יחס מחיר/ביצועים מעולה', 'מהיר', 'אמין', 'הנחה 90% על cache'],
+    bestFor: ['כל סוגי המשימות', 'שירות לקוחות בעברית', 'מכירות', 'תפעול', 'קוד'],
+    limitations: ['הקשר קטן יותר מ-Opus']
   },
   {
-    modelId: 'gemini-pro',
-    modelName: 'Gemini Pro',
+    modelId: 'claude-opus-4.1',
+    modelName: 'Claude Opus 4.1',
+    provider: 'Anthropic',
+    version: 'claude-opus-4.1-20250101',
+    costPer1MTokensInput: 15,
+    costPer1MTokensOutput: 75,
+    maxTokens: 8192,
+    hebrewSupport: 'excellent',
+    responseSpeed: 'medium',
+    contextWindow: 1000000,
+    strengths: ['הקשר ענק (1M טוקנים)', 'עברית מושלמת', 'המדויק ביותר', 'הנחה 90% cache'],
+    bestFor: ['ניתוח מסמכים ענקיים', 'codebases שלמים', 'מחקר מעמיק', 'משימות קריטיות'],
+    limitations: ['היקר ביותר', 'מהירות בינונית', 'מוגזם לרוב המשימות']
+  },
+
+  // Google Gemini 2.5
+  {
+    modelId: 'gemini-2.5-pro',
+    modelName: 'Gemini 2.5 Pro',
     provider: 'Google',
-    version: '1.5-pro',
-    costPer1MTokensInput: 1.25,
-    costPer1MTokensOutput: 5,
+    version: 'gemini-2.5-pro',
+    costPer1MTokensInput: 1.25, // עד 200K, אחר כך יותר
+    costPer1MTokensOutput: 2.5,
     maxTokens: 8192,
     hebrewSupport: 'good',
     responseSpeed: 'fast',
     contextWindow: 1000000,
-    strengths: ['הקשר ענק', 'מחיר תחרותי', 'אינטגרציה עם Google'],
-    bestFor: ['ניתוח מסמכים רבים', 'חיפוש ב-Gmail', 'אינטגרציה עם Workspace'],
-    limitations: ['עברית פחות מדויקת', 'חדש יחסית']
+    strengths: ['הקשר ענקי (1M-2M)', 'מחיר תחרותי', 'מולטימודלי', 'cache חוסך 75%', 'אינטגרציה Google'],
+    bestFor: ['ניתוח מסמכים רבים', 'Google Workspace', 'נפח גבוה', 'סוכנים (agents)'],
+    limitations: ['עברית פחות מדויקת', 'מחיר עולה מעל 200K טוקנים']
+  },
+
+  // xAI Grok 4 Family
+  {
+    modelId: 'grok-4',
+    modelName: 'Grok 4',
+    provider: 'xAI',
+    version: 'grok-4',
+    costPer1MTokensInput: 3,
+    costPer1MTokensOutput: 15,
+    maxTokens: 32000,
+    hebrewSupport: 'basic',
+    responseSpeed: 'medium',
+    contextWindow: 128000,
+    strengths: ['גישה לX (Twitter)', 'חיפוש אינטרנט מובנה', 'עדכני (נובמבר 2024)', 'יכולות חשיבה'],
+    bestFor: ['מחקר שוק', 'מעקב מדיה חברתית', 'טרנדים', 'מידע עדכני'],
+    limitations: ['תמיכה בעברית מוגבלת', 'הקשר קטן יותר', 'חדש יחסית']
+  },
+  {
+    modelId: 'grok-4-fast',
+    modelName: 'Grok 4 Fast',
+    provider: 'xAI',
+    version: 'grok-4-fast',
+    costPer1MTokensInput: 0.2, // עד 128K
+    costPer1MTokensOutput: 0.5, // עד 128K
+    maxTokens: 32000,
+    hebrewSupport: 'basic',
+    responseSpeed: 'fast',
+    contextWindow: 2000000,
+    strengths: ['הקשר ענקי (2M!)', 'זול מאוד', 'מהיר', 'חיפוש X', 'cache זול ($0.05/1M)', 'גישה חינמית'],
+    bestFor: ['נפח גבוה מאוד', 'מסמכים ענקיים', 'אוטומציה', 'חיסכון בעלויות'],
+    limitations: ['תמיכה בעברית מוגבלת', 'מחיר כפול מעל 128K', 'חדש יחסית']
   }
 ];
 
@@ -107,36 +159,50 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
     return (inputCost + outputCost).toFixed(2);
   };
 
-  // Get recommendation based on use case
+  // Get recommendation based on use case (Updated for 2025 models)
   const getRecommendation = (model: AIModelComparison): 'excellent' | 'good' | 'ok' | null => {
     if (!useCase) return null;
 
-    // Sales use cases - prefer fast and economical
+    // Sales use cases - prefer fast, economical with good Hebrew
     if (useCase.department === 'sales') {
-      if (model.modelId === 'claude-3.5-sonnet' || model.modelId === 'gpt-3.5-turbo') {
+      if (model.modelId === 'claude-sonnet-4.5' || model.modelId === 'gpt-5-mini') {
         return 'excellent';
       }
-      if (model.modelId === 'gpt-4-turbo') return 'good';
+      if (model.modelId === 'gpt-5' || model.modelId === 'gemini-2.5-pro') return 'good';
     }
 
     // Service use cases - prefer excellent Hebrew and reliability
     if (useCase.department === 'service') {
-      if (model.modelId === 'claude-3.5-sonnet' || model.modelId === 'claude-3-opus') {
+      if (model.modelId === 'claude-sonnet-4.5' || model.modelId === 'claude-opus-4.1') {
         return 'excellent';
       }
-      if (model.modelId === 'gpt-4-turbo') return 'good';
+      if (model.modelId === 'gpt-5') return 'good';
     }
 
     // Operations use cases - prefer fast and economical
     if (useCase.department === 'operations') {
-      if (model.modelId === 'gpt-3.5-turbo' || model.modelId === 'gemini-pro') {
+      if (model.modelId === 'gpt-5-nano' || model.modelId === 'grok-4-fast') {
         return 'excellent';
+      }
+      if (model.modelId === 'gpt-5-mini' || model.modelId === 'gemini-2.5-pro') {
+        return 'good';
       }
     }
 
-    // High volume needs - prefer economical
+    // Very high volume needs (>5000) - prefer ultra economical
+    if (useCase.expectedVolume > 5000) {
+      if (model.modelId === 'gpt-5-nano' || model.modelId === 'grok-4-fast') {
+        return 'excellent';
+      }
+      if (model.modelId === 'gpt-5-mini') return 'good';
+    }
+
+    // High volume needs (>1000) - prefer economical
     if (useCase.expectedVolume > 1000) {
-      if (model.modelId === 'gpt-3.5-turbo' || model.modelId === 'gemini-pro') {
+      if (model.modelId === 'gpt-5-mini' || model.modelId === 'grok-4-fast') {
+        return 'excellent';
+      }
+      if (model.modelId === 'gemini-2.5-pro' || model.modelId === 'gpt-5-nano') {
         return 'good';
       }
     }

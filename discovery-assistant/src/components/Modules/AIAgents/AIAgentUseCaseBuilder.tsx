@@ -104,11 +104,6 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
 
   // Save handler
   const handleSave = () => {
-    if (!useCaseName || !trigger || !objective || !fallbackStrategy || !department) {
-      alert('אנא מלא את כל השדות הנדרשים');
-      return;
-    }
-
     const useCase: AIAgentUseCase = {
       id: initialData?.id || generateId(),
       name: useCaseName,
@@ -405,16 +400,6 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
             />
           </div>
 
-          {/* Warning if missing required fields */}
-          {(!useCaseName || !trigger || !objective || !fallbackStrategy || !department) && (
-            <div className="flex items-start gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-yellow-800">
-                <p className="font-semibold mb-1">שדות חובה חסרים</p>
-                <p>יש למלא את כל השדות המסומנים בכוכבית (*) לפני השמירה</p>
-              </div>
-            </div>
-          )}
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4 border-t border-gray-200">
@@ -422,9 +407,7 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
               onClick={handleSave}
               className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg
                        hover:from-blue-700 hover:to-blue-800 transition-all duration-300
-                       shadow-md hover:shadow-lg flex items-center justify-center gap-2
-                       disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={!useCaseName || !trigger || !objective || !fallbackStrategy || !department}
+                       shadow-md hover:shadow-lg flex items-center justify-center gap-2"
             >
               <Save className="w-5 h-5" />
               שמור מפרט
