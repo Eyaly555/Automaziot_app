@@ -81,7 +81,7 @@ export const ModuleProgressCard: React.FC<ModuleProgressCardProps> = ({
     <button
       onClick={handleClick}
       className="w-full p-5 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-lg transition-all text-right group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-      aria-label={`дкЧ ЮХУХЬ ${moduleName} - ${progressPercentage}% ФХйЬЭ`}
+      aria-label={`Ч¤ЧЄЧ— ЧћЧ•Ч“Ч•Чњ ${moduleName} - ${progressPercentage}% Ч”Ч•Ч©ЧњЧќ`}
       dir="rtl"
     >
       <div className="flex items-start gap-4">
@@ -117,7 +117,7 @@ export const ModuleProgressCard: React.FC<ModuleProgressCardProps> = ({
           <div className="mt-2 text-xs text-gray-600">
             {moduleProgress && (
               <span>
-                {moduleProgress.completed} ЮкХЪ {moduleProgress.total} йУХк ФХйЬЮХ
+                {moduleProgress.completed} ЧћЧЄЧ•Чљ {moduleProgress.total} Ч©Ч“Ч•ЧЄ Ч”Ч•Ч©ЧњЧћЧ•
               </span>
             )}
           </div>
@@ -134,19 +134,19 @@ export const ModuleProgressCard: React.FC<ModuleProgressCardProps> = ({
         {status === 'completed' && (
           <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
             <CheckCircle className="w-3 h-3" />
-            ФХйЬЭ
+            Ч”Ч•Ч©ЧњЧќ
           </span>
         )}
         {status === 'in_progress' && (
           <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
             <PlayCircle className="w-3 h-3" />
-            СкФЬЩЪ
+            Ч‘ЧЄЧ”ЧњЧ™Чљ
           </span>
         )}
         {status === 'not_started' && (
           <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
             <Circle className="w-3 h-3" />
-            ШиЭ ФкЧЩЬ
+            ЧњЧђ Ч”ЧЄЧ—Ч™Чњ
           </span>
         )}
       </div>
