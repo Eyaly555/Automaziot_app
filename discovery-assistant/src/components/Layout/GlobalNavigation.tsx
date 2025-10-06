@@ -18,6 +18,7 @@ import {
   Rocket,
   Code,
   Briefcase,
+  Target,
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -46,6 +47,7 @@ export const GlobalNavigation: React.FC = () => {
   const discoveryItems: NavigationItem[] = [
     { id: 'dashboard', label: 'לוח בקרה', labelEn: 'Dashboard', path: '/dashboard', icon: <Home /> },
     { id: 'overview', label: 'סקירה כללית', path: '/module/overview', icon: <FileText />, moduleKey: 'overview' },
+    { id: 'essentialDetails', label: 'איפיון ממוקד', path: '/module/essentialDetails', icon: <Target />, moduleKey: 'essentialDetails' },
     { id: 'leadsAndSales', label: 'לידים ומכירות', path: '/module/leadsAndSales', icon: <Users />, moduleKey: 'leadsAndSales' },
     { id: 'customerService', label: 'שירות לקוחות', path: '/module/customerService', icon: <Package />, moduleKey: 'customerService' },
     { id: 'operations', label: 'תפעול', path: '/module/operations', icon: <Settings />, moduleKey: 'operations' },
