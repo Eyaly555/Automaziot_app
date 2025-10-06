@@ -1,6 +1,8 @@
 import { TDocumentDefinitions, Content, ContentTable, StyleDictionary, PageBreak } from 'pdfmake/interfaces';
 import { SelectedService, ProposalData } from '../types/proposal';
 import { COMPANY_BRANDING } from '../config/companyBranding';
+import { processHebrewForPDF } from './hebrewBidi';
+import { hebrewFontVfs, hasHebrewFonts } from './hebrewFonts';
 
 /**
  * Professional Proposal PDF Generator for Automaziot AI
@@ -25,17 +27,24 @@ const getPdfMake = async () => {
     const pdfFonts = pdfFontsModule.default || pdfFontsModule;
 
     // Configure VFS fonts - handle different module export structures
-    const vfs = pdfFonts.pdfMake?.vfs || pdfFonts.vfs || pdfFonts;
+    const defaultVfs = pdfFonts.pdfMake?.vfs || pdfFonts.vfs || pdfFonts;
 
-    if (!vfs) {
+    if (!defaultVfs) {
       throw new Error('Failed to load font VFS from pdfmake/build/vfs_fonts');
     }
+
+    // Merge Hebrew fonts into VFS if available
+    const vfs = {
+      ...defaultVfs,
+      ...(hasHebrewFonts ? hebrewFontVfs : {}),
+    };
 
     (pdfMake as any).vfs = vfs;
 
     // Debug: Log available fonts in development
     if (process.env.NODE_ENV === 'development') {
       console.log('📚 Available fonts in VFS:', Object.keys(vfs).filter(k => k.endsWith('.ttf')));
+      console.log('✡️  Hebrew fonts loaded:', hasHebrewFonts);
     }
 
     return pdfMake;
@@ -44,6 +53,9 @@ const getPdfMake = async () => {
     throw new Error('PDF generation library failed to initialize');
   }
 };
+
+// Helper to process Hebrew text (applies BiDi reversal)
+const h = (text: string): string => processHebrewForPDF(text);
 
 export const generateProposalPDF = async (
   options: ProposalPDFOptions
@@ -58,25 +70,35 @@ export const generateProposalPDF = async (
   const validUntil = new Date(today);
   validUntil.setDate(validUntil.getDate() + COMPANY_BRANDING.proposalValidity);
 
+  // Determine which font to use
+  const fontName = hasHebrewFonts ? 'Rubik' : 'Roboto';
+  const fontFiles = hasHebrewFonts
+    ? {
+        normal: 'Rubik-Regular.ttf',
+        bold: 'Rubik-Bold.ttf',
+        italics: 'Rubik-Italic.ttf',
+        bolditalics: 'Rubik-BoldItalic.ttf',
+      }
+    : {
+        normal: 'Roboto-Regular.ttf',
+        bold: 'Roboto-Medium.ttf',
+        italics: 'Roboto-Italic.ttf',
+        bolditalics: 'Roboto-MediumItalic.ttf',
+      };
+
   // Define document content
   const docDefinition: TDocumentDefinitions = {
     pageSize: 'A4',
     pageMargins: [40, 60, 40, 60],
 
-    // Font definitions for Hebrew support
-    // Roboto has excellent Unicode coverage including Hebrew characters
+    // Font definitions - uses Rubik for Hebrew support if available
     fonts: {
-      Roboto: {
-        normal: 'Roboto-Regular.ttf',
-        bold: 'Roboto-Medium.ttf',
-        italics: 'Roboto-Italic.ttf',
-        bolditalics: 'Roboto-MediumItalic.ttf',
-      },
+      [fontName]: fontFiles,
     },
 
     // Default styles for RTL Hebrew
     defaultStyle: {
-      font: 'Roboto',
+      font: fontName,
       fontSize: 10,
       alignment: 'right',
       lineHeight: 1.3,
@@ -103,10 +125,10 @@ export const generateProposalPDF = async (
           {
             width: 'auto',
             stack: [
-              { text: COMPANY_BRANDING.companyNameHe, style: 'companyName', alignment: 'left' },
-              { text: COMPANY_BRANDING.address, style: 'companyInfo', margin: [0, 4, 0, 0], alignment: 'left' },
-              { text: `טלפון: ${COMPANY_BRANDING.phone}`, style: 'companyInfo', alignment: 'left' },
-              { text: `אימייל: ${COMPANY_BRANDING.email}`, style: 'companyInfo', alignment: 'left' },
+              { text: h(COMPANY_BRANDING.companyNameHe), style: 'companyName', alignment: 'left' },
+              { text: h(COMPANY_BRANDING.address), style: 'companyInfo', margin: [0, 4, 0, 0], alignment: 'left' },
+              { text: h(`טלפון: ${COMPANY_BRANDING.phone}`), style: 'companyInfo', alignment: 'left' },
+              { text: h(`אימייל: ${COMPANY_BRANDING.email}`), style: 'companyInfo', alignment: 'left' },
             ],
           },
         ],
@@ -132,9 +154,9 @@ export const generateProposalPDF = async (
       // Title with professional styling
       {
         stack: [
-          { text: 'הצעת מחיר', style: 'title', alignment: 'center' },
+          { text: h('הצעת מחיר'), style: 'title', alignment: 'center' },
           {
-            text: 'פתרונות אוטומציה ובינה מלאכותית מותאמים אישית',
+            text: h('פתרונות אוטומציה ובינה מלאכותית מותאמים אישית'),
             fontSize: 11,
             alignment: 'center',
             color: '#666666',
@@ -153,7 +175,7 @@ export const generateProposalPDF = async (
               {
                 stack: [
                   {
-                    text: `הצעת מחיר ל: ${clientName}`,
+                    text: h(`הצעת מחיר ל: ${clientName}`),
                     style: 'clientInfo',
                     bold: true,
                     fontSize: 13,
@@ -161,7 +183,7 @@ export const generateProposalPDF = async (
                   },
                   clientCompany
                     ? {
-                        text: `חברה: ${clientCompany}`,
+                        text: h(`חברה: ${clientCompany}`),
                         style: 'clientInfo',
                         fontSize: 11,
                         margin: [0, 3, 0, 0],
@@ -182,12 +204,12 @@ export const generateProposalPDF = async (
                     margin: [0, 8, 0, 8],
                   },
                   {
-                    text: `תאריך: ${formatHebrewDate(today)}`,
+                    text: h(`תאריך: ${formatHebrewDate(today)}`),
                     style: 'clientInfo',
                     fontSize: 10,
                   },
                   {
-                    text: `תוקף ההצעה: עד ${formatHebrewDate(validUntil)} (${COMPANY_BRANDING.proposalValidity} ימים)`,
+                    text: h(`תוקף ההצעה: עד ${formatHebrewDate(validUntil)} (${COMPANY_BRANDING.proposalValidity} ימים)`),
                     style: 'clientInfo',
                     fontSize: 10,
                     color: '#666666',
@@ -209,9 +231,9 @@ export const generateProposalPDF = async (
       },
 
       // Executive Summary
-      { text: 'תקציר מנהלים', style: 'sectionHeader', margin: [0, 10, 0, 10] },
+      { text: h('תקציר מנהלים'), style: 'sectionHeader', margin: [0, 10, 0, 10] },
       {
-        text: buildExecutiveSummary(proposalData),
+        text: h(buildExecutiveSummary(proposalData)),
         style: 'body',
         margin: [0, 0, 0, 20],
       },
@@ -219,13 +241,13 @@ export const generateProposalPDF = async (
       // ==================== PAGE 2: SERVICES TABLE ====================
 
       {
-        text: 'פירוט שירותים',
+        text: h('פירוט שירותים'),
         style: 'sectionHeader',
         pageBreak: 'before' as PageBreak,
         margin: [0, 0, 0, 5],
       },
       {
-        text: 'להלן סיכום השירותים המוצעים',
+        text: h('להלן סיכום השירותים המוצעים'),
         fontSize: 10,
         color: '#666666',
         margin: [0, 0, 0, 15],
@@ -239,9 +261,9 @@ export const generateProposalPDF = async (
           body: [
             [
               { text: '#', style: 'tableHeader', alignment: 'center' },
-              { text: 'שירות', style: 'tableHeader', alignment: 'right' },
-              { text: 'זמן יישום', style: 'tableHeader', alignment: 'center' },
-              { text: 'מחיר', style: 'tableHeader', alignment: 'center' },
+              { text: h('שירות'), style: 'tableHeader', alignment: 'right' },
+              { text: h('זמן יישום'), style: 'tableHeader', alignment: 'center' },
+              { text: h('מחיר'), style: 'tableHeader', alignment: 'center' },
             ],
             ...services.map((service, index) => [
               {
@@ -252,12 +274,12 @@ export const generateProposalPDF = async (
                 color: COMPANY_BRANDING.primaryColor,
               },
               {
-                text: service.nameHe,
+                text: h(service.nameHe),
                 fontSize: 10,
                 bold: true,
               },
               {
-                text: `${service.customDuration || service.estimatedDays} ימים`,
+                text: h(`${service.customDuration || service.estimatedDays} ימים`),
                 alignment: 'center',
                 fontSize: 10,
               },
@@ -291,13 +313,13 @@ export const generateProposalPDF = async (
       // ==================== PAGE 3: SERVICE DETAILS ====================
 
       {
-        text: 'פירוט מלא של השירותים',
+        text: h('פירוט מלא של השירותים'),
         style: 'sectionHeader',
         pageBreak: 'before' as PageBreak,
         margin: [0, 0, 0, 5],
       },
       {
-        text: 'כל שירות מותאם במיוחד לצרכים שזיהינו',
+        text: h('כל שירות מותאם במיוחד לצרכים שזיהינו'),
         fontSize: 10,
         color: '#666666',
         margin: [0, 0, 0, 20],
@@ -313,7 +335,7 @@ export const generateProposalPDF = async (
                 {
                   stack: [
                     {
-                      text: `${index + 1}. ${service.nameHe}`,
+                      text: h(`${index + 1}. ${service.nameHe}`),
                       style: 'serviceTitle',
                       fontSize: 15,
                       color: COMPANY_BRANDING.primaryColor,
@@ -332,13 +354,13 @@ export const generateProposalPDF = async (
                       ],
                       margin: [0, 5, 0, 10],
                     },
-                    { text: '💡 למה זה רלוונטי לך:', style: 'subsectionHeader', margin: [0, 0, 0, 6] },
-                    { text: service.reasonSuggestedHe, style: 'body', margin: [0, 0, 0, 10] },
-                    { text: '📋 מה זה כולל:', style: 'subsectionHeader', margin: [0, 0, 0, 6] },
-                    { text: service.descriptionHe, style: 'body', margin: [0, 0, 0, 10] },
+                    { text: h('💡 למה זה רלוונטי לך:'), style: 'subsectionHeader', margin: [0, 0, 0, 6] },
+                    { text: h(service.reasonSuggestedHe), style: 'body', margin: [0, 0, 0, 10] },
+                    { text: h('📋 מה זה כולל:'), style: 'subsectionHeader', margin: [0, 0, 0, 6] },
+                    { text: h(service.descriptionHe), style: 'body', margin: [0, 0, 0, 10] },
                     service.notes
                       ? {
-                          text: `💬 הערה: ${service.notes}`,
+                          text: h(`💬 הערה: ${service.notes}`),
                           style: 'notes',
                           margin: [0, 0, 0, 10],
                           italics: true,
@@ -348,13 +370,13 @@ export const generateProposalPDF = async (
                       columns: [
                         {
                           width: '*',
-                          text: `⏱️ זמן יישום: ${service.customDuration || service.estimatedDays} ימים`,
+                          text: h(`⏱️ זמן יישום: ${service.customDuration || service.estimatedDays} ימים`),
                           style: 'serviceDetail',
                           alignment: 'right',
                         },
                         {
                           width: '*',
-                          text: `💰 השקעה: ${formatPrice(service.customPrice || service.basePrice)}`,
+                          text: h(`💰 השקעה: ${formatPrice(service.customPrice || service.basePrice)}`),
                           style: 'serviceDetail',
                           bold: true,
                           color: COMPANY_BRANDING.secondaryColor,
@@ -384,9 +406,9 @@ export const generateProposalPDF = async (
 
       {
         stack: [
-          { text: 'סיכום כספי ו-ROI', style: 'title', alignment: 'center' },
+          { text: h('סיכום כספי ו-ROI'), style: 'title', alignment: 'center' },
           {
-            text: 'מבט על ההשקעה והתשואה',
+            text: h('מבט על ההשקעה והתשואה'),
             fontSize: 11,
             alignment: 'center',
             color: '#666666',
@@ -410,7 +432,7 @@ export const generateProposalPDF = async (
                       {
                         width: '*',
                         stack: [
-                          { text: 'מספר שירותים', fontSize: 9, color: '#666666', alignment: 'right' },
+                          { text: h('מספר שירותים'), fontSize: 9, color: '#666666', alignment: 'right' },
                           {
                             text: proposalData.summary.totalServices.toString(),
                             style: 'summaryText',
@@ -424,9 +446,9 @@ export const generateProposalPDF = async (
                       {
                         width: '*',
                         stack: [
-                          { text: 'זמן יישום', fontSize: 9, color: '#666666', alignment: 'center' },
+                          { text: h('זמן יישום'), fontSize: 9, color: '#666666', alignment: 'center' },
                           {
-                            text: `${proposalData.totalDays} ימים`,
+                            text: h(`${proposalData.totalDays} ימים`),
                             style: 'summaryText',
                             fontSize: 22,
                             bold: true,
@@ -438,7 +460,7 @@ export const generateProposalPDF = async (
                       {
                         width: '*',
                         stack: [
-                          { text: 'השקעה כוללת', fontSize: 9, color: '#666666', alignment: 'left' },
+                          { text: h('השקעה כוללת'), fontSize: 9, color: '#666666', alignment: 'left' },
                           {
                             text: formatPrice(proposalData.totalPrice),
                             style: 'totalPrice',
@@ -471,7 +493,7 @@ export const generateProposalPDF = async (
                             {
                               width: '*',
                               stack: [
-                                { text: '💰 חיסכון חודשי', fontSize: 11, bold: true, alignment: 'right' },
+                                { text: h('💰 חיסכון חודשי'), fontSize: 11, bold: true, alignment: 'right' },
                                 {
                                   text: formatPrice(proposalData.monthlySavings),
                                   style: 'summaryText',
@@ -485,9 +507,9 @@ export const generateProposalPDF = async (
                             {
                               width: '*',
                               stack: [
-                                { text: '📊 החזר השקעה', fontSize: 11, bold: true, alignment: 'left' },
+                                { text: h('📊 החזר השקעה'), fontSize: 11, bold: true, alignment: 'left' },
                                 {
-                                  text: `${proposalData.expectedROIMonths} חודשים`,
+                                  text: h(`${proposalData.expectedROIMonths} חודשים`),
                                   style: 'summaryText',
                                   fontSize: 16,
                                   bold: true,
@@ -526,7 +548,7 @@ export const generateProposalPDF = async (
                   [
                     {
                       stack: [
-                        { text: '🎯 תשואה שנתית צפויה', fontSize: 12, color: 'white', alignment: 'center', bold: true },
+                        { text: h('🎯 תשואה שנתית צפויה'), fontSize: 12, color: 'white', alignment: 'center', bold: true },
                         {
                           text: formatPrice(proposalData.monthlySavings * 12),
                           fontSize: 24,
@@ -549,44 +571,44 @@ export const generateProposalPDF = async (
         : []),
 
       // Value proposition
-      { text: '💎 למה כדאי לך לעבוד איתנו?', style: 'sectionHeader', margin: [0, 10, 0, 10] },
+      { text: h('💎 למה כדאי לך לעבוד איתנו?'), style: 'sectionHeader', margin: [0, 10, 0, 10] },
       {
-        ul: buildBenefitsList(proposalData),
+        ul: buildBenefitsList(proposalData).map(b => h(b)),
         style: 'body',
         margin: [0, 0, 0, 20],
       },
 
       // ==================== PAGE 5: TERMS & TIMELINE ====================
 
-      { text: 'תנאים ולוח זמנים', style: 'sectionHeader', pageBreak: 'before' as PageBreak, margin: [0, 0, 0, 15] },
+      { text: h('תנאים ולוח זמנים'), style: 'sectionHeader', pageBreak: 'before' as PageBreak, margin: [0, 0, 0, 15] },
 
-      { text: '💳 תנאי תשלום:', style: 'subsectionHeader', margin: [0, 10, 0, 5] },
-      { text: `• ${COMPANY_BRANDING.paymentTermsHe}`, style: 'body', margin: [0, 0, 0, 15] },
+      { text: h('💳 תנאי תשלום:'), style: 'subsectionHeader', margin: [0, 10, 0, 5] },
+      { text: h(`• ${COMPANY_BRANDING.paymentTermsHe}`), style: 'body', margin: [0, 0, 0, 15] },
 
-      { text: '⏱️ לוח זמנים משוער:', style: 'subsectionHeader', margin: [0, 0, 0, 5] },
+      { text: h('⏱️ לוח זמנים משוער:'), style: 'subsectionHeader', margin: [0, 0, 0, 5] },
       {
         ul: [
-          `משך הפרויקט: ${Math.ceil(proposalData.totalDays / 5)} שבועות (${proposalData.totalDays} ימי עבודה)`,
-          'עדכוני סטטוס שבועיים',
-          'מעקב צמוד ושקיפות מלאה',
+          h(`משך הפרויקט: ${Math.ceil(proposalData.totalDays / 5)} שבועות (${proposalData.totalDays} ימי עבודה)`),
+          h('עדכוני סטטוס שבועיים'),
+          h('מעקב צמוד ושקיפות מלאה'),
         ],
         style: 'body',
         margin: [0, 0, 0, 15],
       },
 
-      { text: '📞 תמיכה:', style: 'subsectionHeader', margin: [0, 0, 0, 5] },
+      { text: h('📞 תמיכה:'), style: 'subsectionHeader', margin: [0, 0, 0, 5] },
       {
-        ul: ['זמינה בשעות העבודה', 'תגובה תוך 24 שעות'],
+        ul: [h('זמינה בשעות העבודה'), h('תגובה תוך 24 שעות')],
         style: 'body',
         margin: [0, 0, 0, 15],
       },
 
-      { text: '📋 תנאים נוספים:', style: 'subsectionHeader', margin: [0, 0, 0, 5] },
+      { text: h('📋 תנאים נוספים:'), style: 'subsectionHeader', margin: [0, 0, 0, 5] },
       {
         ul: [
-          `ההצעה תקפה ל-${COMPANY_BRANDING.proposalValidity} ימים מתאריך שליחה`,
-          'זכויות יוצרים על הקוד והפתרונות שפותחו שייכים ללקוח',
-          'ביטול ההזמנה לאחר תחילת העבודה כרוך בחיוב יחסי',
+          h(`ההצעה תקפה ל-${COMPANY_BRANDING.proposalValidity} ימים מתאריך שליחה`),
+          h('זכויות יוצרים על הקוד והפתרונות שפותחו שייכים ללקוח'),
+          h('ביטול ההזמנה לאחר תחילת העבודה כרוך בחיוב יחסי'),
         ],
         style: 'notes',
         margin: [0, 0, 0, 20],
@@ -594,15 +616,15 @@ export const generateProposalPDF = async (
 
       // ==================== PAGE 6: NEXT STEPS & SIGNATURE ====================
 
-      { text: '🚀 השלב הבא', style: 'title', pageBreak: 'before' as PageBreak, alignment: 'center', margin: [0, 0, 0, 20] },
+      { text: h('🚀 השלב הבא'), style: 'title', pageBreak: 'before' as PageBreak, alignment: 'center', margin: [0, 0, 0, 20] },
 
       {
         ol: [
-          'סקירת ההצעה ושאלות הבהרה',
-          'תיאום פגישת קיק-אוף',
-          'חתימה על הסכם',
-          'תשלום מקדמה',
-          'התחלת העבודה!',
+          h('סקירת ההצעה ושאלות הבהרה'),
+          h('תיאום פגישת קיק-אוף'),
+          h('חתימה על הסכם'),
+          h('תשלום מקדמה'),
+          h('התחלת העבודה!'),
         ],
         style: 'body',
         margin: [0, 0, 0, 20],
@@ -616,7 +638,7 @@ export const generateProposalPDF = async (
             [
               {
                 stack: [
-                  { text: 'מוכנים להתחיל? בואו נדבר:', style: 'contactHeader', alignment: 'center' },
+                  { text: h('מוכנים להתחיל? בואו נדבר:'), style: 'contactHeader', alignment: 'center' },
                   { text: `📞 ${COMPANY_BRANDING.phone}`, style: 'contactInfo', alignment: 'center', margin: [0, 5, 0, 0] },
                   { text: `📧 ${COMPANY_BRANDING.email}`, style: 'contactInfo', alignment: 'center' },
                   { text: `🌐 ${COMPANY_BRANDING.website}`, style: 'contactInfo', alignment: 'center' },
@@ -673,9 +695,9 @@ export const generateProposalPDF = async (
           {
             width: 'auto',
             stack: [
-              { text: COMPANY_BRANDING.signerName, style: 'signatureName', alignment: 'right' },
+              { text: h(COMPANY_BRANDING.signerName), style: 'signatureName', alignment: 'right' },
               {
-                text: `${COMPANY_BRANDING.signerTitle}, ${COMPANY_BRANDING.companyNameHe}`,
+                text: h(`${COMPANY_BRANDING.signerTitle}, ${COMPANY_BRANDING.companyNameHe}`),
                 style: 'signatureTitle',
                 alignment: 'right',
               },
