@@ -17,16 +17,32 @@ interface ProposalPDFOptions {
 
 // Lazy load pdfMake to avoid bundling fonts upfront
 const getPdfMake = async () => {
-  const pdfMakeModule = await import('pdfmake/build/pdfmake');
-  const pdfFontsModule = await import('pdfmake/build/vfs_fonts');
+  try {
+    const pdfMakeModule = await import('pdfmake/build/pdfmake');
+    const pdfFontsModule = await import('pdfmake/build/vfs_fonts');
 
-  const pdfMake = pdfMakeModule.default || pdfMakeModule;
-  const pdfFonts = pdfFontsModule.default || pdfFontsModule;
+    const pdfMake = pdfMakeModule.default || pdfMakeModule;
+    const pdfFonts = pdfFontsModule.default || pdfFontsModule;
 
-  // Configure fonts
-  (pdfMake as any).vfs = (pdfFonts as any).pdfMake?.vfs || pdfFonts;
+    // Configure VFS fonts - handle different module export structures
+    const vfs = pdfFonts.pdfMake?.vfs || pdfFonts.vfs || pdfFonts;
 
-  return pdfMake;
+    if (!vfs) {
+      throw new Error('Failed to load font VFS from pdfmake/build/vfs_fonts');
+    }
+
+    (pdfMake as any).vfs = vfs;
+
+    // Debug: Log available fonts in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📚 Available fonts in VFS:', Object.keys(vfs).filter(k => k.endsWith('.ttf')));
+    }
+
+    return pdfMake;
+  } catch (error) {
+    console.error('❌ Failed to load pdfMake:', error);
+    throw new Error('PDF generation library failed to initialize');
+  }
 };
 
 export const generateProposalPDF = async (
@@ -47,45 +63,57 @@ export const generateProposalPDF = async (
     pageSize: 'A4',
     pageMargins: [40, 60, 40, 60],
 
+    // Font definitions for Hebrew support
+    // Roboto has excellent Unicode coverage including Hebrew characters
+    fonts: {
+      Roboto: {
+        normal: 'Roboto-Regular.ttf',
+        bold: 'Roboto-Medium.ttf',
+        italics: 'Roboto-Italic.ttf',
+        bolditalics: 'Roboto-MediumItalic.ttf',
+      },
+    },
+
     // Default styles for RTL Hebrew
     defaultStyle: {
       font: 'Roboto',
       fontSize: 10,
       alignment: 'right',
+      lineHeight: 1.3,
     },
 
     content: [
       // ==================== PAGE 1: HEADER & EXECUTIVE SUMMARY ====================
 
-      // Header with logo and company info
+      // Header with logo and company info (RTL layout: logo on right)
       {
         columns: [
-          {
-            width: 'auto',
-            stack: [
-              { text: COMPANY_BRANDING.companyNameHe, style: 'companyName' },
-              { text: COMPANY_BRANDING.address, style: 'companyInfo', margin: [0, 3, 0, 0] },
-              { text: `טלפון: ${COMPANY_BRANDING.phone}`, style: 'companyInfo' },
-              { text: `אימייל: ${COMPANY_BRANDING.email}`, style: 'companyInfo' },
-            ],
-          },
+          logoBase64
+            ? {
+                width: 100,
+                image: logoBase64,
+                fit: [100, 50],
+                alignment: 'right',
+              }
+            : { width: 100, text: '' },
           {
             width: '*',
             text: '',
           },
-          logoBase64
-            ? {
-                width: 80,
-                image: logoBase64,
-                fit: [80, 40],
-                alignment: 'left',
-              }
-            : { width: 80, text: '' },
+          {
+            width: 'auto',
+            stack: [
+              { text: COMPANY_BRANDING.companyNameHe, style: 'companyName', alignment: 'left' },
+              { text: COMPANY_BRANDING.address, style: 'companyInfo', margin: [0, 4, 0, 0], alignment: 'left' },
+              { text: `טלפון: ${COMPANY_BRANDING.phone}`, style: 'companyInfo', alignment: 'left' },
+              { text: `אימייל: ${COMPANY_BRANDING.email}`, style: 'companyInfo', alignment: 'left' },
+            ],
+          },
         ],
-        margin: [0, 0, 0, 20],
+        margin: [0, 0, 0, 25],
       },
 
-      // Divider
+      // Elegant divider with gradient effect
       {
         canvas: [
           {
@@ -94,17 +122,29 @@ export const generateProposalPDF = async (
             y1: 0,
             x2: 515,
             y2: 0,
-            lineWidth: 2,
+            lineWidth: 3,
             lineColor: COMPANY_BRANDING.primaryColor,
           },
         ],
-        margin: [0, 0, 0, 20],
+        margin: [0, 0, 0, 30],
       },
 
-      // Title
-      { text: 'הצעת מחיר', style: 'title', alignment: 'center', margin: [0, 0, 0, 20] },
+      // Title with professional styling
+      {
+        stack: [
+          { text: 'הצעת מחיר', style: 'title', alignment: 'center' },
+          {
+            text: 'פתרונות אוטומציה ובינה מלאכותית מותאמים אישית',
+            fontSize: 11,
+            alignment: 'center',
+            color: '#666666',
+            margin: [0, 5, 0, 0],
+          },
+        ],
+        margin: [0, 0, 0, 25],
+      },
 
-      // Client details box
+      // Client details box with enhanced design
       {
         table: {
           widths: ['*'],
@@ -112,19 +152,60 @@ export const generateProposalPDF = async (
             [
               {
                 stack: [
-                  { text: `הצעת מחיר ל: ${clientName}`, style: 'clientInfo', bold: true },
-                  clientCompany ? { text: `חברה: ${clientCompany}`, style: 'clientInfo' } : {},
-                  { text: `תאריך: ${formatHebrewDate(today)}`, style: 'clientInfo', margin: [0, 5, 0, 0] },
-                  { text: `תוקף: עד ${formatHebrewDate(validUntil)} (${COMPANY_BRANDING.proposalValidity} ימים)`, style: 'clientInfo' },
+                  {
+                    text: `הצעת מחיר ל: ${clientName}`,
+                    style: 'clientInfo',
+                    bold: true,
+                    fontSize: 13,
+                    color: COMPANY_BRANDING.secondaryColor,
+                  },
+                  clientCompany
+                    ? {
+                        text: `חברה: ${clientCompany}`,
+                        style: 'clientInfo',
+                        fontSize: 11,
+                        margin: [0, 3, 0, 0],
+                      }
+                    : {},
+                  {
+                    canvas: [
+                      {
+                        type: 'line' as const,
+                        x1: 0,
+                        y1: 0,
+                        x2: 450,
+                        y2: 0,
+                        lineWidth: 0.5,
+                        lineColor: '#CCCCCC',
+                      },
+                    ],
+                    margin: [0, 8, 0, 8],
+                  },
+                  {
+                    text: `תאריך: ${formatHebrewDate(today)}`,
+                    style: 'clientInfo',
+                    fontSize: 10,
+                  },
+                  {
+                    text: `תוקף ההצעה: עד ${formatHebrewDate(validUntil)} (${COMPANY_BRANDING.proposalValidity} ימים)`,
+                    style: 'clientInfo',
+                    fontSize: 10,
+                    color: '#666666',
+                  },
                 ],
-                fillColor: '#EEF2FF',
-                margin: 10,
+                fillColor: '#F8FAFC',
+                margin: 15,
               },
             ],
           ],
         },
-        layout: 'noBorders',
-        margin: [0, 0, 0, 20],
+        layout: {
+          hLineWidth: () => 1.5,
+          vLineWidth: () => 1.5,
+          hLineColor: () => COMPANY_BRANDING.primaryColor,
+          vLineColor: () => COMPANY_BRANDING.primaryColor,
+        },
+        margin: [0, 0, 0, 25],
       },
 
       // Executive Summary
@@ -137,52 +218,93 @@ export const generateProposalPDF = async (
 
       // ==================== PAGE 2: SERVICES TABLE ====================
 
-      { text: 'פירוט שירותים', style: 'sectionHeader', pageBreak: 'before' as PageBreak, margin: [0, 0, 0, 15] },
+      {
+        text: 'פירוט שירותים',
+        style: 'sectionHeader',
+        pageBreak: 'before' as PageBreak,
+        margin: [0, 0, 0, 5],
+      },
+      {
+        text: 'להלן סיכום השירותים המוצעים',
+        fontSize: 10,
+        color: '#666666',
+        margin: [0, 0, 0, 15],
+      },
 
-      // Services table
+      // Services table with enhanced design
       {
         table: {
           headerRows: 1,
-          widths: [30, '*', 60, 80],
+          widths: [35, '*', 70, 90],
           body: [
             [
               { text: '#', style: 'tableHeader', alignment: 'center' },
-              { text: 'שירות', style: 'tableHeader' },
+              { text: 'שירות', style: 'tableHeader', alignment: 'right' },
               { text: 'זמן יישום', style: 'tableHeader', alignment: 'center' },
               { text: 'מחיר', style: 'tableHeader', alignment: 'center' },
             ],
             ...services.map((service, index) => [
-              { text: (index + 1).toString(), alignment: 'center' },
-              { text: service.nameHe },
-              { text: `${service.customDuration || service.estimatedDays} ימים`, alignment: 'center' },
-              { text: formatPrice(service.customPrice || service.basePrice), alignment: 'center' },
+              {
+                text: (index + 1).toString(),
+                alignment: 'center',
+                fontSize: 10,
+                bold: true,
+                color: COMPANY_BRANDING.primaryColor,
+              },
+              {
+                text: service.nameHe,
+                fontSize: 10,
+                bold: true,
+              },
+              {
+                text: `${service.customDuration || service.estimatedDays} ימים`,
+                alignment: 'center',
+                fontSize: 10,
+              },
+              {
+                text: formatPrice(service.customPrice || service.basePrice),
+                alignment: 'center',
+                fontSize: 10,
+                bold: true,
+                color: COMPANY_BRANDING.secondaryColor,
+              },
             ]),
           ],
         },
         layout: {
-          fillColor: (rowIndex: number) => (rowIndex === 0 ? COMPANY_BRANDING.primaryColor : rowIndex % 2 === 0 ? '#F9FAFB' : null),
-          hLineWidth: () => 0.5,
+          fillColor: (rowIndex: number) => {
+            if (rowIndex === 0) return COMPANY_BRANDING.primaryColor;
+            return rowIndex % 2 === 0 ? '#F8FAFC' : 'white';
+          },
+          hLineWidth: (i: number, node: any) => (i === 0 || i === node.table.body.length ? 1.5 : 0.5),
           vLineWidth: () => 0.5,
-          hLineColor: () => '#E5E7EB',
+          hLineColor: (i: number, node: any) => (i === 0 || i === node.table.body.length ? COMPANY_BRANDING.primaryColor : '#E5E7EB'),
           vLineColor: () => '#E5E7EB',
+          paddingLeft: () => 8,
+          paddingRight: () => 8,
+          paddingTop: () => 6,
+          paddingBottom: () => 6,
         },
-        margin: [0, 0, 0, 20],
+        margin: [0, 0, 0, 25],
       } as ContentTable,
 
       // ==================== PAGE 3: SERVICE DETAILS ====================
 
-      { text: 'פירוט מלא של השירותים', style: 'sectionHeader', pageBreak: 'before' as PageBreak, margin: [0, 0, 0, 15] },
+      {
+        text: 'פירוט מלא של השירותים',
+        style: 'sectionHeader',
+        pageBreak: 'before' as PageBreak,
+        margin: [0, 0, 0, 5],
+      },
+      {
+        text: 'כל שירות מותאם במיוחד לצרכים שזיהינו',
+        fontSize: 10,
+        color: '#666666',
+        margin: [0, 0, 0, 20],
+      },
 
-      // Service details
-      ...services.flatMap((service) => [
-        { text: `🤖 ${service.nameHe}`, style: 'serviceTitle', margin: [0, 10, 0, 8] },
-        { text: 'למה זה רלוונטי לך:', style: 'subsectionHeader', margin: [0, 0, 0, 5] },
-        { text: service.reasonSuggestedHe, style: 'body', margin: [0, 0, 0, 8] },
-        { text: 'מה זה כולל:', style: 'subsectionHeader', margin: [0, 0, 0, 5] },
-        { text: service.descriptionHe, style: 'body', margin: [0, 0, 0, 8] },
-        service.notes
-          ? { text: `הערה: ${service.notes}`, style: 'notes', margin: [0, 0, 0, 8] }
-          : {},
+      // Service details with enhanced professional layout
+      ...services.flatMap((service, index) => [
         {
           table: {
             widths: ['*'],
@@ -190,25 +312,92 @@ export const generateProposalPDF = async (
               [
                 {
                   stack: [
-                    { text: `⏱️ זמן יישום: ${service.customDuration || service.estimatedDays} ימים`, style: 'serviceDetail' },
-                    { text: `💰 השקעה: ${formatPrice(service.customPrice || service.basePrice)}`, style: 'serviceDetail' },
+                    {
+                      text: `${index + 1}. ${service.nameHe}`,
+                      style: 'serviceTitle',
+                      fontSize: 15,
+                      color: COMPANY_BRANDING.primaryColor,
+                    },
+                    {
+                      canvas: [
+                        {
+                          type: 'line' as const,
+                          x1: 0,
+                          y1: 0,
+                          x2: 80,
+                          y2: 0,
+                          lineWidth: 2,
+                          lineColor: COMPANY_BRANDING.primaryColor,
+                        },
+                      ],
+                      margin: [0, 5, 0, 10],
+                    },
+                    { text: '💡 למה זה רלוונטי לך:', style: 'subsectionHeader', margin: [0, 0, 0, 6] },
+                    { text: service.reasonSuggestedHe, style: 'body', margin: [0, 0, 0, 10] },
+                    { text: '📋 מה זה כולל:', style: 'subsectionHeader', margin: [0, 0, 0, 6] },
+                    { text: service.descriptionHe, style: 'body', margin: [0, 0, 0, 10] },
+                    service.notes
+                      ? {
+                          text: `💬 הערה: ${service.notes}`,
+                          style: 'notes',
+                          margin: [0, 0, 0, 10],
+                          italics: true,
+                        }
+                      : {},
+                    {
+                      columns: [
+                        {
+                          width: '*',
+                          text: `⏱️ זמן יישום: ${service.customDuration || service.estimatedDays} ימים`,
+                          style: 'serviceDetail',
+                          alignment: 'right',
+                        },
+                        {
+                          width: '*',
+                          text: `💰 השקעה: ${formatPrice(service.customPrice || service.basePrice)}`,
+                          style: 'serviceDetail',
+                          bold: true,
+                          color: COMPANY_BRANDING.secondaryColor,
+                          alignment: 'left',
+                        },
+                      ],
+                      margin: [0, 5, 0, 0],
+                    },
                   ],
-                  fillColor: '#F5F5F5',
-                  margin: 8,
+                  fillColor: '#FAFBFC',
+                  margin: 15,
                 },
               ],
             ],
           },
-          layout: 'noBorders',
+          layout: {
+            hLineWidth: () => 1,
+            vLineWidth: () => 1,
+            hLineColor: () => '#E5E7EB',
+            vLineColor: () => '#E5E7EB',
+          },
           margin: [0, 0, 0, 15],
         },
       ]),
 
       // ==================== PAGE 4: FINANCIAL SUMMARY & ROI ====================
 
-      { text: 'סיכום כספי ו-ROI', style: 'title', pageBreak: 'before' as PageBreak, alignment: 'center', margin: [0, 0, 0, 20] },
+      {
+        stack: [
+          { text: 'סיכום כספי ו-ROI', style: 'title', alignment: 'center' },
+          {
+            text: 'מבט על ההשקעה והתשואה',
+            fontSize: 11,
+            alignment: 'center',
+            color: '#666666',
+            margin: [0, 5, 0, 0],
+          },
+        ],
+        pageBreak: 'before' as PageBreak,
+        margin: [0, 0, 0, 25],
+      },
 
-      // Summary box
+      // Enhanced summary box with professional design
       {
         table: {
           widths: ['*'],
@@ -216,26 +405,104 @@ export const generateProposalPDF = async (
             [
               {
                 stack: [
-                  { text: `סה"כ שירותים: ${proposalData.summary.totalServices}`, style: 'summaryText' },
-                  { text: `זמן יישום כולל: ${proposalData.totalDays} ימי עבודה`, style: 'summaryText' },
                   {
-                    canvas: [{ type: 'line' as const, x1: 0, y1: 0, x2: 400, y2: 0, lineWidth: 1, lineColor: '#CCCCCC' }],
-                    margin: [0, 8, 0, 8],
+                    columns: [
+                      {
+                        width: '*',
+                        stack: [
+                          { text: 'מספר שירותים', fontSize: 9, color: '#666666', alignment: 'right' },
+                          {
+                            text: proposalData.summary.totalServices.toString(),
+                            style: 'summaryText',
+                            fontSize: 22,
+                            bold: true,
+                            color: COMPANY_BRANDING.primaryColor,
+                            alignment: 'right',
+                          },
+                        ],
+                      },
+                      {
+                        width: '*',
+                        stack: [
+                          { text: 'זמן יישום', fontSize: 9, color: '#666666', alignment: 'center' },
+                          {
+                            text: `${proposalData.totalDays} ימים`,
+                            style: 'summaryText',
+                            fontSize: 22,
+                            bold: true,
+                            color: COMPANY_BRANDING.secondaryColor,
+                            alignment: 'center',
+                          },
+                        ],
+                      },
+                      {
+                        width: '*',
+                        stack: [
+                          { text: 'השקעה כוללת', fontSize: 9, color: '#666666', alignment: 'left' },
+                          {
+                            text: formatPrice(proposalData.totalPrice),
+                            style: 'totalPrice',
+                            fontSize: 22,
+                            alignment: 'left',
+                          },
+                        ],
+                      },
+                    ],
+                    margin: [0, 0, 0, 15],
                   },
-                  { text: `סה"כ השקעה: ${formatPrice(proposalData.totalPrice)}`, style: 'totalPrice' },
                   ...(proposalData.monthlySavings > 0
                     ? [
                         {
-                          canvas: [{ type: 'line' as const, x1: 0, y1: 0, x2: 400, y2: 0, lineWidth: 1, lineColor: '#CCCCCC' }],
-                          margin: [0, 8, 0, 8],
+                          canvas: [
+                            {
+                              type: 'line' as const,
+                              x1: 0,
+                              y1: 0,
+                              x2: 480,
+                              y2: 0,
+                              lineWidth: 1,
+                              lineColor: '#DDDDDD',
+                            },
+                          ],
+                          margin: [0, 10, 0, 15],
                         },
-                        { text: `💰 חיסכון חודשי צפוי: ${formatPrice(proposalData.monthlySavings)}`, style: 'summaryText' },
-                        { text: `📊 החזר השקעה (ROI): ${proposalData.expectedROIMonths} חודשים`, style: 'summaryText' },
+                        {
+                          columns: [
+                            {
+                              width: '*',
+                              stack: [
+                                { text: '💰 חיסכון חודשי', fontSize: 11, bold: true, alignment: 'right' },
+                                {
+                                  text: formatPrice(proposalData.monthlySavings),
+                                  style: 'summaryText',
+                                  fontSize: 16,
+                                  bold: true,
+                                  color: '#10B981',
+                                  alignment: 'right',
+                                },
+                              ],
+                            },
+                            {
+                              width: '*',
+                              stack: [
+                                { text: '📊 החזר השקעה', fontSize: 11, bold: true, alignment: 'left' },
+                                {
+                                  text: `${proposalData.expectedROIMonths} חודשים`,
+                                  style: 'summaryText',
+                                  fontSize: 16,
+                                  bold: true,
+                                  color: '#10B981',
+                                  alignment: 'left',
+                                },
+                              ],
+                            },
+                          ],
+                        },
                       ]
                     : []),
                 ],
-                fillColor: '#EEF2FF',
-                margin: 15,
+                fillColor: '#F8FAFC',
+                margin: 20,
               },
             ],
           ],
@@ -246,7 +513,7 @@ export const generateProposalPDF = async (
           hLineColor: () => COMPANY_BRANDING.primaryColor,
           vLineColor: () => COMPANY_BRANDING.primaryColor,
         },
-        margin: [0, 0, 0, 20],
+        margin: [0, 0, 0, 25],
       },
 
       // Annual savings highlight (if ROI data exists)
@@ -258,18 +525,25 @@ export const generateProposalPDF = async (
                 body: [
                   [
                     {
-                      text: `🎯 חיסכון שנתי צפוי: ${formatPrice(proposalData.monthlySavings * 12)}`,
-                      style: 'highlight',
-                      alignment: 'center',
-                      color: 'white',
+                      stack: [
+                        { text: '🎯 תשואה שנתית צפויה', fontSize: 12, color: 'white', alignment: 'center', bold: true },
+                        {
+                          text: formatPrice(proposalData.monthlySavings * 12),
+                          fontSize: 24,
+                          color: 'white',
+                          alignment: 'center',
+                          bold: true,
+                          margin: [0, 5, 0, 0],
+                        },
+                      ],
                       fillColor: COMPANY_BRANDING.primaryColor,
-                      margin: 10,
+                      margin: 15,
                     },
                   ],
                 ],
               },
               layout: 'noBorders',
-              margin: [0, 0, 0, 20],
+              margin: [0, 0, 0, 25],
             },
           ]
         : []),
@@ -411,86 +685,109 @@ export const generateProposalPDF = async (
       },
     ],
 
-    // Styles definition
+    // Styles definition - Professional and polished for Hebrew RTL
     styles: {
       companyName: {
-        fontSize: 12,
+        fontSize: 14,
         bold: true,
         color: COMPANY_BRANDING.secondaryColor,
+        lineHeight: 1.2,
       },
       companyInfo: {
-        fontSize: 8,
-        color: '#666666',
+        fontSize: 9,
+        color: '#555555',
+        lineHeight: 1.4,
       },
       title: {
-        fontSize: 24,
+        fontSize: 28,
         bold: true,
         color: COMPANY_BRANDING.primaryColor,
+        lineHeight: 1.2,
+        characterSpacing: 0.5,
       },
       sectionHeader: {
-        fontSize: 16,
+        fontSize: 18,
         bold: true,
         color: COMPANY_BRANDING.secondaryColor,
+        lineHeight: 1.3,
+        characterSpacing: 0.3,
       },
       subsectionHeader: {
-        fontSize: 11,
+        fontSize: 12,
         bold: true,
         color: COMPANY_BRANDING.primaryColor,
+        lineHeight: 1.4,
       },
       serviceTitle: {
-        fontSize: 13,
+        fontSize: 14,
         bold: true,
         color: COMPANY_BRANDING.primaryColor,
+        lineHeight: 1.3,
       },
       clientInfo: {
         fontSize: 11,
+        lineHeight: 1.5,
       },
       body: {
         fontSize: 10,
+        lineHeight: 1.6,
+        color: '#333333',
       },
       notes: {
         fontSize: 9,
         italics: true,
         color: '#666666',
+        lineHeight: 1.4,
       },
       tableHeader: {
         bold: true,
-        fontSize: 10,
+        fontSize: 11,
         color: 'white',
+        lineHeight: 1.3,
       },
       serviceDetail: {
-        fontSize: 10,
+        fontSize: 11,
+        lineHeight: 1.5,
       },
       summaryText: {
-        fontSize: 12,
-        margin: [0, 3, 0, 3],
+        fontSize: 13,
+        margin: [0, 4, 0, 4],
+        lineHeight: 1.5,
       },
       totalPrice: {
-        fontSize: 16,
+        fontSize: 18,
         bold: true,
         color: COMPANY_BRANDING.primaryColor,
+        lineHeight: 1.3,
       },
       highlight: {
         fontSize: 16,
         bold: true,
+        lineHeight: 1.3,
       },
       contactHeader: {
-        fontSize: 14,
+        fontSize: 15,
         bold: true,
         color: COMPANY_BRANDING.secondaryColor,
+        lineHeight: 1.3,
       },
       contactInfo: {
-        fontSize: 11,
+        fontSize: 12,
+        lineHeight: 1.5,
       },
       signatureName: {
-        fontSize: 11,
+        fontSize: 12,
+        bold: true,
+        lineHeight: 1.3,
       },
       signatureTitle: {
-        fontSize: 9,
+        fontSize: 10,
         color: '#666666',
+        lineHeight: 1.3,
       },
       signatureText: {
         fontSize: 10,
+        color: '#555555',
       },
     } as StyleDictionary,
   };
@@ -500,12 +797,35 @@ export const generateProposalPDF = async (
 
   return new Promise((resolve, reject) => {
     try {
+      // Debug: Log document definition in development
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📄 Generating PDF with', services.length, 'services');
+        console.log('💰 Total price:', formatPrice(proposalData.totalPrice));
+      }
+
       const pdfDocGenerator = (pdfMake as any).createPdf(docDefinition);
+
       pdfDocGenerator.getBlob((blob: Blob) => {
+        // Validate the generated PDF
+        if (!blob || blob.size === 0) {
+          reject(new Error('Generated PDF is empty - check font configuration'));
+          return;
+        }
+
+        if (blob.size < 1000) {
+          console.warn('⚠️ PDF size is suspiciously small:', blob.size, 'bytes');
+        }
+
+        if (process.env.NODE_ENV === 'development') {
+          console.log('✅ PDF generated successfully!');
+          console.log(`📊 Size: ${(blob.size / 1024).toFixed(2)} KB`);
+        }
+
         resolve(blob);
       });
     } catch (error) {
-      reject(error);
+      console.error('❌ PDF Generation Error:', error);
+      reject(new Error(`PDF generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
     }
   });
 };
