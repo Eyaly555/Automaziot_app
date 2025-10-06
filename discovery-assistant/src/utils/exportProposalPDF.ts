@@ -109,7 +109,15 @@ export const generateProposalPDF = async (
   doc.setFontSize(10);
   doc.setTextColor(0, 0, 0);
 
-  const summaryText = `לאחר ניתוח מעמיק של תהליכי העבודה שלכם, זיהינו ${proposalData.totalServices} פתרונות אוטומציה ו-AI שיחסכו לכם ${formatPrice(proposalData.monthlySavings)} בחודש. ההשקעה הכוללת: ${formatPrice(proposalData.totalPrice)}, עם החזר השקעה תוך ${proposalData.expectedROIMonths} חודשים.`;
+  // Generate summary text with conditional ROI information
+  let summaryText = `לאחר ניתוח מעמיק של תהליכי העבודה שלכם, זיהינו ${proposalData.totalServices} פתרונות אוטומציה ו-AI. ההשקעה הכוללת: ${formatPrice(proposalData.totalPrice)}`;
+
+  // Add ROI information only if data exists
+  if (proposalData.monthlySavings > 0) {
+    summaryText += `, שיחסכו לכם ${formatPrice(proposalData.monthlySavings)} בחודש עם החזר השקעה תוך ${proposalData.expectedROIMonths} חודשים`;
+  }
+
+  summaryText += '.';
 
   const lines = doc.splitTextToSize(summaryText, 150);
   doc.text(lines, 185, yPosition, { align: 'right' });
@@ -277,27 +285,32 @@ export const generateProposalPDF = async (
   doc.setTextColor(0, 212, 212);
   doc.text(`סה"כ השקעה: ${formatPrice(proposalData.totalPrice)}`, 160, yPosition + 32, { align: 'right' });
 
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(12);
-  doc.setTextColor(0, 0, 0);
-  doc.line(50, yPosition + 37, 160, yPosition + 37);
+  // Only show ROI data if it exists
+  if (proposalData.monthlySavings > 0) {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.line(50, yPosition + 37, 160, yPosition + 37);
 
-  doc.text(`💰 חיסכון חודשי צפוי: ${formatPrice(proposalData.monthlySavings)}`, 160, yPosition + 45, { align: 'right' });
-  doc.text(`📊 החזר השקעה (ROI): ${proposalData.expectedROIMonths} חודשים`, 160, yPosition + 53, { align: 'right' });
+    doc.text(`💰 חיסכון חודשי צפוי: ${formatPrice(proposalData.monthlySavings)}`, 160, yPosition + 45, { align: 'right' });
+    doc.text(`📊 החזר השקעה (ROI): ${proposalData.expectedROIMonths} חודשים`, 160, yPosition + 53, { align: 'right' });
 
-  yPosition += 70;
+    yPosition += 70;
 
-  // Annual savings highlight
-  const annualSavings = proposalData.monthlySavings * 12;
-  doc.setFillColor(0, 212, 212);
-  doc.rect(40, yPosition, 130, 20, 'F');
+    // Annual savings highlight
+    const annualSavings = proposalData.monthlySavings * 12;
+    doc.setFillColor(0, 212, 212);
+    doc.rect(40, yPosition, 130, 20, 'F');
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.setTextColor(255, 255, 255);
-  doc.text(`🎯 חיסכון שנתי צפוי: ${formatPrice(annualSavings)}`, 105, yPosition + 12, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(255, 255, 255);
+    doc.text(`🎯 חיסכון שנתי צפוי: ${formatPrice(annualSavings)}`, 105, yPosition + 12, { align: 'center' });
 
-  yPosition += 35;
+    yPosition += 35;
+  } else {
+    yPosition += 45;
+  }
 
   // Value proposition
   doc.setFont('helvetica', 'bold');
@@ -311,9 +324,10 @@ export const generateProposalPDF = async (
   doc.setFontSize(10);
   doc.setTextColor(0, 0, 0);
 
+  // Build benefits list conditionally based on ROI data
   const benefits = [
     'פתרון מותאם במדויק לצרכים שלך',
-    'ROI מוכח ומדיד',
+    ...(proposalData.monthlySavings > 0 ? ['ROI מוכח ומדיד'] : []),
     `יישום מהיר - תוצאות תוך ${proposalData.totalDays} ימים`,
     'תמיכה מלאה לאורך כל הדרך',
     'טכנולוגיה מתקדמת של AI ואוטומציה',

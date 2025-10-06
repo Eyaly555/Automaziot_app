@@ -317,8 +317,9 @@ export const ProposalModule: React.FC = () => {
       // Close modal if open
       setShowContactModal(false);
 
-      // Send via WhatsApp
-      sendProposalViaWhatsApp(contact.phone, contact.name, pdfBlob);
+      // Send via WhatsApp (only include ROI if data exists)
+      const includeROI = (proposalSummary?.potentialMonthlySavings || 0) > 0;
+      sendProposalViaWhatsApp(contact.phone, contact.name, pdfBlob, includeROI);
 
       // Small delay to avoid blocking
       setTimeout(() => {
@@ -466,7 +467,7 @@ export const ProposalModule: React.FC = () => {
         {/* Summary Box */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-6 border border-blue-200">
           <h2 className="text-2xl font-bold mb-4 text-gray-800">סיכום מה זוהה</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className={`grid gap-4 ${proposalSummary.potentialMonthlySavings > 0 ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-1 md:grid-cols-2'}`}>
             <div className="bg-white rounded-lg p-4 shadow-sm">
               <div className="flex items-center gap-2 text-blue-600 mb-2">
                 <Target className="w-5 h-5" />
@@ -489,27 +490,32 @@ export const ProposalModule: React.FC = () => {
               <div className="text-sm text-gray-600 mt-1">הזדמנויות</div>
             </div>
 
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="flex items-center gap-2 text-green-600 mb-2">
-                <DollarSign className="w-5 h-5" />
-                <span className="font-semibold">חיסכון</span>
-              </div>
-              <div className="text-2xl font-bold text-gray-800">
-                ₪{proposalSummary.potentialMonthlySavings.toLocaleString()}
-              </div>
-              <div className="text-sm text-gray-600 mt-1">לחודש (פוטנציאלי)</div>
-            </div>
+            {/* Only show ROI cards if data exists */}
+            {proposalSummary.potentialMonthlySavings > 0 && (
+              <>
+                <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <div className="flex items-center gap-2 text-green-600 mb-2">
+                    <DollarSign className="w-5 h-5" />
+                    <span className="font-semibold">חיסכון</span>
+                  </div>
+                  <div className="text-2xl font-bold text-gray-800">
+                    ₪{proposalSummary.potentialMonthlySavings.toLocaleString()}
+                  </div>
+                  <div className="text-sm text-gray-600 mt-1">לחודש (פוטנציאלי)</div>
+                </div>
 
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="flex items-center gap-2 text-orange-600 mb-2">
-                <Clock className="w-5 h-5" />
-                <span className="font-semibold">זמן</span>
-              </div>
-              <div className="text-3xl font-bold text-gray-800">
-                {proposalSummary.potentialWeeklySavingsHours}
-              </div>
-              <div className="text-sm text-gray-600 mt-1">שעות/שבוע</div>
-            </div>
+                <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <div className="flex items-center gap-2 text-orange-600 mb-2">
+                    <Clock className="w-5 h-5" />
+                    <span className="font-semibold">זמן</span>
+                  </div>
+                  <div className="text-3xl font-bold text-gray-800">
+                    {proposalSummary.potentialWeeklySavingsHours}
+                  </div>
+                  <div className="text-sm text-gray-600 mt-1">שעות/שבוע</div>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -861,18 +867,24 @@ export const ProposalModule: React.FC = () => {
                     </span>
                   </div>
                 </div>
-                <div className="flex justify-between items-center pt-2">
-                  <span className="text-gray-700">חיסכון חודשי צפוי:</span>
-                  <span className="font-semibold text-green-600 text-lg">
-                    {formatPrice(proposalSummary.potentialMonthlySavings)}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-700">החזר השקעה תוך:</span>
-                  <span className="font-semibold text-orange-600 text-lg">
-                    {Math.ceil(totals.totalPrice / (proposalSummary.potentialMonthlySavings || 1))} חודשים
-                  </span>
-                </div>
+
+                {/* Only show ROI data if it exists */}
+                {proposalSummary.potentialMonthlySavings > 0 && (
+                  <>
+                    <div className="flex justify-between items-center pt-2">
+                      <span className="text-gray-700">חיסכון חודשי צפוי:</span>
+                      <span className="font-semibold text-green-600 text-lg">
+                        {formatPrice(proposalSummary.potentialMonthlySavings)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700">החזר השקעה תוך:</span>
+                      <span className="font-semibold text-orange-600 text-lg">
+                        {Math.ceil(totals.totalPrice / (proposalSummary.potentialMonthlySavings || 1))} חודשים
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

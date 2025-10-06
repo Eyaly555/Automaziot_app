@@ -7,7 +7,7 @@ import { CompanyBranding } from '../types/proposal';
 export const COMPANY_BRANDING: CompanyBranding = {
   companyName: 'Automaziot AI',
   companyNameHe: 'אוטומציות AI',
-  logoPath: '/logo1.svg', // Using SVG for better quality
+  logoPath: '/logo1.png', // Using PNG for PDF compatibility
   address: 'נצח ישראל 3, תל אביב',
   phone: '052-957-4200',
   email: 'info@automaziot.ai',

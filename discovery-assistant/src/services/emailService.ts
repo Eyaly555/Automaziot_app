@@ -76,28 +76,45 @@ const generateEmailBody = (
   clientCompany: string | undefined,
   proposalData: ProposalData
 ): string => {
+  const includeROI = proposalData.monthlySavings > 0;
   const annualSavings = proposalData.monthlySavings * 12;
+
+  // Build summary section conditionally
+  let summary = `📊 סיכום ההצעה:
+━━━━━━━━━━━━━━━━━━━━━━━
+• מספר שירותים: ${proposalData.totalServices}
+• זמן יישום משוער: ${proposalData.totalDays} ימי עבודה
+• סה"כ השקעה: ₪${proposalData.totalPrice.toLocaleString('he-IL')}`;
+
+  if (includeROI) {
+    summary += `
+• חיסכון חודשי צפוי: ₪${proposalData.monthlySavings.toLocaleString('he-IL')}
+• חיסכון שנתי צפוי: ₪${annualSavings.toLocaleString('he-IL')}
+• החזר השקעה (ROI): ${proposalData.expectedROIMonths} חודשים`;
+  }
+
+  // Build benefits section conditionally
+  let benefits = `🎯 למה כדאי לך לעבוד איתנו?
+━━━━━━━━━━━━━━━━━━━━━━━
+✓ פתרון מותאם במדויק לצרכים שלך`;
+
+  if (includeROI) {
+    benefits += `
+✓ ROI מוכח ומדיד - תראה תוצאות תוך ${proposalData.expectedROIMonths} חודשים`;
+  }
+
+  benefits += `
+✓ יישום מהיר - תוצאות תוך ${proposalData.totalDays} ימים
+✓ תמיכה מלאה לאורך כל הדרך
+✓ טכנולוגיה מתקדמת של AI ואוטומציה`;
 
   return `שלום ${clientName},
 
 תודה על הפגישה! מצורפת הצעת מחיר מפורטת המותאמת בדיוק לצרכים שזיהינו בעסק שלך${clientCompany ? ` (${clientCompany})` : ''}.
 
-📊 סיכום ההצעה:
-━━━━━━━━━━━━━━━━━━━━━━━
-• מספר שירותים: ${proposalData.totalServices}
-• זמן יישום משוער: ${proposalData.totalDays} ימי עבודה
-• סה"כ השקעה: ₪${proposalData.totalPrice.toLocaleString('he-IL')}
-• חיסכון חודשי צפוי: ₪${proposalData.monthlySavings.toLocaleString('he-IL')}
-• חיסכון שנתי צפוי: ₪${annualSavings.toLocaleString('he-IL')}
-• החזר השקעה (ROI): ${proposalData.expectedROIMonths} חודשים
+${summary}
 
-🎯 למה כדאי לך לעבוד איתנו?
-━━━━━━━━━━━━━━━━━━━━━━━
-✓ פתרון מותאם במדויק לצרכים שלך
-✓ ROI מוכח ומדיד - תראה תוצאות תוך ${proposalData.expectedROIMonths} חודשים
-✓ יישום מהיר - תוצאות תוך ${proposalData.totalDays} ימים
-✓ תמיכה מלאה לאורך כל הדרך
-✓ טכנולוגיה מתקדמת של AI ואוטומציה
+${benefits}
 
 📄 מצ"ב קובץ PDF עם כל הפרטים המלאים.
 
@@ -147,6 +164,7 @@ export const generateEmailHTML = (
   clientCompany: string | undefined,
   proposalData: ProposalData
 ): string => {
+  const includeROI = proposalData.monthlySavings > 0;
   const annualSavings = proposalData.monthlySavings * 12;
 
   return `
@@ -304,7 +322,7 @@ export const generateEmailHTML = (
           <span class="summary-label">סה"כ השקעה:</span>
           <span class="summary-value">₪${proposalData.totalPrice.toLocaleString('he-IL')}</span>
         </div>
-        <div class="summary-item">
+        ${includeROI ? `<div class="summary-item">
           <span class="summary-label">חיסכון חודשי צפוי:</span>
           <span class="summary-value">₪${proposalData.monthlySavings.toLocaleString('he-IL')}</span>
         </div>
@@ -315,13 +333,13 @@ export const generateEmailHTML = (
         <div class="summary-item">
           <span class="summary-label">החזר השקעה (ROI):</span>
           <span class="summary-value">${proposalData.expectedROIMonths} חודשים</span>
-        </div>
+        </div>` : ''}
       </div>
 
       <div class="benefits">
         <h3>🎯 למה כדאי לך לעבוד איתנו?</h3>
         <div class="benefit-item">פתרון מותאם במדויק לצרכים שלך</div>
-        <div class="benefit-item">ROI מוכח ומדיד - תראה תוצאות תוך ${proposalData.expectedROIMonths} חודשים</div>
+        ${includeROI ? `<div class="benefit-item">ROI מוכח ומדיד - תראה תוצאות תוך ${proposalData.expectedROIMonths} חודשים</div>` : ''}
         <div class="benefit-item">יישום מהיר - תוצאות תוך ${proposalData.totalDays} ימים</div>
         <div class="benefit-item">תמיכה מלאה לאורך כל הדרך</div>
         <div class="benefit-item">טכנולוגיה מתקדמת של AI ואוטומציה</div>

@@ -16,7 +16,8 @@ export interface WhatsAppMessage {
 export const sendProposalViaWhatsApp = (
   phone: string,
   clientName: string,
-  pdfBlob?: Blob
+  pdfBlob?: Blob,
+  includeROI: boolean = true
 ): void => {
   // Clean phone number (remove spaces, dashes, etc.)
   const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
@@ -32,7 +33,7 @@ export const sendProposalViaWhatsApp = (
   // Remove '+' if exists
   formattedPhone = formattedPhone.replace('+', '');
 
-  // Create message
+  // Create message with conditional ROI mention
   const message = `שלום ${clientName} 👋
 
 הנה הצעת המחיר המפורטת שלנו עבור פתרונות האוטומציה וה-AI.
@@ -40,8 +41,7 @@ export const sendProposalViaWhatsApp = (
 ההצעה כוללת:
 • פירוט מלא של כל השירותים
 • מחירים מדויקים
-• לוח זמנים משוער
-• חישובי ROI
+• לוח זמנים משוער${includeROI ? '\n• חישובי ROI' : ''}
 
 אשמח לענות על כל שאלה ולהמשיך הלאה! 🚀
 
