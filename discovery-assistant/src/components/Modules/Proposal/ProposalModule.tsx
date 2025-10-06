@@ -4,7 +4,7 @@ import {
   ArrowRight, Check, FileText, DollarSign, Clock, Target,
   Zap, Bot, Link, Database, Settings, ShoppingCart, X,
   Search, BarChart, Sparkles, FileX, ChevronDown, Filter,
-  TrendingUp, Calendar, Plus
+  TrendingUp, Calendar, Plus, Send, MessageCircle, Mail
 } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Card, Input, Select } from '../../Base';
@@ -18,6 +18,10 @@ import {
   ServiceCategoryId
 } from '../../../config/servicesDatabase';
 import { getSmartRecommendations } from '../../../utils/smartRecommendationsEngine';
+import { generateProposalPDF } from '../../../utils/exportProposalPDF';
+import { sendProposalViaWhatsApp } from '../../../services/whatsappService';
+import { openGmailCompose } from '../../../services/emailService';
+import { ContactCompletionModal, ClientContact } from './ContactCompletionModal';
 
 // Type for filters
 interface Filters {
@@ -77,6 +81,22 @@ export const ProposalModule: React.FC = () => {
   const [selectedServices, setSelectedServices] = useState<SelectedService[]>([]);
   const [proposalSummary, setProposalSummary] = useState<any>(null);
   const [editingPrices, setEditingPrices] = useState<{ [key: string]: number }>({});
+
+  // NEW: Additional editing state
+  const [editingDurations, setEditingDurations] = useState<{ [key: string]: number }>({});
+  const [editingNotes, setEditingNotes] = useState<{ [key: string]: string }>({});
+
+  // NEW: Contact modal state
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [clientContact, setClientContact] = useState<ClientContact>({
+    name: '',
+    company: '',
+    email: '',
+    phone: '',
+  });
+
+  // NEW: Loading state for PDF generation
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   // UI state
   const [activeTab, setActiveTab] = useState<ServiceCategoryId | 'all'>('all');
@@ -214,10 +234,129 @@ export const ProposalModule: React.FC = () => {
     );
   };
 
+  // NEW: Update service duration
+  const updateServiceDuration = (serviceId: string, newDuration: number) => {
+    setEditingDurations(prev => ({ ...prev, [serviceId]: newDuration }));
+    setSelectedServices(prev =>
+      prev.map(s => s.id === serviceId ? { ...s, customDuration: newDuration } : s)
+    );
+  };
+
+  // NEW: Update service notes
+  const updateServiceNotes = (serviceId: string, notes: string) => {
+    setEditingNotes(prev => ({ ...prev, [serviceId]: notes }));
+    setSelectedServices(prev =>
+      prev.map(s => s.id === serviceId ? { ...s, notes } : s)
+    );
+  };
+
+  // NEW: Get client contact info from meeting data or Zoho
+  const getClientContact = (): ClientContact => {
+    // Try Zoho integration first
+    const zohoContact = currentMeeting?.zohoIntegration?.contactInfo;
+    if (zohoContact?.phone && zohoContact?.email) {
+      return {
+        name: currentMeeting?.clientName || '',
+        company: currentMeeting?.modules?.overview?.companyName || '',
+        email: zohoContact.email,
+        phone: zohoContact.phone,
+      };
+    }
+
+    // Try overview module
+    const overview = currentMeeting?.modules?.overview;
+    return {
+      name: currentMeeting?.clientName || '',
+      company: overview?.companyName || '',
+      email: overview?.contactEmail || '',
+      phone: overview?.contactPhone || '',
+    };
+  };
+
+  // NEW: Handle send proposal button click
+  const handleSendProposal = async () => {
+    const contact = getClientContact();
+
+    // Check if contact info is complete
+    if (!contact.phone || !contact.email || !contact.name) {
+      // Show modal to complete contact info
+      setClientContact(contact);
+      setShowContactModal(true);
+      return;
+    }
+
+    // Contact info is complete, proceed with sending
+    await sendProposalToClient(contact);
+  };
+
+  // NEW: Send proposal to client (WhatsApp + Email)
+  const sendProposalToClient = async (contact: ClientContact) => {
+    try {
+      setIsGeneratingPDF(true);
+
+      // Generate PDF
+      const pdfBlob = await generateProposalPDF({
+        clientName: contact.name,
+        clientCompany: contact.company,
+        services: selectedServices.filter(s => s.selected),
+        proposalData: {
+          meetingId: currentMeeting?.meetingId || '',
+          generatedAt: new Date(),
+          summary: proposalSummary,
+          proposedServices,
+          selectedServices,
+          totalPrice: calculateTotals().totalPrice,
+          totalDays: calculateTotals().totalDays,
+          expectedROIMonths: Math.ceil(calculateTotals().totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
+          monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
+        },
+      });
+
+      setIsGeneratingPDF(false);
+
+      // Close modal if open
+      setShowContactModal(false);
+
+      // Send via WhatsApp
+      sendProposalViaWhatsApp(contact.phone, contact.name, pdfBlob);
+
+      // Small delay to avoid blocking
+      setTimeout(() => {
+        // Open Gmail compose
+        openGmailCompose({
+          clientEmail: contact.email,
+          clientName: contact.name,
+          clientCompany: contact.company,
+          proposalData: {
+            meetingId: currentMeeting?.meetingId || '',
+            generatedAt: new Date(),
+            summary: proposalSummary,
+            proposedServices,
+            selectedServices,
+            totalPrice: calculateTotals().totalPrice,
+            totalDays: calculateTotals().totalDays,
+            expectedROIMonths: Math.ceil(calculateTotals().totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
+            monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
+          },
+          pdfBlob,
+        });
+      }, 1000);
+
+      // Show success message
+      alert('✅ הצעת המחיר נשלחה בהצלחה!\n\n📱 WhatsApp נפתח\n📧 Gmail נפתח\n📄 קובץ PDF ירד למחשב');
+
+    } catch (error) {
+      console.error('Error sending proposal:', error);
+      alert('❌ שגיאה בשליחת ההצעה. אנא נסה שוב.');
+      setIsGeneratingPDF(false);
+    }
+  };
+
   const calculateTotals = () => {
     const selected = selectedServices.filter(s => s.selected);
     const totalPrice = selected.reduce((sum, s) => sum + (s.customPrice || s.basePrice), 0);
-    const totalDays = selected.length > 0 ? Math.max(...selected.map(s => s.estimatedDays)) : 0;
+    // NEW: Use customDuration if available, otherwise use estimatedDays
+    const totalDays = selected.length > 0 ? Math.max(...selected.map(s => s.customDuration || s.estimatedDays)) : 0;
 
     return {
       totalPrice,
@@ -746,11 +885,24 @@ export const ProposalModule: React.FC = () => {
             >
               חזור
             </button>
+
+            {/* NEW: Send Proposal Button */}
             <button
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+              onClick={handleSendProposal}
+              disabled={isGeneratingPDF || cartServices.length === 0}
+              className="px-6 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg hover:from-green-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg flex items-center gap-2"
             >
-              <FileText className="w-5 h-5" />
-              ייצא ל-PDF
+              {isGeneratingPDF ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  יוצר PDF...
+                </>
+              ) : (
+                <>
+                  <Send className="w-5 h-5" />
+                  שלח הצעת מחיר ללקוח
+                </>
+              )}
             </button>
 
             <button
@@ -921,6 +1073,16 @@ export const ProposalModule: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* NEW: Contact Completion Modal */}
+      {showContactModal && (
+        <ContactCompletionModal
+          clientContact={clientContact}
+          onUpdate={setClientContact}
+          onSend={() => sendProposalToClient(clientContact)}
+          onCancel={() => setShowContactModal(false)}
+        />
       )}
     </div>
   );

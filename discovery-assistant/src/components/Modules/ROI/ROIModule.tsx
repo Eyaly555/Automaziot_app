@@ -34,12 +34,13 @@ export const ROIModule: React.FC = () => {
   const [successMetrics, setSuccessMetrics] = useState<string[]>(moduleData.successMetrics || []);
   const [measurementFrequency, setMeasurementFrequency] = useState(moduleData.measurementFrequency || '');
 
-  // Calculate live ROI
+  // Calculate live ROI - recalculates when meeting data changes
   const roiData = calculateROI(currentMeeting || {} as any);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       updateModule('roi', {
+        // Form data inputs
         currentCosts: {
           manualHours: currentManualHours,
           hourlyCost: averageHourlyCost,
@@ -58,14 +59,52 @@ export const ROIModule: React.FC = () => {
           budgetAvailable
         },
         successMetrics,
-        measurementFrequency
+        measurementFrequency,
+
+        // ✅ CRITICAL FIX: Save calculated ROI summary
+        // This is what proposalEngine.ts reads to show savings!
+        summary: {
+          totalMonthlySaving: roiData.totalMonthlySavings,
+          totalHoursSaved: roiData.hoursSavedMonthly,
+          paybackPeriod: roiData.paybackPeriod,
+          implementationCost: roiData.implementationCosts
+        },
+
+        // Advanced metrics (Phase 4)
+        implementationCosts: {
+          total: roiData.implementationCosts
+        },
+        ongoingCosts: {
+          total: roiData.ongoingMonthlyCosts
+        },
+        netSavings: {
+          month12: roiData.netSavings12Month,
+          month24: roiData.netSavings24Month,
+          month36: roiData.netSavings36Month
+        },
+        paybackPeriodMonths: roiData.paybackPeriod,
+        roiPercentages: {
+          roi12Month: roiData.roi12Month,
+          roi24Month: roiData.roi24Month,
+          roi36Month: roiData.roi36Month
+        },
+        scenarios: roiData.scenarios
       });
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [currentManualHours, averageHourlyCost, currentToolsCost, errorCostPerMonth,
-      lostOpportunities, estimatedHoursSaved, processesToAutomate, immediateVsGradual,
-      investmentRange, paybackExpectation, budgetAvailable, successMetrics, measurementFrequency]);
+  }, [
+    currentManualHours, averageHourlyCost, currentToolsCost, errorCostPerMonth,
+    lostOpportunities, estimatedHoursSaved, processesToAutomate, immediateVsGradual,
+    investmentRange, paybackExpectation, budgetAvailable, successMetrics, measurementFrequency,
+    // ✅ CRITICAL: Add roiData to dependencies so summary updates when calculations change
+    roiData.totalMonthlySavings,
+    roiData.hoursSavedMonthly,
+    roiData.paybackPeriod,
+    roiData.implementationCosts,
+    roiData.ongoingMonthlyCosts,
+    updateModule
+  ]);
 
   // Calculate current monthly cost
   const calculateCurrentCost = () => {

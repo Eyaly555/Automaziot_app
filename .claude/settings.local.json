@@ -14,7 +14,10 @@
       "Bash(echo $APPDATA)",
       "Bash(ls:*)",
       "Bash(claude mcp add:*)",
-      "Read(//c//**)"
+      "Read(//c//**)",
+      "Bash(npm run build:typecheck:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm run:*)"
     ],
     "deny": [],
     "ask": []

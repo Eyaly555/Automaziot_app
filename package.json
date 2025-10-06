@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "framer-motion": "^12.23.22",
+    "jspdf": "^3.0.3",
+    "jspdf-autotable": "^5.0.2",
     "react-hot-toast": "^2.6.0"
   }
 }

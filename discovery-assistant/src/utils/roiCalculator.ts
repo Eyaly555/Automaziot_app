@@ -31,31 +31,19 @@ const DEVELOPER_HOURLY_RATE = 250; // Developer hourly rate for implementation
 const MAINTENANCE_HOURS_MONTHLY = 8; // Default maintenance hours per month
 
 /**
- * Calculate implementation costs based on project complexity
+ * Calculate implementation costs
+ * Uses the total price from selected services in Proposal module
+ * Falls back to default if proposal not yet created
  */
 const calculateImplementationCosts = (meeting: Meeting): number => {
-  const baseCost = IMPLEMENTATION_COST;
+  // Try to get total price from proposal (sum of selected services)
+  const proposalData = meeting.modules?.proposal;
+  if (proposalData && proposalData.totalPrice) {
+    return proposalData.totalPrice;
+  }
 
-  // Adjust based on number of modules with data
-  const activeModules = Object.keys(meeting.modules || {}).filter(key => {
-    const module = meeting.modules[key as keyof typeof meeting.modules];
-    return module && Object.keys(module).length > 0;
-  }).length;
-
-  // More active modules = more complex implementation
-  const complexityMultiplier = 1 + (activeModules * 0.1);
-
-  // Add developer time costs (estimated 200 hours for base implementation)
-  const developerHours = 200 * complexityMultiplier;
-  const developerCosts = developerHours * DEVELOPER_HOURLY_RATE;
-
-  // Tools and licenses (estimated)
-  const toolsCosts = 10000;
-
-  // Training costs
-  const trainingCosts = 5000;
-
-  return Math.round(baseCost + developerCosts + toolsCosts + trainingCosts);
+  // Fallback: if no proposal yet, use default estimate
+  return IMPLEMENTATION_COST;
 };
 
 /**

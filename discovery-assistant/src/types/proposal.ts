@@ -43,9 +43,10 @@ export interface ProposedService extends ServiceItem {
 export interface SelectedService extends ProposedService {
   selected: boolean;
   customPrice?: number; // user can edit
+  customDuration?: number; // user can edit estimated days
   customDescription?: string; // user can edit
   customDescriptionHe?: string;
-  notes?: string;
+  notes?: string; // additional notes per service
 }
 
 export interface ProposalSummary {
@@ -86,5 +87,28 @@ export interface ProposalExport {
     name: string;
     company?: string;
     email?: string;
+    phone?: string;
   };
+}
+
+// Company Branding Configuration
+export interface CompanyBranding {
+  companyName: string;
+  companyNameHe: string;
+  logoPath: string; // path to logo file
+  address: string;
+  phone: string;
+  email: string;
+  website: string;
+  signaturePath: string; // path to signature image
+  signerName: string;
+  signerTitle: string;
+  // Payment terms
+  paymentTerms: string;
+  paymentTermsHe: string;
+  proposalValidity: number; // days
+  warrantyPeriod?: number; // months (optional)
+  // Colors
+  primaryColor?: string; // hex color
+  secondaryColor?: string;
 }
