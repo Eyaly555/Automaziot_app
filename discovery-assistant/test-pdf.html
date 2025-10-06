@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>בדיקת PDF בעברית</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #00D4D4;
+      text-align: center;
+    }
+    button {
+      background: #00D4D4;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      margin: 20px 0;
+    }
+    button:hover {
+      background: #00B8B8;
+    }
+    #status {
+      text-align: center;
+      margin: 20px 0;
+      font-size: 16px;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+    .info {
+      background: #EEF2FF;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 20px 0;
+      border-right: 4px solid #00D4D4;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 בדיקת יצירת PDF בעברית</h1>
+
+    <div class="info">
+      <strong>מטרה:</strong> לבדוק שהפונט העברי Rubik עובד נכון ב-PDF
+      <br><br>
+      <strong>מה תראה:</strong>
+      <ul>
+        <li>טקסט עברי תקין (לא מחורבש)</li>
+        <li>יישור מימין לשמאל (RTL)</li>
+        <li>טבלאות מסודרות</li>
+        <li>פונט Rubik יפה ואיכותי</li>
+      </ul>
+    </div>
+
+    <button onclick="generateTestPDF()">
+      ⚡ צור PDF לדוגמה
+    </button>
+
+    <div id="status"></div>
+  </div>
+
+  <script type="module">
+    import { generateProposalPDF } from './src/utils/exportProposalPDF.js';
+
+    window.generateTestPDF = async function() {
+      const statusEl = document.getElementById('status');
+      statusEl.innerHTML = '⏳ מייצר PDF...';
+      statusEl.className = '';
+
+      try {
+        const testData = {
+          clientName: 'ישראל ישראלי',
+          clientCompany: 'חברת הטכנולוגיה בע"מ',
+          services: [
+            {
+              id: 'service-1',
+              category: 'automations',
+              name: 'Lead Management Automation',
+              nameHe: 'אוטומציה לניהול לידים',
+              description: 'Automate lead capture and routing',
+              descriptionHe: 'אוטומציה מלאה לקליטת לידים וניתוב אוטומטי למוכר הרלוונטי',
+              basePrice: 15000,
+              estimatedDays: 10,
+              complexity: 'medium',
+              tags: ['crm', 'automation'],
+              reasonSuggested: 'Based on your current manual lead management',
+              reasonSuggestedHe: 'מזהינו שאתם מנהלים לידים באופן ידני - זה יחסוך לכם 15 שעות שבועיות',
+              relevanceScore: 9,
+              dataSource: ['leadsAndSales'],
+              selected: true,
+            },
+            {
+              id: 'service-2',
+              category: 'ai_agents',
+              name: 'AI Customer Support Agent',
+              nameHe: 'סוכן AI לתמיכה בלקוחות',
+              description: 'AI agent for customer support',
+              descriptionHe: 'סוכן AI שמטפל בפניות לקוחות באופן אוטומטי 24/7',
+              basePrice: 25000,
+              estimatedDays: 15,
+              complexity: 'complex',
+              tags: ['ai', 'support'],
+              reasonSuggested: 'High volume of support tickets',
+              reasonSuggestedHe: 'זיהינו נפח גבוה של פניות שירות - AI יפתור 70% מהן אוטומטית',
+              relevanceScore: 8,
+              dataSource: ['customerService'],
+              selected: true,
+            },
+            {
+              id: 'service-3',
+              category: 'integrations',
+              name: 'Zoho-WhatsApp Integration',
+              nameHe: 'אינטגרציה Zoho-WhatsApp',
+              description: 'Connect Zoho CRM with WhatsApp Business',
+              descriptionHe: 'חיבור אוטומטי בין Zoho CRM לוואטסאפ ביזנס עם סנכרון דו-כיווני',
+              basePrice: 12000,
+              estimatedDays: 7,
+              complexity: 'medium',
+              tags: ['integration', 'messaging'],
+              reasonSuggested: 'You use both systems separately',
+              reasonSuggestedHe: 'אתם משתמשים בשני המערכות בנפרד - נחבר אותם לתקשורת מהירה יותר',
+              relevanceScore: 7,
+              dataSource: ['systems'],
+              selected: true,
+              notes: 'כולל הדרכה והטמעה למשתמשים',
+            },
+          ],
+          proposalData: {
+            meetingId: 'test-meeting-123',
+            generatedAt: new Date(),
+            summary: {
+              totalServices: 3,
+              totalAutomations: 1,
+              totalAIAgents: 1,
+              totalIntegrations: 1,
+              identifiedProcesses: 8,
+              potentialMonthlySavings: 18000,
+              potentialWeeklySavingsHours: 25,
+            },
+            proposedServices: [],
+            selectedServices: [],
+            totalPrice: 52000,
+            totalDays: 32,
+            expectedROIMonths: 3,
+            monthlySavings: 18000,
+            customNotes: 'הצעה מותאמת אישית על בסיס הניתוח המעמיק שערכנו',
+          },
+        };
+
+        console.log('🚀 Generating PDF...');
+        const pdfBlob = await generateProposalPDF(testData);
+
+        console.log('✅ PDF generated!', pdfBlob);
+
+        // Download the PDF
+        const url = URL.createObjectURL(pdfBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'test-proposal-hebrew.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        statusEl.innerHTML = '✅ PDF נוצר בהצלחה! הקובץ הורד למחשב שלך.';
+        statusEl.className = 'success';
+
+      } catch (error) {
+        console.error('Error:', error);
+        statusEl.innerHTML = `❌ שגיאה: ${error.message}`;
+        statusEl.className = 'error';
+      }
+    };
+  </script>
+</body>
+</html>

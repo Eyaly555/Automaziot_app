@@ -1,11 +1,13 @@
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import * as pdfMake from 'pdfmake/build/pdfmake';
+import { TDocumentDefinitions, Content, ContentTable, StyleDictionary, PageBreak } from 'pdfmake/interfaces';
 import { SelectedService, ProposalData } from '../types/proposal';
 import { COMPANY_BRANDING } from '../config/companyBranding';
+import { RUBIK_FONTS } from './rubikFonts';
 
 /**
  * Professional Proposal PDF Generator for Automaziot AI
- * Creates a comprehensive, Hebrew-language proposal with branding
+ * Creates a comprehensive, Hebrew-language proposal with branding using pdfMake
+ * Full RTL and Hebrew support with Rubik font
  */
 
 interface ProposalPDFOptions {
@@ -15,316 +17,514 @@ interface ProposalPDFOptions {
   proposalData: ProposalData;
 }
 
+// Configure pdfMake with Rubik fonts
+const pdfMakeWithFonts = pdfMake as any;
+pdfMakeWithFonts.fonts = {
+  Rubik: {
+    normal: RUBIK_FONTS.Rubik.normal,
+    bold: RUBIK_FONTS.Rubik.bold,
+  },
+};
+
 export const generateProposalPDF = async (
   options: ProposalPDFOptions
 ): Promise<Blob> => {
   const { clientName, clientCompany, services, proposalData } = options;
 
-  // Create PDF with RTL support
-  const doc = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'a4',
-  });
-
-  // Enable RTL
-  doc.setR2L(true);
-  doc.setLanguage('he');
-
-  // Load logo and signature (as base64 or from public path)
-  // Note: In production, these should be converted to base64 or loaded properly
+  // Load images as base64
   const logoBase64 = await loadImageAsBase64(COMPANY_BRANDING.logoPath);
   const signatureBase64 = await loadImageAsBase64(COMPANY_BRANDING.signaturePath);
-
-  let yPosition = 20;
-
-  // ==================== PAGE 1: HEADER & EXECUTIVE SUMMARY ====================
-
-  // Header with logo
-  if (logoBase64) {
-    doc.addImage(logoBase64, 'PNG', 150, yPosition, 40, 15); // Right side (RTL)
-  }
-
-  // Company details (left side in RTL = right side visually)
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
-  doc.setTextColor(30, 58, 95); // Dark blue
-  doc.text(COMPANY_BRANDING.companyNameHe, 20, yPosition + 5, { align: 'left' });
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.setTextColor(100, 100, 100);
-  doc.text(COMPANY_BRANDING.address, 20, yPosition + 10, { align: 'left' });
-  doc.text(`טלפון: ${COMPANY_BRANDING.phone}`, 20, yPosition + 14, { align: 'left' });
-  doc.text(`אימייל: ${COMPANY_BRANDING.email}`, 20, yPosition + 18, { align: 'left' });
-
-  yPosition += 30;
-
-  // Divider line
-  doc.setDrawColor(0, 212, 212); // Cyan
-  doc.setLineWidth(0.5);
-  doc.line(20, yPosition, 190, yPosition);
-
-  yPosition += 10;
-
-  // Proposal title
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(20);
-  doc.setTextColor(0, 212, 212);
-  doc.text('הצעת מחיר', 105, yPosition, { align: 'center' });
-
-  yPosition += 15;
-
-  // Client details box
-  doc.setFillColor(238, 242, 255); // Light blue background
-  doc.rect(20, yPosition, 170, 30, 'F');
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(11);
-  doc.setTextColor(0, 0, 0);
-
-  doc.text(`הצעת מחיר ל: ${clientName}`, 185, yPosition + 8, { align: 'right' });
-  if (clientCompany) {
-    doc.text(`חברה: ${clientCompany}`, 185, yPosition + 14, { align: 'right' });
-  }
 
   const today = new Date();
   const validUntil = new Date(today);
   validUntil.setDate(validUntil.getDate() + COMPANY_BRANDING.proposalValidity);
 
-  doc.text(`תאריך: ${formatHebrewDate(today)}`, 185, yPosition + 20, { align: 'right' });
-  doc.text(`תוקף: עד ${formatHebrewDate(validUntil)} (${COMPANY_BRANDING.proposalValidity} ימים)`, 185, yPosition + 26, { align: 'right' });
+  // Define document content
+  const docDefinition: TDocumentDefinitions = {
+    pageSize: 'A4',
+    pageMargins: [40, 60, 40, 60],
 
-  yPosition += 40;
-
-  // Executive Summary
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.setTextColor(30, 58, 95);
-  doc.text('תקציר מנהלים', 185, yPosition, { align: 'right' });
-
-  yPosition += 8;
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0);
-
-  // Generate summary text with conditional ROI information
-  let summaryText = `לאחר ניתוח מעמיק של תהליכי העבודה שלכם, זיהינו ${proposalData.totalServices} פתרונות אוטומציה ו-AI. ההשקעה הכוללת: ${formatPrice(proposalData.totalPrice)}`;
-
-  // Add ROI information only if data exists
-  if (proposalData.monthlySavings > 0) {
-    summaryText += `, שיחסכו לכם ${formatPrice(proposalData.monthlySavings)} בחודש עם החזר השקעה תוך ${proposalData.expectedROIMonths} חודשים`;
-  }
-
-  summaryText += '.';
-
-  const lines = doc.splitTextToSize(summaryText, 150);
-  doc.text(lines, 185, yPosition, { align: 'right' });
-
-  yPosition += lines.length * 6 + 10;
-
-  // ==================== PAGE 2: SERVICES TABLE ====================
-
-  // Check if we need a new page
-  if (yPosition > 240) {
-    doc.addPage();
-    yPosition = 20;
-  }
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.setTextColor(30, 58, 95);
-  doc.text('פירוט שירותים', 185, yPosition, { align: 'right' });
-
-  yPosition += 10;
-
-  // Create services table
-  const tableData = services.map((service, index) => [
-    (index + 1).toString(), // Row number
-    service.nameHe,
-    `${service.customDuration || service.estimatedDays} ימים`,
-    formatPrice(service.customPrice || service.basePrice),
-  ]);
-
-  autoTable(doc, {
-    startY: yPosition,
-    head: [['#', 'שירות', 'זמן יישום', 'מחיר']],
-    body: tableData,
-    theme: 'grid',
-    styles: {
-      font: 'helvetica',
+    // Default styles for RTL Hebrew
+    defaultStyle: {
+      font: 'Rubik',
       fontSize: 10,
-      cellPadding: 3,
-      halign: 'right',
-      valign: 'middle',
+      alignment: 'right',
     },
-    headStyles: {
-      fillColor: [0, 212, 212], // Cyan
-      textColor: [255, 255, 255],
-      fontStyle: 'bold',
-      halign: 'center',
-    },
-    columnStyles: {
-      0: { halign: 'center', cellWidth: 15 },
-      1: { cellWidth: 90 },
-      2: { halign: 'center', cellWidth: 30 },
-      3: { halign: 'center', cellWidth: 35 },
-    },
-    margin: { right: 20, left: 20 },
+
+    content: [
+      // ==================== PAGE 1: HEADER & EXECUTIVE SUMMARY ====================
+
+      // Header with logo and company info
+      {
+        columns: [
+          {
+            width: 'auto',
+            stack: [
+              { text: COMPANY_BRANDING.companyNameHe, style: 'companyName' },
+              { text: COMPANY_BRANDING.address, style: 'companyInfo', margin: [0, 3, 0, 0] },
+              { text: `טלפון: ${COMPANY_BRANDING.phone}`, style: 'companyInfo' },
+              { text: `אימייל: ${COMPANY_BRANDING.email}`, style: 'companyInfo' },
+            ],
+          },
+          {
+            width: '*',
+            text: '',
+          },
+          logoBase64
+            ? {
+                width: 80,
+                image: logoBase64,
+                fit: [80, 40],
+                alignment: 'left',
+              }
+            : { width: 80, text: '' },
+        ],
+        margin: [0, 0, 0, 20],
+      },
+
+      // Divider
+      {
+        canvas: [
+          {
+            type: 'line' as const,
+            x1: 0,
+            y1: 0,
+            x2: 515,
+            y2: 0,
+            lineWidth: 2,
+            lineColor: COMPANY_BRANDING.primaryColor,
+          },
+        ],
+        margin: [0, 0, 0, 20],
+      },
+
+      // Title
+      { text: 'הצעת מחיר', style: 'title', alignment: 'center', margin: [0, 0, 0, 20] },
+
+      // Client details box
+      {
+        table: {
+          widths: ['*'],
+          body: [
+            [
+              {
+                stack: [
+                  { text: `הצעת מחיר ל: ${clientName}`, style: 'clientInfo', bold: true },
+                  clientCompany ? { text: `חברה: ${clientCompany}`, style: 'clientInfo' } : {},
+                  { text: `תאריך: ${formatHebrewDate(today)}`, style: 'clientInfo', margin: [0, 5, 0, 0] },
+                  { text: `תוקף: עד ${formatHebrewDate(validUntil)} (${COMPANY_BRANDING.proposalValidity} ימים)`, style: 'clientInfo' },
+                ],
+                fillColor: '#EEF2FF',
+                margin: 10,
+              },
+            ],
+          ],
+        },
+        layout: 'noBorders',
+        margin: [0, 0, 0, 20],
+      },
+
+      // Executive Summary
+      { text: 'תקציר מנהלים', style: 'sectionHeader', margin: [0, 10, 0, 10] },
+      {
+        text: buildExecutiveSummary(proposalData),
+        style: 'body',
+        margin: [0, 0, 0, 20],
+      },
+
+      // ==================== PAGE 2: SERVICES TABLE ====================
+
+      { text: 'פירוט שירותים', style: 'sectionHeader', pageBreak: 'before' as PageBreak, margin: [0, 0, 0, 15] },
+
+      // Services table
+      {
+        table: {
+          headerRows: 1,
+          widths: [30, '*', 60, 80],
+          body: [
+            [
+              { text: '#', style: 'tableHeader', alignment: 'center' },
+              { text: 'שירות', style: 'tableHeader' },
+              { text: 'זמן יישום', style: 'tableHeader', alignment: 'center' },
+              { text: 'מחיר', style: 'tableHeader', alignment: 'center' },
+            ],
+            ...services.map((service, index) => [
+              { text: (index + 1).toString(), alignment: 'center' },
+              { text: service.nameHe },
+              { text: `${service.customDuration || service.estimatedDays} ימים`, alignment: 'center' },
+              { text: formatPrice(service.customPrice || service.basePrice), alignment: 'center' },
+            ]),
+          ],
+        },
+        layout: {
+          fillColor: (rowIndex: number) => (rowIndex === 0 ? COMPANY_BRANDING.primaryColor : rowIndex % 2 === 0 ? '#F9FAFB' : null),
+          hLineWidth: () => 0.5,
+          vLineWidth: () => 0.5,
+          hLineColor: () => '#E5E7EB',
+          vLineColor: () => '#E5E7EB',
+        },
+        margin: [0, 0, 0, 20],
+      } as ContentTable,
+
+      // ==================== PAGE 3: SERVICE DETAILS ====================
+
+      { text: 'פירוט מלא של השירותים', style: 'sectionHeader', pageBreak: 'before' as PageBreak, margin: [0, 0, 0, 15] },
+
+      // Service details
+      ...services.flatMap((service) => [
+        { text: `🤖 ${service.nameHe}`, style: 'serviceTitle', margin: [0, 10, 0, 8] },
+        { text: 'למה זה רלוונטי לך:', style: 'subsectionHeader', margin: [0, 0, 0, 5] },
+        { text: service.reasonSuggestedHe, style: 'body', margin: [0, 0, 0, 8] },
+        { text: 'מה זה כולל:', style: 'subsectionHeader', margin: [0, 0, 0, 5] },
+        { text: service.descriptionHe, style: 'body', margin: [0, 0, 0, 8] },
+        service.notes
+          ? { text: `הערה: ${service.notes}`, style: 'notes', margin: [0, 0, 0, 8] }
+          : {},
+        {
+          table: {
+            widths: ['*'],
+            body: [
+              [
+                {
+                  stack: [
+                    { text: `⏱️ זמן יישום: ${service.customDuration || service.estimatedDays} ימים`, style: 'serviceDetail' },
+                    { text: `💰 השקעה: ${formatPrice(service.customPrice || service.basePrice)}`, style: 'serviceDetail' },
+                  ],
+                  fillColor: '#F5F5F5',
+                  margin: 8,
+                },
+              ],
+            ],
+          },
+          layout: 'noBorders',
+          margin: [0, 0, 0, 15],
+        },
+      ]),
+
+      // ==================== PAGE 4: FINANCIAL SUMMARY & ROI ====================
+
+      { text: 'סיכום כספי ו-ROI', style: 'title', pageBreak: 'before' as PageBreak, alignment: 'center', margin: [0, 0, 0, 20] },
+
+      // Summary box
+      {
+        table: {
+          widths: ['*'],
+          body: [
+            [
+              {
+                stack: [
+                  { text: `סה"כ שירותים: ${proposalData.summary.totalServices}`, style: 'summaryText' },
+                  { text: `זמן יישום כולל: ${proposalData.totalDays} ימי עבודה`, style: 'summaryText' },
+                  {
+                    canvas: [{ type: 'line' as const, x1: 0, y1: 0, x2: 400, y2: 0, lineWidth: 1, lineColor: '#CCCCCC' }],
+                    margin: [0, 8, 0, 8],
+                  },
+                  { text: `סה"כ השקעה: ${formatPrice(proposalData.totalPrice)}`, style: 'totalPrice' },
+                  ...(proposalData.monthlySavings > 0
+                    ? [
+                        {
+                          canvas: [{ type: 'line' as const, x1: 0, y1: 0, x2: 400, y2: 0, lineWidth: 1, lineColor: '#CCCCCC' }],
+                          margin: [0, 8, 0, 8],
+                        },
+                        { text: `💰 חיסכון חודשי צפוי: ${formatPrice(proposalData.monthlySavings)}`, style: 'summaryText' },
+                        { text: `📊 החזר השקעה (ROI): ${proposalData.expectedROIMonths} חודשים`, style: 'summaryText' },
+                      ]
+                    : []),
+                ],
+                fillColor: '#EEF2FF',
+                margin: 15,
+              },
+            ],
+          ],
+        },
+        layout: {
+          hLineWidth: () => 2,
+          vLineWidth: () => 2,
+          hLineColor: () => COMPANY_BRANDING.primaryColor,
+          vLineColor: () => COMPANY_BRANDING.primaryColor,
+        },
+        margin: [0, 0, 0, 20],
+      },
+
+      // Annual savings highlight (if ROI data exists)
+      ...(proposalData.monthlySavings > 0
+        ? [
+            {
+              table: {
+                widths: ['*'],
+                body: [
+                  [
+                    {
+                      text: `🎯 חיסכון שנתי צפוי: ${formatPrice(proposalData.monthlySavings * 12)}`,
+                      style: 'highlight',
+                      alignment: 'center',
+                      color: 'white',
+                      fillColor: COMPANY_BRANDING.primaryColor,
+                      margin: 10,
+                    },
+                  ],
+                ],
+              },
+              layout: 'noBorders',
+              margin: [0, 0, 0, 20],
+            },
+          ]
+        : []),
+
+      // Value proposition
+      { text: '💎 למה כדאי לך לעבוד איתנו?', style: 'sectionHeader', margin: [0, 10, 0, 10] },
+      {
+        ul: buildBenefitsList(proposalData),
+        style: 'body',
+        margin: [0, 0, 0, 20],
+      },
+
+      // ==================== PAGE 5: TERMS & TIMELINE ====================
+
+      { text: 'תנאים ולוח זמנים', style: 'sectionHeader', pageBreak: 'before' as PageBreak, margin: [0, 0, 0, 15] },
+
+      { text: '💳 תנאי תשלום:', style: 'subsectionHeader', margin: [0, 10, 0, 5] },
+      { text: `• ${COMPANY_BRANDING.paymentTermsHe}`, style: 'body', margin: [0, 0, 0, 15] },
+
+      { text: '⏱️ לוח זמנים משוער:', style: 'subsectionHeader', margin: [0, 0, 0, 5] },
+      {
+        ul: [
+          `משך הפרויקט: ${Math.ceil(proposalData.totalDays / 5)} שבועות (${proposalData.totalDays} ימי עבודה)`,
+          'עדכוני סטטוס שבועיים',
+          'מעקב צמוד ושקיפות מלאה',
+        ],
+        style: 'body',
+        margin: [0, 0, 0, 15],
+      },
+
+      { text: '📞 תמיכה:', style: 'subsectionHeader', margin: [0, 0, 0, 5] },
+      {
+        ul: ['זמינה בשעות העבודה', 'תגובה תוך 24 שעות'],
+        style: 'body',
+        margin: [0, 0, 0, 15],
+      },
+
+      { text: '📋 תנאים נוספים:', style: 'subsectionHeader', margin: [0, 0, 0, 5] },
+      {
+        ul: [
+          `ההצעה תקפה ל-${COMPANY_BRANDING.proposalValidity} ימים מתאריך שליחה`,
+          'זכויות יוצרים על הקוד והפתרונות שפותחו שייכים ללקוח',
+          'ביטול ההזמנה לאחר תחילת העבודה כרוך בחיוב יחסי',
+        ],
+        style: 'notes',
+        margin: [0, 0, 0, 20],
+      },
+
+      // ==================== PAGE 6: NEXT STEPS & SIGNATURE ====================
+
+      { text: '🚀 השלב הבא', style: 'title', pageBreak: 'before' as PageBreak, alignment: 'center', margin: [0, 0, 0, 20] },
+
+      {
+        ol: [
+          'סקירת ההצעה ושאלות הבהרה',
+          'תיאום פגישת קיק-אוף',
+          'חתימה על הסכם',
+          'תשלום מקדמה',
+          'התחלת העבודה!',
+        ],
+        style: 'body',
+        margin: [0, 0, 0, 20],
+      },
+
+      // Contact box
+      {
+        table: {
+          widths: ['*'],
+          body: [
+            [
+              {
+                stack: [
+                  { text: 'מוכנים להתחיל? בואו נדבר:', style: 'contactHeader', alignment: 'center' },
+                  { text: `📞 ${COMPANY_BRANDING.phone}`, style: 'contactInfo', alignment: 'center', margin: [0, 5, 0, 0] },
+                  { text: `📧 ${COMPANY_BRANDING.email}`, style: 'contactInfo', alignment: 'center' },
+                  { text: `🌐 ${COMPANY_BRANDING.website}`, style: 'contactInfo', alignment: 'center' },
+                ],
+                fillColor: '#EEF2FF',
+                margin: 15,
+              },
+            ],
+          ],
+        },
+        layout: {
+          hLineWidth: () => 2,
+          vLineWidth: () => 2,
+          hLineColor: () => COMPANY_BRANDING.primaryColor,
+          vLineColor: () => COMPANY_BRANDING.primaryColor,
+        },
+        margin: [0, 0, 0, 30],
+      },
+
+      // Divider
+      {
+        canvas: [
+          {
+            type: 'line' as const,
+            x1: 0,
+            y1: 0,
+            x2: 515,
+            y2: 0,
+            lineWidth: 0.5,
+            lineColor: '#CCCCCC',
+          },
+        ],
+        margin: [0, 0, 0, 20],
+      },
+
+      // Signature section
+      {
+        columns: [
+          {
+            width: '*',
+            text: formatHebrewDate(today),
+            style: 'signatureText',
+            alignment: 'left',
+          },
+          signatureBase64
+            ? {
+                width: 100,
+                image: signatureBase64,
+                fit: [80, 40],
+                alignment: 'right',
+                margin: [0, -20, 0, 0],
+              }
+            : { width: 100, text: '' },
+          {
+            width: 'auto',
+            stack: [
+              { text: COMPANY_BRANDING.signerName, style: 'signatureName', alignment: 'right' },
+              {
+                text: `${COMPANY_BRANDING.signerTitle}, ${COMPANY_BRANDING.companyNameHe}`,
+                style: 'signatureTitle',
+                alignment: 'right',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+
+    // Styles definition
+    styles: {
+      companyName: {
+        fontSize: 12,
+        bold: true,
+        color: COMPANY_BRANDING.secondaryColor,
+      },
+      companyInfo: {
+        fontSize: 8,
+        color: '#666666',
+      },
+      title: {
+        fontSize: 24,
+        bold: true,
+        color: COMPANY_BRANDING.primaryColor,
+      },
+      sectionHeader: {
+        fontSize: 16,
+        bold: true,
+        color: COMPANY_BRANDING.secondaryColor,
+      },
+      subsectionHeader: {
+        fontSize: 11,
+        bold: true,
+        color: COMPANY_BRANDING.primaryColor,
+      },
+      serviceTitle: {
+        fontSize: 13,
+        bold: true,
+        color: COMPANY_BRANDING.primaryColor,
+      },
+      clientInfo: {
+        fontSize: 11,
+      },
+      body: {
+        fontSize: 10,
+      },
+      notes: {
+        fontSize: 9,
+        italics: true,
+        color: '#666666',
+      },
+      tableHeader: {
+        bold: true,
+        fontSize: 10,
+        color: 'white',
+      },
+      serviceDetail: {
+        fontSize: 10,
+      },
+      summaryText: {
+        fontSize: 12,
+        margin: [0, 3, 0, 3],
+      },
+      totalPrice: {
+        fontSize: 16,
+        bold: true,
+        color: COMPANY_BRANDING.primaryColor,
+      },
+      highlight: {
+        fontSize: 16,
+        bold: true,
+      },
+      contactHeader: {
+        fontSize: 14,
+        bold: true,
+        color: COMPANY_BRANDING.secondaryColor,
+      },
+      contactInfo: {
+        fontSize: 11,
+      },
+      signatureName: {
+        fontSize: 11,
+      },
+      signatureTitle: {
+        fontSize: 9,
+        color: '#666666',
+      },
+      signatureText: {
+        fontSize: 10,
+      },
+    } as StyleDictionary,
+  };
+
+  // Generate PDF and return as Blob
+  return new Promise((resolve, reject) => {
+    try {
+      const pdfDocGenerator = pdfMakeWithFonts.createPdf(docDefinition);
+      pdfDocGenerator.getBlob((blob: Blob) => {
+        resolve(blob);
+      });
+    } catch (error) {
+      reject(error);
+    }
   });
+};
 
-  // @ts-ignore - autoTable adds finalY
-  yPosition = doc.lastAutoTable.finalY + 10;
+// ==================== HELPER FUNCTIONS ====================
 
-  // ==================== PAGE 3: SERVICE DETAILS ====================
+/**
+ * Build executive summary text
+ */
+const buildExecutiveSummary = (proposalData: ProposalData): string => {
+  let summary = `לאחר ניתוח מעמיק של תהליכי העבודה שלכם, זיהינו ${proposalData.summary.totalServices} פתרונות אוטומציה ו-AI. ההשקעה הכוללת: ${formatPrice(proposalData.totalPrice)}`;
 
-  doc.addPage();
-  yPosition = 20;
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.setTextColor(30, 58, 95);
-  doc.text('פירוט מלא של השירותים', 185, yPosition, { align: 'right' });
-
-  yPosition += 10;
-
-  for (const service of services) {
-    // Check if we need a new page
-    if (yPosition > 250) {
-      doc.addPage();
-      yPosition = 20;
-    }
-
-    // Service name
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.setTextColor(0, 212, 212);
-    doc.text(`🤖 ${service.nameHe}`, 185, yPosition, { align: 'right' });
-    yPosition += 7;
-
-    // Why relevant
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.setTextColor(0, 0, 0);
-    doc.text('למה זה רלוונטי לך:', 185, yPosition, { align: 'right' });
-    yPosition += 5;
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    const reasonLines = doc.splitTextToSize(service.reasonSuggestedHe, 150);
-    doc.text(reasonLines, 185, yPosition, { align: 'right' });
-    yPosition += reasonLines.length * 5 + 3;
-
-    // Description
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.text('מה זה כולל:', 185, yPosition, { align: 'right' });
-    yPosition += 5;
-
-    doc.setFont('helvetica', 'normal');
-    const descLines = doc.splitTextToSize(service.descriptionHe, 150);
-    doc.text(descLines, 185, yPosition, { align: 'right' });
-    yPosition += descLines.length * 5 + 3;
-
-    // Additional notes if any
-    if (service.notes) {
-      doc.setFont('helvetica', 'italic');
-      doc.setFontSize(9);
-      doc.setTextColor(100, 100, 100);
-      const notesLines = doc.splitTextToSize(`הערה: ${service.notes}`, 150);
-      doc.text(notesLines, 185, yPosition, { align: 'right' });
-      yPosition += notesLines.length * 5 + 3;
-    }
-
-    // Service details in box
-    doc.setFillColor(245, 245, 245);
-    doc.rect(20, yPosition, 170, 15, 'F');
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`⏱️ זמן יישום: ${service.customDuration || service.estimatedDays} ימים`, 185, yPosition + 6, { align: 'right' });
-    doc.text(`💰 השקעה: ${formatPrice(service.customPrice || service.basePrice)}`, 185, yPosition + 11, { align: 'right' });
-
-    yPosition += 20;
-  }
-
-  // ==================== PAGE 4: FINANCIAL SUMMARY & ROI ====================
-
-  doc.addPage();
-  yPosition = 20;
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(16);
-  doc.setTextColor(30, 58, 95);
-  doc.text('סיכום כספי ו-ROI', 105, yPosition, { align: 'center' });
-
-  yPosition += 15;
-
-  // Summary box
-  doc.setFillColor(238, 242, 255);
-  doc.setDrawColor(0, 212, 212);
-  doc.setLineWidth(1);
-  doc.rect(40, yPosition, 130, 60, 'FD');
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(12);
-  doc.setTextColor(0, 0, 0);
-
-  doc.text(`סה"כ שירותים: ${proposalData.totalServices}`, 160, yPosition + 10, { align: 'right' });
-  doc.text(`זמן יישום כולל: ${proposalData.totalDays} ימי עבודה`, 160, yPosition + 18, { align: 'right' });
-
-  // Divider
-  doc.setDrawColor(200, 200, 200);
-  doc.setLineWidth(0.3);
-  doc.line(50, yPosition + 23, 160, yPosition + 23);
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.setTextColor(0, 212, 212);
-  doc.text(`סה"כ השקעה: ${formatPrice(proposalData.totalPrice)}`, 160, yPosition + 32, { align: 'right' });
-
-  // Only show ROI data if it exists
   if (proposalData.monthlySavings > 0) {
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    doc.line(50, yPosition + 37, 160, yPosition + 37);
-
-    doc.text(`💰 חיסכון חודשי צפוי: ${formatPrice(proposalData.monthlySavings)}`, 160, yPosition + 45, { align: 'right' });
-    doc.text(`📊 החזר השקעה (ROI): ${proposalData.expectedROIMonths} חודשים`, 160, yPosition + 53, { align: 'right' });
-
-    yPosition += 70;
-
-    // Annual savings highlight
-    const annualSavings = proposalData.monthlySavings * 12;
-    doc.setFillColor(0, 212, 212);
-    doc.rect(40, yPosition, 130, 20, 'F');
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(14);
-    doc.setTextColor(255, 255, 255);
-    doc.text(`🎯 חיסכון שנתי צפוי: ${formatPrice(annualSavings)}`, 105, yPosition + 12, { align: 'center' });
-
-    yPosition += 35;
-  } else {
-    yPosition += 45;
+    summary += `, שיחסכו לכם ${formatPrice(proposalData.monthlySavings)} בחודש עם החזר השקעה תוך ${proposalData.expectedROIMonths} חודשים`;
   }
 
-  // Value proposition
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  doc.setTextColor(30, 58, 95);
-  doc.text('💎 למה כדאי לך לעבוד איתנו?', 185, yPosition, { align: 'right' });
+  summary += '.';
+  return summary;
+};
 
-  yPosition += 8;
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0);
-
-  // Build benefits list conditionally based on ROI data
+/**
+ * Build benefits list
+ */
+const buildBenefitsList = (proposalData: ProposalData): string[] => {
   const benefits = [
     'פתרון מותאם במדויק לצרכים שלך',
     ...(proposalData.monthlySavings > 0 ? ['ROI מוכח ומדיד'] : []),
@@ -333,185 +533,8 @@ export const generateProposalPDF = async (
     'טכנולוגיה מתקדמת של AI ואוטומציה',
   ];
 
-  benefits.forEach((benefit) => {
-    doc.text(`• ${benefit}`, 180, yPosition, { align: 'right' });
-    yPosition += 6;
-  });
-
-  // ==================== PAGE 5: TERMS & TIMELINE ====================
-
-  doc.addPage();
-  yPosition = 20;
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.setTextColor(30, 58, 95);
-  doc.text('תנאים ולוח זמנים', 185, yPosition, { align: 'right' });
-
-  yPosition += 12;
-
-  // Payment terms
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
-  doc.setTextColor(0, 212, 212);
-  doc.text('💳 תנאי תשלום:', 185, yPosition, { align: 'right' });
-
-  yPosition += 7;
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0);
-  doc.text(`• ${COMPANY_BRANDING.paymentTermsHe}`, 180, yPosition, { align: 'right' });
-
-  yPosition += 15;
-
-  // Timeline
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
-  doc.setTextColor(0, 212, 212);
-  doc.text('⏱️ לוח זמנים משוער:', 185, yPosition, { align: 'right' });
-
-  yPosition += 7;
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0);
-
-  const weeks = Math.ceil(proposalData.totalDays / 5);
-  doc.text(`• משך הפרויקט: ${weeks} שבועות (${proposalData.totalDays} ימי עבודה)`, 180, yPosition, { align: 'right' });
-  yPosition += 6;
-  doc.text('• עדכוני סטטוס שבועיים', 180, yPosition, { align: 'right' });
-  yPosition += 6;
-  doc.text('• מעקב צמוד ושקיפות מלאה', 180, yPosition, { align: 'right' });
-
-  yPosition += 15;
-
-  // Support
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
-  doc.setTextColor(0, 212, 212);
-  doc.text('📞 תמיכה:', 185, yPosition, { align: 'right' });
-
-  yPosition += 7;
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0);
-  doc.text('• זמינה בשעות העבודה', 180, yPosition, { align: 'right' });
-  yPosition += 6;
-  doc.text('• תגובה תוך 24 שעות', 180, yPosition, { align: 'right' });
-
-  yPosition += 15;
-
-  // Legal terms
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
-  doc.setTextColor(0, 212, 212);
-  doc.text('📋 תנאים נוספים:', 185, yPosition, { align: 'right' });
-
-  yPosition += 7;
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(100, 100, 100);
-  doc.text(`• ההצעה תקפה ל-${COMPANY_BRANDING.proposalValidity} ימים מתאריך שליחה`, 180, yPosition, { align: 'right' });
-  yPosition += 5;
-  doc.text('• זכויות יוצרים על הקוד והפתרונות שפותחו שייכים ללקוח', 180, yPosition, { align: 'right' });
-  yPosition += 5;
-  doc.text('• ביטול ההזמנה לאחר תחילת העבודה כרוך בחיוב יחסי', 180, yPosition, { align: 'right' });
-
-  // ==================== PAGE 6: NEXT STEPS & SIGNATURE ====================
-
-  doc.addPage();
-  yPosition = 20;
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(16);
-  doc.setTextColor(0, 212, 212);
-  doc.text('🚀 השלב הבא', 105, yPosition, { align: 'center' });
-
-  yPosition += 15;
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(11);
-  doc.setTextColor(0, 0, 0);
-
-  const steps = [
-    'סקירת ההצעה ושאלות הבהרה',
-    'תיאום פגישת קיק-אוף',
-    'חתימה על הסכם',
-    'תשלום מקדמה',
-    'התחלת העבודה!',
-  ];
-
-  steps.forEach((step, index) => {
-    doc.setFont('helvetica', 'bold');
-    doc.setFillColor(0, 212, 212);
-    doc.circle(165, yPosition + 1, 4, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(9);
-    doc.text((index + 1).toString(), 165, yPosition + 2.5, { align: 'center' });
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(11);
-    doc.setTextColor(0, 0, 0);
-    doc.text(step, 155, yPosition + 2, { align: 'right' });
-    yPosition += 10;
-  });
-
-  yPosition += 15;
-
-  // Contact box
-  doc.setFillColor(238, 242, 255);
-  doc.setDrawColor(0, 212, 212);
-  doc.setLineWidth(1);
-  doc.rect(40, yPosition, 130, 30, 'FD');
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  doc.setTextColor(30, 58, 95);
-  doc.text('מוכנים להתחיל? בואו נדבר:', 105, yPosition + 8, { align: 'center' });
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0);
-  doc.text(`📞 ${COMPANY_BRANDING.phone}`, 105, yPosition + 15, { align: 'center' });
-  doc.text(`📧 ${COMPANY_BRANDING.email}`, 105, yPosition + 21, { align: 'center' });
-  doc.text(`🌐 ${COMPANY_BRANDING.website}`, 105, yPosition + 27, { align: 'center' });
-
-  yPosition += 45;
-
-  // Divider
-  doc.setDrawColor(200, 200, 200);
-  doc.setLineWidth(0.3);
-  doc.line(40, yPosition, 170, yPosition);
-
-  yPosition += 15;
-
-  // Signature section
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0);
-
-  doc.text(COMPANY_BRANDING.signerName, 140, yPosition, { align: 'right' });
-  doc.text(formatHebrewDate(new Date()), 70, yPosition, { align: 'left' });
-
-  yPosition += 5;
-
-  doc.setFontSize(9);
-  doc.setTextColor(100, 100, 100);
-  doc.text(COMPANY_BRANDING.signerTitle + ', ' + COMPANY_BRANDING.companyNameHe, 140, yPosition, { align: 'right' });
-
-  // Add signature image if available
-  if (signatureBase64) {
-    doc.addImage(signatureBase64, 'JPG', 110, yPosition - 20, 30, 15);
-  }
-
-  // Return PDF as Blob
-  return doc.output('blob');
+  return benefits;
 };
-
-// ==================== HELPER FUNCTIONS ====================
 
 /**
  * Format price in Hebrew currency (ILS)
@@ -532,12 +555,9 @@ const formatHebrewDate = (date: Date): string => {
 
 /**
  * Load image from path and convert to base64
- * In production, this should be replaced with actual image loading
  */
 const loadImageAsBase64 = async (imagePath: string): Promise<string | null> => {
   try {
-    // For now, we'll construct the URL from the public path
-    // In production, you might need to use fetch and convert to base64
     const response = await fetch(imagePath);
     const blob = await response.blob();
 

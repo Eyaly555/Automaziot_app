@@ -17,7 +17,13 @@
       "Read(//c//**)",
       "Bash(npm run build:typecheck:*)",
       "Bash(git checkout:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(mkdir:*)",
+      "Bash(curl -o Rubik.zip \"https://fonts.google.com/download?family=Rubik\")",
+      "Bash(tar:*)",
+      "Bash(curl -o \"c:\\Users\\eyaly\\Desktop\\Businesses\\eym-group_n8n\\internal_app\\discovery-assistant\\public\\fonts\\Rubik-Regular.ttf\" \"https://github.com/googlefonts/rubik/raw/main/fonts/ttf/Rubik-Regular.ttf\")",
+      "Bash(curl -o \"c:\\Users\\eyaly\\Desktop\\Businesses\\eym-group_n8n\\internal_app\\discovery-assistant\\public\\fonts\\Rubik-Bold.ttf\" \"https://github.com/googlefonts/rubik/raw/main/fonts/ttf/Rubik-Bold.ttf\")",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []
