@@ -1,13 +1,11 @@
-import * as pdfMake from 'pdfmake/build/pdfmake';
 import { TDocumentDefinitions, Content, ContentTable, StyleDictionary, PageBreak } from 'pdfmake/interfaces';
 import { SelectedService, ProposalData } from '../types/proposal';
 import { COMPANY_BRANDING } from '../config/companyBranding';
-import { RUBIK_FONTS } from './rubikFonts';
 
 /**
  * Professional Proposal PDF Generator for Automaziot AI
  * Creates a comprehensive, Hebrew-language proposal with branding using pdfMake
- * Full RTL and Hebrew support with Rubik font
+ * Uses lazy-loaded fonts to avoid bloating the bundle
  */
 
 interface ProposalPDFOptions {
@@ -17,13 +15,18 @@ interface ProposalPDFOptions {
   proposalData: ProposalData;
 }
 
-// Configure pdfMake with Rubik fonts
-const pdfMakeWithFonts = pdfMake as any;
-pdfMakeWithFonts.fonts = {
-  Rubik: {
-    normal: RUBIK_FONTS.Rubik.normal,
-    bold: RUBIK_FONTS.Rubik.bold,
-  },
+// Lazy load pdfMake to avoid bundling fonts upfront
+const getPdfMake = async () => {
+  const pdfMakeModule = await import('pdfmake/build/pdfmake');
+  const pdfFontsModule = await import('pdfmake/build/vfs_fonts');
+
+  const pdfMake = pdfMakeModule.default || pdfMakeModule;
+  const pdfFonts = pdfFontsModule.default || pdfFontsModule;
+
+  // Configure fonts
+  (pdfMake as any).vfs = (pdfFonts as any).pdfMake?.vfs || pdfFonts;
+
+  return pdfMake;
 };
 
 export const generateProposalPDF = async (
@@ -46,7 +49,7 @@ export const generateProposalPDF = async (
 
     // Default styles for RTL Hebrew
     defaultStyle: {
-      font: 'Rubik',
+      font: 'Roboto',
       fontSize: 10,
       alignment: 'right',
     },
@@ -493,9 +496,11 @@ export const generateProposalPDF = async (
   };
 
   // Generate PDF and return as Blob
+  const pdfMake = await getPdfMake();
+
   return new Promise((resolve, reject) => {
     try {
-      const pdfDocGenerator = pdfMakeWithFonts.createPdf(docDefinition);
+      const pdfDocGenerator = (pdfMake as any).createPdf(docDefinition);
       pdfDocGenerator.getBlob((blob: Blob) => {
         resolve(blob);
       });
