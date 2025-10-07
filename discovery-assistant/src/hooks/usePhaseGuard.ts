@@ -94,33 +94,41 @@ export const usePhaseGuard = (language: 'he' | 'en' = 'he') => {
 
         // Check phase requirement
         if (currentPhase !== rule.requiredPhase) {
-          // If trying to access a future phase, check if transition is allowed
-          const phaseOrder: MeetingPhase[] = ['discovery', 'implementation_spec', 'development', 'completed'];
-          const currentIndex = phaseOrder.indexOf(currentPhase);
-          const requiredIndex = phaseOrder.indexOf(rule.requiredPhase);
-
-          if (requiredIndex > currentIndex) {
-            // Trying to access future phase
-            if (!canTransitionTo(rule.requiredPhase)) {
-              console.warn(
-                `[PhaseGuard] Blocked access to ${location.pathname}: ` +
-                `Phase "${rule.requiredPhase}" required, current phase is "${currentPhase}"`
-              );
-
-              // Show error toast
-              toast.error(rule.errorMessage[language], {
-                duration: 4000,
-                icon: '🔒',
-                position: 'top-center'
-              });
-
-              // Redirect to appropriate phase dashboard
-              navigate(getDefaultRouteForPhase(currentPhase));
-              return;
-            }
+          // Special case: Allow access to Phase 2 if client has approved
+          if (rule.requiredPhase === 'implementation_spec' &&
+              currentPhase === 'discovery' &&
+              currentStatus === 'client_approved') {
+            console.log('[PhaseGuard] Allowing Phase 2 access with client_approved status');
+            // Continue to allow access - auto-transition will happen in ImplementationSpecDashboard
           } else {
-            // Trying to access previous phase (allowed for viewing)
-            console.log(`[PhaseGuard] Allowing access to previous phase route: ${location.pathname}`);
+            // If trying to access a future phase, check if transition is allowed
+            const phaseOrder: MeetingPhase[] = ['discovery', 'implementation_spec', 'development', 'completed'];
+            const currentIndex = phaseOrder.indexOf(currentPhase);
+            const requiredIndex = phaseOrder.indexOf(rule.requiredPhase);
+
+            if (requiredIndex > currentIndex) {
+              // Trying to access future phase
+              if (!canTransitionTo(rule.requiredPhase)) {
+                console.warn(
+                  `[PhaseGuard] Blocked access to ${location.pathname}: ` +
+                  `Phase "${rule.requiredPhase}" required, current phase is "${currentPhase}"`
+                );
+
+                // Show error toast
+                toast.error(rule.errorMessage[language], {
+                  duration: 4000,
+                  icon: '🔒',
+                  position: 'top-center'
+                });
+
+                // Redirect to appropriate phase dashboard
+                navigate(getDefaultRouteForPhase(currentPhase));
+                return;
+              }
+            } else {
+              // Trying to access previous phase (allowed for viewing)
+              console.log(`[PhaseGuard] Allowing access to previous phase route: ${location.pathname}`);
+            }
           }
         }
 
