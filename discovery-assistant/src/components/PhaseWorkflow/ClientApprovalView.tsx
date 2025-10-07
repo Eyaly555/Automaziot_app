@@ -134,6 +134,11 @@ export const ClientApprovalView: React.FC = () => {
   const selectedServices = proposalData?.selectedServices || [];
   const roiData = currentMeeting?.modules?.roi;
 
+  // Track which services client actually purchased
+  const [purchasedServiceIds, setPurchasedServiceIds] = useState<Set<string>>(
+    new Set(proposalData?.purchasedServices?.map(s => s.id) || selectedServices.map(s => s.id))
+  );
+
   // Initialize client name from meeting
   useEffect(() => {
     if (currentMeeting?.clientName) {
@@ -165,7 +170,25 @@ export const ClientApprovalView: React.FC = () => {
     return signaturePadRef.current?.toDataURL() || null;
   };
 
+  const toggleServicePurchase = (serviceId: string) => {
+    setPurchasedServiceIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(serviceId)) {
+        newSet.delete(serviceId);
+      } else {
+        newSet.add(serviceId);
+      }
+      return newSet;
+    });
+  };
+
   const handleApprove = async () => {
+    // Validate at least one service is purchased
+    if (purchasedServiceIds.size === 0) {
+      setValidationError('נא לבחור לפחות שירות אחד שהלקוח רכש');
+      return;
+    }
+
     // Validate signature
     const signatureData = getSignatureData();
     if (!signatureData) {
@@ -180,9 +203,13 @@ export const ClientApprovalView: React.FC = () => {
 
     setValidationError('');
 
-    // Save signature and approval data to meeting
+    // Get only the purchased services
+    const purchasedServices = selectedServices.filter(s => purchasedServiceIds.has(s.id));
+
+    // Save signature, approval data, and purchased services to meeting
     const updatedProposal: ProposalData = {
       ...proposalData!,
+      purchasedServices,
       approvalSignature: signatureData,
       approvedBy: clientName.trim(),
       approvedAt: new Date().toISOString(),
@@ -230,17 +257,18 @@ export const ClientApprovalView: React.FC = () => {
     return null;
   }
 
-  // Calculate totals
-  const totalPrice = selectedServices.reduce(
+  // Calculate totals for PURCHASED services only
+  const purchasedServices = selectedServices.filter(s => purchasedServiceIds.has(s.id));
+  const totalPrice = purchasedServices.reduce(
     (sum, service) => sum + (service.customPrice || service.basePrice || 0),
     0
   );
-  const totalDays = selectedServices.reduce(
+  const totalDays = purchasedServices.reduce(
     (sum, service) => sum + (service.estimatedDays || 0),
     0
   );
 
-  // Group services by category
+  // Group ALL PROPOSED services by category (for display)
   const servicesByCategory = selectedServices.reduce((acc, service) => {
     const category = service.category;
     if (!acc[category]) {
@@ -374,8 +402,17 @@ export const ClientApprovalView: React.FC = () => {
               </Card>
             </CollapsibleSection>
 
-            {/* Selected Services */}
-            <CollapsibleSection title="שירותים שנבחרו" defaultExpanded={true}>
+            {/* Selected Services - with checkboxes for purchase selection */}
+            <CollapsibleSection title="שירותים מוצעים - סמן מה הלקוח רכש" defaultExpanded={true}>
+              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  <strong>הוראות:</strong> סמן את השירותים שהלקוח החליט לרכוש. רק שירותים מסומנים יועברו לשלב מפרט היישום.
+                </p>
+                <p className="text-sm text-blue-700 mt-2">
+                  שירותים שנבחרו: <strong>{purchasedServiceIds.size}</strong> מתוך {selectedServices.length}
+                </p>
+              </div>
+
               <div className="space-y-4">
                 {Object.entries(servicesByCategory).map(([category, services]) => (
                   <Card key={category} className="bg-gradient-to-br from-white to-blue-50">
@@ -386,62 +423,102 @@ export const ClientApprovalView: React.FC = () => {
                     </div>
 
                     <div className="space-y-4">
-                      {services.map((service, idx) => (
-                        <div
-                          key={idx}
-                          className="p-4 bg-white rounded-lg border border-blue-100 hover:shadow-md transition-shadow"
-                        >
-                          <div className="flex items-start justify-between mb-2">
-                            <h5 className="text-lg font-semibold text-gray-900">
-                              {service.nameHe}
-                            </h5>
-                            <span className="text-xl font-bold text-blue-600">
-                              {formatCurrency(service.customPrice || service.basePrice)}
-                            </span>
+                      {services.map((service, idx) => {
+                        const isPurchased = purchasedServiceIds.has(service.id);
+                        return (
+                          <div
+                            key={idx}
+                            className={`p-4 bg-white rounded-lg border-2 transition-all cursor-pointer ${
+                              isPurchased
+                                ? 'border-green-500 shadow-md ring-2 ring-green-200'
+                                : 'border-gray-200 hover:border-blue-300'
+                            }`}
+                            onClick={() => toggleServicePurchase(service.id)}
+                          >
+                            <div className="flex items-start gap-4">
+                              {/* Checkbox */}
+                              <div className="flex-shrink-0 mt-1">
+                                <input
+                                  type="checkbox"
+                                  checked={isPurchased}
+                                  onChange={() => toggleServicePurchase(service.id)}
+                                  className="w-6 h-6 text-green-600 rounded focus:ring-2 focus:ring-green-500 cursor-pointer"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </div>
+
+                              {/* Service Details */}
+                              <div className="flex-1">
+                                <div className="flex items-start justify-between mb-2">
+                                  <h5 className="text-lg font-semibold text-gray-900">
+                                    {service.nameHe}
+                                  </h5>
+                                  <span className={`text-xl font-bold ${isPurchased ? 'text-green-600' : 'text-blue-600'}`}>
+                                    {formatCurrency(service.customPrice || service.basePrice)}
+                                  </span>
+                                </div>
+
+                                <p className="text-gray-600 mb-3">
+                                  {service.customDescriptionHe || service.descriptionHe}
+                                </p>
+
+                                <div className="flex items-center gap-6 text-sm">
+                                  <div className="flex items-center gap-2 text-gray-600">
+                                    <Clock className="w-4 h-4" />
+                                    <span>משך זמן משוער: {service.estimatedDays} ימי עבודה</span>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-gray-600">
+                                    <TrendingUp className="w-4 h-4" />
+                                    <span>רמת מורכבות: {
+                                      service.complexity === 'simple' ? 'פשוט' :
+                                      service.complexity === 'medium' ? 'בינוני' : 'מורכב'
+                                    }</span>
+                                  </div>
+                                </div>
+
+                                {service.notes && (
+                                  <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                    <p className="text-sm text-gray-700">
+                                      <span className="font-semibold">הערות:</span> {service.notes}
+                                    </p>
+                                  </div>
+                                )}
+
+                                {isPurchased && (
+                                  <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                                    <CheckCircle className="w-4 h-4" />
+                                    נבחר לרכישה
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           </div>
-
-                          <p className="text-gray-600 mb-3">
-                            {service.customDescriptionHe || service.descriptionHe}
-                          </p>
-
-                          <div className="flex items-center gap-6 text-sm">
-                            <div className="flex items-center gap-2 text-gray-600">
-                              <Clock className="w-4 h-4" />
-                              <span>משך זמן משוער: {service.estimatedDays} ימי עבודה</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-gray-600">
-                              <TrendingUp className="w-4 h-4" />
-                              <span>רמת מורכבות: {
-                                service.complexity === 'simple' ? 'פשוט' :
-                                service.complexity === 'medium' ? 'בינוני' : 'מורכב'
-                              }</span>
-                            </div>
-                          </div>
-
-                          {service.notes && (
-                            <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                              <p className="text-sm text-gray-700">
-                                <span className="font-semibold">הערות:</span> {service.notes}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </Card>
                 ))}
               </div>
             </CollapsibleSection>
 
-            {/* Pricing & Timeline */}
-            <CollapsibleSection title="מחיר ולוח זמנים" defaultExpanded={true}>
+            {/* Pricing & Timeline - for PURCHASED services */}
+            <CollapsibleSection title="מחיר ולוח זמנים (שירותים שנרכשו)" defaultExpanded={true}>
+              <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <p className="text-sm text-amber-800">
+                  <strong>שים לב:</strong> המחיר והזמן המוצגים כאן מתייחסים רק לשירותים שסומנו כנרכשו.
+                </p>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-green-700 mb-1">עלות כוללת של הפרויקט</p>
+                      <p className="text-sm text-green-700 mb-1">עלות כוללת של השירותים שנרכשו</p>
                       <p className="text-3xl font-bold text-green-900">
                         {formatCurrency(totalPrice)}
+                      </p>
+                      <p className="text-xs text-green-600 mt-1">
+                        {purchasedServiceIds.size} שירותים
                       </p>
                     </div>
                     <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center">
@@ -456,6 +533,9 @@ export const ClientApprovalView: React.FC = () => {
                       <p className="text-sm text-blue-700 mb-1">משך הפרויקט המשוער</p>
                       <p className="text-3xl font-bold text-blue-900">
                         {totalDays} ימי עבודה
+                      </p>
+                      <p className="text-xs text-blue-600 mt-1">
+                        כ-{Math.ceil(totalDays / 5)} שבועות
                       </p>
                     </div>
                     <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
@@ -623,12 +703,12 @@ export const ClientApprovalView: React.FC = () => {
                   className="flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 shadow-lg hover:shadow-xl transition-all font-semibold text-lg"
                 >
                   <CheckCircle className="w-5 h-5" />
-                  אשר את ההצעה
+                  אשר ועבור למפרט יישום
                 </button>
               </div>
 
               <p className="text-sm text-gray-500 text-center mt-4">
-                לחיצה על "אשר את ההצעה" תעביר אותך לשלב מפרט היישום
+                אישור יעביר אותך לשלב מפרט היישום עם השירותים שסומנו בלבד
               </p>
             </Card>
           </div>

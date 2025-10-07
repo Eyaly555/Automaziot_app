@@ -76,7 +76,7 @@ const formatPrice = (price: number) => {
 
 export const ProposalModule: React.FC = () => {
   const navigate = useNavigate();
-  const { currentMeeting, updateModule, completeMeeting } = useMeetingStore();
+  const { currentMeeting, updateModule, updatePhaseStatus } = useMeetingStore();
 
   const [proposedServices, setProposedServices] = useState<ProposedService[]>([]);
   const [selectedServices, setSelectedServices] = useState<SelectedService[]>([]);
@@ -440,8 +440,8 @@ export const ProposalModule: React.FC = () => {
     };
 
     updateModule('proposal', proposalData);
-    completeMeeting();
-    navigate('/dashboard');
+    updatePhaseStatus('awaiting_client_decision');
+    navigate('/approval');
   };
 
   const updateFilters = (newFilters: Partial<Filters>) => {

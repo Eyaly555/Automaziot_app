@@ -64,7 +64,8 @@ export interface ProposalData {
   generatedAt: Date;
   summary: ProposalSummary;
   proposedServices: ProposedService[];
-  selectedServices: SelectedService[];
+  selectedServices: SelectedService[]; // Services selected for proposal
+  purchasedServices?: SelectedService[]; // Services actually purchased by client
   totalPrice: number;
   totalDays: number;
   expectedROIMonths: number;

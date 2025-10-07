@@ -37,12 +37,16 @@ export const downloadProposalPDF = async (options: ProposalPDFOptions): Promise<
   tempDiv.style.position = 'absolute';
   tempDiv.style.left = '-9999px';
   tempDiv.style.width = '210mm';
+  tempDiv.style.direction = 'rtl';
+  tempDiv.style.fontFamily = "'Rubik', sans-serif";
+
+  // Load Rubik font first
+  const fontLink = document.createElement('link');
+  fontLink.href = 'https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap';
+  fontLink.rel = 'stylesheet';
+  document.head.appendChild(fontLink);
 
   const htmlContent = `
-<html dir="rtl" lang="he">
-<head>
-  <meta charset="UTF-8">
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
@@ -285,8 +289,7 @@ export const downloadProposalPDF = async (options: ProposalPDFOptions): Promise<
       margin-bottom: 8px;
     }
   </style>
-</head>
-<body>
+
   <!-- PAGE 1: HEADER & OVERVIEW -->
   <div class="page">
     <div class="header">
@@ -506,25 +509,40 @@ export const downloadProposalPDF = async (options: ProposalPDFOptions): Promise<
       </div>
     </div>
   </div>
-</body>
-</html>
   `;
 
   tempDiv.innerHTML = htmlContent;
   document.body.appendChild(tempDiv);
+
+  // Wait for fonts to load
+  await document.fonts.ready;
 
   // Configure html2pdf options
   const opt = {
     margin: 0.5,
     filename: `proposal-${clientName}-${formatHebrewDate(today)}.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      letterRendering: true,
+      logging: false,
+      windowWidth: 794, // A4 width in pixels at 96 DPI
+      windowHeight: 1123 // A4 height in pixels at 96 DPI
+    },
     jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
   };
 
-  // Generate and download PDF
-  await html2pdf().set(opt).from(tempDiv).save();
-
-  // Clean up
-  document.body.removeChild(tempDiv);
+  try {
+    // Generate and download PDF
+    await html2pdf().set(opt).from(tempDiv).save();
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    throw error;
+  } finally {
+    // Clean up
+    document.body.removeChild(tempDiv);
+    document.head.removeChild(fontLink);
+  }
 };

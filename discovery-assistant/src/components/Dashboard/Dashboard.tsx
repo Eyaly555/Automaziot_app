@@ -485,6 +485,32 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
       {/* Main Content */}
       {currentMeeting ? (
         <div className="container mx-auto px-4 py-8">
+          {/* Client Approval Needed Banner */}
+          {currentMeeting.status === 'awaiting_client_decision' && (
+            <div className="mb-6 p-6 bg-gradient-to-r from-amber-50 to-orange-50 border-r-4 border-orange-500 rounded-lg shadow-lg">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <AlertCircle className="w-8 h-8 text-orange-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-orange-900 mb-2">
+                    📋 ממתין לאישור לקוח
+                  </h3>
+                  <p className="text-base text-orange-800 mb-4">
+                    הצעת המחיר נשלחה ללקוח. יש לסמן אילו שירותים הלקוח החליט לרכוש ולאשר את המעבר לשלב מפרט היישום.
+                  </p>
+                  <button
+                    onClick={() => navigate('/approval')}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-lg hover:from-orange-700 hover:to-orange-800 shadow-md hover:shadow-lg transition-all font-semibold"
+                  >
+                    <CheckCircle className="w-5 h-5" />
+                    עבור לאישור לקוח
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Phase Warning Banner */}
           {currentMeeting.phase !== 'discovery' && (
             <div className="mb-6 p-4 bg-blue-50 border-r-4 border-blue-500 rounded-lg shadow-sm">
