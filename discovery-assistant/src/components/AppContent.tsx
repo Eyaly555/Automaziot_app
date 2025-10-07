@@ -28,6 +28,7 @@ import { ProgressTracking } from './Phase3/ProgressTracking';
 import { BlockerManagement } from './Phase3/BlockerManagement';
 import { SyncStatusIndicator } from './Common/SyncStatusIndicator';
 import { ProtectedRoute } from './Common/ProtectedRoute';
+import { PDFTestPage } from '../pages/PDFTestPage';
 import { PhaseNavigator } from './PhaseWorkflow/PhaseNavigator';
 import { RequirementsFlow } from './PhaseWorkflow/RequirementsFlow';
 import { ClientApprovalView } from './PhaseWorkflow/ClientApprovalView';
@@ -97,6 +98,7 @@ export const AppContent = () => {
         <Route path="/meeting/:recordId" element={<Dashboard />} />
         <Route path="/clients" element={<ClientsListView />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/test-pdf" element={<PDFTestPage />} />
         <Route path="/summary" element={<SummaryTab />} />
         <Route path="/wizard" element={<WizardMode />} />
         <Route path="/wizard/:stepId" element={<WizardMode />} />
