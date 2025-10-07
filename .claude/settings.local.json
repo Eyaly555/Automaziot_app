@@ -28,7 +28,9 @@
       "Bash(curl -L \"https://github.com/googlefonts/rubik/raw/main/fonts/ttf/Rubik-Regular.ttf\" -o Rubik-Regular.ttf)",
       "Bash(curl:*)",
       "Bash(unzip:*)",
-      "Bash(git revert:*)"
+      "Bash(git revert:*)",
+      "Bash(del exportProposalPDF.ts)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []
