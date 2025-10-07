@@ -91,36 +91,45 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       // Validate phase requirement
       if (requiredPhase && currentMeeting) {
         const currentPhase = currentMeeting.phase;
+        const currentStatus = currentMeeting.status;
 
         // Check if current phase matches required phase
         if (currentPhase !== requiredPhase) {
-          // Check if user can transition to this phase
-          const canAccess = canTransitionTo(requiredPhase);
+          // Special case: Allow access to Phase 2 if client has approved (auto-transition will happen inside)
+          if (requiredPhase === 'implementation_spec' &&
+              currentPhase === 'discovery' &&
+              currentStatus === 'client_approved') {
+            // Allow access - ImplementationSpecDashboard will handle the auto-transition
+            console.log('[ProtectedRoute] Allowing Phase 2 access with client_approved status');
+          } else {
+            // Check if user can transition to this phase
+            const canAccess = canTransitionTo(requiredPhase);
 
-          if (!canAccess) {
-            console.warn(
-              `[ProtectedRoute] Access denied: Required phase "${requiredPhase}", current phase "${currentPhase}"`
-            );
+            if (!canAccess) {
+              console.warn(
+                `[ProtectedRoute] Access denied: Required phase "${requiredPhase}", current phase "${currentPhase}"`
+              );
 
-            if (isMounted) {
-              // Show error message
-              const message = errorMessage
-                ? errorMessage[language]
-                : language === 'he'
-                  ? `גישה נדרשת לשלב ${requiredPhase}`
-                  : `Access requires ${requiredPhase} phase`;
+              if (isMounted) {
+                // Show error message
+                const message = errorMessage
+                  ? errorMessage[language]
+                  : language === 'he'
+                    ? `גישה נדרשת לשלב ${requiredPhase}`
+                    : `Access requires ${requiredPhase} phase`;
 
-              toast.error(message, {
-                duration: 4000,
-                icon: '🔒',
-                position: 'top-center'
-              });
+                toast.error(message, {
+                  duration: 4000,
+                  icon: '🔒',
+                  position: 'top-center'
+                });
 
-              // Redirect to appropriate route for current phase
-              navigateToPhaseRoute(currentPhase);
-              setIsValidating(false);
+                // Redirect to appropriate route for current phase
+                navigateToPhaseRoute(currentPhase);
+                setIsValidating(false);
+              }
+              return;
             }
-            return;
           }
         }
       }
