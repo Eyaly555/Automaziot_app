@@ -4,7 +4,7 @@ import {
   ArrowRight, Check, FileText, DollarSign, Clock, Target,
   Zap, Bot, Link, Database, Settings, ShoppingCart, X,
   Search, BarChart, Sparkles, FileX, ChevronDown, Filter,
-  TrendingUp, Calendar, Plus, Send, MessageCircle, Mail
+  TrendingUp, Calendar, Plus, Send, MessageCircle, Mail, Pencil
 } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Card, Input, Select } from '../../Base';
@@ -86,6 +86,10 @@ export const ProposalModule: React.FC = () => {
   // NEW: Additional editing state
   const [editingDurations, setEditingDurations] = useState<{ [key: string]: number }>({});
   const [editingNotes, setEditingNotes] = useState<{ [key: string]: string }>({});
+
+  // Track which fields are actively being edited
+  const [activeEditPrice, setActiveEditPrice] = useState<string | null>(null);
+  const [activeEditDuration, setActiveEditDuration] = useState<string | null>(null);
 
   // NEW: Contact modal state
   const [showContactModal, setShowContactModal] = useState(false);
@@ -771,10 +775,57 @@ export const ProposalModule: React.FC = () => {
 
                     {/* Metadata badges */}
                     <div className="flex flex-wrap gap-2 mb-4">
-                      <span className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                      {/* Editable Duration */}
+                      <div className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded group">
                         <Clock size={12} />
-                        {service.estimatedDays} ימים
-                      </span>
+                        {activeEditDuration === service.id ? (
+                          <input
+                            type="number"
+                            min="1"
+                            value={editingDurations[service.id] !== undefined ? editingDurations[service.id] : (selectedServices.find(s => s.id === service.id)?.customDuration || service.estimatedDays)}
+                            onChange={(e) => {
+                              const value = parseInt(e.target.value) || 0;
+                              setEditingDurations(prev => ({ ...prev, [service.id]: value }));
+                            }}
+                            onBlur={() => {
+                              const value = editingDurations[service.id];
+                              if (value && value > 0) {
+                                updateServiceDuration(service.id, value);
+                              }
+                              setActiveEditDuration(null);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                const value = editingDurations[service.id];
+                                if (value && value > 0) {
+                                  updateServiceDuration(service.id, value);
+                                }
+                                setActiveEditDuration(null);
+                              } else if (e.key === 'Escape') {
+                                setActiveEditDuration(null);
+                              }
+                            }}
+                            autoFocus
+                            className="w-12 text-center bg-white border border-gray-300 rounded px-1"
+                          />
+                        ) : (
+                          <span className="flex items-center gap-1">
+                            {selectedServices.find(s => s.id === service.id)?.customDuration || service.estimatedDays} ימים
+                            <button
+                              onClick={() => {
+                                setActiveEditDuration(service.id);
+                                setEditingDurations(prev => ({
+                                  ...prev,
+                                  [service.id]: selectedServices.find(s => s.id === service.id)?.customDuration || service.estimatedDays
+                                }));
+                              }}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Pencil size={10} className="text-gray-500 hover:text-blue-600" />
+                            </button>
+                          </span>
+                        )}
+                      </div>
                       <span className={`text-xs px-2 py-1 rounded ${getComplexityBadgeColor(service.complexity)}`}>
                         {service.complexity === 'simple' ? 'פשוט' :
                          service.complexity === 'medium' ? 'בינוני' : 'מורכב'}
@@ -786,11 +837,61 @@ export const ProposalModule: React.FC = () => {
 
                     {/* Pricing */}
                     <div className="border-t border-gray-200 pt-3 mb-3">
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center group">
                         <span className="text-sm text-gray-500">מחיר</span>
-                        <span className="text-2xl font-bold text-blue-600">
-                          {formatPrice(service.basePrice)}
-                        </span>
+                        {activeEditPrice === service.id ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-blue-600">₪</span>
+                            <input
+                              type="number"
+                              min="0"
+                              step="100"
+                              value={editingPrices[service.id] !== undefined ? editingPrices[service.id] : (selectedServices.find(s => s.id === service.id)?.customPrice || service.basePrice)}
+                              onChange={(e) => {
+                                const value = parseInt(e.target.value) || 0;
+                                setEditingPrices(prev => ({ ...prev, [service.id]: value }));
+                              }}
+                              onBlur={() => {
+                                const value = editingPrices[service.id];
+                                if (value !== undefined && value >= 0) {
+                                  updateServicePrice(service.id, value);
+                                }
+                                setActiveEditPrice(null);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  const value = editingPrices[service.id];
+                                  if (value !== undefined && value >= 0) {
+                                    updateServicePrice(service.id, value);
+                                  }
+                                  setActiveEditPrice(null);
+                                } else if (e.key === 'Escape') {
+                                  setActiveEditPrice(null);
+                                }
+                              }}
+                              autoFocus
+                              className="w-24 text-right text-xl font-bold text-blue-600 bg-white border border-gray-300 rounded px-2 py-1"
+                            />
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <span className="text-2xl font-bold text-blue-600">
+                              {formatPrice(selectedServices.find(s => s.id === service.id)?.customPrice || service.basePrice)}
+                            </span>
+                            <button
+                              onClick={() => {
+                                setActiveEditPrice(service.id);
+                                setEditingPrices(prev => ({
+                                  ...prev,
+                                  [service.id]: selectedServices.find(s => s.id === service.id)?.customPrice || service.basePrice
+                                }));
+                              }}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Pencil size={14} className="text-gray-500 hover:text-blue-600" />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -1082,7 +1183,7 @@ export const ProposalModule: React.FC = () => {
                     <td className="p-3 border font-semibold bg-gray-50">משך זמן</td>
                     {cartServices.map(service => (
                       <td key={service.id} className="p-3 border text-center">
-                        {service.estimatedDays} ימים
+                        {service.customDuration || service.estimatedDays} ימים
                       </td>
                     ))}
                   </tr>
