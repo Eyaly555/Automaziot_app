@@ -1464,12 +1464,8 @@ export const useMeetingStore = create<MeetingStore>()(
               console.warn('[Phase Validation] Client approval required for spec phase. Current status:', currentMeeting.status);
               return false;
             }
-            // Discovery should be complete (at least 70% progress)
-            const discoveryProgress = get().getOverallProgress();
-            if (discoveryProgress < 70) {
-              console.warn('[Phase Validation] Discovery must be at least 70% complete. Current:', discoveryProgress);
-              return false;
-            }
+            // Client approval is sufficient - no need to check progress percentage
+            // User has completed proposal and client has approved, ready for implementation spec
             return true;
 
           case 'development':
