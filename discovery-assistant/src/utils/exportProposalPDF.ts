@@ -16,18 +16,17 @@ interface ProposalPDFOptions {
   proposalData: ProposalData;
 }
 
-// Load font helper function
+// Load font helper function - converts TTF to base64 for jsPDF
 async function loadFont(path: string): Promise<string> {
   const response = await fetch(path);
   const blob = await response.blob();
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64 = (reader.result as string).split(',')[1];
       resolve(base64);
     };
-    reader.onerror = reject;
     reader.readAsDataURL(blob);
   });
 }
@@ -68,28 +67,25 @@ export const generateProposalPDF = async (
 ): Promise<Blob> => {
   const { clientName, clientCompany, services, proposalData } = options;
 
-  // 1. Load fonts
-  const rubikRegular = await loadFont('/fonts/Rubik-Regular.ttf');
-  const rubikBold = await loadFont('/fonts/Rubik-Bold.ttf');
+  // Load Rubik font
+  const rubikFont = await loadFont('/fonts/Rubik-VariableFont_wght.ttf');
 
-  // 2. Create PDF
+  // Create PDF document
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
     format: 'a4',
   });
 
-  // 3. Add fonts to PDF
-  doc.addFileToVFS('Rubik-Regular.ttf', rubikRegular);
-  doc.addFont('Rubik-Regular.ttf', 'Rubik', 'normal');
+  // Add the font to PDF
+  doc.addFileToVFS('Rubik-VariableFont_wght.ttf', rubikFont);
+  doc.addFont('Rubik-VariableFont_wght.ttf', 'Rubik', 'normal');
+  doc.addFont('Rubik-VariableFont_wght.ttf', 'Rubik', 'bold');
 
-  doc.addFileToVFS('Rubik-Bold.ttf', rubikBold);
-  doc.addFont('Rubik-Bold.ttf', 'Rubik', 'bold');
-
-  // 4. Set default font
+  // Set font as default
   doc.setFont('Rubik');
 
-  // 5. Enable RTL - THIS IS THE KEY
+  // Enable RTL - THIS IS THE KEY for Hebrew text
   doc.setR2L(true);
 
   // Load images

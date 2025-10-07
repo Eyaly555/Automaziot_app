@@ -30,7 +30,9 @@
       "Bash(unzip:*)",
       "Bash(git revert:*)",
       "Bash(del exportProposalPDF.ts)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(del \"c:\\Users\\eyaly\\Desktop\\Businesses\\eym-group_n8n\\internal_app\\discovery-assistant\\scripts\\convert-fonts.mjs\")",
+      "Bash(if exist \"c:\\Users\\eyaly\\Desktop\\Businesses\\eym-group_n8n\\internal_app\\discovery-assistant\\src\\fonts\" rmdir /s /q \"c:\\Users\\eyaly\\Desktop\\Businesses\\eym-group_n8n\\internal_app\\discovery-assistant\\src\\fonts\")"
     ],
     "deny": [],
     "ask": []
