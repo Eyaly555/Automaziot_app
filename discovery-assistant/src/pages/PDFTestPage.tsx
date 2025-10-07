@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { generateProposalPDF } from '../utils/exportProposalPDF';
+import { downloadProposalPDF } from '../utils/downloadProposalPDF';
 import { SelectedService, ProposalData } from '../types/proposal';
 
 /**
@@ -133,6 +134,27 @@ export const PDFTestPage: React.FC = () => {
     }
   };
 
+  const handleDownloadPDF = async () => {
+    try {
+      setStatus('loading');
+      setMessage('⏳ יוצר PDF להורדה...');
+
+      await downloadProposalPDF({
+        clientName: 'דני כהן',
+        clientCompany: 'חברת בדיקה בע"מ',
+        services: testServices,
+        proposalData: testProposalData,
+      });
+
+      setStatus('success');
+      setMessage('✅ PDF הורד בהצלחה!');
+    } catch (error: any) {
+      setStatus('error');
+      setMessage(`❌ שגיאה: ${error.message}`);
+      console.error('PDF download error:', error);
+    }
+  };
+
   return (
     <div style={{ minHeight: '100vh', background: '#f1f5f9', padding: '40px 20px' }}>
       <div
@@ -176,26 +198,46 @@ export const PDFTestPage: React.FC = () => {
           </ul>
         </div>
 
-        {/* Main Action Button */}
-        <button
-          onClick={handleGeneratePDF}
-          disabled={status === 'loading'}
-          style={{
-            width: '100%',
-            padding: '20px',
-            fontSize: '20px',
-            fontWeight: 'bold',
-            background: status === 'loading' ? '#94a3b8' : 'linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '12px',
-            cursor: status === 'loading' ? 'not-allowed' : 'pointer',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-            transition: 'all 0.3s ease',
-          }}
-        >
-          {status === 'loading' ? '⏳ פותח...' : '🖨️ צור PDF ופתח להדפסה'}
-        </button>
+        {/* Main Action Buttons */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+          <button
+            onClick={handleGeneratePDF}
+            disabled={status === 'loading'}
+            style={{
+              padding: '20px',
+              fontSize: '18px',
+              fontWeight: 'bold',
+              background: status === 'loading' ? '#94a3b8' : 'linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              cursor: status === 'loading' ? 'not-allowed' : 'pointer',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+              transition: 'all 0.3s ease',
+            }}
+          >
+            {status === 'loading' ? '⏳ פותח...' : '🖨️ פתח להדפסה'}
+          </button>
+
+          <button
+            onClick={handleDownloadPDF}
+            disabled={status === 'loading'}
+            style={{
+              padding: '20px',
+              fontSize: '18px',
+              fontWeight: 'bold',
+              background: status === 'loading' ? '#94a3b8' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              cursor: status === 'loading' ? 'not-allowed' : 'pointer',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+              transition: 'all 0.3s ease',
+            }}
+          >
+            {status === 'loading' ? '⏳ מוריד...' : '⬇️ הורד PDF ישירות'}
+          </button>
+        </div>
 
         {/* Instructions */}
         <div
@@ -207,14 +249,32 @@ export const PDFTestPage: React.FC = () => {
             border: '2px solid #fbbf24',
           }}
         >
-          <h4 style={{ color: '#92400e', marginBottom: '12px', fontSize: '16px' }}>📝 הוראות:</h4>
-          <ol style={{ color: '#78350f', fontSize: '13px', lineHeight: '1.8', paddingRight: '25px' }}>
-            <li>לחץ על הכפתור "צור PDF ופתח להדפסה"</li>
-            <li>ייפתח חלון חדש עם תצוגה מקדימה של המסמך</li>
-            <li>החלון ייפתח אוטומטית את דיאלוג ההדפסה</li>
-            <li>בחר "Save as PDF" או "שמור כ-PDF" בתוך דיאלוג ההדפסה</li>
-            <li>בחר מיקום לשמירה ולחץ "שמור"</li>
-          </ol>
+          <h4 style={{ color: '#92400e', marginBottom: '12px', fontSize: '16px' }}>📝 שתי אפשרויות:</h4>
+
+          <div style={{ marginBottom: '15px' }}>
+            <p style={{ color: '#92400e', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px' }}>
+              🖨️ אפשרות 1: פתח להדפסה (מומלץ)
+            </p>
+            <ol style={{ color: '#78350f', fontSize: '13px', lineHeight: '1.8', paddingRight: '25px', marginTop: '5px' }}>
+              <li>לחץ על הכפתור "פתח להדפסה"</li>
+              <li>ייפתח חלון חדש עם תצוגה מקדימה של המסמך</li>
+              <li>החלון ייפתח אוטומטית את דיאלוג ההדפסה</li>
+              <li>בחר "Save as PDF" או "שמור כ-PDF"</li>
+              <li>בחר מיקום לשמירה ולחץ "שמור"</li>
+            </ol>
+          </div>
+
+          <div>
+            <p style={{ color: '#92400e', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px' }}>
+              ⬇️ אפשרות 2: הורדה ישירה
+            </p>
+            <ol style={{ color: '#78350f', fontSize: '13px', lineHeight: '1.8', paddingRight: '25px', marginTop: '5px' }}>
+              <li>לחץ על הכפתור "הורד PDF ישירות"</li>
+              <li>הקובץ ייוצר ויורד אוטומטית למחשב שלך</li>
+              <li>לא נדרש דיאלוג הדפסה - הורדה ישירה לתיקיית ההורדות</li>
+            </ol>
+          </div>
+
           <div
             style={{
               marginTop: '15px',
@@ -288,13 +348,33 @@ export const PDFTestPage: React.FC = () => {
           }}
         >
           <h4 style={{ color: '#166534', marginBottom: '10px', fontSize: '14px' }}>🔧 מידע טכני:</h4>
-          <ul style={{ color: '#166534', fontSize: '12px', lineHeight: '1.6', paddingRight: '25px', margin: 0 }}>
-            <li>קובץ: <code>src/utils/exportProposalPDF.ts</code></li>
-            <li>פונקציה: <code>generateProposalPDF()</code></li>
-            <li>שיטה: Browser Print Dialog (window.print)</li>
-            <li>ניהול BiDi: Native browser rendering</li>
-            <li>פונט: Rubik (Google Fonts)</li>
-          </ul>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+            <div>
+              <p style={{ color: '#166534', fontSize: '13px', fontWeight: 'bold', marginBottom: '8px' }}>
+                🖨️ שיטת הדפסה:
+              </p>
+              <ul style={{ color: '#166534', fontSize: '11px', lineHeight: '1.6', paddingRight: '20px', margin: 0 }}>
+                <li>קובץ: <code>exportProposalPDF.ts</code></li>
+                <li>פונקציה: <code>generateProposalPDF()</code></li>
+                <li>שיטה: Browser Print Dialog</li>
+                <li>BiDi: Native browser rendering</li>
+              </ul>
+            </div>
+            <div>
+              <p style={{ color: '#166534', fontSize: '13px', fontWeight: 'bold', marginBottom: '8px' }}>
+                ⬇️ שיטת הורדה:
+              </p>
+              <ul style={{ color: '#166534', fontSize: '11px', lineHeight: '1.6', paddingRight: '20px', margin: 0 }}>
+                <li>קובץ: <code>downloadProposalPDF.ts</code></li>
+                <li>פונקציה: <code>downloadProposalPDF()</code></li>
+                <li>ספריה: html2pdf.js</li>
+                <li>BiDi: Native browser rendering</li>
+              </ul>
+            </div>
+          </div>
+          <p style={{ color: '#166534', fontSize: '11px', marginTop: '10px', margin: 0 }}>
+            <strong>פונט:</strong> Rubik (Google Fonts) | <strong>תמיכה:</strong> עברית מלאה + BiDi אוטומטי
+          </p>
         </div>
       </div>
     </div>

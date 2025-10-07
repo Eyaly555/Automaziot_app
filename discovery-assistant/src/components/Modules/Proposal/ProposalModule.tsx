@@ -19,6 +19,7 @@ import {
 } from '../../../config/servicesDatabase';
 import { getSmartRecommendations } from '../../../utils/smartRecommendationsEngine';
 import { generateProposalPDF } from '../../../utils/exportProposalPDF';
+import { downloadProposalPDF } from '../../../utils/downloadProposalPDF';
 import { sendProposalViaWhatsApp } from '../../../services/whatsappService';
 import { openGmailCompose } from '../../../services/emailService';
 import { ContactCompletionModal, ClientContact } from './ContactCompletionModal';
@@ -349,6 +350,41 @@ export const ProposalModule: React.FC = () => {
     } catch (error) {
       console.error('Error sending proposal:', error);
       alert('❌ שגיאה בשליחת ההצעה. אנא נסה שוב.');
+      setIsGeneratingPDF(false);
+    }
+  };
+
+  // NEW: Download PDF directly (no WhatsApp/Email)
+  const handleDownloadPDF = async () => {
+    try {
+      setIsGeneratingPDF(true);
+
+      const contact = getClientContact();
+
+      // Download PDF directly
+      await downloadProposalPDF({
+        clientName: contact.name || 'לקוח',
+        clientCompany: contact.company,
+        services: selectedServices.filter(s => s.selected),
+        proposalData: {
+          meetingId: currentMeeting?.meetingId || '',
+          generatedAt: new Date(),
+          summary: proposalSummary,
+          proposedServices,
+          selectedServices,
+          totalPrice: calculateTotals().totalPrice,
+          totalDays: calculateTotals().totalDays,
+          expectedROIMonths: Math.ceil(calculateTotals().totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
+          monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
+        },
+      });
+
+      setIsGeneratingPDF(false);
+      alert('✅ קובץ PDF הורד בהצלחה!');
+
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      alert('❌ שגיאה בהורדת הקובץ. אנא נסה שוב.');
       setIsGeneratingPDF(false);
     }
   };
@@ -913,6 +949,25 @@ export const ProposalModule: React.FC = () => {
                 <>
                   <Send className="w-5 h-5" />
                   שלח הצעת מחיר ללקוח
+                </>
+              )}
+            </button>
+
+            {/* NEW: Download PDF Button */}
+            <button
+              onClick={handleDownloadPDF}
+              disabled={isGeneratingPDF || cartServices.length === 0}
+              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg flex items-center gap-2"
+            >
+              {isGeneratingPDF ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  מוריד...
+                </>
+              ) : (
+                <>
+                  <FileText className="w-5 h-5" />
+                  הורד PDF
                 </>
               )}
             </button>
