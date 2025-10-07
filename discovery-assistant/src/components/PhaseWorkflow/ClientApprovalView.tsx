@@ -118,8 +118,7 @@ export const ClientApprovalView: React.FC = () => {
   const {
     currentMeeting,
     updateModule,
-    updatePhaseStatus,
-    transitionPhase
+    updatePhaseStatus
   } = useMeetingStore();
 
   const signaturePadRef = useRef<SignatureCanvas | null>(null);
@@ -224,9 +223,9 @@ export const ClientApprovalView: React.FC = () => {
     // Show confirmation
     setShowConfirmation(true);
 
-    // Transition to implementation spec phase after delay
+    // Navigate to implementation spec phase after delay
+    // Phase transition will happen automatically in ImplementationSpecDashboard
     setTimeout(() => {
-      transitionPhase('implementation_spec', 'Client approved proposal');
       navigate('/phase2');
     }, 2500);
   };

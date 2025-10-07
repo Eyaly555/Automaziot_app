@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import {
@@ -32,6 +32,14 @@ export const ImplementationSpecDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { currentMeeting, updateMeeting, transitionPhase, canTransitionTo } = useMeetingStore();
   const [selectedSection, setSelectedSection] = useState<SpecSection>('requirements');
+
+  // Auto-transition from discovery to implementation_spec if client approved
+  useEffect(() => {
+    if (currentMeeting?.phase === 'discovery' && currentMeeting?.status === 'client_approved') {
+      console.log('[ImplementationSpecDashboard] Auto-transitioning from discovery to implementation_spec');
+      transitionPhase('implementation_spec', 'Client approved proposal - auto-transition');
+    }
+  }, [currentMeeting?.phase, currentMeeting?.status, transitionPhase]);
 
   if (!currentMeeting) {
     return (
@@ -72,12 +80,13 @@ export const ImplementationSpecDashboard: React.FC = () => {
 
   const spec = currentMeeting.implementationSpec!;
 
-  // Get selected services from proposal
-  const selectedServices = currentMeeting.modules?.proposal?.selectedServices || [];
+  // Get purchased services from proposal (services client actually bought)
+  const purchasedServices = currentMeeting.modules?.proposal?.purchasedServices ||
+                            currentMeeting.modules?.proposal?.selectedServices || [];
   const requirements = currentMeeting.modules?.requirements || [];
 
   // Filter services that actually have requirement templates
-  const servicesWithRequirements = selectedServices.filter((serviceId: string) =>
+  const servicesWithRequirements = purchasedServices.filter((serviceId: string) =>
     getRequirementsTemplate(serviceId) !== null
   );
 
