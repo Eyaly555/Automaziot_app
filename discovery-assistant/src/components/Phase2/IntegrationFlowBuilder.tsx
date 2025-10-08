@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowRight,
@@ -11,18 +11,27 @@ import {
   Zap,
   Settings,
   Database,
-  GitBranch
+  GitBranch,
+  Lightbulb,
+  CheckSquare,
+  Sparkles,
+  Loader
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
+import { suggestIntegrationFlows, hasIntegrationFlowSuggestions } from '../../utils/integrationFlowSuggester';
+import { getRequiredSystemsForServices } from '../../config/serviceToSystemMapping';
 import {
   IntegrationFlow,
-  FlowTrigger,
   FlowStep,
-  ErrorHandlingStrategy,
-  TestCase
+  TestCase,
+  AcceptanceCriteria,
+  FunctionalRequirement,
+  PerformanceRequirement
 } from '../../types/phase2';
+import { SelectedService, DetailedSystemInfo } from '../../types';
 import { IntegrationFlowToolbar } from './IntegrationFlowToolbar';
-import { Button, Input, Select, TextArea } from '../Base';
+import { Button, Input, Select } from '../Base';
+import { generateAcceptanceCriteria, getIntegrationCriteria } from '../../utils/acceptanceCriteriaGenerator';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -87,11 +96,110 @@ export const IntegrationFlowBuilder: React.FC = () => {
     testCases: []
   });
 
-  const [activeTab, setActiveTab] = useState<'basic' | 'steps' | 'errors' | 'tests'>('basic');
+  const [activeTab, setActiveTab] = useState<'basic' | 'steps' | 'errors' | 'tests' | 'acceptance'>('basic');
+  const [suggestedFromPhase1, setSuggestedFromPhase1] = useState(false);
+  const [isGeneratingCriteria, setIsGeneratingCriteria] = useState(false);
+  const [integrationCriteria, setIntegrationCriteria] = useState<AcceptanceCriteria | null>(null);
 
   // Undo/redo state
   const [history, setHistory] = useState<IntegrationFlow[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+
+  // Auto-suggest integration flows from Phase 1 on component mount
+  // FILTERED by purchased services only
+  useEffect(() => {
+    // Only if we're creating a new flow (not editing existing)
+    if (flowId || !currentMeeting) return;
+
+    // === DEFENSIVE: Get purchased services (fallback to selectedServices for backward compatibility) ===
+    const purchasedServices =
+      currentMeeting.modules?.proposal?.purchasedServices?.length > 0
+        ? currentMeeting.modules.proposal.purchasedServices
+        : currentMeeting.modules?.proposal?.selectedServices || [];
+
+    // Early exit if no purchased services
+    if (purchasedServices.length === 0) {
+      console.warn('[IntegrationFlowBuilder] No purchased services found - skipping auto-suggestion');
+      return;
+    }
+
+    // Extract service IDs
+    const purchasedServiceIds = purchasedServices.map((service: SelectedService) => service.id);
+    console.log('[IntegrationFlowBuilder] Purchased services:', purchasedServiceIds);
+
+    // === FILTER: Get required system categories for purchased services ===
+    const requiredSystemCategories = getRequiredSystemsForServices(purchasedServiceIds);
+    console.log('[IntegrationFlowBuilder] Required system categories:', requiredSystemCategories);
+
+    // Early exit if no systems needed
+    if (requiredSystemCategories.length === 0) {
+      console.warn('[IntegrationFlowBuilder] No systems required for purchased services - skipping auto-suggestion');
+      return;
+    }
+
+    // === FILTER: Only include Phase 1 systems that match required categories ===
+    const allPhase1Systems = currentMeeting.modules?.systems?.detailedSystems || [];
+    const relevantSystems = allPhase1Systems.filter((system: DetailedSystemInfo) =>
+      requiredSystemCategories.includes(system.category)
+    );
+
+    console.log(`[IntegrationFlowBuilder] Filtered systems: ${relevantSystems.length}/${allPhase1Systems.length} (only showing systems for purchased services)`);
+
+    // Early exit if only 0-1 systems (need at least 2 systems for integrations)
+    if (relevantSystems.length < 2) {
+      console.warn('[IntegrationFlowBuilder] Not enough systems for integrations (need 2+, have ' + relevantSystems.length + ') - skipping auto-suggestion');
+      return;
+    }
+
+    // Check if integrations are already populated in Phase 2
+    const existingFlows = currentMeeting.implementationSpec?.integrations || [];
+
+    // If no existing flows, auto-suggest based on FILTERED systems
+    if (existingFlows.length === 0 && !suggestedFromPhase1) {
+      // === CREATE FILTERED MEETING OBJECT ===
+      // Only pass systems relevant to purchased services to the suggester
+      const filteredMeeting = {
+        ...currentMeeting,
+        modules: {
+          ...currentMeeting.modules,
+          systems: {
+            ...currentMeeting.modules.systems,
+            detailedSystems: relevantSystems
+          }
+        }
+      };
+
+      // Check if filtered meeting has integration needs
+      const hasNeeds = hasIntegrationFlowSuggestions(filteredMeeting);
+
+      if (!hasNeeds) {
+        console.warn('[IntegrationFlowBuilder] No integration needs found in filtered systems');
+        return;
+      }
+
+      // === SUGGEST INTEGRATIONS (filtered by purchased services) ===
+      const suggestedFlows = suggestIntegrationFlows(filteredMeeting);
+
+      console.log(`[IntegrationFlowBuilder] Generated ${suggestedFlows.length} integration suggestions from purchased services`);
+
+      if (suggestedFlows.length > 0) {
+        // Save suggested flows to meeting
+        updateMeeting({
+          implementationSpec: {
+            ...currentMeeting.implementationSpec!,
+            integrations: suggestedFlows,
+            lastUpdated: new Date(),
+            updatedBy: 'system'
+          }
+        });
+
+        setSuggestedFromPhase1(true);
+
+        // Navigate back to dashboard to show all suggested flows
+        navigate('/phase2');
+      }
+    }
+  }, [flowId, currentMeeting, suggestedFromPhase1, navigate, updateMeeting]);
 
   const saveToHistory = (newFlow: IntegrationFlow) => {
     const newHistory = history.slice(0, historyIndex + 1);
@@ -114,6 +222,70 @@ export const IntegrationFlowBuilder: React.FC = () => {
     }
   };
 
+  const handleGenerateCriteria = async () => {
+    if (!currentMeeting) return;
+
+    setIsGeneratingCriteria(true);
+    try {
+      // Generate full acceptance criteria from the entire meeting
+      const fullCriteria = generateAcceptanceCriteria(currentMeeting);
+
+      // Filter to get only criteria for this integration
+      const filtered = getIntegrationCriteria(fullCriteria, flow.name);
+      setIntegrationCriteria(filtered);
+
+      // Save the full criteria to meeting
+      updateMeeting({
+        implementationSpec: {
+          ...currentMeeting.implementationSpec!,
+          acceptanceCriteria: fullCriteria,
+          lastUpdated: new Date(),
+          updatedBy: 'user'
+        }
+      });
+    } catch (error) {
+      console.error('Failed to generate acceptance criteria:', error);
+      alert('שגיאה ביצירת קריטריוני קבלה');
+    } finally {
+      setIsGeneratingCriteria(false);
+    }
+  };
+
+  const updateCriterion = (type: 'functional' | 'performance', id: string, updates: Partial<FunctionalRequirement> | Partial<PerformanceRequirement>) => {
+    if (!currentMeeting?.implementationSpec?.acceptanceCriteria || !integrationCriteria) return;
+
+    const fullCriteria = currentMeeting.implementationSpec.acceptanceCriteria;
+    const updatedCriteria = {
+      ...fullCriteria,
+      [type]: fullCriteria[type].map((item: FunctionalRequirement | PerformanceRequirement) =>
+        item.id === id ? { ...item, ...updates } : item
+      )
+    };
+
+    updateMeeting({
+      implementationSpec: {
+        ...currentMeeting.implementationSpec,
+        acceptanceCriteria: updatedCriteria,
+        lastUpdated: new Date()
+      }
+    });
+
+    // Update local state
+    const filtered = getIntegrationCriteria(updatedCriteria, flow.name);
+    setIntegrationCriteria(filtered);
+  };
+
+  // Load existing criteria for this integration
+  useEffect(() => {
+    if (currentMeeting?.implementationSpec?.acceptanceCriteria && flow.name) {
+      const filtered = getIntegrationCriteria(
+        currentMeeting.implementationSpec.acceptanceCriteria,
+        flow.name
+      );
+      setIntegrationCriteria(filtered);
+    }
+  }, [currentMeeting, flow.name]);
+
   const handleSave = () => {
     if (!currentMeeting) return;
 
@@ -131,7 +303,7 @@ export const IntegrationFlowBuilder: React.FC = () => {
     const updatedSpec = {
       ...currentMeeting.implementationSpec!,
       integrations: existingFlow
-        ? currentMeeting.implementationSpec!.integrations.map(f =>
+        ? currentMeeting.implementationSpec!.integrations.map((f: IntegrationFlow) =>
             f.id === flowId ? flow : f
           )
         : [...(currentMeeting.implementationSpec!.integrations || []), flow],
@@ -167,7 +339,7 @@ export const IntegrationFlowBuilder: React.FC = () => {
   const deleteStep = (index: number) => {
     const updatedSteps = flow.steps.filter((_, i) => i !== index);
     // Renumber steps
-    const renumberedSteps = updatedSteps.map((step, i) => ({
+    const renumberedSteps = updatedSteps.map((step: FlowStep, i: number) => ({
       ...step,
       stepNumber: i + 1
     }));
@@ -205,9 +377,19 @@ export const IntegrationFlowBuilder: React.FC = () => {
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">
-              {existingFlow ? 'עריכת אינטגרציה' : 'אינטגרציה חדשה'}
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-gray-900">
+                {existingFlow ? 'עריכת אינטגרציה' : 'אינטגרציה חדשה'}
+              </h1>
+              {existingFlow?.id && currentMeeting?.implementationSpec?.integrations?.find(
+                f => f.id === existingFlow.id
+              )?.id && suggestedFromPhase1 && (
+                <span className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                  <Lightbulb className="w-4 h-4" />
+                  הוצע מ-Phase 1
+                </span>
+              )}
+            </div>
             <button
               onClick={() => navigate('/phase2')}
               className="text-gray-600 hover:text-gray-900"
@@ -259,7 +441,8 @@ export const IntegrationFlowBuilder: React.FC = () => {
               { key: 'basic', label: 'פרטים בסיסיים' },
               { key: 'steps', label: `צעדים (${flow.steps.length})` },
               { key: 'errors', label: 'טיפול בשגיאות' },
-              { key: 'tests', label: `בדיקות (${flow.testCases.length})` }
+              { key: 'tests', label: `בדיקות (${flow.testCases.length})` },
+              { key: 'acceptance', label: 'קריטריוני קבלה' }
             ].map(tab => (
               <button
                 key={tab.key}
@@ -303,7 +486,7 @@ export const IntegrationFlowBuilder: React.FC = () => {
                     required
                   >
                     <option value="">בחר מערכת</option>
-                    {availableSystems.map(sys => (
+                    {availableSystems.map((sys: { id: string; name: string }) => (
                       <option key={sys.id} value={sys.id}>{sys.name}</option>
                     ))}
                   </Select>
@@ -319,7 +502,7 @@ export const IntegrationFlowBuilder: React.FC = () => {
                     required
                   >
                     <option value="">בחר מערכת</option>
-                    {availableSystems.map(sys => (
+                    {availableSystems.map((sys: { id: string; name: string }) => (
                       <option key={sys.id} value={sys.id}>{sys.name}</option>
                     ))}
                   </Select>
@@ -386,7 +569,7 @@ export const IntegrationFlowBuilder: React.FC = () => {
                   label="תדירות ריצה"
                   value={flow.frequency}
                   onChange={(e) => {
-                    const newFlow = { ...flow, frequency: e.target.value as any };
+                    const newFlow = { ...flow, frequency: e.target.value as IntegrationFlow['frequency'] };
                     setFlow(newFlow);
                     saveToHistory(newFlow);
                   }}
@@ -415,7 +598,7 @@ export const IntegrationFlowBuilder: React.FC = () => {
                   </div>
                 ) : (
                   <>
-                    {flow.steps.map((step, index) => (
+                    {flow.steps.map((step: FlowStep, index: number) => (
                       <div key={index} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex items-center space-x-3 space-x-reverse">
@@ -424,7 +607,7 @@ export const IntegrationFlowBuilder: React.FC = () => {
                             </div>
                             <select
                               value={step.type}
-                              onChange={(e) => updateStep(index, { type: e.target.value as any })}
+                              onChange={(e) => updateStep(index, { type: e.target.value as FlowStep['type'] })}
                               className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
                             >
                               {STEP_TYPES.map(({ value, label }) => (
@@ -553,7 +736,7 @@ export const IntegrationFlowBuilder: React.FC = () => {
                       ...flow,
                       errorHandling: {
                         ...flow.errorHandling,
-                        fallbackAction: e.target.value as any
+                        fallbackAction: e.target.value
                       }
                     })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg"
@@ -625,7 +808,7 @@ export const IntegrationFlowBuilder: React.FC = () => {
                   </div>
                 ) : (
                   <>
-                    {flow.testCases.map((test, index) => (
+                    {flow.testCases.map((test: TestCase, index: number) => (
                       <div key={test.id} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
                         <div className="flex items-start justify-between mb-3">
                           <h4 className="font-medium text-gray-900">תרחיש #{index + 1}</h4>
@@ -657,7 +840,7 @@ export const IntegrationFlowBuilder: React.FC = () => {
                             </label>
                             <select
                               value={test.status}
-                              onChange={(e) => updateTestCase(index, { status: e.target.value as any })}
+                              onChange={(e) => updateTestCase(index, { status: e.target.value as TestCase['status'] })}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                             >
                               <option value="pending">ממתין</option>
@@ -680,13 +863,107 @@ export const IntegrationFlowBuilder: React.FC = () => {
                 )}
               </div>
             )}
+
+            {/* Acceptance Criteria Tab */}
+            {activeTab === 'acceptance' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">קריטריוני קבלה לאינטגרציה</h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      דרישות פונקציונליות וביצועים לאינטגרציה זו
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleGenerateCriteria}
+                    disabled={isGeneratingCriteria}
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50"
+                  >
+                    {isGeneratingCriteria ? (
+                      <>
+                        <Loader className="w-4 h-4 animate-spin" />
+                        מייצר...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4" />
+                        ייצר קריטריונים
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {!integrationCriteria || (integrationCriteria.functional.length === 0 && integrationCriteria.performance.length === 0) ? (
+                  <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                    <CheckSquare className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-4">עדיין לא נוצרו קריטריוני קבלה</p>
+                    <button
+                      onClick={handleGenerateCriteria}
+                      disabled={isGeneratingCriteria}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                      <Sparkles className="w-4 h-4 inline ml-2" />
+                      ייצר עכשיו
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {integrationCriteria.functional.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-3">
+                          דרישות פונקציונליות ({integrationCriteria.functional.length})
+                        </h4>
+                        <div className="space-y-2">
+                          {integrationCriteria.functional.map((req: FunctionalRequirement) => (
+                            <div key={req.id} className="bg-white border border-gray-200 rounded-lg p-3">
+                              <div className="flex items-start justify-between">
+                                <input
+                                  type="text"
+                                  value={req.description}
+                                  onChange={(e) => updateCriterion('functional', req.id, { description: e.target.value })}
+                                  className="flex-1 font-medium text-gray-900 bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2"
+                                />
+                              </div>
+                              <p className="text-sm text-gray-600 mt-1 px-2">{req.acceptanceCriteria}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {integrationCriteria.performance.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-3">
+                          דרישות ביצועים ({integrationCriteria.performance.length})
+                        </h4>
+                        <div className="space-y-2">
+                          {integrationCriteria.performance.map((req: PerformanceRequirement) => (
+                            <div key={req.id} className="bg-green-50 border border-green-200 rounded-lg p-3">
+                              <div className="flex items-center justify-between">
+                                <span className="font-medium text-gray-900">{req.metric}</span>
+                                <input
+                                  type="text"
+                                  value={req.target}
+                                  onChange={(e) => updateCriterion('performance', req.id, { target: e.target.value })}
+                                  className="text-sm px-2 py-1 bg-white border border-green-300 rounded"
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Actions */}
         <div className="flex justify-between">
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={() => navigate('/phase2')}
           >
             ביטול

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, MoveUp, MoveDown, Save, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, MoveUp, MoveDown, Save } from 'lucide-react';
 import { Card } from '../../Common/Card';
 import { TextField } from '../../Common/FormFields/TextField';
 import { SelectField } from '../../Common/FormFields/SelectField';

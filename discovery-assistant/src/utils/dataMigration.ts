@@ -14,15 +14,19 @@
  *   - Added: leadSources, leadCaptureChannels, serviceChannels, focusAreas, crmStatus
  *   - Added new module: essentialDetails
  *   - Data moved from LeadsAndSales 2.1 and CustomerService 3.1 to Overview
+ * - v4: October 2025 - Proposal purchasedServices Fallback
+ *   - Added purchasedServices field for client-approved services
+ *   - Migration copies selectedServices → purchasedServices for backward compatibility
+ *   - Ensures Phase 2 filtering works for old meetings
  */
 
-import { Meeting, LeadsAndSalesModule, CustomerServiceModule, LeadSource, ServiceChannel } from '../types';
+import { Meeting, LeadSource, ServiceChannel } from '../types';
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
-export const CURRENT_DATA_VERSION = 3;
+export const CURRENT_DATA_VERSION = 4;
 export const MIGRATION_LOG_KEY = 'discovery_migration_log';
 
 // ============================================================================
@@ -123,6 +127,11 @@ export function migrateMeetingData(meeting: any): MigrationResult {
     // Migration 2→3: Overview Module Refactor
     if (currentVersion < 3) {
       migrateV2ToV3(result);
+    }
+
+    // Migration 3→4: Proposal purchasedServices fallback
+    if (currentVersion < 4) {
+      migrateV3ToV4(result);
     }
 
     // Update final version if migrations succeeded
@@ -493,6 +502,85 @@ function migrateV2ToV3(result: MigrationResult): void {
   console.log(`[DataMigration v2→v3] Complete. Applied ${result.migrationsApplied.length} migrations, ${result.errors.length} errors`);
 }
 
+/**
+ * Migrates from v3 to v4
+ * - Proposal: Add purchasedServices fallback from selectedServices
+ * - Ensures Phase 2 filtering works for meetings created before purchasedServices field existed
+ */
+function migrateV3ToV4(result: MigrationResult): void {
+  const meeting = result.meeting;
+
+  console.log('[DataMigration v3→v4] Starting purchasedServices migration...');
+
+  // Guard: Ensure modules object exists
+  if (!meeting.modules) {
+    console.warn('[DataMigration v3→v4] No modules object found, initializing...');
+    meeting.modules = {};
+    result.migrationsApplied.push('initialized_empty_modules');
+  }
+
+  // ========================================
+  // MIGRATION 1: Add purchasedServices fallback
+  // ========================================
+  try {
+    const proposal = meeting.modules.proposal as any;
+
+    // If no proposal module exists, skip migration
+    if (!proposal) {
+      console.log('[DataMigration v3→v4] No proposal module found, skipping');
+      result.migrationsApplied.push('proposal_not_found_skipped');
+      return;
+    }
+
+    // Check if purchasedServices already exists and has data
+    if (proposal.purchasedServices && Array.isArray(proposal.purchasedServices) && proposal.purchasedServices.length > 0) {
+      console.log(`[DataMigration v3→v4] purchasedServices already exists (${proposal.purchasedServices.length} items), skipping`);
+      result.migrationsApplied.push('proposal_purchasedServices_already_exists');
+      return;
+    }
+
+    // Get selectedServices for fallback
+    const selectedServices = proposal.selectedServices;
+
+    // Case 1: selectedServices exists and is an array
+    if (selectedServices && Array.isArray(selectedServices)) {
+      if (selectedServices.length > 0) {
+        // Copy selectedServices to purchasedServices
+        proposal.purchasedServices = JSON.parse(JSON.stringify(selectedServices));
+
+        console.log(`[DataMigration v3→v4] Copied ${selectedServices.length} selectedServices to purchasedServices`);
+        result.migrationsApplied.push('proposal_purchasedServices_copied_from_selectedServices');
+      } else {
+        // selectedServices is empty array
+        proposal.purchasedServices = [];
+        console.log('[DataMigration v3→v4] selectedServices is empty, initialized purchasedServices as empty array');
+        result.migrationsApplied.push('proposal_purchasedServices_initialized_empty');
+      }
+    }
+    // Case 2: selectedServices is null, undefined, or not an array
+    else {
+      proposal.purchasedServices = [];
+
+      if (selectedServices === null) {
+        console.warn('[DataMigration v3→v4] selectedServices is null, initialized purchasedServices as empty array');
+        result.migrationsApplied.push('proposal_purchasedServices_initialized_empty_from_null');
+      } else if (selectedServices === undefined) {
+        console.warn('[DataMigration v3→v4] selectedServices is undefined, initialized purchasedServices as empty array');
+        result.migrationsApplied.push('proposal_purchasedServices_initialized_empty_from_undefined');
+      } else {
+        console.warn(`[DataMigration v3→v4] selectedServices has invalid type (${typeof selectedServices}), initialized purchasedServices as empty array`);
+        result.migrationsApplied.push('proposal_purchasedServices_initialized_empty_invalid_type');
+      }
+    }
+
+  } catch (error) {
+    result.errors.push(`Proposal purchasedServices migration failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error('[DataMigration v3→v4] Proposal error:', error);
+  }
+
+  console.log(`[DataMigration v3→v4] Complete. Applied ${result.migrationsApplied.length} migrations, ${result.errors.length} errors`);
+}
+
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
@@ -593,6 +681,25 @@ export function validateMigration(meeting: Meeting): { valid: boolean; issues: s
     const channels = meeting.modules.customerService.channels;
     if (channels !== undefined && channels !== null && !Array.isArray(channels)) {
       issues.push('CustomerService.channels is not an array');
+    }
+  }
+
+  // Validate Proposal structure (v4 migration)
+  if (meeting.modules?.proposal) {
+    const proposal = meeting.modules.proposal as any;
+
+    // Check purchasedServices field exists (should be present after v4 migration)
+    if (proposal.purchasedServices === undefined) {
+      issues.push('Proposal.purchasedServices is undefined (v4 migration may not have run)');
+    } else if (!Array.isArray(proposal.purchasedServices)) {
+      issues.push('Proposal.purchasedServices is not an array');
+    }
+
+    // Warn if selectedServices is missing (should still exist for backward compatibility)
+    if (proposal.selectedServices === undefined) {
+      issues.push('Proposal.selectedServices is undefined (data may be corrupted)');
+    } else if (!Array.isArray(proposal.selectedServices)) {
+      issues.push('Proposal.selectedServices is not an array');
     }
   }
 

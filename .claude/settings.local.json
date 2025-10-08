@@ -32,7 +32,18 @@
       "Bash(del exportProposalPDF.ts)",
       "Bash(npm uninstall:*)",
       "Bash(del \"c:\\Users\\eyaly\\Desktop\\Businesses\\eym-group_n8n\\internal_app\\discovery-assistant\\scripts\\convert-fonts.mjs\")",
-      "Bash(if exist \"c:\\Users\\eyaly\\Desktop\\Businesses\\eym-group_n8n\\internal_app\\discovery-assistant\\src\\fonts\" rmdir /s /q \"c:\\Users\\eyaly\\Desktop\\Businesses\\eym-group_n8n\\internal_app\\discovery-assistant\\src\\fonts\")"
+      "Bash(if exist \"c:\\Users\\eyaly\\Desktop\\Businesses\\eym-group_n8n\\internal_app\\discovery-assistant\\src\\fonts\" rmdir /s /q \"c:\\Users\\eyaly\\Desktop\\Businesses\\eym-group_n8n\\internal_app\\discovery-assistant\\src\\fonts\")",
+      "Bash(tee:*)",
+      "Bash(cut:*)",
+      "Read(//c/Users/eyaly/Desktop/Businesses/eym-group_n8n/**)",
+      "Bash(findstr:*)",
+      "Bash(Select-String \"TS7006\")",
+      "Bash(Select-Object -First 50)",
+      "Bash(powershell:*)",
+      "Bash(dir ts-output.txt)",
+      "Bash(Select-String \"6133\")",
+      "Bash(Select-Object -First 100)",
+      "Bash(Select-String -Pattern \"englishExport|exportCSV\")"
     ],
     "deny": [],
     "ask": []

@@ -7,7 +7,7 @@ import { TextField, CheckboxGroup, RadioGroup } from '../../Common/FormFields';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 import { DetailedSystemCard } from './DetailedSystemCard';
 import { DetailedSystemInfo } from '../../../types';
-import { SYSTEM_CATEGORIES, getSystemLabel } from '../../../config/systemsDatabase';
+import { SYSTEM_CATEGORIES } from '../../../config/systemsDatabase';
 import { IntegrationVisualizer } from '../../Visualizations/IntegrationVisualizer';
 
 export const SystemsModuleEnhanced: React.FC = () => {

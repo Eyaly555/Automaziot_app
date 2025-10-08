@@ -1,12 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Calendar, TrendingDown, Clock, CheckCircle, AlertCircle, Plus, Languages } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
-import { Sprint, DevelopmentTask } from '../../types/phase3';
+import { Sprint } from '../../types/phase3';
 import { Button } from '../Base/Button';
 import { Card } from '../Base/Card';
-import { Badge } from '../Base/Badge';
-
-const generateId = () => Math.random().toString(36).substr(2, 9);
 
 type Language = 'he' | 'en';
 
@@ -130,7 +127,6 @@ const translations = {
 export const SprintView: React.FC = () => {
   const { currentMeeting, updateMeeting } = useMeetingStore();
   const [selectedSprint, setSelectedSprint] = useState<string | null>(null);
-  const [showCreateSprint, setShowCreateSprint] = useState(false);
   const [language, setLanguage] = useState<Language>('he');
 
   useEffect(() => {

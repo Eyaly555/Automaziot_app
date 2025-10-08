@@ -5,7 +5,7 @@
  * and generate prioritized recommendations with n8n workflow templates.
  */
 
-import { Meeting, DetailedSystemInfo, SystemIntegrationNeed, PainPoint } from '../types';
+import { Meeting } from '../types';
 
 // ============================================================================
 // INTERFACES
@@ -16,13 +16,16 @@ export interface SmartRecommendation {
   title: string;
   titleHebrew: string;
   description: string;
+  type?: 'automation' | 'integration' | 'optimization' | 'training' | 'ai_implementation'; // Used by Dashboard component
   category: 'integration' | 'automation' | 'ai_agent' | 'process_improvement';
   impactScore: number; // 1-10
   effortScore: number; // 1-10
   quickWin: boolean; // impactScore >= 7 && effortScore <= 4
   estimatedROI: number;
+  estimatedTimeSavings?: number; // Hours saved per month (used by Dashboard)
+  estimatedCostSavings?: number; // Cost savings per month (used by Dashboard)
   affectedSystems: string[];
-  suggestedTools: string[];
+  suggestedTools: string[]; // Array of suggested tools (note: plural)
   implementationSteps: string[];
   priority: number;
   n8nWorkflowTemplate?: N8nWorkflowTemplate;
@@ -158,8 +161,6 @@ export class SmartRecommendationsEngine {
   }
 
   private detectManualDataEntry(): void {
-    const ops = this.meeting.modules.operations;
-
     // DEPRECATED: systemSync property removed in OperationsModule v2
     // Old code checked ops?.systemSync?.dataTransferMethod for manual data transfer
     // This detection logic has been removed as the property no longer exists
@@ -1024,78 +1025,80 @@ export class SmartRecommendationsEngine {
     };
   }
 
-  private getInvoiceGenerationTemplate(): N8nWorkflowTemplate {
-    return {
-      name: 'Automated Invoice Generation',
-      description: 'Generate and send invoices automatically from order data',
-      estimatedSetupTime: 40,
-      nodes: [
-        {
-          id: 'trigger',
-          type: 'webhook',
-          name: 'Order Completed',
-          position: [250, 300],
-          parameters: { path: 'order-complete' }
-        },
-        {
-          id: 'get-customer',
-          type: 'httpRequest',
-          name: 'Get Customer Data',
-          position: [450, 300],
-          parameters: {
-            url: 'https://api.crm.com/customers/{{$json.customer_id}}'
-          }
-        },
-        {
-          id: 'generate-pdf',
-          type: 'function',
-          name: 'Generate Invoice PDF',
-          position: [650, 300],
-          parameters: {
-            functionCode: `
-              // Generate invoice data
-              const invoice = {
-                number: 'INV-' + Date.now(),
-                date: new Date().toLocaleDateString('he-IL'),
-                customer: items[0].json.name,
-                items: items[0].json.order_items,
-                total: items[0].json.total
-              };
-              return [{ json: invoice }];
-            `
-          }
-        },
-        {
-          id: 'save-accounting',
-          type: 'httpRequest',
-          name: 'Save to Accounting',
-          position: [850, 250],
-          parameters: {
-            method: 'POST',
-            url: 'https://api.accounting.com/invoices',
-            body: '={{$json}}'
-          }
-        },
-        {
-          id: 'email-customer',
-          type: 'email',
-          name: 'Email Invoice',
-          position: [850, 350],
-          parameters: {
-            to: '={{$json.customer_email}}',
-            subject: 'חשבונית {{$json.number}}',
-            attachments: '={{$json.pdf_url}}'
-          }
-        }
-      ],
-      connections: [
-        { from: 'trigger', to: 'get-customer' },
-        { from: 'get-customer', to: 'generate-pdf' },
-        { from: 'generate-pdf', to: 'save-accounting' },
-        { from: 'generate-pdf', to: 'email-customer' }
-      ]
-    };
-  }
+  // DEPRECATED: Commented out unused template - kept for potential future use
+  // Referenced by commented-out getInvoiceGenerationRecommendation function
+  // private getInvoiceGenerationTemplate(): N8nWorkflowTemplate {
+  //   return {
+  //     name: 'Automated Invoice Generation',
+  //     description: 'Generate and send invoices automatically from order data',
+  //     estimatedSetupTime: 40,
+  //     nodes: [
+  //       {
+  //         id: 'trigger',
+  //         type: 'webhook',
+  //         name: 'Order Completed',
+  //         position: [250, 300],
+  //         parameters: { path: 'order-complete' }
+  //       },
+  //       {
+  //         id: 'get-customer',
+  //         type: 'httpRequest',
+  //         name: 'Get Customer Data',
+  //         position: [450, 300],
+  //         parameters: {
+  //           url: 'https://api.crm.com/customers/{{$json.customer_id}}'
+  //         }
+  //       },
+  //       {
+  //         id: 'generate-pdf',
+  //         type: 'function',
+  //         name: 'Generate Invoice PDF',
+  //         position: [650, 300],
+  //         parameters: {
+  //           functionCode: `
+  //             // Generate invoice data
+  //             const invoice = {
+  //               number: 'INV-' + Date.now(),
+  //               date: new Date().toLocaleDateString('he-IL'),
+  //               customer: items[0].json.name,
+  //               items: items[0].json.order_items,
+  //               total: items[0].json.total
+  //             };
+  //             return [{ json: invoice }];
+  //           `
+  //         }
+  //       },
+  //       {
+  //         id: 'save-accounting',
+  //         type: 'httpRequest',
+  //         name: 'Save to Accounting',
+  //         position: [850, 250],
+  //         parameters: {
+  //           method: 'POST',
+  //           url: 'https://api.accounting.com/invoices',
+  //           body: '={{$json}}'
+  //         }
+  //       },
+  //       {
+  //         id: 'email-customer',
+  //         type: 'email',
+  //         name: 'Email Invoice',
+  //         position: [850, 350],
+  //         parameters: {
+  //           to: '={{$json.customer_email}}',
+  //           subject: 'חשבונית {{$json.number}}',
+  //           attachments: '={{$json.pdf_url}}'
+  //         }
+  //       }
+  //     ],
+  //     connections: [
+  //       { from: 'trigger', to: 'get-customer' },
+  //       { from: 'get-customer', to: 'generate-pdf' },
+  //       { from: 'generate-pdf', to: 'save-accounting' },
+  //       { from: 'generate-pdf', to: 'email-customer' }
+  //     ]
+  //   };
+  // }
 
   // ==========================================================================
   // TEMPLATE-BASED RECOMMENDATIONS
@@ -1176,30 +1179,33 @@ export class SmartRecommendationsEngine {
     };
   }
 
-  private getInvoiceGenerationRecommendation(): SmartRecommendation {
-    return {
-      id: `invoice-${Date.now()}`,
-      title: 'Automated Invoice Generation',
-      titleHebrew: 'יצירת חשבוניות אוטומטית',
-      description: 'Generate and send invoices automatically from completed orders',
-      category: 'automation',
-      impactScore: 9,
-      effortScore: 3,
-      quickWin: true,
-      estimatedROI: 8000,
-      affectedSystems: ['ERP', 'Accounting', 'Email'],
-      suggestedTools: ['n8n', 'PDF generator', 'Accounting API'],
-      implementationSteps: [
-        'חיבור למערכת הנהלת חשבונות',
-        'יצירת תבנית חשבונית',
-        'בניית workflow ב-n8n',
-        'הוספת שליחה אוטומטית',
-        'אינטגרציה עם מערכת הכספים'
-      ],
-      priority: 0,
-      n8nWorkflowTemplate: this.getInvoiceGenerationTemplate()
-    };
-  }
+  // DEPRECATED: Commented out unused function - kept for potential future use
+  // Invoice generation recommendation is no longer automatically triggered
+  // See addTemplateRecommendations() for details
+  // private getInvoiceGenerationRecommendation(): SmartRecommendation {
+  //   return {
+  //     id: `invoice-${Date.now()}`,
+  //     title: 'Automated Invoice Generation',
+  //     titleHebrew: 'יצירת חשבוניות אוטומטית',
+  //     description: 'Generate and send invoices automatically from completed orders',
+  //     category: 'automation',
+  //     impactScore: 9,
+  //     effortScore: 3,
+  //     quickWin: true,
+  //     estimatedROI: 8000,
+  //     affectedSystems: ['ERP', 'Accounting', 'Email'],
+  //     suggestedTools: ['n8n', 'PDF generator', 'Accounting API'],
+  //     implementationSteps: [
+  //       'חיבור למערכת הנהלת חשבונות',
+  //       'יצירת תבנית חשבונית',
+  //       'בניית workflow ב-n8n',
+  //       'הוספת שליחה אוטומטית',
+  //       'אינטגרציה עם מערכת הכספים'
+  //     ],
+  //     priority: 0,
+  //     n8nWorkflowTemplate: this.getInvoiceGenerationTemplate()
+  //   };
+  // }
 
   // ==========================================================================
   // HELPER METHODS

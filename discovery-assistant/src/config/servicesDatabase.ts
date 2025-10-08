@@ -1,4 +1,4 @@
-import { ServiceCategory, ServiceItem } from '../types/proposal';
+import { ServiceCategory, ServiceCategoryId, ServiceItem } from '../types/proposal';
 
 // Service Categories
 export const SERVICE_CATEGORIES: ServiceCategory[] = [

@@ -4,7 +4,6 @@ import { calculateROI } from '../../utils/roiCalculator';
 import { getSmartRecommendations } from '../../utils/smartRecommendationsEngine';
 import {
   MeetingPhase,
-  MeetingStatus,
   PainPoint,
   Meeting
 } from '../../types';
@@ -15,14 +14,12 @@ import {
   Clock,
   TrendingUp,
   Target,
-  Users,
   Layers,
   GitBranch,
   Code,
   Activity,
   Award,
   Calendar,
-  ChevronRight,
   FileText,
   Zap,
   DollarSign
@@ -186,8 +183,6 @@ interface PhaseSummaryProps {
  * Discovery Phase Summary
  */
 function DiscoverySummary({ meeting }: PhaseSummaryProps) {
-  const { getModuleProgress } = useMeetingStore();
-  const moduleProgress = getModuleProgress();
   const roiData = calculateROI(meeting);
   const painPoints = meeting.painPoints || [];
   const painPointGroups = groupPainPointsBySeverity(painPoints);
@@ -481,7 +476,7 @@ function ImplementationSpecSummary({ meeting }: PhaseSummaryProps) {
       {systemsCount > 0 && (
         <SummaryCard title="מערכות" icon={<Layers size={24} className="text-blue-600" />}>
           <div className="space-y-2">
-            {spec?.systems?.slice(0, 5).map((system, idx) => (
+            {spec?.systems?.slice(0, 5).map((system) => (
               <div key={system.id} className="flex items-center justify-between border-b pb-2">
                 <div>
                   <p className="font-medium">{system.systemName}</p>
@@ -516,7 +511,7 @@ function ImplementationSpecSummary({ meeting }: PhaseSummaryProps) {
       {integrationsCount > 0 && (
         <SummaryCard title="זרימות אינטגרציה" icon={<GitBranch size={24} className="text-green-600" />}>
           <div className="space-y-2">
-            {spec?.integrations?.slice(0, 5).map((integration, idx) => (
+            {spec?.integrations?.slice(0, 5).map((integration) => (
               <div key={integration.id} className="flex items-center gap-3 border-b pb-2">
                 <GitBranch size={16} className="text-green-600" />
                 <div className="flex-1">
@@ -615,8 +610,6 @@ function DevelopmentSummary({ meeting }: PhaseSummaryProps) {
   // Blocker stats
   const activeBlockers = blockers?.filter(b => b.status === 'active').length || 0;
   const criticalBlockers = blockers?.filter(b => b.status === 'active' && b.severity === 'critical').length || 0;
-
-  const isEnglish = true; // Phase 3 is English-only
 
   return (
     <div className="space-y-6" dir="ltr">
@@ -941,7 +934,6 @@ export function SummaryTab() {
   }
 
   const currentPhase = currentMeeting.phase || 'discovery';
-  const currentStatus = currentMeeting.status || 'discovery_in_progress';
   const isEnglish = currentPhase === 'development';
 
   return (

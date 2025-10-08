@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ServiceRequirementsTemplate, CollectedRequirements } from '../../types/serviceRequirements';
+import { CollectedRequirements } from '../../types/serviceRequirements';
 import { RequirementSection } from './RequirementSection';
 import { getRequirementsTemplate } from '../../config/serviceRequirementsTemplates';
 import { prefillRequirementsFromMeeting } from '../../utils/requirementsPrefillEngine';

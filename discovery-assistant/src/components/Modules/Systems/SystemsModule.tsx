@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Database, Link2, Shield, Cloud, AlertTriangle } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Card, Input, Button } from '../../Base';
-import { CheckboxGroup, RadioGroup, RatingField } from '../../Common/FormFields';
+import { CheckboxGroup, RadioGroup } from '../../Common/FormFields';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 
 export const SystemsModule: React.FC = () => {

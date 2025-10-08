@@ -3,7 +3,6 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured, createRealtimeChannel } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useMeetingStore } from '../store/useMeetingStore';
-import type { Meeting } from '../types';
 import type { MeetingCollaborator, MeetingActivity, MeetingComment } from '../types/database';
 
 interface CollaboratorPresence {
@@ -39,7 +38,7 @@ interface UseCollaborationOptions {
 
 export const useCollaboration = (options: UseCollaborationOptions) => {
   const { user, profile } = useAuth();
-  const { currentMeeting, updateMeetingField } = useMeetingStore();
+  const { updateMeetingField } = useMeetingStore();
   const [state, setState] = useState<CollaborationState>({
     isConnected: false,
     collaborators: [],
@@ -105,14 +104,14 @@ export const useCollaboration = (options: UseCollaborationOptions) => {
             isConnected: true
           }));
         })
-        .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+        .on('presence', { event: 'join' }, ({ newPresences }) => {
           newPresences.forEach((presence: any) => {
             if (options.onCollaboratorJoin) {
               options.onCollaboratorJoin(presence);
             }
           });
         })
-        .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+        .on('presence', { event: 'leave' }, ({ leftPresences }) => {
           leftPresences.forEach((presence: any) => {
             if (options.onCollaboratorLeave) {
               options.onCollaboratorLeave(presence.userId);

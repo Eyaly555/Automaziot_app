@@ -328,7 +328,7 @@ export const useOrganization = () => {
       try {
         // Get organization based on email domain
         const domain = profile.email.split('@')[1];
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('organizations')
           .select('*')
           .eq('domain', domain)

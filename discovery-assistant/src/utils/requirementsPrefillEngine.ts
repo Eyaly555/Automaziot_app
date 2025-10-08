@@ -12,7 +12,6 @@ export const prefillRequirementsFromMeeting = (
   meeting: Meeting
 ): Partial<CollectedRequirements['data']> => {
   const modules = meeting.modules;
-  const prefilled: any = {};
 
   switch (serviceId) {
     // ==================== CRM IMPLEMENTATION ====================
@@ -100,17 +99,19 @@ export const prefillRequirementsFromMeeting = (
 };
 
 // ==================== CRM IMPLEMENTATION PRE-FILL ====================
-const prefillCRMRequirements = (modules: any): any => {
+const prefillCRMRequirements = (
+  modules: Meeting['modules']
+): Partial<CollectedRequirements['data']> => {
   const overview = modules?.overview;
   const leads = modules?.leadsAndSales;
   const service = modules?.customerService;
   const systems = modules?.systems;
 
-  const prefilled: any = {};
+  const prefilled: Partial<CollectedRequirements['data']> = {};
 
   // Number of users (from overview)
   if (overview?.employees) {
-    const employeeRanges: any = {
+    const employeeRanges: Record<string, number> = {
       '1-10': 5,
       '11-50': 20,
       '51-200': 100,
@@ -160,7 +161,7 @@ const prefillCRMRequirements = (modules: any): any => {
 
   // Assignment method based on current routing
   if (leads?.leadRouting?.method) {
-    const methodMap: any = {
+    const methodMap: Record<string, string> = {
       'rotation': 'round_robin',
       'expertise': 'skill',
       'territory': 'territory',
@@ -184,14 +185,14 @@ const prefillCRMRequirements = (modules: any): any => {
   ];
 
   // Integrations
-  const integrations = [];
-  if (service?.channels?.some((ch: any) => ch.type === 'whatsapp')) {
+  const integrations: string[] = [];
+  if (service?.channels?.some((ch) => ch.type === 'whatsapp')) {
     integrations.push('whatsapp');
   }
-  if (leads?.leadSources?.some((s: any) => s.channel === 'facebook')) {
+  if (leads?.leadSources?.some((s) => s.channel === 'facebook')) {
     integrations.push('facebook');
   }
-  if (leads?.leadSources?.some((s: any) => s.channel === 'website')) {
+  if (leads?.leadSources?.some((s) => s.channel === 'website')) {
     integrations.push('website');
   }
   prefilled.integrations = integrations;
@@ -206,7 +207,7 @@ const prefillCRMRequirements = (modules: any): any => {
     prefilled.existing_data = hasCRM ? 'yes_crm' : 'yes_spreadsheet';
 
     // Estimate data volume from lead volume
-    const totalLeadVolume = leads?.leadSources?.reduce((sum: number, s: any) =>
+    const totalLeadVolume = leads?.leadSources?.reduce((sum: number, s) =>
       sum + (s.volumePerMonth || 0), 0) || 0;
     prefilled.data_volume = totalLeadVolume * 12; // Rough estimate: year of leads
   } else {
@@ -217,20 +218,24 @@ const prefillCRMRequirements = (modules: any): any => {
 };
 
 // ==================== AI CHATBOT PRE-FILL ====================
-const prefillAIChatbotRequirements = (modules: any, serviceId: string): any => {
+const prefillAIChatbotRequirements = (
+  modules: Meeting['modules'],
+  _serviceId: string
+): Partial<CollectedRequirements['data']> => {
   const overview = modules?.overview;
   const service = modules?.customerService;
-  const ai = modules?.aiAgents;
+  // Note: ai module data could be used to prefill AI-related requirements in future
+  // const ai = modules?.aiAgents;
 
-  const prefilled: any = {};
+  const prefilled: Partial<CollectedRequirements['data']> = {};
 
   // Bot name based on company
   prefilled.bot_name = 'עוזר אוטומטי'; // Default
 
   // Channels based on where they communicate
-  const channels = [];
+  const channels: string[] = [];
   if (service?.channels) {
-    service.channels.forEach((ch: any) => {
+    service.channels.forEach((ch) => {
       if (ch.type === 'whatsapp') channels.push('whatsapp');
       if (ch.type === 'facebook') channels.push('facebook');
       if (ch.type === 'instagram') channels.push('instagram');
@@ -252,7 +257,7 @@ const prefillAIChatbotRequirements = (modules: any, serviceId: string): any => {
 
   // FAQ list from customer service module
   if (service?.autoResponse?.topQuestions) {
-    prefilled.faq_list = service.autoResponse.topQuestions.map((q: any) => ({
+    prefilled.faq_list = service.autoResponse.topQuestions.map((q) => ({
       question: q.question,
       answer: '' // They'll need to fill answers
     }));
@@ -294,14 +299,16 @@ const prefillAIChatbotRequirements = (modules: any, serviceId: string): any => {
 };
 
 // ==================== LEAD WORKFLOW PRE-FILL ====================
-const prefillLeadWorkflowRequirements = (modules: any): any => {
+const prefillLeadWorkflowRequirements = (
+  modules: Meeting['modules']
+): Partial<CollectedRequirements['data']> => {
   const leads = modules?.leadsAndSales;
-  const prefilled: any = {};
+  const prefilled: Partial<CollectedRequirements['data']> = {};
 
   // Lead sources directly from module
   if (leads?.leadSources) {
-    prefilled.lead_sources = leads.leadSources.map((s: any) => {
-      const channelMap: any = {
+    prefilled.lead_sources = leads.leadSources.map((s) => {
+      const channelMap: Record<string, string> = {
         'website': 'website_form',
         'facebook': 'facebook_ads',
         'google': 'google_ads',
@@ -315,14 +322,14 @@ const prefillLeadWorkflowRequirements = (modules: any): any => {
     });
 
     // Monthly volume
-    const totalVolume = leads.leadSources.reduce((sum: number, s: any) =>
+    const totalVolume = leads.leadSources.reduce((sum: number, s) =>
       sum + (s.volumePerMonth || 0), 0);
     prefilled.monthly_volume = totalVolume;
   }
 
   // Response time based on speed to lead
   if (leads?.speedToLead?.duringBusinessHours) {
-    const speedMap: any = {
+    const speedMap: Record<string, string> = {
       'immediate': 'immediate',
       'within_hour': '1hour',
       'same_day': 'same_day'
@@ -346,7 +353,7 @@ const prefillLeadWorkflowRequirements = (modules: any): any => {
   prefilled.lead_enrichment = true;
 
   // Lead scoring based on if they track quality
-  const hasQualityTracking = leads?.leadSources?.some((s: any) => s.quality);
+  const hasQualityTracking = leads?.leadSources?.some((s) => s.quality);
   prefilled.use_lead_scoring = hasQualityTracking ? 'yes' : 'no';
 
   // Hot lead criteria
@@ -356,7 +363,7 @@ const prefillLeadWorkflowRequirements = (modules: any): any => {
 
   // Assignment method from routing
   if (leads?.leadRouting?.method) {
-    const methodMap: any = {
+    const methodMap: Record<string, string> = {
       'rotation': 'round_robin',
       'expertise': 'skill',
       'territory': 'territory',
@@ -404,18 +411,20 @@ const prefillLeadWorkflowRequirements = (modules: any): any => {
 };
 
 // ==================== WHATSAPP AUTOMATION PRE-FILL ====================
-const prefillWhatsAppRequirements = (modules: any): any => {
+const prefillWhatsAppRequirements = (
+  modules: Meeting['modules']
+): Partial<CollectedRequirements['data']> => {
   const leads = modules?.leadsAndSales;
   const service = modules?.customerService;
-  const prefilled: any = {};
+  const prefilled: Partial<CollectedRequirements['data']> = {};
 
   // Check if they use WhatsApp
-  const hasWhatsApp = service?.channels?.some((ch: any) => ch.type === 'whatsapp') ||
-                      leads?.leadSources?.some((s: any) => s.channel === 'whatsapp');
+  const hasWhatsApp = service?.channels?.some((ch) => ch.type === 'whatsapp') ||
+                      leads?.leadSources?.some((s) => s.channel === 'whatsapp');
 
   if (hasWhatsApp) {
     // Volume
-    const whatsappChannel = service?.channels?.find((ch: any) => ch.type === 'whatsapp');
+    const whatsappChannel = service?.channels?.find((ch) => ch.type === 'whatsapp');
     prefilled.daily_volume = whatsappChannel?.volumePerDay || 20;
 
     // Response templates from FAQ
@@ -441,17 +450,19 @@ const prefillWhatsAppRequirements = (modules: any): any => {
 };
 
 // ==================== CRM AUTO UPDATE PRE-FILL ====================
-const prefillCRMAutoUpdateRequirements = (modules: any): any => {
+const prefillCRMAutoUpdateRequirements = (
+  modules: Meeting['modules']
+): Partial<CollectedRequirements['data']> => {
   const leads = modules?.leadsAndSales;
   const systems = modules?.systems;
-  const prefilled: any = {};
+  const prefilled: Partial<CollectedRequirements['data']> = {};
 
   // Form sources
-  const formSources = [];
+  const formSources: string[] = [];
   if (leads?.leadSources) {
-    if (leads.leadSources.some((s: any) => s.channel === 'website')) formSources.push('website');
-    if (leads.leadSources.some((s: any) => s.channel === 'facebook')) formSources.push('facebook');
-    if (leads.leadSources.some((s: any) => s.channel === 'google')) formSources.push('google');
+    if (leads.leadSources.some((s) => s.channel === 'website')) formSources.push('website');
+    if (leads.leadSources.some((s) => s.channel === 'facebook')) formSources.push('facebook');
+    if (leads.leadSources.some((s) => s.channel === 'google')) formSources.push('google');
   }
   prefilled.form_sources = formSources;
 
@@ -477,10 +488,13 @@ const prefillCRMAutoUpdateRequirements = (modules: any): any => {
 };
 
 // ==================== SYSTEM INTEGRATION PRE-FILL ====================
-const prefillSystemIntegrationRequirements = (modules: any): any => {
+const prefillSystemIntegrationRequirements = (
+  modules: Meeting['modules']
+): Partial<CollectedRequirements['data']> => {
   const systems = modules?.systems;
-  const operations = modules?.operations;
-  const prefilled: any = {};
+  // Note: operations module data could be used to identify integration needs in future
+  // const operations = modules?.operations;
+  const prefilled: Partial<CollectedRequirements['data']> = {};
 
   // Systems to integrate
   if (systems?.currentSystems) {
@@ -515,16 +529,18 @@ const prefillSystemIntegrationRequirements = (modules: any): any => {
 };
 
 // ==================== DOCUMENT MANAGEMENT PRE-FILL ====================
-const prefillDocumentManagementRequirements = (modules: any): any => {
+const prefillDocumentManagementRequirements = (
+  modules: Meeting['modules']
+): Partial<CollectedRequirements['data']> => {
   const operations = modules?.operations;
-  const prefilled: any = {};
+  const prefilled: Partial<CollectedRequirements['data']> = {};
 
   if (operations?.documentManagement) {
     const docMgmt = operations.documentManagement;
 
     // Document types
     if (docMgmt.documentTypes) {
-      prefilled.document_types = docMgmt.documentTypes.map((d: any) => ({
+      prefilled.document_types = docMgmt.documentTypes.map((d) => ({
         type: d.type,
         monthly_volume: d.volumePerMonth,
         time_per_doc: d.timePerDocument
@@ -555,14 +571,16 @@ const prefillDocumentManagementRequirements = (modules: any): any => {
 };
 
 // ==================== REPORTING & DASHBOARDS PRE-FILL ====================
-const prefillReportingRequirements = (modules: any): any => {
+const prefillReportingRequirements = (
+  modules: Meeting['modules']
+): Partial<CollectedRequirements['data']> => {
   const reporting = modules?.reporting;
   const roi = modules?.roi;
-  const prefilled: any = {};
+  const prefilled: Partial<CollectedRequirements['data']> = {};
 
   // Existing reports
   if (reporting?.scheduledReports) {
-    prefilled.current_reports = reporting.scheduledReports.map((r: any) => ({
+    prefilled.current_reports = reporting.scheduledReports.map((r) => ({
       name: r.name,
       frequency: r.frequency,
       time_to_create: r.timeToCreate
@@ -571,7 +589,7 @@ const prefillReportingRequirements = (modules: any): any => {
 
   // KPIs to track
   if (reporting?.kpis) {
-    prefilled.kpis_to_track = reporting.kpis.map((k: any) => k.name);
+    prefilled.kpis_to_track = reporting.kpis.map((k) => k.name);
   }
 
   // Success metrics from ROI
@@ -593,10 +611,12 @@ const prefillReportingRequirements = (modules: any): any => {
 };
 
 // ==================== EMAIL & NOTIFICATIONS PRE-FILL ====================
-const prefillEmailNotificationsRequirements = (modules: any): any => {
+const prefillEmailNotificationsRequirements = (
+  modules: Meeting['modules']
+): Partial<CollectedRequirements['data']> => {
   const leads = modules?.leadsAndSales;
   const service = modules?.customerService;
-  const prefilled: any = {};
+  const prefilled: Partial<CollectedRequirements['data']> = {};
 
   // Email templates - detect common types
   if (leads?.leadSources && leads.leadSources.length > 0) {
@@ -613,18 +633,21 @@ const prefillEmailNotificationsRequirements = (modules: any): any => {
   prefilled.events = ['new_lead', 'hot_lead', 'customer_message'];
 
   // Channels
-  const channels = [];
-  if (service?.channels?.some((ch: any) => ch.type === 'email')) channels.push('email');
-  if (service?.channels?.some((ch: any) => ch.type === 'whatsapp')) channels.push('whatsapp');
+  const channels: string[] = [];
+  if (service?.channels?.some((ch) => ch.type === 'email')) channels.push('email');
+  if (service?.channels?.some((ch) => ch.type === 'whatsapp')) channels.push('whatsapp');
   if (channels.length > 0) prefilled.channels = channels;
 
   return prefilled;
 };
 
 // ==================== APPROVAL WORKFLOW PRE-FILL ====================
-const prefillApprovalWorkflowRequirements = (modules: any): any => {
-  const leads = modules?.leadsAndSales;
-  const prefilled: any = {};
+const prefillApprovalWorkflowRequirements = (
+  _modules: Meeting['modules']
+): Partial<CollectedRequirements['data']> => {
+  // Note: leads module data could be used to identify approval needs in future
+  // const leads = _modules?.leadsAndSales;
+  const prefilled: Partial<CollectedRequirements['data']> = {};
 
   // Common workflow types
   prefilled.workflow_types = ['quotes', 'discounts'];
@@ -642,9 +665,12 @@ const prefillApprovalWorkflowRequirements = (modules: any): any => {
 };
 
 // ==================== MEETING SCHEDULER PRE-FILL ====================
-const prefillMeetingSchedulerRequirements = (modules: any): any => {
-  const overview = modules?.overview;
-  const prefilled: any = {};
+const prefillMeetingSchedulerRequirements = (
+  _modules: Meeting['modules']
+): Partial<CollectedRequirements['data']> => {
+  // Note: overview module data could be used to prefill meeting settings in future
+  // const overview = _modules?.overview;
+  const prefilled: Partial<CollectedRequirements['data']> = {};
 
   // Meeting types - common defaults
   prefilled.meeting_types = ['פגישת היכרות (15 דקות)', 'פגישת מכירה (30 דקות)'];
@@ -668,10 +694,12 @@ const prefillMeetingSchedulerRequirements = (modules: any): any => {
 };
 
 // ==================== MARKETING AUTOMATION PRE-FILL ====================
-const prefillMarketingAutomationRequirements = (modules: any): any => {
+const prefillMarketingAutomationRequirements = (
+  modules: Meeting['modules']
+): Partial<CollectedRequirements['data']> => {
   const leads = modules?.leadsAndSales;
   const overview = modules?.overview;
-  const prefilled: any = {};
+  const prefilled: Partial<CollectedRequirements['data']> = {};
 
   // Platform - recommend based on size
   if (overview?.employees) {
@@ -704,13 +732,15 @@ const prefillMarketingAutomationRequirements = (modules: any): any => {
 };
 
 // ==================== PROJECT MANAGEMENT PRE-FILL ====================
-const prefillProjectManagementRequirements = (modules: any): any => {
+const prefillProjectManagementRequirements = (
+  modules: Meeting['modules']
+): Partial<CollectedRequirements['data']> => {
   const overview = modules?.overview;
-  const prefilled: any = {};
+  const prefilled: Partial<CollectedRequirements['data']> = {};
 
   // Team size
   if (overview?.employees) {
-    const employeeRanges: any = {
+    const employeeRanges: Record<string, number> = {
       '1-10': 5,
       '11-50': 20,
       '51-200': 50,
@@ -739,10 +769,12 @@ const prefillProjectManagementRequirements = (modules: any): any => {
 };
 
 // ==================== DATA CLEANUP PRE-FILL ====================
-const prefillDataCleanupRequirements = (modules: any): any => {
+const prefillDataCleanupRequirements = (
+  modules: Meeting['modules']
+): Partial<CollectedRequirements['data']> => {
   const systems = modules?.systems;
   const leads = modules?.leadsAndSales;
-  const prefilled: any = {};
+  const prefilled: Partial<CollectedRequirements['data']> = {};
 
   // Data location - from current systems
   if (systems?.currentSystems && systems.currentSystems.length > 0) {
@@ -771,9 +803,11 @@ const prefillDataCleanupRequirements = (modules: any): any => {
 };
 
 // ==================== SUPPORT & TRAINING PRE-FILL ====================
-const prefillSupportTrainingRequirements = (modules: any): any => {
+const prefillSupportTrainingRequirements = (
+  modules: Meeting['modules']
+): Partial<CollectedRequirements['data']> => {
   const overview = modules?.overview;
-  const prefilled: any = {};
+  const prefilled: Partial<CollectedRequirements['data']> = {};
 
   // Support hours - default to business hours
   prefilled.support_hours = 'business';
@@ -789,7 +823,7 @@ const prefillSupportTrainingRequirements = (modules: any): any => {
 
   // Participants - estimate from employees
   if (overview?.employees) {
-    const employeeRanges: any = {
+    const employeeRanges: Record<string, number> = {
       '1-10': 3,
       '11-50': 8,
       '51-200': 15,
@@ -806,10 +840,13 @@ const prefillSupportTrainingRequirements = (modules: any): any => {
 };
 
 // ==================== GENERIC PRE-FILL ====================
-const prefillGenericRequirements = (modules: any, serviceId: string): any => {
+const prefillGenericRequirements = (
+  modules: Meeting['modules'],
+  _serviceId: string
+): Partial<CollectedRequirements['data']> => {
   // For services we haven't specifically mapped yet,
   // extract whatever relevant info we can
-  const prefilled: any = {};
+  const prefilled: Partial<CollectedRequirements['data']> = {};
 
   // Always include basic business info
   prefilled.business_type = modules?.overview?.businessType;
@@ -821,7 +858,7 @@ const prefillGenericRequirements = (modules: any, serviceId: string): any => {
 // Helper function to check if a field should be shown as "already provided"
 export const isFieldPrefilled = (
   fieldId: string,
-  prefilledData: any
+  prefilledData: Partial<CollectedRequirements['data']>
 ): boolean => {
   return prefilledData && prefilledData[fieldId] !== undefined && prefilledData[fieldId] !== null;
 };
@@ -829,7 +866,7 @@ export const isFieldPrefilled = (
 // Helper to get the display text for prefilled data
 export const getPrefilledDisplayText = (
   fieldId: string,
-  prefilledData: any
+  prefilledData: Partial<CollectedRequirements['data']>
 ): string => {
   const value = prefilledData[fieldId];
 

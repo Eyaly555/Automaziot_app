@@ -1,22 +1,23 @@
 import * as XLSX from 'xlsx';
-import { Meeting, PainPoint } from '../types';
+import { Meeting, PainPoint, ROIModule, SelectedService } from '../types';
 import type { DevelopmentTask, Sprint, Blocker } from '../types/phase3';
+import type { DetailedSystemSpec, IntegrationFlow, DetailedAIAgentSpec } from '../types/phase2';
 
 /**
  * Calculate module completion percentage
  */
-function calculateModuleCompletion(moduleData: any): number {
+function calculateModuleCompletion(moduleData: Record<string, unknown>): number {
   if (!moduleData) return 0;
 
   let filledFields = 0;
   let totalFields = 0;
 
-  Object.values(moduleData).forEach(value => {
+  Object.values(moduleData).forEach((value: unknown) => {
     totalFields++;
     if (value !== undefined && value !== null && value !== '') {
       if (Array.isArray(value) && value.length > 0) {
         filledFields++;
-      } else if (typeof value === 'object' && Object.keys(value).length > 0) {
+      } else if (typeof value === 'object' && value !== null && Object.keys(value as Record<string, unknown>).length > 0) {
         filledFields++;
       } else if (typeof value !== 'object') {
         filledFields++;
@@ -48,13 +49,13 @@ function getModuleName(moduleKey: string): string {
 /**
  * Calculate hours saved from ROI data
  */
-function calculateHoursSaved(roi: any): number {
+function calculateHoursSaved(roi: ROIModule | undefined): number {
   if (!roi?.currentCosts?.manualHours || !roi?.timeSavings?.automationPotential) {
     return 0;
   }
 
-  const manualHours = roi.currentCosts.manualHours;
-  const automationPercent = roi.timeSavings.automationPotential / 100;
+  const manualHours = parseFloat(roi.currentCosts.manualHours);
+  const automationPercent = parseFloat(roi.timeSavings.automationPotential) / 100;
   const weeklyHoursSaved = manualHours * automationPercent;
 
   return Math.round(weeklyHoursSaved * 4.33); // Monthly
@@ -63,13 +64,13 @@ function calculateHoursSaved(roi: any): number {
 /**
  * Calculate monthly savings from ROI data
  */
-function calculateMonthlySavings(roi: any): number {
+function calculateMonthlySavings(roi: ROIModule | undefined): number {
   if (!roi?.currentCosts?.manualHours || !roi?.currentCosts?.hourlyCost || !roi?.timeSavings?.automationPotential) {
     return 0;
   }
 
   const hoursSaved = calculateHoursSaved(roi);
-  const hourlyCost = roi.currentCosts.hourlyCost;
+  const hourlyCost = parseFloat(roi.currentCosts.hourlyCost);
 
   return Math.round(hoursSaved * hourlyCost);
 }
@@ -77,8 +78,8 @@ function calculateMonthlySavings(roi: any): number {
 /**
  * Calculate payback period in months
  */
-function calculatePaybackPeriod(roi: any): number {
-  const investment = roi?.investment?.estimatedAmount || 0;
+function calculatePaybackPeriod(roi: ROIModule | undefined): number {
+  const investment = roi?.investment?.budgetAvailable ? parseFloat(roi.investment.budgetAvailable) : 0;
   const monthlySavings = calculateMonthlySavings(roi);
 
   if (monthlySavings === 0) return 0;
@@ -89,8 +90,8 @@ function calculatePaybackPeriod(roi: any): number {
 /**
  * Calculate 12-month ROI percentage
  */
-function calculate12MonthROI(roi: any): number {
-  const investment = roi?.investment?.estimatedAmount || 0;
+function calculate12MonthROI(roi: ROIModule | undefined): number {
+  const investment = roi?.investment?.budgetAvailable ? parseFloat(roi.investment.budgetAvailable) : 0;
   const monthlySavings = calculateMonthlySavings(roi);
   const annualSavings = monthlySavings * 12;
 
@@ -121,9 +122,9 @@ export function exportDiscoveryToExcel(meeting: Meeting): void {
     [''],
     ['סיכום השלמת מודולים'],
     ['מודול', 'אחוז השלמה'],
-    ...Object.keys(meeting.modules).map(key => [
+    ...Object.keys(meeting.modules).map((key: string) => [
       getModuleName(key),
-      `${calculateModuleCompletion(meeting.modules[key as keyof typeof meeting.modules])}%`
+      `${calculateModuleCompletion(meeting.modules[key as keyof typeof meeting.modules] as Record<string, unknown>)}%`
     ])
   ];
 
@@ -143,7 +144,7 @@ export function exportDiscoveryToExcel(meeting: Meeting): void {
     ['נקודות כאב מזוהות'],
     [''],
     ['מודול', 'תת-מודול', 'תיאור', 'חומרה', 'חיסכון חודשי משוער'],
-    ...painPoints.map(pp => [
+    ...painPoints.map((pp: PainPoint) => [
       getModuleName(pp.module),
       pp.subModule || '',
       pp.description,
@@ -169,16 +170,20 @@ export function exportDiscoveryToExcel(meeting: Meeting): void {
 
   // Sheet 3: ROI Summary
   const roi = meeting.modules.roi;
+  const manualHours = roi?.currentCosts?.manualHours ? parseFloat(roi.currentCosts.manualHours) : 0;
+  const hourlyCost = roi?.currentCosts?.hourlyCost ? parseFloat(roi.currentCosts.hourlyCost) : 0;
+  const automationPotential = roi?.timeSavings?.automationPotential ? parseFloat(roi.timeSavings.automationPotential) : 0;
+
   const roiData = [
     ['ניתוח ROI'],
     [''],
     ['עלויות נוכחיות'],
-    ['שעות ידניות בשבוע', roi?.currentCosts?.manualHours || 0],
-    ['עלות לשעה (₪)', roi?.currentCosts?.hourlyCost || 0],
-    ['עלות חודשית (₪)', (roi?.currentCosts?.manualHours || 0) * (roi?.currentCosts?.hourlyCost || 0) * 4.33],
+    ['שעות ידניות בשבוע', manualHours],
+    ['עלות לשעה (₪)', hourlyCost],
+    ['עלות חודשית (₪)', manualHours * hourlyCost * 4.33],
     [''],
     ['חיסכון צפוי'],
-    ['פוטנציאל אוטומציה (%)', roi?.timeSavings?.automationPotential || 0],
+    ['פוטנציאל אוטומציה (%)', automationPotential],
     ['שעות חיסכון בחודש', calculateHoursSaved(roi)],
     ['חיסכון כספי בחודש (₪)', calculateMonthlySavings(roi).toLocaleString()],
     [''],
@@ -202,20 +207,20 @@ export function exportDiscoveryToExcel(meeting: Meeting): void {
     ['שירותים מוצעים'],
     [''],
     ['שם השירות', 'קטגוריה', 'מחיר (₪)', 'ימי עבודה משוערים', 'עדיפות'],
-    ...services.map((service: any) => [
+    ...services.map((service: SelectedService) => [
       service.name,
       service.category,
-      service.pricing ? `₪${service.pricing.toLocaleString()}` : 'הצעת מחיר',
-      service.estimatedDays || 'TBD',
-      service.priority || 'בינוני'
+      service.customPrice ? `₪${service.customPrice.toLocaleString()}` : service.basePrice ? `₪${service.basePrice.toLocaleString()}` : 'הצעת מחיר',
+      service.customDuration || service.estimatedDays || 'TBD',
+      service.relevanceScore ? `${service.relevanceScore}/10` : 'בינוני'
     ])
   ];
 
   if (services.length === 0) {
     servicesData.push(['אין שירותים נבחרים', '', '', '', '']);
   } else {
-    servicesData.push([''], ['סה"כ השקעה', '', `₪${services.reduce((sum: number, s: any) => sum + (s.pricing || 0), 0).toLocaleString()}`]);
-    servicesData.push(['סה"כ משך', '', `${services.reduce((sum: number, s: any) => sum + (s.estimatedDays || 0), 0)} ימים`]);
+    servicesData.push([''], ['סה"כ השקעה', '', `₪${services.reduce((sum: number, s: SelectedService) => sum + (s.customPrice ?? s.basePrice ?? 0), 0).toLocaleString()}`]);
+    servicesData.push(['סה"כ משך', '', `${services.reduce((sum: number, s: SelectedService) => sum + (s.customDuration ?? s.estimatedDays ?? 0), 0)} ימים`]);
   }
 
   const wsServices = XLSX.utils.aoa_to_sheet(servicesData);
@@ -230,21 +235,33 @@ export function exportDiscoveryToExcel(meeting: Meeting): void {
   XLSX.utils.book_append_sheet(wb, wsServices, 'שירותים מוצעים');
 
   // Sheet 5: Systems Inventory
-  const systems = meeting.modules.systems?.currentSystems || [];
-  const systemsData = [
+  // Use detailedSystems if available, fallback to currentSystems (which might be strings or objects)
+  const detailedSystems = meeting.modules.systems?.detailedSystems || [];
+  const currentSystems = meeting.modules.systems?.currentSystems || [];
+
+  // Handle both detailed systems and simple strings
+  const systemsToExport = detailedSystems.length > 0 ? detailedSystems : currentSystems;
+
+  const systemsData: (string | number)[][] = [
     ['מלאי מערכות'],
     [''],
     ['שם המערכת', 'קטגוריה', 'גרסה', 'גישת API', 'שביעות רצון'],
-    ...systems.map((sys: any) => [
-      sys.systemName || sys.name,
-      sys.category || 'לא צוין',
-      sys.version || 'לא צוין',
-      sys.apiAccess || 'לא ידוע',
-      sys.satisfactionScore ? `${sys.satisfactionScore}/5` : 'לא דורג'
-    ])
+    ...(systemsToExport as (string | Record<string, unknown>)[]).map((sys) => {
+      if (typeof sys === 'string') {
+        return [sys, 'לא צוין', 'לא צוין', 'לא ידוע', 'לא דורג'];
+      }
+      const systemObj = sys as Record<string, unknown>;
+      return [
+        (systemObj.specificSystem as string) || (systemObj.systemName as string) || (systemObj.name as string) || 'לא ידוע',
+        (systemObj.category as string) || 'לא צוין',
+        (systemObj.version as string) || 'לא צוין',
+        (systemObj.apiAccess as string) || 'לא ידוע',
+        systemObj.satisfactionScore ? `${systemObj.satisfactionScore}/5` : 'לא דורג'
+      ];
+    })
   ];
 
-  if (systems.length === 0) {
+  if (systemsToExport.length === 0) {
     systemsData.push(['אין מערכות רשומות', '', '', '', '']);
   }
 
@@ -291,20 +308,20 @@ export function exportImplementationSpecToExcel(meeting: Meeting): void {
 
   // Sheet 2: Systems
   const systems = meeting.implementationSpec?.systems || [];
-  const systemsData = [
+  const systemsData: (string | number)[][] = [
     ['Systems Deep Dive'],
     [''],
     ['System Name', 'Authentication Method', 'API Endpoint', 'Modules Count', 'Migration Required', 'Estimated Hours']
   ];
 
-  systems.forEach((sys: any) => {
+  systems.forEach((sys: DetailedSystemSpec) => {
     systemsData.push([
       sys.systemName,
       sys.authentication?.method || 'N/A',
       sys.authentication?.apiEndpoint || 'N/A',
       sys.modules?.length || 0,
       sys.dataMigration?.required ? 'Yes' : 'No',
-      sys.estimatedHours || 0
+      0 // estimatedHours is not part of DetailedSystemSpec - would need to be calculated
     ]);
   });
 
@@ -326,13 +343,13 @@ export function exportImplementationSpecToExcel(meeting: Meeting): void {
 
   // Sheet 3: Integrations
   const integrations = meeting.implementationSpec?.integrations || [];
-  const integrationsData = [
+  const integrationsData: (string | number)[][] = [
     ['Integration Flows'],
     [''],
     ['Flow Name', 'Source', 'Target', 'Trigger Type', 'Frequency', 'Steps Count', 'Estimated Hours']
   ];
 
-  integrations.forEach((flow: any) => {
+  integrations.forEach((flow: IntegrationFlow) => {
     integrationsData.push([
       flow.name,
       flow.sourceSystem,
@@ -340,7 +357,7 @@ export function exportImplementationSpecToExcel(meeting: Meeting): void {
       flow.trigger?.type || 'N/A',
       flow.frequency || 'N/A',
       flow.steps?.length || 0,
-      flow.estimatedHours || 0
+      flow.estimatedSetupTime ? Math.round(flow.estimatedSetupTime / 60) : 0 // Convert minutes to hours
     ]);
   });
 
@@ -363,13 +380,13 @@ export function exportImplementationSpecToExcel(meeting: Meeting): void {
 
   // Sheet 4: AI Agents
   const aiAgents = meeting.implementationSpec?.aiAgents || [];
-  const aiAgentsData = [
+  const aiAgentsData: (string | number)[][] = [
     ['AI Agents Specifications'],
     [''],
     ['Agent Name', 'Department', 'Model', 'Provider', 'Knowledge Sources', 'Integrations', 'Estimated Hours']
   ];
 
-  aiAgents.forEach((agent: any) => {
+  aiAgents.forEach((agent: DetailedAIAgentSpec) => {
     aiAgentsData.push([
       agent.name,
       agent.department || 'N/A',
@@ -381,7 +398,7 @@ export function exportImplementationSpecToExcel(meeting: Meeting): void {
         agent.integrations?.emailEnabled && 'Email',
         agent.integrations?.calendarEnabled && 'Calendar'
       ].filter(Boolean).join(', ') || 'None',
-      agent.estimatedHours || 0
+      0 // estimatedHours is not part of DetailedAIAgentSpec - would need to be calculated
     ]);
   });
 
@@ -417,7 +434,7 @@ export function exportDevelopmentToExcel(meeting: Meeting): void {
   const blockers = meeting.developmentTracking?.blockers || [];
 
   // Sheet 1: Task List
-  const taskData = [
+  const taskData: (string | number)[][] = [
     ['Development Task List'],
     [''],
     ['ID', 'Title', 'Type', 'Status', 'Priority', 'Estimated Hours', 'Actual Hours', 'Assignee', 'Sprint', 'System']
@@ -443,9 +460,9 @@ export function exportDevelopmentToExcel(meeting: Meeting): void {
   }
 
   // Add summary
-  const completedTasks = tasks.filter(t => t.status === 'done').length;
-  const totalEstimated = tasks.reduce((sum, t) => sum + t.estimatedHours, 0);
-  const totalActual = tasks.reduce((sum, t) => sum + t.actualHours, 0);
+  const completedTasks = tasks.filter((t: DevelopmentTask) => t.status === 'done').length;
+  const totalEstimated = tasks.reduce((sum: number, t: DevelopmentTask) => sum + (t.estimatedHours || 0), 0);
+  const totalActual = tasks.reduce((sum: number, t: DevelopmentTask) => sum + (t.actualHours || 0), 0);
 
   taskData.push([]);
   taskData.push(['Summary']);
@@ -472,7 +489,7 @@ export function exportDevelopmentToExcel(meeting: Meeting): void {
   XLSX.utils.book_append_sheet(wb, wsTasks, 'Task List');
 
   // Sheet 2: Sprint Summary
-  const sprintData = [
+  const sprintData: (string | number)[][] = [
     ['Sprint Summary'],
     [''],
     ['Sprint Name', 'Start Date', 'End Date', 'Goal', 'Status', 'Total Tasks', 'Completed', 'In Progress', 'Blocked']
@@ -517,7 +534,7 @@ export function exportDevelopmentToExcel(meeting: Meeting): void {
   XLSX.utils.book_append_sheet(wb, wsSprints, 'Sprint Summary');
 
   // Sheet 3: Blockers
-  const blockerData = [
+  const blockerData: (string | number)[][] = [
     ['Active Blockers'],
     [''],
     ['Blocker ID', 'Task ID', 'Reason', 'Severity', 'Reported Date', 'Status', 'Resolution']
@@ -527,9 +544,9 @@ export function exportDevelopmentToExcel(meeting: Meeting): void {
     blockerData.push([
       blocker.id,
       blocker.taskId,
-      blocker.reason,
+      blocker.description, // Fixed: Blocker has 'description', not 'reason'
       blocker.severity,
-      new Date(blocker.reportedDate).toLocaleDateString('en-US'),
+      blocker.reportedAt ? new Date(blocker.reportedAt).toLocaleDateString('en-US') : 'N/A', // Fixed: Blocker has 'reportedAt', not 'reportedDate'
       blocker.resolved ? 'Resolved' : 'Active',
       blocker.resolution || 'Pending'
     ]);
@@ -562,17 +579,17 @@ export function exportDevelopmentToExcel(meeting: Meeting): void {
     tasksBySystem[systemName].push(task);
   });
 
-  const systemTasksData = [
+  const systemTasksData: (string | number)[][] = [
     ['Tasks by System/Component'],
     [''],
     ['System', 'Total Tasks', 'Completed', 'In Progress', 'Blocked', 'Todo', 'Completion %']
   ];
 
-  Object.entries(tasksBySystem).forEach(([system, systemTasks]) => {
-    const completed = systemTasks.filter(t => t.status === 'done').length;
-    const inProgress = systemTasks.filter(t => t.status === 'in_progress').length;
-    const blocked = systemTasks.filter(t => t.status === 'blocked').length;
-    const todo = systemTasks.filter(t => t.status === 'todo').length;
+  Object.entries(tasksBySystem).forEach(([system, systemTasks]: [string, DevelopmentTask[]]) => {
+    const completed = systemTasks.filter((t: DevelopmentTask) => t.status === 'done').length;
+    const inProgress = systemTasks.filter((t: DevelopmentTask) => t.status === 'in_progress').length;
+    const blocked = systemTasks.filter((t: DevelopmentTask) => t.status === 'blocked').length;
+    const todo = systemTasks.filter((t: DevelopmentTask) => t.status === 'todo').length;
 
     systemTasksData.push([
       system,

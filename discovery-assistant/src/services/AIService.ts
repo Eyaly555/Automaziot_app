@@ -7,7 +7,7 @@ import type {
   AIInsight,
   AIAnalysisResult
 } from '../types';
-import { Meeting, PainPoint, Recommendation } from '../types';
+import { Meeting, PainPoint } from '../types';
 
 interface ProviderConfig {
   apiKey: string;
@@ -25,7 +25,6 @@ export class AIService {
   private cache: Map<string, { data: any; timestamp: number }> = new Map();
   private cacheTimeout = 15 * 60 * 1000; // 15 minutes
   private requestQueue: AIRequest[] = [];
-  private isProcessing: boolean = false;
 
   private constructor() {
     this.provider = this.detectProvider();
@@ -533,12 +532,12 @@ export class AIService {
   }
 
   // Generate local recommendations (fallback)
-  private generateLocalRecommendations(meeting: Meeting, module?: string): AIRecommendation[] {
+  private generateLocalRecommendations(meeting: Meeting, _module?: string): AIRecommendation[] {
     const recommendations: AIRecommendation[] = [];
 
     // Analyze each module for potential recommendations
     if (meeting.modules.leadsAndSales) {
-      const { speedToLead, followUp, leadSources } = meeting.modules.leadsAndSales;
+      const { speedToLead, followUp } = meeting.modules.leadsAndSales;
 
       if (speedToLead && speedToLead > 60) {
         recommendations.push({
@@ -566,7 +565,7 @@ export class AIService {
     }
 
     if (meeting.modules.customerService) {
-      const { channels, automationLevel } = meeting.modules.customerService;
+      const { automationLevel } = meeting.modules.customerService;
 
       if (automationLevel === 'low' || !automationLevel) {
         recommendations.push({
@@ -582,7 +581,7 @@ export class AIService {
     }
 
     if (meeting.modules.operations) {
-      const { processes, bottlenecks } = meeting.modules.operations;
+      const { bottlenecks } = meeting.modules.operations;
 
       if (bottlenecks && bottlenecks.length > 0) {
         recommendations.push({
@@ -598,7 +597,7 @@ export class AIService {
     }
 
     if (meeting.modules.reporting) {
-      const { dashboards, scheduledReports } = meeting.modules.reporting;
+      const { dashboards } = meeting.modules.reporting;
 
       if (!dashboards || dashboards.manual) {
         recommendations.push({

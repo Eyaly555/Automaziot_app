@@ -18,8 +18,23 @@ export const RequirementsNavigator: React.FC<RequirementsNavigatorProps> = ({
   onBack,
   language
 }) => {
-  // Get all selected services from proposal
-  const selectedServiceIds = meeting.modules?.proposal?.selectedServices || [];
+  // Get purchased services from proposal (client-approved services only)
+  // Fall back to selectedServices for backward compatibility
+  const purchasedServices = meeting.modules?.proposal?.purchasedServices || [];
+  const selectedServices = meeting.modules?.proposal?.selectedServices || [];
+
+  // Extract service IDs - prioritize purchasedServices, fallback to selectedServices
+  const selectedServiceIds = purchasedServices.length > 0
+    ? purchasedServices.map(s => s.id)
+    : selectedServices.map(s => s.id);
+
+  // Debug logging for data flow validation
+  console.log('[RequirementsNavigator] Purchased services:', purchasedServices.length);
+  console.log('[RequirementsNavigator] Selected services (fallback):', selectedServices.length);
+  console.log('[RequirementsNavigator] Using service IDs:', selectedServiceIds);
+  if (purchasedServices.length === 0 && selectedServices.length > 0) {
+    console.warn('[RequirementsNavigator] No purchased services found, falling back to selected services. Check meeting.modules.proposal.purchasedServices');
+  }
 
   // Filter only services that have requirement templates
   const servicesWithRequirements = selectedServiceIds.filter((serviceId: string) => {
@@ -28,6 +43,9 @@ export const RequirementsNavigator: React.FC<RequirementsNavigatorProps> = ({
 
   const [currentServiceIndex, setCurrentServiceIndex] = useState(0);
   const [collectedRequirements, setCollectedRequirements] = useState<CollectedRequirements[]>([]);
+
+  // Get the current service ID from the array
+  const currentServiceId = servicesWithRequirements[currentServiceIndex];
 
   // If no services require requirements, skip this phase
   useEffect(() => {
@@ -61,8 +79,6 @@ export const RequirementsNavigator: React.FC<RequirementsNavigatorProps> = ({
     );
   }
 
-  const currentServiceId = servicesWithRequirements[currentServiceIndex];
-  const currentService = getServiceById(currentServiceId);
   const isLastService = currentServiceIndex === servicesWithRequirements.length - 1;
   const overallProgress = ((currentServiceIndex) / servicesWithRequirements.length) * 100;
 

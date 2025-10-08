@@ -18,6 +18,7 @@ import { ProposalModule } from './Modules/Proposal/ProposalModule';
 import { SummaryTab } from './Summary/SummaryTab';
 import { ImplementationSpecDashboard } from './Phase2/ImplementationSpecDashboard';
 import { SystemDeepDive } from './Phase2/SystemDeepDive';
+import { SystemDeepDiveSelection } from './Phase2/SystemDeepDiveSelection';
 import { IntegrationFlowBuilder } from './Phase2/IntegrationFlowBuilder';
 import { AIAgentDetailedSpec } from './Phase2/AIAgentDetailedSpec';
 import { AcceptanceCriteriaBuilder } from './Phase2/AcceptanceCriteriaBuilder';
@@ -168,15 +169,15 @@ export const AppContent = () => {
           }
         />
         <Route
-          path="/phase2/systems/new"
+          path="/phase2/systems"
           element={
             <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
-              <SystemDeepDive />
+              <SystemDeepDiveSelection />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/phase2/systems/:systemId"
+          path="/phase2/systems/:systemId/dive"
           element={
             <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
               <SystemDeepDive />

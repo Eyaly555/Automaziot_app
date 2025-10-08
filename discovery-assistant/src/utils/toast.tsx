@@ -46,11 +46,12 @@ class ToastManager {
     this.toasts.push(toast);
     this.notify();
 
-    // Auto-remove after duration
-    if (toast.duration > 0) {
+    // Auto-remove after duration (use nullish coalescing to ensure duration is defined)
+    const duration = toast.duration ?? 5000;
+    if (duration > 0) {
       setTimeout(() => {
         this.remove(id);
-      }, toast.duration);
+      }, duration);
     }
   }
 
@@ -157,7 +158,9 @@ export const ToastContainer: React.FC = () => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   useEffect(() => {
-    return toastManager.subscribe(setToasts);
+    const unsubscribe = toastManager.subscribe(setToasts);
+    // Fix: Cleanup function should return void, not the boolean from unsubscribe()
+    return unsubscribe;
   }, []);
 
   return (

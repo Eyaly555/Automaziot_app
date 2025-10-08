@@ -26,7 +26,7 @@ export interface DataMappingSpec {
 export const generateDataMappings = (
   sourceSystem: DetailedSystemInfo,
   targetSystem: DetailedSystemInfo,
-  meeting: Meeting
+  _meeting: Meeting
 ): DataMappingSpec => {
   const mappings: DataMapping[] = [];
 
@@ -268,7 +268,7 @@ const generateEcommerceMappings = (source: DetailedSystemInfo, target: DetailedS
   ];
 };
 
-const generateTriggers = (source: DetailedSystemInfo, target: DetailedSystemInfo): string[] => {
+const generateTriggers = (source: DetailedSystemInfo, _target: DetailedSystemInfo): string[] => {
   const triggers = [];
 
   if (source.category === 'crm') {
@@ -292,7 +292,7 @@ const generateTriggers = (source: DetailedSystemInfo, target: DetailedSystemInfo
   return triggers;
 };
 
-const generateErrorHandling = (source: DetailedSystemInfo, target: DetailedSystemInfo): string[] => {
+const generateErrorHandling = (_source: DetailedSystemInfo, _target: DetailedSystemInfo): string[] => {
   return [
     'Retry failed requests up to 3 times with exponential backoff',
     'Log all errors to error_logs table with full context',

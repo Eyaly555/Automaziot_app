@@ -1,4 +1,3 @@
-import React from 'react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { useNavigate } from 'react-router-dom';
 import { getRequirementsTemplate } from '../../config/serviceRequirementsTemplates';
@@ -9,12 +8,7 @@ import {
   Clock,
   ArrowRight,
   Sparkles,
-  FileText,
-  Users,
-  Code,
-  TrendingUp,
-  Target,
-  Zap
+  FileText
 } from 'lucide-react';
 
 interface NextStep {

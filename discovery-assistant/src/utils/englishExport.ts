@@ -19,17 +19,23 @@ export function generateEnglishTechnicalDoc(meeting: Meeting): string {
   doc.push('## 1. Discovery Summary\n');
   doc.push('### Client Information\n');
   doc.push(`**Company:** ${meeting.clientName}`);
-  doc.push(`**Industry:** ${meeting.industry || 'Not specified'}`);
-  doc.push(`**Company Size:** ${meeting.companySize || 'Not specified'} employees`);
-  doc.push(`**Annual Revenue:** ${meeting.annualRevenue || 'Not specified'}\n`);
+  doc.push(`**Industry:** ${meeting.modules?.overview?.industry || 'Not specified'}`);
+  doc.push(`**Company Size:** ${meeting.modules?.overview?.employees || 'Not specified'} employees`);
+  doc.push(`**Budget:** ${meeting.modules?.overview?.budget || 'Not specified'}\n`);
 
   // Current Systems
-  if (meeting.systems && meeting.systems.length > 0) {
+  const systems = meeting.modules?.systems?.detailedSystems;
+  if (systems && systems.length > 0) {
     doc.push('### Current Systems\n');
-    meeting.systems.forEach(sys => {
-      doc.push(`- **${sys.name}** (${sys.category})`);
-      if (sys.issues && sys.issues.length > 0) {
-        doc.push(`  - Issues: ${sys.issues.join(', ')}`);
+    systems.forEach((sys) => {
+      doc.push(`- **${sys.specificSystem || sys.category}** (${sys.category})`);
+      doc.push(`  - API Access: ${sys.apiAccess}`);
+      doc.push(`  - Satisfaction: ${sys.satisfactionScore}/5`);
+      if (sys.mainPainPoints && sys.mainPainPoints.length > 0) {
+        doc.push(`  - Pain points: ${sys.mainPainPoints.join(', ')}`);
+      }
+      if (sys.customNotes) {
+        doc.push(`  - Notes: ${sys.customNotes}`);
       }
     });
     doc.push('');
@@ -38,7 +44,7 @@ export function generateEnglishTechnicalDoc(meeting: Meeting): string {
   // Pain Points
   if (meeting.painPoints && meeting.painPoints.length > 0) {
     doc.push('### Pain Points\n');
-    meeting.painPoints.forEach((pain, index) => {
+    meeting.painPoints.forEach((pain: any, index: number) => {
       doc.push(`${index + 1}. **${pain.title}**`);
       doc.push(`   - Impact: ${pain.impact}`);
       doc.push(`   - Frequency: ${pain.frequency}`);
@@ -57,7 +63,7 @@ export function generateEnglishTechnicalDoc(meeting: Meeting): string {
     // Systems
     if (meeting.implementationSpec.systems && meeting.implementationSpec.systems.length > 0) {
       doc.push('### 2.1 Systems Integration\n');
-      meeting.implementationSpec.systems.forEach((sys, index) => {
+      meeting.implementationSpec.systems.forEach((sys: DetailedSystemSpec, index: number) => {
         doc.push(`#### ${index + 1}. ${sys.systemName}\n`);
         doc.push(generateSystemSpec(sys));
       });
@@ -66,7 +72,7 @@ export function generateEnglishTechnicalDoc(meeting: Meeting): string {
     // Integrations
     if (meeting.implementationSpec.integrations && meeting.implementationSpec.integrations.length > 0) {
       doc.push('### 2.2 Integration Flows\n');
-      meeting.implementationSpec.integrations.forEach((flow, index) => {
+      meeting.implementationSpec.integrations.forEach((flow: IntegrationFlow, index: number) => {
         doc.push(`#### ${index + 1}. ${flow.name}\n`);
         doc.push(generateIntegrationSpec(flow));
       });
@@ -75,7 +81,7 @@ export function generateEnglishTechnicalDoc(meeting: Meeting): string {
     // AI Agents
     if (meeting.implementationSpec.aiAgents && meeting.implementationSpec.aiAgents.length > 0) {
       doc.push('### 2.3 AI Agents\n');
-      meeting.implementationSpec.aiAgents.forEach((agent, index) => {
+      meeting.implementationSpec.aiAgents.forEach((agent: DetailedAIAgentSpec, index: number) => {
         doc.push(`#### ${index + 1}. ${agent.name}\n`);
         doc.push(generateAIAgentSpec(agent));
       });
@@ -111,9 +117,11 @@ function generateSystemSpec(system: DetailedSystemSpec): string {
   if (system.modules && system.modules.length > 0) {
     lines.push('**Modules**');
     system.modules.forEach(mod => {
-      lines.push(`- ${mod.name} (${mod.fieldCount} fields)`);
+      const totalFields = mod.fields.length + mod.customFields.length;
+      lines.push(`- ${mod.name} (${totalFields} fields: ${mod.fields.length} standard, ${mod.customFields.length} custom)`);
       if (mod.customFields && mod.customFields.length > 0) {
-        lines.push(`  - Custom fields: ${mod.customFields.join(', ')}`);
+        const customFieldNames = mod.customFields.map(f => f.fieldLabel || f.fieldName).join(', ');
+        lines.push(`  - Custom fields: ${customFieldNames}`);
       }
     });
     lines.push('');
@@ -157,7 +165,10 @@ function generateIntegrationSpec(flow: IntegrationFlow): string {
   if (flow.steps && flow.steps.length > 0) {
     lines.push('**Steps:**');
     flow.steps.forEach(step => {
-      lines.push(`${step.stepNumber}. ${step.type.toUpperCase()}: ${step.description}`);
+      const stepNum = step.stepNumber || step.order || 0;
+      const stepType = (step.type || step.action || 'STEP').toUpperCase();
+      const stepDesc = step.description || step.name || 'No description';
+      lines.push(`${stepNum}. ${stepType}: ${stepDesc}`);
       if (step.endpoint) {
         lines.push(`   - Endpoint: ${step.endpoint}`);
       }
@@ -169,9 +180,11 @@ function generateIntegrationSpec(flow: IntegrationFlow): string {
   }
 
   lines.push('**Error Handling**');
-  lines.push(`- Retry count: ${flow.errorHandling.retryCount}`);
-  lines.push(`- Retry delay: ${flow.errorHandling.retryDelay}s`);
-  lines.push(`- Fallback action: ${flow.errorHandling.fallbackAction}`);
+  const retryCount = flow.errorHandling.retryCount ?? flow.errorHandling.retryAttempts ?? 0;
+  const retryDelay = flow.errorHandling.retryDelay ?? 0;
+  lines.push(`- Retry count: ${retryCount}`);
+  lines.push(`- Retry delay: ${retryDelay}s`);
+  lines.push(`- Fallback action: ${flow.errorHandling.fallbackAction || 'None specified'}`);
   lines.push(`- Notify on failure: ${flow.errorHandling.notifyOnFailure ? 'Yes' : 'No'}`);
   if (flow.errorHandling.failureEmail) {
     lines.push(`- Failure email: ${flow.errorHandling.failureEmail}`);
@@ -181,7 +194,8 @@ function generateIntegrationSpec(flow: IntegrationFlow): string {
   if (flow.testCases && flow.testCases.length > 0) {
     lines.push('**Test Cases:**');
     flow.testCases.forEach((test, index) => {
-      lines.push(`${index + 1}. ${test.scenario} - Status: ${test.status}`);
+      const testDesc = test.scenario || test.description || test.name || 'Test case';
+      lines.push(`${index + 1}. ${testDesc} - Status: ${test.status}`);
     });
     lines.push('');
   }
@@ -201,21 +215,23 @@ function generateAIAgentSpec(agent: DetailedAIAgentSpec): string {
   lines.push(`- Sources: ${agent.knowledgeBase.sources.length}`);
   agent.knowledgeBase.sources.forEach((source, index) => {
     lines.push(`  ${index + 1}. ${source.type}: ${source.name}`);
-    lines.push(`     - Path: ${source.path}`);
+    lines.push(`     - Location: ${source.location}`);
+    lines.push(`     - Sync enabled: ${source.syncEnabled ? 'Yes' : 'No'}`);
   });
   lines.push(`- Update frequency: ${agent.knowledgeBase.updateFrequency}`);
-  lines.push(`- Embedding model: ${agent.knowledgeBase.embeddingModel}\n`);
+  lines.push(`- Embedding model: ${agent.knowledgeBase.embeddingModel || 'Not specified'}\n`);
 
-  if (agent.conversationFlow.greeting) {
+  if (agent.conversationFlow?.greeting) {
     lines.push('**Conversation Flow**');
     lines.push(`- Greeting: "${agent.conversationFlow.greeting}"`);
-    lines.push(`- Intents: ${agent.conversationFlow.intents.length}`);
-    agent.conversationFlow.intents.forEach((intent, index) => {
+    const intents = agent.conversationFlow.intents || [];
+    lines.push(`- Intents: ${intents.length}`);
+    intents.forEach((intent, index) => {
       lines.push(`  ${index + 1}. ${intent.name}`);
       lines.push(`     - Requires data: ${intent.requiresData ? 'Yes' : 'No'}`);
     });
-    lines.push(`- Max turns: ${agent.conversationFlow.maxTurns}`);
-    lines.push(`- Context window: ${agent.conversationFlow.contextWindow}\n`);
+    lines.push(`- Max turns: ${agent.conversationFlow.maxTurns || 'Not specified'}`);
+    lines.push(`- Context window: ${agent.conversationFlow.contextWindow || 'Not specified'}\n`);
   }
 
   lines.push('**Integrations**');
@@ -228,10 +244,12 @@ function generateAIAgentSpec(agent: DetailedAIAgentSpec): string {
   lines.push('');
 
   lines.push('**Training**');
-  lines.push(`- FAQ pairs: ${agent.training.faqPairs.length}`);
-  lines.push(`- Conversation examples: ${agent.training.conversationExamples.length}`);
-  lines.push(`- Tone: ${agent.training.tone}`);
-  lines.push(`- Language: ${agent.training.language}\n`);
+  const faqPairs = agent.training.faqPairs || [];
+  const conversationExamples = agent.training.conversationExamples || [];
+  lines.push(`- FAQ pairs: ${faqPairs.length}`);
+  lines.push(`- Conversation examples: ${conversationExamples.length}`);
+  lines.push(`- Tone: ${agent.training.tone || 'Not specified'}`);
+  lines.push(`- Language: ${agent.training.language || 'Not specified'}\n`);
 
   return lines.join('\n');
 }
@@ -268,24 +286,26 @@ function generateAcceptanceCriteriaSpec(criteria: AcceptanceCriteria): string {
     lines.push('');
   }
 
-  lines.push('**Deployment**');
-  lines.push(`- Environment: ${criteria.deploymentCriteria.environment}`);
-  if (criteria.deploymentCriteria.approvers && criteria.deploymentCriteria.approvers.length > 0) {
-    lines.push('- Approvers:');
-    criteria.deploymentCriteria.approvers.forEach(approver => {
-      lines.push(`  - ${approver.name} (${approver.role}) - ${approver.email}`);
-    });
+  if (criteria.deploymentCriteria) {
+    lines.push('**Deployment**');
+    lines.push(`- Environment: ${criteria.deploymentCriteria.environment || 'Not specified'}`);
+    if (criteria.deploymentCriteria.approvers && criteria.deploymentCriteria.approvers.length > 0) {
+      lines.push('- Approvers:');
+      criteria.deploymentCriteria.approvers.forEach(approver => {
+        lines.push(`  - ${approver.name || 'N/A'} (${approver.role || 'N/A'}) - ${approver.email || 'N/A'}`);
+      });
+    }
+    if (criteria.deploymentCriteria.rollbackPlan) {
+      lines.push(`- Rollback plan: ${criteria.deploymentCriteria.rollbackPlan}`);
+    }
+    if (criteria.deploymentCriteria.smokeTests && criteria.deploymentCriteria.smokeTests.length > 0) {
+      lines.push('- Smoke tests:');
+      criteria.deploymentCriteria.smokeTests.forEach(test => {
+        lines.push(`  - ${test}`);
+      });
+    }
+    lines.push('');
   }
-  if (criteria.deploymentCriteria.rollbackPlan) {
-    lines.push(`- Rollback plan: ${criteria.deploymentCriteria.rollbackPlan}`);
-  }
-  if (criteria.deploymentCriteria.smokeTests && criteria.deploymentCriteria.smokeTests.length > 0) {
-    lines.push('- Smoke tests:');
-    criteria.deploymentCriteria.smokeTests.forEach(test => {
-      lines.push(`  - ${test}`);
-    });
-  }
-  lines.push('');
 
   if (criteria.signOffRequired) {
     lines.push('**Sign-Off Required**');
@@ -316,8 +336,8 @@ function generateDevelopmentTasksSpec(tasks: DevelopmentTask[], sprints: Sprint[
   lines.push(`- In progress: ${inProgressTasks}`);
   lines.push(`- Blocked: ${blockedTasks}\n`);
 
-  const totalEstimated = tasks.reduce((sum, t) => sum + t.estimatedHours, 0);
-  const totalActual = tasks.reduce((sum, t) => sum + t.actualHours, 0);
+  const totalEstimated = tasks.reduce((sum, t) => sum + (t.estimatedHours || 0), 0);
+  const totalActual = tasks.reduce((sum, t) => sum + (t.actualHours || 0), 0);
 
   lines.push('**Hours**');
   lines.push(`- Estimated: ${totalEstimated}h`);
@@ -379,8 +399,10 @@ function generateDevelopmentTasksSpec(tasks: DevelopmentTask[], sprints: Sprint[
     lines.push('### Sprints\n');
     sprints.forEach(sprint => {
       lines.push(`#### ${sprint.name}`);
-      lines.push(`- Duration: ${new Date(sprint.startDate).toLocaleDateString('en-US')} - ${new Date(sprint.endDate).toLocaleDateString('en-US')}`);
-      lines.push(`- Goal: ${sprint.goal}`);
+      const startDate = sprint.startDate ? new Date(sprint.startDate).toLocaleDateString('en-US') : 'Not set';
+      const endDate = sprint.endDate ? new Date(sprint.endDate).toLocaleDateString('en-US') : 'Not set';
+      lines.push(`- Duration: ${startDate} - ${endDate}`);
+      lines.push(`- Goal: ${sprint.goal || 'Not specified'}`);
       lines.push(`- Status: ${sprint.status}`);
 
       const sprintTasks = tasks.filter(t => t.sprint === sprint.name);

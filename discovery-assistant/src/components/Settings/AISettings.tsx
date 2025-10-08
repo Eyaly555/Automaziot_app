@@ -5,7 +5,6 @@ import {
   BeakerIcon,
   CheckCircleIcon,
   XCircleIcon,
-  ExclamationTriangleIcon,
   ArrowPathIcon,
   InformationCircleIcon,
   CogIcon,

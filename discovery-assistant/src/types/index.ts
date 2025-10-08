@@ -156,7 +156,7 @@ export interface Modules {
   aiAgents: AIAgentsModule;
   systems: SystemsModule;
   roi: ROIModule;
-  proposal?: any; // ProposalData from types/proposal.ts
+  proposal?: ProposalData; // ProposalData from types/proposal.ts
   planning?: PlanningModule; // Keep for backward compatibility
   requirements?: CollectedRequirements[]; // Requirements for selected services
 }
@@ -277,6 +277,24 @@ export interface OverviewModule {
   crmStatus?: 'none' | 'basic' | 'full';
   crmName?: string;
   crmSatisfaction?: 1 | 2 | 3 | 4 | 5;
+
+  // Contact Information - Used by ProposalModule for client contact details
+  companyName?: string;
+  contactName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+
+  // Business Details
+  industry?: string;
+  website?: string;
+  location?: string;
+  established?: string;
+
+  // Goals and Challenges - Used by validation guards and recommendation engine
+  mainGoals?: string[];
+  challenges?: string[];
+  vision?: string;
+  currentSituation?: string;
 }
 
 // Focus areas that drive Essential Details module
@@ -798,11 +816,45 @@ export interface Department {
   systems: string[];
 }
 
-// Module 5 - Reporting
+/**
+ * Module 5 - Reporting and Alerts
+ *
+ * Tracks real-time alerting, scheduled reporting, KPI measurement, and dashboard configuration.
+ *
+ * @property realTimeAlerts - Configured real-time alert rules
+ * @property criticalAlerts - List of critical alert types that must be implemented
+ * @property scheduledReports - Configured scheduled reports
+ * @property kpis - Key Performance Indicators being tracked
+ * @property dashboards - Dashboard configuration and capabilities
+ */
 export interface ReportingModule {
+  /** Real-time alert configurations with channels and recipients */
   realTimeAlerts?: Alert[];
+
+  /** Critical alert types that are required (e.g., 'new_lead', 'payment_failed', 'system_error') */
+  criticalAlerts?: string[];
+
+  /** Scheduled report configurations with frequency and distribution */
   scheduledReports?: Report[];
+
+  /** Custom dashboards configured for different purposes */
+  customDashboards?: Array<{
+    name: string;
+    metrics: string[];
+    refreshRate: string;
+  }>;
+
+  /** Scheduled recurring reports */
+  scheduledReportsList?: Array<{
+    name: string;
+    frequency: string;
+    recipients: string[];
+  }>;
+
+  /** Key Performance Indicators being measured */
   kpis?: KPI[];
+
+  /** Dashboard existence and configuration */
   dashboards?: DashboardConfig;
 }
 
@@ -832,13 +884,65 @@ export interface DashboardConfig {
   anomalyDetection?: 'automatic' | 'manual' | 'none';
 }
 
-// Module 6 - AI Agents
+/**
+ * Module 6 - AI Agents
+ *
+ * Tracks AI implementation opportunities across sales, service, and operations.
+ * Used by smartRecommendations engine to assess AI readiness and suggest implementations.
+ *
+ * @property sales - AI capabilities in sales department
+ * @property service - AI capabilities in customer service
+ * @property operations - AI capabilities in operations
+ * @property priority - Which department should implement AI first
+ * @property naturalLanguageImportance - Importance of natural language processing
+ * @property readinessLevel - Overall AI readiness assessment (used by smartRecommendations.ts)
+ * @property currentAI - Current AI tools or implementations in use
+ * @property aiStrategy - Overall AI strategy and approach
+ * @property constraints - Budget, timeline, compliance, and data privacy constraints
+ * @property vendors - AI vendors being considered or in use
+ * @property agentSpecs - Phase 2: Detailed AI agent specifications
+ * @property selectedModels - Phase 2: AI model selections for specific use cases
+ */
 export interface AIAgentsModule {
+  /** AI capabilities in sales department */
   sales?: AICapability;
+
+  /** AI capabilities in customer service */
   service?: AICapability;
+
+  /** AI capabilities in operations */
   operations?: AICapability;
+
+  /** Priority department for AI implementation */
   priority?: 'sales' | 'service' | 'operations';
+
+  /** Importance of natural language processing capabilities */
   naturalLanguageImportance?: 'critical' | 'important' | 'less_important';
+
+  /** Overall AI readiness level - used by recommendation engine */
+  readinessLevel?: 'none' | 'exploring' | 'pilot' | 'production' | 'high';
+
+  /** Current AI tools or implementations in use */
+  currentAI?: string[];
+
+  /** Overall AI strategy and approach */
+  aiStrategy?: string;
+
+  /** Constraints affecting AI implementation */
+  constraints?: {
+    budget?: number;
+    timeline?: string;
+    compliance?: string[];
+    dataPrivacy?: string[];
+  };
+
+  /** AI vendors being considered or in use */
+  vendors?: Array<{
+    name: string;
+    service: string;
+    integration: string;
+  }>;
+
   // Phase 2: AI Agent Specification Builder
   agentSpecs?: AIAgentUseCase[];
   selectedModels?: AIModelSelection[];
@@ -899,31 +1003,90 @@ export interface AIModelSelection {
   estimatedTokensPerMonth: number;
 }
 
-// Module 7 - Systems
+/**
+ * Module 7 - Systems Integration
+ *
+ * Tracks current systems, integration needs, data quality, API access, and infrastructure.
+ * Used by smartRecommendations engine and validationGuards for system analysis.
+ *
+ * @property currentSystems - List of current systems in use (legacy)
+ * @property customSystems - Custom systems description
+ * @property detailedSystems - Detailed system specifications (Phase 2)
+ * @property integrations - Integration status and needs
+ * @property integrationNeeds - Specific integration requirements (used by validationGuards.ts)
+ * @property dataQuality - Data quality assessment
+ * @property apiWebhooks - API and webhook configuration
+ * @property apiAccess - Whether API access is available (used by smartRecommendations.ts)
+ * @property apiDocumentation - API documentation availability
+ * @property dataWarehouse - Data warehouse presence (used by smartRecommendations.ts)
+ * @property dataWarehouseType - Type of data warehouse in use
+ * @property infrastructure - Infrastructure and hosting details
+ * @property technicalDebt - Known technical debt issues
+ * @property scalabilityConcerns - Scalability challenges
+ */
 export interface SystemsModule {
-  currentSystems?: string[]; // Keep for backward compatibility
+  /** List of current systems in use (legacy format) */
+  currentSystems?: string[];
+
+  /** Custom systems description */
   customSystems?: string;
-  detailedSystems?: DetailedSystemInfo[]; // NEW: Detailed system specifications
+
+  /** Detailed system specifications with API access and integration needs */
+  detailedSystems?: DetailedSystemInfo[];
+
+  /** Integration status and configuration */
   integrations?: {
     level?: string;
     issues?: string[];
     manualDataTransfer?: string;
   };
+
+  /** Specific integration needs between systems - used by validationGuards */
+  integrationNeeds?: Array<{
+    from: string;
+    to: string;
+    type: 'api' | 'webhook' | 'file' | 'database';
+    priority: 'high' | 'medium' | 'low';
+  }>;
+
+  /** Data quality metrics and assessment */
   dataQuality?: {
     overall?: string;
     duplicates?: string;
     completeness?: string;
   };
+
+  /** API and webhook capabilities */
   apiWebhooks?: {
     usage?: string;
     webhooks?: string;
     needs?: string[];
   };
+
+  /** Whether systems have API access - used by smartRecommendations */
+  apiAccess?: boolean;
+
+  /** API documentation availability */
+  apiDocumentation?: string;
+
+  /** Data warehouse presence - used by smartRecommendations */
+  dataWarehouse?: boolean;
+
+  /** Type of data warehouse in use */
+  dataWarehouseType?: string;
+
+  /** Infrastructure and hosting configuration */
   infrastructure?: {
     hosting?: string;
     security?: string[];
     backup?: string;
   };
+
+  /** Known technical debt issues */
+  technicalDebt?: string[];
+
+  /** Scalability challenges and concerns */
+  scalabilityConcerns?: string[];
 }
 
 // NEW: Detailed system specification
@@ -977,46 +1140,29 @@ export interface DataQuality {
   completeness?: number;
 }
 
-// Module 8 - ROI
+/**
+ * Module 8 - ROI (Return on Investment)
+ *
+ * Comprehensive ROI tracking including current costs, time savings potential, investment planning,
+ * and success metrics. Includes both form input data and calculated results.
+ *
+ * @property currentCosts - Current cost inputs (manual hours, hourly cost, tools cost, error cost, lost opportunities)
+ * @property timeSavings - Time savings estimates and automation potential
+ * @property investment - Investment range and payback expectations
+ * @property successMetrics - KPIs for measuring success
+ * @property measurementFrequency - How often to measure ROI metrics
+ * @property summary - Calculated ROI summary (used by proposalEngine)
+ * @property calculations - Detailed ROI calculations by category
+ * @property implementationCosts - Breakdown of implementation costs
+ * @property ongoingCosts - Breakdown of ongoing monthly costs
+ * @property netSavings - Net savings at 12, 24, and 36 months
+ * @property paybackPeriodMonths - Calculated payback period
+ * @property roiPercentages - ROI percentages at different time horizons
+ * @property scenarios - Conservative, realistic, and optimistic scenarios
+ */
 export interface ROIModule {
-  calculations?: ROICalculation[];
-  summary?: {
-    totalMonthlySaving?: number;
-    totalHoursSaved?: number;
-    paybackPeriod?: number;
-    implementationCost?: number;
-  };
-  // Phase 4: Advanced ROI fields
-  implementationCosts?: {
-    initialSetup?: number;
-    toolsAndLicenses?: number;
-    developerTime?: number;
-    training?: number;
-    total?: number;
-  };
-  ongoingCosts?: {
-    monthlySubscriptions?: number;
-    maintenanceHours?: number;
-    supportCosts?: number;
-    total?: number;
-  };
-  netSavings?: {
-    month12?: number;
-    month24?: number;
-    month36?: number;
-  };
-  paybackPeriodMonths?: number;
-  roiPercentages?: {
-    roi12Month?: number;
-    roi24Month?: number;
-    roi36Month?: number;
-  };
-  scenarios?: {
-    conservative?: ROIScenario;
-    realistic?: ROIScenario;
-    optimistic?: ROIScenario;
-  };
-  // Existing fields for form data
+  // Form Input Fields
+  /** Current cost analysis inputs */
   currentCosts?: {
     manualHours?: string;
     hourlyCost?: string;
@@ -1024,18 +1170,107 @@ export interface ROIModule {
     errorCost?: string;
     lostOpportunities?: string;
   };
+
+  /** Time savings potential and implementation approach */
   timeSavings?: {
+    /** Estimated hours that can be saved per week through automation */
+    estimatedHoursSaved?: string;
+    /** Automation potential percentage (0-100) */
     automationPotential?: string;
+    /** Processes to be automated */
     processes?: string[];
+    /** Implementation speed (immediate, quick, moderate, gradual) */
     implementation?: string;
   };
+
+  /** Investment planning and budget */
   investment?: {
     range?: string;
     paybackExpectation?: string;
     budgetAvailable?: string;
   };
+
+  /** Success metrics to track */
   successMetrics?: string[];
+
+  /** Measurement frequency (daily, weekly, monthly, quarterly, annually) */
   measurementFrequency?: string;
+
+  // Calculated Results (populated by roiCalculator)
+  /** ROI calculation results summary */
+  calculations?: ROICalculation[];
+
+  /** High-level ROI summary - used by proposalEngine */
+  summary?: {
+    totalMonthlySaving?: number;
+    totalHoursSaved?: number;
+    paybackPeriod?: number;
+    implementationCost?: number;
+  };
+
+  /** Detailed implementation cost breakdown */
+  implementationCosts?: {
+    initialSetup?: number;
+    toolsAndLicenses?: number;
+    developerTime?: number;
+    training?: number;
+    total?: number;
+  };
+
+  /** Ongoing monthly cost breakdown */
+  ongoingCosts?: {
+    monthlySubscriptions?: number;
+    maintenanceHours?: number;
+    supportCosts?: number;
+    total?: number;
+  };
+
+  /** Net savings projections */
+  netSavings?: {
+    month12?: number;
+    month24?: number;
+    month36?: number;
+  };
+
+  /** Payback period in months */
+  paybackPeriodMonths?: number;
+
+  /** ROI percentages at different time horizons */
+  roiPercentages?: {
+    roi12Month?: number;
+    roi24Month?: number;
+    roi36Month?: number;
+  };
+
+  /** Conservative, realistic, and optimistic ROI scenarios */
+  scenarios?: {
+    conservative?: ROIScenario;
+    realistic?: ROIScenario;
+    optimistic?: ROIScenario;
+  };
+
+  /** Estimated cost savings per month */
+  estimatedCostSavings?: number;
+
+  /** Detailed cost-benefit analysis */
+  costAnalysis?: {
+    currentCost?: number;
+    automationCost?: number;
+    netSavings?: number;
+    roi?: number;
+    paybackPeriod?: number; // months
+  };
+
+  /** Breakdown of benefits beyond cost savings */
+  benefits?: {
+    timeSavings?: number;
+    costSavings?: number;
+    qualityImprovement?: string;
+    scalability?: string;
+  };
+
+  /** Timeline to realize value */
+  timelineToValue?: string;
 }
 
 export interface ROICalculation {
@@ -1062,12 +1297,128 @@ export interface ROIScenario {
   roi36Month: number;
 }
 
-// Module 9 - Planning
+/**
+ * Module 9 - Planning and Summary
+ *
+ * Final planning module that captures vision, goals, priorities, implementation approach,
+ * next steps, and risk assessment. This module ties together insights from all previous modules.
+ *
+ * Used by: PlanningModule component (lines 39-60 for structure reference)
+ *
+ * @property vision - Vision for after automation implementation
+ * @property primaryGoals - Primary business goals (efficiency, customer_satisfaction, revenue_growth, etc.)
+ * @property timeframe - Implementation timeframe (3_months, 6_months, 12_months, 18_months, over_18)
+ * @property priorities - Prioritization of initiatives (top priorities, quick wins, long-term projects)
+ * @property implementation - Implementation approach and team involvement
+ * @property nextSteps - Immediate actions, follow-up dates, and decision makers
+ * @property risks - Main risks identified
+ * @property additionalSupport - Additional support or resources needed
+ * @property successCriteria - Criteria for measuring success
+ * @property constraints - Constraints affecting implementation
+ * @property assumptions - Assumptions made during planning
+ *
+ * @example
+ * ```typescript
+ * const planning: PlanningModule = {
+ *   vision: "Fully automated lead processing within 6 months",
+ *   primaryGoals: ['efficiency', 'cost_reduction', 'scale'],
+ *   timeframe: '6_months',
+ *   priorities: {
+ *     top: ['lead_automation', 'customer_response'],
+ *     quickWins: ['email_templates', 'basic_chatbot'],
+ *     longTerm: ['full_crm', 'ai_agents']
+ *   },
+ *   implementation: {
+ *     approach: 'phased',
+ *     team: 'full',
+ *     training: 'moderate'
+ *   },
+ *   nextSteps: {
+ *     immediate: 'Set up pilot group, Define success metrics',
+ *     followUp: '2024-12-15',
+ *     decisionMakers: 'CEO, CTO, Sales Director'
+ *   },
+ *   risks: ['budget', 'resistance', 'technical'],
+ *   additionalSupport: 'Need external consultant for CRM migration'
+ * };
+ * ```
+ */
 export interface PlanningModule {
+  /** Vision for the organization after successful automation implementation */
   vision?: string;
-  priorities?: Priority[];
+
+  /** Primary business goals to achieve (array of goal types) */
+  primaryGoals?: string[];
+
+  /** Implementation timeframe (3_months, 6_months, 12_months, 18_months, over_18) */
+  timeframe?: string;
+
+  /** Prioritization of initiatives across different timelines */
+  priorities?: {
+    /** Top 3 most important priorities */
+    top?: string[];
+    /** Quick wins that can be implemented fast */
+    quickWins?: string[];
+    /** Long-term strategic projects */
+    longTerm?: string[];
+  };
+
+  /** Implementation approach and methodology */
+  implementation?: {
+    /** Implementation approach (pilot, phased, parallel, big_bang, agile) */
+    approach?: string;
+    /** Team involvement level (full, champions, it_led, external, mixed) */
+    team?: string;
+    /** Training needs (extensive, moderate, minimal, none) */
+    training?: string;
+    /** Implementation timeline */
+    timeline?: string;
+    /** Resource requirements */
+    resources?: {
+      team?: string[];
+      budget?: number;
+      tools?: string[];
+    };
+    /** Implementation phases */
+    phases?: string[];
+  };
+
+  /** Next steps and action items */
+  nextSteps?: {
+    /** Immediate actions to take within one week */
+    immediate?: string;
+    /** Follow-up meeting date */
+    followUp?: string;
+    /** Key decision makers involved */
+    decisionMakers?: string;
+  };
+
+  /** Main risks identified (budget, resistance, technical, time, skills, integration, data, vendor, compliance, scale) */
+  risks?: string[];
+
+  /** Additional support or resources needed for success */
+  additionalSupport?: string;
+
+  /** Success criteria for the implementation */
+  successCriteria?: string[];
+
+  /** Constraints affecting implementation */
+  constraints?: string[];
+
+  /** Assumptions made during planning */
+  assumptions?: string[];
+
+  // Legacy fields - kept for backward compatibility
+  /** Legacy: Array of priority items (replaced by priorities object) */
+  priorityList?: Priority[];
+
+  /** Legacy: Planned KPIs */
   kpis?: PlannedKPI[];
-  nextSteps?: NextStep[];
+
+  /** Legacy: Next steps as array (replaced by nextSteps object) */
+  nextStepsList?: NextStep[];
+
+  /** Legacy: Open questions */
   openQuestions?: string;
 }
 

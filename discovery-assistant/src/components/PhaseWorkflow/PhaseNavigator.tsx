@@ -273,7 +273,7 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
   /**
    * Render phase step
    */
-  const renderPhaseStep = (config: PhaseConfig, index: number) => {
+  const renderPhaseStep = (config: PhaseConfig, _index: number) => {
     const state = getPhaseState(config);
     const progress = getProgress(config);
     const Icon = config.icon;

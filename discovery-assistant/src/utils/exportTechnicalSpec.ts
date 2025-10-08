@@ -1,4 +1,12 @@
-import { TechnicalSpecification } from './technicalSpecGenerator';
+import {
+  TechnicalSpecification,
+  SystemInventoryItem,
+  IntegrationMapItem,
+  AutomationOpportunity,
+  N8NWorkflowTemplate,
+  TechnicalRequirement,
+  ImplementationPhase
+} from './technicalSpecGenerator';
 
 export const exportAsMarkdown = (spec: TechnicalSpecification): string => {
   return `# מפרט טכני - ${spec.metadata.clientName}
@@ -22,7 +30,7 @@ ${spec.executiveSummary.overview}
 
 ## רשימת מערכות
 
-${spec.systemInventory.map((sys, idx) => `
+${spec.systemInventory.map((sys: SystemInventoryItem, idx: number) => `
 ### ${idx + 1}. ${sys.systemName}
 
 **קטגוריה:** ${sys.category}
@@ -35,12 +43,12 @@ ${sys.monthlyUsers ? `**משתמשים חודשיים:** ${sys.monthlyUsers}` : 
 
 ${sys.painPoints.length > 0 ? `
 **נקודות כאב:**
-${sys.painPoints.map(p => `- ${p}`).join('\n')}
+${sys.painPoints.map((p: string) => `- ${p}`).join('\n')}
 ` : ''}
 
 ${sys.criticalFeatures.length > 0 ? `
 **תכונות קריטיות בשימוש:**
-${sys.criticalFeatures.map(f => `- ${f}`).join('\n')}
+${sys.criticalFeatures.map((f: string) => `- ${f}`).join('\n')}
 ` : ''}
 `).join('\n---\n')}
 
@@ -50,7 +58,7 @@ ${sys.criticalFeatures.map(f => `- ${f}`).join('\n')}
 
 ${spec.integrationMap.length === 0 ? '_אין אינטגרציות מוגדרות_' : ''}
 
-${spec.integrationMap.map((int, idx) => `
+${spec.integrationMap.map((int: IntegrationMapItem, idx: number) => `
 ### ${idx + 1}. ${int.from} → ${int.to}
 
 - **סוג אינטגרציה:** ${int.type}
@@ -65,13 +73,13 @@ ${int.notes ? `- **הערות:** ${int.notes}` : ''}
 
 ## הזדמנויות אוטומציה
 
-${spec.automationOpportunities.map((opp, idx) => `
+${spec.automationOpportunities.map((opp: AutomationOpportunity, idx: number) => `
 ### ${idx + 1}. ${opp.title} (עדיפות ${opp.priority})
 
 **תיאור:** ${opp.description}
 
 **מערכות מושפעות:**
-${opp.affectedSystems.map(s => `- ${s}`).join('\n')}
+${opp.affectedSystems.map((s: string) => `- ${s}`).join('\n')}
 
 **חיסכון זמן משוער:** ${opp.estimatedTimeSavings}
 **מורכבות:** ${opp.complexity === 'low' ? '🟢 נמוכה' : opp.complexity === 'medium' ? '🟡 בינונית' : '🔴 גבוהה'}
@@ -83,7 +91,7 @@ ${opp.affectedSystems.map(s => `- ${s}`).join('\n')}
 
 ## תבניות Workflows ל-n8n
 
-${spec.n8nWorkflows.map((wf, idx) => `
+${spec.n8nWorkflows.map((wf: N8NWorkflowTemplate, idx: number) => `
 ### ${idx + 1}. ${wf.name}
 
 **תיאור:** ${wf.description}
@@ -91,7 +99,7 @@ ${spec.n8nWorkflows.map((wf, idx) => `
 **Trigger:** ${wf.trigger}
 
 **צעדים:**
-${wf.nodes.map((node, nodeIdx) => `${nodeIdx + 1}. **${node.type}** - ${node.action}${node.system ? ` (${node.system})` : ''}`).join('\n')}
+${wf.nodes.map((node: N8NWorkflowTemplate['nodes'][0], nodeIdx: number) => `${nodeIdx + 1}. **${node.type}** - ${node.action}${node.system ? ` (${node.system})` : ''}`).join('\n')}
 
 **מורכבות:** ${wf.estimatedComplexity}
 **זמן פיתוח משוער:** ${wf.estimatedHours} שעות
@@ -102,7 +110,7 @@ ${wf.nodes.map((node, nodeIdx) => `${nodeIdx + 1}. **${node.type}** - ${node.act
 {
   "name": "${wf.name}",
   "nodes": [
-    ${wf.nodes.map((node, nodeIdx) => `{
+    ${wf.nodes.map((node: N8NWorkflowTemplate['nodes'][0], nodeIdx: number) => `{
       "parameters": {},
       "name": "${node.type} ${nodeIdx + 1}",
       "type": "${node.type}",
@@ -120,17 +128,17 @@ ${wf.nodes.map((node, nodeIdx) => `${nodeIdx + 1}. **${node.type}** - ${node.act
 
 ## דרישות טכניות למערכת
 
-${spec.technicalRequirements.map((req, idx) => `
+${spec.technicalRequirements.map((req: TechnicalRequirement, idx: number) => `
 ### ${idx + 1}. ${req.system}
 
 #### Authentication
-${req.requirements.authentication.map(auth => `- ${auth}`).join('\n')}
+${req.requirements.authentication.map((auth: string) => `- ${auth}`).join('\n')}
 
 #### Permissions נדרשים
-${req.requirements.permissions.map(perm => `- ${perm}`).join('\n')}
+${req.requirements.permissions.map((perm: string) => `- ${perm}`).join('\n')}
 
 #### API Endpoints עיקריים
-${req.requirements.endpoints.map(ep => `- \`${ep}\``).join('\n')}
+${req.requirements.endpoints.map((ep: string) => `- \`${ep}\``).join('\n')}
 
 ${req.requirements.rateLimit ? `**Rate Limit:** ${req.requirements.rateLimit}` : ''}
 
@@ -141,7 +149,7 @@ ${req.requirements.documentation ? `**תיעוד:** ${req.requirements.documenta
 
 ## תכנית יישום
 
-${spec.implementationPlan.map(phase => `
+${spec.implementationPlan.map((phase: ImplementationPhase) => `
 ### Phase ${phase.phase}: ${phase.name}
 
 **משך זמן:** ${phase.duration}
@@ -149,10 +157,10 @@ ${spec.implementationPlan.map(phase => `
 ${phase.dependencies.length > 0 ? `**תלויות:** ${phase.dependencies.join(', ')}` : '**תלויות:** אין'}
 
 #### משימות
-${phase.tasks.map(task => `- [ ] ${task}`).join('\n')}
+${phase.tasks.map((task: string) => `- [ ] ${task}`).join('\n')}
 
 #### תוצרים (Deliverables)
-${phase.deliverables.map(del => `- ${del}`).join('\n')}
+${phase.deliverables.map((del: string) => `- ${del}`).join('\n')}
 `).join('\n---\n')}
 
 ---
@@ -178,7 +186,7 @@ ${phase.deliverables.map(del => `- ${del}`).join('\n')}
 ## נספחים
 
 ### A. רשימת Credentials נדרשים
-${spec.systemInventory.map(sys => `- **${sys.systemName}:** API Key/OAuth credentials`).join('\n')}
+${spec.systemInventory.map((sys: SystemInventoryItem) => `- **${sys.systemName}:** API Key/OAuth credentials`).join('\n')}
 
 ### B. כלים מומלצים
 - **n8n:** אוטומציה ו-workflows
@@ -228,7 +236,9 @@ export const downloadJSON = (spec: TechnicalSpecification, filename: string) => 
 // ============================================================================
 
 import jsPDF from 'jspdf';
-import type { Meeting } from '../types';
+import type { Meeting, PainPoint, SelectedService } from '../types';
+import type { DetailedSystemSpec, IntegrationFlow } from '../types/phase2';
+import type { DevelopmentTask } from '../types/phase3';
 
 /**
  * Export Discovery phase to PDF
@@ -251,7 +261,7 @@ export async function exportDiscoveryPDF(meeting: Meeting): Promise<void> {
   };
 
   // Helper to add text with proper RTL support
-  const addRTLText = (text: string, x: number, yPos: number, options?: any) => {
+  const addRTLText = (text: string, x: number, yPos: number, options?: Record<string, unknown>) => {
     pdf.text(text, x, yPos, { align: 'right', ...options });
   };
 
@@ -306,11 +316,11 @@ export async function exportDiscoveryPDF(meeting: Meeting): Promise<void> {
   addRTLText(`סה"כ נקודות כאב: ${painPoints.length}`, pageWidth - margin, y);
   y += 7;
 
-  const criticalCount = painPoints.filter(p => p.severity === 'critical' || p.severity === 'high').length;
+  const criticalCount = painPoints.filter((p: PainPoint) => p.severity === 'critical' || p.severity === 'high').length;
   addRTLText(`קריטי/גבוה: ${criticalCount}`, pageWidth - margin, y);
   y += 7;
 
-  const totalSavings = painPoints.reduce((sum, p) => sum + (p.potentialSaving || 0), 0);
+  const totalSavings = painPoints.reduce((sum: number, p: PainPoint) => sum + (p.potentialSaving || 0), 0);
   if (totalSavings > 0) {
     addRTLText(`חיסכון חודשי פוטנציאלי: ₪${totalSavings.toLocaleString()}`, pageWidth - margin, y);
     y += 7;
@@ -336,7 +346,7 @@ export async function exportDiscoveryPDF(meeting: Meeting): Promise<void> {
     proposal: 'הצעת שירות'
   };
 
-  Object.keys(meeting.modules).forEach(key => {
+  Object.keys(meeting.modules).forEach((key: string) => {
     checkPageBreak(10);
     const name = moduleNames[key] || key;
     addRTLText(`${name}: השלמה`, pageWidth - margin, y);
@@ -365,7 +375,10 @@ export async function exportDiscoveryPDF(meeting: Meeting): Promise<void> {
       y += 7;
       addRTLText(`עלות לשעה: ₪${roi.currentCosts.hourlyCost || 0}`, pageWidth - margin, y);
       y += 7;
-      const monthlyCost = (roi.currentCosts.manualHours || 0) * (roi.currentCosts.hourlyCost || 0) * 4.33;
+      // Fix: Ensure arithmetic operations use numbers with explicit coercion
+      const manualHours = Number(roi.currentCosts.manualHours) || 0;
+      const hourlyCost = Number(roi.currentCosts.hourlyCost) || 0;
+      const monthlyCost = manualHours * hourlyCost * 4.33;
       addRTLText(`עלות חודשית: ₪${Math.round(monthlyCost).toLocaleString()}`, pageWidth - margin, y);
       y += 15;
     }
@@ -398,7 +411,7 @@ export async function exportDiscoveryPDF(meeting: Meeting): Promise<void> {
     pdf.setFontSize(12);
     pdf.setFont('helvetica', 'normal');
 
-    meeting.modules.proposal.selectedServices.forEach((service: any, index: number) => {
+    meeting.modules.proposal.selectedServices.forEach((service: SelectedService, index: number) => {
       checkPageBreak(25);
 
       pdf.setFont('helvetica', 'bold');
@@ -409,13 +422,15 @@ export async function exportDiscoveryPDF(meeting: Meeting): Promise<void> {
       addRTLText(`קטגוריה: ${service.category}`, pageWidth - margin, y);
       y += 7;
 
-      if (service.pricing) {
-        addRTLText(`מחיר: ₪${service.pricing.toLocaleString()}`, pageWidth - margin, y);
+      if (service.basePrice || service.customPrice) {
+        const price = service.customPrice ?? service.basePrice;
+        addRTLText(`מחיר: ₪${price.toLocaleString()}`, pageWidth - margin, y);
         y += 7;
       }
 
-      if (service.estimatedDays) {
-        addRTLText(`ימי עבודה: ${service.estimatedDays}`, pageWidth - margin, y);
+      if (service.estimatedDays || service.customDuration) {
+        const days = service.customDuration ?? service.estimatedDays;
+        addRTLText(`ימי עבודה: ${days}`, pageWidth - margin, y);
         y += 7;
       }
 
@@ -482,7 +497,7 @@ export async function exportImplementationSpecPDF(meeting: Meeting): Promise<voi
     pdf.setFontSize(11);
     pdf.setFont('helvetica', 'normal');
 
-    meeting.implementationSpec.systems.forEach((system: any, idx: number) => {
+    meeting.implementationSpec.systems.forEach((system: DetailedSystemSpec, idx: number) => {
       checkPageBreak(30);
 
       pdf.setFont('helvetica', 'bold');
@@ -523,7 +538,7 @@ export async function exportImplementationSpecPDF(meeting: Meeting): Promise<voi
     pdf.setFontSize(11);
     pdf.setFont('helvetica', 'normal');
 
-    meeting.implementationSpec.integrations.forEach((flow: any, idx: number) => {
+    meeting.implementationSpec.integrations.forEach((flow: IntegrationFlow, idx: number) => {
       checkPageBreak(25);
 
       pdf.setFont('helvetica', 'bold');
@@ -605,9 +620,9 @@ export async function exportDevelopmentPDF(meeting: Meeting): Promise<void> {
   pdf.setFont('helvetica', 'normal');
 
   const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(t => t.status === 'done').length;
-  const inProgressTasks = tasks.filter(t => t.status === 'in_progress').length;
-  const blockedTasks = tasks.filter(t => t.status === 'blocked').length;
+  const completedTasks = tasks.filter((t: DevelopmentTask) => t.status === 'done').length;
+  const inProgressTasks = tasks.filter((t: DevelopmentTask) => t.status === 'in_progress').length;
+  const blockedTasks = tasks.filter((t: DevelopmentTask) => t.status === 'blocked').length;
 
   pdf.text(`Total Tasks: ${totalTasks}`, margin, y);
   y += 8;
@@ -618,8 +633,8 @@ export async function exportDevelopmentPDF(meeting: Meeting): Promise<void> {
   pdf.text(`Blocked: ${blockedTasks}`, margin, y);
   y += 15;
 
-  const totalEstimated = tasks.reduce((sum, t) => sum + t.estimatedHours, 0);
-  const totalActual = tasks.reduce((sum, t) => sum + t.actualHours, 0);
+  const totalEstimated = tasks.reduce((sum: number, t: DevelopmentTask) => sum + t.estimatedHours, 0);
+  const totalActual = tasks.reduce((sum: number, t: DevelopmentTask) => sum + t.actualHours, 0);
 
   pdf.text(`Total Estimated Hours: ${totalEstimated}h`, margin, y);
   y += 8;
@@ -642,14 +657,14 @@ export async function exportDevelopmentPDF(meeting: Meeting): Promise<void> {
   pdf.setFontSize(10);
 
   const statusGroups = {
-    'Done': tasks.filter(t => t.status === 'done'),
-    'In Progress': tasks.filter(t => t.status === 'in_progress'),
-    'In Review': tasks.filter(t => t.status === 'in_review'),
-    'Blocked': tasks.filter(t => t.status === 'blocked'),
-    'Todo': tasks.filter(t => t.status === 'todo')
+    'Done': tasks.filter((t: DevelopmentTask) => t.status === 'done'),
+    'In Progress': tasks.filter((t: DevelopmentTask) => t.status === 'in_progress'),
+    'In Review': tasks.filter((t: DevelopmentTask) => t.status === 'in_review'),
+    'Blocked': tasks.filter((t: DevelopmentTask) => t.status === 'blocked'),
+    'Todo': tasks.filter((t: DevelopmentTask) => t.status === 'todo')
   };
 
-  Object.entries(statusGroups).forEach(([status, statusTasks]) => {
+  Object.entries(statusGroups).forEach(([status, statusTasks]: [string, DevelopmentTask[]]) => {
     if (statusTasks.length > 0) {
       checkPageBreak(15 + (statusTasks.length * 6));
 
@@ -658,7 +673,7 @@ export async function exportDevelopmentPDF(meeting: Meeting): Promise<void> {
       y += 8;
 
       pdf.setFont('helvetica', 'normal');
-      statusTasks.slice(0, 10).forEach(task => {
+      statusTasks.slice(0, 10).forEach((task: DevelopmentTask) => {
         pdf.text(`- ${task.title}`, margin + 5, y, { maxWidth: pageWidth - margin * 2 - 5 });
         y += 6;
       });

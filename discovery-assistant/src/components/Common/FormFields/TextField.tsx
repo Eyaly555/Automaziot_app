@@ -14,6 +14,8 @@ interface TextFieldProps {
   error?: boolean;
   className?: string;
   dir?: 'ltr' | 'rtl';
+  onBlur?: () => void;
+  onKeyPress?: (e: React.KeyboardEvent) => void;
 }
 
 export const TextField: React.FC<TextFieldProps> = ({
@@ -29,7 +31,9 @@ export const TextField: React.FC<TextFieldProps> = ({
   helperText,
   error = false,
   className = '',
-  dir = 'rtl'
+  dir = 'rtl',
+  onBlur,
+  onKeyPress
 }) => {
   const baseClasses = `w-full px-3 py-2 border rounded-lg shadow-sm transition-all duration-200
     focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none
@@ -53,6 +57,8 @@ export const TextField: React.FC<TextFieldProps> = ({
           disabled={disabled}
           rows={rows}
           className={`${baseClasses} resize-none`}
+          onBlur={onBlur}
+          onKeyPress={onKeyPress}
         />
       ) : (
         <input
@@ -62,6 +68,8 @@ export const TextField: React.FC<TextFieldProps> = ({
           placeholder={placeholder}
           disabled={disabled}
           className={baseClasses}
+          onBlur={onBlur}
+          onKeyPress={onKeyPress}
         />
       )}
       {helperText && (

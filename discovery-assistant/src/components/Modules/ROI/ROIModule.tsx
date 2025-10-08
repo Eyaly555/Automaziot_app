@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Calculator, TrendingUp, Clock, DollarSign } from 'lucide-react';
+import { ArrowRight, TrendingUp, Clock, DollarSign } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Card, Input, Button } from '../../Base';
-import { CheckboxGroup, RadioGroup, RatingField } from '../../Common/FormFields';
+import { CheckboxGroup, RadioGroup } from '../../Common/FormFields';
 import { formatCurrency } from '../../../utils/formatters';
 import { calculateROI } from '../../../utils/roiCalculator';
 import { ROIVisualization } from './ROIVisualization';

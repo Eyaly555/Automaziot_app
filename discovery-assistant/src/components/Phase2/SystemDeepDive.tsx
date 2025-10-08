@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMeetingStore } from '../../store/useMeetingStore';
-import { DetailedSystemSpec, SystemModule, SystemField, SystemAuthentication, DataMigration } from '../../types';
-import { Server, Save, ArrowLeft, Plus, Trash2, Key, Database, FileText } from 'lucide-react';
+import { DetailedSystemSpec, SystemModule, SystemAuthentication, DataMigration } from '../../types';
+import { AcceptanceCriteria, FunctionalRequirement, PerformanceRequirement, SecurityRequirement } from '../../types/phase2';
+import { Server, Save, ArrowLeft, Plus, Trash2, Key, Database, FileText, BookOpen, CheckSquare, Sparkles, Loader } from 'lucide-react';
 import { SystemSpecProgress } from './SystemSpecProgress';
 import { Input, Select, TextArea, Button } from '../Base';
+import { getSystemAuthTemplate } from '../../config/systemsAuthDatabase';
+import { generateAcceptanceCriteria, getSystemCriteria } from '../../utils/acceptanceCriteriaGenerator';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -13,24 +16,44 @@ export const SystemDeepDive: React.FC = () => {
   const { systemId } = useParams<{ systemId: string }>();
   const { currentMeeting, updateMeeting } = useMeetingStore();
 
-  const isNew = systemId === 'new';
-  const existingSystem = currentMeeting?.implementationSpec?.systems.find(s => s.id === systemId);
+  // Get the Phase 1 system data
+  const phase1System = currentMeeting?.modules?.systems?.detailedSystems?.find(
+    s => s.id === systemId
+  );
 
-  const [system, setSystem] = useState<DetailedSystemSpec>(existingSystem || {
+  // Check if we already have a Phase 2 deep dive for this system
+  const existingDeepDive = currentMeeting?.implementationSpec?.systems.find(
+    s => s.systemId === systemId
+  );
+
+  // If no Phase 1 system found, redirect back
+  if (!phase1System && !existingDeepDive) {
+    navigate('/phase2/systems');
+    return null;
+  }
+
+  // Initialize system deep dive - pre-fill from Phase 1 if available
+  const [system, setSystem] = useState<DetailedSystemSpec>(existingDeepDive || {
     id: generateId(),
-    systemId: '',
-    systemName: '',
+    systemId: phase1System!.id,
+    systemName: phase1System!.specificSystem,
+
+    // NEW: Authentication - need to collect in Phase 2
     authentication: {
-      method: 'api_key',
+      method: 'api_key', // Default, user will specify
       credentialsProvided: false,
       apiEndpoint: '',
       rateLimits: '',
       testAccountAvailable: false
     },
+
+    // NEW: Modules - need to collect in Phase 2
     modules: [],
+
+    // Pre-fill data migration from Phase 1
     dataMigration: {
-      required: false,
-      recordCount: 0,
+      required: (phase1System!.recordCount || 0) > 0,
+      recordCount: phase1System!.recordCount || 0,
       cleanupNeeded: false,
       historicalDataYears: 0,
       migrationMethod: 'api',
@@ -38,14 +61,46 @@ export const SystemDeepDive: React.FC = () => {
       testMigrationFirst: true,
       rollbackPlan: ''
     },
-    technicalNotes: ''
+
+    // Pre-fill technical notes from Phase 1
+    technicalNotes: phase1System!.customNotes || ''
   });
 
-  const [activeTab, setActiveTab] = useState<'auth' | 'modules' | 'migration'>('auth');
+  const [activeTab, setActiveTab] = useState<'auth' | 'modules' | 'migration' | 'acceptance'>('auth');
+  const [authTemplate] = useState(getSystemAuthTemplate(phase1System?.specificSystem || ''));
+  const [isGeneratingCriteria, setIsGeneratingCriteria] = useState(false);
+  const [systemCriteria, setSystemCriteria] = useState<AcceptanceCriteria | null>(null);
+
+  // Pre-fill from auth template when system loads
+  useEffect(() => {
+    if (authTemplate && !existingDeepDive) {
+      setSystem(prev => ({
+        ...prev,
+        authentication: {
+          ...prev.authentication,
+          method: authTemplate.defaultAuthMethod,
+          apiEndpoint: authTemplate.apiEndpoint,
+          rateLimits: authTemplate.rateLimits
+        }
+      }));
+    }
+  }, [authTemplate, existingDeepDive]);
+
+  // Load existing criteria for this system
+  useEffect(() => {
+    if (currentMeeting?.implementationSpec?.acceptanceCriteria) {
+      const filtered = getSystemCriteria(
+        currentMeeting.implementationSpec.acceptanceCriteria,
+        system.systemName
+      );
+      setSystemCriteria(filtered);
+    }
+  }, [currentMeeting, system.systemName]);
 
   const handleSave = () => {
     if (!currentMeeting?.implementationSpec) return;
 
+    const isNew = !existingDeepDive;
     const updatedSystems = isNew
       ? [...currentMeeting.implementationSpec.systems, system]
       : currentMeeting.implementationSpec.systems.map(s => s.id === system.id ? system : s);
@@ -59,6 +114,63 @@ export const SystemDeepDive: React.FC = () => {
     });
 
     navigate('/phase2');
+  };
+
+  const handleGenerateCriteria = async () => {
+    if (!currentMeeting) return;
+
+    setIsGeneratingCriteria(true);
+    try {
+      // Generate full acceptance criteria from the entire meeting
+      const fullCriteria = generateAcceptanceCriteria(currentMeeting);
+
+      // Filter to get only criteria for this system
+      const filtered = getSystemCriteria(fullCriteria, system.systemName);
+      setSystemCriteria(filtered);
+
+      // Save the full criteria to meeting (not just this system's)
+      updateMeeting({
+        implementationSpec: {
+          ...currentMeeting.implementationSpec!,
+          acceptanceCriteria: fullCriteria,
+          lastUpdated: new Date(),
+          updatedBy: 'user'
+        }
+      });
+    } catch (error) {
+      console.error('Failed to generate acceptance criteria:', error);
+      alert('שגיאה ביצירת קריטריוני קבלה');
+    } finally {
+      setIsGeneratingCriteria(false);
+    }
+  };
+
+  const updateCriterion = (
+    type: 'functional' | 'performance' | 'security' | 'usability',
+    id: string,
+    updates: Partial<FunctionalRequirement> | Partial<PerformanceRequirement> | Partial<SecurityRequirement> | Partial<any>
+  ) => {
+    if (!currentMeeting?.implementationSpec?.acceptanceCriteria || !systemCriteria) return;
+
+    const fullCriteria = currentMeeting.implementationSpec.acceptanceCriteria;
+    const updatedCriteria = {
+      ...fullCriteria,
+      [type]: fullCriteria[type].map((item: FunctionalRequirement | PerformanceRequirement | SecurityRequirement | any) =>
+        item.id === id ? { ...item, ...updates } : item
+      )
+    };
+
+    updateMeeting({
+      implementationSpec: {
+        ...currentMeeting.implementationSpec,
+        acceptanceCriteria: updatedCriteria,
+        lastUpdated: new Date()
+      }
+    });
+
+    // Update local state
+    const filtered = getSystemCriteria(updatedCriteria, system.systemName);
+    setSystemCriteria(filtered);
   };
 
   const addModule = () => {
@@ -83,7 +195,7 @@ export const SystemDeepDive: React.FC = () => {
   const updateModule = (moduleId: string, updates: Partial<SystemModule>) => {
     setSystem({
       ...system,
-      modules: system.modules.map(m =>
+      modules: system.modules.map((m: SystemModule) =>
         m.id === moduleId ? { ...m, ...updates } : m
       )
     });
@@ -97,16 +209,16 @@ export const SystemDeepDive: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => navigate('/phase2')}
+                onClick={() => navigate('/phase2/systems')}
                 className="p-2 hover:bg-gray-100 rounded-lg transition"
               >
                 <ArrowLeft className="w-6 h-6" />
               </button>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  {isNew ? 'מערכת חדשה' : system.systemName}
+                  {system.systemName}
                 </h1>
-                <p className="text-gray-600 text-sm">מפרט טכני מלא</p>
+                <p className="text-gray-600 text-sm">פירוט טכני מלא • מ-Phase 1: {phase1System?.category}</p>
               </div>
             </div>
             <Button
@@ -117,6 +229,52 @@ export const SystemDeepDive: React.FC = () => {
               שמור
             </Button>
           </div>
+
+          {/* Phase 1 Context Card */}
+          {phase1System && (
+            <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <Server className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-blue-900 mb-2">מידע מ-Phase 1</h3>
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <span className="text-blue-700">רשומות במערכת:</span>
+                      <span className="font-bold text-blue-900 mr-2">
+                        {phase1System.recordCount?.toLocaleString('he-IL') || 'לא צוין'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-blue-700">גישת API:</span>
+                      <span className="font-bold text-blue-900 mr-2">
+                        {phase1System.apiAccess === 'full' ? 'מלאה' :
+                         phase1System.apiAccess === 'limited' ? 'מוגבלת' :
+                         phase1System.apiAccess === 'none' ? 'אין' : 'לא ידוע'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-blue-700">נקודות כאב:</span>
+                      <span className="font-bold text-blue-900 mr-2">
+                        {phase1System.mainPainPoints?.length || 0}
+                      </span>
+                    </div>
+                  </div>
+                  {phase1System.mainPainPoints && phase1System.mainPainPoints.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-xs font-semibold text-blue-800 mb-1">נקודות כאב עיקריות:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {phase1System.mainPainPoints.slice(0, 3).map((pain: string, idx: number) => (
+                          <span key={idx} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                            {pain}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -145,7 +303,8 @@ export const SystemDeepDive: React.FC = () => {
               {[
                 { id: 'auth', label: 'אימות וגישה', icon: Key },
                 { id: 'modules', label: 'מודולים ושדות', icon: Database },
-                { id: 'migration', label: 'העברת נתונים', icon: FileText }
+                { id: 'migration', label: 'העברת נתונים', icon: FileText },
+                { id: 'acceptance', label: 'קריטריוני קבלה', icon: CheckSquare }
               ].map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
@@ -168,6 +327,36 @@ export const SystemDeepDive: React.FC = () => {
             {/* Basic Info (always visible) */}
             {activeTab === 'auth' && (
               <div className="space-y-6">
+                {/* Auth Template Guide */}
+                {authTemplate && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <BookOpen className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-green-900 mb-2">
+                          מצאנו תבנית אימות ל-{authTemplate.systemName}
+                        </h4>
+                        <div className="text-sm text-green-800 whitespace-pre-line mb-3">
+                          {authTemplate.authGuide}
+                        </div>
+                        <a
+                          href={authTemplate.documentation}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-green-700 hover:text-green-900 underline"
+                        >
+                          תיעוד רשמי ↗
+                        </a>
+                        {authTemplate.notes && (
+                          <p className="text-xs text-green-700 mt-2 border-t border-green-200 pt-2">
+                            💡 {authTemplate.notes}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-6">
                   <Input
                     label="שם המערכת *"
@@ -184,7 +373,7 @@ export const SystemDeepDive: React.FC = () => {
                       ...system,
                       authentication: {
                         ...system.authentication,
-                        method: e.target.value as any
+                        method: e.target.value as SystemAuthentication['method']
                       }
                     })}
                     required
@@ -278,6 +467,44 @@ export const SystemDeepDive: React.FC = () => {
 
             {activeTab === 'modules' && (
               <div className="space-y-6">
+                {/* Suggested Modules from Template */}
+                {authTemplate && authTemplate.commonModules && authTemplate.commonModules.length > 0 && system.modules.length === 0 && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <Database className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-blue-900 mb-2">
+                          מודולים נפוצים ב-{authTemplate.systemName}
+                        </h4>
+                        <p className="text-sm text-blue-800 mb-3">
+                          תוכל להוסיף את המודולים הנפוצים הבאים במהירות:
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {authTemplate.commonModules.map((moduleName: string, idx: number) => (
+                            <button
+                              key={idx}
+                              onClick={() => {
+                                const newModule: SystemModule = {
+                                  id: generateId(),
+                                  name: moduleName,
+                                  fields: [],
+                                  customFields: [],
+                                  recordCount: 0,
+                                  requiresMapping: true
+                                };
+                                setSystem({ ...system, modules: [...system.modules, newModule] });
+                              }}
+                              className="text-sm px-3 py-1 bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition"
+                            >
+                              + {moduleName}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-semibold text-gray-900">מודולים במערכת</h3>
                   <button
@@ -302,7 +529,7 @@ export const SystemDeepDive: React.FC = () => {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {system.modules.map((module) => (
+                    {system.modules.map((module: SystemModule) => (
                       <div key={module.id} className="p-6 border border-gray-200 rounded-lg">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1 grid grid-cols-2 gap-4">
@@ -407,7 +634,7 @@ export const SystemDeepDive: React.FC = () => {
                         ...system,
                         dataMigration: {
                           ...system.dataMigration,
-                          migrationMethod: e.target.value as any
+                          migrationMethod: e.target.value as DataMigration['migrationMethod']
                         }
                       })}
                     >
@@ -482,6 +709,174 @@ export const SystemDeepDive: React.FC = () => {
                       rows={4}
                       placeholder="תאר את תהליך החזרה למצב קודם במקרה של בעיה..."
                     />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Acceptance Criteria Tab */}
+            {activeTab === 'acceptance' && (
+              <div className="space-y-6">
+                {/* Header with Generate Button */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">קריטריוני קבלה למערכת</h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      קריטריונים פונקציונליים, ביצועים, אבטחה ושימושיות
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleGenerateCriteria}
+                    disabled={isGeneratingCriteria}
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isGeneratingCriteria ? (
+                      <>
+                        <Loader className="w-4 h-4 animate-spin" />
+                        מייצר...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4" />
+                        ייצר קריטריונים אוטומטית
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {!systemCriteria || (
+                  systemCriteria.functional.length === 0 &&
+                  systemCriteria.performance.length === 0 &&
+                  systemCriteria.security.length === 0 &&
+                  systemCriteria.usability.length === 0
+                ) ? (
+                  <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                    <CheckSquare className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-4">עדיין לא נוצרו קריטריוני קבלה למערכת זו</p>
+                    <button
+                      onClick={handleGenerateCriteria}
+                      disabled={isGeneratingCriteria}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                    >
+                      <Sparkles className="w-4 h-4 inline ml-2" />
+                      ייצר עכשיו
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {/* Functional Requirements */}
+                    {systemCriteria.functional.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <CheckSquare className="w-5 h-5 text-blue-600" />
+                          דרישות פונקציונליות ({systemCriteria.functional.length})
+                        </h4>
+                        <div className="space-y-3">
+                          {systemCriteria.functional.map((req: FunctionalRequirement) => (
+                            <div key={req.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition">
+                              <div className="flex items-start justify-between mb-2">
+                                <div className="flex-1">
+                                  <input
+                                    type="text"
+                                    value={req.description}
+                                    onChange={(e) => updateCriterion('functional', req.id, { description: e.target.value })}
+                                    className="w-full font-medium text-gray-900 bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
+                                  />
+                                  <p className="text-sm text-gray-600 mt-1 px-2">{req.category}</p>
+                                </div>
+                                <select
+                                  value={req.priority}
+                                  onChange={(e) => updateCriterion('functional', req.id, { priority: e.target.value })}
+                                  className="text-xs px-2 py-1 border border-gray-300 rounded"
+                                >
+                                  <option value="must_have">חובה</option>
+                                  <option value="should_have">רצוי</option>
+                                  <option value="nice_to_have">נחמד</option>
+                                </select>
+                              </div>
+                              <div className="grid grid-cols-2 gap-3 mt-3">
+                                <div>
+                                  <label className="text-xs text-gray-600">תרחיש בדיקה</label>
+                                  <input
+                                    type="text"
+                                    value={req.testScenario}
+                                    onChange={(e) => updateCriterion('functional', req.id, { testScenario: e.target.value })}
+                                    className="w-full text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded px-2 py-1 mt-1"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-xs text-gray-600">קריטריון קבלה</label>
+                                  <input
+                                    type="text"
+                                    value={req.acceptanceCriteria}
+                                    onChange={(e) => updateCriterion('functional', req.id, { acceptanceCriteria: e.target.value })}
+                                    className="w-full text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded px-2 py-1 mt-1"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Performance Requirements */}
+                    {systemCriteria.performance.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <Sparkles className="w-5 h-5 text-green-600" />
+                          דרישות ביצועים ({systemCriteria.performance.length})
+                        </h4>
+                        <div className="space-y-2">
+                          {systemCriteria.performance.map((req: PerformanceRequirement) => (
+                            <div key={req.id} className="bg-green-50 border border-green-200 rounded-lg p-3">
+                              <div className="flex items-center justify-between">
+                                <span className="font-medium text-gray-900">{req.metric}</span>
+                                <input
+                                  type="text"
+                                  value={req.target}
+                                  onChange={(e) => updateCriterion('performance', req.id, { target: e.target.value })}
+                                  className="text-sm px-2 py-1 bg-white border border-green-300 rounded"
+                                  placeholder="יעד"
+                                />
+                              </div>
+                              <p className="text-sm text-gray-600 mt-1">{req.testMethod}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Security Requirements */}
+                    {systemCriteria.security.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <Key className="w-5 h-5 text-orange-600" />
+                          דרישות אבטחה ({systemCriteria.security.length})
+                        </h4>
+                        <div className="space-y-2">
+                          {systemCriteria.security.map((req: SecurityRequirement) => (
+                            <div key={req.id} className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <p className="font-medium text-gray-900">{req.requirement}</p>
+                                  <p className="text-sm text-gray-600 mt-1">{req.implementation}</p>
+                                </div>
+                                <label className="flex items-center gap-1 text-sm">
+                                  <input
+                                    type="checkbox"
+                                    checked={req.verified}
+                                    onChange={(e) => updateCriterion('security', req.id, { verified: e.target.checked })}
+                                    className="rounded"
+                                  />
+                                  אומת
+                                </label>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

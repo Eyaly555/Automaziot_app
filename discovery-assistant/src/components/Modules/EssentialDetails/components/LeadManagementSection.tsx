@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Input, TextArea, Select } from '../../../Base';
+import { Card, Input, TextArea } from '../../../Base';
 import { CheckboxGroup } from '../../../Common/FormFields';
 import type { EssentialDetailsModule } from '../../../../types';
 

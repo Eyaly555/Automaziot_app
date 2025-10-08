@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Bot,
@@ -11,18 +11,26 @@ import {
   Trash2,
   CheckCircle,
   Sparkles,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Lightbulb,
+  CheckSquare,
+  Loader
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
+import { expandAIAgents, hasAIAgentUseCases } from '../../utils/aiAgentExpander';
 import {
   DetailedAIAgentSpec,
-  KnowledgeBase,
-  DetailedConversationFlow,
-  AIAgentIntegrations,
-  AIAgentTraining,
-  AIModelSelection
+  KnowledgeSource,
+  Intent,
+  Webhook,
+  FAQPair,
+  AcceptanceCriteria,
+  FunctionalRequirement,
+  PerformanceRequirement,
+  UsabilityRequirement
 } from '../../types/phase2';
-import { Input, Select, TextArea, Button } from '../Base';
+import { Input, TextArea, Button } from '../Base';
+import { generateAcceptanceCriteria, getAIAgentCriteria } from '../../utils/acceptanceCriteriaGenerator';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -40,15 +48,6 @@ const AI_MODELS = [
   { value: 'gemini-pro', label: 'Gemini Pro', provider: 'Google', description: 'שילוב טקסט ומולטימדיה' }
 ] as const;
 
-const INTENT_TYPES = [
-  'שאלה כללית',
-  'בקשה למידע',
-  'דיווח על בעיה',
-  'בקשה לעזרה',
-  'משוב',
-  'אחר'
-] as const;
-
 export const AIAgentDetailedSpec: React.FC = () => {
   const navigate = useNavigate();
   const { agentId } = useParams();
@@ -57,6 +56,14 @@ export const AIAgentDetailedSpec: React.FC = () => {
   const existingAgent = agentId
     ? currentMeeting?.implementationSpec?.aiAgents.find(a => a.id === agentId)
     : null;
+
+  // Check if AI services were purchased (defensive fallback to selectedServices for backward compatibility)
+  const purchasedServices =
+    currentMeeting?.modules?.proposal?.purchasedServices?.length > 0
+      ? currentMeeting.modules.proposal.purchasedServices
+      : currentMeeting?.modules?.proposal?.selectedServices || [];
+  const hasAIServices = purchasedServices.some(s => s.category === 'ai_agents');
+  const aiServicesCount = purchasedServices.filter(s => s.category === 'ai_agents').length;
 
   const [agent, setAgent] = useState<DetailedAIAgentSpec>(existingAgent || {
     id: generateId(),
@@ -102,10 +109,79 @@ export const AIAgentDetailedSpec: React.FC = () => {
     }
   });
 
-  const [activeTab, setActiveTab] = useState<'basic' | 'knowledge' | 'conversation' | 'integrations' | 'training' | 'model'>('basic');
+  const [activeTab, setActiveTab] = useState<'basic' | 'knowledge' | 'conversation' | 'integrations' | 'training' | 'model' | 'acceptance'>('basic');
+  const [expandedFromPhase1, setExpandedFromPhase1] = useState(false);
+  const [isGeneratingCriteria, setIsGeneratingCriteria] = useState(false);
+  const [agentCriteria, setAgentCriteria] = useState<AcceptanceCriteria | null>(null);
+
+  // Auto-expand AI agents from Phase 1 on component mount
+  useEffect(() => {
+    // Only if we're creating a new agent (not editing existing)
+    if (agentId || !currentMeeting) return;
+
+    // CRITICAL: Check if client purchased AI services
+    // Phase 2 should only expand AI agents if AI services were actually purchased
+    // Defensive fallback to selectedServices for backward compatibility
+    const purchasedServices =
+      currentMeeting?.modules?.proposal?.purchasedServices?.length > 0
+        ? currentMeeting.modules.proposal.purchasedServices
+        : currentMeeting?.modules?.proposal?.selectedServices || [];
+    const hasAIServices = purchasedServices.some(s => s.category === 'ai_agents');
+
+    console.log('[AIAgentDetailedSpec] AI Service Filtering:', {
+      totalPurchasedServices: purchasedServices.length,
+      hasAIServices,
+      aiServicesCount: purchasedServices.filter(s => s.category === 'ai_agents').length,
+      aiServiceIds: purchasedServices.filter(s => s.category === 'ai_agents').map(s => s.id)
+    });
+
+    // If no AI services purchased, don't expand agents
+    if (!hasAIServices) {
+      console.warn('[AIAgentDetailedSpec] No AI services purchased - skipping agent expansion');
+      return;
+    }
+
+    // Check if we have AI use cases in Phase 1
+    const hasUseCases = hasAIAgentUseCases(currentMeeting);
+
+    // Check if agents are already expanded in Phase 2
+    const existingAgents = currentMeeting.implementationSpec?.aiAgents || [];
+
+    // If we have use cases and no existing agents, auto-expand
+    if (hasUseCases && existingAgents.length === 0 && !expandedFromPhase1) {
+      console.log('[AIAgentDetailedSpec] Expanding AI agents from Phase 1...');
+      const expandedAgents = expandAIAgents(currentMeeting);
+
+      if (expandedAgents.length > 0) {
+        console.log('[AIAgentDetailedSpec] Successfully expanded', expandedAgents.length, 'AI agents');
+
+        // Save expanded agents to meeting
+        updateMeeting({
+          implementationSpec: {
+            ...currentMeeting.implementationSpec!,
+            aiAgents: expandedAgents,
+            lastUpdated: new Date(),
+            updatedBy: 'system'
+          }
+        });
+
+        setExpandedFromPhase1(true);
+
+        // Navigate back to dashboard to show all expanded agents
+        navigate('/phase2');
+      }
+    }
+  }, [agentId, currentMeeting, expandedFromPhase1, navigate, updateMeeting]);
 
   const handleSave = () => {
     if (!currentMeeting) return;
+
+    // CRITICAL: Check if AI services were purchased before allowing save
+    if (!hasAIServices) {
+      alert('לא ניתן לשמור סוכן AI - שירותי AI לא נכללו בהצעה המאושרת.\n\nאנא חזור לשלב Discovery ובחר שירותי AI רלוונטיים.');
+      console.warn('[AIAgentDetailedSpec] Attempted to save AI agent without purchased AI services');
+      return;
+    }
 
     // Validation
     if (!agent.name || !agent.department) {
@@ -121,7 +197,7 @@ export const AIAgentDetailedSpec: React.FC = () => {
     const updatedSpec = {
       ...currentMeeting.implementationSpec!,
       aiAgents: existingAgent
-        ? currentMeeting.implementationSpec!.aiAgents.map(a =>
+        ? currentMeeting.implementationSpec!.aiAgents.map((a: DetailedAIAgentSpec) =>
             a.id === agentId ? agent : a
           )
         : [...(currentMeeting.implementationSpec!.aiAgents || []), agent],
@@ -154,7 +230,7 @@ export const AIAgentDetailedSpec: React.FC = () => {
     });
   };
 
-  const updateKnowledgeSource = (index: number, updates: any) => {
+  const updateKnowledgeSource = (index: number, updates: Partial<KnowledgeSource>) => {
     const updatedSources = [...agent.knowledgeBase.sources];
     updatedSources[index] = { ...updatedSources[index], ...updates };
     setAgent({
@@ -171,7 +247,7 @@ export const AIAgentDetailedSpec: React.FC = () => {
       ...agent,
       knowledgeBase: {
         ...agent.knowledgeBase,
-        sources: agent.knowledgeBase.sources.filter((_, i) => i !== index)
+        sources: agent.knowledgeBase.sources.filter((_item: KnowledgeSource, i: number) => i !== index)
       }
     });
   };
@@ -194,7 +270,7 @@ export const AIAgentDetailedSpec: React.FC = () => {
     });
   };
 
-  const updateIntent = (index: number, updates: any) => {
+  const updateIntent = (index: number, updates: Partial<Intent>) => {
     const updatedIntents = [...agent.conversationFlow.intents];
     updatedIntents[index] = { ...updatedIntents[index], ...updates };
     setAgent({
@@ -211,7 +287,7 @@ export const AIAgentDetailedSpec: React.FC = () => {
       ...agent,
       conversationFlow: {
         ...agent.conversationFlow,
-        intents: agent.conversationFlow.intents.filter((_, i) => i !== index)
+        intents: agent.conversationFlow.intents.filter((_item: Intent, i: number) => i !== index)
       }
     });
   };
@@ -233,7 +309,7 @@ export const AIAgentDetailedSpec: React.FC = () => {
     });
   };
 
-  const updateFAQPair = (index: number, updates: any) => {
+  const updateFAQPair = (index: number, updates: Partial<FAQPair>) => {
     const updatedFAQs = [...agent.training.faqPairs];
     updatedFAQs[index] = { ...updatedFAQs[index], ...updates };
     setAgent({
@@ -250,7 +326,7 @@ export const AIAgentDetailedSpec: React.FC = () => {
       ...agent,
       training: {
         ...agent.training,
-        faqPairs: agent.training.faqPairs.filter((_, i) => i !== index)
+        faqPairs: agent.training.faqPairs.filter((_item: FAQPair, i: number) => i !== index)
       }
     });
   };
@@ -278,10 +354,79 @@ export const AIAgentDetailedSpec: React.FC = () => {
       ...agent,
       integrations: {
         ...agent.integrations,
-        customWebhooks: agent.integrations.customWebhooks.filter((_, i) => i !== index)
+        customWebhooks: agent.integrations.customWebhooks.filter((_item: Webhook, i: number) => i !== index)
       }
     });
   };
+
+  const handleGenerateCriteria = async () => {
+    if (!currentMeeting) return;
+
+    setIsGeneratingCriteria(true);
+    try {
+      // Generate full acceptance criteria
+      const fullCriteria = generateAcceptanceCriteria(currentMeeting);
+
+      // Filter to get only criteria for this AI agent
+      const filtered = getAIAgentCriteria(fullCriteria, agent.name, agent.department);
+      setAgentCriteria(filtered);
+
+      // Save the full criteria to meeting
+      updateMeeting({
+        implementationSpec: {
+          ...currentMeeting.implementationSpec!,
+          acceptanceCriteria: fullCriteria,
+          lastUpdated: new Date(),
+          updatedBy: 'user'
+        }
+      });
+    } catch (error) {
+      console.error('Failed to generate acceptance criteria:', error);
+      alert('שגיאה ביצירת קריטריוני קבלה');
+    } finally {
+      setIsGeneratingCriteria(false);
+    }
+  };
+
+  const updateCriterion = (
+    type: 'functional' | 'performance' | 'usability',
+    id: string,
+    updates: Partial<FunctionalRequirement | PerformanceRequirement | UsabilityRequirement>
+  ) => {
+    if (!currentMeeting?.implementationSpec?.acceptanceCriteria || !agentCriteria) return;
+
+    const fullCriteria = currentMeeting.implementationSpec.acceptanceCriteria;
+    const updatedCriteria = {
+      ...fullCriteria,
+      [type]: fullCriteria[type].map((item: FunctionalRequirement | PerformanceRequirement | UsabilityRequirement) =>
+        item.id === id ? { ...item, ...updates } : item
+      )
+    };
+
+    updateMeeting({
+      implementationSpec: {
+        ...currentMeeting.implementationSpec,
+        acceptanceCriteria: updatedCriteria,
+        lastUpdated: new Date()
+      }
+    });
+
+    // Update local state
+    const filtered = getAIAgentCriteria(updatedCriteria, agent.name, agent.department);
+    setAgentCriteria(filtered);
+  };
+
+  // Load existing criteria for this AI agent
+  useEffect(() => {
+    if (currentMeeting?.implementationSpec?.acceptanceCriteria && agent.name) {
+      const filtered = getAIAgentCriteria(
+        currentMeeting.implementationSpec.acceptanceCriteria,
+        agent.name,
+        agent.department
+      );
+      setAgentCriteria(filtered);
+    }
+  }, [currentMeeting, agent.name, agent.department]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4" dir="rtl">
@@ -289,11 +434,25 @@ export const AIAgentDetailedSpec: React.FC = () => {
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3 space-x-reverse">
+            <div className="flex items-center gap-3">
               <Bot className="w-8 h-8 text-blue-600" />
               <h1 className="text-2xl font-bold text-gray-900">
                 {existingAgent ? 'עריכת סוכן AI' : 'סוכן AI חדש'}
               </h1>
+              {hasAIServices && (
+                <span className="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
+                  <CheckCircle className="w-4 h-4" />
+                  {aiServicesCount} שירותי AI נרכשו
+                </span>
+              )}
+              {existingAgent?.id && currentMeeting?.implementationSpec?.aiAgents?.find(
+                a => a.id === existingAgent.id
+              )?.id && expandedFromPhase1 && (
+                <span className="flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full">
+                  <Lightbulb className="w-4 h-4" />
+                  הורחב מ-Phase 1
+                </span>
+              )}
             </div>
             <button
               onClick={() => navigate('/phase2')}
@@ -304,17 +463,51 @@ export const AIAgentDetailedSpec: React.FC = () => {
           </div>
         </div>
 
+        {/* Warning: No AI Services Purchased */}
+        {!hasAIServices && (
+          <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-6 mb-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0">
+                <Bot className="w-8 h-8 text-orange-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-orange-900 mb-2">
+                  שירותי AI לא נכללו בהצעה המאושרת
+                </h3>
+                <p className="text-orange-800 mb-3">
+                  כרגע לא רכשת שירותי AI במסגרת ההצעה המאושרת. כדי להוסיף סוכני AI לפרויקט, יש לחזור לשלב Discovery ולבחור שירותי AI רלוונטיים.
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => navigate('/phase2')}
+                    className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                  >
+                    חזרה ל-Phase 2
+                  </button>
+                  <button
+                    onClick={() => navigate('/discovery')}
+                    className="px-4 py-2 border-2 border-orange-600 text-orange-700 rounded-lg hover:bg-orange-50 transition-colors"
+                  >
+                    חזרה ל-Discovery לבחירת שירותים
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Tab Navigation */}
         <div className="bg-white rounded-lg shadow-sm mb-6">
           <div className="flex border-b overflow-x-auto">
-            {[
-              { key: 'basic', label: 'פרטים בסיסיים', icon: Settings },
-              { key: 'knowledge', label: `מקורות ידע (${agent.knowledgeBase.sources.length})`, icon: Database },
-              { key: 'conversation', label: `שיחה (${agent.conversationFlow.intents.length})`, icon: MessageSquare },
-              { key: 'integrations', label: 'אינטגרציות', icon: LinkIcon },
-              { key: 'training', label: `אימון (${agent.training.faqPairs.length})`, icon: Brain },
-              { key: 'model', label: 'מודל AI', icon: Sparkles }
-            ].map(({ key, label, icon: Icon }) => (
+            {([
+              { key: 'basic' as const, label: 'פרטים בסיסיים', icon: Settings },
+              { key: 'knowledge' as const, label: `מקורות ידע (${agent.knowledgeBase.sources.length})`, icon: Database },
+              { key: 'conversation' as const, label: `שיחה (${agent.conversationFlow.intents.length})`, icon: MessageSquare },
+              { key: 'integrations' as const, label: 'אינטגרציות', icon: LinkIcon },
+              { key: 'training' as const, label: `אימון (${agent.training.faqPairs.length})`, icon: Brain },
+              { key: 'model' as const, label: 'מודל AI', icon: Sparkles },
+              { key: 'acceptance' as const, label: 'קריטריוני קבלה', icon: CheckSquare }
+            ]).map(({ key, label, icon: Icon }: { key: typeof activeTab; label: string; icon: React.FC<{ className?: string }> }) => (
               <button
                 key={key}
                 onClick={() => setActiveTab(key as typeof activeTab)}
@@ -347,7 +540,7 @@ export const AIAgentDetailedSpec: React.FC = () => {
                     מחלקה *
                   </label>
                   <div className="grid grid-cols-3 gap-3">
-                    {DEPARTMENTS.map(({ value, label, icon }) => (
+                    {DEPARTMENTS.map(({ value, label, icon }: { value: DetailedAIAgentSpec['department']; label: string; icon: string }) => (
                       <button
                         key={value}
                         onClick={() => setAgent({ ...agent, department: value })}
@@ -396,12 +589,12 @@ export const AIAgentDetailedSpec: React.FC = () => {
                     </div>
                   ) : (
                     <>
-                      {agent.knowledgeBase.sources.map((source, index) => (
+                      {agent.knowledgeBase.sources.map((source: KnowledgeSource, index: number) => (
                         <div key={index} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
                           <div className="flex items-start justify-between mb-4">
                             <select
                               value={source.type}
-                              onChange={(e) => updateKnowledgeSource(index, { type: e.target.value })}
+                              onChange={(e) => updateKnowledgeSource(index, { type: e.target.value as KnowledgeSource['type'] })}
                               className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
                             >
                               <option value="document">מסמך</option>
@@ -537,7 +730,7 @@ export const AIAgentDetailedSpec: React.FC = () => {
                   </div>
 
                   <div className="space-y-3">
-                    {agent.conversationFlow.intents.map((intent, index) => (
+                    {agent.conversationFlow.intents.map((intent: Intent, index: number) => (
                       <div key={index} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
                         <div className="flex items-start justify-between mb-3">
                           <input
@@ -744,7 +937,7 @@ export const AIAgentDetailedSpec: React.FC = () => {
 
                   {agent.integrations.customWebhooks.length > 0 && (
                     <div className="space-y-3">
-                      {agent.integrations.customWebhooks.map((webhook, index) => (
+                      {agent.integrations.customWebhooks.map((webhook: Webhook, index: number) => (
                         <div key={index} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
                           <div className="flex items-start justify-between mb-3">
                             <input
@@ -809,7 +1002,7 @@ export const AIAgentDetailedSpec: React.FC = () => {
                   </div>
 
                   <div className="space-y-3">
-                    {agent.training.faqPairs.map((faq, index) => (
+                    {agent.training.faqPairs.map((faq: FAQPair, index: number) => (
                       <div key={index} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
                         <div className="flex items-start justify-between mb-3">
                           <h4 className="font-medium text-gray-900">שאלה #{index + 1}</h4>
@@ -928,7 +1121,7 @@ export const AIAgentDetailedSpec: React.FC = () => {
                     בחר מודל AI
                   </label>
                   <div className="space-y-3">
-                    {AI_MODELS.map(model => (
+                    {AI_MODELS.map((model: { value: string; label: string; provider: string; description: string }) => (
                       <button
                         key={model.value}
                         onClick={() => setAgent({
@@ -1031,13 +1224,134 @@ export const AIAgentDetailedSpec: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {/* Acceptance Criteria Tab */}
+            {activeTab === 'acceptance' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">קריטריוני קבלה לסוכן AI</h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      דרישות פונקציונליות, ביצועים ושימושיות לסוכן זה
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleGenerateCriteria}
+                    disabled={isGeneratingCriteria}
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50"
+                  >
+                    {isGeneratingCriteria ? (
+                      <>
+                        <Loader className="w-4 h-4 animate-spin" />
+                        מייצר...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4" />
+                        ייצר קריטריונים
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {!agentCriteria || (
+                  agentCriteria.functional.length === 0 &&
+                  agentCriteria.performance.length === 0 &&
+                  agentCriteria.usability.length === 0
+                ) ? (
+                  <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                    <CheckSquare className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-4">עדיין לא נוצרו קריטריוני קבלה</p>
+                    <button
+                      onClick={handleGenerateCriteria}
+                      disabled={isGeneratingCriteria}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                      <Sparkles className="w-4 h-4 inline ml-2" />
+                      ייצר עכשיו
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {agentCriteria.functional.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-3">
+                          דרישות פונקציונליות ({agentCriteria.functional.length})
+                        </h4>
+                        <div className="space-y-2">
+                          {agentCriteria.functional.map((req: FunctionalRequirement) => (
+                            <div key={req.id} className="bg-white border border-gray-200 rounded-lg p-3">
+                              <input
+                                type="text"
+                                value={req.description}
+                                onChange={(e) => updateCriterion('functional', req.id, { description: e.target.value })}
+                                className="w-full font-medium text-gray-900 bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2"
+                              />
+                              <p className="text-sm text-gray-600 mt-1 px-2">{req.acceptanceCriteria}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {agentCriteria.performance.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-3">
+                          דרישות ביצועים ({agentCriteria.performance.length})
+                        </h4>
+                        <div className="space-y-2">
+                          {agentCriteria.performance.map((req: PerformanceRequirement) => (
+                            <div key={req.id} className="bg-green-50 border border-green-200 rounded-lg p-3">
+                              <div className="flex items-center justify-between">
+                                <span className="font-medium text-gray-900">{req.metric}</span>
+                                <input
+                                  type="text"
+                                  value={req.target}
+                                  onChange={(e) => updateCriterion('performance', req.id, { target: e.target.value })}
+                                  className="text-sm px-2 py-1 bg-white border border-green-300 rounded"
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {agentCriteria.usability.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-3">
+                          דרישות שימושיות ({agentCriteria.usability.length})
+                        </h4>
+                        <div className="space-y-2">
+                          {agentCriteria.usability.map((req: UsabilityRequirement) => (
+                            <div key={req.id} className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                              <p className="font-medium text-gray-900">{req.requirement}</p>
+                              <p className="text-sm text-gray-600 mt-1">{req.successCriteria}</p>
+                              <label className="flex items-center gap-1 text-sm mt-2">
+                                <input
+                                  type="checkbox"
+                                  checked={req.tested}
+                                  onChange={(e) => updateCriterion('usability', req.id, { tested: e.target.checked })}
+                                  className="rounded"
+                                />
+                                נבדק
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Actions */}
         <div className="flex justify-between">
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={() => navigate('/phase2')}
           >
             ביטול

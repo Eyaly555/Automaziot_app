@@ -3,18 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight, Check, FileText, DollarSign, Clock, Target,
   Zap, Bot, Link, Database, Settings, ShoppingCart, X,
-  Search, BarChart, Sparkles, FileX, ChevronDown, Filter,
-  TrendingUp, Calendar, Plus, Send, MessageCircle, Mail, Pencil
+  Search, BarChart, Sparkles, FileX,
+  Plus, Send, Pencil
 } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
-import { Card, Input, Select } from '../../Base';
+import { Input, Select } from '../../Base';
 import { generateProposal } from '../../../utils/proposalEngine';
 import { ProposedService, SelectedService, ProposalData } from '../../../types/proposal';
 import {
   SERVICE_CATEGORIES,
   getCategoryById,
-  SERVICES_DATABASE,
-  ServiceItem,
   ServiceCategoryId
 } from '../../../config/servicesDatabase';
 import { getSmartRecommendations } from '../../../utils/smartRecommendationsEngine';
@@ -85,7 +83,6 @@ export const ProposalModule: React.FC = () => {
 
   // NEW: Additional editing state
   const [editingDurations, setEditingDurations] = useState<{ [key: string]: number }>({});
-  const [editingNotes, setEditingNotes] = useState<{ [key: string]: string }>({});
 
   // Track which fields are actively being edited
   const [activeEditPrice, setActiveEditPrice] = useState<string | null>(null);
@@ -112,8 +109,6 @@ export const ProposalModule: React.FC = () => {
     searchQuery: ''
   });
   const [showComparison, setShowComparison] = useState(false);
-  const [showCart, setShowCart] = useState(false);
-  const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
 
   // Generate proposal when component mounts
   useEffect(() => {
@@ -244,14 +239,6 @@ export const ProposalModule: React.FC = () => {
     setEditingDurations(prev => ({ ...prev, [serviceId]: newDuration }));
     setSelectedServices(prev =>
       prev.map(s => s.id === serviceId ? { ...s, customDuration: newDuration } : s)
-    );
-  };
-
-  // NEW: Update service notes
-  const updateServiceNotes = (serviceId: string, notes: string) => {
-    setEditingNotes(prev => ({ ...prev, [serviceId]: notes }));
-    setSelectedServices(prev =>
-      prev.map(s => s.id === serviceId ? { ...s, notes } : s)
     );
   };
 

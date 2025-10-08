@@ -60,7 +60,7 @@ export const ROIVisualization: React.FC<ROIVisualizationProps> = ({
   scenarios,
   implementationCosts,
   ongoingCosts,
-  netSavings
+  netSavings: _netSavings
 }) => {
   // Helper function to format currency
   const formatCurrency = (value: number | undefined) => {
@@ -172,8 +172,6 @@ export const ROIVisualization: React.FC<ROIVisualizationProps> = ({
       costs.training || 0,
       (ongoing.monthlySubscriptions || 0) * 12 // Annual ongoing costs
     ];
-
-    const total = data.reduce((sum, val) => sum + val, 0);
 
     return {
       labels: [

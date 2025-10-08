@@ -12,8 +12,14 @@ import {
   Target
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
-import { AcceptanceCriteria } from '../../types/phase2';
-import { Input, Select, TextArea, Button } from '../Base';
+import {
+  AcceptanceCriteria,
+  FunctionalRequirement,
+  PerformanceRequirement,
+  SecurityRequirement,
+  SignOffPerson
+} from '../../types/phase2';
+import { Select, TextArea, Button } from '../Base';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -83,7 +89,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
     });
   };
 
-  const updateFunctionalCriteria = (index: number, updates: any) => {
+  const updateFunctionalCriteria = (index: number, updates: Partial<FunctionalRequirement>) => {
     const updated = [...criteria.functionalCriteria];
     updated[index] = { ...updated[index], ...updates };
     setCriteria({ ...criteria, functionalCriteria: updated });
@@ -92,7 +98,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
   const deleteFunctionalCriteria = (index: number) => {
     setCriteria({
       ...criteria,
-      functionalCriteria: criteria.functionalCriteria.filter((_, i) => i !== index)
+      functionalCriteria: criteria.functionalCriteria.filter((_item: FunctionalRequirement, i: number) => i !== index)
     });
   };
 
@@ -110,7 +116,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
     });
   };
 
-  const updatePerformanceCriteria = (index: number, updates: any) => {
+  const updatePerformanceCriteria = (index: number, updates: Partial<PerformanceRequirement>) => {
     const updated = [...criteria.performanceCriteria];
     updated[index] = { ...updated[index], ...updates };
     setCriteria({ ...criteria, performanceCriteria: updated });
@@ -119,7 +125,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
   const deletePerformanceCriteria = (index: number) => {
     setCriteria({
       ...criteria,
-      performanceCriteria: criteria.performanceCriteria.filter((_, i) => i !== index)
+      performanceCriteria: criteria.performanceCriteria.filter((_item: PerformanceRequirement, i: number) => i !== index)
     });
   };
 
@@ -137,7 +143,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
     });
   };
 
-  const updateSecurityCriteria = (index: number, updates: any) => {
+  const updateSecurityCriteria = (index: number, updates: Partial<SecurityRequirement>) => {
     const updated = [...criteria.securityCriteria];
     updated[index] = { ...updated[index], ...updates };
     setCriteria({ ...criteria, securityCriteria: updated });
@@ -146,7 +152,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
   const deleteSecurityCriteria = (index: number) => {
     setCriteria({
       ...criteria,
-      securityCriteria: criteria.securityCriteria.filter((_, i) => i !== index)
+      securityCriteria: criteria.securityCriteria.filter((_item: SecurityRequirement, i: number) => i !== index)
     });
   };
 
@@ -160,7 +166,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
     });
   };
 
-  const updateApprover = (index: number, updates: any) => {
+  const updateApprover = (index: number, updates: Partial<SignOffPerson>) => {
     const updated = [...criteria.deploymentCriteria.approvers];
     updated[index] = { ...updated[index], ...updates };
     setCriteria({
@@ -177,7 +183,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
       ...criteria,
       deploymentCriteria: {
         ...criteria.deploymentCriteria,
-        approvers: criteria.deploymentCriteria.approvers.filter((_, i) => i !== index)
+        approvers: criteria.deploymentCriteria.approvers.filter((_item: SignOffPerson, i: number) => i !== index)
       }
     });
   };
@@ -209,7 +215,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
       ...criteria,
       deploymentCriteria: {
         ...criteria.deploymentCriteria,
-        smokeTests: criteria.deploymentCriteria.smokeTests.filter((_, i) => i !== index)
+        smokeTests: criteria.deploymentCriteria.smokeTests.filter((_item: string, i: number) => i !== index)
       }
     });
   };
@@ -221,7 +227,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
     });
   };
 
-  const updateSignOffPerson = (index: number, updates: any) => {
+  const updateSignOffPerson = (index: number, updates: Partial<SignOffPerson>) => {
     const updated = [...criteria.signOffBy];
     updated[index] = { ...updated[index], ...updates };
     setCriteria({ ...criteria, signOffBy: updated });
@@ -230,7 +236,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
   const deleteSignOffPerson = (index: number) => {
     setCriteria({
       ...criteria,
-      signOffBy: criteria.signOffBy.filter((_, i) => i !== index)
+      signOffBy: criteria.signOffBy.filter((_item: SignOffPerson, i: number) => i !== index)
     });
   };
 
@@ -260,12 +266,12 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
         {/* Tab Navigation */}
         <div className="bg-white rounded-lg shadow-sm mb-6">
           <div className="flex border-b">
-            {[
-              { key: 'functional', label: `תפקודי (${criteria.functionalCriteria.length})`, icon: CheckCircle },
-              { key: 'performance', label: `ביצועים (${criteria.performanceCriteria.length})`, icon: Target },
-              { key: 'security', label: `אבטחה (${criteria.securityCriteria.length})`, icon: AlertCircle },
-              { key: 'deployment', label: 'פריסה', icon: Calendar }
-            ].map(({ key, label, icon: Icon }) => (
+            {([
+              { key: 'functional' as const, label: `תפקודי (${criteria.functionalCriteria.length})`, icon: CheckCircle },
+              { key: 'performance' as const, label: `ביצועים (${criteria.performanceCriteria.length})`, icon: Target },
+              { key: 'security' as const, label: `אבטחה (${criteria.securityCriteria.length})`, icon: AlertCircle },
+              { key: 'deployment' as const, label: 'פריסה', icon: Calendar }
+            ]).map(({ key, label, icon: Icon }: { key: typeof activeTab; label: string; icon: React.FC<{ className?: string }> }) => (
               <button
                 key={key}
                 onClick={() => setActiveTab(key as typeof activeTab)}
@@ -311,7 +317,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                   </div>
                 ) : (
                   <>
-                    {criteria.functionalCriteria.map((item, index) => (
+                    {criteria.functionalCriteria.map((item: FunctionalRequirement, index: number) => (
                       <div key={item.id} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center space-x-2 space-x-reverse">
@@ -320,7 +326,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                             </span>
                             <select
                               value={item.priority}
-                              onChange={(e) => updateFunctionalCriteria(index, { priority: e.target.value })}
+                              onChange={(e) => updateFunctionalCriteria(index, { priority: e.target.value as FunctionalRequirement['priority'] })}
                               className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
                             >
                               <option value="must">חובה</option>
@@ -329,7 +335,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                             </select>
                             <select
                               value={item.status}
-                              onChange={(e) => updateFunctionalCriteria(index, { status: e.target.value })}
+                              onChange={(e) => updateFunctionalCriteria(index, { status: e.target.value as FunctionalRequirement['status'] })}
                               className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
                             >
                               <option value="pending">ממתין</option>
@@ -416,7 +422,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                   </div>
                 ) : (
                   <>
-                    {criteria.performanceCriteria.map((item, index) => (
+                    {criteria.performanceCriteria.map((item: PerformanceRequirement, index: number) => (
                       <div key={index} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
                         <div className="flex items-start justify-between mb-3">
                           <span className="text-sm font-medium text-gray-900">מדד #{index + 1}</span>
@@ -514,7 +520,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                   </div>
                 ) : (
                   <>
-                    {criteria.securityCriteria.map((item, index) => (
+                    {criteria.securityCriteria.map((item: SecurityRequirement, index: number) => (
                       <div key={index} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center space-x-2 space-x-reverse">
@@ -589,7 +595,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                     ...criteria,
                     deploymentCriteria: {
                       ...criteria.deploymentCriteria,
-                      environment: e.target.value as any
+                      environment: e.target.value as 'staging' | 'production' | 'dev'
                     }
                   })}
                 >
@@ -613,7 +619,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                   </div>
 
                   <div className="space-y-3">
-                    {criteria.deploymentCriteria.approvers.map((approver, index) => (
+                    {criteria.deploymentCriteria.approvers.map((approver: SignOffPerson, index: number) => (
                       <div key={index} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
                         <div className="flex items-start justify-between mb-3">
                           <Users className="w-5 h-5 text-gray-600" />
@@ -699,7 +705,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                   </div>
 
                   <div className="space-y-2">
-                    {criteria.deploymentCriteria.smokeTests.map((test, index) => (
+                    {criteria.deploymentCriteria.smokeTests.map((test: string, index: number) => (
                       <div key={index} className="flex items-center space-x-2 space-x-reverse">
                         <input
                           type="text"
@@ -755,7 +761,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                   </div>
 
                   <div className="space-y-3">
-                    {criteria.signOffBy.map((person, index) => (
+                    {criteria.signOffBy.map((person: SignOffPerson, index: number) => (
                       <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                         <div className="flex items-start justify-between mb-3">
                           <Users className="w-5 h-5 text-gray-600" />
@@ -816,7 +822,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
         {/* Actions */}
         <div className="flex justify-between">
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={() => navigate('/phase2')}
           >
             ביטול

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Plus, X, Target, Users, CreditCard } from 'lucide-react';
+import { ArrowRight, Target, CreditCard } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Card, Input, Select, TextArea, Button } from '../../Base';
 import { CheckboxGroup } from '../../Common/FormFields';

@@ -192,9 +192,20 @@ export const formatForZoho = (meeting: Meeting): any => {
   const fieldMapping = getFieldMapping();
   const formattedData: any = {};
 
+  // Calculate progress from phase and status (since Meeting doesn't have progress property)
+  const calculateProgress = (): number => {
+    const phaseProgress: Record<string, number> = {
+      'discovery': 25,
+      'implementation_spec': 50,
+      'development': 75,
+      'completed': 100
+    };
+    return phaseProgress[meeting.phase] || 0;
+  };
+
   // Map basic fields
   formattedData[fieldMapping.clientName] = meeting.clientName;
-  formattedData[fieldMapping.progress] = `${meeting.progress || 0}%`;
+  formattedData[fieldMapping.progress] = `${calculateProgress()}%`;
   formattedData[fieldMapping.lastUpdate] = new Date().toISOString();
 
   // Add contact info if available

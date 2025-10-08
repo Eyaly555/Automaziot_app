@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Plus, X, ChevronDown, ChevronUp, Clock, DollarSign, AlertTriangle, Lightbulb, Flame, Sparkles, Info } from 'lucide-react';
+import { ArrowRight, Plus, X, ChevronDown, Clock, DollarSign, Lightbulb, Flame, Sparkles, Info } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
-import { Card, Input, Select, TextArea, Button } from '../../Base';
+import { Card, Input, Select, TextArea } from '../../Base';
 import {
   NumberField,
   CheckboxGroup,
@@ -55,8 +55,14 @@ export const LeadsAndSalesModule: React.FC = () => {
   const [costPerLostLead, setCostPerLostLead] = useState(moduleData.costPerLostLead || 0);
 
   // 2.2 Speed to Lead - Enhanced
-  const [responseTime, setResponseTime] = useState<number | undefined>(moduleData.speedToLead?.duringBusinessHours || undefined);
-  const [responseTimeUnit, setResponseTimeUnit] = useState(moduleData.speedToLead?.responseTimeUnit || 'minutes');
+  const [responseTime, setResponseTime] = useState<number | undefined>(
+    typeof moduleData.speedToLead?.duringBusinessHours === 'number'
+      ? moduleData.speedToLead.duringBusinessHours
+      : undefined
+  );
+  const [responseTimeUnit, setResponseTimeUnit] = useState<'minutes' | 'hours' | 'days'>(
+    moduleData.speedToLead?.responseTimeUnit || 'minutes'
+  );
   const [afterHoursResponse, setAfterHoursResponse] = useState(moduleData.speedToLead?.afterHours || '');
   const [weekendResponse, setWeekendResponse] = useState(moduleData.speedToLead?.weekends || '');
   const [unansweredPercentage, setUnansweredPercentage] = useState(moduleData.speedToLead?.unansweredPercentage || 0);
@@ -446,7 +452,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                     <NumberField
                       label="כמה לידים נופלים בחודש?"
                       value={fallingLeadsPerMonth}
-                      onChange={setFallingLeadsPerMonth}
+                      onChange={(val) => setFallingLeadsPerMonth(val ?? 0)}
                       min={0}
                       className="mt-3"
                       suffix="לידים"
@@ -473,7 +479,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                     <NumberField
                       label="% מהלידים עם מידע חסר/שגוי"
                       value={missingInfoPercent}
-                      onChange={setMissingInfoPercent}
+                      onChange={(val) => setMissingInfoPercent(val ?? 0)}
                       min={0}
                       max={100}
                       suffix="%"
@@ -484,33 +490,33 @@ export const LeadsAndSalesModule: React.FC = () => {
 
                 {/* Processing Time and Cost */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <NumberField
-                    label={
-                      <span className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-blue-500" />
-                        זמן עיבוד ליד חדש
-                      </span>
-                    }
-                    value={timeToProcessLead}
-                    onChange={setTimeToProcessLead}
-                    min={0}
-                    suffix="דקות"
-                    helperText="כמה זמן לוקח להכניס ליד למערכת?"
-                  />
+                  <div>
+                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
+                      <Clock className="w-4 h-4 text-blue-500" />
+                      <span>זמן עיבוד ליד חדש</span>
+                    </div>
+                    <NumberField
+                      value={timeToProcessLead}
+                      onChange={(val) => setTimeToProcessLead(val ?? 0)}
+                      min={0}
+                      suffix="דקות"
+                      helperText="כמה זמן לוקח להכניס ליד למערכת?"
+                    />
+                  </div>
 
-                  <NumberField
-                    label={
-                      <span className="flex items-center gap-2">
-                        <DollarSign className="w-4 h-4 text-red-500" />
-                        עלות ליד שנפל
-                      </span>
-                    }
-                    value={costPerLostLead}
-                    onChange={setCostPerLostLead}
-                    min={0}
-                    prefix="₪"
-                    helperText="כמה עולה לכם ליד שלא טופל?"
-                  />
+                  <div>
+                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
+                      <DollarSign className="w-4 h-4 text-red-500" />
+                      <span>עלות ליד שנפל</span>
+                    </div>
+                    <NumberField
+                      value={costPerLostLead}
+                      onChange={(val) => setCostPerLostLead(val ?? 0)}
+                      min={0}
+                      prefix="₪"
+                      helperText="כמה עולה לכם ליד שלא טופל?"
+                    />
+                  </div>
                 </div>
 
                 {/* Pain Points Detection */}
@@ -568,13 +574,13 @@ export const LeadsAndSalesModule: React.FC = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <NumberField
                       value={responseTime}
-                      onChange={setResponseTime}
+                      onChange={(val) => setResponseTime(val)}
                       min={0}
                       placeholder="הזן מספר"
                     />
                     <Select
                       value={responseTimeUnit}
-                      onChange={(val) => setResponseTimeUnit(val)}
+                      onChange={(val) => setResponseTimeUnit(val as 'minutes' | 'hours' | 'days')}
                       options={[
                         { value: 'minutes', label: 'דקות' },
                         { value: 'hours', label: 'שעות' },
@@ -616,7 +622,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                   <NumberField
                     label="% לידים ללא מענה"
                     value={unansweredPercentage}
-                    onChange={setUnansweredPercentage}
+                    onChange={(val) => setUnansweredPercentage(val ?? 0)}
                     suffix="%"
                     min={0}
                     max={100}
@@ -671,7 +677,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                 </div>
 
                 {/* Pain Point Detection */}
-                {(unansweredPercentage > 20 || (responseTime > 30 && responseTimeUnit === 'minutes')) && (
+                {(unansweredPercentage > 20 || (responseTime !== undefined && responseTime > 30 && responseTimeUnit === 'minutes')) && (
                   <PainPointFlag
                     module="leadsAndSales"
                     subModule="speedToLead"
@@ -825,7 +831,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                   <NumberField
                     label="מספר ניסיונות קשר"
                     value={followUpAttempts}
-                    onChange={setFollowUpAttempts}
+                    onChange={(val) => setFollowUpAttempts(val ?? 0)}
                     min={0}
                     max={20}
                     suffix="פעמים"
@@ -880,7 +886,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                   <NumberField
                     label="% נשירה מחוסר מעקב"
                     value={dropOffRate}
-                    onChange={setDropOffRate}
+                    onChange={(val) => setDropOffRate(val ?? 0)}
                     suffix="%"
                     min={0}
                     max={100}
@@ -977,14 +983,14 @@ export const LeadsAndSalesModule: React.FC = () => {
                   <NumberField
                     label="זמן ממוצע לתיאום פגישה"
                     value={avgSchedulingTime}
-                    onChange={setAvgSchedulingTime}
+                    onChange={(val) => setAvgSchedulingTime(val ?? 0)}
                     suffix="דקות"
                     min={0}
                   />
                   <NumberField
                     label="מספר הודעות/שיחות לתיאום"
                     value={messagesPerScheduling}
-                    onChange={setMessagesPerScheduling}
+                    onChange={(val) => setMessagesPerScheduling(val ?? 0)}
                     min={0}
                   />
                 </div>
@@ -996,7 +1002,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                     <NumberField
                       label="% ביטולים"
                       value={cancellationRate}
-                      onChange={setCancellationRate}
+                      onChange={(val) => setCancellationRate(val ?? 0)}
                       suffix="%"
                       min={0}
                       max={100}
@@ -1004,7 +1010,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                     <NumberField
                       label="% No-Show"
                       value={noShowRate}
-                      onChange={setNoShowRate}
+                      onChange={(val) => setNoShowRate(val ?? 0)}
                       suffix="%"
                       min={0}
                       max={100}
@@ -1030,7 +1036,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                   <NumberField
                     label="שינויים/דחיות בשבוע"
                     value={changesPerWeek}
-                    onChange={setChangesPerWeek}
+                    onChange={(val) => setChangesPerWeek(val ?? 0)}
                     min={0}
                   />
                 </div>

@@ -13,26 +13,14 @@ type SaveStatus = 'idle' | 'saving' | 'saved' | 'error' | 'offline';
 export const AutoSaveIndicator: React.FC = () => {
   const { currentMeeting } = useMeetingStore();
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
-  const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null);
+  const [lastSaveTime, _setLastSaveTime] = useState<Date | null>(null);
 
   const isEnglish = currentMeeting?.phase === 'development';
 
   // Monitor localStorage changes to detect saves
   useEffect(() => {
-    const checkSaveStatus = () => {
-      // Simulate save detection (in real implementation, this would hook into the store)
-      setSaveStatus('saving');
-
-      setTimeout(() => {
-        setSaveStatus('saved');
-        setLastSaveTime(new Date());
-
-        // Return to idle after 3 seconds
-        setTimeout(() => {
-          setSaveStatus('idle');
-        }, 3000);
-      }, 500);
-    };
+    // Currently monitoring online/offline status only
+    // checkSaveStatus would be called here when implementing real save detection
 
     // Check online status
     const handleOnline = () => setSaveStatus('idle');

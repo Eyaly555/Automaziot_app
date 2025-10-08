@@ -7,22 +7,17 @@ import { WizardProgress } from './WizardProgress';
 import { WizardStepContent } from './WizardStepContent';
 import { WizardSummary } from './WizardSummary';
 import { WizardStepNavigation } from './WizardStepNavigation';
-import { WIZARD_STEPS, getStepById, getNextStep, getPreviousStep } from '../../config/wizardSteps';
-import { WizardState, WizardStep } from '../../types';
+import { WIZARD_STEPS, getStepById } from '../../config/wizardSteps';
+import { WizardStep } from '../../types';
 
 export const WizardMode: React.FC = () => {
   const navigate = useNavigate();
   const { stepId } = useParams<{ stepId?: string }>();
   const {
     currentMeeting,
-    updateMeeting,
     updateModule,
     wizardState,
-    setWizardState,
     initializeWizard,
-    updateWizardProgress,
-    navigateWizardStep,
-    skipWizardSection,
     syncWizardToModules
   } = useMeetingStore();
 
@@ -102,97 +97,75 @@ export const WizardMode: React.FC = () => {
     syncWizardToModules();
   }, [currentStep, currentMeeting, updateModule, syncWizardToModules]);
 
-  // Validate current step
-  const validateStep = (): boolean => {
-    if (!currentStep || currentStep.isOptional) return true;
+  // DEPRECATED: Commented out unused validation function - kept for potential future use
+  // Validation is now handled through WizardStepContent component
+  // const validateStep = (): boolean => {
+  //   if (!currentStep || currentStep.isOptional) return true;
 
-    const stepErrors: Record<string, string> = {};
-    let isValid = true;
+  //   const stepErrors: Record<string, string> = {};
+  //   let isValid = true;
 
-    currentStep.fields.forEach(field => {
-      if (field.props.required) {
-        const value = getFieldValue(field.name);
-        if (!value || (Array.isArray(value) && value.length === 0)) {
-          stepErrors[field.name] = 'שדה חובה';
-          isValid = false;
-        }
-      }
-    });
+  //   currentStep.fields.forEach(field => {
+  //     if (field.props.required) {
+  //       const value = getFieldValue(field.name);
+  //       if (!value || (Array.isArray(value) && value.length === 0)) {
+  //         stepErrors[field.name] = 'שדה חובה';
+  //         isValid = false;
+  //       }
+  //     }
+  //   });
 
-    setErrors(stepErrors);
-    return isValid;
-  };
+  //   setErrors(stepErrors);
+  //   return isValid;
+  // };
 
-  // Get field value from meeting data
-  const getFieldValue = (fieldPath: string): any => {
-    if (!currentStep || !currentMeeting) return undefined;
+  // DEPRECATED: Commented out unused helper function - kept for potential future use
+  // Used by commented-out validateStep function
+  // const getFieldValue = (fieldPath: string): any => {
+  //   if (!currentStep || !currentMeeting) return undefined;
 
-    const moduleId = currentStep.moduleId;
-    const moduleData = currentMeeting.modules[moduleId] || {};
+  //   const moduleId = currentStep.moduleId;
+  //   const moduleData = currentMeeting.modules[moduleId] || {};
 
-    const fieldParts = fieldPath.split('.');
-    let value = moduleData;
+  //   const fieldParts = fieldPath.split('.');
+  //   let value = moduleData;
 
-    for (const part of fieldParts) {
-      value = value?.[part];
-    }
+  //   for (const part of fieldParts) {
+  //     value = value?.[part];
+  //   }
 
-    return value;
-  };
+  //   return value;
+  // };
 
-  // Handle navigation
-  const handleNext = () => {
-    if (showSummary) {
-      // Complete wizard
-      navigate('/dashboard');
-      return;
-    }
+  // DEPRECATED: Commented out unused navigation handler - kept for potential future use
+  // Navigation is now handled through WizardNavigation component
+  // const handleNext = () => {
+  //   if (showSummary) {
+  //     // Complete wizard
+  //     navigate('/dashboard');
+  //     return;
+  //   }
 
-    if (!validateStep()) {
-      return;
-    }
+  //   if (!validateStep()) {
+  //     return;
+  //   }
 
-    if (!currentStep) return;
+  //   if (!currentStep) return;
 
-    // Mark current step as completed
-    updateWizardProgress(currentStep.id);
+  //   // Mark current step as completed
+  //   updateWizardProgress(currentStep.id);
 
-    // Get next step
-    const businessType = currentMeeting?.modules.overview?.businessType;
-    const nextStep = getNextStep(currentStep.id, businessType);
+  //   // Get next step
+  //   const businessType = currentMeeting?.modules.overview?.businessType;
+  //   const nextStep = getNextStep(currentStep.id, businessType);
 
-    if (nextStep) {
-      navigate(`/wizard/${nextStep.id}`);
-    } else {
-      // Go to summary
-      navigate('/wizard/summary');
-    }
-  };
-
-  const handlePrevious = () => {
-    if (showSummary) {
-      // Go back to last step
-      const lastStep = WIZARD_STEPS[WIZARD_STEPS.length - 1];
-      navigate(`/wizard/${lastStep.id}`);
-      return;
-    }
-
-    if (!currentStep) return;
-
-    const businessType = currentMeeting?.modules.overview?.businessType;
-    const prevStep = getPreviousStep(currentStep.id, businessType);
-
-    if (prevStep) {
-      navigate(`/wizard/${prevStep.id}`);
-    }
-  };
-
-  const handleSkip = () => {
-    if (!currentStep) return;
-
-    skipWizardSection(currentStep.id);
-    handleNext();
-  };
+  //   if (nextStep) {
+  //     navigate(`/wizard/${nextStep.id}`);
+  //   } else {
+  //     // Go to summary
+  //     navigate('/wizard/summary');
+  //   }
+  // };
 
   const handleJumpToStep = (targetStepId: string) => {
     navigate(`/wizard/${targetStepId}`);
@@ -246,7 +219,7 @@ export const WizardMode: React.FC = () => {
             </div>
             <Button
               onClick={handleExitWizard}
-              variant="outline"
+              variant="secondary"
               size="md"
             >
               יציאה לדשבורד

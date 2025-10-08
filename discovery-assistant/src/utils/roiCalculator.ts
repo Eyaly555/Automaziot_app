@@ -1,4 +1,4 @@
-import { Meeting, ROIScenario } from '../types';
+import { Meeting, ROIScenario, SelectOption } from '../types';
 import { CustomValuesService } from '../services/customValuesService';
 
 export interface ROIMetrics {
@@ -143,13 +143,42 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
 
   // Return default values if meeting or modules are not initialized
   if (!meeting || !meeting.modules) {
+    const defaultScenario: ROIScenario = {
+      name: '',
+      nameHebrew: '',
+      multiplier: 0,
+      monthlySavings: 0,
+      implementationCosts: 0,
+      ongoingMonthlyCosts: 0,
+      netSavings12Month: 0,
+      netSavings24Month: 0,
+      netSavings36Month: 0,
+      paybackPeriod: 0,
+      roi12Month: 0,
+      roi24Month: 0,
+      roi36Month: 0
+    };
+
     return {
       hoursSavedMonthly: 0,
       moneySavedMonthly: 0,
       lostLeadsValue: 0,
       paybackPeriod: 0,
       totalMonthlySavings: 0,
-      breakdown: {}
+      breakdown: {},
+      implementationCosts: 0,
+      ongoingMonthlyCosts: 0,
+      netSavings12Month: 0,
+      netSavings24Month: 0,
+      netSavings36Month: 0,
+      roi12Month: 0,
+      roi24Month: 0,
+      roi36Month: 0,
+      scenarios: {
+        conservative: defaultScenario,
+        realistic: defaultScenario,
+        optimistic: defaultScenario
+      }
     };
   }
 
@@ -207,11 +236,11 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
 
   // Calculate from Operations module
   if (modules?.operations) {
-    const { workProcesses, documentManagement, projectManagement } = modules.operations;
+    const { documentManagement, projectManagement } = modules.operations;
 
     // DEPRECATED: systemSync.manualWork removed in OperationsModule v2
     // Old code: hoursSavedMonthly += systemSync.manualWork * 20
-    // Future: Could use workProcesses.automationReadiness as a multiplier
+    // Note: workProcesses.automationReadiness could be used as a multiplier in future
 
     // Document processing time - updated to use new structure
     if (documentManagement?.flows && Array.isArray(documentManagement.flows)) {
@@ -249,16 +278,18 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
   // Process custom values from all modules
   if (customFieldValues) {
     // Process custom systems
-    if (customFieldValues.systems?.length > 0) {
+    // Note: customFieldValues.systems is an object { [fieldName: string]: SelectOption[] }
+    const systemsValues = customFieldValues.systems ? Object.values(customFieldValues.systems).flat() : [];
+    if (systemsValues.length > 0) {
       const systemImpact = CustomValuesService.processCustomForROI(
-        customFieldValues.systems,
+        systemsValues,
         'systems'
       );
       customValueImpact += systemImpact;
 
       // Estimate automation potential for custom systems
-      customFieldValues.systems.forEach(system => {
-        const potential = CustomValuesService.estimateAutomationPotential(
+      systemsValues.forEach((system: SelectOption) => {
+        CustomValuesService.estimateAutomationPotential(
           system.label,
           'system'
         );
@@ -266,68 +297,74 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
     }
 
     // Process custom lead sources
-    if (customFieldValues.leadSources?.length > 0) {
+    const leadSourcesValues = customFieldValues.leadSources ? Object.values(customFieldValues.leadSources).flat() : [];
+    if (leadSourcesValues.length > 0) {
       const leadSourceImpact = CustomValuesService.processCustomForROI(
-        customFieldValues.leadSources,
+        leadSourcesValues,
         'leadSources'
       );
       customValueImpact += leadSourceImpact;
     }
 
     // Process custom service channels
-    if (customFieldValues.serviceChannels?.length > 0) {
+    const serviceChannelsValues = customFieldValues.serviceChannels ? Object.values(customFieldValues.serviceChannels).flat() : [];
+    if (serviceChannelsValues.length > 0) {
       const channelImpact = CustomValuesService.processCustomForROI(
-        customFieldValues.serviceChannels,
+        serviceChannelsValues,
         'serviceChannels'
       );
       customValueImpact += channelImpact;
 
       // Additional hours saved from automating custom channels
-      hoursSavedMonthly += customFieldValues.serviceChannels.length * 5; // 5 hours per custom channel
+      hoursSavedMonthly += serviceChannelsValues.length * 5; // 5 hours per custom channel
     }
 
     // Process custom processes from operations
-    if (customFieldValues.processes?.length > 0) {
+    const processesValues = customFieldValues.processes ? Object.values(customFieldValues.processes).flat() : [];
+    if (processesValues.length > 0) {
       const processImpact = CustomValuesService.processCustomForROI(
-        customFieldValues.processes,
+        processesValues,
         'processes'
       );
       customValueImpact += processImpact;
 
       // Each custom process identified is an automation opportunity
-      hoursSavedMonthly += customFieldValues.processes.length * 8; // 8 hours per custom process
+      hoursSavedMonthly += processesValues.length * 8; // 8 hours per custom process
     }
 
     // Process custom document types
-    if (customFieldValues.documentTypes?.length > 0) {
+    const documentTypesValues = customFieldValues.documentTypes ? Object.values(customFieldValues.documentTypes).flat() : [];
+    if (documentTypesValues.length > 0) {
       const docImpact = CustomValuesService.processCustomForROI(
-        customFieldValues.documentTypes,
+        documentTypesValues,
         'documents'
       );
       customValueImpact += docImpact;
     }
 
     // Process custom report types
-    if (customFieldValues.reportTypes?.length > 0) {
+    const reportTypesValues = customFieldValues.reportTypes ? Object.values(customFieldValues.reportTypes).flat() : [];
+    if (reportTypesValues.length > 0) {
       const reportImpact = CustomValuesService.processCustomForROI(
-        customFieldValues.reportTypes,
+        reportTypesValues,
         'reports'
       );
       customValueImpact += reportImpact;
-      hoursSavedMonthly += customFieldValues.reportTypes.length * 3; // 3 hours per custom report type
+      hoursSavedMonthly += reportTypesValues.length * 3; // 3 hours per custom report type
     }
 
     // Process custom AI use cases
-    if (customFieldValues.aiUseCases?.length > 0) {
+    const aiUseCasesValues = customFieldValues.aiUseCases ? Object.values(customFieldValues.aiUseCases).flat() : [];
+    if (aiUseCasesValues.length > 0) {
       const aiImpact = CustomValuesService.processCustomForROI(
-        customFieldValues.aiUseCases,
+        aiUseCasesValues,
         'ai'
       );
       customValueImpact += aiImpact;
 
       // AI use cases have high automation potential
-      customFieldValues.aiUseCases.forEach(useCase => {
-        const potential = CustomValuesService.estimateAutomationPotential(
+      aiUseCasesValues.forEach((useCase: SelectOption) => {
+        CustomValuesService.estimateAutomationPotential(
           useCase.label,
           'ai'
         );

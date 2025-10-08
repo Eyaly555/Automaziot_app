@@ -112,27 +112,34 @@ export interface IntegrationFlow {
 }
 
 export interface FlowTrigger {
-  type: 'webhook' | 'schedule' | 'manual' | 'watch_field' | 'new_record' | 'updated_record' | 'deleted_record';
-  configuration: Record<string, any>;
+  type: 'webhook' | 'schedule' | 'manual' | 'watch_field' | 'new_record' | 'updated_record' | 'deleted_record' | 'event';
+  configuration?: Record<string, any>;
   webhookUrl?: string;
   watchedField?: string;
-  scheduleExpression?: string; // cron expression
+  scheduleExpression?: string; // cron expression (deprecated - use 'schedule')
+  schedule?: string; // cron expression for scheduled triggers
+  eventName?: string; // Event name for event-based triggers
 }
 
 export interface FlowStep {
-  id: string;
-  order: number;
-  action: 'get_data' | 'transform_data' | 'create_record' | 'update_record' | 'delete_record' |
+  id?: string; // Made optional for compatibility
+  stepNumber?: number; // Alternative to 'order'
+  order?: number; // Alternative to 'stepNumber'
+  type?: 'fetch' | 'transform' | 'create' | 'update' | 'conditional' | 'delete'; // Alternative to 'action'
+  action?: 'get_data' | 'transform_data' | 'create_record' | 'update_record' | 'delete_record' |
           'send_email' | 'send_whatsapp' | 'send_sms' | 'call_api' | 'conditional' | 'loop' |
-          'delay' | 'log' | 'error_handler';
-  name: string;
-  description: string;
+          'delay' | 'log' | 'error_handler'; // Alternative to 'type'
+  name?: string;
+  description?: string;
   system?: string;
-  configuration: Record<string, any>;
+  configuration?: Record<string, any>;
   expectedOutput?: string;
+  endpoint?: string; // API endpoint for fetch/create/update operations
+  dataMapping?: Record<string, any>; // Data transformation mapping
+  condition?: string; // Simple condition string for conditional steps
 
-  // Conditional logic
-  condition?: {
+  // Advanced conditional logic (original structure)
+  conditionalLogic?: {
     field: string;
     operator: '==' | '!=' | '>' | '<' | '>=' | '<=' | 'contains' | 'not_contains' | 'in' | 'not_in';
     value: any;
@@ -142,21 +149,28 @@ export interface FlowStep {
 }
 
 export interface ErrorHandlingStrategy {
-  onError: 'retry' | 'skip' | 'stop' | 'alert' | 'fallback';
-  retryAttempts?: number;
-  retryDelay?: number; // seconds
+  onError?: 'retry' | 'skip' | 'stop' | 'alert' | 'fallback';
+  retryAttempts?: number; // Deprecated: use retryCount
+  retryCount?: number; // Number of retry attempts
+  retryDelay?: number; // Delay between retries in seconds
   alertRecipients?: string[];
-  fallbackAction?: string;
-  logErrors: boolean;
+  fallbackAction?: string; // What action to take on final failure
+  strategy?: string; // General error handling strategy
+  logErrors?: boolean; // Whether to log errors (made optional)
+  notifyOnFailure?: boolean; // Whether to send notification on failure
+  failureEmail?: string; // Email address for failure notifications
 }
 
 export interface TestCase {
   id: string;
-  name: string;
-  description: string;
-  inputData: Record<string, any>;
-  expectedOutput: Record<string, any>;
-  status: 'not_tested' | 'passed' | 'failed';
+  name?: string;
+  scenario?: string; // Alternative to 'description'
+  description?: string; // Alternative to 'scenario'
+  input?: Record<string, any>; // Alternative to 'inputData'
+  inputData?: Record<string, any>; // Alternative to 'input'
+  expectedOutput?: Record<string, any>;
+  actualOutput?: Record<string, any>; // Actual output from test execution
+  status: 'not_tested' | 'passed' | 'failed' | 'pending'; // Added 'pending' as alias for 'not_tested'
   notes?: string;
 }
 
@@ -189,9 +203,11 @@ export interface DetailedAIAgentSpec {
 export interface KnowledgeBase {
   sources: KnowledgeSource[];
   updateFrequency: 'realtime' | 'hourly' | 'daily' | 'weekly' | 'manual';
-  totalDocuments: number;
-  totalTokensEstimated: number;
-  vectorDatabaseUsed: boolean;
+  totalDocuments?: number; // Deprecated: use documentCount
+  documentCount?: number; // Total number of documents in knowledge base
+  totalTokensEstimated?: number; // Deprecated: use totalTokens
+  totalTokens?: number; // Total tokens estimated for all documents
+  vectorDatabaseUsed?: boolean;
   embeddingModel?: string;
 }
 
@@ -209,11 +225,35 @@ export interface KnowledgeSource {
   includeInTraining: boolean;
 }
 
+/**
+ * Intent represents a user's intention in the conversation
+ * Used by AI agents to understand and respond to user queries
+ */
+export interface Intent {
+  name: string; // Intent name (e.g., "request_quote", "ask_about_pricing")
+  examples?: string[]; // Example user phrases that match this intent
+  response: string; // Agent's response for this intent
+  requiresData?: boolean; // Whether this intent requires fetching data from knowledge base
+}
+
+/**
+ * Detailed conversation flow design for AI agents
+ * Defines how the agent greets, handles intents, and manages conversations
+ */
 export interface DetailedConversationFlow {
-  steps: ConversationStep[];
-  defaultFallback: string;
-  maxConversationLength: number; // number of exchanges
-  handoffConditions: string[];
+  // Simple flow properties (used by AIAgentDetailedSpec component)
+  greeting?: string; // Opening message when conversation starts
+  intents?: Intent[]; // Array of conversation intents
+  fallbackResponse?: string; // Response when agent doesn't understand
+  escalationTriggers?: string[]; // Conditions that trigger handoff to human
+  maxTurns?: number; // Maximum conversation exchanges before timeout
+  contextWindow?: number; // Number of previous messages to consider
+
+  // Advanced flow properties (original structure)
+  steps?: ConversationStep[];
+  defaultFallback?: string; // Deprecated: use fallbackResponse
+  maxConversationLength?: number; // Deprecated: use maxTurns
+  handoffConditions?: string[]; // Deprecated: use escalationTriggers
 }
 
 export interface ConversationStep {
@@ -247,7 +287,30 @@ export interface ConversationAction {
   whenToExecute: 'before_response' | 'after_response' | 'on_condition';
 }
 
+/**
+ * Webhook configuration for custom integrations
+ */
+export interface Webhook {
+  name: string; // Webhook name/identifier
+  url: string; // Webhook URL endpoint
+  trigger: string; // What triggers this webhook
+  headers?: Record<string, any>; // Custom HTTP headers
+}
+
+/**
+ * AI Agent integration configuration
+ * Supports simple and advanced integration patterns
+ */
 export interface AIAgentIntegrations {
+  // Simple integration flags (used by AIAgentDetailedSpec component)
+  crmEnabled?: boolean; // Whether CRM integration is enabled
+  crmSystem?: string; // CRM system name (e.g., "Zoho CRM", "Salesforce")
+  emailEnabled?: boolean; // Whether email sending is enabled
+  emailProvider?: string; // Email provider name
+  calendarEnabled?: boolean; // Whether calendar integration is enabled
+  customWebhooks?: Webhook[]; // Array of custom webhook integrations
+
+  // Advanced integration configuration (original structure)
   crm?: {
     enabled: boolean;
     fieldsToRead: string[];
@@ -268,13 +331,34 @@ export interface AIAgentIntegrations {
   };
 }
 
+/**
+ * FAQ (Frequently Asked Questions) pair
+ * Used for training AI agents with common Q&A
+ */
+export interface FAQPair {
+  question: string; // The question
+  answer: string; // The answer
+  category?: string; // Category for organization (e.g., "pricing", "support")
+}
+
+/**
+ * AI Agent training configuration
+ * Supports both simple and advanced training patterns
+ */
 export interface AIAgentTraining {
-  sampleConversations: SampleConversation[];
-  edgeCases: string[];
-  prohibitedTopics: string[];
-  responseGuidelines: string[];
-  toneAndStyle: string;
-  languageSupport: string[]; // e.g., ['he', 'en', 'ar']
+  // Simple training properties (used by AIAgentDetailedSpec component)
+  conversationExamples?: any[]; // Simple conversation examples
+  faqPairs?: FAQPair[]; // FAQ pairs for training
+  tone?: 'professional' | 'friendly' | 'formal' | 'casual' | string; // Response tone
+  language?: 'he' | 'en' | 'both' | string; // Primary language(s)
+
+  // Advanced training properties (original structure)
+  sampleConversations?: SampleConversation[];
+  edgeCases?: string[];
+  prohibitedTopics?: string[];
+  responseGuidelines?: string[];
+  toneAndStyle?: string; // Deprecated: use 'tone'
+  languageSupport?: string[]; // e.g., ['he', 'en', 'ar'] - Deprecated: use 'language'
 }
 
 export interface SampleConversation {
@@ -286,52 +370,116 @@ export interface SampleConversation {
   notes?: string;
 }
 
+/**
+ * AI Model selection and configuration
+ * Defines which AI model to use and its parameters
+ */
 export interface AIModelSelection {
-  modelId: string;
-  modelName: string; // e.g., "GPT-4", "Claude 3.5"
-  provider: string;
-  costPerMonth: number;
-  tokensPerMonthEstimated: number;
-  reasoning: string;
+  modelId?: string;
+  modelName: string; // e.g., "GPT-4", "Claude 3.5", "gpt-4"
+  provider: string; // e.g., "OpenAI", "Anthropic", "Google"
+  costPerMonth?: number;
+  tokensPerMonthEstimated?: number;
+  reasoning?: string;
+
+  // Model parameters (used by AIAgentDetailedSpec component)
+  temperature?: number; // 0-2, controls randomness/creativity
+  maxTokens?: number; // Maximum tokens in response
+  topP?: number; // 0-1, nucleus sampling parameter
 }
 
 // ============================================================================
 // ACCEPTANCE CRITERIA
 // ============================================================================
 
-export interface AcceptanceCriteria {
-  functional: FunctionalRequirement[];
-  performance: PerformanceRequirement[];
-  security: SecurityRequirement[];
-  usability: UsabilityRequirement[];
+/**
+ * Deployment criteria for production release
+ * Defines requirements for successful deployment
+ */
+export interface DeploymentCriteria {
+  approvers?: Array<{
+    name?: string;
+    role?: string;
+    email?: string;
+  }>;
+  environment?: 'staging' | 'production' | 'dev';
+  rollbackPlan?: string;
+  smokeTests?: string[]; // Array of smoke tests to run after deployment
 }
 
+/**
+ * Person who must sign off on the project
+ */
+export interface SignOffPerson {
+  name: string;
+  role: string;
+  email: string;
+}
+
+/**
+ * Complete acceptance criteria for the project
+ * Supports both array names (functional/performance/security/usability)
+ * and alternative names (functionalCriteria/performanceCriteria/securityCriteria)
+ */
+export interface AcceptanceCriteria {
+  // Primary property names
+  functional?: FunctionalRequirement[];
+  performance?: PerformanceRequirement[];
+  security?: SecurityRequirement[];
+  usability?: UsabilityRequirement[];
+
+  // Alternative property names (used by AcceptanceCriteriaBuilder component)
+  functionalCriteria?: FunctionalRequirement[];
+  performanceCriteria?: PerformanceRequirement[];
+  securityCriteria?: SecurityRequirement[];
+
+  // Deployment criteria
+  deploymentCriteria?: DeploymentCriteria;
+
+  // Sign-off requirements
+  signOffRequired?: boolean;
+  signOffBy?: SignOffPerson[];
+}
+
+/**
+ * Functional requirement with test criteria
+ */
 export interface FunctionalRequirement {
   id: string;
-  category: string;
+  category?: string;
   description: string;
-  priority: 'must_have' | 'should_have' | 'nice_to_have';
-  testScenario: string;
-  acceptanceCriteria: string;
+  priority: 'must_have' | 'should_have' | 'nice_to_have' | 'must' | 'should' | 'nice'; // Added short aliases
+  testScenario?: string;
+  acceptanceCriteria?: string;
   status: 'pending' | 'in_progress' | 'passed' | 'failed';
+  testable?: boolean; // Whether this requirement can be tested automatically
   notes?: string;
 }
 
+/**
+ * Performance requirement with measurable targets
+ */
 export interface PerformanceRequirement {
   id: string;
   metric: string; // e.g., "API response time", "Page load time"
   target: string; // e.g., "< 200ms", "< 2 seconds"
   currentValue?: string;
-  testMethod: string;
-  status: 'pending' | 'passed' | 'failed';
+  testMethod?: string; // How this metric will be tested
+  measurement?: string; // Alternative name for testMethod (used by AcceptanceCriteriaBuilder)
+  status?: 'pending' | 'passed' | 'failed';
 }
 
+/**
+ * Security requirement with verification status
+ */
 export interface SecurityRequirement {
   id: string;
   requirement: string;
-  category: 'authentication' | 'authorization' | 'data_encryption' | 'compliance' | 'audit';
-  implementation: string;
-  verified: boolean;
+  category?: 'authentication' | 'authorization' | 'data_encryption' | 'compliance' | 'audit';
+  implementation?: string;
+  verified?: boolean; // Whether this security requirement has been verified
+  implemented?: boolean; // Whether this security requirement has been implemented (alternative name)
+  verificationMethod?: string; // How this requirement will be verified
   notes?: string;
 }
 

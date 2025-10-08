@@ -277,3 +277,32 @@ export const commonValidations = {
     message
   })
 };
+
+// Pre-configured validation rule sets for common form fields
+export const emailRules: ValidationRule[] = [
+  commonValidations.required('אימייל'),
+  commonValidations.email()
+];
+
+export const phoneRules: ValidationRule[] = [
+  commonValidations.required('טלפון'),
+  commonValidations.phone()
+];
+
+export const numberRules: ValidationRule[] = [
+  commonValidations.required('מספר'),
+  {
+    type: 'pattern',
+    value: /^[0-9]+$/,
+    message: 'יש להזין מספר תקין'
+  }
+];
+
+export const hebrewTextRules: ValidationRule[] = [
+  commonValidations.required('טקסט'),
+  {
+    type: 'pattern',
+    value: /^[\u0590-\u05FF\s]+$/,
+    message: 'יש להזין טקסט בעברית בלבד'
+  }
+];

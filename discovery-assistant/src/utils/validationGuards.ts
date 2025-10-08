@@ -11,7 +11,7 @@
  * Integrates with the phase guard system and wizard validation
  */
 
-import { Meeting, MeetingPhase, MeetingStatus, WizardStep } from '../types';
+import { Meeting, MeetingPhase, WizardStep, DevelopmentTask, Blocker } from '../types';
 import { WIZARD_STEPS } from '../config/wizardSteps';
 
 // ============================================================================
@@ -165,8 +165,9 @@ export const validateROIModule = (meeting: Meeting): ModuleCompletionResult => {
   const optionalFieldsMissing: string[] = [];
 
   // Required: Cost analysis completed
-  if (!roi?.costAnalysis) requiredFieldsMissing.push('ניתוח עלויות');
-  if (roi?.costAnalysis && !roi.costAnalysis.hourlyRate) requiredFieldsMissing.push('תעריף שעתי');
+  // Note: hourlyRate is in currentCosts, not costAnalysis (per ROIModule type definition)
+  if (!roi?.currentCosts) requiredFieldsMissing.push('ניתוח עלויות');
+  if (roi?.currentCosts && !roi.currentCosts.hourlyCost) requiredFieldsMissing.push('תעריף שעתי');
 
   // Optional but recommended
   if (!roi?.timeSavings) optionalFieldsMissing.push('חיסכון בזמן');
@@ -392,7 +393,7 @@ export const validateDevelopmentToCompleted = (
   }
 
   // All tasks must be completed
-  const incompleteTasks = tasks.filter(t => t.status !== 'done');
+  const incompleteTasks = tasks.filter((t: DevelopmentTask) => t.status !== 'done');
   const progress = Math.round(((tasks.length - incompleteTasks.length) / tasks.length) * 100);
 
   if (incompleteTasks.length > 0) {
@@ -402,7 +403,7 @@ export const validateDevelopmentToCompleted = (
 
   // No unresolved blockers
   const blockers = dev.blockers || [];
-  const unresolvedBlockers = blockers.filter(b => b.status !== 'resolved');
+  const unresolvedBlockers = blockers.filter((b: Blocker) => b.status !== 'resolved');
   if (unresolvedBlockers.length > 0) {
     reasons.push(`יש ${unresolvedBlockers.length} חסמים שטרם נפתרו`);
     requiredActions.push('פתר את כל החסמים');
@@ -459,7 +460,6 @@ export const validateWizardStep = (
   moduleData: any
 ): ValidationGuardResult => {
   const missingFields: string[] = [];
-  const warnings: string[] = [];
 
   // Check each field in the step
   for (const field of step.fields) {

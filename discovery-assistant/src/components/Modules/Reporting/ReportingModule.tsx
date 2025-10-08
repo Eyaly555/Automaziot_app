@@ -10,7 +10,6 @@ import {
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 import { PhaseReadOnlyBanner } from '../../Common/PhaseReadOnlyBanner';
 import { Alert, Report, KPI } from '../../../types';
-import type { Option } from '../../Base';
 
 export const ReportingModule: React.FC = () => {
   const navigate = useNavigate();
@@ -102,10 +101,6 @@ export const ReportingModule: React.FC = () => {
   };
 
   const calculateReportingLoad = () => {
-    const dailyReports = reports.filter(r => r.frequency === 'daily').length;
-    const weeklyReports = reports.filter(r => r.frequency === 'weekly').length;
-    const monthlyReports = reports.filter(r => r.frequency === 'monthly').length;
-
     const totalTimePerMonth = reports.reduce((sum, report) => {
       const freq = report.frequency === 'daily' ? 20 :
                   report.frequency === 'weekly' ? 4 :

@@ -4,7 +4,7 @@
  * Generates development tasks from Phase 2 implementation specs
  */
 
-import { Meeting, DevelopmentTask, DetailedSystemSpec, IntegrationFlow, DetailedAIAgentSpec } from '../types';
+import { Meeting, DevelopmentTask, DetailedSystemSpec, IntegrationFlow, DetailedAIAgentSpec, SystemModule, TestCase, SampleConversation, ImplementationSpecData } from '../types';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -18,17 +18,17 @@ export function generateTasksFromPhase2(meeting: Meeting): DevelopmentTask[] {
   const spec = meeting.implementationSpec;
 
   // Generate tasks from systems
-  spec.systems.forEach(system => {
+  spec.systems.forEach((system: DetailedSystemSpec) => {
     tasks.push(...generateSystemTasks(meeting.meetingId, system));
   });
 
   // Generate tasks from integrations
-  spec.integrations.forEach(integration => {
+  spec.integrations.forEach((integration: IntegrationFlow) => {
     tasks.push(...generateIntegrationTasks(meeting.meetingId, integration));
   });
 
   // Generate tasks from AI agents
-  spec.aiAgents.forEach(agent => {
+  spec.aiAgents.forEach((agent: DetailedAIAgentSpec) => {
     tasks.push(...generateAIAgentTasks(meeting.meetingId, agent));
   });
 
@@ -86,7 +86,7 @@ function generateSystemTasks(meetingId: string, system: DetailedSystemSpec): Dev
   });
 
   // 2. Module integration tasks
-  system.modules.forEach(module => {
+  system.modules.forEach((module: SystemModule) => {
     tasks.push({
       id: generateId(),
       meetingId,
@@ -197,11 +197,11 @@ function generateIntegrationTasks(meetingId: string, integration: IntegrationFlo
     dependencies: [],
     blocksOtherTasks: [],
     testingRequired: true,
-    testCases: integration.testCases.map(tc => ({
+    testCases: integration.testCases.map((tc: TestCase) => ({
       id: generateId(),
-      description: tc.name,
-      steps: [tc.description],
-      expectedResult: JSON.stringify(tc.expectedOutput),
+      description: tc.name || tc.scenario || tc.description || 'Test case',
+      steps: [tc.description || tc.scenario || tc.name || 'Execute test'],
+      expectedResult: JSON.stringify(tc.expectedOutput || {}),
       passed: false
     })),
     testStatus: 'not_started',
@@ -276,7 +276,7 @@ function generateAIAgentTasks(meetingId: string, agent: DetailedAIAgentSpec): De
     id: generateId(),
     meetingId,
     title: `Implement conversation flow for ${agent.name}`,
-    description: `Build conversation logic with ${agent.conversationFlow.steps.length} steps\n\nMax length: ${agent.conversationFlow.maxConversationLength} exchanges\nFallback: ${agent.conversationFlow.defaultFallback}`,
+    description: `Build conversation logic with ${agent.conversationFlow.steps?.length ?? 0} steps\n\nMax length: ${agent.conversationFlow.maxConversationLength ?? agent.conversationFlow.maxTurns ?? 10} exchanges\nFallback: ${agent.conversationFlow.defaultFallback ?? agent.conversationFlow.fallbackResponse ?? 'Default fallback'}`,
     type: 'ai_agent',
     relatedSpec: {
       type: 'ai_agent',
@@ -332,7 +332,7 @@ function generateAIAgentTasks(meetingId: string, agent: DetailedAIAgentSpec): De
     id: generateId(),
     meetingId,
     title: `Train and test ${agent.name}`,
-    description: `Train AI agent with ${agent.training.sampleConversations.length} sample conversations\n\nEdge cases: ${agent.training.edgeCases.length}\nProhibited topics: ${agent.training.prohibitedTopics.length}`,
+    description: `Train AI agent with ${agent.training.sampleConversations?.length ?? agent.training.conversationExamples?.length ?? 0} sample conversations\n\nEdge cases: ${agent.training.edgeCases?.length ?? 0}\nProhibited topics: ${agent.training.prohibitedTopics?.length ?? 0}`,
     type: 'testing',
     relatedSpec: {
       type: 'ai_agent',
@@ -346,7 +346,7 @@ function generateAIAgentTasks(meetingId: string, agent: DetailedAIAgentSpec): De
     dependencies: [],
     blocksOtherTasks: [],
     testingRequired: true,
-    testCases: agent.training.sampleConversations.map(convo => ({
+    testCases: (agent.training.sampleConversations ?? agent.training.conversationExamples ?? []).map((convo: SampleConversation) => ({
       id: generateId(),
       description: convo.scenario,
       steps: convo.userMessages,
@@ -363,7 +363,7 @@ function generateAIAgentTasks(meetingId: string, agent: DetailedAIAgentSpec): De
   return tasks;
 }
 
-function generateTestingTasks(meetingId: string, spec: any): DevelopmentTask[] {
+function generateTestingTasks(meetingId: string, _spec: ImplementationSpecData): DevelopmentTask[] {
   const tasks: DevelopmentTask[] = [];
 
   // Integration testing
@@ -503,7 +503,6 @@ function assignTaskDependencies(tasks: DevelopmentTask[]): void {
 
 function assignToSprints(tasks: DevelopmentTask[]): void {
   // Assign tasks to 2-week sprints based on dependencies
-  let currentSprint = 1;
   const tasksPerSprint = 10;
 
   // Sort by dependencies (tasks with no deps first)

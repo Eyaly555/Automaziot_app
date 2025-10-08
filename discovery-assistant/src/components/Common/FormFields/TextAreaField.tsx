@@ -8,6 +8,9 @@ interface TextAreaFieldProps {
   rows?: number;
   required?: boolean;
   disabled?: boolean;
+  error?: boolean;
+  helperText?: string;
+  onBlur?: () => void;
 }
 
 export const TextAreaField: React.FC<TextAreaFieldProps> = ({
@@ -18,6 +21,9 @@ export const TextAreaField: React.FC<TextAreaFieldProps> = ({
   rows = 3,
   required,
   disabled,
+  error = false,
+  helperText,
+  onBlur,
 }) => {
   return (
     <div className="space-y-2">
@@ -31,8 +37,16 @@ export const TextAreaField: React.FC<TextAreaFieldProps> = ({
         placeholder={placeholder}
         rows={rows}
         disabled={disabled}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+        onBlur={onBlur}
+        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none ${
+          error ? 'border-red-300' : 'border-gray-300'
+        } ${disabled ? 'bg-gray-100' : 'bg-white'}`}
       />
+      {helperText && (
+        <p className={`text-sm ${error ? 'text-red-600' : 'text-gray-500'}`}>
+          {helperText}
+        </p>
+      )}
     </div>
   );
 };

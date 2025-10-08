@@ -11,7 +11,7 @@ import ReactFlow, {
   Panel,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { DetailedSystemInfo, SystemIntegrationNeed } from '../../types';
+import { DetailedSystemInfo } from '../../types';
 import { Download, Grid3x3 } from 'lucide-react';
 
 interface IntegrationVisualizerProps {
@@ -30,13 +30,6 @@ const CATEGORY_COLORS: Record<string, string> = {
   warehouse: '#F97316', // orange
   ecommerce: '#EF4444', // red
   other: '#6B7280', // gray
-};
-
-// Integration status colors
-const STATUS_COLORS = {
-  working: '#10B981', // green
-  problematic: '#F59E0B', // orange
-  missing: '#EF4444', // red
 };
 
 // Criticality colors
@@ -156,8 +149,8 @@ export const IntegrationVisualizer: React.FC<IntegrationVisualizerProps> = ({ sy
     return edges;
   }, [systems, autoLayoutKey]);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, _setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, _setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   // Export as PNG
   const handleExportPNG = useCallback(() => {

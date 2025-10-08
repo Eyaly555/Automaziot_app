@@ -2,25 +2,6 @@ import { Meeting } from '../types';
 import { syncMeetingWithZoho } from './zohoAPI';
 
 class ZohoSyncService {
-  private compressData(meeting: Meeting): string {
-    // Remove unnecessary fields for storage
-    const compressed = {
-      ...meeting,
-      // Exclude large or redundant fields
-      wizardState: undefined
-    };
-    return JSON.stringify(compressed);
-  }
-
-  private decompressData(data: string): Meeting | null {
-    try {
-      return JSON.parse(data);
-    } catch (e) {
-      console.error('Failed to parse Zoho data:', e);
-      return null;
-    }
-  }
-
   /**
    * Sync meeting to Zoho CRM using backend API
    */

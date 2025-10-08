@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle, Circle, Lock, ArrowRight } from 'lucide-react';
+import { CheckCircle, Lock, ArrowRight } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { MeetingPhase } from '../../types';
 import { updateZohoPotentialPhase } from '../../services/zohoAPI';

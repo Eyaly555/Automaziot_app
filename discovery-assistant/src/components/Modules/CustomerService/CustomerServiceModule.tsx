@@ -87,12 +87,10 @@ export const CustomerServiceModule: React.FC = () => {
   // 3.5 Reputation Management - Enhanced
   const [feedbackWhen, setFeedbackWhen] = useState<string[]>(moduleData?.reputationManagement?.feedbackCollection?.when || []);
   const [feedbackHow, setFeedbackHow] = useState<string[]>(moduleData?.reputationManagement?.feedbackCollection?.how || []);
-  const [customFeedbackMethod] = useState('');
   const [feedbackResponseRate, setFeedbackResponseRate] = useState(moduleData?.reputationManagement?.feedbackCollection?.responseRate || 0);
   const [whatDoWithFeedback, setWhatDoWithFeedback] = useState(moduleData?.reputationManagement?.whatDoWithFeedback || '');
   const [reviewsPerMonth, setReviewsPerMonth] = useState(moduleData?.reputationManagement?.reviewsPerMonth || 0);
   const [reviewPlatforms, setReviewPlatforms] = useState<string[]>(moduleData?.reputationManagement?.platforms || []);
-  const [customReviewPlatform, setCustomReviewPlatform] = useState('');
   const [positiveReviewStrategy, setPositiveReviewStrategy] = useState(moduleData.reputationManagement?.positiveReviewStrategy || '');
   const [negativeReviewStrategy, setNegativeReviewStrategy] = useState(moduleData.reputationManagement?.negativeReviewStrategy || '');
   const [sentimentDetectionOpportunity, setSentimentDetectionOpportunity] = useState(moduleData.reputationManagement?.sentimentDetectionOpportunity || '');
@@ -521,7 +519,7 @@ export const CustomerServiceModule: React.FC = () => {
                         </p>
                       </div>
                       <div className="text-3xl font-bold text-green-600">
-                        {Math.round(topQuestions.reduce((sum, q) => sum + q.frequencyPerDay, 0) * 2)} דק׳/יום
+                        {Math.round(topQuestions.reduce((sum, q) => sum + (q.frequencyPerDay || 0), 0) * 2)} דק׳/יום
                       </div>
                     </div>
                   </div>

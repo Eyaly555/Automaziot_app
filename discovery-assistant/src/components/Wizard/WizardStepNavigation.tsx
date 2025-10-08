@@ -41,7 +41,6 @@ export const WizardStepNavigation: React.FC = () => {
           {WIZARD_STEPS.map((step, index) => {
             const isCompleted = wizardState.completedSteps.has(step.id);
             const isCurrent = wizardState.currentStep === index;
-            const isPending = !isCompleted && !isCurrent;
             const isClickable = isCompleted || isCurrent;
 
             return (
@@ -59,7 +58,7 @@ export const WizardStepNavigation: React.FC = () => {
                     }
                     ${isClickable ? 'hover:shadow-md' : ''}
                   `}
-                  aria-label={`${isCompleted ? 'ÔÕéÜÝ' : isCurrent ? 'àÕÛ×Ù' : 'ÞÞêÙß'}: ${step.sectionName}`}
+                  aria-label={`${isCompleted ? 'ï¿½ï¿½ï¿½ï¿½ï¿½' : isCurrent ? 'ï¿½ï¿½ï¿½ï¿½ï¿½' : 'ï¿½ï¿½ï¿½ï¿½ï¿½'}: ${step.sectionName}`}
                   aria-current={isCurrent ? 'step' : undefined}
                 >
                   {/* Step Number/Check Circle */}
@@ -119,14 +118,14 @@ export const WizardStepNavigation: React.FC = () => {
         {/* Progress Summary */}
         <div className="mt-3 text-center">
           <p className="text-xs text-gray-600">
-            éÜÑ {wizardState.currentStep + 1} ÞêÕÚ {WIZARD_STEPS.length}
+            ï¿½ï¿½ï¿½ {wizardState.currentStep + 1} ï¿½ï¿½ï¿½ï¿½ {WIZARD_STEPS.length}
             {' " '}
-            {wizardState.completedSteps.size} ÔÕéÜÞÕ
+            {wizardState.completedSteps.size} ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             {wizardState.skippedSections.size > 0 && (
               <>
                 {' " '}
                 <span className="text-orange-600">
-                  {wizardState.skippedSections.size} ÓÕÜÒÕ
+                  {wizardState.skippedSections.size} ï¿½ï¿½ï¿½ï¿½ï¿½
                 </span>
               </>
             )}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Circle, SkipForward } from 'lucide-react';
+import { Check, Circle } from 'lucide-react';
 import { WIZARD_STEPS } from '../../config/wizardSteps';
 import { ProgressBar } from '../Common/ProgressBar/ProgressBar';
 
@@ -37,39 +37,6 @@ export const WizardProgress: React.FC<WizardProgressProps> = ({
     systems: 'מערכות',
     roi: 'החזר השקעה',
     planning: 'תכנון'
-  };
-
-  const getStepStatus = (stepId: string) => {
-    if (currentStep === stepId) return 'current';
-    if (completedSteps.includes(stepId)) return 'completed';
-    if (skippedSteps.includes(stepId)) return 'skipped';
-    return 'pending';
-  };
-
-  const getStepIcon = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <Check className="w-4 h-4" />;
-      case 'skipped':
-        return <SkipForward className="w-4 h-4" />;
-      case 'current':
-        return <Circle className="w-4 h-4 fill-current" />;
-      default:
-        return <Circle className="w-4 h-4" />;
-    }
-  };
-
-  const getStepColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-green-500 text-white';
-      case 'skipped':
-        return 'bg-yellow-500 text-white';
-      case 'current':
-        return 'bg-blue-500 text-white';
-      default:
-        return 'bg-gray-300 text-gray-500';
-    }
   };
 
   return (

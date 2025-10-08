@@ -13,7 +13,6 @@ import {
   getMigrationLogs,
   generateMigrationReport,
   migrateAllLocalStorageMeetings,
-  clearMigrationLogs,
   CURRENT_DATA_VERSION
 } from './dataMigration';
 

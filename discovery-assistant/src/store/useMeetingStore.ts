@@ -1817,7 +1817,7 @@ export const useMeetingStore = create<MeetingStore>()(
         get().updateTaskStatus(taskId, 'blocked');
       },
 
-      resolveBlocker: (taskId, blockerId) => {
+      resolveBlocker: (_taskId, blockerId) => {
         const state = get();
         if (!state.currentMeeting?.developmentTracking) return;
 

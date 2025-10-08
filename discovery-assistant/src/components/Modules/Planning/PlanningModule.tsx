@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Target, Rocket, Calendar, AlertTriangle, CheckCircle } from 'lucide-react';
+import { ArrowRight, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Card } from '../../Common/Card';
 import { TextField, CheckboxGroup, RadioGroup, TextAreaField } from '../../Common/FormFields';

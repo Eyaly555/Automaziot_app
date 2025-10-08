@@ -7,17 +7,11 @@ import {
   TrendingUp,
   AlertCircle,
   CheckCircle,
-  Download,
-  FileText,
   Plus,
   Play,
   Pause,
   RefreshCw,
-  Mail,
-  MessageCircle,
-  FileSpreadsheet,
   Sparkles,
-  ChevronDown,
   X,
   Wand2,
   ClipboardList,
@@ -32,9 +26,6 @@ import { calculateROI } from '../../utils/roiCalculator';
 import { Button, Card, Badge, ProgressBar } from '../Base';
 import { ModuleProgressCard } from '../Modules/ModuleProgressCard';
 import jsPDF from 'jspdf';
-import * as XLSX from 'xlsx';
-import { generateTechnicalSpec } from '../../utils/technicalSpecGenerator';
-import { exportAsMarkdown, downloadMarkdown, downloadJSON } from '../../utils/exportTechnicalSpec';
 import { getSmartRecommendations } from '../../utils/smartRecommendationsEngine';
 import { NextStepsGenerator } from '../NextSteps/NextStepsGenerator';
 import { ExportMenu } from '../Common/ExportMenu';
@@ -73,13 +64,11 @@ export const Dashboard: React.FC = () => {
     stopTimer,
     timerInterval,
     zohoClientsList,
-    exportMeeting,
     initializeWizard,
     syncModulesToWizard
   } = useMeetingStore();
 
   const [showMeetingSelector, setShowMeetingSelector] = useState(false);
-  const [exportMenuOpen, setExportMenuOpen] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
 
   const moduleProgress = getModuleProgress();
@@ -110,15 +99,6 @@ export const Dashboard: React.FC = () => {
     }
   }, [overallProgress]);
 
-  const handleModuleClick = (moduleId: string) => {
-    if (!currentMeeting) {
-      // Redirect to clients list if no meeting selected
-      navigate('/clients');
-      return;
-    }
-    navigate(`/module/${moduleId}`);
-  };
-
   const handleStartWizard = () => {
     if (!currentMeeting) return;
     initializeWizard();
@@ -136,45 +116,6 @@ export const Dashboard: React.FC = () => {
     if (confirm('האם אתה בטוח שברצונך למחוק את הפגישה?')) {
       deleteMeeting(meetingId);
     }
-  };
-
-  const handleExportJSON = () => {
-    const data = exportMeeting();
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `discovery-${currentMeeting?.clientName || 'meeting'}-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    setExportMenuOpen(false);
-  };
-
-  const handleExportExcel = () => {
-    if (!currentMeeting) return;
-
-    const wb = XLSX.utils.book_new();
-
-    // Overview sheet
-    const overviewData = [
-      ['לקוח', currentMeeting.clientName],
-      ['תאריך', formatDate(currentMeeting.date)],
-      ['התקדמות כללית', `${overallProgress}%`],
-      ['כאבים שזוהו', painPoints.length],
-      ['פוטנציאל ROI חודשי', formatCurrency(roi?.totalMonthlySavings || 0)]
-    ];
-    const ws1 = XLSX.utils.aoa_to_sheet(overviewData);
-    XLSX.utils.book_append_sheet(wb, ws1, 'סקירה כללית');
-
-    // Module sheets
-    Object.entries(currentMeeting.modules).forEach(([key, data]) => {
-      const moduleData = JSON.stringify(data, null, 2).split('\n').map(line => [line]);
-      const ws = XLSX.utils.aoa_to_sheet(moduleData);
-      XLSX.utils.book_append_sheet(wb, ws, key.substring(0, 31));
-    });
-
-    XLSX.writeFile(wb, `discovery-${currentMeeting.clientName}-${new Date().toISOString().split('T')[0]}.xlsx`);
-    setExportMenuOpen(false);
   };
 
   const handleExportPDF = async () => {
@@ -247,92 +188,6 @@ export const Dashboard: React.FC = () => {
     }
 
     pdf.save(`discovery-${currentMeeting.clientName}-${new Date().toISOString().split('T')[0]}.pdf`);
-    setExportMenuOpen(false);
-  };
-
-  const handleExportWhatsApp = () => {
-    if (!currentMeeting) return;
-
-    const message = `
-🏢 *${currentMeeting.clientName}*
-📅 ${formatDate(currentMeeting.date)}
-
-📊 *סיכום פגישת Discovery*
-━━━━━━━━━━━━━━━
-התקדמות: ${overallProgress}%
-כאבים שזוהו: ${painPoints.length}
-פוטנציאל חיסכון: ${formatCurrency(roi?.totalMonthlySavings || 0)}/חודש
-
-🔥 *כאבים עיקריים:*
-${painPoints.slice(0, 5).map((p, i) => `${i + 1}. ${p.description}`).join('\n')}
-
-💰 *פוטנציאל ROI:*
-${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => `• ${k}: ${formatCurrency(v)}/חודש`).join('\n') : 'טרם חושב'}
-
-🚀 *הצעדים הבאים:*
-1. השלמת ניתוח מפורט
-2. הכנת הצעת פתרון
-3. פגישת המשך
-
-נשמח לתאם המשך 📞
-    `.trim();
-
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
-    setExportMenuOpen(false);
-  };
-
-  const handleExportEmail = () => {
-    if (!currentMeeting) return;
-
-    const subject = `סיכום פגישת Discovery - ${currentMeeting.clientName}`;
-    const body = `
-לקוח נכבד,
-
-מצ"ב סיכום פגישת ה-Discovery שהתקיימה בתאריך ${formatDate(currentMeeting.date)}.
-
-סיכום ממצאים:
-- התקדמות כללית: ${overallProgress}%
-- כאבים שזוהו: ${painPoints.length}
-- פוטנציאל חיסכון חודשי: ${formatCurrency(roi?.totalMonthlySavings || 0)}
-
-כאבים עיקריים שזוהו:
-${painPoints.slice(0, 5).map((p, i) => `${i + 1}. ${p.description}`).join('\n')}
-
-פירוט פוטנציאל ROI:
-${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => `- ${k}: ${formatCurrency(v)}/חודש`).join('\n') : 'טרם חושב'}
-
-הצעדים הבאים:
-1. השלמת ניתוח מפורט של הממצאים
-2. הכנת הצעת פתרון מותאמת
-3. קביעת פגישת המשך להצגת הפתרון
-
-נשמח לתאם איתך את המשך התהליך.
-
-בברכה,
-צוות Discovery
-    `.trim();
-
-    const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoLink;
-    setExportMenuOpen(false);
-  };
-
-  const handleExportTechnicalSpec = () => {
-    if (!currentMeeting) return;
-
-    const spec = generateTechnicalSpec(currentMeeting);
-    const markdown = exportAsMarkdown(spec);
-    const filename = `technical-spec-${currentMeeting.clientName}-${new Date().toISOString().split('T')[0]}.md`;
-    downloadMarkdown(markdown, filename);
-    setExportMenuOpen(false);
-
-    // Also offer JSON export
-    const shouldExportJSON = confirm('האם ברצונך לייצא גם בפורמט JSON למפתחים?');
-    if (shouldExportJSON) {
-      const jsonFilename = `technical-spec-${currentMeeting.clientName}-${new Date().toISOString().split('T')[0]}.json`;
-      downloadJSON(spec, jsonFilename);
-    }
   };
 
   return (
@@ -640,28 +495,29 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
                             <div className="flex items-center gap-2 mb-2">
                               <Badge
                                 variant={
-                                  rec.priority === 'קריטי' ? 'danger' :
-                                  rec.priority === 'גבוה' ? 'warning' :
-                                  rec.priority === 'בינוני' ? 'info' :
+                                  rec.priority >= 8 ? 'danger' :
+                                  rec.priority >= 6 ? 'warning' :
+                                  rec.priority >= 4 ? 'info' :
                                   'success'
                                 }
                                 size="sm"
                               >
-                                {rec.priority}
+                                {rec.priority >= 8 ? 'קריטי' : rec.priority >= 6 ? 'גבוה' : rec.priority >= 4 ? 'בינוני' : 'נמוך'}
                               </Badge>
                               <Badge
                                 variant={
-                                  rec.type === 'quick_win' ? 'success' :
-                                  rec.type === 'missing_integration' ? 'primary' :
-                                  rec.type === 'manual_data_entry' ? 'info' :
+                                  rec.quickWin ? 'success' :
+                                  rec.category === 'integration' ? 'primary' :
+                                  rec.category === 'automation' ? 'info' :
                                   'gray'
                                 }
                                 size="sm"
                               >
-                                {rec.type === 'quick_win' && '⚡ Quick Win'}
-                                {rec.type === 'missing_integration' && '🔗 אינטגרציה חסרה'}
-                                {rec.type === 'manual_data_entry' && '✍️ הזנה ידנית'}
-                                {rec.type === 'high_volume' && '📊 נפח גבוה'}
+                                {rec.quickWin && '⚡ Quick Win'}
+                                {rec.category === 'integration' && '🔗 אינטגרציה'}
+                                {rec.category === 'automation' && '🤖 אוטומציה'}
+                                {rec.category === 'ai_agent' && '🧠 AI Agent'}
+                                {rec.category === 'process_improvement' && '📈 שיפור תהליכים'}
                               </Badge>
                             </div>
 
@@ -675,8 +531,8 @@ ${roi ? Object.entries(roi.breakdown).filter(([_, v]) => v > 0).map(([k, v]) => 
                               {rec.estimatedCostSavings && (
                                 <span className="text-blue-600">💰 {rec.estimatedCostSavings}</span>
                               )}
-                              {rec.suggestedTool && (
-                                <span className="text-purple-600">🛠️ {rec.suggestedTool}</span>
+                              {rec.suggestedTools && rec.suggestedTools.length > 0 && (
+                                <span className="text-purple-600">🛠️ {rec.suggestedTools.join(', ')}</span>
                               )}
                             </div>
                           </div>

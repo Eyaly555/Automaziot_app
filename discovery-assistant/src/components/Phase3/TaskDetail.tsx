@@ -3,10 +3,6 @@ import { X, Save, Clock, User, AlertCircle, CheckCircle, FileText, Plus, Trash2 
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { DevelopmentTask } from '../../types/phase3';
 import { Button } from '../Base/Button';
-import { Input } from '../Base/Input';
-import { TextArea } from '../Base/TextArea';
-import { Select } from '../Base/Select';
-import { Badge } from '../Base/Badge';
 
 interface TaskDetailProps {
   task: DevelopmentTask;
@@ -16,7 +12,7 @@ interface TaskDetailProps {
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
 export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
-  const { updateTask, addTaskTestCase, updateTaskTestCase, addBlocker } = useMeetingStore();
+  const { updateTask, addTaskTestCase, addBlocker } = useMeetingStore();
 
   const [editedTask, setEditedTask] = useState<DevelopmentTask>(task);
   const [activeTab, setActiveTab] = useState<'details' | 'tests' | 'blockers'>('details');

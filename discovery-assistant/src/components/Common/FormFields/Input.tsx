@@ -119,7 +119,7 @@ export const Input: React.FC<InputProps> = ({
   loading = false,
   readOnly = false
 }) => {
-  const [isFocused, setIsFocused] = useState(false);
+  const [_isFocused, setIsFocused] = useState(false);
 
   // Generate IDs for accessibility
   const inputId = id || `input-${name || Math.random().toString(36).substr(2, 9)}`;

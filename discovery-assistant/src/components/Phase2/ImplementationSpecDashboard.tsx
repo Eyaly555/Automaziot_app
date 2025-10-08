@@ -9,22 +9,17 @@ import {
   Plus,
   ArrowRight,
   ChevronRight,
-  Settings,
   Database,
   Zap,
-  FileText,
-  Download,
-  Copy,
-  FileDown,
   ClipboardList
 } from 'lucide-react';
-import { ImplementationSpecData, CollectedRequirements } from '../../types';
-import { exportToMarkdown, exportToText, copyToClipboard } from '../../utils/englishExport';
+import { ImplementationSpecData, CollectedRequirements, SelectedService } from '../../types';
+import { DetailedSystemSpec, IntegrationFlow, DetailedAIAgentSpec, FunctionalRequirement } from '../../types/phase2';
 import { RequirementsNavigator } from '../Requirements/RequirementsNavigator';
 import { getServiceById } from '../../config/servicesDatabase';
 import { getRequirementsTemplate } from '../../config/serviceRequirementsTemplates';
 import { ExportMenu } from '../Common/ExportMenu';
-import { Card, Button, Badge } from '../Base';
+import { Button } from '../Base';
 
 type SpecSection = 'requirements' | 'systems' | 'integrations' | 'ai_agents' | 'acceptance';
 
@@ -81,12 +76,19 @@ export const ImplementationSpecDashboard: React.FC = () => {
   const spec = currentMeeting.implementationSpec!;
 
   // Get purchased services from proposal (services client actually bought)
-  const purchasedServices = currentMeeting.modules?.proposal?.purchasedServices ||
-                            currentMeeting.modules?.proposal?.selectedServices || [];
+  const purchasedServicesArray = currentMeeting.modules?.proposal?.purchasedServices ||
+                                  currentMeeting.modules?.proposal?.selectedServices || [];
   const requirements = currentMeeting.modules?.requirements || [];
 
+  // Extract service IDs from purchased services
+  const purchasedServiceIds = purchasedServicesArray.map((s: SelectedService) => s.id);
+
+  // Debug logging for data flow validation
+  console.log('[ImplementationSpecDashboard] Purchased services:', purchasedServicesArray.length);
+  console.log('[ImplementationSpecDashboard] Service IDs:', purchasedServiceIds);
+
   // Filter services that actually have requirement templates
-  const servicesWithRequirements = purchasedServices.filter((serviceId: string) =>
+  const servicesWithRequirements = purchasedServiceIds.filter((serviceId: string) =>
     getRequirementsTemplate(serviceId) !== null
   );
 
@@ -97,13 +99,13 @@ export const ImplementationSpecDashboard: React.FC = () => {
     : 100; // If no services need requirements, consider complete
 
   const systemsProgress = spec.systems.length > 0 ?
-    (spec.systems.filter(s => s.authentication.credentialsProvided).length / spec.systems.length * 100) : 0;
+    (spec.systems.filter((s: DetailedSystemSpec) => s.authentication.credentialsProvided).length / spec.systems.length * 100) : 0;
 
   const integrationsProgress = spec.integrations.length > 0 ?
-    (spec.integrations.filter(i => i.testCases.length > 0).length / spec.integrations.length * 100) : 0;
+    (spec.integrations.filter((i: IntegrationFlow) => i.testCases.length > 0).length / spec.integrations.length * 100) : 0;
 
   const aiAgentsProgress = spec.aiAgents.length > 0 ?
-    (spec.aiAgents.filter(a => a.knowledgeBase.sources.length > 0).length / spec.aiAgents.length * 100) : 0;
+    (spec.aiAgents.filter((a: DetailedAIAgentSpec) => a.knowledgeBase.sources.length > 0).length / spec.aiAgents.length * 100) : 0;
 
   const acceptanceProgress =
     (spec.acceptanceCriteria.functional.length +
@@ -190,23 +192,6 @@ export const ImplementationSpecDashboard: React.FC = () => {
     }
   };
 
-  const handleExportMarkdown = () => {
-    exportToMarkdown(currentMeeting);
-  };
-
-  const handleExportText = () => {
-    exportToText(currentMeeting);
-  };
-
-  const handleCopyToClipboard = async () => {
-    try {
-      await copyToClipboard(currentMeeting);
-      alert('הועתק ללוח!');
-    } catch (error) {
-      alert('שגיאה בהעתקה');
-    }
-  };
-
   const handleRequirementsComplete = (allRequirements: CollectedRequirements[]) => {
     updateMeeting({
       modules: {
@@ -253,7 +238,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
               <ExportMenu variant="button" />
 
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={() => navigate('/dashboard')}
               >
                 חזרה לדשבורד
@@ -277,7 +262,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Section Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {sections.map((section) => {
+          {sections.map((section: typeof sections[number]) => {
             const Icon = section.icon;
             const isSelected = selectedSection === section.id;
 
@@ -318,15 +303,24 @@ export const ImplementationSpecDashboard: React.FC = () => {
         <div className="bg-white rounded-xl shadow-md p-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">
-              {sections.find(s => s.id === selectedSection)?.name}
+              {sections.find((s: typeof sections[number]) => s.id === selectedSection)?.name}
             </h2>
-            {selectedSection !== 'requirements' && (
+            {selectedSection !== 'requirements' && selectedSection !== 'systems' && (
               <Button
                 variant="primary"
                 onClick={() => navigate(`/phase2/${selectedSection}/new`)}
                 icon={<Plus className="w-5 h-5" />}
               >
                 הוסף חדש
+              </Button>
+            )}
+            {selectedSection === 'systems' && (
+              <Button
+                variant="primary"
+                onClick={() => navigate('/phase2/systems')}
+                icon={<Server className="w-5 h-5" />}
+              >
+                בחר מערכות
               </Button>
             )}
           </div>
@@ -404,17 +398,17 @@ export const ImplementationSpecDashboard: React.FC = () => {
                   <Database className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-600 mb-4">טרם נוספו מערכות למפרט</p>
                   <button
-                    onClick={() => navigate('/phase2/systems/new')}
+                    onClick={() => navigate('/phase2/systems')}
                     className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                   >
-                    הוסף מערכת ראשונה
+                    בחר מערכות לפירוט
                   </button>
                 </div>
               ) : (
-                spec.systems.map((system) => (
+                spec.systems.map((system: DetailedSystemSpec) => (
                   <div
                     key={system.id}
-                    onClick={() => navigate(`/phase2/systems/${system.id}`)}
+                    onClick={() => navigate(`/phase2/systems/${system.systemId}/dive`)}
                     className="p-6 border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition-all cursor-pointer"
                   >
                     <div className="flex items-center justify-between">
@@ -437,6 +431,22 @@ export const ImplementationSpecDashboard: React.FC = () => {
 
           {selectedSection === 'integrations' && (
             <div className="space-y-4">
+              {/* Auto-suggestion info */}
+              {spec.integrations.length > 0 && spec.integrations.some(i => i.id) && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <Zap className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-semibold text-blue-900 mb-1">אינטגרציות הוצעו אוטומטית</h4>
+                      <p className="text-sm text-blue-800">
+                        {spec.integrations.length} אינטגרציות זוהו מצרכי האינטגרציה שהוגדרו ב-Phase 1.
+                        תוכל לערוך ולהתאים אותן לצרכים המדויקים.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {spec.integrations.length === 0 ? (
                 <div className="text-center py-12">
                   <Zap className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -449,7 +459,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                spec.integrations.map((integration) => (
+                spec.integrations.map((integration: IntegrationFlow) => (
                   <div
                     key={integration.id}
                     onClick={() => navigate(`/phase2/integrations/${integration.id}`)}
@@ -485,6 +495,22 @@ export const ImplementationSpecDashboard: React.FC = () => {
 
           {selectedSection === 'ai_agents' && (
             <div className="space-y-4">
+              {/* Auto-expansion info */}
+              {spec.aiAgents.length > 0 && spec.aiAgents.some(a => a.id) && (
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <Bot className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-semibold text-purple-900 mb-1">סוכני AI הורחבו אוטומטית</h4>
+                      <p className="text-sm text-purple-800">
+                        {spec.aiAgents.length} סוכני AI נוצרו מה-use cases שהוגדרו ב-Phase 1.
+                        מולאו אוטומטית: בסיס ידע, זרימת שיחה, אינטגרציות, ובחירת מודל AI.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {spec.aiAgents.length === 0 ? (
                 <div className="text-center py-12">
                   <Bot className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -497,7 +523,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                spec.aiAgents.map((agent) => (
+                spec.aiAgents.map((agent: DetailedAIAgentSpec) => (
                   <div
                     key={agent.id}
                     onClick={() => navigate(`/phase2/ai-agents/${agent.id}`)}
@@ -530,7 +556,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
                   <p className="text-gray-600 text-sm">טרם הוגדרו דרישות</p>
                 ) : (
                   <div className="space-y-2">
-                    {spec.acceptanceCriteria.functional.map((req) => (
+                    {spec.acceptanceCriteria.functional.map((req: FunctionalRequirement) => (
                       <div key={req.id} className="p-4 bg-gray-50 rounded-lg">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">

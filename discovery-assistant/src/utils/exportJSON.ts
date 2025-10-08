@@ -140,7 +140,10 @@ export function exportSystemsInventoryToJSON(meeting: Meeting): void {
     discoveryPhase: {
       currentSystems: meeting.modules.systems?.currentSystems || [],
       integrationNeeds: meeting.modules.systems?.integrationNeeds,
-      satisfactionScore: meeting.modules.systems?.overallSatisfaction
+      // Calculate average satisfaction from detailed systems
+      satisfactionScore: meeting.modules.systems?.detailedSystems?.length
+        ? meeting.modules.systems.detailedSystems.reduce((sum, sys) => sum + sys.satisfactionScore, 0) / meeting.modules.systems.detailedSystems.length
+        : undefined
     },
     implementationPhase: meeting.implementationSpec?.systems || [],
     exportVersion: '1.0'

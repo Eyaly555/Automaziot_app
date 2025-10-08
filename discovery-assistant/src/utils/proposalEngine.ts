@@ -598,7 +598,6 @@ const analyzeLeadsModule = (meeting: Meeting, suggestions: SuggestionContext[]) 
   }
 
   // 10. Missing Opportunities & Falling Leads
-  const missingOpportunities = leads.missingOpportunities;
   const fallingLeadsPerMonth = leads.fallingLeadsPerMonth || 0;
   if (fallingLeadsPerMonth >= 10) {
     const costPerLostLead = leads.costPerLostLead || 100;
@@ -1902,7 +1901,6 @@ const applyCrossModuleRules = (meeting: Meeting, suggestions: SuggestionContext[
   const overview = meeting.modules?.overview;
   const essentials = meeting.modules?.essentialDetails;
   const leads = meeting.modules?.leadsAndSales;
-  const service = meeting.modules?.customerService;
   const systems = meeting.modules?.systems;
 
   // RULE 1: No CRM + Unanswered Leads = URGENT CRM Implementation

@@ -84,9 +84,13 @@ export const GlobalNavigation: React.FC = () => {
   }
 
   const getProgressIndicator = (moduleKey?: string) => {
-    if (!moduleKey || !moduleProgress[moduleKey]) return null;
+    if (!moduleKey) return null;
 
-    const progress = moduleProgress[moduleKey];
+    const moduleData = moduleProgress.find(m => m.moduleId === moduleKey);
+    if (!moduleData) return null;
+
+    // Calculate percentage from completed and total
+    const progress = moduleData.total > 0 ? Math.round((moduleData.completed / moduleData.total) * 100) : 0;
     if (progress === 100) {
       return <CheckCircle className="w-4 h-4 text-green-600" />;
     } else if (progress > 0) {

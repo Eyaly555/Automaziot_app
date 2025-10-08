@@ -53,7 +53,7 @@ export const supabaseService = {
         phase: meeting.phase
       });
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .schema('automaziot')
         .from('meetings')
         .upsert({

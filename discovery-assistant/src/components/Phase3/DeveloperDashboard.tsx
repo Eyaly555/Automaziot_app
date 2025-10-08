@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { generateTasksFromPhase2 } from '../../utils/taskGenerator';
-import { DevelopmentTask, DevelopmentTrackingData } from '../../types';
+import { DevelopmentTrackingData } from '../../types';
 import {
   LayoutGrid,
   List,
@@ -21,7 +21,6 @@ import { ExportMenu } from '../Common/ExportMenu';
 import { TaskQuickFilters } from './TaskQuickFilters';
 import { Button } from '../Base/Button';
 import { Card } from '../Base/Card';
-import { Badge } from '../Base/Badge';
 
 type ViewMode = 'kanban' | 'list' | 'sprint' | 'system' | 'team';
 type Language = 'he' | 'en';

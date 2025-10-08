@@ -1,5 +1,4 @@
-import { Meeting, DetailedSystemInfo, SystemIntegrationNeed } from '../types';
-import { getSystemLabel, getSystemDetails } from '../config/systemsDatabase';
+import { Meeting, DetailedSystemInfo } from '../types';
 
 export interface TechnicalSpecification {
   metadata: {
@@ -250,7 +249,7 @@ const generateAutomationOpportunities = (
 
 const generateN8NWorkflows = (
   systems: DetailedSystemInfo[],
-  meeting: Meeting
+  _meeting: Meeting
 ): N8NWorkflowTemplate[] => {
   const workflows: N8NWorkflowTemplate[] = [];
 
@@ -327,8 +326,6 @@ const generateN8NWorkflows = (
 
 const generateTechnicalRequirements = (systems: DetailedSystemInfo[]): TechnicalRequirement[] => {
   return systems.map(sys => {
-    const systemDetails = getSystemDetails(sys.category, sys.specificSystem);
-
     return {
       system: sys.specificSystem,
       requirements: {
@@ -403,7 +400,7 @@ const getDocumentationLink = (sys: DetailedSystemInfo): string => {
 };
 
 const generateImplementationPlan = (
-  systems: DetailedSystemInfo[],
+  _systems: DetailedSystemInfo[],
   integrations: any[]
 ): ImplementationPhase[] => {
   const phases: ImplementationPhase[] = [];

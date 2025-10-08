@@ -2393,6 +2393,1709 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
         ]
       }
     ]
+  },
+
+  // ==================== ADDITIONAL AUTOMATION SERVICES ====================
+
+  {
+    serviceId: 'auto-lead-response',
+    serviceName: 'Auto Lead Response',
+    serviceNameHe: 'תגובה אוטומטית ללידים',
+    estimatedTimeMinutes: 15,
+    sections: [
+      {
+        id: 'response-config',
+        title: 'Response Configuration',
+        titleHe: 'הגדרת תגובה',
+        order: 1,
+        fields: [
+          {
+            id: 'response_time',
+            type: 'radio',
+            label: 'Response time after form submission',
+            labelHe: 'זמן תגובה לאחר הגשת טופס',
+            required: true,
+            options: [
+              { value: 'immediate', label: 'Immediate', labelHe: 'מיידי' },
+              { value: '5min', label: 'Within 5 minutes', labelHe: 'תוך 5 דקות' },
+              { value: '15min', label: 'Within 15 minutes', labelHe: 'תוך 15 דקות' }
+            ]
+          },
+          {
+            id: 'response_channel',
+            type: 'multiselect',
+            label: 'Response channels',
+            labelHe: 'ערוצי תגובה',
+            required: true,
+            options: [
+              { value: 'email', label: 'Email', labelHe: 'אימייל' },
+              { value: 'sms', label: 'SMS', labelHe: 'SMS' },
+              { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' }
+            ]
+          },
+          {
+            id: 'message_template',
+            type: 'textarea',
+            label: 'Response message template',
+            labelHe: 'תבנית הודעת תגובה',
+            required: true,
+            placeholder: 'Thank you for your inquiry! We received your message and will contact you soon.',
+            placeholderHe: 'תודה על פנייתך! קיבלנו את הודעתך וניצור קשר בקרוב.'
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'auto-sms-whatsapp',
+    serviceName: 'Auto SMS/WhatsApp to Leads',
+    serviceNameHe: 'SMS/WhatsApp אוטומטי ללידים',
+    estimatedTimeMinutes: 20,
+    sections: [
+      {
+        id: 'messaging-setup',
+        title: 'Messaging Setup',
+        titleHe: 'הגדרת הודעות',
+        order: 1,
+        fields: [
+          {
+            id: 'preferred_channel',
+            type: 'radio',
+            label: 'Preferred messaging channel',
+            labelHe: 'ערוץ הודעות מועדף',
+            required: true,
+            options: [
+              { value: 'sms', label: 'SMS only', labelHe: 'SMS בלבד' },
+              { value: 'whatsapp', label: 'WhatsApp only', labelHe: 'WhatsApp בלבד' },
+              { value: 'both', label: 'Both (SMS first, WhatsApp fallback)', labelHe: 'שניהם (SMS קודם, WhatsApp גיבוי)' }
+            ]
+          },
+          {
+            id: 'message_templates',
+            type: 'list',
+            label: 'Message templates',
+            labelHe: 'תבניות הודעות',
+            required: true,
+            itemFields: [
+              { id: 'trigger', type: 'text', label: 'Trigger', labelHe: 'טריגר' },
+              { id: 'message', type: 'textarea', label: 'Message', labelHe: 'הודעה' }
+            ]
+          },
+          {
+            id: 'daily_limit',
+            type: 'number',
+            label: 'Daily message limit (to avoid spam)',
+            labelHe: 'מגבלת הודעות יומית (למניעת ספאם)',
+            required: true,
+            validation: { min: 10, max: 1000 }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'auto-crm-update',
+    serviceName: 'Auto CRM Update from Forms',
+    serviceNameHe: 'עדכון CRM אוטומטי מטפסים',
+    estimatedTimeMinutes: 15,
+    sections: [
+      {
+        id: 'crm-connection',
+        title: 'CRM Connection',
+        titleHe: 'חיבור CRM',
+        order: 1,
+        fields: [
+          {
+            id: 'crm_system',
+            type: 'select',
+            label: 'CRM system',
+            labelHe: 'מערכת CRM',
+            required: true,
+            options: [
+              { value: 'zoho', label: 'Zoho CRM', labelHe: 'Zoho CRM' },
+              { value: 'hubspot', label: 'HubSpot', labelHe: 'HubSpot' },
+              { value: 'salesforce', label: 'Salesforce', labelHe: 'Salesforce' },
+              { value: 'pipedrive', label: 'Pipedrive', labelHe: 'Pipedrive' },
+              { value: 'other', label: 'Other', labelHe: 'אחר' }
+            ]
+          },
+          {
+            id: 'form_sources',
+            type: 'multiselect',
+            label: 'Form sources to connect',
+            labelHe: 'מקורות טפסים לחיבור',
+            required: true,
+            options: [
+              { value: 'website', label: 'Website Forms', labelHe: 'טפסי אתר' },
+              { value: 'facebook', label: 'Facebook Lead Ads', labelHe: 'Facebook Lead Ads' },
+              { value: 'google', label: 'Google Ads', labelHe: 'Google Ads' },
+              { value: 'landing_pages', label: 'Landing Pages', labelHe: 'דפי נחיתה' }
+            ]
+          },
+          {
+            id: 'duplicate_check',
+            type: 'checkbox',
+            label: 'Check for duplicates before creating new lead',
+            labelHe: 'בדוק כפילויות לפני יצירת ליד חדש',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'auto-team-alerts',
+    serviceName: 'Team Alerts on Important Leads',
+    serviceNameHe: 'התראות לצוות על לידים חשובים',
+    estimatedTimeMinutes: 10,
+    sections: [
+      {
+        id: 'alert-criteria',
+        title: 'Alert Criteria',
+        titleHe: 'קריטריונים להתראה',
+        order: 1,
+        fields: [
+          {
+            id: 'hot_lead_criteria',
+            type: 'multiselect',
+            label: 'What makes a lead "hot"?',
+            labelHe: 'מה הופך ליד ל"חם"?',
+            required: true,
+            options: [
+              { value: 'high_budget', label: 'High budget/value', labelHe: 'תקציב/ערך גבוה' },
+              { value: 'urgent', label: 'Urgent timeline', labelHe: 'לוח זמנים דחוף' },
+              { value: 'decision_maker', label: 'Decision maker', labelHe: 'מקבל החלטות' },
+              { value: 'referral', label: 'Referral', labelHe: 'הפניה' },
+              { value: 'competitor', label: 'Currently with competitor', labelHe: 'כרגע עם מתחרה' }
+            ]
+          },
+          {
+            id: 'notification_channels',
+            type: 'multiselect',
+            label: 'Notification channels',
+            labelHe: 'ערוצי התראה',
+            required: true,
+            options: [
+              { value: 'email', label: 'Email', labelHe: 'אימייל' },
+              { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' },
+              { value: 'sms', label: 'SMS', labelHe: 'SMS' },
+              { value: 'slack', label: 'Slack', labelHe: 'Slack' }
+            ]
+          },
+          {
+            id: 'recipients',
+            type: 'list',
+            label: 'Who should receive alerts?',
+            labelHe: 'מי צריך לקבל התראות?',
+            required: true,
+            itemFields: [
+              { id: 'name', type: 'text', label: 'Name', labelHe: 'שם' },
+              { id: 'contact', type: 'text', label: 'Contact', labelHe: 'איש קשר' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'auto-appointment-reminders',
+    serviceName: 'Appointment Reminders',
+    serviceNameHe: 'תזכורות אוטומטיות לפגישות',
+    estimatedTimeMinutes: 15,
+    sections: [
+      {
+        id: 'reminder-schedule',
+        title: 'Reminder Schedule',
+        titleHe: 'לוח זמנים לתזכורות',
+        order: 1,
+        fields: [
+          {
+            id: 'reminder_times',
+            type: 'multiselect',
+            label: 'When to send reminders?',
+            labelHe: 'מתי לשלוח תזכורות?',
+            required: true,
+            options: [
+              { value: '24h', label: '24 hours before', labelHe: '24 שעות לפני' },
+              { value: '3h', label: '3 hours before', labelHe: '3 שעות לפני' },
+              { value: '1h', label: '1 hour before', labelHe: 'שעה לפני' },
+              { value: '30min', label: '30 minutes before', labelHe: '30 דקות לפני' }
+            ]
+          },
+          {
+            id: 'reminder_channel',
+            type: 'multiselect',
+            label: 'Reminder channels',
+            labelHe: 'ערוצי תזכורת',
+            required: true,
+            options: [
+              { value: 'email', label: 'Email', labelHe: 'אימייל' },
+              { value: 'sms', label: 'SMS', labelHe: 'SMS' },
+              { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' }
+            ]
+          },
+          {
+            id: 'calendar_system',
+            type: 'select',
+            label: 'Calendar system',
+            labelHe: 'מערכת לוח שנה',
+            required: true,
+            options: [
+              { value: 'google', label: 'Google Calendar', labelHe: 'Google Calendar' },
+              { value: 'outlook', label: 'Outlook/Office 365', labelHe: 'Outlook/Office 365' },
+              { value: 'zoho', label: 'Zoho Calendar', labelHe: 'Zoho Calendar' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'auto-welcome-email',
+    serviceName: 'Welcome Email Automation',
+    serviceNameHe: 'אימייל ברוכים הבאים אוטומטי',
+    estimatedTimeMinutes: 10,
+    sections: [
+      {
+        id: 'welcome-config',
+        title: 'Welcome Email Configuration',
+        titleHe: 'הגדרת אימייל ברוכים הבאים',
+        order: 1,
+        fields: [
+          {
+            id: 'trigger',
+            type: 'select',
+            label: 'Send welcome email when...',
+            labelHe: 'שלח אימייל ברוכים הבאים כאשר...',
+            required: true,
+            options: [
+              { value: 'lead_submit', label: 'Lead submits form', labelHe: 'ליד מגיש טופס' },
+              { value: 'account_created', label: 'Account created', labelHe: 'חשבון נוצר' },
+              { value: 'purchase', label: 'First purchase', labelHe: 'רכישה ראשונה' }
+            ]
+          },
+          {
+            id: 'email_content',
+            type: 'textarea',
+            label: 'Email content',
+            labelHe: 'תוכן האימייל',
+            required: true,
+            placeholder: "Welcome! We're excited to have you..."
+          },
+          {
+            id: 'include_next_steps',
+            type: 'checkbox',
+            label: 'Include next steps/call-to-action',
+            labelHe: 'כלול צעדים הבאים/קריאה לפעולה',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'auto-smart-followup',
+    serviceName: 'Smart Follow-up Automation',
+    serviceNameHe: 'אוטומציית מעקבים חכמה',
+    estimatedTimeMinutes: 25,
+    sections: [
+      {
+        id: 'followup-strategy',
+        title: 'Follow-up Strategy',
+        titleHe: 'אסטרטגיית מעקב',
+        order: 1,
+        fields: [
+          {
+            id: 'sequence_length',
+            type: 'number',
+            label: 'Number of follow-up attempts',
+            labelHe: 'מספר ניסיונות מעקב',
+            required: true,
+            validation: { min: 1, max: 10 }
+          },
+          {
+            id: 'time_intervals',
+            type: 'list',
+            label: 'Time intervals between follow-ups',
+            labelHe: 'מרווחי זמן בין מעקבים',
+            required: true,
+            itemFields: [
+              { id: 'days', type: 'number', label: 'Days', labelHe: 'ימים' }
+            ]
+          },
+          {
+            id: 'channels',
+            type: 'multiselect',
+            label: 'Follow-up channels',
+            labelHe: 'ערוצי מעקב',
+            required: true,
+            options: [
+              { value: 'email', label: 'Email', labelHe: 'אימייל' },
+              { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' },
+              { value: 'sms', label: 'SMS', labelHe: 'SMS' },
+              { value: 'phone', label: 'Phone call task', labelHe: 'משימת שיחת טלפון' }
+            ]
+          },
+          {
+            id: 'stop_on_reply',
+            type: 'checkbox',
+            label: 'Stop sequence when lead replies',
+            labelHe: 'עצור רצף כאשר ליד עונה',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'auto-system-sync',
+    serviceName: 'Multi-System Data Sync',
+    serviceNameHe: 'סנכרון נתונים בין 2-3 מערכות',
+    estimatedTimeMinutes: 30,
+    sections: [
+      {
+        id: 'sync-setup',
+        title: 'Sync Setup',
+        titleHe: 'הגדרת סנכרון',
+        order: 1,
+        fields: [
+          {
+            id: 'systems_to_sync',
+            type: 'list',
+            label: 'Systems to sync',
+            labelHe: 'מערכות לסנכרון',
+            required: true,
+            itemFields: [
+              { id: 'system_name', type: 'text', label: 'System Name', labelHe: 'שם מערכת' }
+            ]
+          },
+          {
+            id: 'sync_frequency',
+            type: 'radio',
+            label: 'Sync frequency',
+            labelHe: 'תדירות סנכרון',
+            required: true,
+            options: [
+              { value: 'realtime', label: 'Real-time (webhook)', labelHe: 'זמן אמת (webhook)' },
+              { value: 'hourly', label: 'Every hour', labelHe: 'כל שעה' },
+              { value: 'daily', label: 'Daily', labelHe: 'יומי' }
+            ]
+          },
+          {
+            id: 'sync_direction',
+            type: 'radio',
+            label: 'Sync direction',
+            labelHe: 'כיוון סנכרון',
+            required: true,
+            options: [
+              { value: 'one_way', label: 'One-way (source → target)', labelHe: 'חד-כיווני (מקור → יעד)' },
+              { value: 'bidirectional', label: 'Bi-directional', labelHe: 'דו-כיווני' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'auto-service-workflow',
+    serviceName: 'Customer Service Automation',
+    serviceNameHe: 'אוטומציית תהליך שירות לקוחות',
+    estimatedTimeMinutes: 25,
+    sections: [
+      {
+        id: 'service-flow',
+        title: 'Service Flow',
+        titleHe: 'זרימת שירות',
+        order: 1,
+        fields: [
+          {
+            id: 'ticket_sources',
+            type: 'multiselect',
+            label: 'Ticket sources',
+            labelHe: 'מקורות פניות',
+            required: true,
+            options: [
+              { value: 'email', label: 'Email', labelHe: 'אימייל' },
+              { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' },
+              { value: 'website', label: 'Website Form', labelHe: 'טופס אתר' },
+              { value: 'phone', label: 'Phone', labelHe: 'טלפון' }
+            ]
+          },
+          {
+            id: 'auto_categorization',
+            type: 'checkbox',
+            label: 'Auto-categorize tickets by topic',
+            labelHe: 'סווג אוטומטי של פניות לפי נושא',
+            required: false
+          },
+          {
+            id: 'routing_method',
+            type: 'radio',
+            label: 'Routing method',
+            labelHe: 'שיטת ניתוב',
+            required: true,
+            options: [
+              { value: 'round_robin', label: 'Round Robin', labelHe: 'Round Robin' },
+              { value: 'skill', label: 'By skill/expertise', labelHe: 'לפי מיומנות' },
+              { value: 'load', label: 'By workload', labelHe: 'לפי עומס' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'auto-reports',
+    serviceName: 'Automated Reports',
+    serviceNameHe: 'דוחות יומיים/שבועיים אוטומטיים',
+    estimatedTimeMinutes: 20,
+    sections: [
+      {
+        id: 'report-config',
+        title: 'Report Configuration',
+        titleHe: 'הגדרת דוח',
+        order: 1,
+        fields: [
+          {
+            id: 'report_types',
+            type: 'multiselect',
+            label: 'Report types',
+            labelHe: 'סוגי דוחות',
+            required: true,
+            options: [
+              { value: 'sales', label: 'Sales Performance', labelHe: 'ביצועי מכירות' },
+              { value: 'leads', label: 'Lead Activity', labelHe: 'פעילות לידים' },
+              { value: 'service', label: 'Service Tickets', labelHe: 'פניות שירות' },
+              { value: 'marketing', label: 'Marketing Metrics', labelHe: 'מדדי שיווק' }
+            ]
+          },
+          {
+            id: 'frequency',
+            type: 'radio',
+            label: 'Report frequency',
+            labelHe: 'תדירות דוח',
+            required: true,
+            options: [
+              { value: 'daily', label: 'Daily', labelHe: 'יומי' },
+              { value: 'weekly', label: 'Weekly', labelHe: 'שבועי' },
+              { value: 'monthly', label: 'Monthly', labelHe: 'חודשי' }
+            ]
+          },
+          {
+            id: 'recipients',
+            type: 'list',
+            label: 'Report recipients',
+            labelHe: 'נמעני דוח',
+            required: true,
+            itemFields: [
+              { id: 'email', type: 'text', label: 'Email', labelHe: 'אימייל' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'auto-document-mgmt',
+    serviceName: 'Document Management Automation',
+    serviceNameHe: 'ניהול מסמכים אוטומטי',
+    estimatedTimeMinutes: 25,
+    sections: [
+      {
+        id: 'document-handling',
+        title: 'Document Handling',
+        titleHe: 'טיפול במסמכים',
+        order: 1,
+        fields: [
+          {
+            id: 'document_types',
+            type: 'multiselect',
+            label: 'Document types to process',
+            labelHe: 'סוגי מסמכים לעיבוד',
+            required: true,
+            options: [
+              { value: 'invoices', label: 'Invoices', labelHe: 'חשבוניות' },
+              { value: 'contracts', label: 'Contracts', labelHe: 'חוזים' },
+              { value: 'receipts', label: 'Receipts', labelHe: 'קבלות' },
+              { value: 'forms', label: 'Forms', labelHe: 'טפסים' },
+              { value: 'other', label: 'Other', labelHe: 'אחר' }
+            ]
+          },
+          {
+            id: 'storage_location',
+            type: 'select',
+            label: 'Storage location',
+            labelHe: 'מיקום אחסון',
+            required: true,
+            options: [
+              { value: 'google_drive', label: 'Google Drive', labelHe: 'Google Drive' },
+              { value: 'dropbox', label: 'Dropbox', labelHe: 'Dropbox' },
+              { value: 'onedrive', label: 'OneDrive', labelHe: 'OneDrive' },
+              { value: 'zoho', label: 'Zoho WorkDrive', labelHe: 'Zoho WorkDrive' }
+            ]
+          },
+          {
+            id: 'auto_extract',
+            type: 'checkbox',
+            label: 'Auto-extract data from documents',
+            labelHe: 'חילוץ אוטומטי של נתונים ממסמכים',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'auto-end-to-end',
+    serviceName: 'End-to-End Process Automation',
+    serviceNameHe: 'אוטומציה מקצה לקצה של תהליך שלם',
+    estimatedTimeMinutes: 45,
+    sections: [
+      {
+        id: 'process-definition',
+        title: 'Process Definition',
+        titleHe: 'הגדרת תהליך',
+        order: 1,
+        fields: [
+          {
+            id: 'process_name',
+            type: 'text',
+            label: 'Process name',
+            labelHe: 'שם תהליך',
+            required: true
+          },
+          {
+            id: 'process_steps',
+            type: 'textarea',
+            label: 'Describe the current manual process step-by-step',
+            labelHe: 'תאר את התהליך הידני הנוכחי שלב אחר שלב',
+            required: true
+          },
+          {
+            id: 'weekly_volume',
+            type: 'number',
+            label: 'How many times per week does this process run?',
+            labelHe: 'כמה פעמים בשבוע התהליך מתבצע?',
+            required: true,
+            validation: { min: 1, max: 1000 }
+          },
+          {
+            id: 'time_per_instance',
+            type: 'number',
+            label: 'Time per instance (minutes)',
+            labelHe: 'זמן למופע (דקות)',
+            required: true,
+            validation: { min: 1, max: 480 }
+          },
+          {
+            id: 'pain_points',
+            type: 'textarea',
+            label: 'What are the main pain points in this process?',
+            labelHe: 'מהן נקודות הכאב העיקריות בתהליך?',
+            required: true
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'auto-multi-system',
+    serviceName: 'Multi-System Integration (4+ systems)',
+    serviceNameHe: 'אינטגרציה מלאה של 4+ מערכות',
+    estimatedTimeMinutes: 40,
+    sections: [
+      {
+        id: 'systems-mapping',
+        title: 'Systems Mapping',
+        titleHe: 'מיפוי מערכות',
+        order: 1,
+        fields: [
+          {
+            id: 'systems_list',
+            type: 'list',
+            label: 'List all systems to integrate',
+            labelHe: 'רשימת כל המערכות לאינטגרציה',
+            required: true,
+            itemFields: [
+              { id: 'system', type: 'text', label: 'System', labelHe: 'מערכת' },
+              { id: 'role', type: 'text', label: 'Role', labelHe: 'תפקיד' }
+            ]
+          },
+          {
+            id: 'data_flow',
+            type: 'textarea',
+            label: 'Describe the desired data flow between systems',
+            labelHe: 'תאר את זרימת הנתונים הרצויה בין המערכות',
+            required: true
+          },
+          {
+            id: 'realtime_required',
+            type: 'checkbox',
+            label: 'Real-time sync required',
+            labelHe: 'נדרש סנכרון בזמן אמת',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'auto-complex-logic',
+    serviceName: 'Complex Business Logic Automation',
+    serviceNameHe: 'לוגיקה עסקית מורכבת',
+    estimatedTimeMinutes: 35,
+    sections: [
+      {
+        id: 'logic-definition',
+        title: 'Logic Definition',
+        titleHe: 'הגדרת לוגיקה',
+        order: 1,
+        fields: [
+          {
+            id: 'business_rules',
+            type: 'textarea',
+            label: 'Describe the business rules and conditional logic',
+            labelHe: 'תאר את הכללים העסקיים והלוגיקה המותנית',
+            required: true
+          },
+          {
+            id: 'decision_points',
+            type: 'list',
+            label: 'Key decision points',
+            labelHe: 'נקודות החלטה מרכזיות',
+            required: true,
+            itemFields: [
+              { id: 'condition', type: 'text', label: 'Condition', labelHe: 'תנאי' },
+              { id: 'action', type: 'text', label: 'Action', labelHe: 'פעולה' }
+            ]
+          },
+          {
+            id: 'exceptions',
+            type: 'textarea',
+            label: 'Edge cases and exceptions to handle',
+            labelHe: 'מקרי קצה וחריגים לטיפול',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'auto-sales-pipeline',
+    serviceName: 'Complete Sales Pipeline with Dashboard',
+    serviceNameHe: 'Pipeline מכירות מלא עם דשבורד',
+    estimatedTimeMinutes: 50,
+    sections: [
+      {
+        id: 'pipeline-config',
+        title: 'Pipeline Configuration',
+        titleHe: 'הגדרת Pipeline',
+        order: 1,
+        fields: [
+          {
+            id: 'pipeline_stages',
+            type: 'list',
+            label: 'Pipeline stages',
+            labelHe: 'שלבי Pipeline',
+            required: true,
+            itemFields: [
+              { id: 'stage_name', type: 'text', label: 'Stage Name', labelHe: 'שם שלב' }
+            ]
+          },
+          {
+            id: 'kpis',
+            type: 'multiselect',
+            label: 'KPIs to track',
+            labelHe: 'KPIs למעקב',
+            required: true,
+            options: [
+              { value: 'conversion_rate', label: 'Conversion Rate', labelHe: 'שיעור המרה' },
+              { value: 'avg_deal_size', label: 'Average Deal Size', labelHe: 'גודל עסקה ממוצע' },
+              { value: 'sales_cycle', label: 'Sales Cycle Length', labelHe: 'אורך מחזור מכירות' },
+              { value: 'win_rate', label: 'Win Rate', labelHe: 'שיעור זכייה' }
+            ]
+          },
+          {
+            id: 'dashboard_users',
+            type: 'list',
+            label: 'Who needs access to the dashboard?',
+            labelHe: 'מי צריך גישה לדשבורד?',
+            required: true,
+            itemFields: [
+              { id: 'name', type: 'text', label: 'Name', labelHe: 'שם' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'auto-cross-dept',
+    serviceName: 'Cross-Department Automation',
+    serviceNameHe: 'אוטומציה בין-מחלקתית',
+    estimatedTimeMinutes: 40,
+    sections: [
+      {
+        id: 'dept-workflow',
+        title: 'Department Workflow',
+        titleHe: 'זרימת עבודה בין מחלקות',
+        order: 1,
+        fields: [
+          {
+            id: 'departments',
+            type: 'list',
+            label: 'Departments involved',
+            labelHe: 'מחלקות מעורבות',
+            required: true,
+            itemFields: [
+              { id: 'dept', type: 'text', label: 'Department', labelHe: 'מחלקה' }
+            ]
+          },
+          {
+            id: 'handoff_points',
+            type: 'textarea',
+            label: 'Describe the handoff points between departments',
+            labelHe: 'תאר נקודות העברה בין מחלקות',
+            required: true
+          },
+          {
+            id: 'approval_required',
+            type: 'checkbox',
+            label: 'Approvals required between handoffs',
+            labelHe: 'נדרשים אישורים בין העברות',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'auto-financial',
+    serviceName: 'Financial Process Automation',
+    serviceNameHe: 'אוטומציית תהליכים פיננסיים',
+    estimatedTimeMinutes: 35,
+    sections: [
+      {
+        id: 'financial-processes',
+        title: 'Financial Processes',
+        titleHe: 'תהליכים פיננסיים',
+        order: 1,
+        fields: [
+          {
+            id: 'process_types',
+            type: 'multiselect',
+            label: 'Which financial processes to automate?',
+            labelHe: 'אילו תהליכים פיננסיים לאוטומט?',
+            required: true,
+            options: [
+              { value: 'invoicing', label: 'Invoicing', labelHe: 'חשבוניות' },
+              { value: 'payments', label: 'Payment Processing', labelHe: 'עיבוד תשלומים' },
+              { value: 'reconciliation', label: 'Reconciliation', labelHe: 'התאמות' },
+              { value: 'expense', label: 'Expense Management', labelHe: 'ניהול הוצאות' }
+            ]
+          },
+          {
+            id: 'accounting_system',
+            type: 'select',
+            label: 'Accounting system',
+            labelHe: 'מערכת הנהלת חשבונות',
+            required: true,
+            options: [
+              { value: 'quickbooks', label: 'QuickBooks', labelHe: 'QuickBooks' },
+              { value: 'xero', label: 'Xero', labelHe: 'Xero' },
+              { value: 'zoho_books', label: 'Zoho Books', labelHe: 'Zoho Books' },
+              { value: 'other', label: 'Other', labelHe: 'אחר' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'auto-project-mgmt',
+    serviceName: 'Project Management Automation',
+    serviceNameHe: 'מערכת ניהול פרויקטים אוטומטית',
+    estimatedTimeMinutes: 30,
+    sections: [
+      {
+        id: 'pm-setup',
+        title: 'PM Setup',
+        titleHe: 'הגדרת ניהול פרויקטים',
+        order: 1,
+        fields: [
+          {
+            id: 'pm_system',
+            type: 'select',
+            label: 'Project management system',
+            labelHe: 'מערכת ניהול פרויקטים',
+            required: true,
+            options: [
+              { value: 'asana', label: 'Asana', labelHe: 'Asana' },
+              { value: 'monday', label: 'Monday.com', labelHe: 'Monday.com' },
+              { value: 'clickup', label: 'ClickUp', labelHe: 'ClickUp' },
+              { value: 'jira', label: 'Jira', labelHe: 'Jira' }
+            ]
+          },
+          {
+            id: 'auto_project_creation',
+            type: 'checkbox',
+            label: 'Auto-create projects from CRM deals',
+            labelHe: 'יצירה אוטומטית של פרויקטים מעסקאות CRM',
+            required: false
+          },
+          {
+            id: 'task_templates',
+            type: 'checkbox',
+            label: 'Use task templates for recurring projects',
+            labelHe: 'שימוש בתבניות משימות לפרויקטים חוזרים',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  // ==================== ADDITIONAL AI AGENT SERVICES ====================
+
+  {
+    serviceId: 'ai-lead-qualifier',
+    serviceName: 'AI Lead Qualifier',
+    serviceNameHe: 'AI לאיסוף מידע ראשוני מלידים',
+    estimatedTimeMinutes: 25,
+    sections: [
+      {
+        id: 'qualification-criteria',
+        title: 'Qualification Criteria',
+        titleHe: 'קריטריוני הסמכה',
+        order: 1,
+        fields: [
+          {
+            id: 'qualifying_questions',
+            type: 'list',
+            label: 'Qualifying questions',
+            labelHe: 'שאלות הסמכה',
+            required: true,
+            itemFields: [
+              { id: 'question', type: 'text', label: 'Question', labelHe: 'שאלה' }
+            ]
+          },
+          {
+            id: 'lead_scoring',
+            type: 'checkbox',
+            label: 'Enable AI lead scoring',
+            labelHe: 'אפשר ציון לידים באמצעות AI',
+            required: false
+          },
+          {
+            id: 'handoff_threshold',
+            type: 'select',
+            label: 'When to hand off to human?',
+            labelHe: 'מתי להעביר לאדם?',
+            required: true,
+            options: [
+              { value: 'high_score', label: 'High score leads only', labelHe: 'רק לידים עם ציון גבוה' },
+              { value: 'request', label: 'When lead requests', labelHe: 'כשליד מבקש' },
+              { value: 'always', label: 'After qualification', labelHe: 'אחרי הסמכה' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'ai-form-assistant',
+    serviceName: 'AI Form Assistant',
+    serviceNameHe: 'AI למילוי טפסים עם ליווי',
+    estimatedTimeMinutes: 20,
+    sections: [
+      {
+        id: 'form-guidance',
+        title: 'Form Guidance',
+        titleHe: 'הנחיית טופס',
+        order: 1,
+        fields: [
+          {
+            id: 'form_url',
+            type: 'text',
+            label: 'Form URL',
+            labelHe: 'כתובת טופס',
+            required: true
+          },
+          {
+            id: 'help_triggers',
+            type: 'multiselect',
+            label: 'When should AI offer help?',
+            labelHe: 'מתי AI צריך להציע עזרה?',
+            required: true,
+            options: [
+              { value: 'field_hover', label: 'User hovers over field', labelHe: 'משתמש מרחף מעל שדה' },
+              { value: 'validation_error', label: 'Validation error', labelHe: 'שגיאת ולידציה' },
+              { value: 'abandonment', label: 'Abandonment risk', labelHe: 'סיכון לנטישה' }
+            ]
+          },
+          {
+            id: 'completion_incentive',
+            type: 'text',
+            label: 'Completion incentive message',
+            labelHe: 'הודעת תמריץ להשלמה',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'ai-triage',
+    serviceName: 'AI Inquiry Triage',
+    serviceNameHe: 'AI לסינון פניות ראשוני',
+    estimatedTimeMinutes: 20,
+    sections: [
+      {
+        id: 'triage-rules',
+        title: 'Triage Rules',
+        titleHe: 'כללי סינון',
+        order: 1,
+        fields: [
+          {
+            id: 'categories',
+            type: 'list',
+            label: 'Inquiry categories',
+            labelHe: 'קטגוריות פניות',
+            required: true,
+            itemFields: [
+              { id: 'category', type: 'text', label: 'Category', labelHe: 'קטגוריה' }
+            ]
+          },
+          {
+            id: 'routing_rules',
+            type: 'list',
+            label: 'Routing rules',
+            labelHe: 'כללי ניתוב',
+            required: true,
+            itemFields: [
+              { id: 'category', type: 'text', label: 'Category', labelHe: 'קטגוריה' },
+              { id: 'route_to', type: 'text', label: 'Route to', labelHe: 'נתב אל' }
+            ]
+          },
+          {
+            id: 'urgency_detection',
+            type: 'checkbox',
+            label: 'Detect urgency and prioritize',
+            labelHe: 'זהה דחיפות ותעדף',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'ai-learning',
+    serviceName: 'Self-Learning AI Agent',
+    serviceNameHe: 'AI עם למידה מתמשכת',
+    estimatedTimeMinutes: 30,
+    sections: [
+      {
+        id: 'learning-config',
+        title: 'Learning Configuration',
+        titleHe: 'הגדרת למידה',
+        order: 1,
+        fields: [
+          {
+            id: 'learning_sources',
+            type: 'multiselect',
+            label: 'What should the AI learn from?',
+            labelHe: 'ממה ה-AI צריך ללמוד?',
+            required: true,
+            options: [
+              { value: 'conversations', label: 'Successful conversations', labelHe: 'שיחות מוצלחות' },
+              { value: 'corrections', label: 'Human corrections', labelHe: 'תיקונים אנושיים' },
+              { value: 'feedback', label: 'User feedback', labelHe: 'משוב משתמשים' },
+              { value: 'outcomes', label: 'Outcomes (conversions)', labelHe: 'תוצאות (המרות)' }
+            ]
+          },
+          {
+            id: 'review_frequency',
+            type: 'radio',
+            label: 'How often to review and update AI?',
+            labelHe: 'באיזו תדירות לבדוק ולעדכן את ה-AI?',
+            required: true,
+            options: [
+              { value: 'weekly', label: 'Weekly', labelHe: 'שבועי' },
+              { value: 'biweekly', label: 'Bi-weekly', labelHe: 'דו-שבועי' },
+              { value: 'monthly', label: 'Monthly', labelHe: 'חודשי' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'ai-multi-agent',
+    serviceName: 'Multi-Agent AI System',
+    serviceNameHe: 'מספר סוכני AI משתפי פעולה',
+    estimatedTimeMinutes: 45,
+    sections: [
+      {
+        id: 'agents-config',
+        title: 'Agents Configuration',
+        titleHe: 'הגדרת סוכנים',
+        order: 1,
+        fields: [
+          {
+            id: 'agent_list',
+            type: 'list',
+            label: 'AI agents needed',
+            labelHe: 'סוכני AI נדרשים',
+            required: true,
+            itemFields: [
+              { id: 'agent_name', type: 'text', label: 'Agent Name', labelHe: 'שם סוכן' },
+              { id: 'specialty', type: 'text', label: 'Specialty', labelHe: 'התמחות' }
+            ]
+          },
+          {
+            id: 'handoff_rules',
+            type: 'textarea',
+            label: 'Describe when to hand off between agents',
+            labelHe: 'תאר מתי להעביר בין סוכנים',
+            required: true
+          },
+          {
+            id: 'unified_knowledge',
+            type: 'checkbox',
+            label: 'Share knowledge base across agents',
+            labelHe: 'שתף מאגר ידע בין סוכנים',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'ai-branded',
+    serviceName: 'Brand-Personalized AI',
+    serviceNameHe: 'AI עם אישיות מותאמת למותג',
+    estimatedTimeMinutes: 30,
+    sections: [
+      {
+        id: 'brand-personality',
+        title: 'Brand Personality',
+        titleHe: 'אישיות מותג',
+        order: 1,
+        fields: [
+          {
+            id: 'brand_voice',
+            type: 'select',
+            label: 'Brand voice',
+            labelHe: 'קול מותג',
+            required: true,
+            options: [
+              { value: 'professional', label: 'Professional', labelHe: 'מקצועי' },
+              { value: 'friendly', label: 'Friendly', labelHe: 'ידידותי' },
+              { value: 'playful', label: 'Playful', labelHe: 'משחקי' },
+              { value: 'authoritative', label: 'Authoritative', labelHe: 'סמכותי' }
+            ]
+          },
+          {
+            id: 'brand_values',
+            type: 'textarea',
+            label: 'Brand values to reflect',
+            labelHe: 'ערכי מותג לשיקוף',
+            required: true
+          },
+          {
+            id: 'prohibited_terms',
+            type: 'list',
+            label: 'Words/phrases to avoid',
+            labelHe: 'מילים/ביטויים להימנע',
+            required: false,
+            itemFields: [
+              { id: 'term', type: 'text', label: 'Term', labelHe: 'ביטוי' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'ai-full-integration',
+    serviceName: 'Fully Integrated AI System',
+    serviceNameHe: 'אינטגרציה עמוקה עם כל המערכות',
+    estimatedTimeMinutes: 50,
+    sections: [
+      {
+        id: 'deep-integration',
+        title: 'Deep Integration',
+        titleHe: 'אינטגרציה עמוקה',
+        order: 1,
+        fields: [
+          {
+            id: 'integrated_systems',
+            type: 'list',
+            label: 'Systems to integrate with',
+            labelHe: 'מערכות לאינטגרציה',
+            required: true,
+            itemFields: [
+              { id: 'system', type: 'text', label: 'System', labelHe: 'מערכת' }
+            ]
+          },
+          {
+            id: 'ai_actions',
+            type: 'multiselect',
+            label: 'What actions can AI take?',
+            labelHe: 'אילו פעולות AI יכול לבצע?',
+            required: true,
+            options: [
+              { value: 'create_records', label: 'Create records', labelHe: 'יצירת רשומות' },
+              { value: 'update_data', label: 'Update data', labelHe: 'עדכון נתונים' },
+              { value: 'send_messages', label: 'Send messages', labelHe: 'שליחת הודעות' },
+              { value: 'schedule_tasks', label: 'Schedule tasks', labelHe: 'תזמון משימות' }
+            ]
+          },
+          {
+            id: 'approval_required',
+            type: 'checkbox',
+            label: 'Require human approval for AI actions',
+            labelHe: 'דרוש אישור אנושי לפעולות AI',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'ai-multimodal',
+    serviceName: 'Multimodal AI (Docs/Images/Voice)',
+    serviceNameHe: 'AI עם עיבוד מסמכים/תמונות/קול',
+    estimatedTimeMinutes: 40,
+    sections: [
+      {
+        id: 'multimodal-config',
+        title: 'Multimodal Configuration',
+        titleHe: 'הגדרת Multimodal',
+        order: 1,
+        fields: [
+          {
+            id: 'input_types',
+            type: 'multiselect',
+            label: 'Input types to support',
+            labelHe: 'סוגי קלט לתמיכה',
+            required: true,
+            options: [
+              { value: 'text', label: 'Text', labelHe: 'טקסט' },
+              { value: 'voice', label: 'Voice', labelHe: 'קול' },
+              { value: 'images', label: 'Images', labelHe: 'תמונות' },
+              { value: 'documents', label: 'Documents (PDF)', labelHe: 'מסמכים (PDF)' }
+            ]
+          },
+          {
+            id: 'use_cases',
+            type: 'textarea',
+            label: 'Describe the use cases for each input type',
+            labelHe: 'תאר את מקרי השימוש לכל סוג קלט',
+            required: true
+          },
+          {
+            id: 'voice_language',
+            type: 'multiselect',
+            label: 'Voice languages',
+            labelHe: 'שפות קול',
+            required: false,
+            options: [
+              { value: 'he', label: 'Hebrew', labelHe: 'עברית' },
+              { value: 'en', label: 'English', labelHe: 'אנגלית' },
+              { value: 'ar', label: 'Arabic', labelHe: 'ערבית' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'ai-predictive',
+    serviceName: 'Predictive AI with Analytics',
+    serviceNameHe: 'AI עם יכולות ניתוח וחיזוי',
+    estimatedTimeMinutes: 45,
+    sections: [
+      {
+        id: 'predictive-models',
+        title: 'Predictive Models',
+        titleHe: 'מודלים חזוי',
+        order: 1,
+        fields: [
+          {
+            id: 'predictions_needed',
+            type: 'multiselect',
+            label: 'What to predict?',
+            labelHe: 'מה לחזות?',
+            required: true,
+            options: [
+              { value: 'churn', label: 'Customer churn', labelHe: 'נטישת לקוחות' },
+              { value: 'conversion', label: 'Lead conversion', labelHe: 'המרת לידים' },
+              { value: 'revenue', label: 'Revenue forecast', labelHe: 'תחזית הכנסות' },
+              { value: 'demand', label: 'Demand forecast', labelHe: 'תחזית ביקוש' }
+            ]
+          },
+          {
+            id: 'data_sources',
+            type: 'list',
+            label: 'Data sources for training',
+            labelHe: 'מקורות נתונים לאימון',
+            required: true,
+            itemFields: [
+              { id: 'source', type: 'text', label: 'Source', labelHe: 'מקור' }
+            ]
+          },
+          {
+            id: 'alert_threshold',
+            type: 'text',
+            label: 'When to alert (e.g., "80% churn risk")',
+            labelHe: 'מתי להתריע (לדוגמה: "80% סיכון לנטישה")',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  // ==================== ADDITIONAL INTEGRATION SERVICES ====================
+
+  {
+    serviceId: 'int-webhook',
+    serviceName: 'Webhook Setup',
+    serviceNameHe: 'הגדרת Webhook',
+    estimatedTimeMinutes: 15,
+    sections: [
+      {
+        id: 'webhook-config',
+        title: 'Webhook Configuration',
+        titleHe: 'הגדרת Webhook',
+        order: 1,
+        fields: [
+          {
+            id: 'source_system',
+            type: 'text',
+            label: 'Source system (sending webhook)',
+            labelHe: 'מערכת מקור (שולחת webhook)',
+            required: true
+          },
+          {
+            id: 'target_system',
+            type: 'text',
+            label: 'Target system (receiving webhook)',
+            labelHe: 'מערכת יעד (מקבלת webhook)',
+            required: true
+          },
+          {
+            id: 'events',
+            type: 'list',
+            label: 'Events to trigger webhook',
+            labelHe: 'אירועים להפעלת webhook',
+            required: true,
+            itemFields: [
+              { id: 'event', type: 'text', label: 'Event', labelHe: 'אירוע' }
+            ]
+          },
+          {
+            id: 'retry_logic',
+            type: 'checkbox',
+            label: 'Enable retry logic for failed webhooks',
+            labelHe: 'אפשר לוגיקת ניסיון חוזר ל-webhooks כושלים',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'int-transform',
+    serviceName: 'Integration with Data Transformation',
+    serviceNameHe: 'אינטגרציה עם טרנספורמציה של נתונים',
+    estimatedTimeMinutes: 30,
+    sections: [
+      {
+        id: 'transformation-rules',
+        title: 'Transformation Rules',
+        titleHe: 'כללי טרנספורמציה',
+        order: 1,
+        fields: [
+          {
+            id: 'field_mapping',
+            type: 'list',
+            label: 'Field mapping',
+            labelHe: 'מיפוי שדות',
+            required: true,
+            itemFields: [
+              { id: 'source_field', type: 'text', label: 'Source Field', labelHe: 'שדה מקור' },
+              { id: 'target_field', type: 'text', label: 'Target Field', labelHe: 'שדה יעד' }
+            ]
+          },
+          {
+            id: 'transformations',
+            type: 'textarea',
+            label: 'Describe data transformations needed',
+            labelHe: 'תאר טרנספורמציות נתונים נדרשות',
+            required: true
+          },
+          {
+            id: 'validation_rules',
+            type: 'textarea',
+            label: 'Validation rules',
+            labelHe: 'כללי ולידציה',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'int-custom-api',
+    serviceName: 'Custom API Development',
+    serviceNameHe: 'פיתוח API מותאם אישית',
+    estimatedTimeMinutes: 45,
+    sections: [
+      {
+        id: 'api-requirements',
+        title: 'API Requirements',
+        titleHe: 'דרישות API',
+        order: 1,
+        fields: [
+          {
+            id: 'api_purpose',
+            type: 'textarea',
+            label: 'API purpose and use case',
+            labelHe: 'מטרת API ומקרה שימוש',
+            required: true
+          },
+          {
+            id: 'endpoints',
+            type: 'list',
+            label: 'Endpoints needed',
+            labelHe: 'Endpoints נדרשים',
+            required: true,
+            itemFields: [
+              { id: 'endpoint', type: 'text', label: 'Endpoint', labelHe: 'Endpoint' },
+              { id: 'method', type: 'text', label: 'Method', labelHe: 'Method' }
+            ]
+          },
+          {
+            id: 'authentication',
+            type: 'select',
+            label: 'Authentication method',
+            labelHe: 'שיטת אימות',
+            required: true,
+            options: [
+              { value: 'api_key', label: 'API Key', labelHe: 'API Key' },
+              { value: 'oauth', label: 'OAuth 2.0', labelHe: 'OAuth 2.0' },
+              { value: 'jwt', label: 'JWT', labelHe: 'JWT' }
+            ]
+          },
+          {
+            id: 'rate_limiting',
+            type: 'checkbox',
+            label: 'Implement rate limiting',
+            labelHe: 'יישם הגבלת קצב',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'int-legacy',
+    serviceName: 'Legacy System Integration',
+    serviceNameHe: 'אינטגרציה עם מערכות ישנות',
+    estimatedTimeMinutes: 40,
+    sections: [
+      {
+        id: 'legacy-details',
+        title: 'Legacy System Details',
+        titleHe: 'פרטי מערכת ישנה',
+        order: 1,
+        fields: [
+          {
+            id: 'system_name',
+            type: 'text',
+            label: 'Legacy system name',
+            labelHe: 'שם מערכת ישנה',
+            required: true
+          },
+          {
+            id: 'system_age',
+            type: 'text',
+            label: 'System age/version',
+            labelHe: 'גיל/גרסה של מערכת',
+            required: false
+          },
+          {
+            id: 'access_method',
+            type: 'radio',
+            label: 'How can we access the system?',
+            labelHe: 'איך אפשר לגשת למערכת?',
+            required: true,
+            options: [
+              { value: 'database', label: 'Direct database access', labelHe: 'גישה ישירה לבסיס נתונים' },
+              { value: 'file_export', label: 'File export/import', labelHe: 'ייצוא/ייבוא קובץ' },
+              { value: 'screen_scraping', label: 'Screen scraping', labelHe: 'Screen scraping' },
+              { value: 'api', label: 'Legacy API', labelHe: 'API ישן' }
+            ]
+          },
+          {
+            id: 'challenges',
+            type: 'textarea',
+            label: 'Known challenges or limitations',
+            labelHe: 'אתגרים או מגבלות ידועות',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  // ==================== ADDITIONAL SYSTEM IMPLEMENTATION ====================
+
+  {
+    serviceId: 'impl-marketing',
+    serviceName: 'Marketing Tools Implementation',
+    serviceNameHe: 'הטמעת כלי שיווק',
+    estimatedTimeMinutes: 25,
+    sections: [
+      {
+        id: 'marketing-platform',
+        title: 'Marketing Platform',
+        titleHe: 'פלטפורמת שיווק',
+        order: 1,
+        fields: [
+          {
+            id: 'platform',
+            type: 'select',
+            label: 'Marketing platform',
+            labelHe: 'פלטפורמת שיווק',
+            required: true,
+            options: [
+              { value: 'mailchimp', label: 'Mailchimp', labelHe: 'Mailchimp' },
+              { value: 'activecampaign', label: 'ActiveCampaign', labelHe: 'ActiveCampaign' },
+              { value: 'hubspot', label: 'HubSpot Marketing', labelHe: 'HubSpot Marketing' },
+              { value: 'zoho_campaigns', label: 'Zoho Campaigns', labelHe: 'Zoho Campaigns' }
+            ]
+          },
+          {
+            id: 'list_size',
+            type: 'select',
+            label: 'Email list size',
+            labelHe: 'גודל רשימת אימיילים',
+            required: true,
+            options: [
+              { value: 'under_1000', label: 'Under 1,000', labelHe: 'מתחת ל-1,000' },
+              { value: '1000-5000', label: '1,000-5,000', labelHe: '1,000-5,000' },
+              { value: '5000-20000', label: '5,000-20,000', labelHe: '5,000-20,000' },
+              { value: 'over_20000', label: 'Over 20,000', labelHe: 'מעל 20,000' }
+            ]
+          },
+          {
+            id: 'campaign_types',
+            type: 'multiselect',
+            label: 'Campaign types',
+            labelHe: 'סוגי קמפיינים',
+            required: true,
+            options: [
+              { value: 'welcome', label: 'Welcome series', labelHe: 'סדרת ברוכים הבאים' },
+              { value: 'nurture', label: 'Lead nurture', labelHe: 'טיפוח לידים' },
+              { value: 'promotional', label: 'Promotional', labelHe: 'קידום מכירות' },
+              { value: 'newsletter', label: 'Newsletter', labelHe: 'ניוזלטר' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'impl-erp',
+    serviceName: 'ERP Implementation',
+    serviceNameHe: 'הטמעת ERP',
+    estimatedTimeMinutes: 60,
+    sections: [
+      {
+        id: 'erp-selection',
+        title: 'ERP Selection',
+        titleHe: 'בחירת ERP',
+        order: 1,
+        fields: [
+          {
+            id: 'erp_system',
+            type: 'select',
+            label: 'ERP system',
+            labelHe: 'מערכת ERP',
+            required: true,
+            options: [
+              { value: 'odoo', label: 'Odoo', labelHe: 'Odoo' },
+              { value: 'netsuite', label: 'NetSuite', labelHe: 'NetSuite' },
+              { value: 'sap', label: 'SAP', labelHe: 'SAP' },
+              { value: 'microsoft_dynamics', label: 'Microsoft Dynamics', labelHe: 'Microsoft Dynamics' }
+            ]
+          },
+          {
+            id: 'modules_needed',
+            type: 'multiselect',
+            label: 'ERP modules needed',
+            labelHe: 'מודולי ERP נדרשים',
+            required: true,
+            options: [
+              { value: 'accounting', label: 'Accounting', labelHe: 'הנהלת חשבונות' },
+              { value: 'inventory', label: 'Inventory', labelHe: 'מלאי' },
+              { value: 'purchasing', label: 'Purchasing', labelHe: 'רכש' },
+              { value: 'sales', label: 'Sales', labelHe: 'מכירות' },
+              { value: 'hr', label: 'HR', labelHe: 'משאבי אנוש' },
+              { value: 'manufacturing', label: 'Manufacturing', labelHe: 'ייצור' }
+            ]
+          },
+          {
+            id: 'company_size',
+            type: 'number',
+            label: 'Number of employees',
+            labelHe: 'מספר עובדים',
+            required: true,
+            validation: { min: 1, max: 10000 }
+          }
+        ]
+      }
+    ]
+  },
+
+  // ==================== ADDITIONAL SERVICES ====================
+
+  {
+    serviceId: 'add-dashboard',
+    serviceName: 'Real-Time Dashboard',
+    serviceNameHe: 'דשבורד real-time',
+    estimatedTimeMinutes: 30,
+    sections: [
+      {
+        id: 'dashboard-design',
+        title: 'Dashboard Design',
+        titleHe: 'עיצוב דשבורד',
+        order: 1,
+        fields: [
+          {
+            id: 'kpis',
+            type: 'list',
+            label: 'KPIs to display',
+            labelHe: 'KPIs להצגה',
+            required: true,
+            itemFields: [
+              { id: 'kpi', type: 'text', label: 'KPI', labelHe: 'KPI' }
+            ]
+          },
+          {
+            id: 'data_sources',
+            type: 'list',
+            label: 'Data sources',
+            labelHe: 'מקורות נתונים',
+            required: true,
+            itemFields: [
+              { id: 'source', type: 'text', label: 'Source', labelHe: 'מקור' }
+            ]
+          },
+          {
+            id: 'refresh_rate',
+            type: 'radio',
+            label: 'Data refresh rate',
+            labelHe: 'קצב רענון נתונים',
+            required: true,
+            options: [
+              { value: 'realtime', label: 'Real-time', labelHe: 'זמן אמת' },
+              { value: '5min', label: 'Every 5 minutes', labelHe: 'כל 5 דקות' },
+              { value: 'hourly', label: 'Hourly', labelHe: 'שעתי' }
+            ]
+          },
+          {
+            id: 'access_control',
+            type: 'checkbox',
+            label: 'Role-based access control',
+            labelHe: 'בקרת גישה מבוססת תפקיד',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    serviceId: 'add-custom-reports',
+    serviceName: 'Custom Automated Reports',
+    serviceNameHe: 'דוחות אוטומטיים מותאמים',
+    estimatedTimeMinutes: 25,
+    sections: [
+      {
+        id: 'report-specs',
+        title: 'Report Specifications',
+        titleHe: 'מפרט דוח',
+        order: 1,
+        fields: [
+          {
+            id: 'report_list',
+            type: 'list',
+            label: 'Reports needed',
+            labelHe: 'דוחות נדרשים',
+            required: true,
+            itemFields: [
+              { id: 'report_name', type: 'text', label: 'Report Name', labelHe: 'שם דוח' },
+              { id: 'frequency', type: 'text', label: 'Frequency', labelHe: 'תדירות' }
+            ]
+          },
+          {
+            id: 'format',
+            type: 'multiselect',
+            label: 'Report formats',
+            labelHe: 'פורמטי דוח',
+            required: true,
+            options: [
+              { value: 'pdf', label: 'PDF', labelHe: 'PDF' },
+              { value: 'excel', label: 'Excel', labelHe: 'Excel' },
+              { value: 'email', label: 'Email (HTML)', labelHe: 'אימייל (HTML)' }
+            ]
+          },
+          {
+            id: 'recipients',
+            type: 'list',
+            label: 'Report recipients',
+            labelHe: 'נמעני דוח',
+            required: true,
+            itemFields: [
+              { id: 'email', type: 'text', label: 'Email', labelHe: 'אימייל' }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ];
 

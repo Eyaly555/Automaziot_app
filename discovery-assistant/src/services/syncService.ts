@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured, optimisticUpdate } from '../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import type { Meeting } from '../types';
 import type { Meeting as DBMeeting, MeetingActivity } from '../types/database';
 

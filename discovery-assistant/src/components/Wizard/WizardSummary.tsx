@@ -6,8 +6,6 @@ import { SmartRecommendationsEngine } from '../../utils/smartRecommendations';
 import { formatCurrency } from '../../utils/formatters';
 import {
   Building,
-  Users,
-  Target,
   AlertTriangle,
   TrendingUp,
   DollarSign,
