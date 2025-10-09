@@ -15,9 +15,9 @@ import {
   Info,
   Loader
 } from 'lucide-react';
-import { useMeetingStore } from '../../store/useMeetingStore';
-import { AutoCRMUpdateConfig } from '../../types/automationServices';
-import { Button, Input, Select } from '../Base';
+import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { AutoCRMUpdateConfig } from '../../../../types/automationServices';
+import { Button, Input, Select } from '../../../Base';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 

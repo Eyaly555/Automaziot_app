@@ -11,7 +11,7 @@ import React from 'react';
 // Automations (Services 1-20)
 import { AutoLeadResponseSpec } from '../components/Phase2/ServiceRequirements/Automations/AutoLeadResponseSpec';
 import { AutoSmsWhatsappSpec } from '../components/Phase2/ServiceRequirements/Automations/AutoSmsWhatsappSpec';
-import { AutoCRMUpdateSpec } from '../components/Phase2/AutoCRMUpdateSpec';
+import { AutoCRMUpdateSpec } from '../components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec';
 import { AutoTeamAlertsSpec } from '../components/Phase2/ServiceRequirements/Automations/AutoTeamAlertsSpec';
 import { AutoLeadWorkflowSpec } from '../components/Phase2/ServiceRequirements/Automations/AutoLeadWorkflowSpec';
 import { AutoSmartFollowupSpec } from '../components/Phase2/ServiceRequirements/Automations/AutoSmartFollowupSpec';
@@ -28,7 +28,7 @@ import { AutoMultiSystemSpec } from '../components/Phase2/ServiceRequirements/Au
 import { AutoEndToEndSpec } from '../components/Phase2/ServiceRequirements/Automations/AutoEndToEndSpec';
 import { AutoSlaTrackingSpec } from '../components/Phase2/ServiceRequirements/Automations/AutoSlaTrackingSpec';
 import { AutoCustomSpec } from '../components/Phase2/ServiceRequirements/Automations/AutoCustomSpec';
-import { AutoEmailTemplatesSpec } from '../components/Phase2/AutoEmailTemplatesSpec';
+import { AutoEmailTemplatesSpec } from '../components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec';
 
 // AI Agents (Services 21-30)
 import { AIFAQBotSpec } from '../components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec';
