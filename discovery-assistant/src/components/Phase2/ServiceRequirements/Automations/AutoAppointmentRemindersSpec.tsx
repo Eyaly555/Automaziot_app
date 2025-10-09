@@ -2,12 +2,56 @@ import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import type { AutoAppointmentRemindersRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
-import { Plus, Trash2, Save } from 'lucide-react';
+import { Plus, Trash2, Save, CheckCircle, Info as InfoIcon } from 'lucide-react';
+import { useSmartField } from '../../../../hooks/useSmartField';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
 export function AutoAppointmentRemindersSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
+
+  // Smart fields with auto-population
+  const calendarSystem = useSmartField<string>({
+    fieldId: 'calendar_system',
+    localPath: 'appointmentSources.calendarSystem',
+    serviceId: 'auto-appointment-reminders',
+    autoSave: false
+  });
+
+  const businessHoursStart = useSmartField<string>({
+    fieldId: 'business_hours_start',
+    localPath: 'schedulingRules.businessHours.start',
+    serviceId: 'auto-appointment-reminders',
+    autoSave: false
+  });
+
+  const businessHoursEnd = useSmartField<string>({
+    fieldId: 'business_hours_end',
+    localPath: 'schedulingRules.businessHours.end',
+    serviceId: 'auto-appointment-reminders',
+    autoSave: false
+  });
+
+  const emailProvider = useSmartField<string>({
+    fieldId: 'email_provider',
+    localPath: 'emailServiceAccess.provider',
+    serviceId: 'auto-appointment-reminders',
+    autoSave: false
+  });
+
+  const n8nInstanceUrl = useSmartField<string>({
+    fieldId: 'n8n_instance_url',
+    localPath: 'n8nWorkflow.instanceUrl',
+    serviceId: 'auto-appointment-reminders',
+    autoSave: false
+  });
+
+  const alertEmail = useSmartField<string>({
+    fieldId: 'alert_email',
+    localPath: 'n8nWorkflow.errorHandling.alertEmail',
+    serviceId: 'auto-appointment-reminders',
+    autoSave: false
+  });
 
   const [config, setConfig] = useState<AutoAppointmentRemindersRequirements>({
     reminderSettings: {
@@ -17,9 +61,30 @@ export function AutoAppointmentRemindersSpec() {
       maxReminders: 3
     },
     appointmentSources: {
+      calendarSystem: '',
       calendarSystems: ['google_calendar', 'outlook'],
       crmIntegration: true,
       manualEntry: false
+    },
+    // Add emailServiceAccess if not present
+    emailServiceAccess: {
+      provider: '',
+      apiKey: '',
+      domainVerified: false,
+      rateLimits: {
+        daily: 0,
+        monthly: 0
+      }
+    },
+    // Add n8nWorkflow section
+    n8nWorkflow: {
+      instanceUrl: '',
+      webhookEndpoint: '',
+      httpsEnabled: true,
+      errorHandling: {
+        retryAttempts: 3,
+        alertEmail: ''
+      }
     },
     notificationContent: {
       templates: {
@@ -70,13 +135,42 @@ export function AutoAppointmentRemindersSpec() {
   const saveConfig = () => {
     if (!currentMeeting) return;
 
+    // Build complete config with smart field values
+    const completeConfig = {
+      ...config,
+      appointmentSources: {
+        ...config.appointmentSources,
+        calendarSystem: calendarSystem.value || config.appointmentSources.calendarSystem
+      },
+      schedulingRules: {
+        ...config.schedulingRules,
+        businessHours: {
+          ...config.schedulingRules.businessHours,
+          start: businessHoursStart.value || config.schedulingRules.businessHours.start,
+          end: businessHoursEnd.value || config.schedulingRules.businessHours.end
+        }
+      },
+      emailServiceAccess: {
+        ...config.emailServiceAccess,
+        provider: emailProvider.value || config.emailServiceAccess.provider
+      },
+      n8nWorkflow: {
+        ...config.n8nWorkflow,
+        instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow.instanceUrl,
+        errorHandling: {
+          ...config.n8nWorkflow.errorHandling,
+          alertEmail: alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail
+        }
+      }
+    };
+
     const updatedAutomations = [...(currentMeeting.implementationSpec?.automations || [])];
     const existingIndex = updatedAutomations.findIndex((a: any) => a.serviceId === 'auto-appointment-reminders');
 
     const automationData = {
       serviceId: 'auto-appointment-reminders',
-      serviceName: 'הזכות פגישות אוטומטיות',
-      requirements: config,
+      serviceName: 'הזכרות פגישות אוטומטיות',
+      requirements: completeConfig,
       completedAt: new Date().toISOString()
     };
 
@@ -97,23 +191,54 @@ export function AutoAppointmentRemindersSpec() {
 
   return (
     <div className="space-y-6" dir="rtl">
-      <Card title="הגדרות הזכות פגישות" subtitle="הגדר את אופן שליחת ההזכות לפגישות">
+      {/* Smart Fields Info Banner */}
+      {(calendarSystem.isAutoPopulated || businessHoursStart.isAutoPopulated || businessHoursEnd.isAutoPopulated || 
+        emailProvider.isAutoPopulated || n8nInstanceUrl.isAutoPopulated || alertEmail.isAutoPopulated) && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+          <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <p className="text-sm text-blue-800">
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
+              תוכל לערוך אותם במידת הצורך.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <Card title="הגדרות הזכרות פגישות" subtitle="הגדר את אופן שליחת ההזכרות לפגישות">
         <div className="space-y-6">
-          {/* הגדרות בסיסיות */}
+          {/* הגדרות בסיסיות - add smart fields where applicable */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Calendar System Smart Field */}
             <div>
-              <label className="block text-sm font-medium mb-2">הפעל הזכות</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  {calendarSystem.metadata.label.he}
+                </label>
+                {calendarSystem.isAutoPopulated && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                    <CheckCircle className="w-3 h-3" />
+                    מולא אוטומטית
+                  </span>
+                )}
+              </div>
               <select
-                value={config.reminderSettings.enabled ? 'true' : 'false'}
-                onChange={(e) => setConfig(prev => ({
-                  ...prev,
-                  reminderSettings: { ...prev.reminderSettings, enabled: e.target.value === 'true' }
-                }))}
-                className="w-full p-2 border rounded-lg"
+                value={calendarSystem.value || ''}
+                onChange={(e) => calendarSystem.setValue(e.target.value)}
+                className={`w-full p-2 border rounded-lg ${
+                  calendarSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                }`}
               >
-                <option value="true">כן</option>
-                <option value="false">לא</option>
+                <option value="">בחר מערכת יומנים</option>
+                <option value="google_calendar">Google Calendar</option>
+                <option value="outlook">Outlook Calendar</option>
+                <option value="office365">Office 365</option>
+                <option value="apple_calendar">Apple Calendar</option>
               </select>
+              {calendarSystem.isAutoPopulated && calendarSystem.source && (
+                <p className="text-xs text-gray-500 mt-1">מקור: {calendarSystem.source.description}</p>
+              )}
             </div>
 
             <div>
@@ -132,7 +257,7 @@ export function AutoAppointmentRemindersSpec() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">מקסימום הזכות</label>
+              <label className="block text-sm font-medium mb-2">מקסימום הזכרות</label>
               <input
                 type="number"
                 value={config.reminderSettings.maxReminders}
@@ -145,9 +270,63 @@ export function AutoAppointmentRemindersSpec() {
                 max="10"
               />
             </div>
+
+            {/* Business Hours Start Smart Field */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  {businessHoursStart.metadata.label.he}
+                </label>
+                {businessHoursStart.isAutoPopulated && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                    <CheckCircle className="w-3 h-3" />
+                    מולא אוטומטית
+                  </span>
+                )}
+              </div>
+              <input
+                type="time"
+                value={businessHoursStart.value || ''}
+                onChange={(e) => businessHoursStart.setValue(e.target.value)}
+                className={`w-full p-2 border rounded-lg ${
+                  businessHoursStart.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                }`}
+                placeholder="09:00"
+              />
+              {businessHoursStart.isAutoPopulated && businessHoursStart.source && (
+                <p className="text-xs text-gray-500 mt-1">מקור: {businessHoursStart.source.description}</p>
+              )}
+            </div>
+
+            {/* Business Hours End Smart Field */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  {businessHoursEnd.metadata.label.he}
+                </label>
+                {businessHoursEnd.isAutoPopulated && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                    <CheckCircle className="w-3 h-3" />
+                    מולא אוטומטית
+                  </span>
+                )}
+              </div>
+              <input
+                type="time"
+                value={businessHoursEnd.value || ''}
+                onChange={(e) => businessHoursEnd.setValue(e.target.value)}
+                className={`w-full p-2 border rounded-lg ${
+                  businessHoursEnd.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                }`}
+                placeholder="18:00"
+              />
+              {businessHoursEnd.isAutoPopulated && businessHoursEnd.source && (
+                <p className="text-xs text-gray-500 mt-1">מקור: {businessHoursEnd.source.description}</p>
+              )}
+            </div>
           </div>
 
-          {/* ערוצי התראה */}
+          {/* ערוצי התראה - add email provider smart field if email enabled */}
           <div>
             <label className="block text-sm font-medium mb-2">ערוצי התראה</label>
             <div className="space-y-2">
@@ -170,9 +349,145 @@ export function AutoAppointmentRemindersSpec() {
                 </label>
               ))}
             </div>
+            {/* Email Provider Smart Field - show if email enabled */}
+            {config.reminderSettings.reminderTypes.includes('email') && (
+              <div className="mt-4">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {emailProvider.metadata.label.he}
+                  </label>
+                  {emailProvider.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטית
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="text"
+                  value={emailProvider.value || ''}
+                  onChange={(e) => emailProvider.setValue(e.target.value)}
+                  className={`w-full p-2 border rounded-lg ${
+                    emailProvider.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  }`}
+                  placeholder="SendGrid, Mailgun, SMTP"
+                />
+                {emailProvider.isAutoPopulated && emailProvider.source && (
+                  <p className="text-xs text-gray-500 mt-1">מקור: {emailProvider.source.description}</p>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* תבניות התראה */}
+          {/* n8n Workflow Section */}
+          <div className="border-t pt-6">
+            <h3 className="text-lg font-semibold mb-4">הגדרות n8n Workflow</h3>
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {n8nInstanceUrl.metadata.label.he}
+                  </label>
+                  {n8nInstanceUrl.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטית
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="url"
+                  value={n8nInstanceUrl.value || ''}
+                  onChange={(e) => n8nInstanceUrl.setValue(e.target.value)}
+                  className={`w-full p-2 border rounded-lg ${
+                    n8nInstanceUrl.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  }`}
+                  placeholder="https://n8n.example.com"
+                />
+                {n8nInstanceUrl.isAutoPopulated && n8nInstanceUrl.source && (
+                  <p className="text-xs text-gray-500 mt-1">מקור: {n8nInstanceUrl.source.description}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Webhook Endpoint</label>
+                <input
+                  type="url"
+                  value={config.n8nWorkflow.webhookEndpoint || ''}
+                  onChange={(e) => setConfig(prev => ({
+                    ...prev,
+                    n8nWorkflow: { ...prev.n8nWorkflow, webhookEndpoint: e.target.value }
+                  }))}
+                  className="w-full p-2 border rounded-lg"
+                  placeholder="https://n8n.example.com/webhook/..."
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">ניסיונות חוזרים</label>
+                  <input
+                    type="number"
+                    value={config.n8nWorkflow.errorHandling.retryAttempts || 3}
+                    onChange={(e) => setConfig(prev => ({
+                      ...prev,
+                      n8nWorkflow: {
+                        ...prev.n8nWorkflow,
+                        errorHandling: {
+                          ...prev.n8nWorkflow.errorHandling,
+                          retryAttempts: parseInt(e.target.value) || 3
+                        }
+                      }
+                    }))}
+                    className="w-full p-2 border rounded-lg"
+                    min="0"
+                    max="10"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {alertEmail.metadata.label.he}
+                    </label>
+                    {alertEmail.isAutoPopulated && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                        <CheckCircle className="w-3 h-3" />
+                        מולא אוטומטית
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    type="email"
+                    value={alertEmail.value || ''}
+                    onChange={(e) => alertEmail.setValue(e.target.value)}
+                    className={`w-full p-2 border rounded-lg ${
+                      alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    }`}
+                    placeholder="alerts@example.com"
+                  />
+                  {alertEmail.isAutoPopulated && alertEmail.source && (
+                    <p className="text-xs text-gray-500 mt-1">מקור: {alertEmail.source.description}</p>
+                  )}
+                </div>
+              </div>
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={config.n8nWorkflow.httpsEnabled || true}
+                  onChange={(e) => setConfig(prev => ({
+                    ...prev,
+                    n8nWorkflow: { ...prev.n8nWorkflow, httpsEnabled: e.target.checked }
+                  }))}
+                  className="rounded border-gray-300"
+                />
+                <span className="text-sm">HTTPS מופעל</span>
+              </label>
+            </div>
+          </div>
+
+          {/* תבניות התראה - existing code */}
           <div>
             <h4 className="font-medium mb-3">תבניות התראה</h4>
             {config.reminderSettings.reminderTypes.includes('email') && (
@@ -258,3 +573,6 @@ export function AutoAppointmentRemindersSpec() {
     </div>
   );
 }
+
+
+

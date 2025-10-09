@@ -2906,6 +2906,23 @@ export interface AutoNotificationsRequirements {
       fallbackChannel?: 'email' | 'sms';
     };
   };
+
+  // Escalation rules (for notifications that need escalation)
+  escalation?: {
+    enabled: boolean;
+    rules?: Array<{
+      trigger: string;
+      escalateTo: string;
+      delay: number;
+    }>;
+  };
+
+  // Audit Trail (for tracking notification history)
+  auditTrail?: {
+    enabled: boolean;
+    storageMethod?: 'database' | 'crm' | 'file';
+    retentionDays?: number;
+  };
 }
 
 // ==================== AUTO APPROVAL WORKFLOW ====================
@@ -4972,9 +4989,10 @@ export interface AutomationServiceEntry {
   serviceName: string;
   serviceNameHe: string;
   category: 'lead_management' | 'communication' | 'crm_sync' | 'team_productivity' | 'ai_agents' | 'custom';
-  config: AutomationServiceConfig;
+  config?: AutomationServiceConfig; // Legacy field
+  requirements?: any; // Phase 2 collected requirements (typed per service)
   status: 'not_started' | 'configuring' | 'testing' | 'deployed' | 'active' | 'paused' | 'archived';
-  completedAt?: Date;
+  completedAt?: Date | string;
   updatedAt?: Date;
   createdBy?: string;
   updatedBy?: string;
@@ -5014,6 +5032,95 @@ export interface AutomationServiceCatalogEntry {
   icon?: string;
   documentationUrl?: string;
   videoTutorialUrl?: string;
+}
+
+// ==================== ADDITIONAL AUTO SERVICES ====================
+
+/**
+ * Auto Welcome Email Service
+ * שליחה אוטומטית של מייל פתיחה ללידים חדשים
+ */
+export interface AutoWelcomeEmailRequirements {
+  // Email Service Configuration
+  emailService: {
+    provider: 'sendgrid' | 'mailgun' | 'smtp' | 'gmail';
+    apiKey?: string;
+    smtpCredentials?: {
+      host: string;
+      port: number;
+      username: string;
+      password: string;
+    };
+  };
+
+  // Email Template
+  template: {
+    subject: string;
+    bodyHtml: string;
+    bodyText?: string;
+    variables?: string[]; // e.g., {{name}}, {{company}}
+  };
+
+  // Trigger Configuration
+  trigger: {
+    source: 'form_submission' | 'crm_new_lead' | 'api_webhook';
+    webhookUrl?: string;
+    crmModule?: string;
+  };
+
+  // CRM Integration (optional)
+  crmIntegration?: {
+    enabled: boolean;
+    system: string;
+    logEmailSent: boolean;
+    updateFieldOnSend?: string;
+  };
+
+  // Testing & Quality
+  testEmailAddress: string;
+  sendTestEmail?: boolean;
+}
+
+/**
+ * Auto Service Workflow Requirements
+ * תהליך שירות אוטומטי מקצה לקצה
+ */
+export interface AutoServiceWorkflowRequirements {
+  // Workflow Definition
+  workflowName: string;
+  workflowType: 'support_ticket' | 'service_request' | 'maintenance' | 'custom';
+  
+  // Steps Configuration
+  steps: Array<{
+    id: string;
+    name: string;
+    action: 'assign' | 'notify' | 'update_status' | 'send_email' | 'create_task';
+    configuration: Record<string, any>;
+  }>;
+
+  // Assignment Rules
+  assignmentRules?: {
+    method: 'round_robin' | 'load_balanced' | 'skill_based' | 'manual';
+    assignees?: string[];
+  };
+
+  // SLA Configuration
+  sla?: {
+    responseTime: number; // minutes
+    resolutionTime: number; // hours
+    escalationRules?: Array<{
+      condition: string;
+      action: string;
+      delay: number;
+    }>;
+  };
+
+  // Integration Points
+  integrations?: {
+    crm?: boolean;
+    ticketing?: boolean;
+    notifications?: boolean;
+  };
 }
 
 // ==================== EXPORT TYPES FOR REQUIREMENTS COLLECTION ====================

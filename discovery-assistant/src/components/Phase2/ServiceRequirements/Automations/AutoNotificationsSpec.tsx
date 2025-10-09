@@ -1,13 +1,36 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useSmartField } from '../../../../hooks/useSmartField';
 import type { AutoNotificationsRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
-import { Plus, Trash2, Save } from 'lucide-react';
+import { Plus, Trash2, Save, CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
 export function AutoNotificationsSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
+
+  // Smart fields with auto-population
+  const emailProvider = useSmartField<string>({
+    fieldId: 'email_provider',
+    localPath: 'emailProvider',
+    serviceId: 'auto-notifications',
+    autoSave: false
+  });
+
+  const alertEmail = useSmartField<string>({
+    fieldId: 'alert_email',
+    localPath: 'alertEmail',
+    serviceId: 'auto-notifications',
+    autoSave: false
+  });
+
+  const n8nInstanceUrl = useSmartField<string>({
+    fieldId: 'n8n_instance_url',
+    localPath: 'n8nInstanceUrl',
+    serviceId: 'auto-notifications',
+    autoSave: false
+  });
 
   const [config, setConfig] = useState<AutoNotificationsRequirements>({
     stateManagement: {
@@ -94,10 +117,25 @@ export function AutoNotificationsSpec() {
       const automations = currentMeeting?.implementationSpec?.automations || [];
       const updated = automations.filter(a => a.serviceId !== 'auto-notifications');
 
+      // Build complete config with smart field values
+      const completeConfig = {
+        ...config,
+        emailNotifications: {
+          ...config.emailNotifications,
+          provider: emailProvider.value
+        },
+        alertEmail: alertEmail.value,
+        n8nWorkflow: {
+          ...config.n8nWorkflow,
+          instanceUrl: n8nInstanceUrl.value
+        }
+      };
+
       updated.push({
         serviceId: 'auto-notifications',
-        serviceName: 'workflow אישורים אוטומטי',
-        requirements: config,
+        serviceName: 'התראות אוטומטיות',
+        serviceNameHe: 'התראות אוטומטיות',
+        requirements: completeConfig,
         completedAt: new Date().toISOString()
       });
 
@@ -242,6 +280,33 @@ export function AutoNotificationsSpec() {
                 Auto Notifications - Service #9
               </p>
             </div>
+
+            {/* Smart Fields Info Banner */}
+            {(emailProvider.isAutoPopulated || alertEmail.isAutoPopulated || n8nInstanceUrl.isAutoPopulated) && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+                <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+                  <p className="text-sm text-blue-800">
+                    חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
+                    תוכל לערוך אותם במידת הצורך.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Conflict Warnings */}
+            {(emailProvider.hasConflict || alertEmail.hasConflict || n8nInstanceUrl.hasConflict) && (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+                  <p className="text-sm text-orange-800">
+                    נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
+                  </p>
+                </div>
+              </div>
+            )}
             <button
               onClick={handleSave}
               disabled={isSaving}

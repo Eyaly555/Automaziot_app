@@ -1,13 +1,43 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useSmartField } from '../../../../hooks/useSmartField';
 import type { AutoEmailTemplatesRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
-import { Plus, Save, Mail, Settings, Code, TestTube, Palette, AlertCircle } from 'lucide-react';
+import { Plus, Save, Mail, Settings, Code, TestTube, Palette, AlertCircle, CheckCircle, Info } from 'lucide-react';
 
 const generateId = () => Math.random().toString(36).substring(2, 11);
 
 export function AutoEmailTemplatesSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
+
+  // Smart fields with auto-population
+  const emailProvider = useSmartField<string>({
+    fieldId: 'email_provider',
+    localPath: 'emailProvider',
+    serviceId: 'auto-email-templates',
+    autoSave: false
+  });
+
+  const crmSystem = useSmartField<string>({
+    fieldId: 'crm_system',
+    localPath: 'crmSystem',
+    serviceId: 'auto-email-templates',
+    autoSave: false
+  });
+
+  const alertEmail = useSmartField<string>({
+    fieldId: 'alert_email',
+    localPath: 'alertEmail',
+    serviceId: 'auto-email-templates',
+    autoSave: false
+  });
+
+  const n8nInstanceUrl = useSmartField<string>({
+    fieldId: 'n8n_instance_url',
+    localPath: 'n8nInstanceUrl',
+    serviceId: 'auto-email-templates',
+    autoSave: false
+  });
 
   const [config, setConfig] = useState<AutoEmailTemplatesRequirements>({
     emailServiceAccess: {
@@ -71,10 +101,32 @@ export function AutoEmailTemplatesSpec() {
       const automations = currentMeeting?.implementationSpec?.automations || [];
       const updated = automations.filter((item: any) => item.serviceId !== 'auto-email-templates');
 
+      // Build complete config with smart field values
+      const completeConfig = {
+        ...config,
+        emailServiceAccess: {
+          ...config.emailServiceAccess,
+          provider: emailProvider.value
+        },
+        crmAccess: {
+          ...config.crmAccess,
+          system: crmSystem.value
+        },
+        n8nWorkflow: {
+          ...config.n8nWorkflow,
+          instanceUrl: n8nInstanceUrl.value,
+          errorHandling: {
+            ...config.n8nWorkflow.errorHandling,
+            alertEmail: alertEmail.value
+          }
+        }
+      };
+
       updated.push({
         serviceId: 'auto-email-templates',
         serviceName: 'ניהול תבניות Email אוטומטיות',
-        requirements: config,
+        serviceNameHe: 'ניהול תבניות Email אוטומטיות',
+        requirements: completeConfig,
         completedAt: new Date().toISOString()
       });
 
@@ -174,6 +226,33 @@ export function AutoEmailTemplatesSpec() {
                 Auto Email Templates - Service #20
               </p>
             </div>
+
+            {/* Smart Fields Info Banner */}
+            {(emailProvider.isAutoPopulated || crmSystem.isAutoPopulated || alertEmail.isAutoPopulated || n8nInstanceUrl.isAutoPopulated) && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+                <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+                  <p className="text-sm text-blue-800">
+                    חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
+                    תוכל לערוך אותם במידת הצורך.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Conflict Warnings */}
+            {(emailProvider.hasConflict || crmSystem.hasConflict || alertEmail.hasConflict || n8nInstanceUrl.hasConflict) && (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+                  <p className="text-sm text-orange-800">
+                    נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
+                  </p>
+                </div>
+              </div>
+            )}
             <button
               onClick={handleSave}
               disabled={isSaving}
@@ -222,19 +301,23 @@ export function AutoEmailTemplatesSpec() {
                   <h3 className="text-lg font-semibold mb-4">ספק שירות Email</h3>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        בחר ספק
-                      </label>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {emailProvider.metadata.label.he}
+                        </label>
+                        {emailProvider.isAutoPopulated && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                            <CheckCircle className="w-3 h-3" />
+                            מולא אוטומטית
+                          </span>
+                        )}
+                      </div>
                       <select
-                        value={config.emailServiceAccess.provider}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          emailServiceAccess: {
-                            ...config.emailServiceAccess,
-                            provider: e.target.value as any
-                          }
-                        })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        value={emailProvider.value || 'sendgrid'}
+                        onChange={(e) => emailProvider.setValue(e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg ${
+                          emailProvider.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                        } ${emailProvider.hasConflict ? 'border-orange-300' : ''}`}
                       >
                         <option value="sendgrid">SendGrid</option>
                         <option value="mailgun">Mailgun</option>

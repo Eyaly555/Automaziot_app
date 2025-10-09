@@ -43,11 +43,11 @@ export interface DevelopmentTask {
   description: string;
 
   // Task Classification
-  type: 'integration' | 'ai_agent' | 'workflow' | 'migration' | 'testing' | 'deployment' | 'documentation' | 'bug_fix' | 'enhancement';
+  type: 'integration' | 'ai_agent' | 'workflow' | 'migration' | 'testing' | 'deployment' | 'documentation' | 'bug_fix' | 'enhancement' | 'service_implementation' | 'system_implementation' | 'additional_service';
 
   // Context from Phase 2
   relatedSpec: {
-    type: 'system' | 'integration_flow' | 'ai_agent' | 'acceptance_criteria';
+    type: 'system' | 'integration_flow' | 'ai_agent' | 'acceptance_criteria' | 'service';
     specId: string;
     specName: string;
   };

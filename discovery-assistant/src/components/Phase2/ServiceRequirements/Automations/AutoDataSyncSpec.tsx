@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { SmartFieldWidget } from '../../../Common/FormFields/SmartFieldWidget';
+import { extractBusinessContext } from '../../../../utils/fieldMapper';
 import { Card } from '../../../Common/Card';
+import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 interface AutoDataSyncConfig {
   sourceSystem: string;
@@ -11,13 +15,40 @@ interface AutoDataSyncConfig {
   errorHandling: 'retry' | 'skip' | 'alert';
 }
 
+/**
+ * Enhanced Auto Data Sync Spec with Smart Field Integration
+ *
+ * SMART FEATURES:
+ * - Auto-fills sync frequency from Phase 1 preferences
+ * - Shows business context (company size, industry)
+ * - Validates system combinations
+ * - Auto-populates from other services
+ */
 export function AutoDataSyncSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
+
+  // Smart fields for auto-population
+  const syncFrequency = useSmartField<string>({
+    fieldId: 'sync_frequency',
+    localPath: 'syncFrequency',
+    serviceId: 'auto-data-sync',
+    autoSave: false
+  });
+
+  const alertEmail = useSmartField<string>({
+    fieldId: 'alert_email',
+    localPath: 'alertEmail',
+    serviceId: 'auto-data-sync',
+    autoSave: false
+  });
+
+  // Get business context from Phase 1
+  const businessContext = currentMeeting ? extractBusinessContext(currentMeeting) : {};
+
   const [config, setConfig] = useState<Partial<AutoDataSyncConfig>>({
     sourceSystem: '',
     targetSystem: '',
     syncDirection: 'one_way',
-    syncFrequency: 'daily',
     conflictResolution: 'source_wins',
     errorHandling: 'retry',
   });

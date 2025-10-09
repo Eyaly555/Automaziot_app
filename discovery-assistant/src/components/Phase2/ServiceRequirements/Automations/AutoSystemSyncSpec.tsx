@@ -3,11 +3,45 @@ import { useMeetingStore } from '../../../../store/useMeetingStore';
 import type { AutoSystemSyncRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
 import { Plus, Trash2, Save } from 'lucide-react';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 const generateId = () => Math.random().toString(36).substring(2, 11);
 
+/**
+ * Smart Auto System Sync Spec Component
+ *
+ * NOW WITH INTELLIGENT FIELD PRE-POPULATION:
+ * - Auto-fills n8n instance URL from Phase 1 automation requirements
+ * - Auto-fills alert email from company contact or automation defaults
+ * - Auto-fills sync frequency from integration requirements
+ * - Shows "Auto-filled from Phase 1" badges
+ * - Detects and warns about conflicts
+ */
 export function AutoSystemSyncSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
+
+  // Smart fields with auto-population
+  const n8nInstanceUrl = useSmartField<string>({
+    fieldId: 'n8n_instance_url',
+    localPath: 'n8nWorkflow.instanceUrl',
+    serviceId: 'auto-system-sync',
+    autoSave: false // We'll batch save
+  });
+
+  const alertEmail = useSmartField<string>({
+    fieldId: 'alert_email',
+    localPath: 'n8nWorkflow.errorHandling.alertEmail',
+    serviceId: 'auto-system-sync',
+    autoSave: false
+  });
+
+  const syncFrequency = useSmartField<string>({
+    fieldId: 'sync_frequency',
+    localPath: 'syncLogic.syncFrequency',
+    serviceId: 'auto-system-sync',
+    autoSave: false
+  });
 
   const [config, setConfig] = useState<AutoSystemSyncRequirements>({
     systems: [],
@@ -100,10 +134,28 @@ export function AutoSystemSyncSpec() {
       const automations = currentMeeting?.implementationSpec?.automations || [];
       const updated = automations.filter((a: any) => a.serviceId !== 'auto-system-sync');
 
+      // Build complete config with smart field values
+      const completeConfig = {
+        ...config,
+        syncLogic: {
+          ...config.syncLogic,
+          syncFrequency: syncFrequency.value
+        },
+        n8nWorkflow: {
+          ...config.n8nWorkflow,
+          instanceUrl: n8nInstanceUrl.value,
+          errorHandling: {
+            ...config.n8nWorkflow.errorHandling,
+            alertEmail: alertEmail.value
+          }
+        }
+      };
+
       updated.push({
         serviceId: 'auto-system-sync',
         serviceName: 'סנכרון בין מערכות',
-        requirements: config,
+        serviceNameHe: 'סנכרון בין מערכות',
+        requirements: completeConfig,
         completedAt: new Date().toISOString()
       });
 
@@ -315,6 +367,33 @@ export function AutoSystemSyncSpec() {
             </button>
           </div>
         </div>
+
+        {/* Smart Fields Info Banner */}
+        {(n8nInstanceUrl.isAutoPopulated || alertEmail.isAutoPopulated || syncFrequency.isAutoPopulated) && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+            <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+              <p className="text-sm text-blue-800">
+                חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
+                תוכל לערוך אותם במידת הצורך.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Conflict Warnings */}
+        {(n8nInstanceUrl.hasConflict || alertEmail.hasConflict || syncFrequency.hasConflict) && (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+              <p className="text-sm text-orange-800">
+                נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="bg-white rounded-lg shadow-sm mb-6">
@@ -958,24 +1037,36 @@ export function AutoSystemSyncSpec() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        פתרון קונפליקטים
-                      </label>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {syncFrequency.metadata.label.he}
+                        </label>
+                        {syncFrequency.isAutoPopulated && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                            <CheckCircle className="w-3 h-3" />
+                            מולא אוטומטית
+                          </span>
+                        )}
+                      </div>
                       <select
-                        value={config.syncLogic.conflictResolution}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          syncLogic: {
-                            ...config.syncLogic,
-                            conflictResolution: e.target.value as any
-                          }
-                        })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        value={syncFrequency.value || 'daily'}
+                        onChange={(e) => syncFrequency.setValue(e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg ${
+                          syncFrequency.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                        } ${syncFrequency.hasConflict ? 'border-orange-300' : ''}`}
                       >
-                        <option value="master_system">Master System Wins</option>
-                        <option value="newest_wins">Newest Wins</option>
-                        <option value="manual">Manual Review</option>
+                        <option value="realtime">בזמן אמת</option>
+                        <option value="every_5_min">כל 5 דקות</option>
+                        <option value="every_15_min">כל 15 דקות</option>
+                        <option value="hourly">כל שעה</option>
+                        <option value="daily">יומי</option>
+                        <option value="weekly">שבועי</option>
                       </select>
+                      {syncFrequency.isAutoPopulated && syncFrequency.source && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          מקור: {syncFrequency.source.description}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -1835,22 +1926,31 @@ export function AutoSystemSyncSpec() {
 
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Instance URL
-                      </label>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {n8nInstanceUrl.metadata.label.he}
+                        </label>
+                        {n8nInstanceUrl.isAutoPopulated && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                            <CheckCircle className="w-3 h-3" />
+                            מולא אוטומטית
+                          </span>
+                        )}
+                      </div>
                       <input
                         type="url"
-                        value={config.n8nWorkflow.instanceUrl}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          n8nWorkflow: {
-                            ...config.n8nWorkflow,
-                            instanceUrl: e.target.value
-                          }
-                        })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        value={n8nInstanceUrl.value || ''}
+                        onChange={(e) => n8nInstanceUrl.setValue(e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg ${
+                          n8nInstanceUrl.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                        } ${n8nInstanceUrl.hasConflict ? 'border-orange-300' : ''}`}
                         placeholder="https://n8n.example.com"
                       />
+                      {n8nInstanceUrl.isAutoPopulated && n8nInstanceUrl.source && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          מקור: {n8nInstanceUrl.source.description}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1937,25 +2037,31 @@ export function AutoSystemSyncSpec() {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                          אימייל התראות
-                        </label>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-xs font-medium text-gray-700">
+                            {alertEmail.metadata.label.he}
+                          </label>
+                          {alertEmail.isAutoPopulated && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                              <CheckCircle className="w-3 h-3" />
+                              מולא אוטומטית
+                            </span>
+                          )}
+                        </div>
                         <input
                           type="email"
-                          value={config.n8nWorkflow.errorHandling.alertEmail}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            n8nWorkflow: {
-                              ...config.n8nWorkflow,
-                              errorHandling: {
-                                ...config.n8nWorkflow.errorHandling,
-                                alertEmail: e.target.value
-                              }
-                            }
-                          })}
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                          value={alertEmail.value || ''}
+                          onChange={(e) => alertEmail.setValue(e.target.value)}
+                          className={`w-full px-2 py-1 border rounded text-sm ${
+                            alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                          } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
                           placeholder="admin@example.com"
                         />
+                        {alertEmail.isAutoPopulated && alertEmail.source && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            מקור: {alertEmail.source.description}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <label className="flex items-center gap-2">

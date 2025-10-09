@@ -39,6 +39,8 @@ export interface RequirementField {
   helperTextHe?: string;
   examples?: string[];
   examplesHe?: string[];
+  rows?: number; // Number of rows for textarea fields
+  itemFields?: RequirementField[]; // Sub-fields for list/array type fields
 }
 
 export interface RequirementSection {

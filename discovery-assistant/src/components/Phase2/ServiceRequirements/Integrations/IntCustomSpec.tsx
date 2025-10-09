@@ -1,11 +1,52 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 export function IntCustomSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
+
+  // Smart fields
+  const apiAuthMethod = useSmartField<string>({
+    fieldId: 'api_auth_method',
+    localPath: 'authType',
+    serviceId: 'int-custom',
+    autoSave: false
+  });
+
+  const syncFrequency = useSmartField<string>({
+    fieldId: 'sync_frequency',
+    localPath: 'syncConfig.frequency',
+    serviceId: 'int-custom',
+    autoSave: false
+  });
+
+  const alertEmail = useSmartField<string>({
+    fieldId: 'alert_email',
+    localPath: 'errorHandling.alertRecipients[0]',
+    serviceId: 'int-custom',
+    autoSave: false
+  });
+
   const [config, setConfig] = useState<any>({
-    ...{ description: '', complexity: 'medium', estimatedWeeks: 4 }
+    endpoint: '',
+    method: 'POST',
+    headers: {},
+    bodySchema: '',
+    authType: 'api_key',
+    syncConfig: {
+      frequency: 'realtime'
+    },
+    errorHandling: {
+      retryAttempts: 3,
+      alertRecipients: []
+    },
+    metadata: {
+      description: '',
+      complexity: 'custom',
+      estimatedHours: 60
+    }
   });
 
   useEffect(() => {
@@ -19,13 +60,29 @@ export function IntCustomSpec() {
   const handleSave = () => {
     if (!currentMeeting) return;
 
-    const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
+    let frequencyValue = syncFrequency.value;
+    if (frequencyValue === 'realtime') frequencyValue = 'real-time';
+
+    const completeConfig = {
+      ...config,
+      authType: apiAuthMethod.value,
+      syncConfig: {
+        ...config.syncConfig,
+        frequency: frequencyValue
+      },
+      errorHandling: {
+        ...config.errorHandling,
+        alertRecipients: alertEmail.value ? [alertEmail.value] : config.errorHandling?.alertRecipients || []
+      }
+    };
+
+    const integrationServices = currentMeeting.implementationSpec?.integrationServices || [];
     const updated = integrationServices.filter(i => i.serviceId !== 'int-custom');
 
     updated.push({
       serviceId: 'int-custom',
       serviceName: 'אינטגרציה מותאמת אישית',
-      requirements: config,
+      requirements: completeConfig,
       completedAt: new Date().toISOString()
     });
 
@@ -38,12 +95,234 @@ export function IntCustomSpec() {
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6 p-8" dir="rtl">
+      {/* Banners */}
+      {(apiAuthMethod.isAutoPopulated || syncFrequency.isAutoPopulated || alertEmail.isAutoPopulated) && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+          <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <p className="text-sm text-blue-800">
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
+              תוכל לערוך אותם במידת הצורך.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {(apiAuthMethod.hasConflict || syncFrequency.hasConflict || alertEmail.hasConflict) && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+            <p className="text-sm text-orange-800">
+              נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
+            </p>
+          </div>
+        </div>
+      )}
+
       <Card title="שירות #40: אינטגרציה מותאמת אישית">
-        <div className="space-y-4">
-          <div><textarea rows={5} className="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="תאר את האינטגרציה המותאמת..." /></div>
+        <div className="space-y-6">
+          {/* Custom API Details */}
+          <div className="border-b pb-4">
+            <h3 className="text-lg font-semibold mb-4">פרטי API מותאם</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Endpoint URL</label>
+                <input
+                  type="url"
+                  value={config.endpoint || ''}
+                  onChange={(e) => setConfig({ ...config, endpoint: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  placeholder="https://api.custom.com/endpoint"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Method</label>
+                <select
+                  value={config.method || 'POST'}
+                  onChange={(e) => setConfig({ ...config, method: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="GET">GET</option>
+                  <option value="POST">POST</option>
+                  <option value="PUT">PUT</option>
+                  <option value="DELETE">DELETE</option>
+                </select>
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {apiAuthMethod.metadata.label.he}
+                  </label>
+                  {apiAuthMethod.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטי
+                    </span>
+                  )}
+                </div>
+                <select
+                  value={apiAuthMethod.value || 'api_key'}
+                  onChange={(e) => apiAuthMethod.setValue(e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md ${
+                    apiAuthMethod.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  } ${apiAuthMethod.hasConflict ? 'border-orange-300' : ''}`}
+                >
+                  <option value="oauth">OAuth 2.0</option>
+                  <option value="api_key">API Key</option>
+                  <option value="basic_auth">Basic Auth</option>
+                  <option value="bearer_token">Bearer Token</option>
+                  <option value="jwt">JWT</option>
+                </select>
+                {apiAuthMethod.isAutoPopulated && apiAuthMethod.source && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {apiAuthMethod.source.description}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Body Schema (JSON)</label>
+                <textarea
+                  value={config.bodySchema || ''}
+                  onChange={(e) => setConfig({ ...config, bodySchema: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  rows={4}
+                  placeholder='{"key": "value", "nested": {"sub": "val"}}'
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Sync Configuration */}
+          <div className="border-b pb-4">
+            <h3 className="text-lg font-semibold mb-4">הגדרות סנכרון</h3>
+            <div className="space-y-3">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {syncFrequency.metadata.label.he}
+                  </label>
+                  {syncFrequency.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטי
+                    </span>
+                  )}
+                </div>
+                <select
+                  value={syncFrequency.value || 'realtime'}
+                  onChange={(e) => syncFrequency.setValue(e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md ${
+                    syncFrequency.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  } ${syncFrequency.hasConflict ? 'border-orange-300' : ''}`}
+                >
+                  <option value="realtime">בזמן אמת</option>
+                  <option value="every_5_min">כל 5 דקות</option>
+                  <option value="hourly">כל שעה</option>
+                  <option value="daily">יומי</option>
+                </select>
+                {syncFrequency.isAutoPopulated && syncFrequency.source && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {syncFrequency.source.description}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Error Handling */}
+          <div className="border-b pb-4">
+            <h3 className="text-lg font-semibold mb-4">טיפול בשגיאות</h3>
+            <div className="space-y-3">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {alertEmail.metadata.label.he}
+                  </label>
+                  {alertEmail.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטי
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="email"
+                  value={alertEmail.value || ''}
+                  onChange={(e) => alertEmail.setValue(e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md ${
+                    alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
+                  placeholder="alerts@company.com"
+                />
+                {alertEmail.isAutoPopulated && alertEmail.source && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {alertEmail.source.description}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">ניסיונות חוזרים</label>
+                <input
+                  type="number"
+                  value={config.errorHandling?.retryAttempts || 3}
+                  onChange={(e) => setConfig({ ...config, errorHandling: { ...config.errorHandling, retryAttempts: parseInt(e.target.value) } })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Metadata */}
+          <div className="border-b pb-4">
+            <h3 className="text-lg font-semibold mb-4">Metadata</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">תיאור האינטגרציה</label>
+                <textarea
+                  value={config.metadata?.description || ''}
+                  onChange={(e) => setConfig({ ...config, metadata: { ...config.metadata, description: e.target.value } })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  rows={3}
+                  placeholder="תאר את האינטגרציה המותאמת אישית..."
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">מורכבות</label>
+                  <select
+                    value={config.metadata?.complexity || 'custom'}
+                    onChange={(e) => setConfig({ ...config, metadata: { ...config.metadata, complexity: e.target.value } })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="custom">מותאם אישית</option>
+                    <option value="simple">פשוט</option>
+                    <option value="medium">בינוני</option>
+                    <option value="complex">מורכב</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">שעות משוערות</label>
+                  <input
+                    type="number"
+                    value={config.metadata?.estimatedHours || 60}
+                    onChange={(e) => setConfig({ ...config, metadata: { ...config.metadata, estimatedHours: parseInt(e.target.value) } })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="flex justify-end pt-4 border-t">
-            <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">שמור הגדרות</button>
+            <button
+              onClick={handleSave}
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              שמור הגדרות
+            </button>
           </div>
         </div>
       </Card>

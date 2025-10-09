@@ -3,11 +3,28 @@ import { useMeetingStore } from '../../../../store/useMeetingStore';
 import type { AIFormAssistantRequirements } from '../../../../types/aiAgentServices';
 import { Card } from '../../../Common/Card';
 import { Save, FileText, HelpCircle } from 'lucide-react';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
+
+const AI_MODELS = [
+  { value: 'gpt-4o', label: 'GPT-4o' },
+  { value: 'gpt-4o-mini', label: 'GPT-4o Mini' },
+  { value: 'claude-3.5-sonnet', label: 'Claude 3.5 Sonnet' }
+];
 
 export function AIFormAssistantSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
 
+  // Smart fields with auto-population
+  const aiModelPreference = useSmartField<string>({
+    fieldId: 'ai_model_preference',
+    localPath: 'aiModel',
+    serviceId: 'ai-form-assistant',
+    autoSave: false
+  });
+
   const [config, setConfig] = useState<AIFormAssistantRequirements>({
+    aiModel: 'gpt-4o',
     formTypes: {
       contactForms: true,
       quoteRequests: true,
@@ -76,6 +93,10 @@ export function AIFormAssistantSpec() {
       );
       if (existing) {
         setConfig(existing.requirements);
+        // Set smart field value if existing
+        if (existing.requirements.aiModel) {
+          aiModelPreference.setValue(existing.requirements.aiModel);
+        }
       }
     }
   }, [currentMeeting]);
@@ -86,10 +107,16 @@ export function AIFormAssistantSpec() {
     const updatedAIAgents = [...(currentMeeting.implementationSpec?.aiAgents || [])];
     const existingIndex = updatedAIAgents.findIndex((a: any) => a.serviceId === 'ai-form-assistant');
 
+    // Build complete config with smart field value
+    const completeConfig = {
+      ...config,
+      aiModel: aiModelPreference.value || config.aiModel
+    };
+
     const agentData = {
       serviceId: 'ai-form-assistant',
       serviceName: 'עוזר AI לטפסים',
-      requirements: config,
+      requirements: completeConfig,
       completedAt: new Date().toISOString()
     };
 
@@ -110,8 +137,62 @@ export function AIFormAssistantSpec() {
 
   return (
     <div className="space-y-6" dir="rtl">
+      {/* Smart Fields Info Banner */}
+      {aiModelPreference.isAutoPopulated && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3 mb-6">
+          <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <p className="text-sm text-blue-800">
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
+              תוכל לערוך אותם במידת הצורך.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Conflict Warnings */}
+      {aiModelPreference.hasConflict && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3 mb-6">
+          <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+            <p className="text-sm text-orange-800">
+              נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
+            </p>
+          </div>
+        </div>
+      )}
+
       <Card title="עוזר AI לטפסים" subtitle="יצירת עוזר AI חכם שיעזור למשתמשים למלא טפסים בצורה מדויקת ויעילה">
         <div className="space-y-6">
+          {/* AI Model Preference */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">מודל AI</label>
+              {aiModelPreference.isAutoPopulated && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                  <CheckCircle className="w-3 h-3" />
+                  מולא אוטומטית
+                </span>
+              )}
+            </div>
+            <select 
+              value={aiModelPreference.value || config.aiModel} 
+              onChange={(e) => aiModelPreference.setValue(e.target.value)}
+              className={`w-full px-3 py-2 border rounded-md ${
+                aiModelPreference.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+              } ${aiModelPreference.hasConflict ? 'border-orange-300' : ''}`}
+            >
+              {AI_MODELS.map(model => (
+                <option key={model.value} value={model.value}>{model.label}</option>
+              ))}
+            </select>
+            {aiModelPreference.isAutoPopulated && aiModelPreference.source && (
+              <p className="text-xs text-gray-500 mt-1">מקור: {aiModelPreference.source.description}</p>
+            )}
+          </div>
+
           {/* סוגי טפסים */}
           <div>
             <h4 className="font-medium mb-3 flex items-center gap-2">
@@ -451,3 +532,6 @@ export function AIFormAssistantSpec() {
     </div>
   );
 }
+
+
+

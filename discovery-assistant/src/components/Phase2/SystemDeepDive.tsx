@@ -4,8 +4,8 @@ import { useMeetingStore } from '../../store/useMeetingStore';
 import { DetailedSystemSpec, SystemModule, SystemAuthentication, DataMigration } from '../../types';
 import { AcceptanceCriteria, FunctionalRequirement, PerformanceRequirement, SecurityRequirement } from '../../types/phase2';
 import { Server, Save, ArrowLeft, Plus, Trash2, Key, Database, FileText, BookOpen, CheckSquare, Sparkles, Loader } from 'lucide-react';
-import { SystemSpecProgress } from './SystemSpecProgress';
-import { Input, Select, TextArea, Button } from '../Base';
+import { SystemSpecProgress, SystemSpecSection } from './SystemSpecProgress';
+import { Input, Select, TextArea, Button, Option } from '../Base';
 import { getSystemAuthTemplate } from '../../config/systemsAuthDatabase';
 import { generateAcceptanceCriteria, getSystemCriteria } from '../../utils/acceptanceCriteriaGenerator';
 
@@ -18,12 +18,12 @@ export const SystemDeepDive: React.FC = () => {
 
   // Get the Phase 1 system data
   const phase1System = currentMeeting?.modules?.systems?.detailedSystems?.find(
-    s => s.id === systemId
+    (s: any) => s.id === systemId
   );
 
   // Check if we already have a Phase 2 deep dive for this system
   const existingDeepDive = currentMeeting?.implementationSpec?.systems.find(
-    s => s.systemId === systemId
+    (s: DetailedSystemSpec) => s.systemId === systemId
   );
 
   // If no Phase 1 system found, redirect back
@@ -103,7 +103,7 @@ export const SystemDeepDive: React.FC = () => {
     const isNew = !existingDeepDive;
     const updatedSystems = isNew
       ? [...currentMeeting.implementationSpec.systems, system]
-      : currentMeeting.implementationSpec.systems.map(s => s.id === system.id ? system : s);
+      : currentMeeting.implementationSpec.systems.map((s: DetailedSystemSpec) => s.id === system.id ? system : s);
 
     updateMeeting({
       implementationSpec: {
@@ -122,7 +122,7 @@ export const SystemDeepDive: React.FC = () => {
     setIsGeneratingCriteria(true);
     try {
       // Generate full acceptance criteria from the entire meeting
-      const fullCriteria = generateAcceptanceCriteria(currentMeeting);
+      const fullCriteria = await generateAcceptanceCriteria(currentMeeting);
 
       // Filter to get only criteria for this system
       const filtered = getSystemCriteria(fullCriteria, system.systemName);
@@ -155,7 +155,7 @@ export const SystemDeepDive: React.FC = () => {
     const fullCriteria = currentMeeting.implementationSpec.acceptanceCriteria;
     const updatedCriteria = {
       ...fullCriteria,
-      [type]: fullCriteria[type].map((item: FunctionalRequirement | PerformanceRequirement | SecurityRequirement | any) =>
+      [type]: fullCriteria[type]?.map((item: FunctionalRequirement | PerformanceRequirement | SecurityRequirement | any) =>
         item.id === id ? { ...item, ...updates } : item
       )
     };
@@ -188,7 +188,7 @@ export const SystemDeepDive: React.FC = () => {
   const removeModule = (moduleId: string) => {
     setSystem({
       ...system,
-      modules: system.modules.filter(m => m.id !== moduleId)
+      modules: system.modules.filter((m: SystemModule) => m.id !== moduleId)
     });
   };
 
@@ -200,6 +200,13 @@ export const SystemDeepDive: React.FC = () => {
       )
     });
   };
+
+    const sections: SystemSpecSection[] = [
+        { name: 'אימות וגישה', completed: system.authentication.credentialsProvided, required: true },
+        { name: 'מודולים ושדות', completed: system.modules.length > 0, required: true },
+        { name: 'העברת נתונים', completed: !system.dataMigration.required || (system.dataMigration.required && !!system.dataMigration.rollbackPlan), required: system.dataMigration.required },
+        { name: 'קריטריוני קבלה', completed: !!systemCriteria && ((systemCriteria.functional?.length || 0) > 0 || (systemCriteria.performance?.length || 0) > 0 || (systemCriteria.security?.length || 0) > 0), required: true }
+    ];
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
@@ -282,21 +289,11 @@ export const SystemDeepDive: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Progress Component */}
         <SystemSpecProgress
-          completionPercentage={
-            Math.round(
-              ((system.systemName ? 25 : 0) +
-                (system.authentication.credentialsProvided ? 25 : 0) +
-                (system.modules.length > 0 ? 25 : 0) +
-                (system.dataMigration.required ? 25 : 0)) /
-                1
-            )
-          }
-          authComplete={system.authentication.credentialsProvided}
-          modulesCount={system.modules.length}
-          migrationRequired={system.dataMigration.required}
+            systemName={system.systemName}
+            sections={sections}
         />
 
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <div className="bg-white rounded-xl shadow-md overflow-hidden mt-6">
           {/* Tabs */}
           <div className="border-b border-gray-200">
             <div className="flex">
@@ -361,7 +358,7 @@ export const SystemDeepDive: React.FC = () => {
                   <Input
                     label="שם המערכת *"
                     value={system.systemName}
-                    onChange={(e) => setSystem({ ...system, systemName: e.target.value })}
+                    onChange={(value) => setSystem({ ...system, systemName: value })}
                     placeholder="לדוגמה: Salesforce, HubSpot, Zoho CRM"
                     required
                   />
@@ -369,32 +366,33 @@ export const SystemDeepDive: React.FC = () => {
                   <Select
                     label="שיטת אימות *"
                     value={system.authentication.method}
-                    onChange={(e) => setSystem({
+                    onChange={(value) => setSystem({
                       ...system,
                       authentication: {
                         ...system.authentication,
-                        method: e.target.value as SystemAuthentication['method']
+                        method: value as SystemAuthentication['method']
                       }
                     })}
+                    options={[
+                        { value: 'oauth', label: 'OAuth 2.0' },
+                        { value: 'api_key', label: 'API Key' },
+                        { value: 'basic_auth', label: 'Basic Auth' },
+                        { value: 'jwt', label: 'JWT Token' },
+                        { value: 'custom', label: 'Custom' }
+                    ]}
                     required
-                  >
-                    <option value="oauth">OAuth 2.0</option>
-                    <option value="api_key">API Key</option>
-                    <option value="basic_auth">Basic Auth</option>
-                    <option value="jwt">JWT Token</option>
-                    <option value="custom">Custom</option>
-                  </Select>
+                  />
                 </div>
 
                 <Input
                   label="API Endpoint"
-                  type="url"
-                  value={system.authentication.apiEndpoint}
-                  onChange={(e) => setSystem({
+                  type="text"
+                  value={system.authentication.apiEndpoint || ''}
+                  onChange={(value) => setSystem({
                     ...system,
                     authentication: {
                       ...system.authentication,
-                      apiEndpoint: e.target.value
+                      apiEndpoint: value
                     }
                   })}
                   placeholder="https://api.example.com/v1"
@@ -402,12 +400,12 @@ export const SystemDeepDive: React.FC = () => {
 
                 <Input
                   label="Rate Limits"
-                  value={system.authentication.rateLimits}
-                  onChange={(e) => setSystem({
+                  value={system.authentication.rateLimits || ''}
+                  onChange={(value) => setSystem({
                     ...system,
                     authentication: {
                       ...system.authentication,
-                      rateLimits: e.target.value
+                      rateLimits: value
                     }
                   })}
                   placeholder="לדוגמה: 1000 requests/hour"
@@ -451,11 +449,11 @@ export const SystemDeepDive: React.FC = () => {
                   <TextArea
                     label="פרטי אימות מותאם"
                     value={system.authentication.customAuthDetails || ''}
-                    onChange={(e) => setSystem({
+                    onChange={(value) => setSystem({
                       ...system,
                       authentication: {
                         ...system.authentication,
-                        customAuthDetails: e.target.value
+                        customAuthDetails: value
                       }
                     })}
                     rows={4}
@@ -536,15 +534,15 @@ export const SystemDeepDive: React.FC = () => {
                             <Input
                               label="שם המודול"
                               value={module.name}
-                              onChange={(e) => updateModule(module.id, { name: e.target.value })}
+                              onChange={(value) => updateModule(module.id, { name: value })}
                               placeholder="לדוגמה: Contacts, Deals, Products"
                             />
 
                             <Input
                               label="מספר רשומות"
                               type="number"
-                              value={module.recordCount.toString()}
-                              onChange={(e) => updateModule(module.id, { recordCount: parseInt(e.target.value) || 0 })}
+                              value={String(module.recordCount)}
+                              onChange={(value) => updateModule(module.id, { recordCount: parseInt(value) || 0 })}
                               placeholder="0"
                             />
                           </div>
@@ -603,12 +601,12 @@ export const SystemDeepDive: React.FC = () => {
                       <Input
                         label="מספר רשומות להעברה"
                         type="number"
-                        value={system.dataMigration.recordCount.toString()}
-                        onChange={(e) => setSystem({
+                        value={String(system.dataMigration.recordCount)}
+                        onChange={(value) => setSystem({
                           ...system,
                           dataMigration: {
                             ...system.dataMigration,
-                            recordCount: parseInt(e.target.value) || 0
+                            recordCount: parseInt(value) || 0
                           }
                         })}
                       />
@@ -616,12 +614,12 @@ export const SystemDeepDive: React.FC = () => {
                       <Input
                         label="שנות נתונים היסטוריים"
                         type="number"
-                        value={system.dataMigration.historicalDataYears.toString()}
-                        onChange={(e) => setSystem({
+                        value={String(system.dataMigration.historicalDataYears)}
+                        onChange={(value) => setSystem({
                           ...system,
                           dataMigration: {
                             ...system.dataMigration,
-                            historicalDataYears: parseInt(e.target.value) || 0
+                            historicalDataYears: parseInt(value) || 0
                           }
                         })}
                       />
@@ -630,21 +628,22 @@ export const SystemDeepDive: React.FC = () => {
                     <Select
                       label="שיטת העברה"
                       value={system.dataMigration.migrationMethod}
-                      onChange={(e) => setSystem({
+                      onChange={(value) => setSystem({
                         ...system,
                         dataMigration: {
                           ...system.dataMigration,
-                          migrationMethod: e.target.value as DataMigration['migrationMethod']
+                          migrationMethod: value as DataMigration['migrationMethod']
                         }
                       })}
-                    >
-                      <option value="api">API</option>
-                      <option value="csv_export">CSV Export</option>
-                      <option value="csv_import">CSV Import</option>
-                      <option value="database_dump">Database Dump</option>
-                      <option value="manual">Manual</option>
-                      <option value="etl_tool">ETL Tool</option>
-                    </Select>
+                      options={[
+                          { value: 'api', label: 'API' },
+                          { value: 'csv_export', label: 'CSV Export' },
+                          { value: 'csv_import', label: 'CSV Import' },
+                          { value: 'database_dump', label: 'Database Dump' },
+                          { value: 'manual', label: 'Manual' },
+                          { value: 'etl_tool', label: 'ETL Tool' }
+                      ]}
+                    />
 
                     <div className="space-y-3">
                       <label className="flex items-center gap-2 cursor-pointer">
@@ -698,12 +697,12 @@ export const SystemDeepDive: React.FC = () => {
 
                     <TextArea
                       label="תוכנית rollback"
-                      value={system.dataMigration.rollbackPlan}
-                      onChange={(e) => setSystem({
+                      value={system.dataMigration.rollbackPlan || ''}
+                      onChange={(value) => setSystem({
                         ...system,
                         dataMigration: {
                           ...system.dataMigration,
-                          rollbackPlan: e.target.value
+                          rollbackPlan: value
                         }
                       })}
                       rows={4}
@@ -745,10 +744,10 @@ export const SystemDeepDive: React.FC = () => {
                 </div>
 
                 {!systemCriteria || (
-                  systemCriteria.functional.length === 0 &&
-                  systemCriteria.performance.length === 0 &&
-                  systemCriteria.security.length === 0 &&
-                  systemCriteria.usability.length === 0
+                  systemCriteria.functional?.length === 0 &&
+                  systemCriteria.performance?.length === 0 &&
+                  systemCriteria.security?.length === 0 &&
+                  systemCriteria.usability?.length === 0
                 ) ? (
                   <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                     <CheckSquare className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -765,7 +764,7 @@ export const SystemDeepDive: React.FC = () => {
                 ) : (
                   <div className="space-y-6">
                     {/* Functional Requirements */}
-                    {systemCriteria.functional.length > 0 && (
+                    {systemCriteria.functional && systemCriteria.functional.length > 0 && (
                       <div>
                         <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                           <CheckSquare className="w-5 h-5 text-blue-600" />
@@ -786,7 +785,7 @@ export const SystemDeepDive: React.FC = () => {
                                 </div>
                                 <select
                                   value={req.priority}
-                                  onChange={(e) => updateCriterion('functional', req.id, { priority: e.target.value })}
+                                  onChange={(e) => updateCriterion('functional', req.id, { priority: e.target.value as any })}
                                   className="text-xs px-2 py-1 border border-gray-300 rounded"
                                 >
                                   <option value="must_have">חובה</option>
@@ -821,7 +820,7 @@ export const SystemDeepDive: React.FC = () => {
                     )}
 
                     {/* Performance Requirements */}
-                    {systemCriteria.performance.length > 0 && (
+                    {systemCriteria.performance && systemCriteria.performance.length > 0 && (
                       <div>
                         <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                           <Sparkles className="w-5 h-5 text-green-600" />
@@ -848,7 +847,7 @@ export const SystemDeepDive: React.FC = () => {
                     )}
 
                     {/* Security Requirements */}
-                    {systemCriteria.security.length > 0 && (
+                    {systemCriteria.security && systemCriteria.security.length > 0 && (
                       <div>
                         <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                           <Key className="w-5 h-5 text-orange-600" />
@@ -865,7 +864,7 @@ export const SystemDeepDive: React.FC = () => {
                                 <label className="flex items-center gap-1 text-sm">
                                   <input
                                     type="checkbox"
-                                    checked={req.verified}
+                                    checked={!!req.verified}
                                     onChange={(e) => updateCriterion('security', req.id, { verified: e.target.checked })}
                                     className="rounded"
                                   />
@@ -886,8 +885,8 @@ export const SystemDeepDive: React.FC = () => {
             <div className="mt-8">
               <TextArea
                 label="הערות טכניות"
-                value={system.technicalNotes}
-                onChange={(e) => setSystem({ ...system, technicalNotes: e.target.value })}
+                value={system.technicalNotes || ''}
+                onChange={(value) => setSystem({ ...system, technicalNotes: value })}
                 rows={6}
                 placeholder="הערות נוספות למפתחים..."
               />

@@ -5,11 +5,28 @@
 
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 import type { AddCustomReportsRequirements } from '../../../../types/additionalServices';
 import { Card } from '../../../Common/Card';
 
 export function AddCustomReportsSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
+
+  // Smart field hooks for database access and error handling
+  const databaseType = useSmartField<string>({
+    fieldId: 'database_type',
+    localPath: 'databaseType',
+    serviceId: 'add-custom-reports',
+    autoSave: false
+  });
+
+  const alertEmail = useSmartField<string>({
+    fieldId: 'alert_email',
+    localPath: 'alertEmail',
+    serviceId: 'add-custom-reports',
+    autoSave: false
+  });
 
   const [config, setConfig] = useState<AddCustomReportsRequirements>({
     reportSpecifications: [],
@@ -110,10 +127,17 @@ export function AddCustomReportsSpec() {
       const category = currentMeeting?.implementationSpec?.additionalServices || [];
       const updated = category.filter(item => item.serviceId !== 'add-custom-reports');
 
+      const completeConfig = {
+        ...config,
+        databaseType: databaseType.value,
+        alertEmail: alertEmail.value
+      };
+
       updated.push({
         serviceId: 'add-custom-reports',
         serviceName: 'דוחות מותאמים',
-        requirements: config,
+        serviceNameHe: 'דוחות מותאמים',
+        requirements: completeConfig,
         completedAt: new Date().toISOString()
       });
 
@@ -211,6 +235,20 @@ export function AddCustomReportsSpec() {
         <h2 className="text-2xl font-bold text-gray-900">שירות #53: דוחות מותאמים אישית</h2>
         <p className="text-gray-600 mt-2">דוחות עם פירוטים, נתונים וחישובים ייחודיים לעסק</p>
       </div>
+
+      {/* Smart Fields Info Banner */}
+      {(databaseType.isAutoPopulated || alertEmail.isAutoPopulated) && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+          <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <p className="text-sm text-blue-800">
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
+              תוכל לערוך אותם במידת הצורך.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Report Specifications */}
       <Card className="p-6">
@@ -617,6 +655,74 @@ export function AddCustomReportsSpec() {
               <option value="python_custom">Python מותאם</option>
               <option value="nodejs_custom">Node.js מותאם</option>
             </select>
+          </div>
+        </div>
+      </Card>
+
+      {/* Technical Configuration */}
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4">הגדרות טכניות</h3>
+        <div className="space-y-4">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                {databaseType.metadata.label.he} <span className="text-red-500">*</span>
+              </label>
+              {databaseType.isAutoPopulated && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                  <CheckCircle className="w-3 h-3" />
+                  מולא אוטומטית
+                </span>
+              )}
+            </div>
+            <select
+              value={databaseType.value || 'default'}
+              onChange={(e) => databaseType.setValue(e.target.value)}
+              className={`w-full px-3 py-2 border rounded-md ${
+                databaseType.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+              } ${databaseType.hasConflict ? 'border-orange-300' : ''}`}
+            >
+              <option value="default" disabled>בחר סוג מסד נתונים</option>
+              <option value="postgresql">PostgreSQL</option>
+              <option value="mysql">MySQL</option>
+              <option value="sql_server">SQL Server</option>
+              <option value="mongodb">MongoDB</option>
+            </select>
+            {databaseType.hasConflict && (
+              <div className="flex items-center gap-2 mt-1 text-orange-600 text-sm">
+                <AlertCircle className="w-4 h-4" />
+                <span>ערך שונה מהנתונים הקודמים - נא לוודא</span>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                {alertEmail.metadata.label.he} <span className="text-red-500">*</span>
+              </label>
+              {alertEmail.isAutoPopulated && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                  <CheckCircle className="w-3 h-3" />
+                  מולא אוטומטית
+                </span>
+              )}
+            </div>
+            <input
+              type="email"
+              value={alertEmail.value || ''}
+              onChange={(e) => alertEmail.setValue(e.target.value)}
+              className={`w-full px-3 py-2 border rounded-md ${
+                alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+              } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
+              placeholder="admin@company.com"
+            />
+            {alertEmail.hasConflict && (
+              <div className="flex items-center gap-2 mt-1 text-orange-600 text-sm">
+                <AlertCircle className="w-4 h-4" />
+                <span>ערך שונה מהנתונים הקודמים - נא לוודא</span>
+              </div>
+            )}
           </div>
         </div>
       </Card>

@@ -2,10 +2,54 @@ import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import type { AutoComplexLogicRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
-import { Save, Brain, GitBranch } from 'lucide-react';
+import { Save, Brain, GitBranch, CheckCircle, Info as InfoIcon } from 'lucide-react';
+import { useSmartField } from '../../../../hooks/useSmartField';
 
 export function AutoComplexLogicSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
+
+  // Smart fields
+  const workflowTrigger = useSmartField<string>({
+    fieldId: 'workflow_trigger',
+    localPath: 'technicalConfig.trigger',
+    serviceId: 'auto-complex-logic',
+    autoSave: false
+  });
+
+  const databaseType = useSmartField<string>({
+    fieldId: 'database_type',
+    localPath: 'databaseConfig.type',
+    serviceId: 'auto-complex-logic',
+    autoSave: false
+  });
+
+  const apiAuthMethod = useSmartField<string>({
+    fieldId: 'api_auth_method',
+    localPath: 'apiConfig.authMethod',
+    serviceId: 'auto-complex-logic',
+    autoSave: false
+  });
+
+  const retryAttempts = useSmartField<number>({
+    fieldId: 'retry_attempts',
+    localPath: 'n8nWorkflow.errorHandling.retryAttempts',
+    serviceId: 'auto-complex-logic',
+    autoSave: false
+  });
+
+  const alertEmail = useSmartField<string>({
+    fieldId: 'alert_email',
+    localPath: 'n8nWorkflow.errorHandling.alertEmail',
+    serviceId: 'auto-complex-logic',
+    autoSave: false
+  });
+
+  const n8nInstanceUrl = useSmartField<string>({
+    fieldId: 'n8n_instance_url',
+    localPath: 'n8nWorkflow.instanceUrl',
+    serviceId: 'auto-complex-logic',
+    autoSave: false
+  });
 
   const [config, setConfig] = useState<AutoComplexLogicRequirements>({
     logicRules: [
@@ -53,6 +97,19 @@ export function AutoComplexLogicSpec() {
         rateLimiting: true
       }
     },
+    // Add technicalConfig
+    technicalConfig: {
+      trigger: ''
+    },
+    // Add databaseConfig
+    databaseConfig: {
+      type: '',
+      connectionString: ''
+    },
+    // Add apiConfig
+    apiConfig: {
+      authMethod: ''
+    },
     errorHandling: {
       retryAttempts: 3,
       fallbackActions: ['שמור בלוג', 'הודע למנהל', 'המשך ללא נתונים'],
@@ -60,6 +117,16 @@ export function AutoComplexLogicSpec() {
         performanceMetrics: true,
         errorRates: true,
         responseTimes: true
+      }
+    },
+    // Add n8nWorkflow
+    n8nWorkflow: {
+      instanceUrl: '',
+      webhookEndpoint: '',
+      httpsEnabled: true,
+      errorHandling: {
+        retryAttempts: 3,
+        alertEmail: ''
       }
     }
   });
@@ -78,13 +145,38 @@ export function AutoComplexLogicSpec() {
   const saveConfig = () => {
     if (!currentMeeting) return;
 
+    const completeConfig = {
+      ...config,
+      technicalConfig: {
+        ...config.technicalConfig,
+        trigger: workflowTrigger.value || config.technicalConfig.trigger
+      },
+      databaseConfig: {
+        ...config.databaseConfig,
+        type: databaseType.value || config.databaseConfig.type
+      },
+      apiConfig: {
+        ...config.apiConfig,
+        authMethod: apiAuthMethod.value || config.apiConfig.authMethod
+      },
+      n8nWorkflow: {
+        ...config.n8nWorkflow,
+        instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow.instanceUrl,
+        errorHandling: {
+          ...config.n8nWorkflow.errorHandling,
+          retryAttempts: retryAttempts.value || config.n8nWorkflow.errorHandling.retryAttempts,
+          alertEmail: alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail
+        }
+      }
+    };
+
     const updatedAutomations = [...(currentMeeting.implementationSpec?.automations || [])];
     const existingIndex = updatedAutomations.findIndex((a: any) => a.serviceId === 'auto-complex-logic');
 
     const automationData = {
       serviceId: 'auto-complex-logic',
       serviceName: 'לוגיקה מורכבת ואוטומציה מתקדמת',
-      requirements: config,
+      requirements: completeConfig,
       completedAt: new Date().toISOString()
     };
 
@@ -105,9 +197,24 @@ export function AutoComplexLogicSpec() {
 
   return (
     <div className="space-y-6" dir="rtl">
+      {/* Smart Fields Info Banner */}
+      {(workflowTrigger.isAutoPopulated || databaseType.isAutoPopulated || apiAuthMethod.isAutoPopulated || 
+        retryAttempts.isAutoPopulated || alertEmail.isAutoPopulated || n8nInstanceUrl.isAutoPopulated) && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+          <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <p className="text-sm text-blue-800">
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
+              תוכל לערוך אותם במידת הצורך.
+            </p>
+          </div>
+        </div>
+      )}
+
       <Card title="לוגיקה מורכבת ואוטומציה מתקדמת" subtitle="הגדר כללים מורכבים, עצי החלטה ועיבוד נתונים מתקדם">
         <div className="space-y-6">
-          {/* כללי לוגיקה */}
+          {/* כללי לוגיקה - existing */}
           <div>
             <h4 className="font-medium mb-3 flex items-center gap-2">
               <Brain className="w-5 h-5" />
@@ -150,7 +257,7 @@ export function AutoComplexLogicSpec() {
             </div>
           </div>
 
-          {/* עצי החלטה */}
+          {/* עצי החלטה - existing */}
           <div>
             <h4 className="font-medium mb-3 flex items-center gap-2">
               <GitBranch className="w-5 h-5" />
@@ -186,7 +293,7 @@ export function AutoComplexLogicSpec() {
             </div>
           </div>
 
-          {/* עיבוד נתונים */}
+          {/* עיבוד נתונים - existing */}
           <div>
             <h4 className="font-medium mb-3">עיבוד וניתוח נתונים</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -243,10 +350,42 @@ export function AutoComplexLogicSpec() {
             </div>
           </div>
 
-          {/* APIs חיצוניים */}
+          {/* APIs חיצוניים - existing with api_auth_method smart */}
           <div>
             <h4 className="font-medium mb-3">APIs חיצוניים</h4>
             <div className="space-y-3">
+              {/* API Auth Method Smart Field */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {apiAuthMethod.metadata.label.he}
+                  </label>
+                  {apiAuthMethod.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטית
+                    </span>
+                  )}
+                </div>
+                <select
+                  value={apiAuthMethod.value || ''}
+                  onChange={(e) => apiAuthMethod.setValue(e.target.value)}
+                  className={`w-full p-2 border rounded-lg ${
+                    apiAuthMethod.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  }`}
+                >
+                  <option value="">בחר שיטת אימות</option>
+                  <option value="oauth">OAuth 2.0</option>
+                  <option value="api_key">API Key</option>
+                  <option value="basic_auth">Basic Auth</option>
+                  <option value="bearer_token">Bearer Token</option>
+                  <option value="jwt">JWT</option>
+                </select>
+                {apiAuthMethod.isAutoPopulated && apiAuthMethod.source && (
+                  <p className="text-xs text-gray-500 mt-1">מקור: {apiAuthMethod.source.description}</p>
+                )}
+              </div>
+
               {config.externalApis.endpoints.map((endpoint, index) => (
                 <div key={index} className="p-3 border rounded-lg">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -328,23 +467,35 @@ export function AutoComplexLogicSpec() {
             </div>
           </div>
 
-          {/* טיפול בשגיאות */}
+          {/* טיפול בשגיאות - updated with smart retry and alert */}
           <div>
             <h4 className="font-medium mb-3">טיפול בשגיאות ומוניטורינג</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-2">מספר ניסיונות חוזרים</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {retryAttempts.metadata.label.he}
+                  </label>
+                  {retryAttempts.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטית
+                    </span>
+                  )}
+                </div>
                 <input
                   type="number"
-                  value={config.errorHandling.retryAttempts}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    errorHandling: { ...prev.errorHandling, retryAttempts: parseInt(e.target.value) || 3 }
-                  }))}
-                  className="w-full p-2 border rounded-lg"
+                  value={retryAttempts.value || config.errorHandling.retryAttempts || 3}
+                  onChange={(e) => retryAttempts.setValue(parseInt(e.target.value) || 3)}
+                  className={`w-full p-2 border rounded-lg ${
+                    retryAttempts.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  }`}
                   min="1"
                   max="10"
                 />
+                {retryAttempts.isAutoPopulated && retryAttempts.source && (
+                  <p className="text-xs text-gray-500 mt-1">מקור: {retryAttempts.source.description}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -407,6 +558,61 @@ export function AutoComplexLogicSpec() {
                 </label>
               </div>
             </div>
+
+            {/* n8n Section */}
+            <div className="space-y-4 mt-6">
+              <h5 className="font-medium">הגדרות n8n</h5>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {n8nInstanceUrl.metadata.label.he}
+                  </label>
+                  {n8nInstanceUrl.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטית
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="url"
+                  value={n8nInstanceUrl.value || ''}
+                  onChange={(e) => n8nInstanceUrl.setValue(e.target.value)}
+                  className={`w-full p-2 border rounded-lg ${
+                    n8nInstanceUrl.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  }`}
+                  placeholder="https://n8n.example.com"
+                />
+                {n8nInstanceUrl.isAutoPopulated && n8nInstanceUrl.source && (
+                  <p className="text-xs text-gray-500 mt-1">מקור: {n8nInstanceUrl.source.description}</p>
+                )}
+              </div>
+
+              <label className="block text-sm font-medium text-gray-700 mb-2">Webhook Endpoint</label>
+              <input
+                type="url"
+                value={config.n8nWorkflow.webhookEndpoint || ''}
+                onChange={(e) => setConfig(prev => ({
+                  ...prev,
+                  n8nWorkflow: { ...prev.n8nWorkflow, webhookEndpoint: e.target.value }
+                }))}
+                className="w-full p-2 border rounded-lg"
+                placeholder="https://n8n.example.com/webhook/..."
+              />
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={config.n8nWorkflow.httpsEnabled || true}
+                  onChange={(e) => setConfig(prev => ({
+                    ...prev,
+                    n8nWorkflow: { ...prev.n8nWorkflow, httpsEnabled: e.target.checked }
+                  }))}
+                  className="rounded border-gray-300"
+                />
+                <span className="text-sm">HTTPS מופעל</span>
+              </label>
+            </div>
           </div>
 
           {/* שמירה */}
@@ -424,3 +630,6 @@ export function AutoComplexLogicSpec() {
     </div>
   );
 }
+
+
+

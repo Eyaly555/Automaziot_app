@@ -1,13 +1,43 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useSmartField } from '../../../../hooks/useSmartField';
 import type { AutoApprovalWorkflowRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
-import { Plus, Trash2, Save } from 'lucide-react';
+import { Plus, Trash2, Save, CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
 export function AutoApprovalWorkflowSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
+
+  // Smart fields with auto-population
+  const emailProvider = useSmartField<string>({
+    fieldId: 'email_provider',
+    localPath: 'emailProvider',
+    serviceId: 'auto-approval-workflow',
+    autoSave: false
+  });
+
+  const crmSystem = useSmartField<string>({
+    fieldId: 'crm_system',
+    localPath: 'crmSystem',
+    serviceId: 'auto-approval-workflow',
+    autoSave: false
+  });
+
+  const authMethod = useSmartField<string>({
+    fieldId: 'crm_auth_method',
+    localPath: 'authMethod',
+    serviceId: 'auto-approval-workflow',
+    autoSave: false
+  });
+
+  const alertEmail = useSmartField<string>({
+    fieldId: 'alert_email',
+    localPath: 'alertEmail',
+    serviceId: 'auto-approval-workflow',
+    autoSave: false
+  });
 
   const [config, setConfig] = useState<AutoApprovalWorkflowRequirements>({
     stateManagement: {
@@ -94,10 +124,26 @@ export function AutoApprovalWorkflowSpec() {
       const automations = currentMeeting?.implementationSpec?.automations || [];
       const updated = automations.filter(a => a.serviceId !== 'auto-approval-workflow');
 
+      // Build complete config with smart field values
+      const completeConfig = {
+        ...config,
+        emailNotifications: {
+          ...config.emailNotifications,
+          provider: emailProvider.value
+        },
+        sourceSystem: {
+          ...config.sourceSystem,
+          system: crmSystem.value,
+          authMethod: authMethod.value
+        },
+        alertEmail: alertEmail.value
+      };
+
       updated.push({
         serviceId: 'auto-approval-workflow',
         serviceName: 'workflow אישורים אוטומטי',
-        requirements: config,
+        serviceNameHe: 'workflow אישורים אוטומטי',
+        requirements: completeConfig,
         completedAt: new Date().toISOString()
       });
 
@@ -242,6 +288,33 @@ export function AutoApprovalWorkflowSpec() {
                 Auto Approval Workflow - Service #11
               </p>
             </div>
+
+            {/* Smart Fields Info Banner */}
+            {(emailProvider.isAutoPopulated || crmSystem.isAutoPopulated || authMethod.isAutoPopulated || alertEmail.isAutoPopulated) && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+                <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+                  <p className="text-sm text-blue-800">
+                    חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
+                    תוכל לערוך אותם במידת הצורך.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Conflict Warnings */}
+            {(emailProvider.hasConflict || crmSystem.hasConflict || authMethod.hasConflict || alertEmail.hasConflict) && (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+                  <p className="text-sm text-orange-800">
+                    נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
+                  </p>
+                </div>
+              </div>
+            )}
             <button
               onClick={handleSave}
               disabled={isSaving}
@@ -411,19 +484,23 @@ export function AutoApprovalWorkflowSpec() {
                   <h3 className="text-lg font-semibold mb-4">מערכת מקור</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        סוג מערכת
-                      </label>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {crmSystem.metadata.label.he}
+                        </label>
+                        {crmSystem.isAutoPopulated && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                            <CheckCircle className="w-3 h-3" />
+                            מולא אוטומטית
+                          </span>
+                        )}
+                      </div>
                       <select
-                        value={config.sourceSystem.system}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          sourceSystem: {
-                            ...config.sourceSystem,
-                            system: e.target.value as any
-                          }
-                        })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        value={crmSystem.value || 'crm'}
+                        onChange={(e) => crmSystem.setValue(e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg ${
+                          crmSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                        } ${crmSystem.hasConflict ? 'border-orange-300' : ''}`}
                       >
                         <option value="crm">CRM</option>
                         <option value="erp">ERP</option>
@@ -433,19 +510,23 @@ export function AutoApprovalWorkflowSpec() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        שיטת אימות
-                      </label>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {authMethod.metadata.label.he}
+                        </label>
+                        {authMethod.isAutoPopulated && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                            <CheckCircle className="w-3 h-3" />
+                            מולא אוטומטית
+                          </span>
+                        )}
+                      </div>
                       <select
-                        value={config.sourceSystem.authMethod}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          sourceSystem: {
-                            ...config.sourceSystem,
-                            authMethod: e.target.value as any
-                          }
-                        })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        value={authMethod.value || 'oauth'}
+                        onChange={(e) => authMethod.setValue(e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg ${
+                          authMethod.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                        } ${authMethod.hasConflict ? 'border-orange-300' : ''}`}
                       >
                         <option value="oauth">OAuth</option>
                         <option value="api_key">API Key</option>
@@ -799,19 +880,23 @@ export function AutoApprovalWorkflowSpec() {
                   <h3 className="text-lg font-semibold mb-4">התראות אימייל</h3>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        ספק אימייל
-                      </label>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {emailProvider.metadata.label.he}
+                        </label>
+                        {emailProvider.isAutoPopulated && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                            <CheckCircle className="w-3 h-3" />
+                            מולא אוטומטית
+                          </span>
+                        )}
+                      </div>
                       <select
-                        value={config.emailNotifications.provider}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          emailNotifications: {
-                            ...config.emailNotifications,
-                            provider: e.target.value as any
-                          }
-                        })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        value={emailProvider.value || 'sendgrid'}
+                        onChange={(e) => emailProvider.setValue(e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg ${
+                          emailProvider.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                        } ${emailProvider.hasConflict ? 'border-orange-300' : ''}`}
                       >
                         <option value="sendgrid">SendGrid</option>
                         <option value="mailgun">Mailgun</option>

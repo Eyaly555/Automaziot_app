@@ -24,6 +24,8 @@ import {
 } from '../../../../types/automationServices';
 import { Button, Input, Select } from '../../../Base';
 import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -90,6 +92,21 @@ const DEFAULT_CATEGORIES: TriageCategory[] = [
 export const AITriageSpec: React.FC = () => {
   const navigate = useNavigate();
   const { currentMeeting, updateMeeting } = useMeetingStore();
+
+  // Smart fields with auto-population
+  const aiModelPreference = useSmartField<string>({
+    fieldId: 'ai_model_preference',
+    localPath: 'aiModel',
+    serviceId: 'ai-triage',
+    autoSave: false
+  });
+
+  const alertEmail = useSmartField<string>({
+    fieldId: 'alert_email',
+    localPath: 'errorHandling.errorNotificationEmail',
+    serviceId: 'ai-triage',
+    autoSave: false
+  });
 
   const [config, setConfig] = useState<AITriageConfig>({
     aiProvider: 'openai',
@@ -176,10 +193,21 @@ export const AITriageSpec: React.FC = () => {
       const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
       const updated = aiAgentServices.filter((a: AIAgentServiceEntry) => a.serviceId !== 'ai-triage');
 
+      // Build complete config with smart field values
+      const completeConfig = {
+        ...config,
+        aiModel: aiModelPreference.value,
+        errorHandling: {
+          ...config.errorHandling,
+          errorNotificationEmail: alertEmail.value
+        }
+      };
+
       updated.push({
         serviceId: 'ai-triage',
         serviceName: 'AI לסינון ותיעדוף פניות',
-        requirements: config,
+        serviceNameHe: 'AI לסינון ותיעדוף פניות',
+        requirements: completeConfig,
         completedAt: new Date().toISOString()
       });
 
@@ -334,6 +362,33 @@ export const AITriageSpec: React.FC = () => {
           </div>
         </div>
 
+        {/* Smart Fields Info Banner */}
+        {(aiModelPreference.isAutoPopulated || alertEmail.isAutoPopulated) && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3 mb-6">
+            <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+              <p className="text-sm text-blue-800">
+                חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
+                תוכל לערוך אותם במידת הצורך.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Conflict Warnings */}
+        {(aiModelPreference.hasConflict || alertEmail.hasConflict) && (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3 mb-6">
+            <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+              <p className="text-sm text-orange-800">
+                נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Tabs */}
         <div className="bg-white rounded-lg shadow-sm mb-6">
           <div className="border-b border-gray-200">
@@ -383,14 +438,30 @@ export const AITriageSpec: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      מודל AI
-                    </label>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {aiModelPreference.metadata.label.he}
+                      </label>
+                      {aiModelPreference.isAutoPopulated && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                          <CheckCircle className="w-3 h-3" />
+                          מולא אוטומטית
+                        </span>
+                      )}
+                    </div>
                     <Select
-                      value={config.aiModel}
-                      onChange={(e) => setConfig({ ...config, aiModel: e.target.value })}
+                      value={aiModelPreference.value || 'gpt-4o-mini'}
+                      onChange={(e) => aiModelPreference.setValue(e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-md ${
+                        aiModelPreference.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                      } ${aiModelPreference.hasConflict ? 'border-orange-300' : ''}`}
                       options={AI_MODELS[config.aiProvider] || []}
                     />
+                    {aiModelPreference.isAutoPopulated && aiModelPreference.source && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        מקור: {aiModelPreference.source.description}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -419,6 +490,34 @@ export const AITriageSpec: React.FC = () => {
                         ...TICKETING_SYSTEMS
                       ]}
                     />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {alertEmail.metadata.label.he}
+                      </label>
+                      {alertEmail.isAutoPopulated && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                          <CheckCircle className="w-3 h-3" />
+                          מולא אוטומטית
+                        </span>
+                      )}
+                    </div>
+                    <Input
+                      type="email"
+                      value={alertEmail.value || ''}
+                      onChange={(e) => alertEmail.setValue(e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-md ${
+                        alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                      } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
+                      placeholder="error@company.com"
+                    />
+                    {alertEmail.isAutoPopulated && alertEmail.source && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        מקור: {alertEmail.source.description}
+                      </p>
+                    )}
                   </div>
                 </div>
 

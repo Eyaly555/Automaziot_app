@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { SmartFieldWidget } from '../../../Common/FormFields/SmartFieldWidget';
 import type { AutoCRMUpdateRequirements, AutomationServiceEntry } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
-import { Plus, Trash2, Save, Info, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, Save, Info, AlertCircle, CheckCircle } from 'lucide-react';
 
 const CRM_SYSTEMS = [
   { value: 'zoho', label: 'Zoho CRM' },
@@ -55,10 +57,46 @@ const DUPLICATE_STRATEGIES = [
 export function AutoCRMUpdateSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
 
+  // Smart fields for auto-population from Phase 1
+  const crmSystem = useSmartField<string>({
+    fieldId: 'crm_system',
+    localPath: 'crmAccess.system',
+    serviceId: 'auto-crm-update',
+    autoSave: false
+  });
+
+  const crmAuthMethod = useSmartField<string>({
+    fieldId: 'crm_auth_method',
+    localPath: 'crmAccess.authMethod',
+    serviceId: 'auto-crm-update',
+    autoSave: false
+  });
+
+  const n8nInstanceUrl = useSmartField<string>({
+    fieldId: 'n8n_instance_url',
+    localPath: 'n8nWorkflow.instanceUrl',
+    serviceId: 'auto-crm-update',
+    autoSave: false
+  });
+
+  const alertEmail = useSmartField<string>({
+    fieldId: 'alert_email',
+    localPath: 'n8nWorkflow.errorHandling.alertEmail',
+    serviceId: 'auto-crm-update',
+    autoSave: false
+  });
+
+  const retryAttempts = useSmartField<number>({
+    fieldId: 'retry_attempts',
+    localPath: 'n8nWorkflow.errorHandling.retryAttempts',
+    serviceId: 'auto-crm-update',
+    autoSave: false
+  });
+
   const [config, setConfig] = useState<AutoCRMUpdateRequirements>({
     crmAccess: {
-      system: 'zoho',
-      authMethod: 'oauth',
+      system: crmSystem.value || 'zoho',
+      authMethod: crmAuthMethod.value || 'oauth',
       rateLimits: {
         daily: 0,
         batchSupported: false
@@ -73,13 +111,13 @@ export function AutoCRMUpdateSpec() {
       formFields: []
     },
     n8nWorkflow: {
-      instanceUrl: '',
+      instanceUrl: n8nInstanceUrl.value || '',
       webhookEndpoint: '',
       httpsEnabled: false,
       errorHandling: {
-        retryAttempts: 3,
+        retryAttempts: retryAttempts.value || 3,
         retryDelay: 1000,
-        alertEmail: '',
+        alertEmail: alertEmail.value || '',
         logErrors: true
       }
     },
@@ -103,7 +141,26 @@ export function AutoCRMUpdateSpec() {
     if (existing?.requirements) {
       setConfig(existing.requirements);
     }
-  }, [currentMeeting]);
+
+    // Sync smart field values with config
+    setConfig(prev => ({
+      ...prev,
+      crmAccess: {
+        ...prev.crmAccess,
+        system: crmSystem.value || prev.crmAccess.system,
+        authMethod: crmAuthMethod.value || prev.crmAccess.authMethod
+      },
+      n8nWorkflow: {
+        ...prev.n8nWorkflow,
+        instanceUrl: n8nInstanceUrl.value || prev.n8nWorkflow.instanceUrl,
+        errorHandling: {
+          ...prev.n8nWorkflow.errorHandling,
+          alertEmail: alertEmail.value || prev.n8nWorkflow.errorHandling.alertEmail,
+          retryAttempts: retryAttempts.value || prev.n8nWorkflow.errorHandling.retryAttempts
+        }
+      }
+    }));
+  }, [currentMeeting, crmSystem.value, crmAuthMethod.value, n8nInstanceUrl.value, alertEmail.value, retryAttempts.value]);
 
   const handleSave = async () => {
     if (!currentMeeting) return;
@@ -113,16 +170,31 @@ export function AutoCRMUpdateSpec() {
       const automations = currentMeeting?.implementationSpec?.automations || [];
       const updated = automations.filter((a: AutomationServiceEntry) => a.serviceId !== 'auto-crm-update');
 
+      // Build complete config with smart field values
+      const completeConfig = {
+        ...config,
+        crmAccess: {
+          ...config.crmAccess,
+          system: crmSystem.value,
+          authMethod: crmAuthMethod.value
+        },
+        n8nWorkflow: {
+          ...config.n8nWorkflow,
+          instanceUrl: n8nInstanceUrl.value,
+          errorHandling: {
+            ...config.n8nWorkflow.errorHandling,
+            alertEmail: alertEmail.value,
+            retryAttempts: retryAttempts.value
+          }
+        }
+      };
+
       updated.push({
         serviceId: 'auto-crm-update',
         serviceName: 'Auto CRM Update',
         serviceNameHe: 'עדכון אוטומטי ל-CRM',
-        category: 'crm_sync',
-        config: config,
-        status: 'configuring',
-        completedAt: new Date(),
-        updatedAt: new Date(),
-        createdBy: 'user'
+        requirements: completeConfig,
+        completedAt: new Date().toISOString()
       });
 
       await updateMeeting({
@@ -272,6 +344,126 @@ export function AutoCRMUpdateSpec() {
           </div>
         </div>
 
+        {/* Business Context Panel */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <Info className="w-5 h-5 text-blue-600" />
+            הקשר עסקי
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">
+                {currentMeeting?.modules?.overview?.employees || 'לא צוין'}
+              </div>
+              <div className="text-sm text-gray-600">עובדים</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">
+                {currentMeeting?.modules?.leadsAndSales?.leadVolume?.monthly || 'לא צוין'}
+              </div>
+              <div className="text-sm text-gray-600">לידים לחודש</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600">
+                {currentMeeting?.modules?.overview?.industry || 'לא צוין'}
+              </div>
+              <div className="text-sm text-gray-600">תעשייה</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-orange-600">
+                {crmSystem.value || 'לא נבחר'}
+              </div>
+              <div className="text-sm text-gray-600">מערכת CRM</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Smart Fields Info Banner */}
+        {(crmSystem.isAutoPopulated || crmAuthMethod.isAutoPopulated || n8nInstanceUrl.isAutoPopulated || alertEmail.isAutoPopulated || retryAttempts.isAutoPopulated) && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3 mb-6">
+            <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+              <p className="text-sm text-blue-800">
+                חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
+                תוכל לערוך אותם במידת הצורך.
+              </p>
+              <div className="mt-2 flex flex-wrap gap-1">
+                {crmSystem.isAutoPopulated && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                    <CheckCircle className="w-3 h-3" />
+                    מערכת CRM
+                  </span>
+                )}
+                {crmAuthMethod.isAutoPopulated && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                    <CheckCircle className="w-3 h-3" />
+                    שיטת אימות
+                  </span>
+                )}
+                {n8nInstanceUrl.isAutoPopulated && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                    <CheckCircle className="w-3 h-3" />
+                    n8n Instance
+                  </span>
+                )}
+                {alertEmail.isAutoPopulated && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                    <CheckCircle className="w-3 h-3" />
+                    מייל התרעות
+                  </span>
+                )}
+                {retryAttempts.isAutoPopulated && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                    <CheckCircle className="w-3 h-3" />
+                    ניסיונות חזרה
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Conflict Warnings */}
+        {(crmSystem.hasConflict || crmAuthMethod.hasConflict || n8nInstanceUrl.hasConflict || alertEmail.hasConflict || retryAttempts.hasConflict) && (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3 mb-6">
+            <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="font-semibold text-orange-900 mb-1">אזהרות נתונים</h4>
+              <p className="text-sm text-orange-800 mb-2">
+                זוהו התנגשויות בנתונים. בדוק את השדות המסומנים בכתום.
+              </p>
+              <div className="space-y-1">
+                {crmSystem.hasConflict && (
+                  <div className="text-sm text-orange-800">
+                    <strong>מערכת CRM:</strong> {crmSystem.conflict?.message}
+                  </div>
+                )}
+                {crmAuthMethod.hasConflict && (
+                  <div className="text-sm text-orange-800">
+                    <strong>שיטת אימות:</strong> {crmAuthMethod.conflict?.message}
+                  </div>
+                )}
+                {n8nInstanceUrl.hasConflict && (
+                  <div className="text-sm text-orange-800">
+                    <strong>n8n Instance:</strong> {n8nInstanceUrl.conflict?.message}
+                  </div>
+                )}
+                {alertEmail.hasConflict && (
+                  <div className="text-sm text-orange-800">
+                    <strong>מייל התרעות:</strong> {alertEmail.conflict?.message}
+                  </div>
+                )}
+                {retryAttempts.hasConflict && (
+                  <div className="text-sm text-orange-800">
+                    <strong>ניסיונות חזרה:</strong> {retryAttempts.conflict?.message}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Tabs */}
         <div className="bg-white rounded-lg shadow-sm mb-6">
           <div className="border-b border-gray-200">
@@ -305,52 +497,32 @@ export function AutoCRMUpdateSpec() {
                 <Card className="p-6">
                   <h3 className="text-lg font-semibold mb-4">מערכת CRM</h3>
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        מערכת CRM
-                      </label>
-                      <select
-                        value={config.crmAccess.system}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          crmAccess: {
-                            ...config.crmAccess,
-                            system: e.target.value as any
-                          }
-                        })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                      >
-                        {CRM_SYSTEMS.map(sys => (
-                          <option key={sys.value} value={sys.value}>{sys.label}</option>
-                        ))}
-                      </select>
-                    </div>
+                    <SmartFieldWidget
+                      smartField={crmSystem}
+                      fieldType="select"
+                      options={[
+                        { value: 'zoho', label: 'Zoho CRM' },
+                        { value: 'salesforce', label: 'Salesforce' },
+                        { value: 'hubspot', label: 'HubSpot' },
+                        { value: 'pipedrive', label: 'Pipedrive' },
+                        { value: 'other', label: 'אחר' }
+                      ]}
+                    />
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        שיטת אימות
-                      </label>
-                      <select
-                        value={config.crmAccess.authMethod}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          crmAccess: {
-                            ...config.crmAccess,
-                            authMethod: e.target.value as any
-                          }
-                        })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                      >
-                        {AUTH_METHODS.map(method => (
-                          <option key={method.value} value={method.value}>{method.label}</option>
-                        ))}
-                      </select>
-                    </div>
+                    <SmartFieldWidget
+                      smartField={crmAuthMethod}
+                      fieldType="select"
+                      options={[
+                        { value: 'oauth', label: 'OAuth 2.0' },
+                        { value: 'api_key', label: 'API Key' },
+                        { value: 'basic_auth', label: 'Basic Auth' }
+                      ]}
+                    />
                   </div>
                 </Card>
 
                 {/* Zoho Credentials */}
-                {config.crmAccess.system === 'zoho' && (
+                {crmSystem.value === 'zoho' && (
                   <Card className="p-6">
                     <h3 className="text-lg font-semibold mb-4">Zoho OAuth Credentials</h3>
                     <div className="space-y-4">
@@ -503,7 +675,7 @@ export function AutoCRMUpdateSpec() {
                 )}
 
                 {/* Salesforce Credentials */}
-                {config.crmAccess.system === 'salesforce' && (
+                {crmSystem.value === 'salesforce' && (
                   <Card className="p-6">
                     <h3 className="text-lg font-semibold mb-4">Salesforce Credentials</h3>
                     <div className="space-y-4">
@@ -651,7 +823,7 @@ export function AutoCRMUpdateSpec() {
                 )}
 
                 {/* HubSpot Credentials */}
-                {config.crmAccess.system === 'hubspot' && (
+                {crmSystem.value === 'hubspot' && (
                   <Card className="p-6">
                     <h3 className="text-lg font-semibold mb-4">HubSpot Credentials</h3>
                     <div className="space-y-4">
@@ -1311,20 +1483,9 @@ export function AutoCRMUpdateSpec() {
                   <h3 className="text-lg font-semibold mb-4">n8n Instance</h3>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Instance URL
-                      </label>
-                      <input
-                        type="url"
-                        value={config.n8nWorkflow.instanceUrl}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          n8nWorkflow: {
-                            ...config.n8nWorkflow,
-                            instanceUrl: e.target.value
-                          }
-                        })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      <SmartFieldWidget
+                        smartField={n8nInstanceUrl}
+                        fieldType="url"
                         placeholder="https://n8n.example.com"
                       />
                     </div>
@@ -1373,25 +1534,9 @@ export function AutoCRMUpdateSpec() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Retry Attempts
-                        </label>
-                        <input
-                          type="number"
-                          value={config.n8nWorkflow.errorHandling.retryAttempts}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            n8nWorkflow: {
-                              ...config.n8nWorkflow,
-                              errorHandling: {
-                                ...config.n8nWorkflow.errorHandling,
-                                retryAttempts: parseInt(e.target.value) || 0
-                              }
-                            }
-                          })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                          min="0"
-                          max="10"
+                        <SmartFieldWidget
+                          smartField={retryAttempts}
+                          fieldType="number"
                         />
                       </div>
 
@@ -1420,23 +1565,9 @@ export function AutoCRMUpdateSpec() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Alert Email
-                      </label>
-                      <input
-                        type="email"
-                        value={config.n8nWorkflow.errorHandling.alertEmail}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          n8nWorkflow: {
-                            ...config.n8nWorkflow,
-                            errorHandling: {
-                              ...config.n8nWorkflow.errorHandling,
-                              alertEmail: e.target.value
-                            }
-                          }
-                        })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      <SmartFieldWidget
+                        smartField={alertEmail}
+                        fieldType="email"
                         placeholder="admin@example.com"
                       />
                     </div>

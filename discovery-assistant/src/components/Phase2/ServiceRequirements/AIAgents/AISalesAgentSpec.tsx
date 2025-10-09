@@ -11,9 +11,12 @@ import {
   TrendingUp,
   Settings,
   Plus,
-  Trash2
+  Trash2,
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useSmartField } from '../../../../hooks/useSmartField';
 import type { AISalesAgentRequirements, AIProvider, CRMSystem, VectorDatabaseProvider, MessagingChannel } from '../../../../types/aiAgentServices';
 import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
 import { Button, Input, Select } from '../../../Base';
@@ -75,6 +78,44 @@ const MESSAGING_CHANNELS = [
 export const AISalesAgentSpec: React.FC = () => {
   const navigate = useNavigate();
   const { currentMeeting, updateMeeting } = useMeetingStore();
+
+  // Smart fields with auto-population
+  const crmSystem = useSmartField<string>({
+    fieldId: 'crm_system',
+    localPath: 'crmSystem',
+    serviceId: 'ai-sales-agent',
+    autoSave: false
+  });
+
+  const aiModel = useSmartField<string>({
+    fieldId: 'ai_model_preference',
+    localPath: 'aiModel',
+    serviceId: 'ai-sales-agent',
+    autoSave: false
+  });
+
+  const whatsappApi = useSmartField<string>({
+    fieldId: 'whatsapp_api_provider',
+    localPath: 'whatsappApi',
+    serviceId: 'ai-sales-agent',
+    autoSave: false
+  });
+
+  const calendarSystem = useSmartField<string>({
+    fieldId: 'calendar_system',
+    localPath: 'calendarSystem',
+    serviceId: 'ai-sales-agent',
+    autoSave: false
+  });
+
+  // Load existing configuration
+  useEffect(() => {
+    const aiAgents = currentMeeting?.implementationSpec?.aiAgents || [];
+    const existing = aiAgents.find((a: any) => a.serviceId === 'ai-sales-agent');
+    if (existing?.requirements) {
+      setConfig(existing.requirements);
+    }
+  }, [currentMeeting]);
 
   const [config, setConfig] = useState<AISalesAgentRequirements>({
     aiProvider: 'openai',
@@ -168,10 +209,32 @@ export const AISalesAgentSpec: React.FC = () => {
       const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
       const updated = aiAgentServices.filter((a: AIAgentServiceEntry) => a.serviceId !== 'ai-sales-agent');
 
+      // Build complete config with smart field values
+      const completeConfig = {
+        ...config,
+        crmIntegration: {
+          ...config.crmIntegration,
+          system: crmSystem.value
+        },
+        aiProvider: aiModel.value || config.aiProvider,
+        messagingChannels: {
+          ...config.messagingChannels,
+          whatsapp: {
+            ...config.messagingChannels.whatsapp,
+            provider: whatsappApi.value
+          }
+        },
+        calendarIntegration: {
+          ...config.calendarIntegration,
+          system: calendarSystem.value
+        }
+      };
+
       updated.push({
         serviceId: 'ai-sales-agent',
         serviceName: 'סוכן AI למכירות מלא',
-        requirements: config,
+        serviceNameHe: 'סוכן AI למכירות מלא',
+        requirements: completeConfig,
         completedAt: new Date().toISOString()
       });
 
@@ -297,6 +360,33 @@ export const AISalesAgentSpec: React.FC = () => {
                 AI Sales Agent - Service #23 - Full Sales Automation with Calendar & CRM
               </p>
             </div>
+
+            {/* Smart Fields Info Banner */}
+            {(crmSystem.isAutoPopulated || aiModel.isAutoPopulated || whatsappApi.isAutoPopulated || calendarSystem.isAutoPopulated) && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+                <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+                  <p className="text-sm text-blue-800">
+                    חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
+                    תוכל לערוך אותם במידת הצורך.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Conflict Warnings */}
+            {(crmSystem.hasConflict || aiModel.hasConflict || whatsappApi.hasConflict || calendarSystem.hasConflict) && (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+                  <p className="text-sm text-orange-800">
+                    נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
+                  </p>
+                </div>
+              </div>
+            )}
             <Button
               onClick={handleSave}
               disabled={isSaving}
@@ -351,16 +441,23 @@ export const AISalesAgentSpec: React.FC = () => {
               <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ספק AI
-                    </label>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {aiModel.metadata.label.he}
+                      </label>
+                      {aiModel.isAutoPopulated && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                          <CheckCircle className="w-3 h-3" />
+                          מולא אוטומטית
+                        </span>
+                      )}
+                    </div>
                     <Select
-                      value={config.aiProvider}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        aiProvider: e.target.value as AIProvider,
-                        model: e.target.value === 'openai' ? 'gpt-4o' : 'claude-sonnet-4.5'
-                      })}
+                      value={aiModel.value || config.aiProvider}
+                      onChange={(e) => aiModel.setValue(e.target.value)}
+                      className={`${
+                        aiModel.isAutoPopulated ? 'border-green-300 bg-green-50' : ''
+                      } ${aiModel.hasConflict ? 'border-orange-300' : ''}`}
                       options={AI_PROVIDERS}
                     />
                   </div>
@@ -670,18 +767,23 @@ export const AISalesAgentSpec: React.FC = () => {
               <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      מערכת יומן
-                    </label>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {calendarSystem.metadata.label.he}
+                      </label>
+                      {calendarSystem.isAutoPopulated && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                          <CheckCircle className="w-3 h-3" />
+                          מולא אוטומטית
+                        </span>
+                      )}
+                    </div>
                     <Select
-                      value={config.calendarIntegration.system}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        calendarIntegration: {
-                          ...config.calendarIntegration,
-                          system: e.target.value as any
-                        }
-                      })}
+                      value={calendarSystem.value || config.calendarIntegration.system}
+                      onChange={(e) => calendarSystem.setValue(e.target.value)}
+                      className={`${
+                        calendarSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : ''
+                      } ${calendarSystem.hasConflict ? 'border-orange-300' : ''}`}
                       options={CALENDAR_SYSTEMS}
                     />
                   </div>
@@ -928,18 +1030,23 @@ export const AISalesAgentSpec: React.FC = () => {
                   <h4 className="font-medium text-gray-900 mb-3">CRM Integration</h4>
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        מערכת CRM
-                      </label>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {crmSystem.metadata.label.he}
+                        </label>
+                        {crmSystem.isAutoPopulated && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                            <CheckCircle className="w-3 h-3" />
+                            מולא אוטומטית
+                          </span>
+                        )}
+                      </div>
                       <Select
-                        value={config.crmIntegration.system}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          crmIntegration: {
-                            ...config.crmIntegration,
-                            system: e.target.value as CRMSystem
-                          }
-                        })}
+                        value={crmSystem.value || config.crmIntegration.system}
+                        onChange={(e) => crmSystem.setValue(e.target.value)}
+                        className={`${
+                          crmSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : ''
+                        } ${crmSystem.hasConflict ? 'border-orange-300' : ''}`}
                         options={CRM_SYSTEMS}
                       />
                     </div>

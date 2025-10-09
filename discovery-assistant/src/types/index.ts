@@ -130,6 +130,7 @@ export interface ZohoSyncResult {
 
 export interface Meeting {
   meetingId: string;
+  id: string; // Alias for meetingId (used in some components)
   clientName: string;
   date: Date;
   timer?: number;
@@ -152,6 +153,10 @@ export interface Meeting {
   discoveryData?: any; // Phase 1 data is the 'modules' field above
   implementationSpec?: ImplementationSpecData; // Defined in phase2.ts
   developmentTracking?: DevelopmentTrackingData; // Defined in phase3.ts
+
+  // Database sync metadata
+  supabaseId?: string; // Supabase record ID
+  updatedAt?: string; // Last update timestamp
 
   zohoIntegration?: {
     recordId: string;
@@ -374,6 +379,11 @@ export interface LeadsAndSalesModule {
 
   // Appointments Section
   appointments?: AppointmentManagement;
+
+  // Additional properties used in requirements and validation
+  leadVolume?: number; // Total lead volume per month
+  productServices?: string[]; // Products or services offered
+  leadSourcesMetadata?: any; // Legacy metadata field (for backward compatibility)
 }
 
 export interface LeadSource {
@@ -529,6 +539,9 @@ export interface CustomerServiceModule {
 
   // Onboarding Section
   onboarding?: CustomerOnboarding;
+
+  // Legacy metadata field (for backward compatibility)
+  channelsMetadata?: any;
 }
 
 export interface ServiceChannel {
@@ -1426,6 +1439,15 @@ export interface PlanningModule {
 
   /** Assumptions made during planning */
   assumptions?: string[];
+
+  /** Budget information */
+  budget?: {
+    range?: string;
+    flexibility?: string;
+  };
+
+  /** Success metrics to measure implementation success */
+  successMetrics?: string[];
 
   // Legacy fields - kept for backward compatibility
   /** Legacy: Array of priority items (replaced by priorities object) */

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { WhatsappApiSetupRequirements } from '../../../../types/integrationServices';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 export function WhatsappApiSetupSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
@@ -46,7 +48,8 @@ export function WhatsappApiSetupSpec() {
       },
       sslRequired: true,
       verifyToken: '',
-      subscriptionFields: ['messages', 'message_status']
+      subscriptionFields: ['messages', 'message_status'],
+      alertEmail: ''
     },
     integrations: {
       n8n: {
@@ -108,6 +111,27 @@ export function WhatsappApiSetupSpec() {
     }
   });
 
+  const whatsappPhoneNumber = useSmartField<string>({
+    fieldId: 'whatsapp_phone_number',
+    localPath: 'whatsappBusinessAccount.phoneNumber',
+    serviceId: 'whatsapp-api-setup',
+    autoSave: false
+  });
+
+  const crmSystem = useSmartField<string>({
+    fieldId: 'crm_system',
+    localPath: 'integrations.crm.system',
+    serviceId: 'whatsapp-api-setup',
+    autoSave: false
+  });
+
+  const alertEmail = useSmartField<string>({
+    fieldId: 'alert_email',
+    localPath: 'webhookConfig.alertEmail',
+    serviceId: 'whatsapp-api-setup',
+    autoSave: false
+  });
+
   const [newTemplate, setNewTemplate] = useState({
     templateId: '',
     name: '',
@@ -134,10 +158,30 @@ export function WhatsappApiSetupSpec() {
     const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
     const updated = integrationServices.filter(i => i.serviceId !== 'whatsapp-api-setup');
 
+    // Build complete config with smart field values
+    const completeConfig = {
+      ...config,
+      whatsappBusinessAccount: {
+        ...config.whatsappBusinessAccount!,
+        phoneNumber: whatsappPhoneNumber.value
+      },
+      integrations: {
+        ...config.integrations!,
+        crm: {
+          ...config.integrations!.crm!,
+          system: crmSystem.value
+        }
+      },
+      webhookConfig: {
+        ...config.webhookConfig!,
+        alertEmail: alertEmail.value
+      }
+    };
+
     updated.push({
       serviceId: 'whatsapp-api-setup',
       serviceName: 'הקמת WhatsApp Business API',
-      requirements: config,
+      requirements: completeConfig,
       completedAt: new Date().toISOString()
     });
 
@@ -199,6 +243,31 @@ export function WhatsappApiSetupSpec() {
 
   return (
     <div className="space-y-6 p-8" dir="rtl">
+      {(whatsappPhoneNumber.isAutoPopulated || crmSystem.isAutoPopulated || alertEmail.isAutoPopulated) && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+          <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <p className="text-sm text-blue-800">
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
+              תוכל לערוך אותם במידת הצורך.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {(whatsappPhoneNumber.hasConflict || crmSystem.hasConflict || alertEmail.hasConflict) && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+            <p className="text-sm text-orange-800">
+              נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
+            </p>
+          </div>
+        </div>
+      )}
+
       <Card title="שירות #34: הקמת WhatsApp Business API">
         <div className="space-y-6">
 
@@ -359,20 +428,34 @@ export function WhatsappApiSetupSpec() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">מספר טלפון</label>
-                  <input
-                    type="tel"
-                    value={config.whatsappBusinessAccount?.phoneNumber || ''}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      whatsappBusinessAccount: { ...config.whatsappBusinessAccount!, phoneNumber: e.target.value }
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    placeholder="+972501234567"
-                  />
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    מספר טלפון עסקי WhatsApp
+                  </label>
+                  {whatsappPhoneNumber.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטי
+                    </span>
+                  )}
                 </div>
+                <input
+                  type="tel"
+                  value={whatsappPhoneNumber.value || ''}
+                  onChange={(e) => whatsappPhoneNumber.setValue(e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md ${
+                    whatsappPhoneNumber.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  } ${whatsappPhoneNumber.hasConflict ? 'border-orange-300' : ''}`}
+                  placeholder="+972501234567"
+                />
+                {whatsappPhoneNumber.isAutoPopulated && whatsappPhoneNumber.source && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {whatsappPhoneNumber.source.description}
+                  </p>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Display Name</label>
                   <input
@@ -601,6 +684,33 @@ export function WhatsappApiSetupSpec() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
+                <div className="col-span-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {alertEmail.metadata.label.he}
+                    </label>
+                    {alertEmail.isAutoPopulated && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                        <CheckCircle className="w-3 h-3" />
+                        מולא אוטומטי
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    type="email"
+                    value={alertEmail.value || ''}
+                    onChange={(e) => alertEmail.setValue(e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-md ${
+                      alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
+                    placeholder="alerts@company.com"
+                  />
+                  {alertEmail.isAutoPopulated && alertEmail.source && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      מקור: {alertEmail.source.description}
+                    </p>
+                  )}
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Verify Token</label>
                   <input
@@ -673,20 +783,36 @@ export function WhatsappApiSetupSpec() {
                 <h4 className="font-medium mb-2">CRM Integration</h4>
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-sm text-gray-700 mb-1">מערכת CRM</label>
-                    <input
-                      type="text"
-                      value={config.integrations?.crm?.system || ''}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        integrations: {
-                          ...config.integrations!,
-                          crm: { ...config.integrations!.crm!, system: e.target.value }
-                        }
-                      })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      placeholder="Zoho CRM, Salesforce, etc."
-                    />
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {crmSystem.metadata.label.he}
+                      </label>
+                      {crmSystem.isAutoPopulated && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                          <CheckCircle className="w-3 h-3" />
+                          מולא אוטומטי
+                        </span>
+                      )}
+                    </div>
+                    <select
+                      value={crmSystem.value || ''}
+                      onChange={(e) => crmSystem.setValue(e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-md ${
+                        crmSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                      } ${crmSystem.hasConflict ? 'border-orange-300' : ''}`}
+                    >
+                      <option value="zoho">Zoho CRM</option>
+                      <option value="salesforce">Salesforce</option>
+                      <option value="hubspot">HubSpot</option>
+                      <option value="pipedrive">Pipedrive</option>
+                      <option value="monday">Monday CRM</option>
+                      <option value="other">אחר</option>
+                    </select>
+                    {crmSystem.isAutoPopulated && crmSystem.source && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        מקור: {crmSystem.source.description}
+                      </p>
+                    )}
                   </div>
                   <div className="flex gap-4">
                     <label className="flex items-center space-x-2">

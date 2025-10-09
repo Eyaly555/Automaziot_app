@@ -18,6 +18,8 @@ import { useMeetingStore } from '../../../../store/useMeetingStore';
 import type { AILeadQualifierRequirements, AIProvider, CRMSystem } from '../../../../types/aiAgentServices';
 import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
 import { Button, Input, Select } from '../../../Base';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 const AI_PROVIDERS = [
   { value: 'openai', label: 'OpenAI' },
@@ -61,6 +63,21 @@ const CHANNELS = [
 export const AILeadQualifierSpec: React.FC = () => {
   const navigate = useNavigate();
   const { currentMeeting, updateMeeting } = useMeetingStore();
+
+  // Smart fields with auto-population
+  const crmSystem = useSmartField<string>({
+    fieldId: 'crm_system',
+    localPath: 'crmSystem',
+    serviceId: 'ai-lead-qualifier',
+    autoSave: false
+  });
+
+  const aiModelPreference = useSmartField<string>({
+    fieldId: 'ai_model_preference',
+    localPath: 'model',
+    serviceId: 'ai-lead-qualifier',
+    autoSave: false
+  });
 
   const [config, setConfig] = useState<AILeadQualifierRequirements>({
     aiProvider: 'openai',
@@ -140,10 +157,18 @@ export const AILeadQualifierSpec: React.FC = () => {
       const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
       const updated = aiAgentServices.filter((a: AIAgentServiceEntry) => a.serviceId !== 'ai-lead-qualifier');
 
+      // Build complete config with smart field values
+      const completeConfig = {
+        ...config,
+        crmSystem: crmSystem.value,
+        model: aiModelPreference.value
+      };
+
       updated.push({
         serviceId: 'ai-lead-qualifier',
         serviceName: 'AI לאיסוף מידע ראשוני מלידים (BANT)',
-        requirements: config,
+        serviceNameHe: 'AI לאיסוף מידע ראשוני מלידים (BANT)',
+        requirements: completeConfig,
         completedAt: new Date().toISOString()
       });
 
@@ -248,6 +273,33 @@ export const AILeadQualifierSpec: React.FC = () => {
           </div>
         </div>
 
+        {/* Smart Fields Info Banner */}
+        {(crmSystem.isAutoPopulated || aiModelPreference.isAutoPopulated) && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3 mb-6">
+            <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+              <p className="text-sm text-blue-800">
+                חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
+                תוכל לערוך אותם במידת הצורך.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Conflict Warnings */}
+        {(crmSystem.hasConflict || aiModelPreference.hasConflict) && (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3 mb-6">
+            <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+              <p className="text-sm text-orange-800">
+                נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Tabs */}
         <div className="bg-white rounded-lg shadow-sm mb-6">
           <div className="border-b border-gray-200">
@@ -297,25 +349,57 @@ export const AILeadQualifierSpec: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      מודל AI
-                    </label>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {aiModelPreference.metadata.label.he}
+                      </label>
+                      {aiModelPreference.isAutoPopulated && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                          <CheckCircle className="w-3 h-3" />
+                          מולא אוטומטית
+                        </span>
+                      )}
+                    </div>
                     <Select
-                      value={config.model}
-                      onChange={(e) => setConfig({ ...config, model: e.target.value })}
+                      value={aiModelPreference.value || 'gpt-4o'}
+                      onChange={(e) => aiModelPreference.setValue(e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-md ${
+                        aiModelPreference.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                      } ${aiModelPreference.hasConflict ? 'border-orange-300' : ''}`}
                       options={getModelOptions()}
                     />
+                    {aiModelPreference.isAutoPopulated && aiModelPreference.source && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        מקור: {aiModelPreference.source.description}
+                      </p>
+                    )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      מערכת CRM
-                    </label>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {crmSystem.metadata.label.he}
+                      </label>
+                      {crmSystem.isAutoPopulated && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                          <CheckCircle className="w-3 h-3" />
+                          מולא אוטומטית
+                        </span>
+                      )}
+                    </div>
                     <Select
-                      value={config.crmSystem}
-                      onChange={(e) => setConfig({ ...config, crmSystem: e.target.value as CRMSystem })}
+                      value={crmSystem.value || 'zoho'}
+                      onChange={(e) => crmSystem.setValue(e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-md ${
+                        crmSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                      } ${crmSystem.hasConflict ? 'border-orange-300' : ''}`}
                       options={CRM_SYSTEMS}
                     />
+                    {crmSystem.isAutoPopulated && crmSystem.source && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        מקור: {crmSystem.source.description}
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex items-center pt-8">

@@ -2,26 +2,72 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { analyzeFieldUnification, generateCollectionStrategy, getServiceCompletionStatus } from '../../utils/smartFieldUnification';
 import { getRequirementsTemplate } from '../../config/serviceRequirementsTemplates';
+import { getFieldsForService, getFieldById, getAutoPopulateFields } from '../../config/fieldRegistry';
+import { prePopulateServiceFields, getFieldRecommendations } from '../../utils/fieldMapper';
 import { Card } from '../Common/Card';
 import { Button } from '../Base';
-import { CheckCircle, Circle, AlertTriangle, Zap, Clock, Target } from 'lucide-react';
+import { CheckCircle, Circle, AlertTriangle, Zap, Clock, Target, Database, TrendingUp, Layers } from 'lucide-react';
 
 /**
- * Smart Requirements Collector
- * Intelligent system for collecting technical requirements with field unification
+ * Smart Requirements Collector - ENHANCED VERSION
+ * 
+ * Intelligent system for collecting technical requirements with:
+ * - Field registry integration
+ * - Auto-population from Phase 1
+ * - Duplicate field detection  
+ * - Smart collection ordering
+ * - Field reuse analytics
  */
 export const SmartRequirementsCollector: React.FC = () => {
   const { currentMeeting } = useMeetingStore();
   const [currentStep, setCurrentStep] = useState<'analysis' | 'collection' | 'review'>('analysis');
   const [collectedData, setCollectedData] = useState<Record<string, Record<string, any>>>({});
+  const [selectedServiceForDetail, setSelectedServiceForDetail] = useState<string | null>(null);
 
   const purchasedServices = currentMeeting?.modules?.proposal?.purchasedServices || [];
-  const purchasedServiceIds = purchasedServices.map(s => s.id);
+  const purchasedServiceIds = purchasedServices.map((s: any) => s.id);
 
-  // Analyze field unification
+  // Analyze field unification (existing)
   const fieldAnalysis = useMemo(() => {
     return analyzeFieldUnification(purchasedServiceIds);
   }, [purchasedServiceIds]);
+
+  // NEW: Field registry analysis
+  const registryAnalysis = useMemo(() => {
+    if (!currentMeeting) return { totalFields: 0, autoPopulated: 0, needsManualEntry: 0, hasConflicts: 0, serviceBreakdown: {} };
+
+    let totalFields = 0;
+    let autoPopulated = 0;
+    let needsManualEntry = 0;
+    let hasConflicts = 0;
+    const serviceBreakdown: Record<string, any> = {};
+
+    purchasedServiceIds.forEach((serviceId: string) => {
+      const recommendations = getFieldRecommendations(currentMeeting, serviceId);
+      const registryFields = getFieldsForService(serviceId);
+
+      totalFields += registryFields.length;
+      autoPopulated += recommendations.autoPopulated.length;
+      needsManualEntry += recommendations.needsManualEntry.length;
+      hasConflicts += recommendations.hasConflicts.length;
+
+      serviceBreakdown[serviceId] = {
+        total: registryFields.length,
+        autoPopulated: recommendations.autoPopulated.length,
+        manual: recommendations.needsManualEntry.length,
+        conflicts: recommendations.hasConflicts.length,
+        fields: registryFields
+      };
+    });
+
+    return {
+      totalFields,
+      autoPopulated,
+      needsManualEntry,
+      hasConflicts,
+      serviceBreakdown
+    };
+  }, [purchasedServiceIds, currentMeeting]);
 
   // Generate collection strategy
   const collectionStrategy = useMemo(() => {
@@ -128,24 +174,70 @@ export const SmartRequirementsCollector: React.FC = () => {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6">
         {currentStep === 'analysis' && (
-          <div className="max-w-4xl mx-auto space-y-6">
-            {/* Analysis Summary */}
-            <Card title="ניתוח שדות חכם" subtitle="זיהוי שדות משותפים בין שירותים">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <Zap className="w-8 h-8 mx-auto text-blue-600 mb-2" />
-                  <div className="text-2xl font-bold text-blue-600">{fieldAnalysis.unifiedFields.length}</div>
-                  <div className="text-sm text-gray-600">שדות מאוחדים</div>
+          <div className="max-w-6xl mx-auto space-y-6">
+            {/* ENHANCED Analysis Summary */}
+            <Card title="ניתוח שדות חכם - מערכת אינטליגנטית" subtitle="זיהוי שדות משותפים ומילוי אוטומטי משלב 1">
+              {/* Key Metrics */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+                  <Database className="w-8 h-8 mx-auto text-blue-600 mb-2" />
+                  <div className="text-3xl font-bold text-blue-600">{registryAnalysis.totalFields}</div>
+                  <div className="text-sm text-gray-700 font-medium">סך השדות</div>
+                  <div className="text-xs text-gray-600 mt-1">מכל השירותים</div>
                 </div>
-                <div className="text-center p-4 bg-green-50 rounded-lg">
+
+                <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
                   <CheckCircle className="w-8 h-8 mx-auto text-green-600 mb-2" />
-                  <div className="text-2xl font-bold text-green-600">{completionStatus.completed.length}</div>
-                  <div className="text-sm text-gray-600">שירותים הושלמו</div>
+                  <div className="text-3xl font-bold text-green-600">{registryAnalysis.autoPopulated}</div>
+                  <div className="text-sm text-gray-700 font-medium">מולאו אוטומטית</div>
+                  <div className="text-xs text-gray-600 mt-1">
+                    {Math.round((registryAnalysis.autoPopulated / Math.max(registryAnalysis.totalFields, 1)) * 100)}% חיסכון
+                  </div>
                 </div>
-                <div className="text-center p-4 bg-orange-50 rounded-lg">
-                  <Clock className="w-8 h-8 mx-auto text-orange-600 mb-2" />
-                  <div className="text-2xl font-bold text-orange-600">{collectionStrategy.totalEstimatedTime}</div>
-                  <div className="text-sm text-gray-600">דקות משוערות</div>
+
+                <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border border-orange-200">
+                  <TrendingUp className="w-8 h-8 mx-auto text-orange-600 mb-2" />
+                  <div className="text-3xl font-bold text-orange-600">{registryAnalysis.needsManualEntry}</div>
+                  <div className="text-sm text-gray-700 font-medium">דרושה הזנה ידנית</div>
+                  <div className="text-xs text-gray-600 mt-1">שדות ייחודיים</div>
+                </div>
+
+                <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
+                  <Layers className="w-8 h-8 mx-auto text-purple-600 mb-2" />
+                  <div className="text-3xl font-bold text-purple-600">{fieldAnalysis.unifiedFields.length}</div>
+                  <div className="text-sm text-gray-700 font-medium">שדות משותפים</div>
+                  <div className="text-xs text-gray-600 mt-1">בין מספר שירותים</div>
+                </div>
+              </div>
+
+              {/* Efficiency Gains */}
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6 mb-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <Zap className="w-6 h-6 text-green-600" />
+                  <h3 className="text-lg font-bold text-gray-900">חיסכון בזמן הודות למילוי אוטומטי</h3>
+                </div>
+                <div className="grid grid-cols-3 gap-6">
+                  <div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {Math.round((registryAnalysis.autoPopulated / Math.max(registryAnalysis.totalFields, 1)) * 100)}%
+                    </div>
+                    <div className="text-sm text-gray-600">שדות שלא תצטרך למלא</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      ~{Math.round(registryAnalysis.autoPopulated * 0.5)} דקות
+                    </div>
+                    <div className="text-sm text-gray-600">חיסכון בזמן משוער</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {collectionStrategy.totalEstimatedTime} דקות
+                    </div>
+                    <div className="text-sm text-gray-600">זמן משוער כולל</div>
+                  </div>
+                </div>
+                <div className="mt-4 text-sm text-gray-700">
+                  💡 <strong>טיפ:</strong> ככל שמילאת יותר מידע בשלב 1, כך יותר שדות ימולאו אוטומטית כאן!
                 </div>
               </div>
 
@@ -256,7 +348,7 @@ export const SmartRequirementsCollector: React.FC = () => {
             </Card>
 
             <div className="flex justify-between">
-              <Button variant="outline" onClick={handleBack}>
+              <Button variant="secondary" onClick={handleBack}>
                 חזור לניתוח
               </Button>
               <Button variant="primary" onClick={handleNext}>
@@ -293,7 +385,7 @@ export const SmartRequirementsCollector: React.FC = () => {
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">סטטוס שירותים</h3>
                   <div className="space-y-2">
-                    {purchasedServices.map(service => {
+                    {purchasedServices.map((service: any) => {
                       const template = getRequirementsTemplate(service.id);
                       const isComplete = completionStatus.completed.includes(service.id);
 
@@ -319,7 +411,7 @@ export const SmartRequirementsCollector: React.FC = () => {
             </Card>
 
             <div className="flex justify-between">
-              <Button variant="outline" onClick={handleBack}>
+              <Button variant="secondary" onClick={handleBack}>
                 חזור לאיסוף
               </Button>
               <Button

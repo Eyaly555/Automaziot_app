@@ -12,12 +12,56 @@ import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import type { AutoLeadResponseRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { CheckCircle, AlertCircle, Info } from 'lucide-react';
+import { extractBusinessContext } from '../../../../utils/fieldMapper';
 
 /**
  * Auto Lead Response specification component for Phase 2 requirements collection
  */
+/**
+ * Enhanced Auto Lead Response Spec with Smart Field Pre-population
+ * 
+ * SMART FEATURES:
+ * - Auto-fills CRM system, email provider, n8n instance from Phase 1/other services
+ * - Shows business context from Phase 1 (lead volume, current response time)
+ * - Validates against Phase 1 data
+ * - Generates intelligent developer instructions
+ */
 export function AutoLeadResponseSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
+
+  // Smart fields with auto-population
+  const crmSystem = useSmartField<string>({
+    fieldId: 'crm_system',
+    localPath: 'crmAccess.system',
+    serviceId: 'auto-lead-response',
+    autoSave: false
+  });
+
+  const emailProvider = useSmartField<string>({
+    fieldId: 'email_provider',
+    localPath: 'emailServiceAccess.provider',
+    serviceId: 'auto-lead-response',
+    autoSave: false
+  });
+
+  const n8nInstanceUrl = useSmartField<string>({
+    fieldId: 'n8n_instance_url',
+    localPath: 'n8nWorkflow.instanceUrl',
+    serviceId: 'auto-lead-response',
+    autoSave: false
+  });
+
+  const n8nWebhookEndpoint = useSmartField<string>({
+    fieldId: 'n8n_webhook_endpoint',
+    localPath: 'n8nWorkflow.webhookEndpoint',
+    serviceId: 'auto-lead-response',
+    autoSave: false
+  });
+
+  // Get business context from Phase 1
+  const businessContext = currentMeeting ? extractBusinessContext(currentMeeting) : {};
 
   // State initialization with proper typing
   const [config, setConfig] = useState<AutoLeadResponseRequirements>({
@@ -105,12 +149,32 @@ export function AutoLeadResponseSpec() {
     setIsSaving(true);
     try {
       const category = currentMeeting?.implementationSpec?.automations || [];
-      const updated = category.filter(item => item.serviceId !== 'auto-lead-response');
+      const updated = category.filter((item: any) => item.serviceId !== 'auto-lead-response');
+
+      // Build complete config with smart field values
+      const completeConfig = {
+        ...config,
+        crmAccess: {
+          ...config.crmAccess,
+          system: crmSystem.value || config.crmAccess.system
+        },
+        emailServiceAccess: {
+          ...config.emailServiceAccess,
+          provider: emailProvider.value || config.emailServiceAccess.provider
+        },
+        n8nWorkflow: {
+          ...config.n8nWorkflow,
+          instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow.instanceUrl,
+          webhookEndpoint: n8nWebhookEndpoint.value || config.n8nWorkflow.webhookEndpoint
+        }
+      };
 
       updated.push({
         serviceId: 'auto-lead-response',
-        serviceName: 'מענה אוטומטי ללידים מטפסים',
-        requirements: config,
+        serviceName: 'Auto Lead Response',
+        serviceNameHe: 'מענה אוטומטי ללידים מטפסים',
+        category: 'lead_management' as const,
+        requirements: completeConfig,
         completedAt: new Date().toISOString()
       });
 
@@ -121,7 +185,7 @@ export function AutoLeadResponseSpec() {
         }
       });
 
-      alert('הגדרות נשמרו בהצלחה!');
+      alert('✅ הגדרות נשמרו בהצלחה! השדות האוטומטיים ישמרו גם לשירותים אחרים.');
     } catch (error) {
       console.error('Error saving auto-lead-response config:', error);
       alert('שגיאה בשמירת הגדרות');
@@ -135,7 +199,52 @@ export function AutoLeadResponseSpec() {
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900">שירות #1: מענה אוטומטי ללידים מטפסים</h2>
         <p className="text-gray-600 mt-2">הגדרת מענה אוטומטי ללידים שמגיעים מטפסים באתר</p>
+        
+        {/* Business Context Display */}
+        {businessContext.monthlyLeadVolume && (
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h4 className="font-semibold text-blue-900 mb-2">📊 הקשר עסקי (מתוך שלב 1)</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              {businessContext.monthlyLeadVolume && (
+                <div>
+                  <span className="text-gray-600">נפח לידים:</span>
+                  <div className="font-semibold text-blue-900">{businessContext.monthlyLeadVolume}/חודש</div>
+                </div>
+              )}
+              {businessContext.currentResponseTime && (
+                <div>
+                  <span className="text-gray-600">זמן תגובה נוכחי:</span>
+                  <div className="font-semibold text-blue-900">{businessContext.currentResponseTime}</div>
+                </div>
+              )}
+              {businessContext.crmSystem && (
+                <div>
+                  <span className="text-gray-600">מערכת CRM:</span>
+                  <div className="font-semibold text-blue-900">{businessContext.crmSystem}</div>
+                </div>
+              )}
+              <div>
+                <span className="text-gray-600">יעד:</span>
+                <div className="font-semibold text-green-600">&lt; 5 דקות</div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Smart Fields Info Banner */}
+      {(crmSystem.isAutoPopulated || emailProvider.isAutoPopulated || n8nInstanceUrl.isAutoPopulated) && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
+          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-green-900 mb-1">✨ שדות מולאו אוטומטית</h4>
+            <p className="text-sm text-green-800">
+              חלק מהשדות מולאו באופן אוטומטי מנתונים שכבר נאספו בשלב 1 או בשירותים אחרים.
+              זה חוסך זמן ומונע טעויות!
+            </p>
+          </div>
+        </div>
+      )}
 
       <Card className="p-6">
         <div className="space-y-6">
@@ -211,19 +320,31 @@ export function AutoLeadResponseSpec() {
             <h3 className="text-lg font-semibold mb-4">גישה לשירות אימייל</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ספק אימייל <span className="text-red-500">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {emailProvider.metadata.label.he} <span className="text-red-500">*</span>
+                  </label>
+                  {emailProvider.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטית
+                    </span>
+                  )}
+                </div>
                 <input
                   type="text"
-                  value={config.emailServiceAccess.provider || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    emailServiceAccess: { ...config.emailServiceAccess, provider: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  value={emailProvider.value || ''}
+                  onChange={(e) => emailProvider.setValue(e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg ${
+                    emailProvider.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  }`}
                   placeholder="SendGrid, Mailgun, SMTP, Gmail, Outlook"
                 />
+                {emailProvider.isAutoPopulated && emailProvider.source && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {emailProvider.source.description}
+                  </p>
+                )}
                 {errors.emailProvider && <p className="text-red-500 text-sm mt-1">{errors.emailProvider}</p>}
               </div>
 
@@ -309,19 +430,31 @@ export function AutoLeadResponseSpec() {
             <h3 className="text-lg font-semibold mb-4">גישה ל-CRM</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  מערכת CRM <span className="text-red-500">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {crmSystem.metadata.label.he} <span className="text-red-500">*</span>
+                  </label>
+                  {crmSystem.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטית
+                    </span>
+                  )}
+                </div>
                 <input
                   type="text"
-                  value={config.crmAccess.system || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    crmAccess: { ...config.crmAccess, system: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  value={crmSystem.value || ''}
+                  onChange={(e) => crmSystem.setValue(e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg ${
+                    crmSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  }`}
                   placeholder="Zoho CRM, Salesforce, HubSpot, Pipedrive"
                 />
+                {crmSystem.isAutoPopulated && crmSystem.source && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {crmSystem.source.description}
+                  </p>
+                )}
                 {errors.crmSystem && <p className="text-red-500 text-sm mt-1">{errors.crmSystem}</p>}
               </div>
 
@@ -366,35 +499,59 @@ export function AutoLeadResponseSpec() {
             <h3 className="text-lg font-semibold mb-4">הגדרות n8n</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  כתובת Instance
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {n8nInstanceUrl.metadata.label.he}
+                  </label>
+                  {n8nInstanceUrl.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטית
+                    </span>
+                  )}
+                </div>
                 <input
                   type="url"
-                  value={config.n8nWorkflow.instanceUrl || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    n8nWorkflow: { ...config.n8nWorkflow, instanceUrl: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  value={n8nInstanceUrl.value || ''}
+                  onChange={(e) => n8nInstanceUrl.setValue(e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg ${
+                    n8nInstanceUrl.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  }`}
                   placeholder="https://n8n.example.com"
                 />
+                {n8nInstanceUrl.isAutoPopulated && n8nInstanceUrl.source && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {n8nInstanceUrl.source.description}
+                  </p>
+                )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Webhook Endpoint <span className="text-red-500">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {n8nWebhookEndpoint.metadata.label.he} <span className="text-red-500">*</span>
+                  </label>
+                  {n8nWebhookEndpoint.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטית
+                    </span>
+                  )}
+                </div>
                 <input
                   type="url"
-                  value={config.n8nWorkflow.webhookEndpoint || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    n8nWorkflow: { ...config.n8nWorkflow, webhookEndpoint: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  value={n8nWebhookEndpoint.value || ''}
+                  onChange={(e) => n8nWebhookEndpoint.setValue(e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg ${
+                    n8nWebhookEndpoint.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  }`}
                   placeholder="https://n8n.example.com/webhook/..."
                 />
+                {n8nWebhookEndpoint.isAutoPopulated && n8nWebhookEndpoint.source && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {n8nWebhookEndpoint.source.description}
+                  </p>
+                )}
                 {errors.webhookEndpoint && <p className="text-red-500 text-sm mt-1">{errors.webhookEndpoint}</p>}
               </div>
 

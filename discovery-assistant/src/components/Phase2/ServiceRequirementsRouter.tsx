@@ -199,7 +199,7 @@ export const ServiceRequirementsRouter: React.FC = () => {
                           {service.nameHe || service.name}
                         </div>
                         <div className="text-xs opacity-75 mt-0.5">
-                          {category?.nameHe || 'קטגוריה לא ידועה'}
+                          {getCategoryLabel(category)}
                         </div>
                       </div>
 
@@ -214,7 +214,9 @@ export const ServiceRequirementsRouter: React.FC = () => {
             </div>
           </div>
 
-            <div className="p-6">
+          {/* Main Content Area */}
+          <div className="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="p-6 border-b border-gray-200">
               <h2 className="text-xl font-semibold text-gray-900 mb-2">
                 {currentService ? (currentService.nameHe || currentService.name) : 'בחר שירות'}
               </h2>
@@ -224,108 +226,56 @@ export const ServiceRequirementsRouter: React.FC = () => {
             </div>
 
             {/* Service Form Content */}
-            <div className="p-6">
-          {purchasedServices.map((service, index) => {
-            const isCompleted = completedServices.has(service.id);
-            const isCurrent = index === currentServiceIndex;
-            const category = getServiceCategory(service.id);
-
-            return (
-              <button
-                key={service.id}
-                onClick={() => setCurrentServiceIndex(index)}
-                className={`
-                  w-full text-right p-4 rounded-lg transition-all duration-200
-                  ${isCurrent
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : isCompleted
-                    ? 'bg-green-50 text-gray-900 hover:bg-green-100'
-                    : 'bg-gray-50 text-gray-900 hover:bg-gray-100'
-                  }
-                `}
-              >
-                <div className="flex items-center gap-3">
-                  {/* Status Icon */}
-                  {isCompleted ? (
-                    <CheckCircle className={`w-5 h-5 flex-shrink-0 ${isCurrent ? 'text-white' : 'text-green-600'}`} />
-                  ) : (
-                    <Circle className={`w-5 h-5 flex-shrink-0 ${isCurrent ? 'text-white' : 'text-gray-400'}`} />
-                  )}
-
-                  {/* Service Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className={`font-medium text-sm truncate ${isCurrent ? 'text-white' : 'text-gray-900'}`}>
-                      {service.nameHe || service.name}
-                    </div>
-                    <div className={`text-xs mt-1 truncate ${isCurrent ? 'text-blue-100' : 'text-gray-500'}`}>
-                      {service.name}
-                    </div>
-                    <div className={`text-xs mt-1 ${isCurrent ? 'text-blue-200' : 'text-gray-400'}`}>
-                      {getCategoryLabel(category)}
+            <div className="p-6 overflow-auto">
+              {ServiceComponent ? (
+                <ServiceComponent />
+              ) : (
+                <div className="flex items-center justify-center h-full p-8" dir="rtl">
+                  <div className="text-center max-w-md">
+                    <AlertCircle className="w-16 h-16 text-orange-500 mx-auto mb-4" />
+                    <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                      טופס לא זמין עבור השירות הזה
+                    </h2>
+                    <p className="text-gray-600 mb-4">
+                      הקומפוננטה עבור השירות "{currentService?.nameHe || currentService?.name}" עדיין לא נוצרה.
+                    </p>
+                    <div className="text-sm text-gray-500 bg-gray-50 rounded-lg p-4 text-left" dir="ltr">
+                      <p className="font-mono">Service ID: {currentService?.id}</p>
+                      <p className="font-mono">Category: {getServiceCategory(currentService?.id || 'N/A')}</p>
                     </div>
                   </div>
-
-                  {/* Arrow for current item */}
-                  {isCurrent && (
-                    <ChevronRight className="w-4 h-4 flex-shrink-0 text-white" />
-                  )}
                 </div>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Progress Section */}
-        <div className="p-6 border-t border-gray-200 bg-gray-50">
-          <div className="mb-3">
-            <div className="flex justify-between text-sm mb-2">
-              <span className="font-medium text-gray-700">התקדמות כוללת</span>
-              <span className="text-gray-600">{progressPercentage}%</span>
+              )}
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-              <div
-                className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500 ease-out"
-                style={{ width: `${progressPercentage}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-between text-sm text-gray-600">
-            <span>{completedServices.size} הושלמו</span>
-            <span>{purchasedServices.length - completedServices.size} נותרו</span>
-          </div>
-
-          {/* Category Breakdown */}
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <div className="text-xs font-medium text-gray-600 mb-2">פירוט לפי קטגוריה:</div>
-            {getCategoryBreakdown(purchasedServices, completedServices)}
           </div>
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 overflow-auto bg-white">
-        {ServiceComponent ? (
-          <div className="h-full">
-            <ServiceComponent />
+      {/* Progress Section */}
+      <div className="p-6 border-t border-gray-200 bg-gray-50">
+        <div className="mb-3">
+          <div className="flex justify-between text-sm mb-2">
+            <span className="font-medium text-gray-700">התקדמות כוללת</span>
+            <span className="text-gray-600">{progressPercentage}%</span>
           </div>
-        ) : (
-          <div className="flex items-center justify-center h-full p-8" dir="rtl">
-            <div className="text-center max-w-md">
-              <AlertCircle className="w-16 h-16 text-orange-500 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                טופס לא זמין עבור השירות הזה
-              </h2>
-              <p className="text-gray-600 mb-4">
-                הקומפוננטה עבור השירות "{currentService?.nameHe || currentService?.name}" עדיין לא נוצרה.
-              </p>
-              <div className="text-sm text-gray-500 bg-gray-50 rounded-lg p-4 text-left" dir="ltr">
-                <p className="font-mono">Service ID: {currentService?.id}</p>
-                <p className="font-mono">Category: {getServiceCategory(currentService?.id || '')}</p>
-              </div>
-            </div>
+          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div
+              className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${progressPercentage}%` }}
+            />
           </div>
-        )}
+        </div>
+
+        <div className="flex justify-between text-sm text-gray-600">
+          <span>{completedServices.size} הושלמו</span>
+          <span>{purchasedServices.length - completedServices.size} נותרו</span>
+        </div>
+
+        {/* Category Breakdown */}
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="text-xs font-medium text-gray-600 mb-2">פירוט לפי קטגוריה:</div>
+          {getCategoryBreakdown(purchasedServices, completedServices)}
+        </div>
       </div>
     </div>
   );
@@ -334,7 +284,8 @@ export const ServiceRequirementsRouter: React.FC = () => {
 /**
  * Get Hebrew label for category
  */
-function getCategoryLabel(category: string): string {
+function getCategoryLabel(category: string | undefined): string {
+  if (!category) return 'לא ידוע';
   const labels: Record<string, string> = {
     'automations': 'אוטומציה',
     'aiAgentServices': 'סוכן AI',
@@ -357,7 +308,7 @@ function getCategoryBreakdown(
 
   // Count services by category
   purchasedServices.forEach(service => {
-    const category = getServiceCategory(service.id);
+    const category = getServiceCategory(service.id) || 'unknown';
     if (!categories[category]) {
       categories[category] = {
         total: 0,

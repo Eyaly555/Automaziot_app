@@ -115,6 +115,10 @@ interface MeetingStore {
   refreshClientsList: () => Promise<void>;
   searchClients: (query: string) => Promise<ZohoClientListItem[]>;
   clearClientsCache: () => void;
+
+  // Internal cache fields (private, used for optimization)
+  _validationCache?: any;
+  _lastLoggedState?: any;
 }
 
 const generateId = () => Math.random().toString(36).substr(2, 9);

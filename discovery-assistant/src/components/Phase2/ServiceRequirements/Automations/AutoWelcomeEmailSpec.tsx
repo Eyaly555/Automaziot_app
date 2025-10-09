@@ -2,12 +2,63 @@ import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import type { AutoWelcomeEmailRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
-import { Plus, Trash2, Save } from 'lucide-react';
+import { Plus, Trash2, Save, CheckCircle, Info as InfoIcon } from 'lucide-react';
+import { useSmartField } from '../../../../hooks/useSmartField';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
 export function AutoWelcomeEmailSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
+
+  // Smart fields
+  const emailProvider = useSmartField<string>({
+    fieldId: 'email_provider',
+    localPath: 'emailServiceAccess.provider',
+    serviceId: 'auto-welcome-email',
+    autoSave: false
+  });
+
+  const smtpHost = useSmartField<string>({
+    fieldId: 'smtp_host',
+    localPath: 'emailServiceAccess.smtpCredentials.host',
+    serviceId: 'auto-welcome-email',
+    autoSave: false
+  });
+
+  const smtpPort = useSmartField<number>({
+    fieldId: 'smtp_port',
+    localPath: 'emailServiceAccess.smtpCredentials.port',
+    serviceId: 'auto-welcome-email',
+    autoSave: false
+  });
+
+  const businessHoursStart = useSmartField<string>({
+    fieldId: 'business_hours_start',
+    localPath: 'scheduling.businessHours.start',
+    serviceId: 'auto-welcome-email',
+    autoSave: false
+  });
+
+  const businessHoursEnd = useSmartField<string>({
+    fieldId: 'business_hours_end',
+    localPath: 'scheduling.businessHours.end',
+    serviceId: 'auto-welcome-email',
+    autoSave: false
+  });
+
+  const n8nInstanceUrl = useSmartField<string>({
+    fieldId: 'n8n_instance_url',
+    localPath: 'n8nWorkflow.instanceUrl',
+    serviceId: 'auto-welcome-email',
+    autoSave: false
+  });
+
+  const alertEmail = useSmartField<string>({
+    fieldId: 'alert_email',
+    localPath: 'n8nWorkflow.errorHandling.alertEmail',
+    serviceId: 'auto-welcome-email',
+    autoSave: false
+  });
 
   const [config, setConfig] = useState<AutoWelcomeEmailRequirements>({
     triggerEvents: {
@@ -21,6 +72,14 @@ export function AutoWelcomeEmailSpec() {
       fromName: '{companyName}',
       fromEmail: 'welcome@{companyDomain}.com',
       replyTo: 'support@{companyDomain}.com'
+    },
+    // Add emailServiceAccess
+    emailServiceAccess: {
+      provider: '',
+      smtpCredentials: {
+        host: '',
+        port: 587
+      }
     },
     contentTemplates: {
       newLead: {
@@ -84,8 +143,22 @@ export function AutoWelcomeEmailSpec() {
     scheduling: {
       sendImmediately: true,
       delayHours: 0,
+      businessHours: {
+        start: '09:00',
+        end: '18:00'
+      },
       businessHoursOnly: true,
       skipWeekends: true
+    },
+    // Add n8nWorkflow
+    n8nWorkflow: {
+      instanceUrl: '',
+      webhookEndpoint: '',
+      httpsEnabled: true,
+      errorHandling: {
+        retryAttempts: 3,
+        alertEmail: ''
+      }
     },
     tracking: {
       openTracking: true,
@@ -108,13 +181,42 @@ export function AutoWelcomeEmailSpec() {
   const saveConfig = () => {
     if (!currentMeeting) return;
 
+    const completeConfig = {
+      ...config,
+      emailServiceAccess: {
+        ...config.emailServiceAccess,
+        provider: emailProvider.value || config.emailServiceAccess.provider,
+        smtpCredentials: {
+          ...config.emailServiceAccess.smtpCredentials,
+          host: smtpHost.value || config.emailServiceAccess.smtpCredentials.host,
+          port: smtpPort.value || config.emailServiceAccess.smtpCredentials.port
+        }
+      },
+      scheduling: {
+        ...config.scheduling,
+        businessHours: {
+          ...config.scheduling.businessHours,
+          start: businessHoursStart.value || config.scheduling.businessHours.start,
+          end: businessHoursEnd.value || config.scheduling.businessHours.end
+        }
+      },
+      n8nWorkflow: {
+        ...config.n8nWorkflow,
+        instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow.instanceUrl,
+        errorHandling: {
+          ...config.n8nWorkflow.errorHandling,
+          alertEmail: alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail
+        }
+      }
+    };
+
     const updatedAutomations = [...(currentMeeting.implementationSpec?.automations || [])];
     const existingIndex = updatedAutomations.findIndex((a: any) => a.serviceId === 'auto-welcome-email');
 
     const automationData = {
       serviceId: 'auto-welcome-email',
       serviceName: 'אימיילי קבלת פנים אוטומטיים',
-      requirements: config,
+      requirements: completeConfig,
       completedAt: new Date().toISOString()
     };
 
@@ -135,9 +237,25 @@ export function AutoWelcomeEmailSpec() {
 
   return (
     <div className="space-y-6" dir="rtl">
+      {/* Smart Fields Info Banner */}
+      {(emailProvider.isAutoPopulated || smtpHost.isAutoPopulated || smtpPort.isAutoPopulated || 
+        businessHoursStart.isAutoPopulated || businessHoursEnd.isAutoPopulated || 
+        n8nInstanceUrl.isAutoPopulated || alertEmail.isAutoPopulated) && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+          <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <p className="text-sm text-blue-800">
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
+              תוכל לערוך אותם במידת הצורך.
+            </p>
+          </div>
+        </div>
+      )}
+
       <Card title="אימיילי קבלת פנים אוטומטיים" subtitle="הגדר אימיילים אוטומטיים לשלבים שונים במחזור חיי הלקוח">
         <div className="space-y-6">
-          {/* אירועי טריגר */}
+          {/* אירועי טריגר - existing */}
           <div>
             <h4 className="font-medium mb-3">אירועי טריגר לשליחה</h4>
             <div className="space-y-2">
@@ -162,23 +280,37 @@ export function AutoWelcomeEmailSpec() {
             </div>
           </div>
 
-          {/* הגדרות אימייל */}
+          {/* הגדרות אימייל - updated with smart email_provider */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">ספק אימייל</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  {emailProvider.metadata.label.he}
+                </label>
+                {emailProvider.isAutoPopulated && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                    <CheckCircle className="w-3 h-3" />
+                    מולא אוטומטית
+                  </span>
+                )}
+              </div>
               <select
-                value={config.emailSettings.provider}
-                onChange={(e) => setConfig(prev => ({
-                  ...prev,
-                  emailSettings: { ...prev.emailSettings, provider: e.target.value as any }
-                }))}
-                className="w-full p-2 border rounded-lg"
+                value={emailProvider.value || ''}
+                onChange={(e) => emailProvider.setValue(e.target.value)}
+                className={`w-full p-2 border rounded-lg ${
+                  emailProvider.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                }`}
               >
-                <option value="gmail">Gmail</option>
-                <option value="outlook">Outlook</option>
+                <option value="">בחר ספק</option>
                 <option value="sendgrid">SendGrid</option>
                 <option value="mailgun">Mailgun</option>
+                <option value="smtp">SMTP</option>
+                <option value="gmail">Gmail API</option>
+                <option value="outlook">Outlook/Office 365</option>
               </select>
+              {emailProvider.isAutoPopulated && emailProvider.source && (
+                <p className="text-xs text-gray-500 mt-1">מקור: {emailProvider.source.description}</p>
+              )}
             </div>
 
             <div>
@@ -224,7 +356,69 @@ export function AutoWelcomeEmailSpec() {
             </div>
           </div>
 
-          {/* תבניות תוכן */}
+          {/* SMTP Settings if SMTP */}
+          {emailProvider.value === 'smtp' && (
+            <div className="space-y-4">
+              <h4 className="font-medium mb-3">הגדרות SMTP</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {smtpHost.metadata.label.he}
+                    </label>
+                    {smtpHost.isAutoPopulated && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                        <CheckCircle className="w-3 h-3" />
+                        מולא אוטומטית
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    value={smtpHost.value || ''}
+                    onChange={(e) => smtpHost.setValue(e.target.value)}
+                    className={`w-full p-2 border rounded-lg ${
+                      smtpHost.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    }`}
+                    placeholder="smtp.gmail.com"
+                  />
+                  {smtpHost.isAutoPopulated && smtpHost.source && (
+                    <p className="text-xs text-gray-500 mt-1">מקור: {smtpHost.source.description}</p>
+                  )}
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {smtpPort.metadata.label.he}
+                    </label>
+                    {smtpPort.isAutoPopulated && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                        <CheckCircle className="w-3 h-3" />
+                        מולא אוטומטית
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    type="number"
+                    value={smtpPort.value || ''}
+                    onChange={(e) => smtpPort.setValue(parseInt(e.target.value) || 587)}
+                    className={`w-full p-2 border rounded-lg ${
+                      smtpPort.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    }`}
+                    placeholder="587"
+                    min="1"
+                    max="65535"
+                  />
+                  {smtpPort.isAutoPopulated && smtpPort.source && (
+                    <p className="text-xs text-gray-500 mt-1">מקור: {smtpPort.source.description}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* תבניות תוכן - existing */}
           <div>
             <h4 className="font-medium mb-3">תבניות תוכן</h4>
 
@@ -343,7 +537,7 @@ export function AutoWelcomeEmailSpec() {
             )}
           </div>
 
-          {/* הגדרות תזמון */}
+          {/* הגדרות תזמון - updated with business hours */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="flex items-center gap-2">
@@ -375,6 +569,58 @@ export function AutoWelcomeEmailSpec() {
             </div>
 
             <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  {businessHoursStart.metadata.label.he}
+                </label>
+                {businessHoursStart.isAutoPopulated && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                    <CheckCircle className="w-3 h-3" />
+                    מולא אוטומטית
+                  </span>
+                )}
+              </div>
+              <input
+                type="time"
+                value={businessHoursStart.value || ''}
+                onChange={(e) => businessHoursStart.setValue(e.target.value)}
+                className={`w-full p-2 border rounded-lg ${
+                  businessHoursStart.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                }`}
+                placeholder="09:00"
+              />
+              {businessHoursStart.isAutoPopulated && businessHoursStart.source && (
+                <p className="text-xs text-gray-500 mt-1">מקור: {businessHoursStart.source.description}</p>
+              )}
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  {businessHoursEnd.metadata.label.he}
+                </label>
+                {businessHoursEnd.isAutoPopulated && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                    <CheckCircle className="w-3 h-3" />
+                    מולא אוטומטית
+                  </span>
+                )}
+              </div>
+              <input
+                type="time"
+                value={businessHoursEnd.value || ''}
+                onChange={(e) => businessHoursEnd.setValue(e.target.value)}
+                className={`w-full p-2 border rounded-lg ${
+                  businessHoursEnd.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                }`}
+                placeholder="18:00"
+              />
+              {businessHoursEnd.isAutoPopulated && businessHoursEnd.source && (
+                <p className="text-xs text-gray-500 mt-1">מקור: {businessHoursEnd.source.description}</p>
+              )}
+            </div>
+
+            <div>
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -403,7 +649,113 @@ export function AutoWelcomeEmailSpec() {
             </div>
           </div>
 
-          {/* מעקב וניתוח */}
+          {/* n8n Workflow Section */}
+          <div className="border-t pt-6">
+            <h3 className="text-lg font-semibold mb-4">הגדרות n8n Workflow</h3>
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {n8nInstanceUrl.metadata.label.he}
+                  </label>
+                  {n8nInstanceUrl.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטית
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="url"
+                  value={n8nInstanceUrl.value || ''}
+                  onChange={(e) => n8nInstanceUrl.setValue(e.target.value)}
+                  className={`w-full p-2 border rounded-lg ${
+                    n8nInstanceUrl.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  }`}
+                  placeholder="https://n8n.example.com"
+                />
+                {n8nInstanceUrl.isAutoPopulated && n8nInstanceUrl.source && (
+                  <p className="text-xs text-gray-500 mt-1">מקור: {n8nInstanceUrl.source.description}</p>
+                )}
+              </div>
+
+              <label className="block text-sm font-medium text-gray-700 mb-2">Webhook Endpoint</label>
+              <input
+                type="url"
+                value={config.n8nWorkflow.webhookEndpoint || ''}
+                onChange={(e) => setConfig(prev => ({
+                  ...prev,
+                  n8nWorkflow: { ...prev.n8nWorkflow, webhookEndpoint: e.target.value }
+                }))}
+                className="w-full p-2 border rounded-lg"
+                placeholder="https://n8n.example.com/webhook/..."
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">ניסיונות חוזרים</label>
+                  <input
+                    type="number"
+                    value={config.n8nWorkflow.errorHandling.retryAttempts || 3}
+                    onChange={(e) => setConfig(prev => ({
+                      ...prev,
+                      n8nWorkflow: {
+                        ...prev.n8nWorkflow,
+                        errorHandling: {
+                          ...prev.n8nWorkflow.errorHandling,
+                          retryAttempts: parseInt(e.target.value) || 3
+                        }
+                      }
+                    }))}
+                    className="w-full p-2 border rounded-lg"
+                    min="0"
+                    max="10"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {alertEmail.metadata.label.he}
+                    </label>
+                    {alertEmail.isAutoPopulated && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                        <CheckCircle className="w-3 h-3" />
+                        מולא אוטומטית
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    type="email"
+                    value={alertEmail.value || ''}
+                    onChange={(e) => alertEmail.setValue(e.target.value)}
+                    className={`w-full p-2 border rounded-lg ${
+                      alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    }`}
+                    placeholder="alerts@example.com"
+                  />
+                  {alertEmail.isAutoPopulated && alertEmail.source && (
+                    <p className="text-xs text-gray-500 mt-1">מקור: {alertEmail.source.description}</p>
+                  )}
+                </div>
+              </div>
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={config.n8nWorkflow.httpsEnabled || true}
+                  onChange={(e) => setConfig(prev => ({
+                    ...prev,
+                    n8nWorkflow: { ...prev.n8nWorkflow, httpsEnabled: e.target.checked }
+                  }))}
+                  className="rounded border-gray-300"
+                />
+                <span className="text-sm">HTTPS מופעל</span>
+              </label>
+            </div>
+          </div>
+
+          {/* מעקב וניתוח - existing */}
           <div>
             <h4 className="font-medium mb-3">מעקב וניתוח</h4>
             <div className="space-y-2">
@@ -460,3 +812,6 @@ export function AutoWelcomeEmailSpec() {
     </div>
   );
 }
+
+
+

@@ -1,12 +1,61 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 export function IntComplexSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
-  const [config, setConfig] = useState<any>({
-    ...{ transformation: '', validation: true }
+
+  // Smart fields
+  const apiAuthMethod = useSmartField<string>({
+    fieldId: 'api_auth_method',
+    localPath: 'sourceSystem.authType',
+    serviceId: 'int-complex',
+    autoSave: false
   });
+
+  const syncFrequency = useSmartField<string>({
+    fieldId: 'sync_frequency',
+    localPath: 'syncConfig.frequency',
+    serviceId: 'int-complex',
+    autoSave: false
+  });
+
+  const alertEmail = useSmartField<string>({
+    fieldId: 'alert_email',
+    localPath: 'errorHandling.alertRecipients[0]',
+    serviceId: 'int-complex',
+    autoSave: false
+  });
+
+  const [config, setConfig] = useState<any>({
+    sourceSystem: {
+      name: '',
+      authType: 'oauth2'
+    },
+    targetSystem: {
+      name: '',
+      authType: 'oauth2'
+    },
+    syncConfig: {
+      frequency: 'realtime',
+      direction: 'bi-directional'
+    },
+    transformationRules: [],
+    validationRules: [],
+    errorHandling: {
+      retryAttempts: 5,
+      alertRecipients: []
+    },
+    metadata: {
+      complexity: 'complex',
+      estimatedHours: 50
+    }
+  });
+
+  const [newRule, setNewRule] = useState({ type: 'transformation', source: '', target: '', logic: '' });
+  const [newValidation, setNewValidation] = useState({ field: '', rule: '', message: '' });
 
   useEffect(() => {
     const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
@@ -19,13 +68,32 @@ export function IntComplexSpec() {
   const handleSave = () => {
     if (!currentMeeting) return;
 
-    const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
+    let frequencyValue = syncFrequency.value;
+    if (frequencyValue === 'realtime') frequencyValue = 'real-time';
+
+    const completeConfig = {
+      ...config,
+      sourceSystem: {
+        ...config.sourceSystem,
+        authType: apiAuthMethod.value
+      },
+      syncConfig: {
+        ...config.syncConfig,
+        frequency: frequencyValue
+      },
+      errorHandling: {
+        ...config.errorHandling,
+        alertRecipients: alertEmail.value ? [alertEmail.value] : config.errorHandling?.alertRecipients || []
+      }
+    };
+
+    const integrationServices = currentMeeting.implementationSpec?.integrationServices || [];
     const updated = integrationServices.filter(i => i.serviceId !== 'int-complex');
 
     updated.push({
       serviceId: 'int-complex',
       serviceName: 'אינטגרציה מורכבת עם טרנספורמציות',
-      requirements: config,
+      requirements: completeConfig,
       completedAt: new Date().toISOString()
     });
 
@@ -37,13 +105,288 @@ export function IntComplexSpec() {
     });
   };
 
+  const addTransformation = () => {
+    if (newRule.source && newRule.target && newRule.logic) {
+      setConfig({
+        ...config,
+        transformationRules: [...config.transformationRules, { ...newRule }]
+      });
+      setNewRule({ type: 'transformation', source: '', target: '', logic: '' });
+    }
+  };
+
+  const removeTransformation = (index: number) => {
+    setConfig({
+      ...config,
+      transformationRules: config.transformationRules.filter((_, i) => i !== index)
+    });
+  };
+
+  const addValidation = () => {
+    if (newValidation.field && newValidation.rule && newValidation.message) {
+      setConfig({
+        ...config,
+        validationRules: [...config.validationRules, { ...newValidation }]
+      });
+      setNewValidation({ field: '', rule: '', message: '' });
+    }
+  };
+
+  const removeValidation = (index: number) => {
+    setConfig({
+      ...config,
+      validationRules: config.validationRules.filter((_, i) => i !== index)
+    });
+  };
+
   return (
-    <div className="space-y-6" dir="rtl">
-      <Card title="שירות #33: אינטגרציה מורכבת עם טרנספורמציה">
-        <div className="space-y-4">
-          <div><label className="block text-sm font-medium text-gray-700 mb-2">טרנספורמציות</label><textarea rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-md" /></div>
+    <div className="space-y-6 p-8" dir="rtl">
+      {/* Banners */}
+      {(apiAuthMethod.isAutoPopulated || syncFrequency.isAutoPopulated || alertEmail.isAutoPopulated) && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+          <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <p className="text-sm text-blue-800">
+              חלק מהשדות מולאו באופן אוטומטי.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {(apiAuthMethod.hasConflict || syncFrequency.hasConflict || alertEmail.hasConflict) && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-orange-900 mb-1">אי התאמה בנתונים</h4>
+            <p className="text-sm text-orange-800">בדוק ותקן.</p>
+          </div>
+        </div>
+      )}
+
+      <Card title="שירות #33: אינטגרציה מורכבת עם טרנספורמציות">
+        <div className="space-y-6">
+          {/* Systems */}
+          <div className="border-b pb-4">
+            <h3 className="text-lg font-semibold mb-4">מערכות</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">מערכת מקור</label>
+                <input
+                  type="text"
+                  value={config.sourceSystem.name || ''}
+                  onChange={(e) => setConfig({ ...config, sourceSystem: { ...config.sourceSystem, name: e.target.value } })}
+                  className="w-full px-3 py-2 border rounded"
+                  placeholder="שם מערכת מקור"
+                />
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {apiAuthMethod.metadata.label.he}
+                  </label>
+                  {apiAuthMethod.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטי
+                    </span>
+                  )}
+                </div>
+                <select
+                  value={apiAuthMethod.value || 'oauth2'}
+                  onChange={(e) => apiAuthMethod.setValue(e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md ${
+                    apiAuthMethod.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  } ${apiAuthMethod.hasConflict ? 'border-orange-300' : ''}`}
+                >
+                  <option value="oauth">OAuth 2.0</option>
+                  <option value="api_key">API Key</option>
+                  <option value="basic_auth">Basic Auth</option>
+                  <option value="bearer_token">Bearer Token</option>
+                  <option value="jwt">JWT</option>
+                </select>
+                {apiAuthMethod.isAutoPopulated && apiAuthMethod.source && (
+                  <p className="text-xs text-gray-500 mt-1">מקור: {apiAuthMethod.source.description}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">מערכת יעד</label>
+                <input
+                  type="text"
+                  value={config.targetSystem.name || ''}
+                  onChange={(e) => setConfig({ ...config, targetSystem: { ...config.targetSystem, name: e.target.value } })}
+                  className="w-full px-3 py-2 border rounded"
+                  placeholder="שם מערכת יעד"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Sync Config */}
+          <div className="border-b pb-4">
+            <h3 className="text-lg font-semibold mb-4">סנכרון</h3>
+            <div className="space-y-3">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium">
+                    {syncFrequency.metadata.label.he}
+                  </label>
+                  {syncFrequency.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטי
+                    </span>
+                  )}
+                </div>
+                <select
+                  value={syncFrequency.value || 'realtime'}
+                  onChange={(e) => syncFrequency.setValue(e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md ${
+                    syncFrequency.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  } ${syncFrequency.hasConflict ? 'border-orange-300' : ''}`}
+                >
+                  <option value="realtime">בזמן אמת</option>
+                  <option value="every_5_min">כל 5 דקות</option>
+                  <option value="hourly">כל שעה</option>
+                  <option value="daily">יומי</option>
+                </select>
+                {syncFrequency.isAutoPopulated && syncFrequency.source && (
+                  <p className="text-xs text-gray-500 mt-1">מקור: {syncFrequency.source.description}</p>
+                )}
+              </div>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={config.syncConfig.direction === 'bi-directional'}
+                  onChange={(e) => setConfig({ ...config, syncConfig: { ...config.syncConfig, direction: e.target.checked ? 'bi-directional' : 'one-way' } })}
+                  className="mr-2 rounded"
+                />
+                <span>דו-כיווני</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Transformations */}
+          <div className="border-b pb-4">
+            <h3 className="text-lg font-semibold mb-4">כללי טרנספורמציה</h3>
+            <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-2">
+                <input
+                  type="text"
+                  value={newRule.source}
+                  onChange={(e) => setNewRule({ ...newRule, source: e.target.value })}
+                  placeholder="שדה מקור"
+                  className="px-3 py-2 border rounded"
+                />
+                <input
+                  type="text"
+                  value={newRule.target}
+                  onChange={(e) => setNewRule({ ...newRule, target: e.target.value })}
+                  placeholder="שדה יעד"
+                  className="px-3 py-2 border rounded"
+                />
+                <input
+                  type="text"
+                  value={newRule.logic}
+                  onChange={(e) => setNewRule({ ...newRule, logic: e.target.value })}
+                  placeholder="לוגיקה (JS)"
+                  className="px-3 py-2 border rounded"
+                />
+              </div>
+              <button onClick={addTransformation} className="px-4 py-2 bg-green-600 text-white rounded">הוסף</button>
+              {config.transformationRules.map((rule, index) => (
+                <div key={index} className="flex justify-between bg-gray-50 p-2 rounded">
+                  <span>{rule.source} -> {rule.target}: {rule.logic}</span>
+                  <button onClick={() => removeTransformation(index)} className="text-red-600">הסר</button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Validation */}
+          <div className="border-b pb-4">
+            <h3 className="text-lg font-semibold mb-4">כללי ולידציה</h3>
+            <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-2">
+                <input
+                  type="text"
+                  value={newValidation.field}
+                  onChange={(e) => setNewValidation({ ...newValidation, field: e.target.value })}
+                  placeholder="שדה"
+                  className="px-3 py-2 border rounded"
+                />
+                <input
+                  type="text"
+                  value={newValidation.rule}
+                  onChange={(e) => setNewValidation({ ...newValidation, rule: e.target.value })}
+                  placeholder="כלל (regex/JS)"
+                  className="px-3 py-2 border rounded"
+                />
+                <input
+                  type="text"
+                  value={newValidation.message}
+                  onChange={(e) => setNewValidation({ ...newValidation, message: e.target.value })}
+                  placeholder="הודעת שגיאה"
+                  className="px-3 py-2 border rounded"
+                />
+              </div>
+              <button onClick={addValidation} className="px-4 py-2 bg-green-600 text-white rounded">הוסף</button>
+              {config.validationRules.map((val, index) => (
+                <div key={index} className="flex justify-between bg-gray-50 p-2 rounded">
+                  <span>{val.field}: {val.rule} - {val.message}</span>
+                  <button onClick={() => removeValidation(index)} className="text-red-600">הסר</button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Error Handling */}
+          <div className="border-b pb-4">
+            <h3 className="text-lg font-semibold mb-4">טיפול בשגיאות</h3>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">ניסיונות חוזרים</label>
+                  <input
+                    type="number"
+                    value={config.errorHandling.retryAttempts || 5}
+                    onChange={(e) => setConfig({ ...config, errorHandling: { ...config.errorHandling, retryAttempts: parseInt(e.target.value) } })}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium">
+                    {alertEmail.metadata.label.he}
+                  </label>
+                  {alertEmail.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטי
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="email"
+                  value={alertEmail.value || ''}
+                  onChange={(e) => alertEmail.setValue(e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md ${
+                    alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
+                  placeholder="alerts@company.com"
+                />
+                {alertEmail.isAutoPopulated && alertEmail.source && (
+                  <p className="text-xs text-gray-500 mt-1">מקור: {alertEmail.source.description}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
           <div className="flex justify-end pt-4 border-t">
-            <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">שמור הגדרות</button>
+            <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+              שמור
+            </button>
           </div>
         </div>
       </Card>

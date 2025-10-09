@@ -2,9 +2,34 @@ import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { IntCrmMarketingRequirements, SystemConfig, FieldMapping, WebhookConfig } from '../../../../types/integrationServices';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 export function IntCrmMarketingSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
+
+  // Smart fields with auto-population
+  const crmSystem = useSmartField<string>({
+    fieldId: 'crm_system',
+    localPath: 'crmSystem.name',
+    serviceId: 'int-crm-marketing',
+    autoSave: false
+  });
+
+  const apiAuthMethod = useSmartField<string>({
+    fieldId: 'api_auth_method',
+    localPath: 'crmSystem.authType',
+    serviceId: 'int-crm-marketing',
+    autoSave: false
+  });
+
+  const alertEmail = useSmartField<string>({
+    fieldId: 'alert_email',
+    localPath: 'errorHandling.alertRecipients[0]',
+    serviceId: 'int-crm-marketing',
+    autoSave: false
+  });
+
   const [config, setConfig] = useState<Partial<IntCrmMarketingRequirements>>({
     crmSystem: {
       name: 'Zoho CRM',
@@ -127,10 +152,25 @@ export function IntCrmMarketingSpec() {
     const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
     const updated = integrationServices.filter(i => i.serviceId !== 'int-crm-marketing');
 
+    // Build complete config with smart field values
+    const completeConfig = {
+      ...config,
+      crmSystem: {
+        ...config.crmSystem!,
+        name: crmSystem.value,
+        authType: apiAuthMethod.value
+      },
+      errorHandling: {
+        ...config.errorHandling!,
+        alertRecipients: alertEmail.value ? [alertEmail.value] : config.errorHandling?.alertRecipients || []
+      }
+    };
+
     updated.push({
       serviceId: 'int-crm-marketing',
       serviceName: 'אינטגרציית CRM למערכת Marketing Automation',
-      requirements: config,
+      serviceNameHe: 'אינטגרציית CRM למערכת Marketing Automation',
+      requirements: completeConfig,
       completedAt: new Date().toISOString()
     });
 
@@ -241,6 +281,33 @@ export function IntCrmMarketingSpec() {
 
   return (
     <div className="space-y-6 p-8" dir="rtl">
+      {/* Smart Fields Info Banner */}
+      {(crmSystem.isAutoPopulated || apiAuthMethod.isAutoPopulated || alertEmail.isAutoPopulated) && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+          <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <p className="text-sm text-blue-800">
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
+              תוכל לערוך אותם במידת הצורך.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Conflict Warnings */}
+      {(crmSystem.hasConflict || apiAuthMethod.hasConflict || alertEmail.hasConflict) && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+            <p className="text-sm text-orange-800">
+              נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
+            </p>
+          </div>
+        </div>
+      )}
+
       <Card title="שירות #35: אינטגרציית CRM למערכת Marketing Automation">
         <div className="space-y-6">
 
@@ -250,31 +317,67 @@ export function IntCrmMarketingSpec() {
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">שם המערכת</label>
-                  <input
-                    type="text"
-                    value={config.crmSystem?.name || 'Zoho CRM'}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      crmSystem: { ...config.crmSystem!, name: e.target.value }
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  />
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {crmSystem.metadata.label.he}
+                    </label>
+                    {crmSystem.isAutoPopulated && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                        <CheckCircle className="w-3 h-3" />
+                        מולא אוטומטית
+                      </span>
+                    )}
+                  </div>
+                  <select
+                    value={crmSystem.value || 'zoho'}
+                    onChange={(e) => crmSystem.setValue(e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-md ${
+                      crmSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    } ${crmSystem.hasConflict ? 'border-orange-300' : ''}`}
+                  >
+                    <option value="zoho">Zoho CRM</option>
+                    <option value="salesforce">Salesforce</option>
+                    <option value="hubspot">HubSpot</option>
+                    <option value="pipedrive">Pipedrive</option>
+                    <option value="monday">Monday CRM</option>
+                    <option value="other">אחר</option>
+                  </select>
+                  {crmSystem.isAutoPopulated && crmSystem.source && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      מקור: {crmSystem.source.description}
+                    </p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">סוג אימות</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {apiAuthMethod.metadata.label.he}
+                    </label>
+                    {apiAuthMethod.isAutoPopulated && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                        <CheckCircle className="w-3 h-3" />
+                        מולא אוטומטית
+                      </span>
+                    )}
+                  </div>
                   <select
-                    value={config.crmSystem?.authType || 'oauth2'}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      crmSystem: { ...config.crmSystem!, authType: e.target.value as any }
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    value={apiAuthMethod.value || 'oauth'}
+                    onChange={(e) => apiAuthMethod.setValue(e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-md ${
+                      apiAuthMethod.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    } ${apiAuthMethod.hasConflict ? 'border-orange-300' : ''}`}
                   >
-                    <option value="oauth2">OAuth 2.0</option>
+                    <option value="oauth">OAuth 2.0</option>
                     <option value="api_key">API Key</option>
+                    <option value="basic_auth">Basic Auth</option>
                     <option value="bearer_token">Bearer Token</option>
+                    <option value="jwt">JWT</option>
                   </select>
+                  {apiAuthMethod.isAutoPopulated && apiAuthMethod.source && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      מקור: {apiAuthMethod.source.description}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -1199,6 +1302,33 @@ export function IntCrmMarketingSpec() {
                   <option value="slack">Slack</option>
                   <option value="sms">SMS</option>
                 </select>
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {alertEmail.metadata.label.he}
+                  </label>
+                  {alertEmail.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטית
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="email"
+                  value={alertEmail.value || ''}
+                  onChange={(e) => alertEmail.setValue(e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md ${
+                    alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
+                  placeholder="error@company.com"
+                />
+                {alertEmail.isAutoPopulated && alertEmail.source && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {alertEmail.source.description}
+                  </p>
+                )}
               </div>
             </div>
           </div>

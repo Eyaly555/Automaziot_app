@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { IntegrationComplexRequirements, SystemConfig } from '../../../../types/integrationServices';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { InfoIcon } from '../../../../assets/icons/InfoIcon';
 
 export function IntegrationComplexSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
@@ -66,6 +68,27 @@ export function IntegrationComplexSpec() {
     baseUrl: ''
   });
 
+  const apiAuthMethod = useSmartField<string>({
+    fieldId: 'api_auth_method',
+    localPath: 'systems[0].authType',
+    serviceId: 'integration-complex',
+    autoSave: false
+  });
+
+  const syncFrequency = useSmartField<string>({
+    fieldId: 'sync_frequency',
+    localPath: 'syncConfig.frequency',
+    serviceId: 'integration-complex',
+    autoSave: false
+  });
+
+  const alertEmail = useSmartField<string>({
+    fieldId: 'alert_email',
+    localPath: 'errorHandling.alertRecipients[0]',
+    serviceId: 'integration-complex',
+    autoSave: false
+  });
+
   useEffect(() => {
     const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
     const existing = integrationServices.find(i => i.serviceId === 'integration-complex');
@@ -80,10 +103,22 @@ export function IntegrationComplexSpec() {
     const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
     const updated = integrationServices.filter(i => i.serviceId !== 'integration-complex');
 
+    const completeConfig = {
+      ...config,
+      syncConfig: {
+        ...config.syncConfig,
+        frequency: syncFrequency.value === 'realtime' ? 'real-time' : syncFrequency.value
+      },
+      errorHandling: {
+        ...config.errorHandling,
+        alertRecipients: alertEmail.value ? [alertEmail.value] : config.errorHandling?.alertRecipients || []
+      }
+    };
+
     updated.push({
       serviceId: 'integration-complex',
       serviceName: 'אינטגרציה מורכבת בין מערכות',
-      requirements: config,
+      requirements: completeConfig,
       completedAt: new Date().toISOString()
     });
 
@@ -114,6 +149,12 @@ export function IntegrationComplexSpec() {
 
   return (
     <div className="space-y-6 p-8" dir="rtl">
+      {(apiAuthMethod.isAutoPopulated || syncFrequency.isAutoPopulated || alertEmail.isAutoPopulated) && (
+        <div className="bg-blue-50 border rounded-lg p-4">
+          <InfoIcon className="w-5 h-5 text-blue-600" />
+          <p>נתונים מולאו אוטומטית.</p>
+        </div>
+      )}
       <Card title="שירות #32: אינטגרציה מורכבת (3+ מערכות)">
         <div className="space-y-6">
 

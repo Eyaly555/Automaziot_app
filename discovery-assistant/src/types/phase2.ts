@@ -198,6 +198,9 @@ export interface TestCase {
   actualOutput?: Record<string, any>; // Actual output from test execution
   status: 'not_tested' | 'passed' | 'failed' | 'pending'; // Added 'pending' as alias for 'not_tested'
   notes?: string;
+  steps?: string[]; // Test steps (for Phase 3 task generation)
+  expectedResult?: string; // Expected result as string (for Phase 3 task generation)
+  passed?: boolean; // Test pass/fail status (for Phase 3 task generation)
 }
 
 // ============================================================================
@@ -480,6 +483,7 @@ export interface FunctionalRequirement {
   status: 'pending' | 'in_progress' | 'passed' | 'failed';
   testable?: boolean; // Whether this requirement can be tested automatically
   notes?: string;
+  target?: string; // Target/goal for this requirement
 }
 
 /**
@@ -493,6 +497,8 @@ export interface PerformanceRequirement {
   testMethod?: string; // How this metric will be tested
   measurement?: string; // Alternative name for testMethod (used by AcceptanceCriteriaBuilder)
   status?: 'pending' | 'passed' | 'failed';
+  threshold?: number; // Numeric threshold value for the metric
+  description?: string; // Description of the performance requirement
 }
 
 /**
@@ -507,6 +513,9 @@ export interface SecurityRequirement {
   implemented?: boolean; // Whether this security requirement has been implemented (alternative name)
   verificationMethod?: string; // How this requirement will be verified
   notes?: string;
+  level?: 'critical' | 'high' | 'medium' | 'low'; // Security level/priority
+  compliance?: string[]; // Compliance standards (e.g., GDPR, HIPAA, PCI-DSS)
+  description?: string; // Description of the security requirement
 }
 
 export interface UsabilityRequirement {
@@ -516,6 +525,9 @@ export interface UsabilityRequirement {
   successCriteria: string;
   tested: boolean;
   feedback?: string;
+  userType?: string; // Type of user (alternative to userRole)
+  scenario?: string; // Usage scenario for this requirement
+  description?: string; // Description of the usability requirement
 }
 
 // ============================================================================

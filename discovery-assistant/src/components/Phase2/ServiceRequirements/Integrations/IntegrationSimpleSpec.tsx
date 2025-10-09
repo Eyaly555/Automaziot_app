@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { IntegrationSimpleRequirements, SystemConfig, FieldMapping, ErrorHandlingConfig } from '../../../../types/integrationServices';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 export function IntegrationSimpleSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
@@ -56,6 +58,27 @@ export function IntegrationSimpleSpec() {
     required: false
   });
 
+  const apiAuthMethod = useSmartField<string>({
+    fieldId: 'api_auth_method',
+    localPath: 'sourceSystem.authType',
+    serviceId: 'integration-simple',
+    autoSave: false
+  });
+
+  const syncFrequency = useSmartField<string>({
+    fieldId: 'sync_frequency',
+    localPath: 'syncConfig.frequency',
+    serviceId: 'integration-simple',
+    autoSave: false
+  });
+
+  const alertEmail = useSmartField<string>({
+    fieldId: 'alert_email',
+    localPath: 'errorHandling.alertRecipients[0]',
+    serviceId: 'integration-simple',
+    autoSave: false
+  });
+
   useEffect(() => {
     const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
     const existing = integrationServices.find(i => i.serviceId === 'integration-simple');
@@ -70,10 +93,30 @@ export function IntegrationSimpleSpec() {
     const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
     const updated = integrationServices.filter(i => i.serviceId !== 'integration-simple');
 
+    // Map frequency if needed
+    let frequencyValue = syncFrequency.value;
+    if (frequencyValue === 'realtime') frequencyValue = 'real-time';
+
+    const completeConfig = {
+      ...config,
+      sourceSystem: {
+        ...config.sourceSystem!,
+        authType: apiAuthMethod.value
+      },
+      syncConfig: {
+        ...config.syncConfig!,
+        frequency: frequencyValue
+      },
+      errorHandling: {
+        ...config.errorHandling!,
+        alertRecipients: alertEmail.value ? [alertEmail.value] : config.errorHandling?.alertRecipients || []
+      }
+    };
+
     updated.push({
       serviceId: 'integration-simple',
       serviceName: 'אינטגרציה פשוטה בין 2 מערכות',
-      requirements: config,
+      requirements: completeConfig,
       completedAt: new Date().toISOString()
     });
 
@@ -104,6 +147,31 @@ export function IntegrationSimpleSpec() {
 
   return (
     <div className="space-y-6 p-8" dir="rtl">
+      {(apiAuthMethod.isAutoPopulated || syncFrequency.isAutoPopulated || alertEmail.isAutoPopulated) && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+          <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <p className="text-sm text-blue-800">
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
+              תוכל לערוך אותם במידת הצורך.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {(apiAuthMethod.hasConflict || syncFrequency.hasConflict || alertEmail.hasConflict) && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+            <p className="text-sm text-orange-800">
+              נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
+            </p>
+          </div>
+        </div>
+      )}
+
       <Card title="שירות #31: אינטגרציה פשוטה בין 2 מערכות">
         <div className="space-y-6">
 
@@ -126,20 +194,35 @@ export function IntegrationSimpleSpec() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">שיטת אימות</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {apiAuthMethod.metadata.label.he}
+                    </label>
+                    {apiAuthMethod.isAutoPopulated && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                        <CheckCircle className="w-3 h-3" />
+                        מולא אוטומטי
+                      </span>
+                    )}
+                  </div>
                   <select
-                    value={config.sourceSystem?.authType || 'oauth2'}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      sourceSystem: { ...config.sourceSystem!, authType: e.target.value as any }
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    value={apiAuthMethod.value || 'oauth2'}
+                    onChange={(e) => apiAuthMethod.setValue(e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-md ${
+                      apiAuthMethod.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    } ${apiAuthMethod.hasConflict ? 'border-orange-300' : ''}`}
                   >
-                    <option value="oauth2">OAuth 2.0</option>
+                    <option value="oauth">OAuth 2.0</option>
                     <option value="api_key">API Key</option>
-                    <option value="basic">Basic Auth</option>
+                    <option value="basic_auth">Basic Auth</option>
                     <option value="bearer_token">Bearer Token</option>
+                    <option value="jwt">JWT</option>
                   </select>
+                  {apiAuthMethod.isAutoPopulated && apiAuthMethod.source && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      מקור: {apiAuthMethod.source.description}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">גרסת API</label>
@@ -254,19 +337,36 @@ export function IntegrationSimpleSpec() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">תדירות סנכרון</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {syncFrequency.metadata.label.he}
+                  </label>
+                  {syncFrequency.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטי
+                    </span>
+                  )}
+                </div>
                 <select
-                  value={config.syncConfig?.frequency || 'real-time'}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    syncConfig: { ...config.syncConfig!, frequency: e.target.value as any }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  value={syncFrequency.value || 'realtime'}
+                  onChange={(e) => syncFrequency.setValue(e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md ${
+                    syncFrequency.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  } ${syncFrequency.hasConflict ? 'border-orange-300' : ''}`}
                 >
-                  <option value="real-time">זמן אמת (Real-time)</option>
-                  <option value="polling">Polling</option>
-                  <option value="batch">Batch</option>
+                  <option value="realtime">בזמן אמת</option>
+                  <option value="every_5_min">כל 5 דקות</option>
+                  <option value="every_15_min">כל 15 דקות</option>
+                  <option value="hourly">כל שעה</option>
+                  <option value="daily">יומי</option>
+                  <option value="weekly">שבועי</option>
                 </select>
+                {syncFrequency.isAutoPopulated && syncFrequency.source && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {syncFrequency.source.description}
+                  </p>
+                )}
               </div>
               {config.syncConfig?.frequency === 'polling' && (
                 <div>
@@ -514,6 +614,33 @@ export function IntegrationSimpleSpec() {
                     <span>SMS</span>
                   </label>
                 </div>
+              </div>
+              <div className="col-span-2">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {alertEmail.metadata.label.he}
+                  </label>
+                  {alertEmail.isAutoPopulated && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                      <CheckCircle className="w-3 h-3" />
+                      מולא אוטומטי
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="email"
+                  value={alertEmail.value || ''}
+                  onChange={(e) => alertEmail.setValue(e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md ${
+                    alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
+                  placeholder="alerts@company.com"
+                />
+                {alertEmail.isAutoPopulated && alertEmail.source && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {alertEmail.source.description}
+                  </p>
+                )}
               </div>
             </div>
           </div>

@@ -3,9 +3,33 @@ import { useMeetingStore } from '../../../../store/useMeetingStore';
 import type { AutoSmsWhatsappRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
 import { Plus, Trash2, Save, AlertCircle } from 'lucide-react';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { CheckCircle, Info as InfoIcon } from 'lucide-react';
 
 export function AutoSmsWhatsappSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
+
+  // Smart fields with auto-population
+  const whatsappApiProvider = useSmartField<string>({
+    fieldId: 'whatsapp_api_provider',
+    localPath: 'whatsappApiProvider',
+    serviceId: 'auto-sms-whatsapp',
+    autoSave: false
+  });
+
+  const alertEmail = useSmartField<string>({
+    fieldId: 'alert_email',
+    localPath: 'n8nWorkflow.errorHandling.alertEmail',
+    serviceId: 'auto-sms-whatsapp',
+    autoSave: false
+  });
+
+  const n8nInstanceUrl = useSmartField<string>({
+    fieldId: 'n8n_instance_url',
+    localPath: 'n8nWorkflow.instanceUrl',
+    serviceId: 'auto-sms-whatsapp',
+    autoSave: false
+  });
 
   const [config, setConfig] = useState<AutoSmsWhatsappRequirements>({
     metaBusinessAccess: {
@@ -106,10 +130,25 @@ export function AutoSmsWhatsappSpec() {
       const automations = currentMeeting?.implementationSpec?.automations || [];
       const updated = automations.filter((a: any) => a.serviceId !== 'auto-sms-whatsapp');
 
+      // Build complete config with smart field values
+      const completeConfig = {
+        ...config,
+        whatsappApiProvider: whatsappApiProvider.value,
+        n8nWorkflow: {
+          ...config.n8nWorkflow,
+          instanceUrl: n8nInstanceUrl.value,
+          errorHandling: {
+            ...config.n8nWorkflow.errorHandling,
+            alertEmail: alertEmail.value
+          }
+        }
+      };
+
       updated.push({
         serviceId: 'auto-sms-whatsapp',
         serviceName: 'SMS/WhatsApp אוטומטי ללידים',
-        requirements: config,
+        serviceNameHe: 'SMS/WhatsApp אוטומטי ללידים',
+        requirements: completeConfig,
         completedAt: new Date().toISOString()
       });
 
@@ -119,6 +158,8 @@ export function AutoSmsWhatsappSpec() {
           automations: updated,
         },
       });
+
+      alert('✅ הגדרות נשמרו בהצלחה!');
     } finally {
       setIsSaving(false);
     }
@@ -172,6 +213,126 @@ export function AutoSmsWhatsappSpec() {
   return (
     <div className="space-y-6" dir="rtl">
       <Card title="שירות #2: SMS/WhatsApp אוטומטיים">
+        {/* Smart Fields Info Banner */}
+        {(whatsappApiProvider.isAutoPopulated || n8nInstanceUrl.isAutoPopulated || alertEmail.isAutoPopulated) && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+            <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+              <p className="text-sm text-blue-800">
+                חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
+                תוכל לערוך אותם במידת הצורך.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Conflict Warnings */}
+        {(whatsappApiProvider.hasConflict || n8nInstanceUrl.hasConflict || alertEmail.hasConflict) && (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+              <p className="text-sm text-orange-800">
+                נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Smart Fields Section */}
+        <div className="grid grid-cols-1 gap-4 mb-6">
+          {/* Smart WhatsApp API Provider Field */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                {whatsappApiProvider.metadata.label.he}
+              </label>
+              {whatsappApiProvider.isAutoPopulated && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                  <CheckCircle className="w-3 h-3" />
+                  מולא אוטומטית
+                </span>
+              )}
+            </div>
+            <select
+              value={whatsappApiProvider.value || 'twilio'}
+              onChange={(e) => whatsappApiProvider.setValue(e.target.value)}
+              className={`w-full px-3 py-2 border rounded-md ${
+                whatsappApiProvider.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+              } ${whatsappApiProvider.hasConflict ? 'border-orange-300' : ''}`}
+            >
+              <option value="twilio">Twilio</option>
+              <option value="messagebird">MessageBird</option>
+              <option value="whatsapp_business">WhatsApp Business API</option>
+              <option value="vonage">Vonage</option>
+            </select>
+            {whatsappApiProvider.isAutoPopulated && whatsappApiProvider.source && (
+              <p className="text-xs text-gray-500 mt-1">
+                מקור: {whatsappApiProvider.source.description}
+              </p>
+            )}
+          </div>
+
+          {/* Smart n8n Instance URL Field */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                {n8nInstanceUrl.metadata.label.he}
+              </label>
+              {n8nInstanceUrl.isAutoPopulated && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                  <CheckCircle className="w-3 h-3" />
+                  מולא אוטומטית
+                </span>
+              )}
+            </div>
+            <input
+              type="url"
+              value={n8nInstanceUrl.value || ''}
+              onChange={(e) => n8nInstanceUrl.setValue(e.target.value)}
+              className={`w-full px-3 py-2 border rounded-md ${
+                n8nInstanceUrl.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+              } ${n8nInstanceUrl.hasConflict ? 'border-orange-300' : ''}`}
+              placeholder="https://n8n.example.com"
+            />
+            {n8nInstanceUrl.isAutoPopulated && n8nInstanceUrl.source && (
+              <p className="text-xs text-gray-500 mt-1">
+                מקור: {n8nInstanceUrl.source.description}
+              </p>
+            )}
+          </div>
+
+          {/* Smart Alert Email Field */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                {alertEmail.metadata.label.he}
+              </label>
+              {alertEmail.isAutoPopulated && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                  <CheckCircle className="w-3 h-3" />
+                  מולא אוטומטית
+                </span>
+              )}
+            </div>
+            <input
+              type="email"
+              value={alertEmail.value || ''}
+              onChange={(e) => alertEmail.setValue(e.target.value)}
+              className={`w-full px-3 py-2 border rounded-md ${
+                alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+              } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
+              placeholder="admin@example.com"
+            />
+            {alertEmail.isAutoPopulated && alertEmail.source && (
+              <p className="text-xs text-gray-500 mt-1">
+                מקור: {alertEmail.source.description}
+              </p>
+            )}
+          </div>
+        </div>
+
         {/* Info Alert */}
         <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex gap-3">
           <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
