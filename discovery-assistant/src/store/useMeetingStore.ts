@@ -6,6 +6,7 @@ import { syncService } from '../services/syncService';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { supabaseService, isSupabaseConfigured as isSupabaseReady } from '../services/supabaseService';
 import { migrateMeetingData, needsMigration, CURRENT_DATA_VERSION } from '../utils/dataMigration';
+import { validateServiceRequirements } from '../utils/serviceRequirementsValidation';
 
 interface MeetingStore {
   currentMeeting: Meeting | null;
@@ -1479,6 +1480,26 @@ export const useMeetingStore = create<MeetingStore>()(
               console.warn('[Phase Validation] Spec must be at least 90% complete. Current:', specProgress);
               return false;
             }
+
+            // NEW: Validate that all purchased services have completed requirements
+            const purchasedServices = currentMeeting.modules?.proposal?.purchasedServices || [];
+            if (purchasedServices.length === 0) {
+              console.warn('[Phase Validation] No purchased services found');
+              return false;
+            }
+
+            const validation = validateServiceRequirements(
+              purchasedServices,
+              currentMeeting.implementationSpec || {}
+            );
+
+            if (!validation.isValid) {
+              console.warn('[Phase Validation] Missing service requirements:', validation.missingServices);
+              console.warn(`[Phase Validation] Completed: ${validation.completedCount}/${validation.totalCount}`);
+              return false;
+            }
+
+            console.log('[Phase Validation] All service requirements completed ✓');
             return true;
 
           case 'completed':

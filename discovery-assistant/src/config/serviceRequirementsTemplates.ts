@@ -1521,63 +1521,380 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
   {
     serviceId: 'auto-form-to-crm',
     serviceName: 'Form Submissions → CRM Auto-Update',
-    serviceNameHe: 'הגשות טפסים ← עדכון אוטומטי ב-CRM',
-    estimatedTimeMinutes: 10,
+    serviceNameHe: 'הגשות טפסים → עדכון אוטומטי ב-CRM',
+    estimatedTimeMinutes: 25,
+    tips: [
+      'Map all form fields to CRM fields before deployment',
+      'Test with sample form submissions to verify data flow',
+      'Set up spam protection to avoid polluting your CRM',
+      'Configure duplicate detection to prevent multiple records for the same lead'
+    ],
+    tipsHe: [
+      'מפה את כל שדות הטופס לשדות ה-CRM לפני הפעלה',
+      'בדוק עם הגשות טופס לדוגמא כדי לוודא זרימת נתונים',
+      'הגדר הגנת ספאם כדי להימנע מזיהום ה-CRM',
+      'הגדר זיהוי כפילויות כדי למנוע רשומות מרובות עבור אותו ליד'
+    ],
     sections: [
       {
-        id: 'form-crm-config',
-        title: 'Configuration',
-        titleHe: 'הגדרה',
+        id: 'form-crm-basics',
+        title: 'Basic Configuration',
+        titleHe: 'הגדרה בסיסית',
         order: 1,
         fields: [
           {
-            id: 'form_sources',
-            type: 'multiselect',
-            label: 'Form sources',
-            labelHe: 'מקורות טפסים',
+            id: 'form_platform',
+            type: 'select',
+            label: 'Form Platform',
+            labelHe: 'פלטפורמת טפסים',
             required: true,
             options: [
-              { value: 'website', label: 'Website Forms', labelHe: 'טפסי אתר' },
-              { value: 'facebook', label: 'Facebook Lead Ads', labelHe: 'Facebook Lead Ads' },
-              { value: 'google', label: 'Google Forms', labelHe: 'Google Forms' },
+              { value: 'wix', label: 'Wix Forms', labelHe: 'טפסי Wix' },
+              { value: 'wordpress', label: 'WordPress (Contact Form 7, Gravity Forms)', labelHe: 'WordPress (Contact Form 7, Gravity Forms)' },
+              { value: 'elementor', label: 'Elementor Forms', labelHe: 'טפסי Elementor' },
               { value: 'typeform', label: 'Typeform', labelHe: 'Typeform' },
-              { value: 'jotform', label: 'JotForm', labelHe: 'JotForm' }
+              { value: 'google_forms', label: 'Google Forms', labelHe: 'Google Forms' },
+              { value: 'jotform', label: 'JotForm', labelHe: 'JotForm' },
+              { value: 'custom', label: 'Custom HTML Form', labelHe: 'טופס HTML מותאם' }
             ]
+          },
+          {
+            id: 'form_url',
+            type: 'text',
+            label: 'Form URL',
+            labelHe: 'כתובת הטופס',
+            required: true,
+            placeholderHe: 'https://example.com/contact-us',
+            helperTextHe: 'הכתובת המלאה של הטופס באתר'
+          },
+          {
+            id: 'webhook_support',
+            type: 'radio',
+            label: 'Does your form platform support webhooks?',
+            labelHe: 'האם פלטפורמת הטפסים תומכת ב-webhooks?',
+            required: true,
+            options: [
+              { value: 'yes', label: 'Yes, native webhook support', labelHe: 'כן, תמיכה מקורית ב-webhooks' },
+              { value: 'plugin_required', label: 'Yes, with a plugin/add-on', labelHe: 'כן, עם plugin/תוסף' },
+              { value: 'no', label: 'No, need polling/integration workaround', labelHe: 'לא, צריך polling/פתרון חלופי' }
+            ],
+            helperTextHe: 'Webhooks מאפשרים עדכון מיידי ב-CRM כשטופס מוגש'
           },
           {
             id: 'crm_system',
-            type: 'text',
+            type: 'select',
             label: 'CRM System',
             labelHe: 'מערכת CRM',
             required: true,
-            placeholderHe: 'לדוגמא: Zoho CRM, Salesforce, HubSpot...'
-          },
-          {
-            id: 'create_as',
-            type: 'radio',
-            label: 'Create submission as:',
-            labelHe: 'צור הגשה בתור:',
-            required: true,
             options: [
-              { value: 'lead', label: 'Lead', labelHe: 'ליד' },
-              { value: 'contact', label: 'Contact', labelHe: 'איש קשר' },
-              { value: 'deal', label: 'Deal/Opportunity', labelHe: 'עסקה/הזדמנות' }
+              { value: 'zoho', label: 'Zoho CRM', labelHe: 'Zoho CRM' },
+              { value: 'salesforce', label: 'Salesforce', labelHe: 'Salesforce' },
+              { value: 'hubspot', label: 'HubSpot', labelHe: 'HubSpot' },
+              { value: 'pipedrive', label: 'Pipedrive', labelHe: 'Pipedrive' },
+              { value: 'monday', label: 'Monday.com', labelHe: 'Monday.com' },
+              { value: 'other', label: 'Other', labelHe: 'אחר' }
             ]
           },
           {
-            id: 'duplicate_check',
+            id: 'crm_credentials_ready',
             type: 'checkbox',
-            label: 'Check for duplicates before creating',
-            labelHe: 'בדוק כפילויות לפני יצירה',
+            label: 'CRM API credentials are ready',
+            labelHe: 'קרדנשיאלים ל-API של ה-CRM מוכנים',
             required: false,
-            helperTextHe: 'אם הליד כבר קיים, מעדכן אותו במקום ליצור חדש'
+            helperTextHe: 'Client ID, Client Secret, API Key או Refresh Token'
           },
           {
-            id: 'auto_assign',
+            id: 'crm_module',
+            type: 'select',
+            label: 'Create form submissions as:',
+            labelHe: 'צור הגשות טופס בתור:',
+            required: true,
+            options: [
+              { value: 'leads', label: 'Leads', labelHe: 'לידים' },
+              { value: 'contacts', label: 'Contacts', labelHe: 'אנשי קשר' },
+              { value: 'accounts', label: 'Accounts', labelHe: 'חשבונות' },
+              { value: 'deals', label: 'Deals/Opportunities', labelHe: 'עסקאות/הזדמנויות' },
+              { value: 'custom', label: 'Custom Module', labelHe: 'מודול מותאם' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'form-crm-field-mapping',
+        title: 'Field Mapping',
+        titleHe: 'מיפוי שדות',
+        description: 'Map form fields to CRM fields',
+        descriptionHe: 'מפה שדות טופס לשדות CRM',
+        order: 2,
+        fields: [
+          {
+            id: 'form_fields_list',
+            type: 'list',
+            label: 'List all form fields',
+            labelHe: 'רשום את כל שדות הטופס',
+            required: true,
+            placeholderHe: 'לדוגמא: שם מלא, אימייל, טלפון, הודעה...',
+            helperTextHe: 'רשום את כל השדות שהטופס אוסף'
+          },
+          {
+            id: 'crm_fields_ready',
             type: 'checkbox',
-            label: 'Auto-assign to sales rep',
-            labelHe: 'הקצאה אוטומטית לנציג מכירות',
+            label: 'CRM fields are configured and ready',
+            labelHe: 'שדות ה-CRM מוגדרים ומוכנים',
+            required: false,
+            helperTextHe: 'האם ה-CRM כבר מכיל את כל השדות הנדרשים?'
+          },
+          {
+            id: 'field_mapping_document',
+            type: 'textarea',
+            label: 'Field Mapping (Form Field → CRM Field)',
+            labelHe: 'מיפוי שדות (שדה טופס → שדה CRM)',
+            required: true,
+            placeholderHe: 'לדוגמא:\nשם מלא → Full_Name\nאימייל → Email\nטלפון → Phone\nחברה → Company',
+            helperTextHe: 'כל שורה: שדה טופס ← חץ ← שדה CRM'
+          },
+          {
+            id: 'require_field_transformation',
+            type: 'checkbox',
+            label: 'Need data transformation (formatting, cleaning)',
+            labelHe: 'צריך טרנספורמציה של נתונים (עיצוב, ניקוי)',
+            required: false,
+            helperTextHe: 'לדוגמא: עיצוב טלפון (+972...), תאריך, אותיות גדולות/קטנות'
+          }
+        ]
+      },
+      {
+        id: 'form-crm-duplicate-handling',
+        title: 'Duplicate Detection',
+        titleHe: 'זיהוי כפילויות',
+        order: 3,
+        fields: [
+          {
+            id: 'duplicate_detection_enabled',
+            type: 'checkbox',
+            label: 'Enable duplicate detection',
+            labelHe: 'אפשר זיהוי כפילויות',
+            required: false,
+            helperTextHe: 'בודק אם ליד/איש קשר כבר קיים לפני יצירת רשומה חדשה'
+          },
+          {
+            id: 'duplicate_check_field',
+            type: 'radio',
+            label: 'Check duplicates by:',
+            labelHe: 'בדוק כפילויות לפי:',
+            required: false,
+            dependsOn: { fieldId: 'duplicate_detection_enabled', value: ['true'] },
+            options: [
+              { value: 'email', label: 'Email Address', labelHe: 'כתובת אימייל' },
+              { value: 'phone', label: 'Phone Number', labelHe: 'מספר טלפון' },
+              { value: 'company', label: 'Company Name', labelHe: 'שם חברה' },
+              { value: 'custom', label: 'Custom Field', labelHe: 'שדה מותאם' }
+            ]
+          },
+          {
+            id: 'duplicate_strategy',
+            type: 'radio',
+            label: 'What to do when duplicate found?',
+            labelHe: 'מה לעשות כשנמצאה כפילות?',
+            required: false,
+            dependsOn: { fieldId: 'duplicate_detection_enabled', value: ['true'] },
+            options: [
+              { value: 'update_existing', label: 'Update existing record', labelHe: 'עדכן רשומה קיימת' },
+              { value: 'skip', label: 'Skip (don\'t create)', labelHe: 'דלג (אל תיצור)' },
+              { value: 'create_new', label: 'Create new anyway', labelHe: 'צור חדש בכל מקרה' },
+              { value: 'merge', label: 'Merge data into existing', labelHe: 'מזג נתונים לקיים' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'form-crm-validation',
+        title: 'Data Validation',
+        titleHe: 'וולידציה של נתונים',
+        description: 'Prevent invalid data from entering your CRM',
+        descriptionHe: 'מנע נתונים לא תקינים מלהיכנס ל-CRM',
+        order: 4,
+        fields: [
+          {
+            id: 'email_validation',
+            type: 'checkbox',
+            label: 'Validate email format',
+            labelHe: 'וולידציה של פורמט אימייל',
+            required: false,
+            helperTextHe: 'בודק שכתובת האימייל תקינה לפני יצירת רשומה'
+          },
+          {
+            id: 'phone_validation',
+            type: 'checkbox',
+            label: 'Validate phone number format',
+            labelHe: 'וולידציה של פורמט טלפון',
             required: false
+          },
+          {
+            id: 'phone_format',
+            type: 'radio',
+            label: 'Required phone format:',
+            labelHe: 'פורמט טלפון נדרש:',
+            required: false,
+            dependsOn: { fieldId: 'phone_validation', value: ['true'] },
+            options: [
+              { value: 'international', label: 'International (+972...)', labelHe: 'בינלאומי (+972...)' },
+              { value: 'local', label: 'Local (0501234567)', labelHe: 'מקומי (0501234567)' },
+              { value: 'any', label: 'Any format (will normalize)', labelHe: 'כל פורמט (ינרמל)' }
+            ]
+          },
+          {
+            id: 'required_fields',
+            type: 'multiselect',
+            label: 'Which fields are required?',
+            labelHe: 'אילו שדות חובה?',
+            required: false,
+            options: [
+              { value: 'email', label: 'Email', labelHe: 'אימייל' },
+              { value: 'phone', label: 'Phone', labelHe: 'טלפון' },
+              { value: 'name', label: 'Full Name', labelHe: 'שם מלא' },
+              { value: 'company', label: 'Company', labelHe: 'חברה' },
+              { value: 'message', label: 'Message/Details', labelHe: 'הודעה/פרטים' }
+            ],
+            helperTextHe: 'אם שדה חובה חסר, ההגשה תדחה'
+          }
+        ]
+      },
+      {
+        id: 'form-crm-spam-protection',
+        title: 'Spam Protection',
+        titleHe: 'הגנת ספאם',
+        description: 'Prevent bot submissions from polluting your CRM',
+        descriptionHe: 'מנע הגשות בוטים מלזהם את ה-CRM',
+        order: 5,
+        fields: [
+          {
+            id: 'captcha_enabled',
+            type: 'checkbox',
+            label: 'Enable CAPTCHA on form',
+            labelHe: 'אפשר CAPTCHA בטופס',
+            required: false,
+            helperTextHe: 'Google reCAPTCHA, hCaptcha או Cloudflare Turnstile'
+          },
+          {
+            id: 'captcha_type',
+            type: 'select',
+            label: 'CAPTCHA Type',
+            labelHe: 'סוג CAPTCHA',
+            required: false,
+            dependsOn: { fieldId: 'captcha_enabled', value: ['true'] },
+            options: [
+              { value: 'recaptcha', label: 'Google reCAPTCHA v3', labelHe: 'Google reCAPTCHA v3' },
+              { value: 'hcaptcha', label: 'hCaptcha', labelHe: 'hCaptcha' },
+              { value: 'turnstile', label: 'Cloudflare Turnstile', labelHe: 'Cloudflare Turnstile' }
+            ]
+          },
+          {
+            id: 'honeypot_field',
+            type: 'checkbox',
+            label: 'Add honeypot field (hidden spam trap)',
+            labelHe: 'הוסף שדה honeypot (מלכודת ספאם נסתרת)',
+            required: false,
+            helperTextHe: 'שדה נסתר שבוטים ממלאים ובני אדם לא'
+          },
+          {
+            id: 'suspicious_pattern_detection',
+            type: 'checkbox',
+            label: 'Detect suspicious patterns (gibberish, repeated characters)',
+            labelHe: 'זהה דפוסים חשודים (שטויות, תווים חוזרים)',
+            required: false
+          }
+        ]
+      },
+      {
+        id: 'form-crm-error-handling',
+        title: 'Error Handling & Retry',
+        titleHe: 'טיפול בשגיאות וניסיונות חוזרים',
+        order: 6,
+        fields: [
+          {
+            id: 'error_notification_email',
+            type: 'text',
+            label: 'Send error notifications to:',
+            labelHe: 'שלח התראות שגיאה ל:',
+            required: true,
+            placeholderHe: 'admin@example.com',
+            helperTextHe: 'כתובת אימייל לקבלת התראות כשסנכרון נכשל'
+          },
+          {
+            id: 'retry_attempts',
+            type: 'number',
+            label: 'Number of retry attempts if sync fails',
+            labelHe: 'מספר ניסיונות חוזרים אם סנכרון נכשל',
+            required: true,
+            validation: { min: 1, max: 10 },
+            placeholder: '3',
+            helperTextHe: 'כמה פעמים לנסות שוב לפני שליחת שגיאה'
+          },
+          {
+            id: 'retry_delay',
+            type: 'number',
+            label: 'Delay between retries (seconds)',
+            labelHe: 'עיכוב בין ניסיונות (שניות)',
+            required: true,
+            validation: { min: 5, max: 300 },
+            placeholder: '30',
+            helperTextHe: 'כמה זמן לחכות לפני ניסיון חוזר'
+          },
+          {
+            id: 'log_failed_submissions',
+            type: 'checkbox',
+            label: 'Log failed submissions for manual review',
+            labelHe: 'תעד הגשות שנכשלו לבדיקה ידנית',
+            required: false,
+            helperTextHe: 'שמור הגשות שנכשלו כדי לטפל בהן מאוחר יותר'
+          },
+          {
+            id: 'fallback_action',
+            type: 'select',
+            label: 'Fallback action if all retries fail:',
+            labelHe: 'פעולת גיבוי אם כל הניסיונות נכשלו:',
+            required: true,
+            options: [
+              { value: 'queue', label: 'Queue for later processing', labelHe: 'תור לעיבוד מאוחר יותר' },
+              { value: 'email_admin', label: 'Email admin with submission data', labelHe: 'שלח אימייל למנהל עם הנתונים' },
+              { value: 'save_to_spreadsheet', label: 'Save to Google Sheets/Excel', labelHe: 'שמור ב-Google Sheets/Excel' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'form-crm-success-actions',
+        title: 'Success Actions',
+        titleHe: 'פעולות הצלחה',
+        description: 'What happens after successful form submission',
+        descriptionHe: 'מה קורה אחרי הגשת טופס מוצלחת',
+        order: 7,
+        fields: [
+          {
+            id: 'send_confirmation_email',
+            type: 'checkbox',
+            label: 'Send confirmation email to lead',
+            labelHe: 'שלח אימייל אישור ללקוח',
+            required: false,
+            helperTextHe: 'אימייל אוטומטי "קיבלנו את פנייתך"'
+          },
+          {
+            id: 'redirect_url',
+            type: 'text',
+            label: 'Redirect to URL after submission',
+            labelHe: 'הפנה לכתובת אחרי הגשה',
+            required: false,
+            placeholderHe: 'https://example.com/thank-you',
+            helperTextHe: 'דף תודה או דף נחיתה'
+          },
+          {
+            id: 'auto_assign_sales_rep',
+            type: 'checkbox',
+            label: 'Auto-assign to sales rep in CRM',
+            labelHe: 'הקצאה אוטומטית לנציג מכירות ב-CRM',
+            required: false,
+            helperTextHe: 'מחלק לידים באופן אוטומטי לצוות המכירות'
           }
         ]
       }
@@ -2401,46 +2718,340 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
     serviceId: 'auto-lead-response',
     serviceName: 'Auto Lead Response',
     serviceNameHe: 'תגובה אוטומטית ללידים',
-    estimatedTimeMinutes: 15,
+    estimatedTimeMinutes: 25,
+    tips: [
+      'Critical response time: Must respond within 2-5 minutes for best conversion',
+      'Domain verification is mandatory to avoid spam filters',
+      'Prepare fallback mechanism if primary email service fails',
+      'Forms often don\'t support webhooks (Wix needs Velo, WordPress needs plugin)'
+    ],
+    tipsHe: [
+      'זמן תגובה קריטי: חובה להגיב תוך 2-5 דקות להמרה מיטבית',
+      'אימות דומיין חובה כדי למנוע מסנני ספאם',
+      'הכן מנגנון גיבוי במקרה שהשירות הראשי נכשל',
+      'טפסים רבים לא תומכים ב-webhooks (Wix דורש Velo, WordPress צריך plugin)'
+    ],
     sections: [
+      {
+        id: 'basic-info',
+        title: 'Basic Information',
+        titleHe: 'מידע בסיסי',
+        description: 'Core systems and platforms for the automation',
+        descriptionHe: 'מערכות ופלטפורמות ליבה לאוטומציה',
+        order: 1,
+        fields: [
+          {
+            id: 'form_platform',
+            type: 'select',
+            label: 'Form platform',
+            labelHe: 'פלטפורמת טפסים',
+            required: true,
+            options: [
+              { value: 'wix', label: 'Wix Forms', labelHe: 'Wix Forms' },
+              { value: 'wordpress', label: 'WordPress (Contact Form 7/Gravity/WPForms)', labelHe: 'WordPress (Contact Form 7/Gravity/WPForms)' },
+              { value: 'elementor', label: 'Elementor Forms', labelHe: 'Elementor Forms' },
+              { value: 'google_forms', label: 'Google Forms', labelHe: 'Google Forms' },
+              { value: 'typeform', label: 'Typeform', labelHe: 'Typeform' },
+              { value: 'custom', label: 'Custom HTML Form', labelHe: 'טופס HTML מותאם' }
+            ],
+            helperTextHe: 'הפלטפורמה בה הטופס נמצא'
+          },
+          {
+            id: 'email_service',
+            type: 'select',
+            label: 'Email service provider',
+            labelHe: 'ספק שירות אימייל',
+            required: true,
+            options: [
+              { value: 'sendgrid', label: 'SendGrid', labelHe: 'SendGrid' },
+              { value: 'mailgun', label: 'Mailgun', labelHe: 'Mailgun' },
+              { value: 'smtp', label: 'SMTP (Generic)', labelHe: 'SMTP (כללי)' },
+              { value: 'gmail', label: 'Gmail SMTP', labelHe: 'Gmail SMTP' },
+              { value: 'outlook', label: 'Outlook/Office 365', labelHe: 'Outlook/Office 365' }
+            ],
+            helperTextHe: 'השירות שישמש לשליחת אימיילים'
+          },
+          {
+            id: 'crm_system',
+            type: 'select',
+            label: 'CRM system',
+            labelHe: 'מערכת CRM',
+            required: true,
+            options: [
+              { value: 'zoho', label: 'Zoho CRM', labelHe: 'Zoho CRM' },
+              { value: 'salesforce', label: 'Salesforce', labelHe: 'Salesforce' },
+              { value: 'hubspot', label: 'HubSpot', labelHe: 'HubSpot' },
+              { value: 'pipedrive', label: 'Pipedrive', labelHe: 'Pipedrive' },
+              { value: 'other', label: 'Other CRM', labelHe: 'CRM אחר' }
+            ],
+            helperTextHe: 'ה-CRM בו יישמרו הלידים'
+          },
+          {
+            id: 'n8n_access',
+            type: 'checkbox',
+            label: 'Do you have an n8n instance with HTTPS endpoint?',
+            labelHe: 'האם יש לך instance של n8n עם HTTPS endpoint?',
+            required: false,
+            helperTextHe: 'נדרש לקבלת webhooks מהטופס'
+          }
+        ]
+      },
+      {
+        id: 'form-config',
+        title: 'Form Configuration',
+        titleHe: 'הגדרת טופס',
+        description: 'Form webhook and field mapping',
+        descriptionHe: 'webhook טופס ומיפוי שדות',
+        order: 2,
+        fields: [
+          {
+            id: 'webhook_support',
+            type: 'radio',
+            label: 'Does your form platform support webhooks?',
+            labelHe: 'האם פלטפורמת הטפסים תומכת ב-webhooks?',
+            required: true,
+            options: [
+              { value: 'yes', label: 'Yes, webhooks are supported', labelHe: 'כן, webhooks נתמכים' },
+              { value: 'plugin', label: 'Needs plugin/extension', labelHe: 'צריך plugin/הרחבה' },
+              { value: 'no', label: 'No webhook support', labelHe: 'אין תמיכה ב-webhooks' }
+            ],
+            helperTextHe: 'Wix דורש Velo, WordPress דורש plugin'
+          },
+          {
+            id: 'form_fields',
+            type: 'list',
+            label: 'Form fields to capture',
+            labelHe: 'שדות טופס לתיעוד',
+            required: true,
+            placeholderHe: 'לדוגמא: שם, אימייל, טלפון, הודעה...',
+            placeholder: 'e.g., Name, Email, Phone, Message...',
+            helperTextHe: 'רשום את כל השדות שקיימים בטופס'
+          },
+          {
+            id: 'form_url',
+            type: 'text',
+            label: 'Form URL (where the form is located)',
+            labelHe: 'URL של הטופס (היכן הטופס נמצא)',
+            required: true,
+            placeholder: 'https://example.com/contact',
+            placeholderHe: 'https://example.com/contact'
+          }
+        ]
+      },
+      {
+        id: 'email-setup',
+        title: 'Email Service Setup',
+        titleHe: 'הגדרת שירות אימייל',
+        description: 'Email provider credentials and configuration',
+        descriptionHe: 'אישורי ספק האימייל והגדרות',
+        order: 3,
+        fields: [
+          {
+            id: 'email_credentials_ready',
+            type: 'checkbox',
+            label: 'Do you have email service API credentials ready?',
+            labelHe: 'האם יש לך אישורי API של שירות האימייל מוכנים?',
+            required: false,
+            helperTextHe: 'SendGrid API Key, Mailgun API Key, או SMTP username/password'
+          },
+          {
+            id: 'domain_verified',
+            type: 'checkbox',
+            label: 'Is your sending domain verified (SPF/DKIM)?',
+            labelHe: 'האם הדומיין השולח מאומת (SPF/DKIM)?',
+            required: false,
+            helperTextHe: 'חובה לאימות דומיין כדי למנוע ספאם. אם לא, נסייע בהגדרה.'
+          },
+          {
+            id: 'email_template',
+            type: 'textarea',
+            label: 'Email response template (HTML or plain text)',
+            labelHe: 'תבנית תגובת אימייל (HTML או טקסט רגיל)',
+            required: true,
+            placeholder: 'Dear {{name}},\n\nThank you for your inquiry! We received your message and will contact you within 24 hours.\n\nBest regards,\nYour Team',
+            placeholderHe: 'שלום {{name}},\n\nתודה על פנייתך! קיבלנו את הודעתך וניצור קשר תוך 24 שעות.\n\nבברכה,\nהצוות שלך',
+            helperTextHe: 'השתמש ב-{{name}}, {{email}}, {{phone}} להתאמה אישית'
+          },
+          {
+            id: 'sender_name',
+            type: 'text',
+            label: 'Sender name (From name)',
+            labelHe: 'שם השולח (From name)',
+            required: true,
+            placeholder: 'Customer Service',
+            placeholderHe: 'שירות לקוחות'
+          },
+          {
+            id: 'sender_email',
+            type: 'text',
+            label: 'Sender email address',
+            labelHe: 'כתובת אימייל של השולח',
+            required: true,
+            placeholder: 'support@example.com',
+            placeholderHe: 'support@example.com',
+            validation: {
+              pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+              message: 'Please enter a valid email address',
+              messageHe: 'אנא הזן כתובת אימייל תקינה'
+            }
+          },
+          {
+            id: 'rate_limit_known',
+            type: 'checkbox',
+            label: 'Are you aware of your email service rate limits?',
+            labelHe: 'האם את/ה מודע/ת למגבלות קצב השירות?',
+            required: false,
+            helperTextHe: 'SendGrid Free: 100/יום, Mailgun Free: 5,000/חודש'
+          }
+        ]
+      },
+      {
+        id: 'crm-integration',
+        title: 'CRM Integration',
+        titleHe: 'אינטגרציית CRM',
+        description: 'CRM API credentials and field mapping',
+        descriptionHe: 'אישורי API של CRM ומיפוי שדות',
+        order: 4,
+        fields: [
+          {
+            id: 'crm_credentials_ready',
+            type: 'checkbox',
+            label: 'Do you have CRM API credentials?',
+            labelHe: 'האם יש לך אישורי API של ה-CRM?',
+            required: false,
+            helperTextHe: 'Zoho: OAuth Token, Salesforce: API Key, HubSpot: API Key'
+          },
+          {
+            id: 'crm_module',
+            type: 'select',
+            label: 'CRM module to create leads in',
+            labelHe: 'מודול CRM ליצירת לידים',
+            required: true,
+            options: [
+              { value: 'leads', label: 'Leads', labelHe: 'לידים' },
+              { value: 'contacts', label: 'Contacts', labelHe: 'אנשי קשר' },
+              { value: 'potentials', label: 'Potentials/Deals', labelHe: 'הזדמנויות/עסקאות' }
+            ]
+          },
+          {
+            id: 'crm_field_mapping',
+            type: 'list',
+            label: 'Field mapping (Form field → CRM field)',
+            labelHe: 'מיפוי שדות (שדה טופס → שדה CRM)',
+            required: true,
+            placeholderHe: 'לדוגמא: name → Full_Name, email → Email, phone → Phone...',
+            placeholder: 'e.g., name → Full_Name, email → Email, phone → Phone...',
+            helperTextHe: 'ציין איזה שדה בטופס מתאים לאיזה שדה ב-CRM'
+          },
+          {
+            id: 'log_response_in_crm',
+            type: 'checkbox',
+            label: 'Log auto-response in CRM activity',
+            labelHe: 'תעד תגובה אוטומטית בפעילות CRM',
+            required: false,
+            helperTextHe: 'יתעד שהליד קיבל תגובה אוטומטית'
+          }
+        ]
+      },
       {
         id: 'response-config',
         title: 'Response Configuration',
         titleHe: 'הגדרת תגובה',
-        order: 1,
+        description: 'Response timing and fallback mechanisms',
+        descriptionHe: 'תזמון תגובה ומנגנוני גיבוי',
+        order: 5,
         fields: [
           {
             id: 'response_time',
             type: 'radio',
-            label: 'Response time after form submission',
-            labelHe: 'זמן תגובה לאחר הגשת טופס',
+            label: 'Target response time',
+            labelHe: 'זמן תגובה יעד',
             required: true,
             options: [
-              { value: 'immediate', label: 'Immediate', labelHe: 'מיידי' },
-              { value: '5min', label: 'Within 5 minutes', labelHe: 'תוך 5 דקות' },
+              { value: 'immediate', label: 'Immediate (< 1 minute)', labelHe: 'מיידי (< דקה)' },
+              { value: '2-5min', label: 'Within 2-5 minutes (recommended)', labelHe: 'תוך 2-5 דקות (מומלץ)' },
               { value: '15min', label: 'Within 15 minutes', labelHe: 'תוך 15 דקות' }
-            ]
+            ],
+            helperTextHe: 'מחקרים מראים ש-2-5 דקות הוא האופטימלי'
           },
           {
-            id: 'response_channel',
-            type: 'multiselect',
-            label: 'Response channels',
-            labelHe: 'ערוצי תגובה',
+            id: 'business_hours_only',
+            type: 'checkbox',
+            label: 'Send responses only during business hours?',
+            labelHe: 'לשלוח תגובות רק בשעות עבודה?',
+            required: false,
+            helperTextHe: 'אם לא, תגובות יישלחו 24/7'
+          },
+          {
+            id: 'fallback_mechanism',
+            type: 'radio',
+            label: 'Fallback if email service fails',
+            labelHe: 'גיבוי במקרה ששירות האימייל נכשל',
             required: true,
             options: [
-              { value: 'email', label: 'Email', labelHe: 'אימייל' },
-              { value: 'sms', label: 'SMS', labelHe: 'SMS' },
-              { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' }
+              { value: 'queue', label: 'Queue and retry later', labelHe: 'שמור בתור ונסה שוב מאוחר יותר' },
+              { value: 'alternative', label: 'Use alternative email service', labelHe: 'השתמש בשירות אימייל חלופי' },
+              { value: 'alert', label: 'Send alert to admin only', labelHe: 'שלח התראה למנהל בלבד' }
             ]
           },
           {
-            id: 'message_template',
-            type: 'textarea',
-            label: 'Response message template',
-            labelHe: 'תבנית הודעת תגובה',
+            id: 'duplicate_check',
+            type: 'checkbox',
+            label: 'Check for duplicate leads before sending response',
+            labelHe: 'בדוק לידים כפולים לפני שליחת תגובה',
+            required: false,
+            helperTextHe: 'מונע שליחת מספר תגובות לאותו ליד'
+          }
+        ]
+      },
+      {
+        id: 'n8n-workflow',
+        title: 'n8n Workflow Setup',
+        titleHe: 'הגדרת תהליך n8n',
+        description: 'n8n workflow endpoint and error handling',
+        descriptionHe: 'נקודת קצה של תהליך n8n וטיפול בשגיאות',
+        order: 6,
+        fields: [
+          {
+            id: 'n8n_endpoint',
+            type: 'text',
+            label: 'n8n webhook endpoint (if available)',
+            labelHe: 'נקודת קצה של webhook ב-n8n (אם זמין)',
+            required: false,
+            placeholder: 'https://your-n8n-instance.com/webhook/...',
+            placeholderHe: 'https://your-n8n-instance.com/webhook/...',
+            helperTextHe: 'אם אין לך עדיין, נגדיר ביחד'
+          },
+          {
+            id: 'error_notification_email',
+            type: 'text',
+            label: 'Email for error notifications',
+            labelHe: 'אימייל לקבלת התראות שגיאה',
             required: true,
-            placeholder: 'Thank you for your inquiry! We received your message and will contact you soon.',
-            placeholderHe: 'תודה על פנייתך! קיבלנו את הודעתך וניצור קשר בקרוב.'
+            placeholder: 'admin@example.com',
+            placeholderHe: 'admin@example.com',
+            validation: {
+              pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+              message: 'Please enter a valid email address',
+              messageHe: 'אנא הזן כתובת אימייל תקינה'
+            }
+          },
+          {
+            id: 'retry_attempts',
+            type: 'number',
+            label: 'Number of retry attempts on failure',
+            labelHe: 'מספר ניסיונות חוזרים בכשלון',
+            required: true,
+            validation: { min: 1, max: 5 },
+            helperTextHe: 'כמה פעמים לנסות שוב אם שליחה נכשלה'
+          },
+          {
+            id: 'test_mode',
+            type: 'checkbox',
+            label: 'Start in test mode (send to test email only)',
+            labelHe: 'התחל במצב בדיקה (שלח לאימייל בדיקה בלבד)',
+            required: false,
+            helperTextHe: 'מומלץ לבדוק לפני הפעלה מלאה'
           }
         ]
       }
@@ -2550,51 +3161,475 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
     serviceId: 'auto-team-alerts',
     serviceName: 'Team Alerts on Important Leads',
     serviceNameHe: 'התראות לצוות על לידים חשובים',
-    estimatedTimeMinutes: 10,
+    estimatedTimeMinutes: 30,
+    tips: [
+      'Alert fatigue is real - too many alerts means team ignores them all',
+      'Priority logic must be clear - not every lead is "important"',
+      'Slack rate limit: 1 message/second per webhook',
+      'Configure Do Not Disturb hours - don\'t send alerts at night/weekends',
+      'Teams webhooks sometimes fail - implement retry mechanism'
+    ],
+    tipsHe: [
+      'עייפות מהתראות היא בעיה אמיתית - יותר מדי התראות = הצוות מתעלם מהכל',
+      'לוגיקת העדיפות חייבת להיות ברורה - לא כל ליד הוא "חשוב"',
+      'מגבלת קצב Slack: הודעה אחת לשנייה לכל webhook',
+      'הגדר שעות אל תפריע - אל תשלח התראות בלילה/סופ"ש',
+      'webhooks של Teams לפעמים נכשלים - יש ליישם מנגנון חזרה'
+    ],
     sections: [
       {
-        id: 'alert-criteria',
-        title: 'Alert Criteria',
-        titleHe: 'קריטריונים להתראה',
+        id: 'basic-info',
+        title: 'Basic Information',
+        titleHe: 'מידע בסיסי',
+        description: 'Core systems and platforms',
+        descriptionHe: 'מערכות ופלטפורמות ליבה',
         order: 1,
         fields: [
           {
-            id: 'hot_lead_criteria',
-            type: 'multiselect',
-            label: 'What makes a lead "hot"?',
-            labelHe: 'מה הופך ליד ל"חם"?',
+            id: 'crm_system',
+            type: 'select',
+            label: 'CRM system (source of leads)',
+            labelHe: 'מערכת CRM (מקור הלידים)',
             required: true,
             options: [
-              { value: 'high_budget', label: 'High budget/value', labelHe: 'תקציב/ערך גבוה' },
-              { value: 'urgent', label: 'Urgent timeline', labelHe: 'לוח זמנים דחוף' },
-              { value: 'decision_maker', label: 'Decision maker', labelHe: 'מקבל החלטות' },
-              { value: 'referral', label: 'Referral', labelHe: 'הפניה' },
-              { value: 'competitor', label: 'Currently with competitor', labelHe: 'כרגע עם מתחרה' }
-            ]
+              { value: 'zoho', label: 'Zoho CRM', labelHe: 'Zoho CRM' },
+              { value: 'salesforce', label: 'Salesforce', labelHe: 'Salesforce' },
+              { value: 'hubspot', label: 'HubSpot', labelHe: 'HubSpot' },
+              { value: 'pipedrive', label: 'Pipedrive', labelHe: 'Pipedrive' },
+              { value: 'other', label: 'Other CRM', labelHe: 'CRM אחר' }
+            ],
+            helperTextHe: 'המערכת ממנה יזוהו לידים חשובים'
           },
           {
             id: 'notification_channels',
             type: 'multiselect',
-            label: 'Notification channels',
-            labelHe: 'ערוצי התראה',
+            label: 'Notification channels to use',
+            labelHe: 'ערוצי התראה לשימוש',
             required: true,
             options: [
+              { value: 'slack', label: 'Slack', labelHe: 'Slack' },
+              { value: 'teams', label: 'Microsoft Teams', labelHe: 'Microsoft Teams' },
               { value: 'email', label: 'Email', labelHe: 'אימייל' },
-              { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' },
-              { value: 'sms', label: 'SMS', labelHe: 'SMS' },
-              { value: 'slack', label: 'Slack', labelHe: 'Slack' }
+              { value: 'sms', label: 'SMS (Twilio)', labelHe: 'SMS (Twilio)' },
+              { value: 'push', label: 'Push Notifications', labelHe: 'התראות Push' }
+            ],
+            helperTextHe: 'בחר את כל הערוצים שבהם תרצה לקבל התראות'
+          },
+          {
+            id: 'n8n_instance',
+            type: 'checkbox',
+            label: 'Do you have an n8n instance for routing logic?',
+            labelHe: 'האם יש לך instance של n8n ללוגיקת ניתוב?',
+            required: false,
+            helperTextHe: 'n8n נדרש לניתוב התראות לפי כללים'
+          }
+        ]
+      },
+      {
+        id: 'lead-scoring',
+        title: 'Lead Scoring Rules',
+        titleHe: 'כללי ניקוד לידים',
+        description: 'Define what makes a lead "important"',
+        descriptionHe: 'הגדר מה הופך ליד ל"חשוב"',
+        order: 2,
+        fields: [
+          {
+            id: 'scoring_criteria',
+            type: 'multiselect',
+            label: 'What makes a lead "important"?',
+            labelHe: 'מה הופך ליד ל"חשוב"?',
+            required: true,
+            options: [
+              { value: 'high_budget', label: 'High budget/value', labelHe: 'תקציב/ערך גבוה' },
+              { value: 'urgent_timeline', label: 'Urgent timeline', labelHe: 'לוח זמנים דחוף' },
+              { value: 'decision_maker', label: 'Contact is decision maker', labelHe: 'איש קשר הוא מקבל החלטות' },
+              { value: 'specific_industry', label: 'Specific industry/vertical', labelHe: 'תעשייה/ורטיקל ספציפי' },
+              { value: 'company_size', label: 'Large company size', labelHe: 'גודל חברה גדול' },
+              { value: 'referral', label: 'Referral from existing client', labelHe: 'הפניה מלקוח קיים' },
+              { value: 'competitor', label: 'Currently with competitor', labelHe: 'כרגע עם מתחרה' },
+              { value: 'form_specific', label: 'Came from specific form/campaign', labelHe: 'הגיע מטופס/קמפיין ספציפי' }
+            ],
+            helperTextHe: 'בחר את כל הקריטריונים הרלוונטיים'
+          },
+          {
+            id: 'budget_threshold',
+            type: 'text',
+            label: 'Minimum budget for high-priority alert (if applicable)',
+            labelHe: 'תקציב מינימלי להתראת עדיפות גבוהה (אם רלוונטי)',
+            required: false,
+            placeholder: '₪50,000',
+            placeholderHe: '₪50,000',
+            helperTextHe: 'השאר ריק אם לא רלוונטי'
+          },
+          {
+            id: 'target_industries',
+            type: 'list',
+            label: 'Target industries that trigger alerts (if applicable)',
+            labelHe: 'תעשיות יעד שמפעילות התראות (אם רלוונטי)',
+            required: false,
+            placeholder: 'e.g., Healthcare, Finance, Technology',
+            placeholderHe: 'לדוגמא: בריאות, פיננסים, טכנולוגיה',
+            helperTextHe: 'השאר ריק אם לא רלוונטי'
+          },
+          {
+            id: 'company_size_threshold',
+            type: 'select',
+            label: 'Minimum company size for alert',
+            labelHe: 'גודל חברה מינימלי להתראה',
+            required: false,
+            options: [
+              { value: 'any', label: 'Any size', labelHe: 'כל גודל' },
+              { value: '10+', label: '10+ employees', labelHe: '10+ עובדים' },
+              { value: '50+', label: '50+ employees', labelHe: '50+ עובדים' },
+              { value: '100+', label: '100+ employees', labelHe: '100+ עובדים' },
+              { value: '500+', label: '500+ employees', labelHe: '500+ עובדים' }
             ]
           },
           {
-            id: 'recipients',
+            id: 'scoring_logic',
+            type: 'textarea',
+            label: 'Additional scoring logic/rules',
+            labelHe: 'לוגיקת ניקוד/כללים נוספים',
+            required: false,
+            placeholder: 'e.g., "If budget > ₪100K AND industry = Healthcare, send to CEO"\n"If referral from VIP client, mark as urgent"',
+            placeholderHe: 'לדוגמא: "אם תקציב > ₪100K וגם תעשייה = בריאות, שלח למנכ״ל"\n"אם הפניה מלקוח VIP, סמן כדחוף"',
+            helperTextHe: 'תאר בעברית את הכללים המיוחדים'
+          }
+        ]
+      },
+      {
+        id: 'slack-config',
+        title: 'Slack Configuration',
+        titleHe: 'הגדרות Slack',
+        description: 'Slack workspace and webhook setup',
+        descriptionHe: 'הגדרת workspace ו-webhook של Slack',
+        order: 3,
+        conditionalDisplay: {
+          fieldId: 'notification_channels',
+          operator: 'includes',
+          value: 'slack'
+        },
+        fields: [
+          {
+            id: 'slack_workspace_ready',
+            type: 'checkbox',
+            label: 'Do you have a Slack workspace with incoming webhooks enabled?',
+            labelHe: 'האם יש לך Slack workspace עם incoming webhooks מופעלים?',
+            required: false,
+            helperTextHe: 'צריך הרשאות מנהל ב-Slack ליצירת webhooks'
+          },
+          {
+            id: 'slack_webhook_url',
+            type: 'text',
+            label: 'Slack Webhook URL (if you have one ready)',
+            labelHe: 'Slack Webhook URL (אם כבר יש לך)',
+            required: false,
+            placeholder: 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX',
+            placeholderHe: 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX',
+            helperTextHe: 'נוכל לעזור להגדיר אם אין לך'
+          },
+          {
+            id: 'slack_channel_name',
+            type: 'text',
+            label: 'Slack channel name for alerts',
+            labelHe: 'שם ערוץ Slack להתראות',
+            required: false,
+            placeholder: '#sales-hot-leads',
+            placeholderHe: '#sales-hot-leads',
+            helperTextHe: 'לדוגמא: #sales-leads, #urgent-leads'
+          },
+          {
+            id: 'slack_message_format',
+            type: 'textarea',
+            label: 'Slack message template',
+            labelHe: 'תבנית הודעת Slack',
+            required: false,
+            placeholder: '🔥 *Hot Lead Alert!*\nName: {{leadName}}\nCompany: {{companyName}}\nBudget: {{budget}}\nSource: {{source}}',
+            placeholderHe: '🔥 *התראת ליד חם!*\nשם: {{leadName}}\nחברה: {{companyName}}\nתקציב: {{budget}}\nמקור: {{source}}',
+            helperTextHe: 'השתמש ב-{{משתנים}} להתאמה אישית'
+          }
+        ]
+      },
+      {
+        id: 'teams-config',
+        title: 'Microsoft Teams Configuration',
+        titleHe: 'הגדרות Microsoft Teams',
+        description: 'Teams channel and webhook setup',
+        descriptionHe: 'הגדרת ערוץ ו-webhook של Teams',
+        order: 4,
+        conditionalDisplay: {
+          fieldId: 'notification_channels',
+          operator: 'includes',
+          value: 'teams'
+        },
+        fields: [
+          {
+            id: 'teams_channel_ready',
+            type: 'checkbox',
+            label: 'Do you have a Teams channel with webhook connector installed?',
+            labelHe: 'האם יש לך ערוץ Teams עם webhook connector מותקן?',
+            required: false,
+            helperTextHe: 'צריך הרשאות בערוץ להוספת connectors'
+          },
+          {
+            id: 'teams_webhook_url',
+            type: 'text',
+            label: 'Teams Incoming Webhook URL (if you have one ready)',
+            labelHe: 'Teams Incoming Webhook URL (אם כבר יש לך)',
+            required: false,
+            placeholder: 'https://outlook.office.com/webhook/...',
+            placeholderHe: 'https://outlook.office.com/webhook/...',
+            helperTextHe: 'נוכל לעזור להגדיר אם אין לך'
+          },
+          {
+            id: 'teams_retry_enabled',
+            type: 'checkbox',
+            label: 'Enable retry mechanism (recommended - Teams webhooks can fail)',
+            labelHe: 'הפעל מנגנון חזרה (מומלץ - webhooks של Teams יכולים להיכשל)',
+            required: false,
+            helperTextHe: 'ינסה שוב אם ההודעה נכשלה בפעם הראשונה'
+          }
+        ]
+      },
+      {
+        id: 'email-config',
+        title: 'Email Alerts Configuration',
+        titleHe: 'הגדרות התראות אימייל',
+        description: 'Email service for alerts',
+        descriptionHe: 'שירות אימייל להתראות',
+        order: 5,
+        conditionalDisplay: {
+          fieldId: 'notification_channels',
+          operator: 'includes',
+          value: 'email'
+        },
+        fields: [
+          {
+            id: 'email_service',
+            type: 'select',
+            label: 'Email service provider',
+            labelHe: 'ספק שירות אימייל',
+            required: false,
+            options: [
+              { value: 'smtp', label: 'SMTP (Generic)', labelHe: 'SMTP (כללי)' },
+              { value: 'sendgrid', label: 'SendGrid', labelHe: 'SendGrid' },
+              { value: 'mailgun', label: 'Mailgun', labelHe: 'Mailgun' },
+              { value: 'gmail', label: 'Gmail SMTP', labelHe: 'Gmail SMTP' }
+            ],
+            helperTextHe: 'השירות שישמש לשליחת התראות באימייל'
+          },
+          {
+            id: 'email_credentials_ready',
+            type: 'checkbox',
+            label: 'Do you have email service credentials ready?',
+            labelHe: 'האם יש לך אישורי שירות אימייל מוכנים?',
+            required: false,
+            helperTextHe: 'API Key או SMTP username/password'
+          }
+        ]
+      },
+      {
+        id: 'sms-config',
+        title: 'SMS Configuration',
+        titleHe: 'הגדרות SMS',
+        description: 'Twilio SMS setup',
+        descriptionHe: 'הגדרת Twilio SMS',
+        order: 6,
+        conditionalDisplay: {
+          fieldId: 'notification_channels',
+          operator: 'includes',
+          value: 'sms'
+        },
+        fields: [
+          {
+            id: 'twilio_account',
+            type: 'checkbox',
+            label: 'Do you have a Twilio account with Account SID and Auth Token?',
+            labelHe: 'האם יש לך חשבון Twilio עם Account SID ו-Auth Token?',
+            required: false,
+            helperTextHe: 'נדרש לשליחת SMS'
+          },
+          {
+            id: 'sms_priority_only',
+            type: 'checkbox',
+            label: 'Send SMS only for highest priority leads',
+            labelHe: 'שלח SMS רק עבור לידים בעדיפות הגבוהה ביותר',
+            required: false,
+            helperTextHe: 'SMS עולה כסף - מומלץ לשמור רק ללידים הכי חשובים'
+          }
+        ]
+      },
+      {
+        id: 'push-config',
+        title: 'Push Notifications Configuration',
+        titleHe: 'הגדרות התראות Push',
+        description: 'OneSignal or Firebase setup',
+        descriptionHe: 'הגדרת OneSignal או Firebase',
+        order: 7,
+        conditionalDisplay: {
+          fieldId: 'notification_channels',
+          operator: 'includes',
+          value: 'push'
+        },
+        fields: [
+          {
+            id: 'push_service',
+            type: 'select',
+            label: 'Push notification service',
+            labelHe: 'שירות התראות Push',
+            required: false,
+            options: [
+              { value: 'onesignal', label: 'OneSignal', labelHe: 'OneSignal' },
+              { value: 'firebase', label: 'Firebase Cloud Messaging', labelHe: 'Firebase Cloud Messaging' }
+            ],
+            helperTextHe: 'בחר את השירות שבו תשתמש'
+          },
+          {
+            id: 'push_credentials_ready',
+            type: 'checkbox',
+            label: 'Do you have API credentials for your push service?',
+            labelHe: 'האם יש לך אישורי API לשירות ה-Push?',
+            required: false,
+            helperTextHe: 'OneSignal API Key או Firebase Server Key'
+          }
+        ]
+      },
+      {
+        id: 'team-config',
+        title: 'Team & Recipients',
+        titleHe: 'צוות ומקבלי התראות',
+        description: 'Who gets what alerts',
+        descriptionHe: 'מי מקבל אילו התראות',
+        order: 8,
+        fields: [
+          {
+            id: 'team_members',
             type: 'list',
-            label: 'Who should receive alerts?',
-            labelHe: 'מי צריך לקבל התראות?',
+            label: 'Team members who should receive alerts',
+            labelHe: 'חברי צוות שצריכים לקבל התראות',
             required: true,
             itemFields: [
-              { id: 'name', type: 'text', label: 'Name', labelHe: 'שם' },
-              { id: 'contact', type: 'text', label: 'Contact', labelHe: 'איש קשר' }
-            ]
+              {
+                id: 'member_name',
+                type: 'text',
+                label: 'Name',
+                labelHe: 'שם',
+                required: true
+              },
+              {
+                id: 'member_role',
+                type: 'text',
+                label: 'Role',
+                labelHe: 'תפקיד',
+                placeholder: 'e.g., Sales Manager, CEO',
+                placeholderHe: 'לדוגמא: מנהל מכירות, מנכ״ל'
+              },
+              {
+                id: 'member_channels',
+                type: 'text',
+                label: 'Preferred channels',
+                labelHe: 'ערוצים מועדפים',
+                placeholder: 'Slack, Email, SMS',
+                placeholderHe: 'Slack, אימייל, SMS'
+              },
+              {
+                id: 'member_contact',
+                type: 'text',
+                label: 'Contact (email/phone)',
+                labelHe: 'איש קשר (אימייל/טלפון)'
+              }
+            ],
+            helperTextHe: 'הוסף את כל חברי הצוות שצריכים התראות'
+          },
+          {
+            id: 'routing_rules',
+            type: 'textarea',
+            label: 'Alert routing rules',
+            labelHe: 'כללי ניתוב התראות',
+            required: false,
+            placeholder: 'e.g., "Budget > ₪200K → notify CEO\nBudget ₪50K-200K → notify Sales Manager\nAll leads → notify to #sales-leads Slack channel"',
+            placeholderHe: 'לדוגמא: "תקציב > ₪200K → הודע למנכ״ל\nתקציב ₪50K-200K → הודע למנהל מכירות\nכל הלידים → הודע לערוץ #sales-leads ב-Slack"',
+            helperTextHe: 'תאר מי אמור לקבל אילו סוגי התראות'
+          }
+        ]
+      },
+      {
+        id: 'alert-rules',
+        title: 'Alert Rules & Settings',
+        titleHe: 'כללים והגדרות התראות',
+        description: 'Do Not Disturb, rate limits, and priorities',
+        descriptionHe: 'אל תפריע, מגבלות קצב, ועדיפויות',
+        order: 9,
+        fields: [
+          {
+            id: 'dnd_enabled',
+            type: 'checkbox',
+            label: 'Enable Do Not Disturb hours',
+            labelHe: 'הפעל שעות אל תפריע',
+            required: false,
+            helperTextHe: 'מומלץ מאוד - אל תשלח התראות בלילה או בסופ״ש'
+          },
+          {
+            id: 'dnd_hours',
+            type: 'text',
+            label: 'Do Not Disturb hours (if enabled)',
+            labelHe: 'שעות אל תפריע (אם מופעל)',
+            required: false,
+            placeholder: '22:00-08:00 weekdays, all day Saturday',
+            placeholderHe: '22:00-08:00 ימי חול, כל יום שבת',
+            helperTextHe: 'מתי לא לשלוח התראות'
+          },
+          {
+            id: 'max_alerts_per_day',
+            type: 'number',
+            label: 'Maximum alerts per day (to prevent alert fatigue)',
+            labelHe: 'מקסימום התראות ליום (למניעת עייפות מהתראות)',
+            required: false,
+            placeholder: '20',
+            placeholderHe: '20',
+            validation: { min: 1, max: 200 },
+            helperTextHe: 'מגביל כמות התראות כדי שהצוות לא יתעלם'
+          },
+          {
+            id: 'priority_levels',
+            type: 'multiselect',
+            label: 'Alert priority levels to implement',
+            labelHe: 'רמות עדיפות להתראות ליישום',
+            required: true,
+            options: [
+              { value: 'critical', label: 'Critical (immediate action required)', labelHe: 'קריטי (דרוש פעולה מיידית)' },
+              { value: 'high', label: 'High (respond within 1 hour)', labelHe: 'גבוה (תגובה תוך שעה)' },
+              { value: 'medium', label: 'Medium (respond within 4 hours)', labelHe: 'בינוני (תגובה תוך 4 שעות)' },
+              { value: 'low', label: 'Low (informational)', labelHe: 'נמוך (למידע בלבד)' }
+            ],
+            helperTextHe: 'ככל שיותר רמות, כך יותר מורכב הניהול'
+          },
+          {
+            id: 'alert_deduplication',
+            type: 'checkbox',
+            label: 'Enable alert deduplication (prevent duplicate alerts for same lead)',
+            labelHe: 'הפעל deduplication (מניעת התראות כפולות לאותו ליד)',
+            required: false,
+            helperTextHe: 'מומלץ - מונע שליחת אותה התראה פעמיים'
+          },
+          {
+            id: 'escalation_enabled',
+            type: 'checkbox',
+            label: 'Enable escalation (notify manager if no response)',
+            labelHe: 'הפעל escalation (הודע למנהל אם אין תגובה)',
+            required: false,
+            helperTextHe: 'אם נציג לא מגיב תוך X זמן, הודע למנהל'
+          },
+          {
+            id: 'escalation_timeout',
+            type: 'number',
+            label: 'Escalation timeout (minutes)',
+            labelHe: 'זמן עד escalation (דקות)',
+            required: false,
+            placeholder: '30',
+            placeholderHe: '30',
+            validation: { min: 5, max: 480 },
+            helperTextHe: 'כמה זמן לחכות לפני העברה למנהל'
           }
         ]
       }

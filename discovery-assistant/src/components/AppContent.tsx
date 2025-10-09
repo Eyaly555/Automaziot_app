@@ -22,6 +22,8 @@ import { SystemDeepDiveSelection } from './Phase2/SystemDeepDiveSelection';
 import { IntegrationFlowBuilder } from './Phase2/IntegrationFlowBuilder';
 import { AIAgentDetailedSpec } from './Phase2/AIAgentDetailedSpec';
 import { AcceptanceCriteriaBuilder } from './Phase2/AcceptanceCriteriaBuilder';
+import { AutoCRMUpdateSpec } from './Phase2/AutoCRMUpdateSpec';
+import { AITriageSpec } from './Phase2/AITriageSpec';
 import { DeveloperDashboard } from './Phase3/DeveloperDashboard';
 import { SprintView } from './Phase3/SprintView';
 import { SystemView } from './Phase3/SystemView';
@@ -33,6 +35,7 @@ import { PDFTestPage } from '../pages/PDFTestPage';
 import { PhaseNavigator } from './PhaseWorkflow/PhaseNavigator';
 import { RequirementsFlow } from './PhaseWorkflow/RequirementsFlow';
 import { ClientApprovalView } from './PhaseWorkflow/ClientApprovalView';
+import { ServiceRequirementsRouter } from './Phase2/ServiceRequirementsRouter';
 import { useAccessibility, useSkipToContent } from '../hooks/useAccessibility';
 import { usePhaseGuard } from '../hooks/usePhaseGuard';
 import { useMeetingStore } from '../store/useMeetingStore';
@@ -217,10 +220,34 @@ export const AppContent = () => {
           }
         />
         <Route
+          path="/phase2/automations/auto-crm-update"
+          element={
+            <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
+              <AutoCRMUpdateSpec />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/phase2/automations/ai-triage"
+          element={
+            <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
+              <AITriageSpec />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/phase2/acceptance"
           element={
             <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
               <AcceptanceCriteriaBuilder />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/phase2/service-requirements"
+          element={
+            <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
+              <ServiceRequirementsRouter />
             </ProtectedRoute>
           }
         />

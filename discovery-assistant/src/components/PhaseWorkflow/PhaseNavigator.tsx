@@ -16,6 +16,7 @@ import { useMeetingStore } from '../../store/useMeetingStore';
 import { MeetingPhase, MeetingStatus } from '../../types';
 import { updateZohoPotentialPhase } from '../../services/zohoAPI';
 import { getPhaseTransitionRequirements } from '../../hooks/usePhaseGuard';
+import { validateServiceRequirements } from '../../utils/serviceRequirementsValidation';
 import toast from 'react-hot-toast';
 
 interface PhaseConfig {
@@ -271,6 +272,18 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
   };
 
   /**
+   * Get service requirements validation for Phase 2
+   */
+  const getServiceRequirementsValidation = () => {
+    if (!currentMeeting) return null;
+    const purchasedServices = currentMeeting.modules?.proposal?.purchasedServices || [];
+    return validateServiceRequirements(
+      purchasedServices,
+      currentMeeting.implementationSpec || {}
+    );
+  };
+
+  /**
    * Render phase step
    */
   const renderPhaseStep = (config: PhaseConfig, _index: number) => {
@@ -396,6 +409,20 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
                 {progress}% {language === 'he' ? 'הושלם' : 'Complete'}
               </div>
             )}
+            {/* Show service requirements badge for Phase 2 */}
+            {config.phase === 'implementation_spec' && (state === 'active' || state === 'unlocked') && (() => {
+              const validation = getServiceRequirementsValidation();
+              if (!validation) return null;
+              return (
+                <div className={`text-xs mt-1 px-2 py-0.5 rounded-full inline-block ${
+                  validation.isValid
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-orange-100 text-orange-700'
+                }`}>
+                  {validation.completedCount}/{validation.totalCount} {language === 'he' ? 'טפסים' : 'forms'}
+                </div>
+              );
+            })()}
           </div>
         )}
 

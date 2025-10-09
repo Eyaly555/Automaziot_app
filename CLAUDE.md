@@ -329,9 +329,369 @@ Run `syncWizardToModules()` or `syncModulesToWizard()` explicitly if data appear
 3. Update all affected components
 4. Add data migration if needed
 
+## Phase 2: Service Requirements Collection System
+
+**Overview:**
+Phase 2 includes a comprehensive system for collecting detailed technical requirements for all 59 services purchased by the client in Phase 1. This system ensures complete specification before development begins.
+
+### Type System (59 Services)
+
+**TypeScript Interfaces (5 Files - ~12,500 lines total):**
+- `src/types/automationServices.ts` - Services 1-20 (5,035 lines)
+- `src/types/aiAgentServices.ts` - Services 21-30 (1,992 lines)
+- `src/types/integrationServices.ts` - Services 31-40 (1,882 lines)
+- `src/types/systemImplementationServices.ts` - Services 41-49 (1,971 lines)
+- `src/types/additionalServices.ts` - Services 50-59 (1,635 lines)
+
+Each service has a dedicated `[ServiceName]Requirements` interface defining all technical fields needed for implementation.
+
+**Example Type Structure:**
+```typescript
+// From automationServices.ts
+export interface AutoLeadResponseRequirements {
+  formPlatform: 'wix' | 'wordpress' | 'elementor' | 'google_forms' | 'typeform' | 'custom';
+  formFields: string[];
+  emailService: 'sendgrid' | 'mailgun' | 'smtp' | 'gmail' | 'outlook';
+  crmSystem: 'zoho' | 'salesforce' | 'hubspot' | 'monday' | 'pipedrive';
+  responseTime: 'immediate' | '5min' | '15min' | 'business_hours';
+  // ... 20+ more fields
+}
+```
+
+### React Components (55 Components)
+
+**Component Structure:**
+```
+src/components/Phase2/ServiceRequirements/
+├── Automations/ (18 components - Services 1-20)
+│   ├── AutoLeadResponseSpec.tsx
+│   ├── AutoSmsWhatsappSpec.tsx
+│   ├── AutoCRMUpdateSpec.tsx
+│   └── ... (15 more)
+├── AIAgents/ (8 components - Services 21-30)
+│   ├── AIFAQBotSpec.tsx
+│   ├── AILeadQualifierSpec.tsx
+│   └── ... (6 more)
+├── Integrations/ (10 components - Services 31-40)
+│   ├── IntegrationSimpleSpec.tsx
+│   ├── WhatsappApiSetupSpec.tsx
+│   └── ... (8 more)
+├── SystemImplementations/ (9 components - Services 41-49)
+│   ├── ImplCrmSpec.tsx
+│   ├── ImplProjectManagementSpec.tsx
+│   └── ... (7 more)
+└── AdditionalServices/ (10 components - Services 50-59)
+    ├── DataCleanupSpec.tsx
+    ├── TrainingWorkshopsSpec.tsx
+    └── ... (8 more)
+```
+
+**Component Pattern:**
+Each component follows this structure:
+- Loads existing data from `currentMeeting.implementationSpec.[category]`
+- Provides form fields with validation
+- Saves to appropriate category array with `serviceId` and `completedAt` timestamp
+- Hebrew UI (RTL) with Tailwind CSS styling
+- Defensive data access patterns
+
+### Service Router
+
+**ServiceRequirementsRouter** (`src/components/Phase2/ServiceRequirementsRouter.tsx`):
+- **Purpose**: Central routing component for all 59 service requirement forms
+- **Data Source**: Reads `purchasedServices` from Phase 1 client approval (`meeting.modules.proposal.purchasedServices`)
+- **Features**:
+  - Sidebar navigation with all purchased services
+  - Completion status indicators (checkmarks)
+  - Progress tracking (X of Y completed)
+  - Category breakdown display
+  - Dynamic component rendering based on selected service
+- **Important**: Uses `purchasedServices` (NOT `selectedServices`) to show only client-approved services
+
+**Service Mapping Configuration** (`src/config/serviceComponentMapping.ts`):
+
+Two critical mappings:
+1. **SERVICE_COMPONENT_MAP**: Maps service IDs to React components
+2. **SERVICE_CATEGORY_MAP**: Maps service IDs to storage categories
+
+```typescript
+// Example mappings
+SERVICE_COMPONENT_MAP = {
+  'auto-lead-response': AutoLeadResponseSpec,
+  'ai-faq-bot': AIFAQBotSpec,
+  'integration-simple': IntegrationSimpleSpec,
+  // ... all 59 services
+};
+
+SERVICE_CATEGORY_MAP = {
+  'auto-lead-response': 'automations',
+  'ai-faq-bot': 'aiAgentServices',
+  'integration-simple': 'integrationServices',
+  // ... all 59 services
+};
+```
+
+**Helper Functions:**
+- `getServiceCategory(serviceId)` - Returns category for a service
+- `getServiceComponent(serviceId)` - Returns React component for a service
+- `hasServiceComponent(serviceId)` - Checks if service has a component
+
+### Data Storage Structure
+
+Phase 2 service requirements are stored in `meeting.implementationSpec` with separate arrays per category:
+
+```typescript
+meeting.implementationSpec = {
+  automations: AutomationServiceEntry[],
+  aiAgentServices: AIAgentServiceEntry[],
+  integrationServices: IntegrationServiceEntry[],
+  systemImplementations: SystemImplementationServiceEntry[],
+  additionalServices: AdditionalServiceEntry[]
+}
+```
+
+**Entry Structure:**
+```typescript
+interface AutomationServiceEntry {
+  serviceId: string;           // e.g., 'auto-lead-response'
+  serviceName: string;          // Hebrew name
+  requirements: AutoLeadResponseRequirements;
+  completedAt: string;          // ISO timestamp
+}
+```
+
+### Validation System
+
+**Purpose**: Prevents Phase 2 → Phase 3 transition until all purchased services have completed requirement forms.
+
+**Files:**
+- `src/utils/serviceRequirementsValidation.ts` - Core validation logic
+- `src/components/Phase2/IncompleteServicesAlert.tsx` - UI alert component
+
+**Key Functions:**
+
+```typescript
+/**
+ * Validates that all purchased services have completed forms
+ */
+validateServiceRequirements(
+  purchasedServices: SelectedService[],
+  implementationSpec: ImplementationSpec
+): ServiceValidationResult
+
+/**
+ * Checks if Phase 2 is complete and ready for Phase 3
+ */
+isPhase2Complete(meeting: Meeting): boolean
+
+/**
+ * Gets detailed completion status breakdown
+ */
+getServiceCompletionStatus(meeting: Meeting): ServiceValidationResult
+```
+
+**Integration with useMeetingStore:**
+```typescript
+// In canTransitionTo() method
+if (targetPhase === 'development') {
+  const purchasedServices = currentMeeting?.modules?.proposal?.purchasedServices || [];
+
+  if (purchasedServices.length > 0) {
+    const validation = validateServiceRequirements(
+      purchasedServices,
+      currentMeeting.implementationSpec || {}
+    );
+
+    if (!validation.isValid) {
+      console.warn('Cannot transition: incomplete service requirements');
+      return false;
+    }
+  }
+}
+```
+
+### UI Components
+
+**IncompleteServicesAlert** (`src/components/Phase2/IncompleteServicesAlert.tsx`):
+- Displays warning when services are incomplete
+- Lists missing services by Hebrew name
+- Shows completion progress (X of Y completed)
+- Automatically hides when all services complete
+
+**CompletionProgressBar**:
+- Visual progress bar for service completion
+- Shows percentage and count
+- Changes color based on completion status (orange → green)
+
+### Data Flow
+
+**Phase 1 → Phase 2 Handoff:**
+1. Client approves services in Phase 1 proposal
+2. Services stored in `meeting.modules.proposal.purchasedServices[]`
+3. Phase transitions to `implementation_spec`
+4. User navigates to Service Requirements Router
+
+**Phase 2 Data Collection:**
+1. ServiceRequirementsRouter displays all purchased services
+2. User selects a service from sidebar
+3. Appropriate Spec component loads (e.g., `AutoLeadResponseSpec`)
+4. User fills form fields
+5. On save, data stored in `meeting.implementationSpec.[category][]` with:
+   - `serviceId`: matches service ID from purchasedServices
+   - `serviceName`: Hebrew display name
+   - `requirements`: full technical specification object
+   - `completedAt`: ISO timestamp
+
+**Phase 2 → Phase 3 Validation:**
+1. User attempts to transition to development phase
+2. `useMeetingStore.canTransitionTo('development')` called
+3. Validation checks all purchased services have matching entries in implementationSpec
+4. If incomplete: transition blocked, alert shown with missing services
+5. If complete: transition allowed
+
+### Key Features
+
+- **Type-Safe**: Full TypeScript coverage for all 59 services with detailed interfaces
+- **Defensive**: Handles missing data gracefully with null checks and default values
+- **Progressive**: Real-time completion tracking with visual feedback
+- **Bilingual**: Hebrew UI (RTL) with technical field names in English where appropriate
+- **Validated**: Hard gate preventing incomplete Phase 2 → Phase 3 transitions
+- **Persistent**: Automatic localStorage persistence via Zustand store
+- **Scalable**: Easy to add new services by creating interface, component, and mapping
+
+### Adding a New Service Component
+
+**Step-by-Step Process:**
+
+1. **Create TypeScript Interface** in appropriate type file:
+```typescript
+// src/types/automationServices.ts
+export interface MyNewServiceRequirements {
+  fieldOne: string;
+  fieldTwo: 'option1' | 'option2';
+  // ... all required fields
+}
+```
+
+2. **Create React Component**:
+```typescript
+// src/components/Phase2/ServiceRequirements/Automations/MyNewServiceSpec.tsx
+import { useState, useEffect } from 'react';
+import { useMeetingStore } from '../../../../store/useMeetingStore';
+import type { MyNewServiceRequirements } from '../../../../types/automationServices';
+
+export const MyNewServiceSpec: React.FC = () => {
+  const { currentMeeting, updateMeeting } = useMeetingStore();
+  const [config, setConfig] = useState<MyNewServiceRequirements>({ /* defaults */ });
+
+  // Load existing data
+  useEffect(() => {
+    const existing = currentMeeting?.implementationSpec?.automations?.find(
+      a => a.serviceId === 'my-new-service'
+    );
+    if (existing) setConfig(existing.requirements);
+  }, [currentMeeting]);
+
+  // Save handler
+  const handleSave = () => {
+    if (!currentMeeting) return;
+
+    const automations = currentMeeting?.implementationSpec?.automations || [];
+    const updated = automations.filter(a => a.serviceId !== 'my-new-service');
+    updated.push({
+      serviceId: 'my-new-service',
+      serviceName: 'שם השירות בעברית',
+      requirements: config,
+      completedAt: new Date().toISOString()
+    });
+
+    updateMeeting(currentMeeting.id, {
+      implementationSpec: {
+        ...currentMeeting.implementationSpec,
+        automations: updated
+      }
+    });
+  };
+
+  return (
+    <div className="space-y-6 p-8" dir="rtl">
+      {/* Form fields */}
+      <button onClick={handleSave}>שמור</button>
+    </div>
+  );
+};
+```
+
+3. **Add to Mapping Configuration**:
+```typescript
+// src/config/serviceComponentMapping.ts
+import { MyNewServiceSpec } from '../components/Phase2/ServiceRequirements/Automations/MyNewServiceSpec';
+
+export const SERVICE_COMPONENT_MAP = {
+  'my-new-service': MyNewServiceSpec,
+  // ... existing mappings
+};
+
+export const SERVICE_CATEGORY_MAP = {
+  'my-new-service': 'automations',
+  // ... existing mappings
+};
+```
+
+4. **Test**: Component automatically appears in ServiceRequirementsRouter when service is purchased
+
+### Common Patterns
+
+**Defensive Data Loading:**
+```typescript
+// Always check for existing data before initializing
+useEffect(() => {
+  const category = currentMeeting?.implementationSpec?.automations;
+  const existing = category?.find(item => item.serviceId === 'service-id');
+  if (existing?.requirements) {
+    setConfig(existing.requirements);
+  }
+}, [currentMeeting]);
+```
+
+**Defensive Data Saving:**
+```typescript
+// Filter out existing entry, then add updated entry
+const updated = (existing || []).filter(item => item.serviceId !== 'service-id');
+updated.push({ serviceId, serviceName, requirements: config, completedAt: new Date().toISOString() });
+```
+
+**Array Safety:**
+```typescript
+// Always default to empty array if category doesn't exist
+const automations = currentMeeting?.implementationSpec?.automations || [];
+```
+
+### Troubleshooting
+
+**Service form doesn't appear in router:**
+- Check `serviceComponentMapping.ts` - ensure service ID exists in both `SERVICE_COMPONENT_MAP` and `SERVICE_CATEGORY_MAP`
+- Verify service ID matches exactly (case-sensitive)
+- Check component is properly exported
+
+**Data not saving:**
+- Ensure `serviceId` in save handler matches service ID from `purchasedServices`
+- Verify category name matches one of: `automations`, `aiAgentServices`, `integrationServices`, `systemImplementations`, `additionalServices`
+- Check `updateMeeting()` is being called with correct structure
+
+**Validation not working:**
+- Ensure `serviceId` field is being saved (required for validation)
+- Verify `purchasedServices` array contains services with matching IDs
+- Check console for validation warnings
+
+**Component not rendering:**
+- Verify component is imported in `serviceComponentMapping.ts`
+- Check for TypeScript compilation errors
+- Ensure component exports a valid React.FC
+
 ## Related Documentation
 
 - Original documentation was cleaned up (many .md files deleted in recent commits)
 - For Zoho integration details, see `src/integrations/zoho/`
 - For phase workflow, see `src/components/PhaseWorkflow/`
 - For testing examples, see `e2e/full-flow.test.ts`
+- For Phase 2 Service Requirements developer guide, see `PHASE2_SERVICE_REQUIREMENTS_GUIDE.md`

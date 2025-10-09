@@ -30,6 +30,25 @@ export * from './proposal';
 export * from './serviceRequirements';
 
 // ============================================================================
+// PHASE 2 SERVICE TYPES (Services 1-59)
+// ============================================================================
+
+// Re-export automation service types (Services 1-20)
+export * from './automationServices';
+
+// Re-export AI agent service types (Services 21-30)
+export * from './aiAgentServices';
+
+// Re-export integration service types (Services 31-40)
+export * from './integrationServices';
+
+// Re-export system implementation service types (Services 41-49)
+export * from './systemImplementationServices';
+
+// Re-export additional service types (Services 50-59)
+export * from './additionalServices';
+
+// ============================================================================
 // PHASE TRACKING TYPES
 // ============================================================================
 

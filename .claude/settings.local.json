@@ -43,7 +43,13 @@
       "Bash(dir ts-output.txt)",
       "Bash(Select-String \"6133\")",
       "Bash(Select-Object -First 100)",
-      "Bash(Select-String -Pattern \"englishExport|exportCSV\")"
+      "Bash(Select-String -Pattern \"englishExport|exportCSV\")",
+      "Bash(for file in .claude/agents/*-requirements-researcher.md)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(head:*)",
+      "Bash(done)",
+      "WebSearch",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []

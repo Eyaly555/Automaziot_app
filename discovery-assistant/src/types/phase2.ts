@@ -5,6 +5,32 @@
  * AFTER the client approves moving forward with the project.
  */
 
+// Import all service types from dedicated service files
+import {
+  AutomationServiceConfig,
+  AutomationServiceEntry,
+} from './automationServices';
+
+import {
+  AIAgentServiceConfig,
+  AIAgentServiceEntry,
+} from './aiAgentServices';
+
+import {
+  IntegrationServiceConfig,
+  IntegrationServiceEntry,
+} from './integrationServices';
+
+import {
+  SystemImplementationServiceConfig,
+  SystemImplementationServiceEntry,
+} from './systemImplementationServices';
+
+import {
+  AdditionalServiceConfig,
+  AdditionalServiceEntry,
+} from './additionalServices';
+
 // ============================================================================
 // SYSTEM DEEP DIVE
 // ============================================================================
@@ -496,19 +522,63 @@ export interface UsabilityRequirement {
 // IMPLEMENTATION SPEC CONTAINER
 // ============================================================================
 
+/**
+ * Implementation Specification Data - Phase 2
+ * נתוני מפרט הטמעה - שלב 2
+ *
+ * Contains all technical specifications gathered after client approval.
+ * Organized by service categories: Systems, Integrations, AI Agents, Automations,
+ * System Implementations, and Additional Services.
+ */
 export interface ImplementationSpecData {
+  // Core Phase 2 Components (existing structure)
+  /** מערכות עם פירוט טכני מלא */
   systems: DetailedSystemSpec[];
+
+  /** זרימות אינטגרציה בין מערכות */
   integrations: IntegrationFlow[];
+
+  /** סוכני AI עם מפרט מפורט */
   aiAgents: DetailedAIAgentSpec[];
+
+  // NEW: Strongly-typed service configurations (Services 1-59)
+
+  /** שירותי אוטומציה (Services 1-20) - Typed automation configurations */
+  automations: AutomationServiceEntry[];
+
+  /** שירותי AI נוספים (Services 21-30) - AI agent services beyond basic agents */
+  aiAgentServices?: AIAgentServiceEntry[];
+
+  /** שירותי אינטגרציה (Services 31-40) - Integration services */
+  integrationServices?: IntegrationServiceEntry[];
+
+  /** הטמעות מערכות (Services 41-49) - System implementation services */
+  systemImplementations?: SystemImplementationServiceEntry[];
+
+  /** שירותים נוספים (Services 50-59) - Additional services (data, reports, training, support, consulting) */
+  additionalServices?: AdditionalServiceEntry[];
+
+  // Acceptance Criteria
+  /** קריטריונים לקבלה */
   acceptanceCriteria: AcceptanceCriteria;
 
   // Timeline
+  /** תאריך התחלה משוער */
   estimatedStartDate?: Date;
+
+  /** תאריך סיום משוער */
   estimatedCompletionDate?: Date;
+
+  /** סך שעות משוער */
   totalEstimatedHours: number;
 
   // Progress
+  /** אחוז השלמה */
   completionPercentage: number;
+
+  /** עדכון אחרון */
   lastUpdated: Date;
+
+  /** עודכן על ידי */
   updatedBy: string;
 }

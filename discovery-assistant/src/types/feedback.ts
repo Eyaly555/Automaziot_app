@@ -680,3 +680,129 @@ export interface ErrorFallbackConfig {
   /** Contact support link */
   supportLink?: string;
 }
+
+// ============================================================================
+// DEVELOPER FEEDBACK SYSTEM (Personal Use)
+// ============================================================================
+
+/**
+ * Console log entry for feedback capture
+ */
+export interface ConsoleLogEntry {
+  /** Log level */
+  level: 'log' | 'warn' | 'error' | 'info';
+
+  /** Log message */
+  message: string;
+
+  /** Timestamp */
+  timestamp: string;
+
+  /** Stack trace (errors only) */
+  stack?: string;
+}
+
+/**
+ * Component information for feedback context
+ */
+export interface ComponentInfo {
+  /** Component name */
+  name: string;
+
+  /** Display name (Hebrew/English) */
+  displayName: string;
+
+  /** File path */
+  filePath: string;
+}
+
+/**
+ * Feedback entry categories
+ */
+export type FeedbackCategory = 'bug' | 'feature' | 'ui_ux' | 'error' | 'performance' | 'note';
+
+/**
+ * Feedback priority levels
+ */
+export type FeedbackPriority = 'low' | 'medium' | 'high' | 'urgent';
+
+/**
+ * Feedback status
+ */
+export type FeedbackStatus = 'todo' | 'doing' | 'done';
+
+/**
+ * Developer feedback entry
+ *
+ * @description
+ * Captures bugs, features, and notes during production testing
+ * for review in Claude Code development sessions.
+ *
+ * @example
+ * ```typescript
+ * const feedback: FeedbackEntry = {
+ *   id: 'abc-123',
+ *   timestamp: '2025-01-09T14:30:00Z',
+ *   route: '/phase2/systems',
+ *   componentName: 'SystemDeepDive',
+ *   filePath: 'src/components/Phase2/SystemDeepDive.tsx',
+ *   category: 'bug',
+ *   priority: 'high',
+ *   title: 'Save button freezes page',
+ *   description: 'Clicking save causes 5 second freeze then console error',
+ *   consoleLogs: [...],
+ *   consoleErrors: [...],
+ *   status: 'todo'
+ * };
+ * ```
+ */
+export interface FeedbackEntry {
+  /** Unique ID */
+  id: string;
+
+  /** Creation timestamp (ISO 8601) */
+  timestamp: string;
+
+  // Location Context
+  /** Current route */
+  route: string;
+
+  /** Component name */
+  componentName: string;
+
+  /** File path */
+  filePath: string;
+
+  /** Optional line number */
+  lineNumber?: number;
+
+  // Feedback Content
+  /** Feedback category */
+  category: FeedbackCategory;
+
+  /** Priority level */
+  priority: FeedbackPriority;
+
+  /** Feedback title */
+  title: string;
+
+  /** Detailed description */
+  description: string;
+
+  // Technical Data
+  /** Recent console logs */
+  consoleLogs: ConsoleLogEntry[];
+
+  /** Console errors only */
+  consoleErrors: ConsoleLogEntry[];
+
+  /** Screenshot (base64) */
+  screenshot?: string;
+
+  // Status Tracking
+  /** Current status */
+  status: FeedbackStatus;
+
+  /** Resolution notes */
+  notes?: string;
+}

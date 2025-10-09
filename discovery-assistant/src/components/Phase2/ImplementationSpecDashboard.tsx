@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import {
   Server,
@@ -11,7 +11,8 @@ import {
   ChevronRight,
   Database,
   Zap,
-  ClipboardList
+  ClipboardList,
+  FileCheck
 } from 'lucide-react';
 import { ImplementationSpecData, CollectedRequirements, SelectedService } from '../../types';
 import { DetailedSystemSpec, IntegrationFlow, DetailedAIAgentSpec, FunctionalRequirement } from '../../types/phase2';
@@ -20,6 +21,7 @@ import { getServiceById } from '../../config/servicesDatabase';
 import { getRequirementsTemplate } from '../../config/serviceRequirementsTemplates';
 import { ExportMenu } from '../Common/ExportMenu';
 import { Button } from '../Base';
+import { IncompleteServicesAlert } from './IncompleteServicesAlert';
 
 type SpecSection = 'requirements' | 'systems' | 'integrations' | 'ai_agents' | 'acceptance';
 
@@ -260,8 +262,30 @@ export const ImplementationSpecDashboard: React.FC = () => {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
+        {/* Alert for incomplete services */}
+        <IncompleteServicesAlert />
+
+        {/* Link to Service Requirements Router */}
+        <div className="mt-6 p-6 bg-white rounded-lg shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">איסוף דרישות טכניות</h3>
+              <p className="text-gray-600 mt-1">
+                מלא את הדרישות הטכניות עבור כל השירותים שנרכשו
+              </p>
+            </div>
+            <Link
+              to="/phase2/service-requirements"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+            >
+              <FileCheck className="w-5 h-5" />
+              מלא דרישות טכניות
+            </Link>
+          </div>
+        </div>
+
         {/* Section Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 mt-6">
           {sections.map((section: typeof sections[number]) => {
             const Icon = section.icon;
             const isSelected = selectedSection === section.id;
