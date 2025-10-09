@@ -185,6 +185,10 @@ export const useMeetingStore = create<MeetingStore>()(
       isLoadingClients: false,
       clientsLoadError: null,
 
+      // Memoization cache for phase validation to reduce console spam
+      _validationCache: new Map<string, { result: boolean; timestamp: number }>(),
+      _lastLoggedState: {} as Record<string, boolean>,
+
       /**
        * Creates a new meeting with current data schema version
        *
@@ -1443,9 +1447,6 @@ export const useMeetingStore = create<MeetingStore>()(
         }
       },
 
-      // Memoization cache for phase validation to reduce console spam
-      _validationCache: new Map<string, { result: boolean; timestamp: number }>() = new Map(),
-      _lastLoggedState: Record<string, boolean> = {},
 
       /**
        * Validates if the current meeting can transition to the target phase
