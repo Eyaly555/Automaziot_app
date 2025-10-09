@@ -62,7 +62,7 @@ export const OverviewModule: React.FC = () => {
 
   // Basic Information
   const [businessType, setBusinessType] = useState(overviewData.businessType || '');
-  const [employees, setEmployees] = useState(overviewData.employees);
+  const [employees, setEmployees] = useState<string | number | undefined>(overviewData.employees);
   const [mainChallenge, setMainChallenge] = useState(overviewData.mainChallenge || '');
   const [budget, setBudget] = useState(overviewData.budget || '');
 

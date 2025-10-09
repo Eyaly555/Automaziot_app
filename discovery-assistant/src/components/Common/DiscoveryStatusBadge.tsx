@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   FileSearch,
   FileCheck,
@@ -19,7 +20,7 @@ interface DiscoveryStatusBadgeProps {
 
 // Status icon mapper
 const getStatusIcon = (status: DiscoveryStatusValue, size: number) => {
-  const iconMap: Record<DiscoveryStatusValue, JSX.Element> = {
+  const iconMap: Record<DiscoveryStatusValue, React.ReactElement> = {
     discovery_started: <FileSearch size={size} />,
     proposal: <FileCheck size={size} />,
     proposal_sent: <Send size={size} />,

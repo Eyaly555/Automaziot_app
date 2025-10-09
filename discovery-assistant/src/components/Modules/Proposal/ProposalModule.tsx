@@ -33,7 +33,7 @@ interface Filters {
 
 // Service icon mapper
 const getServiceIcon = (category: string, size = 24) => {
-  const iconMap: Record<string, React.JSX.Element> = {
+  const iconMap: Record<string, React.ReactElement> = {
     automations: <Zap size={size} className="text-blue-500" />,
     ai_agents: <Bot size={size} className="text-purple-500" />,
     integrations: <Link size={size} className="text-green-500" />,

@@ -76,7 +76,6 @@ export const ValidatedFormExample: React.FC = () => {
         { type: 'required', message: 'סוג העסק הוא שדה חובה' }
       ],
       employees: [
-        ...numberRules,
         { type: 'required', message: 'מספר עובדים הוא שדה חובה' },
         { type: 'min', value: 1, message: 'מספר עובדים חייב להיות לפחות 1' },
         { type: 'max', value: 10000, message: 'מספר עובדים לא יכול להיות יותר מ-10000' },
