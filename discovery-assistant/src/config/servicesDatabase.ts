@@ -299,7 +299,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
   },
   {
     id: 'reports-automated',
-    category: 'automations',
+    category: 'additional_services',
     name: 'Automated Reports & Dashboards',
     nameHe: 'דוחות ודשבורדים אוטומטיים',
     description: 'Automated report generation and real-time dashboards',
@@ -923,6 +923,30 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     estimatedDays: 0, // ongoing
     complexity: 'simple',
     tags: ['training', 'ongoing', 'support', 'learning']
+  },
+  {
+    id: 'consulting-strategy',
+    category: 'additional_services',
+    name: 'Strategy Consulting',
+    nameHe: 'ייעוץ אסטרטגי',
+    description: 'Strategic consulting for automation and digital transformation',
+    descriptionHe: 'ייעוץ אסטרטגי לאוטומציה וטרנספורמציה דיגיטלית',
+    basePrice: 3000,
+    estimatedDays: 0, // consulting
+    complexity: 'medium',
+    tags: ['consulting', 'strategy', 'planning', 'advisory']
+  },
+  {
+    id: 'consulting-process',
+    category: 'additional_services',
+    name: 'Process Optimization Consulting',
+    nameHe: 'ייעוץ אופטימיזציה של תהליכים',
+    description: 'Process mapping and optimization consulting',
+    descriptionHe: 'ייעוץ למיפוי ואופטימיזציה של תהליכים עסקיים',
+    basePrice: 2500,
+    estimatedDays: 0, // consulting
+    complexity: 'medium',
+    tags: ['consulting', 'process', 'optimization', 'mapping']
   }
 ];
 

@@ -79,6 +79,10 @@ export interface ProposalData {
   approvalNotes?: string; // Additional client notes
   rejectionFeedback?: string; // Feedback if rejected
   rejectedAt?: string; // ISO timestamp
+
+  // Proposal sent tracking (for Discovery_Status workflow)
+  proposalSent?: boolean; // True when proposal downloaded/sent
+  proposalSentAt?: string; // ISO timestamp when proposal was sent
 }
 
 export interface ProposalExport {

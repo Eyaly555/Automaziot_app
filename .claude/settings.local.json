@@ -53,7 +53,12 @@
       "Bash(mv:*)",
       "Bash(git add:*)",
       "Bash(git commit -m \"$(cat <<''EOF''\nPhase 2 Foundation: Move misplaced components and add missing services\n\n- Moved AIFAQBotSpec and AITriageSpec to AIAgents/ subdirectory\n- Updated serviceComponentMapping.ts imports (lines 34, 43)\n- Updated AppContent.tsx imports\n- Fixed all internal relative imports (../../../../)\n- Added data-migration service to servicesDatabase.ts\n- Added training-ongoing service to servicesDatabase.ts\n- All 59 services now properly organized and registered\n- Zero broken imports confirmed\n- TypeScript compilation validated (no new errors from changes)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(for file in \"C:\\Users\\eyaly\\Desktop\\Businesses\\eym-group_n8n\\internal_app\\discovery-assistant\\src\\components\\Phase2\\ServiceRequirements\\Automations\"/*Spec.tsx)"
+      "Bash(for file in \"C:\\Users\\eyaly\\Desktop\\Businesses\\eym-group_n8n\\internal_app\\discovery-assistant\\src\\components\\Phase2\\ServiceRequirements\\Automations\"/*Spec.tsx)",
+      "Bash(for:*)",
+      "Bash(do echo -n \"$file.tsx: \")",
+      "Bash(wc:*)",
+      "Bash(awk:*)",
+      "Bash(src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx)"
     ],
     "deny": [],
     "ask": []

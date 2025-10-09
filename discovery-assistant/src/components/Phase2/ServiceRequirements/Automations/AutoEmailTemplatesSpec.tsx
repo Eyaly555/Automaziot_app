@@ -1,165 +1,79 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {
-  Save,
-  AlertCircle,
-  CheckCircle,
-  Plus,
-  Trash2,
-  Mail,
-  Settings,
-  FileText,
-  Shield,
-  Eye,
-  Code,
-  Loader,
-  Info,
-  Sparkles
-} from 'lucide-react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
-import { AutoEmailTemplatesConfig } from '../../../../types/automationServices';
-import { Button, Input, Select } from '../../../Base';
+import type { AutoEmailTemplatesRequirements } from '../../../../types/automationServices';
+import { Card } from '../../../Common/Card';
+import { Plus, Save, Mail, Settings, Code, TestTube, Palette, AlertCircle } from 'lucide-react';
 
-const generateId = () => Math.random().toString(36).substr(2, 9);
+const generateId = () => Math.random().toString(36).substring(2, 11);
 
-const EMAIL_SERVICES = [
-  { value: 'sendgrid', label: 'SendGrid' },
-  { value: 'mailgun', label: 'Mailgun' },
-  { value: 'smtp', label: 'SMTP' },
-  { value: 'gmail', label: 'Gmail API' },
-  { value: 'outlook', label: 'Outlook/Office 365' },
-  { value: 'amazon_ses', label: 'Amazon SES' }
-];
-
-const TEMPLATE_ENGINES = [
-  { value: 'handlebars', label: 'Handlebars ({{variable}})' },
-  { value: 'liquid', label: 'Liquid ({{ variable }})' },
-  { value: 'mustache', label: 'Mustache ({{variable}})' },
-  { value: 'ejs', label: 'EJS (<%= variable %>)' }
-];
-
-const CRM_SYSTEMS = [
-  { value: 'zoho', label: 'Zoho CRM' },
-  { value: 'salesforce', label: 'Salesforce' },
-  { value: 'hubspot', label: 'HubSpot' },
-  { value: 'pipedrive', label: 'Pipedrive' },
-  { value: 'other', label: 'אחר' }
-];
-
-const TEMPLATE_CATEGORIES = [
-  { value: 'welcome', label: 'Welcome Email' },
-  { value: 'follow_up', label: 'Follow-Up' },
-  { value: 'proposal', label: 'הצעת מחיר' },
-  { value: 'invoice', label: 'חשבונית' },
-  { value: 'thank_you', label: 'תודה' },
-  { value: 'reminder', label: 'תזכורת' },
-  { value: 'newsletter', label: 'Newsletter' },
-  { value: 'custom', label: 'אחר' }
-];
-
-const DATA_SOURCES = [
-  { value: 'crm', label: 'CRM' },
-  { value: 'form', label: 'Form Data' },
-  { value: 'manual', label: 'Manual Input' },
-  { value: 'computed', label: 'Computed/Calculated' }
-];
-
-const FIELD_FORMATS = [
-  { value: 'text', label: 'Text' },
-  { value: 'date', label: 'Date' },
-  { value: 'currency', label: 'Currency' },
-  { value: 'number', label: 'Number' }
-];
-
-const DESIGN_TOOLS = [
-  { value: 'stripo', label: 'Stripo.email' },
-  { value: 'beefree', label: 'BeeFree' },
-  { value: 'unlayer', label: 'Unlayer' },
-  { value: 'custom_html', label: 'Custom HTML' }
-];
-
-const TEST_TOOLS = [
-  { value: 'litmus', label: 'Litmus' },
-  { value: 'email_on_acid', label: 'Email on Acid' },
-  { value: 'mailtrap', label: 'Mailtrap' },
-  { value: 'none', label: 'None' }
-];
-
-const ERROR_STRATEGIES = [
-  { value: 'retry', label: 'Retry נוסף' },
-  { value: 'skip_and_log', label: 'דלג ורשום ב-log' },
-  { value: 'alert_admin', label: 'התרעה למנהל' },
-  { value: 'fallback', label: 'Fallback לשירות אחר' }
-];
-
-export const AutoEmailTemplatesSpec: React.FC = () => {
-  const navigate = useNavigate();
+export function AutoEmailTemplatesSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
 
-  const [config, setConfig] = useState<AutoEmailTemplatesConfig>({
-    emailService: 'sendgrid',
-    templateEngine: 'handlebars',
-    crmSystem: 'zoho',
-    n8nAccess: true,
-    emailCredentialsReady: false,
-    domainVerified: false,
-    spfRecordConfigured: false,
-    dkimRecordConfigured: false,
-    dmarcRecordConfigured: false,
-    rateLimitKnown: false,
-    templates: [],
-    personalizationFields: [],
-    crmCredentialsReady: false,
-    crmFieldsAvailable: [],
-    dataFetchMethod: 'api_call',
-    spamScoreChecked: false,
-    mobileTestingDone: false,
-    darkModeCompatible: false,
-    unsubscribeMechanismConfigured: false,
-    unsubscribeListManaged: false,
-    physicalAddressIncluded: false,
-    privacyPolicyLinked: false,
-    gdprCompliant: false,
-    canSpamCompliant: false,
-    israeliPrivacyLawCompliant: false,
-    abTestingEnabled: false,
-    automationTriggers: [],
-    errorHandlingStrategy: 'retry',
-    retryAttempts: 3,
-    retryDelay: 5,
-    errorNotificationEmail: '',
-    logFailedSends: true,
-    testMode: true
+  const [config, setConfig] = useState<AutoEmailTemplatesRequirements>({
+    emailServiceAccess: {
+      provider: 'sendgrid',
+      domainVerification: {
+        domain: '',
+        spfRecord: '',
+        dkimRecord: '',
+        dmarcRecord: '',
+        verified: false
+      }
+    },
+    templateEngine: {
+      engine: 'handlebars',
+      version: '',
+      syntaxSupport: {
+        variables: true,
+        conditionals: true,
+        loops: true,
+        partials: true
+      }
+    },
+    crmAccess: {
+      system: 'zoho',
+      authMethod: 'oauth',
+      credentials: {},
+      fieldsAvailable: []
+    },
+    n8nWorkflow: {
+      instanceUrl: '',
+      webhookEndpoint: '',
+      httpsEnabled: true,
+      templateRendering: {
+        engine: 'handlebars',
+        renderNode: true
+      },
+      errorHandling: {
+        retryAttempts: 3,
+        alertEmail: '',
+        logErrors: true
+      }
+    }
   });
 
-  const [activeTab, setActiveTab] = useState<'basic' | 'templates' | 'personalization' | 'legal'>('basic');
+  const [activeTab, setActiveTab] = useState<'service' | 'domain' | 'template' | 'crm' | 'workflow' | 'design' | 'testing'>('service');
   const [isSaving, setIsSaving] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<string | null>(null);
 
-  // Load existing config from meeting store if available
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
-    const existing = automations.find((a: any) => a.serviceId === 'auto-email-templates');
+    const existing = automations.find((item: any) => item.serviceId === 'auto-email-templates');
     if (existing?.requirements) {
       setConfig(existing.requirements);
     }
   }, [currentMeeting]);
 
-  const handleSave = async () => {
+  const handleSave = () => {
+    if (!currentMeeting) return;
+
     setIsSaving(true);
     try {
-      if (!currentMeeting) return;
-
-      // קריאת המערך הקיים
       const automations = currentMeeting?.implementationSpec?.automations || [];
+      const updated = automations.filter((item: any) => item.serviceId !== 'auto-email-templates');
 
-      // הסרת רשומה קיימת (אם יש) למניעת כפילויות
-      const updated = automations.filter((a: any) => a.serviceId !== 'auto-email-templates');
-
-      // הוספת רשומה חדשה/מעודכנת
       updated.push({
         serviceId: 'auto-email-templates',
-        serviceName: 'תבניות אימייל אוטומטיות',
+        serviceName: 'ניהול תבניות Email אוטומטיות',
         requirements: config,
         completedAt: new Date().toISOString()
       });
@@ -171,95 +85,79 @@ export const AutoEmailTemplatesSpec: React.FC = () => {
         },
       });
 
-      setTimeout(() => {
-        setIsSaving(false);
-        navigate('/phase2');
-      }, 500);
+      alert('הגדרות נשמרו בהצלחה!');
     } catch (error) {
-      console.error('Error saving auto-email-templates config:', error);
+      console.error('Error saving auto-email-templates:', error);
+      alert('שגיאה בשמירת הגדרות');
+    } finally {
       setIsSaving(false);
     }
   };
 
-  const addTemplate = () => {
-    const newTemplate = {
-      id: generateId(),
-      name: 'תבנית חדשה',
-      nameHe: 'תבנית חדשה',
-      category: 'custom' as const,
-      subject: '',
-      htmlContent: '',
-      personalizationFields: [],
-      unsubscribeLink: false,
-      mobileResponsive: false,
-      testEmailSent: false,
-      lastModified: new Date(),
-      status: 'draft' as const
-    };
-
+  const addCrmField = () => {
     setConfig({
       ...config,
-      templates: [...config.templates, newTemplate]
-    });
-    setEditingTemplate(newTemplate.id);
-  };
-
-  const removeTemplate = (id: string) => {
-    setConfig({
-      ...config,
-      templates: config.templates.filter(t => t.id !== id)
-    });
-    if (editingTemplate === id) {
-      setEditingTemplate(null);
-    }
-  };
-
-  const updateTemplate = (id: string, updates: Partial<typeof config.templates[0]>) => {
-    setConfig({
-      ...config,
-      templates: config.templates.map(t => t.id === id ? { ...t, ...updates, lastModified: new Date() } : t)
+      crmAccess: {
+        ...config.crmAccess,
+        fieldsAvailable: [
+          ...config.crmAccess.fieldsAvailable,
+          {
+            apiName: '',
+            label: '',
+            type: ''
+          }
+        ]
+      }
     });
   };
 
-  const addPersonalizationField = () => {
+  const removeCrmField = (index: number) => {
     setConfig({
       ...config,
-      personalizationFields: [
-        ...config.personalizationFields,
-        {
-          fieldName: '',
-          fieldLabel: '',
-          fieldLabelHe: '',
-          dataSource: 'crm',
-          required: false
+      crmAccess: {
+        ...config.crmAccess,
+        fieldsAvailable: config.crmAccess.fieldsAvailable.filter((_, i) => i !== index)
+      }
+    });
+  };
+
+  const addDesignTemplate = () => {
+    if (!config.designTools) {
+      setConfig({
+        ...config,
+        designTools: {
+          tool: 'stripo',
+          templates: []
         }
-      ]
-    });
-  };
-
-  const removePersonalizationField = (index: number) => {
-    setConfig({
-      ...config,
-      personalizationFields: config.personalizationFields.filter((_, i) => i !== index)
-    });
-  };
-
-  const updatePersonalizationField = (index: number, updates: Partial<typeof config.personalizationFields[0]>) => {
-    setConfig({
-      ...config,
-      personalizationFields: config.personalizationFields.map((f, i) => i === index ? { ...f, ...updates } : f)
-    });
-  };
-
-  const getTemplateStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft': return 'text-gray-600 bg-gray-100';
-      case 'testing': return 'text-yellow-600 bg-yellow-100';
-      case 'active': return 'text-green-600 bg-green-100';
-      case 'paused': return 'text-orange-600 bg-orange-100';
-      case 'archived': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
+      });
     }
+
+    setConfig({
+      ...config,
+      designTools: {
+        ...config.designTools!,
+        templates: [
+          ...(config.designTools?.templates || []),
+          {
+            id: generateId(),
+            name: '',
+            category: ''
+          }
+        ]
+      }
+    });
+  };
+
+  const removeDesignTemplate = (index: number) => {
+    if (!config.designTools) return;
+
+    setConfig({
+      ...config,
+      designTools: {
+        ...config.designTools,
+        templates: config.designTools.templates?.filter((_, i) => i !== index)
+      }
+    });
   };
 
   return (
@@ -270,46 +168,40 @@ export const AutoEmailTemplatesSpec: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                תבניות אימייל אוטומטיות
+                שירות #20: ניהול תבניות Email אוטומטיות
               </h1>
               <p className="text-gray-600">
-                Automated Email Templates - Service #9
+                Auto Email Templates - Service #20
               </p>
             </div>
-            <Button
+            <button
               onClick={handleSave}
               disabled={isSaving}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
             >
-              {isSaving ? (
-                <>
-                  <Loader className="w-4 h-4 animate-spin" />
-                  שומר...
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4" />
-                  שמור
-                </>
-              )}
-            </Button>
+              <Save className="w-4 h-4" />
+              {isSaving ? 'שומר...' : 'שמור'}
+            </button>
           </div>
         </div>
 
         {/* Tabs */}
         <div className="bg-white rounded-lg shadow-sm mb-6">
           <div className="border-b border-gray-200">
-            <nav className="flex gap-4 px-6">
+            <nav className="flex gap-2 px-6 overflow-x-auto">
               {[
-                { id: 'basic', label: 'הגדרות בסיס', icon: Settings },
-                { id: 'templates', label: 'תבניות', icon: Mail },
-                { id: 'personalization', label: 'התאמה אישית', icon: Sparkles },
-                { id: 'legal', label: 'תאימות משפטית', icon: Shield }
+                { id: 'service', label: 'שירות Email', icon: Mail },
+                { id: 'domain', label: 'אימות דומיין', icon: Settings },
+                { id: 'template', label: 'Template Engine', icon: Code },
+                { id: 'crm', label: 'גישה ל-CRM', icon: Settings },
+                { id: 'workflow', label: 'n8n Workflow', icon: Settings },
+                { id: 'design', label: 'כלי עיצוב', icon: Palette },
+                { id: 'testing', label: 'כלי בדיקה', icon: TestTube }
               ].map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
+                  className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors whitespace-nowrap ${
                     activeTab === tab.id
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -323,165 +215,461 @@ export const AutoEmailTemplatesSpec: React.FC = () => {
           </div>
 
           <div className="p-6">
-            {/* Basic Settings Tab */}
-            {activeTab === 'basic' && (
+            {/* Tab 1: Email Service Provider */}
+            {activeTab === 'service' && (
               <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      שירות אימייל
-                    </label>
-                    <Select
-                      value={config.emailService}
-                      onChange={(e) => setConfig({ ...config, emailService: e.target.value as any })}
-                      options={EMAIL_SERVICES}
-                    />
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">ספק שירות Email</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        בחר ספק
+                      </label>
+                      <select
+                        value={config.emailServiceAccess.provider}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          emailServiceAccess: {
+                            ...config.emailServiceAccess,
+                            provider: e.target.value as any
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      >
+                        <option value="sendgrid">SendGrid</option>
+                        <option value="mailgun">Mailgun</option>
+                        <option value="smtp">SMTP</option>
+                        <option value="gmail">Gmail API</option>
+                        <option value="outlook">Outlook/Office 365</option>
+                        <option value="amazon_ses">Amazon SES</option>
+                      </select>
+                    </div>
+
+                    {/* SendGrid Credentials */}
+                    {config.emailServiceAccess.provider === 'sendgrid' && (
+                      <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                        <h4 className="font-medium">הגדרות SendGrid</h4>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            API Key
+                          </label>
+                          <input
+                            type="password"
+                            value={config.emailServiceAccess.sendgridCredentials?.apiKey || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              emailServiceAccess: {
+                                ...config.emailServiceAccess,
+                                sendgridCredentials: {
+                                  apiKey: e.target.value,
+                                  rateLimits: config.emailServiceAccess.sendgridCredentials?.rateLimits || {
+                                    free: { daily: 100 },
+                                    paid: { daily: 40000 }
+                                  }
+                                }
+                              }
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="SG.xxxxxxxxxxxxx"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              מגבלה יומית (Free)
+                            </label>
+                            <input
+                              type="number"
+                              value={config.emailServiceAccess.sendgridCredentials?.rateLimits.free.daily || 100}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                              disabled
+                              readOnly
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              מגבלה יומית (Paid)
+                            </label>
+                            <input
+                              type="number"
+                              value={config.emailServiceAccess.sendgridCredentials?.rateLimits.paid.daily || 40000}
+                              onChange={(e) => setConfig({
+                                ...config,
+                                emailServiceAccess: {
+                                  ...config.emailServiceAccess,
+                                  sendgridCredentials: {
+                                    ...config.emailServiceAccess.sendgridCredentials!,
+                                    rateLimits: {
+                                      ...config.emailServiceAccess.sendgridCredentials!.rateLimits,
+                                      paid: { daily: parseInt(e.target.value) || 40000 }
+                                    }
+                                  }
+                                }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Mailgun Credentials */}
+                    {config.emailServiceAccess.provider === 'mailgun' && (
+                      <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                        <h4 className="font-medium">הגדרות Mailgun</h4>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            API Key
+                          </label>
+                          <input
+                            type="password"
+                            value={config.emailServiceAccess.mailgunCredentials?.apiKey || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              emailServiceAccess: {
+                                ...config.emailServiceAccess,
+                                mailgunCredentials: {
+                                  ...config.emailServiceAccess.mailgunCredentials!,
+                                  apiKey: e.target.value,
+                                  domain: config.emailServiceAccess.mailgunCredentials?.domain || '',
+                                  region: config.emailServiceAccess.mailgunCredentials?.region || 'us',
+                                  rateLimits: config.emailServiceAccess.mailgunCredentials?.rateLimits || {
+                                    free: { monthly: 5000 },
+                                    paid: { monthly: 50000 }
+                                  }
+                                }
+                              }
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Domain
+                          </label>
+                          <input
+                            type="text"
+                            value={config.emailServiceAccess.mailgunCredentials?.domain || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              emailServiceAccess: {
+                                ...config.emailServiceAccess,
+                                mailgunCredentials: {
+                                  ...config.emailServiceAccess.mailgunCredentials!,
+                                  domain: e.target.value
+                                }
+                              }
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="mg.example.com"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Region
+                          </label>
+                          <select
+                            value={config.emailServiceAccess.mailgunCredentials?.region || 'us'}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              emailServiceAccess: {
+                                ...config.emailServiceAccess,
+                                mailgunCredentials: {
+                                  ...config.emailServiceAccess.mailgunCredentials!,
+                                  region: e.target.value as 'us' | 'eu'
+                                }
+                              }
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          >
+                            <option value="us">US</option>
+                            <option value="eu">EU</option>
+                          </select>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              מגבלה חודשית (Free)
+                            </label>
+                            <input
+                              type="number"
+                              value={config.emailServiceAccess.mailgunCredentials?.rateLimits.free.monthly || 5000}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                              disabled
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              מגבלה חודשית (Paid)
+                            </label>
+                            <input
+                              type="number"
+                              value={config.emailServiceAccess.mailgunCredentials?.rateLimits.paid.monthly || 50000}
+                              onChange={(e) => setConfig({
+                                ...config,
+                                emailServiceAccess: {
+                                  ...config.emailServiceAccess,
+                                  mailgunCredentials: {
+                                    ...config.emailServiceAccess.mailgunCredentials!,
+                                    rateLimits: {
+                                      ...config.emailServiceAccess.mailgunCredentials!.rateLimits,
+                                      paid: { monthly: parseInt(e.target.value) || 50000 }
+                                    }
+                                  }
+                                }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SMTP Credentials */}
+                    {config.emailServiceAccess.provider === 'smtp' && (
+                      <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                        <h4 className="font-medium">הגדרות SMTP</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Host
+                            </label>
+                            <input
+                              type="text"
+                              value={config.emailServiceAccess.smtpCredentials?.host || ''}
+                              onChange={(e) => setConfig({
+                                ...config,
+                                emailServiceAccess: {
+                                  ...config.emailServiceAccess,
+                                  smtpCredentials: {
+                                    ...config.emailServiceAccess.smtpCredentials!,
+                                    host: e.target.value,
+                                    port: config.emailServiceAccess.smtpCredentials?.port || 587,
+                                    username: config.emailServiceAccess.smtpCredentials?.username || '',
+                                    password: config.emailServiceAccess.smtpCredentials?.password || '',
+                                    secure: config.emailServiceAccess.smtpCredentials?.secure || true
+                                  }
+                                }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                              placeholder="smtp.gmail.com"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Port
+                            </label>
+                            <input
+                              type="number"
+                              value={config.emailServiceAccess.smtpCredentials?.port || 587}
+                              onChange={(e) => setConfig({
+                                ...config,
+                                emailServiceAccess: {
+                                  ...config.emailServiceAccess,
+                                  smtpCredentials: {
+                                    ...config.emailServiceAccess.smtpCredentials!,
+                                    port: parseInt(e.target.value) || 587
+                                  }
+                                }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Username
+                            </label>
+                            <input
+                              type="text"
+                              value={config.emailServiceAccess.smtpCredentials?.username || ''}
+                              onChange={(e) => setConfig({
+                                ...config,
+                                emailServiceAccess: {
+                                  ...config.emailServiceAccess,
+                                  smtpCredentials: {
+                                    ...config.emailServiceAccess.smtpCredentials!,
+                                    username: e.target.value
+                                  }
+                                }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Password
+                            </label>
+                            <input
+                              type="password"
+                              value={config.emailServiceAccess.smtpCredentials?.password || ''}
+                              onChange={(e) => setConfig({
+                                ...config,
+                                emailServiceAccess: {
+                                  ...config.emailServiceAccess,
+                                  smtpCredentials: {
+                                    ...config.emailServiceAccess.smtpCredentials!,
+                                    password: e.target.value
+                                  }
+                                }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            />
+                          </div>
+                        </div>
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={config.emailServiceAccess.smtpCredentials?.secure || true}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              emailServiceAccess: {
+                                ...config.emailServiceAccess,
+                                smtpCredentials: {
+                                  ...config.emailServiceAccess.smtpCredentials!,
+                                  secure: e.target.checked
+                                }
+                              }
+                            })}
+                            className="rounded border-gray-300"
+                          />
+                          <span className="text-sm">Secure (TLS/SSL)</span>
+                        </label>
+                      </div>
+                    )}
                   </div>
+                </Card>
+              </div>
+            )}
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Template Engine
-                    </label>
-                    <Select
-                      value={config.templateEngine}
-                      onChange={(e) => setConfig({ ...config, templateEngine: e.target.value as any })}
-                      options={TEMPLATE_ENGINES}
-                    />
+            {/* Tab 2: Domain Verification */}
+            {activeTab === 'domain' && (
+              <div className="space-y-6">
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">אימות דומיין</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Domain
+                      </label>
+                      <input
+                        type="text"
+                        value={config.emailServiceAccess.domainVerification.domain}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          emailServiceAccess: {
+                            ...config.emailServiceAccess,
+                            domainVerification: {
+                              ...config.emailServiceAccess.domainVerification,
+                              domain: e.target.value
+                            }
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        placeholder="example.com"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        SPF Record
+                      </label>
+                      <textarea
+                        value={config.emailServiceAccess.domainVerification.spfRecord}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          emailServiceAccess: {
+                            ...config.emailServiceAccess,
+                            domainVerification: {
+                              ...config.emailServiceAccess.domainVerification,
+                              spfRecord: e.target.value
+                            }
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm"
+                        rows={2}
+                        placeholder="v=spf1 include:sendgrid.net ~all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        DKIM Record
+                      </label>
+                      <textarea
+                        value={config.emailServiceAccess.domainVerification.dkimRecord}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          emailServiceAccess: {
+                            ...config.emailServiceAccess,
+                            domainVerification: {
+                              ...config.emailServiceAccess.domainVerification,
+                              dkimRecord: e.target.value
+                            }
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm"
+                        rows={3}
+                        placeholder="v=DKIM1; k=rsa; p=..."
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        DMARC Record
+                      </label>
+                      <textarea
+                        value={config.emailServiceAccess.domainVerification.dmarcRecord}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          emailServiceAccess: {
+                            ...config.emailServiceAccess,
+                            domainVerification: {
+                              ...config.emailServiceAccess.domainVerification,
+                              dmarcRecord: e.target.value
+                            }
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm"
+                        rows={2}
+                        placeholder="v=DMARC1; p=quarantine; rua=mailto:dmarc@example.com"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div>
+                        <h4 className="font-medium">סטטוס אימות</h4>
+                        <p className="text-sm text-gray-600">
+                          {config.emailServiceAccess.domainVerification.verified ? 'דומיין מאומת' : 'דומיין לא מאומת'}
+                        </p>
+                      </div>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={config.emailServiceAccess.domainVerification.verified}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            emailServiceAccess: {
+                              ...config.emailServiceAccess,
+                              domainVerification: {
+                                ...config.emailServiceAccess.domainVerification,
+                                verified: e.target.checked,
+                                verificationDate: e.target.checked ? new Date() : undefined
+                              }
+                            }
+                          })}
+                          className="rounded border-gray-300"
+                        />
+                        <span className="text-sm font-medium">מאומת</span>
+                      </label>
+                    </div>
+
+                    {config.emailServiceAccess.domainVerification.verificationDate && (
+                      <div className="text-sm text-gray-600">
+                        תאריך אימות: {new Date(config.emailServiceAccess.domainVerification.verificationDate).toLocaleDateString('he-IL')}
+                      </div>
+                    )}
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      מערכת CRM
-                    </label>
-                    <Select
-                      value={config.crmSystem}
-                      onChange={(e) => setConfig({ ...config, crmSystem: e.target.value as any })}
-                      options={CRM_SYSTEMS}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      כלי עיצוב (אופציונלי)
-                    </label>
-                    <Select
-                      value={config.designToolUsed || 'custom_html'}
-                      onChange={(e) => setConfig({ ...config, designToolUsed: e.target.value as any })}
-                      options={DESIGN_TOOLS}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      כלי בדיקה (אופציונלי)
-                    </label>
-                    <Select
-                      value={config.emailTestingToolUsed || 'none'}
-                      onChange={(e) => setConfig({ ...config, emailTestingToolUsed: e.target.value as any })}
-                      options={TEST_TOOLS}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      מגבלת שליחה יומית
-                    </label>
-                    <Input
-                      type="number"
-                      value={config.dailyEmailLimit || ''}
-                      onChange={(e) => setConfig({ ...config, dailyEmailLimit: parseInt(e.target.value) || undefined })}
-                      placeholder="100"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">סטטוס הגדרות</h4>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.emailCredentialsReady}
-                      onChange={(e) => setConfig({ ...config, emailCredentialsReady: e.target.checked })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      Email Credentials מוכנים
-                    </span>
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.domainVerified}
-                      onChange={(e) => setConfig({ ...config, domainVerified: e.target.checked })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      Domain Verified
-                    </span>
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.spfRecordConfigured}
-                      onChange={(e) => setConfig({ ...config, spfRecordConfigured: e.target.checked })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      SPF Record מוגדר
-                    </span>
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.dkimRecordConfigured}
-                      onChange={(e) => setConfig({ ...config, dkimRecordConfigured: e.target.checked })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      DKIM Record מוגדר
-                    </span>
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.dmarcRecordConfigured}
-                      onChange={(e) => setConfig({ ...config, dmarcRecordConfigured: e.target.checked })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      DMARC Record מוגדר
-                    </span>
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.crmCredentialsReady}
-                      onChange={(e) => setConfig({ ...config, crmCredentialsReady: e.target.checked })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      CRM Credentials מוכנים
-                    </span>
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.n8nAccess}
-                      onChange={(e) => setConfig({ ...config, n8nAccess: e.target.checked })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      גישה ל-n8n instance
-                    </span>
-                  </label>
-                </div>
+                </Card>
 
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <div className="flex items-start gap-3">
@@ -489,12 +677,12 @@ export const AutoEmailTemplatesSpec: React.FC = () => {
                     <div>
                       <h4 className="font-medium text-red-900 mb-1">Email Deliverability - קריטי!</h4>
                       <p className="text-sm text-red-700 mb-2">
-                        תבנית עם הרבה תמונות ולינקים = ספאם! חובה Domain Verification (SPF/DKIM/DMARC).
+                        ללא אימות דומיין תקין (SPF/DKIM/DMARC), האימיילים שלך יגיעו לספאם!
                       </p>
                       <ul className="text-sm text-red-700 space-y-1 list-disc mr-5">
-                        <li>60%+ פותחים במובייל - חובה mobile responsive</li>
-                        <li>שגיאה ב-personalization ישלח "Hi {`{{firstName}}`}" ללקוח</li>
-                        <li>חובה unsubscribe link, כתובת פיזית, privacy policy (חוק)</li>
+                        <li>SPF - מאשר שרק השרתים המורשים יכולים לשלוח מהדומיין</li>
+                        <li>DKIM - חתימה קריפטוגרפית שמוכיחה שהאימייל לא שונה</li>
+                        <li>DMARC - מגדיר מה לעשות עם אימיילים שנכשלו באימות</li>
                       </ul>
                     </div>
                   </div>
@@ -502,522 +690,521 @@ export const AutoEmailTemplatesSpec: React.FC = () => {
               </div>
             )}
 
-            {/* Templates Tab */}
-            {activeTab === 'templates' && (
+            {/* Tab 3: Template Engine */}
+            {activeTab === 'template' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium text-gray-900">תבניות אימייל</h3>
-                  <Button onClick={addTemplate} className="flex items-center gap-2">
-                    <Plus className="w-4 h-4" />
-                    הוסף תבנית
-                  </Button>
-                </div>
-
-                {config.templates.length === 0 ? (
-                  <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                    <Mail className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-600 mb-4">אין תבניות עדיין</p>
-                    <Button onClick={addTemplate} variant="outline">
-                      צור תבנית ראשונה
-                    </Button>
-                  </div>
-                ) : (
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Template Engine</h3>
                   <div className="space-y-4">
-                    {config.templates.map((template) => (
-                      <div key={template.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <Input
-                                value={template.name}
-                                onChange={(e) => updateTemplate(template.id, { name: e.target.value, nameHe: e.target.value })}
-                                placeholder="שם התבנית"
-                                className="font-medium"
-                              />
-                              <span className={`px-2 py-1 rounded text-xs ${getTemplateStatusColor(template.status)}`}>
-                                {template.status}
-                              </span>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => removeTemplate(template.id)}
-                            className="text-red-600 hover:text-red-700 p-1"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        בחר Engine
+                      </label>
+                      <select
+                        value={config.templateEngine.engine}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          templateEngine: {
+                            ...config.templateEngine,
+                            engine: e.target.value as any
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      >
+                        <option value="handlebars">Handlebars ({"{{variable}}"})</option>
+                        <option value="liquid">Liquid ({"{{ variable }}"})</option>
+                        <option value="mustache">Mustache ({"{{variable}}"})</option>
+                        <option value="ejs">EJS ({"<%= variable %>"})</option>
+                      </select>
+                    </div>
 
-                        {editingTemplate === template.id ? (
-                          <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">
-                                  קטגוריה
-                                </label>
-                                <Select
-                                  value={template.category}
-                                  onChange={(e) => updateTemplate(template.id, { category: e.target.value as any })}
-                                  options={TEMPLATE_CATEGORIES}
-                                />
-                              </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        גרסה
+                      </label>
+                      <input
+                        type="text"
+                        value={config.templateEngine.version}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          templateEngine: {
+                            ...config.templateEngine,
+                            version: e.target.value
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        placeholder="4.7.7"
+                      />
+                    </div>
 
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">
-                                  סטטוס
-                                </label>
-                                <Select
-                                  value={template.status}
-                                  onChange={(e) => updateTemplate(template.id, { status: e.target.value as any })}
-                                  options={[
-                                    { value: 'draft', label: 'טיוטה' },
-                                    { value: 'testing', label: 'בבדיקה' },
-                                    { value: 'active', label: 'פעיל' },
-                                    { value: 'paused', label: 'מושהה' },
-                                    { value: 'archived', label: 'ארכיון' }
-                                  ]}
-                                />
-                              </div>
-                            </div>
+                    <div className="border-t pt-4">
+                      <h4 className="font-medium mb-3">תמיכה ב-Syntax</h4>
+                      <div className="space-y-2">
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={config.templateEngine.syntaxSupport.variables}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              templateEngine: {
+                                ...config.templateEngine,
+                                syntaxSupport: {
+                                  ...config.templateEngine.syntaxSupport,
+                                  variables: e.target.checked
+                                }
+                              }
+                            })}
+                            className="rounded border-gray-300"
+                          />
+                          <span className="text-sm">Variables ({"{{firstName}}"})</span>
+                        </label>
 
-                            <div>
-                              <label className="block text-xs font-medium text-gray-700 mb-1">
-                                נושא האימייל
-                              </label>
-                              <Input
-                                value={template.subject}
-                                onChange={(e) => updateTemplate(template.id, { subject: e.target.value })}
-                                placeholder="כאן יבוא הנושא עם {`{{variables}}`}"
-                              />
-                            </div>
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={config.templateEngine.syntaxSupport.conditionals}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              templateEngine: {
+                                ...config.templateEngine,
+                                syntaxSupport: {
+                                  ...config.templateEngine.syntaxSupport,
+                                  conditionals: e.target.checked
+                                }
+                              }
+                            })}
+                            className="rounded border-gray-300"
+                          />
+                          <span className="text-sm">Conditionals ({"{{#if}}...{{/if}}"})</span>
+                        </label>
 
-                            <div>
-                              <label className="block text-xs font-medium text-gray-700 mb-1">
-                                תוכן HTML (עם inline CSS)
-                              </label>
-                              <textarea
-                                value={template.htmlContent}
-                                onChange={(e) => updateTemplate(template.id, { htmlContent: e.target.value })}
-                                className="w-full h-48 px-3 py-2 border border-gray-300 rounded-md font-mono text-sm"
-                                placeholder="<html>...</html>"
-                                dir="ltr"
-                              />
-                            </div>
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={config.templateEngine.syntaxSupport.loops}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              templateEngine: {
+                                ...config.templateEngine,
+                                syntaxSupport: {
+                                  ...config.templateEngine.syntaxSupport,
+                                  loops: e.target.checked
+                                }
+                              }
+                            })}
+                            className="rounded border-gray-300"
+                          />
+                          <span className="text-sm">Loops ({"{{#each}}...{{/each}}"})</span>
+                        </label>
 
-                            <div>
-                              <label className="block text-xs font-medium text-gray-700 mb-1">
-                                תוכן Plain Text (אופציונלי)
-                              </label>
-                              <textarea
-                                value={template.plainTextContent || ''}
-                                onChange={(e) => updateTemplate(template.id, { plainTextContent: e.target.value })}
-                                className="w-full h-24 px-3 py-2 border border-gray-300 rounded-md text-sm"
-                                placeholder="גרסת טקסט רגיל לאימייל"
-                              />
-                            </div>
-
-                            <div className="space-y-2">
-                              <label className="flex items-center gap-2">
-                                <input
-                                  type="checkbox"
-                                  checked={template.unsubscribeLink}
-                                  onChange={(e) => updateTemplate(template.id, { unsubscribeLink: e.target.checked })}
-                                  className="rounded border-gray-300"
-                                />
-                                <span className="text-sm text-gray-700">קישור הסרה מרשימה (חובה לפי חוק)</span>
-                              </label>
-
-                              <label className="flex items-center gap-2">
-                                <input
-                                  type="checkbox"
-                                  checked={template.mobileResponsive}
-                                  onChange={(e) => updateTemplate(template.id, { mobileResponsive: e.target.checked })}
-                                  className="rounded border-gray-300"
-                                />
-                                <span className="text-sm text-gray-700">Mobile Responsive</span>
-                              </label>
-
-                              <label className="flex items-center gap-2">
-                                <input
-                                  type="checkbox"
-                                  checked={template.testEmailSent}
-                                  onChange={(e) => updateTemplate(template.id, { testEmailSent: e.target.checked })}
-                                  className="rounded border-gray-300"
-                                />
-                                <span className="text-sm text-gray-700">נשלח אימייל בדיקה</span>
-                              </label>
-                            </div>
-
-                            <Button
-                              onClick={() => setEditingTemplate(null)}
-                              variant="outline"
-                              className="w-full"
-                            >
-                              סגור עריכה
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center justify-between">
-                            <div className="text-sm text-gray-600">
-                              <div>קטגוריה: {template.category}</div>
-                              <div>נושא: {template.subject || 'לא הוגדר'}</div>
-                              <div>שדות: {template.personalizationFields.length}</div>
-                            </div>
-                            <Button
-                              onClick={() => setEditingTemplate(template.id)}
-                              variant="outline"
-                              size="sm"
-                            >
-                              ערוך
-                            </Button>
-                          </div>
-                        )}
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={config.templateEngine.syntaxSupport.partials}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              templateEngine: {
+                                ...config.templateEngine,
+                                syntaxSupport: {
+                                  ...config.templateEngine.syntaxSupport,
+                                  partials: e.target.checked
+                                }
+                              }
+                            })}
+                            className="rounded border-gray-300"
+                          />
+                          <span className="text-sm">Partials ({"{{> header}}"})</span>
+                        </label>
                       </div>
-                    ))}
+                    </div>
                   </div>
-                )}
+                </Card>
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <div className="flex items-start gap-3">
-                    <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+                    <Code className="w-5 h-5 text-blue-600 mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-blue-900 mb-1">טיפים לתבניות מוצלחות</h4>
-                      <ul className="text-sm text-blue-700 space-y-1 list-disc mr-5">
-                        <li>השתמש ב-inline CSS (לא {'<style>'} tags)</li>
-                        <li>בדוק במובייל - 60%+ פותחים שם</li>
-                        <li>אל תשים יותר מ-2-3 תמונות (spam score)</li>
-                        <li>נסה את התבנית עם personalization variables אמיתיים</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Personalization Tab */}
-            {activeTab === 'personalization' && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium text-gray-900">שדות התאמה אישית</h3>
-                  <Button onClick={addPersonalizationField} className="flex items-center gap-2">
-                    <Plus className="w-4 h-4" />
-                    הוסף שדה
-                  </Button>
-                </div>
-
-                {config.personalizationFields.length === 0 ? (
-                  <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                    <Sparkles className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-600 mb-4">אין שדות התאמה אישית עדיין</p>
-                    <Button onClick={addPersonalizationField} variant="outline">
-                      הוסף שדה ראשון
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {config.personalizationFields.map((field, index) => (
-                      <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                        <div className="grid grid-cols-4 gap-4 mb-3">
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                              שם שדה (באנגלית)
-                            </label>
-                            <Input
-                              value={field.fieldName}
-                              onChange={(e) => updatePersonalizationField(index, { fieldName: e.target.value })}
-                              placeholder="firstName"
-                              dir="ltr"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                              תווית (English)
-                            </label>
-                            <Input
-                              value={field.fieldLabel}
-                              onChange={(e) => updatePersonalizationField(index, { fieldLabel: e.target.value })}
-                              placeholder="First Name"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                              תווית (עברית)
-                            </label>
-                            <Input
-                              value={field.fieldLabelHe}
-                              onChange={(e) => updatePersonalizationField(index, { fieldLabelHe: e.target.value })}
-                              placeholder="שם פרטי"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                              מקור נתונים
-                            </label>
-                            <Select
-                              value={field.dataSource}
-                              onChange={(e) => updatePersonalizationField(index, { dataSource: e.target.value as any })}
-                              options={DATA_SOURCES}
-                            />
-                          </div>
+                      <h4 className="font-medium text-blue-900 mb-1">Template Engine - דוגמאות</h4>
+                      <div className="text-sm text-blue-700 space-y-2">
+                        <div>
+                          <strong>Handlebars:</strong> {`שלום {{firstName}}, {{#if premium}}אתה לקוח VIP{{/if}}`}
                         </div>
-
-                        <div className="grid grid-cols-3 gap-4 mb-3">
-                          {field.dataSource === 'crm' && (
-                            <div>
-                              <label className="block text-xs font-medium text-gray-700 mb-1">
-                                שדה CRM
-                              </label>
-                              <Input
-                                value={field.crmFieldMapping || ''}
-                                onChange={(e) => updatePersonalizationField(index, { crmFieldMapping: e.target.value })}
-                                placeholder="First_Name"
-                              />
-                            </div>
-                          )}
-
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                              ערך ברירת מחדל
-                            </label>
-                            <Input
-                              value={field.defaultValue || ''}
-                              onChange={(e) => updatePersonalizationField(index, { defaultValue: e.target.value })}
-                              placeholder="לקוח יקר"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                              פורמט
-                            </label>
-                            <Select
-                              value={field.format || 'text'}
-                              onChange={(e) => updatePersonalizationField(index, { format: e.target.value as any })}
-                              options={FIELD_FORMATS}
-                            />
-                          </div>
+                        <div>
+                          <strong>Liquid:</strong> {`שלום {{ firstName }}, {% if premium %}אתה לקוח VIP{% endif %}`}
                         </div>
-
-                        <div className="flex items-center justify-between">
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              checked={field.required}
-                              onChange={(e) => updatePersonalizationField(index, { required: e.target.checked })}
-                              className="rounded border-gray-300"
-                            />
-                            <span className="text-sm text-gray-700">שדה חובה</span>
-                          </label>
-
-                          <button
-                            onClick={() => removePersonalizationField(index)}
-                            className="text-red-600 hover:text-red-700 text-sm flex items-center gap-1"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            מחק
-                          </button>
-                        </div>
-
-                        <div className="mt-3 p-2 bg-blue-50 rounded text-sm text-blue-700">
-                          <strong>Syntax:</strong> {config.templateEngine === 'handlebars' && `{{${field.fieldName || 'fieldName'}}}`}
-                          {config.templateEngine === 'liquid' && `{{ ${field.fieldName || 'fieldName'} }}`}
-                          {config.templateEngine === 'mustache' && `{{${field.fieldName || 'fieldName'}}}`}
-                          {config.templateEngine === 'ejs' && `<%= ${field.fieldName || 'fieldName'} %>`}
+                        <div>
+                          <strong>EJS:</strong> {`שלום <%= firstName %>, <% if (premium) { %>אתה לקוח VIP<% } %>`}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
-                    <div>
-                      <h4 className="font-medium text-yellow-900 mb-1">זהירות - שגיאות Personalization</h4>
-                      <p className="text-sm text-yellow-700">
-                        שגיאה ב-template תשלח "שלום {`{{firstName}}`}" ללקוח במקום "שלום דוד".
-                        תמיד לבדוק עם נתונים אמיתיים לפני שליחה ל-production!
-                      </p>
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Legal Compliance Tab */}
-            {activeTab === 'legal' && (
+            {/* Tab 4: CRM Access */}
+            {activeTab === 'crm' && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-gray-900">תאימות משפטית</h3>
-
-                <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">Unsubscribe Mechanism</h4>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.unsubscribeMechanismConfigured}
-                      onChange={(e) => setConfig({ ...config, unsubscribeMechanismConfigured: e.target.checked })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      מנגנון הסרה מרשימה הוגדר
-                    </span>
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.unsubscribeListManaged}
-                      onChange={(e) => setConfig({ ...config, unsubscribeListManaged: e.target.checked })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      רשימת unsubscribe מנוהלת
-                    </span>
-                  </label>
-                </div>
-
-                <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">Legal Requirements</h4>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.physicalAddressIncluded}
-                      onChange={(e) => setConfig({ ...config, physicalAddressIncluded: e.target.checked })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      כתובת פיזית כלולה באימיילים (חובה לפי CAN-SPAM)
-                    </span>
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.privacyPolicyLinked}
-                      onChange={(e) => setConfig({ ...config, privacyPolicyLinked: e.target.checked })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      קישור למדיניות פרטיות
-                    </span>
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.gdprCompliant}
-                      onChange={(e) => setConfig({ ...config, gdprCompliant: e.target.checked })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      תואם GDPR (אירופה)
-                    </span>
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.canSpamCompliant}
-                      onChange={(e) => setConfig({ ...config, canSpamCompliant: e.target.checked })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      תואם CAN-SPAM Act (ארה"ב)
-                    </span>
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.israeliPrivacyLawCompliant}
-                      onChange={(e) => setConfig({ ...config, israeliPrivacyLawCompliant: e.target.checked })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      תואם חוק הגנת הפרטיות הישראלי
-                    </span>
-                  </label>
-                </div>
-
-                <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">Testing & Quality</h4>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.spamScoreChecked}
-                      onChange={(e) => setConfig({ ...config, spamScoreChecked: e.target.checked })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      Spam Score נבדק
-                    </span>
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.mobileTestingDone}
-                      onChange={(e) => setConfig({ ...config, mobileTestingDone: e.target.checked })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      נבדק במכשירי מובייל
-                    </span>
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.darkModeCompatible}
-                      onChange={(e) => setConfig({ ...config, darkModeCompatible: e.target.checked })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      תומך ב-Dark Mode
-                    </span>
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.abTestingEnabled}
-                      onChange={(e) => setConfig({ ...config, abTestingEnabled: e.target.checked })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      A/B Testing מופעל
-                    </span>
-                  </label>
-                </div>
-
-                <div className="space-y-4">
-                  <h4 className="font-medium text-gray-900">Error Handling</h4>
-
-                  <div className="grid grid-cols-2 gap-4">
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">גישה ל-CRM</h3>
+                  <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        אסטרטגיית טיפול בשגיאות
+                        מערכת CRM
                       </label>
-                      <Select
-                        value={config.errorHandlingStrategy}
-                        onChange={(e) => setConfig({ ...config, errorHandlingStrategy: e.target.value as any })}
-                        options={ERROR_STRATEGIES}
+                      <select
+                        value={config.crmAccess.system}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          crmAccess: {
+                            ...config.crmAccess,
+                            system: e.target.value as any
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      >
+                        <option value="zoho">Zoho CRM</option>
+                        <option value="salesforce">Salesforce</option>
+                        <option value="hubspot">HubSpot</option>
+                        <option value="pipedrive">Pipedrive</option>
+                        <option value="other">אחר</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        שיטת אימות
+                      </label>
+                      <select
+                        value={config.crmAccess.authMethod}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          crmAccess: {
+                            ...config.crmAccess,
+                            authMethod: e.target.value as any
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      >
+                        <option value="oauth">OAuth</option>
+                        <option value="api_key">API Key</option>
+                        <option value="basic_auth">Basic Auth</option>
+                      </select>
+                    </div>
+
+                    {config.crmAccess.authMethod === 'oauth' && (
+                      <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+                        <h4 className="font-medium">OAuth Credentials</h4>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Client ID
+                          </label>
+                          <input
+                            type="text"
+                            value={config.crmAccess.credentials.clientId || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              crmAccess: {
+                                ...config.crmAccess,
+                                credentials: {
+                                  ...config.crmAccess.credentials,
+                                  clientId: e.target.value
+                                }
+                              }
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Client Secret
+                          </label>
+                          <input
+                            type="password"
+                            value={config.crmAccess.credentials.clientSecret || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              crmAccess: {
+                                ...config.crmAccess,
+                                credentials: {
+                                  ...config.crmAccess.credentials,
+                                  clientSecret: e.target.value
+                                }
+                              }
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Refresh Token
+                          </label>
+                          <input
+                            type="password"
+                            value={config.crmAccess.credentials.refreshToken || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              crmAccess: {
+                                ...config.crmAccess,
+                                credentials: {
+                                  ...config.crmAccess.credentials,
+                                  refreshToken: e.target.value
+                                }
+                              }
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {config.crmAccess.authMethod === 'api_key' && (
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          API Key
+                        </label>
+                        <input
+                          type="password"
+                          value={config.crmAccess.credentials.apiKey || ''}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            crmAccess: {
+                              ...config.crmAccess,
+                              credentials: {
+                                ...config.crmAccess.credentials,
+                                apiKey: e.target.value
+                              }
+                            }
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </Card>
+
+                <Card className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">שדות זמינים מ-CRM</h3>
+                    <button
+                      onClick={addCrmField}
+                      className="flex items-center gap-2 px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                      <Plus className="w-3 h-3" />
+                      הוסף שדה
+                    </button>
+                  </div>
+
+                  {config.crmAccess.fieldsAvailable.length === 0 ? (
+                    <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                      <p className="text-gray-600 mb-3">אין שדות זמינים</p>
+                      <button
+                        onClick={addCrmField}
+                        className="text-sm text-blue-600 hover:text-blue-700"
+                      >
+                        הוסף שדה ראשון
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {config.crmAccess.fieldsAvailable.map((field, index) => (
+                        <div key={index} className="bg-gray-50 p-3 rounded-lg">
+                          <div className="grid grid-cols-3 gap-3 mb-2">
+                            <input
+                              type="text"
+                              value={field.apiName}
+                              onChange={(e) => {
+                                const updated = [...config.crmAccess.fieldsAvailable];
+                                updated[index].apiName = e.target.value;
+                                setConfig({
+                                  ...config,
+                                  crmAccess: {
+                                    ...config.crmAccess,
+                                    fieldsAvailable: updated
+                                  }
+                                });
+                              }}
+                              className="px-2 py-1 border border-gray-300 rounded text-sm"
+                              placeholder="API Name (First_Name)"
+                            />
+                            <input
+                              type="text"
+                              value={field.label}
+                              onChange={(e) => {
+                                const updated = [...config.crmAccess.fieldsAvailable];
+                                updated[index].label = e.target.value;
+                                setConfig({
+                                  ...config,
+                                  crmAccess: {
+                                    ...config.crmAccess,
+                                    fieldsAvailable: updated
+                                  }
+                                });
+                              }}
+                              className="px-2 py-1 border border-gray-300 rounded text-sm"
+                              placeholder="תווית (שם פרטי)"
+                            />
+                            <input
+                              type="text"
+                              value={field.type}
+                              onChange={(e) => {
+                                const updated = [...config.crmAccess.fieldsAvailable];
+                                updated[index].type = e.target.value;
+                                setConfig({
+                                  ...config,
+                                  crmAccess: {
+                                    ...config.crmAccess,
+                                    fieldsAvailable: updated
+                                  }
+                                });
+                              }}
+                              className="px-2 py-1 border border-gray-300 rounded text-sm"
+                              placeholder="Type (string)"
+                            />
+                          </div>
+                          <button
+                            onClick={() => removeCrmField(index)}
+                            className="text-red-600 text-xs hover:text-red-700"
+                          >
+                            הסר שדה
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </Card>
+              </div>
+            )}
+
+            {/* Tab 5: n8n Workflow */}
+            {activeTab === 'workflow' && (
+              <div className="space-y-6">
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">n8n Workflow</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        כתובת Instance
+                      </label>
+                      <input
+                        type="url"
+                        value={config.n8nWorkflow.instanceUrl}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          n8nWorkflow: {
+                            ...config.n8nWorkflow,
+                            instanceUrl: e.target.value
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        placeholder="https://n8n.example.com"
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Webhook Endpoint
+                      </label>
+                      <input
+                        type="url"
+                        value={config.n8nWorkflow.webhookEndpoint}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          n8nWorkflow: {
+                            ...config.n8nWorkflow,
+                            webhookEndpoint: e.target.value
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        placeholder="https://n8n.example.com/webhook/email-templates"
+                      />
+                    </div>
+
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={config.n8nWorkflow.httpsEnabled}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          n8nWorkflow: {
+                            ...config.n8nWorkflow,
+                            httpsEnabled: e.target.checked
+                          }
+                        })}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm font-medium">HTTPS Enabled</span>
+                    </label>
+                  </div>
+                </Card>
+
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Template Rendering</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Engine
+                      </label>
+                      <input
+                        type="text"
+                        value={config.n8nWorkflow.templateRendering.engine}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          n8nWorkflow: {
+                            ...config.n8nWorkflow,
+                            templateRendering: {
+                              ...config.n8nWorkflow.templateRendering,
+                              engine: e.target.value
+                            }
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        placeholder="handlebars"
+                      />
+                    </div>
+
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={config.n8nWorkflow.templateRendering.renderNode}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          n8nWorkflow: {
+                            ...config.n8nWorkflow,
+                            templateRendering: {
+                              ...config.n8nWorkflow.templateRendering,
+                              renderNode: e.target.checked
+                            }
+                          }
+                        })}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm font-medium">Render ב-Node</span>
+                    </label>
+                  </div>
+                </Card>
+
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Error Handling</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         מספר ניסיונות חוזרים
                       </label>
-                      <Input
+                      <input
                         type="number"
-                        value={config.retryAttempts}
-                        onChange={(e) => setConfig({ ...config, retryAttempts: parseInt(e.target.value) })}
+                        value={config.n8nWorkflow.errorHandling.retryAttempts}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          n8nWorkflow: {
+                            ...config.n8nWorkflow,
+                            errorHandling: {
+                              ...config.n8nWorkflow.errorHandling,
+                              retryAttempts: parseInt(e.target.value) || 3
+                            }
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         min="0"
                         max="10"
                       />
@@ -1027,41 +1214,270 @@ export const AutoEmailTemplatesSpec: React.FC = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         אימייל להתראות
                       </label>
-                      <Input
+                      <input
                         type="email"
-                        value={config.errorNotificationEmail}
-                        onChange={(e) => setConfig({ ...config, errorNotificationEmail: e.target.value })}
-                        placeholder="admin@company.com"
+                        value={config.n8nWorkflow.errorHandling.alertEmail}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          n8nWorkflow: {
+                            ...config.n8nWorkflow,
+                            errorHandling: {
+                              ...config.n8nWorkflow.errorHandling,
+                              alertEmail: e.target.value
+                            }
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        placeholder="admin@example.com"
                       />
                     </div>
 
-                    <div className="flex items-center">
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={config.testMode}
-                          onChange={(e) => setConfig({ ...config, testMode: e.target.checked })}
-                          className="rounded border-gray-300"
-                        />
-                        <span className="text-sm font-medium text-gray-700">
-                          Test Mode
-                        </span>
-                      </label>
-                    </div>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={config.n8nWorkflow.errorHandling.logErrors}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          n8nWorkflow: {
+                            ...config.n8nWorkflow,
+                            errorHandling: {
+                              ...config.n8nWorkflow.errorHandling,
+                              logErrors: e.target.checked
+                            }
+                          }
+                        })}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm font-medium">רשום שגיאות ב-Log</span>
+                    </label>
                   </div>
-                </div>
+                </Card>
+              </div>
+            )}
 
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <Shield className="w-5 h-5 text-red-600 mt-0.5" />
+            {/* Tab 6: Design Tools (Optional) */}
+            {activeTab === 'design' && (
+              <div className="space-y-6">
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">כלי עיצוב (אופציונלי)</h3>
+                  <div className="space-y-4">
                     <div>
-                      <h4 className="font-medium text-red-900 mb-1">דרישות משפטיות - חובה!</h4>
-                      <ul className="text-sm text-red-700 space-y-1 list-disc mr-5">
-                        <li>Unsubscribe link - חובה לפי CAN-SPAM Act ו-GDPR</li>
-                        <li>כתובת פיזית - חובה לפי CAN-SPAM Act</li>
-                        <li>קישור למדיניות פרטיות - מומלץ מאוד</li>
-                        <li>לא לשלוח ללא opt-in (הסכמה מפורשת)</li>
-                        <li>לנהל רשימת unsubscribe ולכבד אותה תוך 10 ימים</li>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        כלי עיצוב
+                      </label>
+                      <select
+                        value={config.designTools?.tool || 'stripo'}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          designTools: {
+                            tool: e.target.value as any,
+                            templates: config.designTools?.templates || []
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      >
+                        <option value="stripo">Stripo.email</option>
+                        <option value="beefree">BeeFree</option>
+                        <option value="unlayer">Unlayer</option>
+                        <option value="custom">Custom HTML</option>
+                      </select>
+                    </div>
+
+                    {config.designTools && config.designTools.tool !== 'custom' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          API Key
+                        </label>
+                        <input
+                          type="password"
+                          value={config.designTools.apiKey || ''}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            designTools: {
+                              ...config.designTools!,
+                              apiKey: e.target.value
+                            }
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </Card>
+
+                <Card className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">תבניות עיצוב</h3>
+                    <button
+                      onClick={addDesignTemplate}
+                      className="flex items-center gap-2 px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                      <Plus className="w-3 h-3" />
+                      הוסף תבנית
+                    </button>
+                  </div>
+
+                  {(!config.designTools?.templates || config.designTools.templates.length === 0) ? (
+                    <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                      <Palette className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                      <p className="text-gray-600 mb-3">אין תבניות עיצוב</p>
+                      <button
+                        onClick={addDesignTemplate}
+                        className="text-sm text-blue-600 hover:text-blue-700"
+                      >
+                        הוסף תבנית ראשונה
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {config.designTools!.templates!.map((template, index) => (
+                        <div key={index} className="bg-gray-50 p-3 rounded-lg">
+                          <div className="grid grid-cols-3 gap-3 mb-2">
+                            <input
+                              type="text"
+                              value={template.id}
+                              onChange={(e) => {
+                                const updated = [...config.designTools!.templates!];
+                                updated[index].id = e.target.value;
+                                setConfig({
+                                  ...config,
+                                  designTools: {
+                                    ...config.designTools!,
+                                    templates: updated
+                                  }
+                                });
+                              }}
+                              className="px-2 py-1 border border-gray-300 rounded text-sm"
+                              placeholder="Template ID"
+                            />
+                            <input
+                              type="text"
+                              value={template.name}
+                              onChange={(e) => {
+                                const updated = [...config.designTools!.templates!];
+                                updated[index].name = e.target.value;
+                                setConfig({
+                                  ...config,
+                                  designTools: {
+                                    ...config.designTools!,
+                                    templates: updated
+                                  }
+                                });
+                              }}
+                              className="px-2 py-1 border border-gray-300 rounded text-sm"
+                              placeholder="שם תבנית"
+                            />
+                            <input
+                              type="text"
+                              value={template.category}
+                              onChange={(e) => {
+                                const updated = [...config.designTools!.templates!];
+                                updated[index].category = e.target.value;
+                                setConfig({
+                                  ...config,
+                                  designTools: {
+                                    ...config.designTools!,
+                                    templates: updated
+                                  }
+                                });
+                              }}
+                              className="px-2 py-1 border border-gray-300 rounded text-sm"
+                              placeholder="קטגוריה"
+                            />
+                          </div>
+                          <button
+                            onClick={() => removeDesignTemplate(index)}
+                            className="text-red-600 text-xs hover:text-red-700"
+                          >
+                            הסר תבנית
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </Card>
+              </div>
+            )}
+
+            {/* Tab 7: Testing Tools (Optional) */}
+            {activeTab === 'testing' && (
+              <div className="space-y-6">
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">כלי בדיקה (אופציונלי)</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        כלי בדיקה
+                      </label>
+                      <select
+                        value={config.testingTools?.tool || 'litmus'}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          testingTools: {
+                            tool: e.target.value as any
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      >
+                        <option value="litmus">Litmus</option>
+                        <option value="email_on_acid">Email on Acid</option>
+                        <option value="mailtrap">Mailtrap</option>
+                      </select>
+                    </div>
+
+                    {config.testingTools && (
+                      <>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            API Key
+                          </label>
+                          <input
+                            type="password"
+                            value={config.testingTools.apiKey || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              testingTools: {
+                                ...config.testingTools!,
+                                apiKey: e.target.value
+                              }
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            אימייל בדיקה
+                          </label>
+                          <input
+                            type="email"
+                            value={config.testingTools.testAccountEmail || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              testingTools: {
+                                ...config.testingTools!,
+                                testAccountEmail: e.target.value
+                              }
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="test@example.com"
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </Card>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <TestTube className="w-5 h-5 text-blue-600 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-blue-900 mb-1">למה צריך Email Testing?</h4>
+                      <ul className="text-sm text-blue-700 space-y-1 list-disc mr-5">
+                        <li>כל לקוח אימייל מציג HTML אחרת (Gmail, Outlook, Apple Mail)</li>
+                        <li>60%+ פותחים במובייל - חובה לבדוק responsive</li>
+                        <li>Litmus/Email on Acid מראים איך האימייל נראה ב-90+ clients</li>
+                        <li>Spam Score - בודק אם האימייל יגיע לספאם</li>
                       </ul>
                     </div>
                   </div>
@@ -1073,31 +1489,16 @@ export const AutoEmailTemplatesSpec: React.FC = () => {
 
         {/* Save Button at Bottom */}
         <div className="flex justify-end gap-4">
-          <Button
-            onClick={() => navigate('/phase2')}
-            variant="outline"
-          >
-            ביטול
-          </Button>
-          <Button
+          <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
           >
-            {isSaving ? (
-              <>
-                <Loader className="w-4 h-4 animate-spin" />
-                שומר...
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4" />
-                שמור והמשך
-              </>
-            )}
-          </Button>
+            <Save className="w-4 h-4" />
+            {isSaving ? 'שומר...' : 'שמור והמשך'}
+          </button>
         </div>
       </div>
     </div>
   );
-};
+}

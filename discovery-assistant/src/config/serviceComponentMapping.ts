@@ -139,13 +139,11 @@ export const SERVICE_COMPONENT_MAP: Record<string, React.FC> = {
   'integration-simple': IntegrationSimpleSpec,
   'integration-complex': IntegrationComplexSpec,
   'whatsapp-api-setup': WhatsappApiSetupSpec,
-  'int-complex': IntComplexSpec,
   'int-crm-marketing': IntCrmMarketingSpec,
   'int-crm-accounting': IntCrmAccountingSpec,
   'int-crm-support': IntCrmSupportSpec,
   'int-calendar': IntCalendarSpec,
   'int-ecommerce': IntEcommerceSpec,
-  'int-custom': IntCustomSpec,
 
   // Additional integration services
   'int-webhook': IntegrationSimpleSpec, // Reuse simple integration
@@ -156,7 +154,6 @@ export const SERVICE_COMPONENT_MAP: Record<string, React.FC> = {
   // ==================== SYSTEM IMPLEMENTATIONS (41-49) ====================
   'impl-crm': ImplCrmSpec,
   'impl-project-management': ImplProjectManagementSpec,
-  'impl-marketing-automation': ImplMarketingAutomationSpec,
   'impl-helpdesk': ImplHelpdeskSpec,
   'impl-erp': ImplErpSpec,
   'impl-ecommerce': ImplEcommerceSpec,
@@ -242,13 +239,11 @@ export const SERVICE_CATEGORY_MAP: Record<string, string> = {
   'integration-simple': 'integrationServices',
   'integration-complex': 'integrationServices',
   'whatsapp-api-setup': 'integrationServices',
-  'int-complex': 'integrationServices',
   'int-crm-marketing': 'integrationServices',
   'int-crm-accounting': 'integrationServices',
   'int-crm-support': 'integrationServices',
   'int-calendar': 'integrationServices',
   'int-ecommerce': 'integrationServices',
-  'int-custom': 'integrationServices',
   'int-webhook': 'integrationServices',
   'int-transform': 'integrationServices',
   'int-custom-api': 'integrationServices',
@@ -257,7 +252,6 @@ export const SERVICE_CATEGORY_MAP: Record<string, string> = {
   // ==================== SYSTEM IMPLEMENTATIONS ====================
   'impl-crm': 'systemImplementations',
   'impl-project-management': 'systemImplementations',
-  'impl-marketing-automation': 'systemImplementations',
   'impl-helpdesk': 'systemImplementations',
   'impl-erp': 'systemImplementations',
   'impl-ecommerce': 'systemImplementations',

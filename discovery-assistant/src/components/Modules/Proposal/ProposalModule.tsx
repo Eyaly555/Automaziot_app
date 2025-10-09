@@ -21,6 +21,7 @@ import { downloadProposalPDF } from '../../../utils/downloadProposalPDF';
 import { sendProposalViaWhatsApp } from '../../../services/whatsappService';
 import { openGmailCompose } from '../../../services/emailService';
 import { ContactCompletionModal, ClientContact } from './ContactCompletionModal';
+import { markProposalAsSent } from '../../../services/discoveryStatusService';
 
 // Type for filters
 interface Filters {
@@ -306,6 +307,12 @@ export const ProposalModule: React.FC = () => {
 
       setIsGeneratingPDF(false);
 
+      // ✅ NEW: Mark proposal as sent
+      if (currentMeeting) {
+        await markProposalAsSent(currentMeeting.meetingId, updateModule);
+        console.log('[ProposalModule] Proposal marked as sent (via Send button)');
+      }
+
       // Close modal if open
       setShowContactModal(false);
 
@@ -371,6 +378,13 @@ export const ProposalModule: React.FC = () => {
       });
 
       setIsGeneratingPDF(false);
+
+      // ✅ NEW: Mark proposal as sent
+      if (currentMeeting) {
+        await markProposalAsSent(currentMeeting.meetingId, updateModule);
+        console.log('[ProposalModule] Proposal marked as sent (via Download button)');
+      }
+
       alert('✅ קובץ PDF הורד בהצלחה!');
 
     } catch (error) {

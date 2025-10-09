@@ -127,6 +127,72 @@ Organized into logical files:
 - Syncs to `Potentials1` module in Zoho
 - Environment variables: `ZOHO_REFRESH_TOKEN`, `ZOHO_CLIENT_ID`, `ZOHO_CLIENT_SECRET`
 
+**Discovery_Status Workflow (Zoho CRM):**
+
+The application implements a 5-stage workflow tracking system that updates the `Discovery_Status` field in Zoho CRM based on meeting progress:
+
+**5 Workflow Stages:**
+1. **discovery_started** - User fills ANY module field in Phase 1
+2. **proposal** - Services are selected/unselected in Proposal Module
+3. **proposal_sent** - User downloads or prints proposal PDF
+4. **technical_details_collection** - Client approves proposal (Phase 2 begins)
+5. **implementation_started** - Phase 2 is completed (development begins)
+
+**Implementation Files:**
+- Backend: `api/zoho/helpers/discoveryStatus.js` - Status calculation logic
+- Backend: `api/zoho/sync.js` - Main sync endpoint (line 79: Discovery_Status update)
+- Frontend: `src/services/discoveryStatusService.ts` - Matching frontend logic
+- Types: `src/types/proposal.ts` - Added `proposalSent` and `proposalSentAt` fields
+- UI: `src/components/Common/DiscoveryStatusBadge.tsx` - Status display components
+- Proposal: `src/components/Modules/Proposal/ProposalModule.tsx` - Marks proposal as sent
+
+**Data Flow:**
+1. User performs action (fills module, selects service, downloads proposal, etc.)
+2. `useMeetingStore` updates meeting data and persists to Supabase
+3. Auto-sync service calls `api/zoho/sync` endpoint
+4. Backend calculates Discovery_Status using `calculateDiscoveryStatus(meeting)`
+5. Status synced to Zoho CRM `Discovery_Status` field
+
+**Status Calculation Rules (Priority Order):**
+```javascript
+// Rule 5: Phase 2 complete → implementation_started
+if (phase2Complete || inDevelopment) return 'implementation_started';
+
+// Rule 4: Client approved → technical_details_collection
+if (clientApproved || hasApprovalSignature) return 'technical_details_collection';
+
+// Rule 3: Proposal sent → proposal_sent
+if (proposalSent || proposalSentAt) return 'proposal_sent';
+
+// Rule 2: Services selected → proposal
+if (hasSelectedServices) return 'proposal';
+
+// Rule 1: Any module data → discovery_started
+if (hasAnyModuleData) return 'discovery_started';
+```
+
+**Testing:**
+- Verification script: `scripts/verify-zoho-field.js` - Tests Zoho field setup
+- Comprehensive test: `scripts/test-discovery-status.js` - Tests all 5 stages
+- Setup guide: `ZOHO_DISCOVERY_STATUS_SETUP.md` - Zoho CRM configuration
+
+**UI Components:**
+- `DiscoveryStatusBadge` - Displays current status with color-coded badge
+- `DiscoveryStatusProgress` - Shows progress through all 5 stages
+- Usage: `<DiscoveryStatusBadge status={status} size="md" showIcon showDescription />`
+
+**Key Functions:**
+- `calculateDiscoveryStatus(meeting)` - Returns current status
+- `markProposalAsSent(meetingId, updateModule)` - Marks proposal as sent
+- `getStatusInfo(status)` - Returns display metadata for status
+- `getStatusProgressPercentage(status)` - Returns progress (0-100)
+
+**Troubleshooting:**
+- Missing status in Zoho: Run `node scripts/verify-zoho-field.js [recordId]`
+- Status not updating: Check console logs for "[Discovery Status]" messages
+- Wrong status calculated: Review meeting data structure in Supabase
+- Zoho auth errors: Verify `ZOHO_REFRESH_TOKEN`, `ZOHO_CLIENT_ID`, `ZOHO_CLIENT_SECRET`
+
 **Supabase Integration:**
 - Service: `src/services/supabaseService.ts`
 - Client setup: `src/lib/supabase.ts`

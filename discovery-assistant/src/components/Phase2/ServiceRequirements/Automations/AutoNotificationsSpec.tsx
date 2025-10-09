@@ -1,22 +1,82 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import type { AutoNotificationsRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
+import { Plus, Trash2, Save } from 'lucide-react';
 
-interface AutoNotificationsConfig {
-  channels: ('email' | 'sms' | 'whatsapp' | 'slack' | 'teams')[];
-  triggers: Array<{ event: string; template: string }>;
-  personalization: boolean;
-  scheduling: boolean;
-}
+const generateId = () => Math.random().toString(36).substr(2, 9);
 
 export function AutoNotificationsSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
-  const [config, setConfig] = useState<Partial<AutoNotificationsConfig>>({
-    channels: ['email'],
-    triggers: [],
-    personalization: true,
-    scheduling: false,
+
+  const [config, setConfig] = useState<AutoNotificationsRequirements>({
+    stateManagement: {
+      storageType: 'database',
+      databaseConfig: {
+        connectionString: '',
+        tableName: '',
+        schema: {
+          approvalId: '',
+          itemId: '',
+          status: '',
+          currentApprover: '',
+          history: ''
+        }
+      }
+    },
+    approvalHierarchy: {
+      levels: [],
+      requireAllApprovers: false,
+      parallelApproval: false
+    },
+    routingLogic: {
+      routingStrategy: 'hierarchy',
+      routingRules: []
+    },
+    emailNotifications: {
+      provider: 'sendgrid',
+      templates: {
+        approvalRequest: '',
+        approvalGranted: '',
+        approvalDenied: '',
+        escalation: '',
+        timeout: ''
+      }
+    },
+    approvalMethods: {
+      emailBased: true,
+      uiBased: false
+    },
+    escalation: {
+      enabled: false,
+      escalationTiers: []
+    },
+    auditTrail: {
+      enabled: true,
+      logStorage: 'database',
+      logFields: {
+        timestamp: true,
+        approverId: true,
+        decision: true,
+        comments: true,
+        ipAddress: false,
+        userAgent: false
+      },
+      retentionDays: 365
+    },
+    multiLevelConfig: {
+      enabled: false,
+      maxLevels: 3
+    },
+    sourceSystem: {
+      system: 'crm',
+      authMethod: 'oauth',
+      webhookEndpoint: ''
+    }
   });
+
+  const [activeTab, setActiveTab] = useState<'basic' | 'hierarchy' | 'notifications' | 'escalation' | 'audit'>('basic');
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
@@ -26,67 +86,1319 @@ export function AutoNotificationsSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!currentMeeting) return;
 
-    // קריאת המערך הקיים
-    const automations = currentMeeting?.implementationSpec?.automations || [];
+    setIsSaving(true);
+    try {
+      const automations = currentMeeting?.implementationSpec?.automations || [];
+      const updated = automations.filter(a => a.serviceId !== 'auto-notifications');
 
-    // הסרת רשומה קיימת (אם יש) למניעת כפילויות
-    const updated = automations.filter(a => a.serviceId !== 'auto-notifications');
+      updated.push({
+        serviceId: 'auto-notifications',
+        serviceName: 'workflow אישורים אוטומטי',
+        requirements: config,
+        completedAt: new Date().toISOString()
+      });
 
-    // הוספת רשומה חדשה/מעודכנת
-    updated.push({
-      serviceId: 'auto-notifications',
-      serviceName: 'התראות אוטומטיות',
-      requirements: config,
-      completedAt: new Date().toISOString()
+      await updateMeeting({
+        implementationSpec: {
+          ...currentMeeting.implementationSpec,
+          automations: updated,
+        },
+      });
+
+      alert('הגדרות נשמרו בהצלחה!');
+    } catch (error) {
+      console.error('Error saving auto-notifications:', error);
+      alert('שגיאה בשמירת הגדרות');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const addApprovalLevel = () => {
+    setConfig({
+      ...config,
+      approvalHierarchy: {
+        ...config.approvalHierarchy,
+        levels: [
+          ...config.approvalHierarchy.levels,
+          {
+            level: config.approvalHierarchy.levels.length + 1,
+            name: '',
+            nameHe: '',
+            approvers: []
+          }
+        ]
+      }
     });
+  };
 
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        automations: updated,
-      },
+  const removeApprovalLevel = (index: number) => {
+    setConfig({
+      ...config,
+      approvalHierarchy: {
+        ...config.approvalHierarchy,
+        levels: config.approvalHierarchy.levels.filter((_, i) => i !== index)
+      }
+    });
+  };
+
+  const addApprover = (levelIndex: number) => {
+    const updatedLevels = [...config.approvalHierarchy.levels];
+    updatedLevels[levelIndex].approvers.push({
+      id: generateId(),
+      name: '',
+      email: '',
+      role: ''
+    });
+    setConfig({
+      ...config,
+      approvalHierarchy: {
+        ...config.approvalHierarchy,
+        levels: updatedLevels
+      }
+    });
+  };
+
+  const removeApprover = (levelIndex: number, approverIndex: number) => {
+    const updatedLevels = [...config.approvalHierarchy.levels];
+    updatedLevels[levelIndex].approvers = updatedLevels[levelIndex].approvers.filter((_, i) => i !== approverIndex);
+    setConfig({
+      ...config,
+      approvalHierarchy: {
+        ...config.approvalHierarchy,
+        levels: updatedLevels
+      }
+    });
+  };
+
+  const addRoutingRule = () => {
+    setConfig({
+      ...config,
+      routingLogic: {
+        ...config.routingLogic,
+        routingRules: [
+          ...config.routingLogic.routingRules,
+          {
+            itemType: '',
+            targetLevel: 1
+          }
+        ]
+      }
+    });
+  };
+
+  const removeRoutingRule = (index: number) => {
+    setConfig({
+      ...config,
+      routingLogic: {
+        ...config.routingLogic,
+        routingRules: config.routingLogic.routingRules.filter((_, i) => i !== index)
+      }
+    });
+  };
+
+  const addEscalationTier = () => {
+    setConfig({
+      ...config,
+      escalation: {
+        ...config.escalation,
+        escalationTiers: [
+          ...config.escalation.escalationTiers,
+          {
+            tier: config.escalation.escalationTiers.length + 1,
+            timeoutHours: 24,
+            escalateTo: '',
+            notificationMethod: 'email'
+          }
+        ]
+      }
+    });
+  };
+
+  const removeEscalationTier = (index: number) => {
+    setConfig({
+      ...config,
+      escalation: {
+        ...config.escalation,
+        escalationTiers: config.escalation.escalationTiers.filter((_, i) => i !== index)
+      }
     });
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <Card title="שירות #10: התראות והודעות אוטומטיות">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">ערוצי תקשורת</label>
-            <div className="space-y-2">
-              {(['email', 'sms', 'whatsapp', 'slack', 'teams'] as const).map((ch) => (
-                <label key={ch} className="flex items-center">
-                  <input type="checkbox" checked={config.channels?.includes(ch)}
-                    onChange={(e) => {
-                      const channels = config.channels || [];
-                      setConfig({ ...config, channels: e.target.checked ? [...channels, ch] : channels.filter(c => c !== ch) });
-                    }} className="mr-2" />
-                  <span className="text-sm capitalize">{ch}</span>
-                </label>
-              ))}
+    <div className="min-h-screen bg-gray-50 p-6" dir="rtl">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                התראות אוטומטיות
+              </h1>
+              <p className="text-gray-600">
+                Auto Notifications - Service #9
+              </p>
             </div>
-          </div>
-          <div className="space-y-3">
-            <label className="flex items-center">
-              <input type="checkbox" checked={config.personalization}
-                onChange={(e) => setConfig({ ...config, personalization: e.target.checked })} className="mr-2" />
-              <span className="text-sm">התאמה אישית</span>
-            </label>
-            <label className="flex items-center">
-              <input type="checkbox" checked={config.scheduling}
-                onChange={(e) => setConfig({ ...config, scheduling: e.target.checked })} className="mr-2" />
-              <span className="text-sm">תזמון מתקדם</span>
-            </label>
-          </div>
-          <div className="flex justify-end pt-4 border-t">
-            <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">שמור הגדרות</button>
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+            >
+              <Save className="w-4 h-4" />
+              {isSaving ? 'שומר...' : 'שמור'}
+            </button>
           </div>
         </div>
-      </Card>
+
+        {/* Tabs */}
+        <div className="bg-white rounded-lg shadow-sm mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="flex gap-4 px-6">
+              {[
+                { id: 'basic', label: 'הגדרות בסיס' },
+                { id: 'hierarchy', label: 'היררכיית אישורים' },
+                { id: 'notifications', label: 'התראות' },
+                { id: 'escalation', label: 'הסלמה' },
+                { id: 'audit', label: 'Audit Trail' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`px-4 py-3 border-b-2 transition-colors ${
+                    activeTab === tab.id
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </nav>
+          </div>
+
+          <div className="p-6">
+            {/* Basic Settings Tab */}
+            {activeTab === 'basic' && (
+              <div className="space-y-6">
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">ניהול מצב Workflow</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        סוג אחסון
+                      </label>
+                      <select
+                        value={config.stateManagement.storageType}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          stateManagement: {
+                            ...config.stateManagement,
+                            storageType: e.target.value as any
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      >
+                        <option value="database">Database</option>
+                        <option value="crm">CRM</option>
+                        <option value="both">Both</option>
+                      </select>
+                    </div>
+
+                    {(config.stateManagement.storageType === 'database' || config.stateManagement.storageType === 'both') && (
+                      <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                        <h4 className="font-medium">הגדרות Database</h4>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Connection String
+                          </label>
+                          <input
+                            type="text"
+                            value={config.stateManagement.databaseConfig?.connectionString || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              stateManagement: {
+                                ...config.stateManagement,
+                                databaseConfig: {
+                                  ...config.stateManagement.databaseConfig!,
+                                  connectionString: e.target.value
+                                }
+                              }
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="postgresql://..."
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            שם טבלה
+                          </label>
+                          <input
+                            type="text"
+                            value={config.stateManagement.databaseConfig?.tableName || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              stateManagement: {
+                                ...config.stateManagement,
+                                databaseConfig: {
+                                  ...config.stateManagement.databaseConfig!,
+                                  tableName: e.target.value
+                                }
+                              }
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="approvals"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {(config.stateManagement.storageType === 'crm' || config.stateManagement.storageType === 'both') && (
+                      <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                        <h4 className="font-medium">הגדרות CRM</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              מערכת CRM
+                            </label>
+                            <input
+                              type="text"
+                              value={config.stateManagement.crmConfig?.system || ''}
+                              onChange={(e) => setConfig({
+                                ...config,
+                                stateManagement: {
+                                  ...config.stateManagement,
+                                  crmConfig: {
+                                    ...config.stateManagement.crmConfig!,
+                                    system: e.target.value
+                                  }
+                                }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                              placeholder="Zoho CRM"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Module
+                            </label>
+                            <input
+                              type="text"
+                              value={config.stateManagement.crmConfig?.module || ''}
+                              onChange={(e) => setConfig({
+                                ...config,
+                                stateManagement: {
+                                  ...config.stateManagement,
+                                  crmConfig: {
+                                    ...config.stateManagement.crmConfig!,
+                                    module: e.target.value
+                                  }
+                                }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                              placeholder="Approvals"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">מערכת מקור</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        סוג מערכת
+                      </label>
+                      <select
+                        value={config.sourceSystem.system}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          sourceSystem: {
+                            ...config.sourceSystem,
+                            system: e.target.value as any
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      >
+                        <option value="crm">CRM</option>
+                        <option value="erp">ERP</option>
+                        <option value="hrms">HRMS</option>
+                        <option value="document_management">Document Management</option>
+                        <option value="custom">Custom</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        שיטת אימות
+                      </label>
+                      <select
+                        value={config.sourceSystem.authMethod}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          sourceSystem: {
+                            ...config.sourceSystem,
+                            authMethod: e.target.value as any
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      >
+                        <option value="oauth">OAuth</option>
+                        <option value="api_key">API Key</option>
+                        <option value="basic_auth">Basic Auth</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Webhook Endpoint
+                    </label>
+                    <input
+                      type="url"
+                      value={config.sourceSystem.webhookEndpoint || ''}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        sourceSystem: {
+                          ...config.sourceSystem,
+                          webhookEndpoint: e.target.value
+                        }
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      placeholder="https://n8n.example.com/webhook/approvals"
+                    />
+                  </div>
+                </Card>
+
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">אישור רב-שלבי</h3>
+                  <div className="space-y-4">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={config.multiLevelConfig.enabled}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          multiLevelConfig: {
+                            ...config.multiLevelConfig,
+                            enabled: e.target.checked
+                          }
+                        })}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm font-medium text-gray-700">
+                        הפעל אישור רב-שלבי
+                      </span>
+                    </label>
+                    {config.multiLevelConfig.enabled && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          מספר רמות מקסימלי
+                        </label>
+                        <input
+                          type="number"
+                          value={config.multiLevelConfig.maxLevels}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            multiLevelConfig: {
+                              ...config.multiLevelConfig,
+                              maxLevels: parseInt(e.target.value) || 1
+                            }
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          min="1"
+                          max="10"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              </div>
+            )}
+
+            {/* Approval Hierarchy Tab */}
+            {activeTab === 'hierarchy' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">רמות אישור</h3>
+                  <button
+                    onClick={addApprovalLevel}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    <Plus className="w-4 h-4" />
+                    הוסף רמה
+                  </button>
+                </div>
+
+                {config.approvalHierarchy.levels.map((level, levelIndex) => (
+                  <Card key={levelIndex} className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-medium">רמה {level.level}</h4>
+                      <button
+                        onClick={() => removeApprovalLevel(levelIndex)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          שם (אנגלית)
+                        </label>
+                        <input
+                          type="text"
+                          value={level.name}
+                          onChange={(e) => {
+                            const updatedLevels = [...config.approvalHierarchy.levels];
+                            updatedLevels[levelIndex].name = e.target.value;
+                            setConfig({
+                              ...config,
+                              approvalHierarchy: {
+                                ...config.approvalHierarchy,
+                                levels: updatedLevels
+                              }
+                            });
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          placeholder="Manager Approval"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          שם (עברית)
+                        </label>
+                        <input
+                          type="text"
+                          value={level.nameHe}
+                          onChange={(e) => {
+                            const updatedLevels = [...config.approvalHierarchy.levels];
+                            updatedLevels[levelIndex].nameHe = e.target.value;
+                            setConfig({
+                              ...config,
+                              approvalHierarchy: {
+                                ...config.approvalHierarchy,
+                                levels: updatedLevels
+                              }
+                            });
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          placeholder="אישור מנהל"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h5 className="text-sm font-medium">מאשרים</h5>
+                        <button
+                          onClick={() => addApprover(levelIndex)}
+                          className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                        >
+                          <Plus className="w-3 h-3" />
+                          הוסף מאשר
+                        </button>
+                      </div>
+
+                      {level.approvers.map((approver, approverIndex) => (
+                        <div key={approverIndex} className="bg-gray-50 p-3 rounded-lg mb-2">
+                          <div className="grid grid-cols-3 gap-3 mb-2">
+                            <input
+                              type="text"
+                              value={approver.name}
+                              onChange={(e) => {
+                                const updatedLevels = [...config.approvalHierarchy.levels];
+                                updatedLevels[levelIndex].approvers[approverIndex].name = e.target.value;
+                                setConfig({
+                                  ...config,
+                                  approvalHierarchy: {
+                                    ...config.approvalHierarchy,
+                                    levels: updatedLevels
+                                  }
+                                });
+                              }}
+                              className="px-2 py-1 border border-gray-300 rounded text-sm"
+                              placeholder="שם מלא"
+                            />
+                            <input
+                              type="email"
+                              value={approver.email}
+                              onChange={(e) => {
+                                const updatedLevels = [...config.approvalHierarchy.levels];
+                                updatedLevels[levelIndex].approvers[approverIndex].email = e.target.value;
+                                setConfig({
+                                  ...config,
+                                  approvalHierarchy: {
+                                    ...config.approvalHierarchy,
+                                    levels: updatedLevels
+                                  }
+                                });
+                              }}
+                              className="px-2 py-1 border border-gray-300 rounded text-sm"
+                              placeholder="Email"
+                            />
+                            <input
+                              type="text"
+                              value={approver.role}
+                              onChange={(e) => {
+                                const updatedLevels = [...config.approvalHierarchy.levels];
+                                updatedLevels[levelIndex].approvers[approverIndex].role = e.target.value;
+                                setConfig({
+                                  ...config,
+                                  approvalHierarchy: {
+                                    ...config.approvalHierarchy,
+                                    levels: updatedLevels
+                                  }
+                                });
+                              }}
+                              className="px-2 py-1 border border-gray-300 rounded text-sm"
+                              placeholder="תפקיד"
+                            />
+                          </div>
+                          <button
+                            onClick={() => removeApprover(levelIndex, approverIndex)}
+                            className="text-red-600 text-xs hover:text-red-700"
+                          >
+                            הסר מאשר
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                ))}
+
+                <Card className="p-6">
+                  <h4 className="font-medium mb-4">הגדרות היררכיה</h4>
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={config.approvalHierarchy.requireAllApprovers}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          approvalHierarchy: {
+                            ...config.approvalHierarchy,
+                            requireAllApprovers: e.target.checked
+                          }
+                        })}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm">דרוש אישור מכל המאשרים</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={config.approvalHierarchy.parallelApproval}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          approvalHierarchy: {
+                            ...config.approvalHierarchy,
+                            parallelApproval: e.target.checked
+                          }
+                        })}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm">אישורים במקביל (לא סדרתי)</span>
+                    </label>
+                  </div>
+                </Card>
+
+                <Card className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="font-medium">חוקי ניתוב</h4>
+                    <button
+                      onClick={addRoutingRule}
+                      className="flex items-center gap-2 px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200"
+                    >
+                      <Plus className="w-3 h-3" />
+                      הוסף חוק
+                    </button>
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      אסטרטגיית ניתוב
+                    </label>
+                    <select
+                      value={config.routingLogic.routingStrategy}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        routingLogic: {
+                          ...config.routingLogic,
+                          routingStrategy: e.target.value as any
+                        }
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    >
+                      <option value="hierarchy">Hierarchy</option>
+                      <option value="round_robin">Round Robin</option>
+                      <option value="skill_based">Skill-Based</option>
+                      <option value="load_balanced">Load Balanced</option>
+                    </select>
+                  </div>
+
+                  {config.routingLogic.routingRules.map((rule, index) => (
+                    <div key={index} className="bg-gray-50 p-3 rounded-lg mb-2">
+                      <div className="grid grid-cols-2 gap-3">
+                        <input
+                          type="text"
+                          value={rule.itemType}
+                          onChange={(e) => {
+                            const updatedRules = [...config.routingLogic.routingRules];
+                            updatedRules[index].itemType = e.target.value;
+                            setConfig({
+                              ...config,
+                              routingLogic: {
+                                ...config.routingLogic,
+                                routingRules: updatedRules
+                              }
+                            });
+                          }}
+                          className="px-2 py-1 border border-gray-300 rounded text-sm"
+                          placeholder="סוג פריט"
+                        />
+                        <input
+                          type="number"
+                          value={rule.targetLevel}
+                          onChange={(e) => {
+                            const updatedRules = [...config.routingLogic.routingRules];
+                            updatedRules[index].targetLevel = parseInt(e.target.value) || 1;
+                            setConfig({
+                              ...config,
+                              routingLogic: {
+                                ...config.routingLogic,
+                                routingRules: updatedRules
+                              }
+                            });
+                          }}
+                          className="px-2 py-1 border border-gray-300 rounded text-sm"
+                          placeholder="רמת יעד"
+                          min="1"
+                        />
+                      </div>
+                      <button
+                        onClick={() => removeRoutingRule(index)}
+                        className="text-red-600 text-xs hover:text-red-700 mt-2"
+                      >
+                        הסר חוק
+                      </button>
+                    </div>
+                  ))}
+                </Card>
+              </div>
+            )}
+
+            {/* Notifications Tab */}
+            {activeTab === 'notifications' && (
+              <div className="space-y-6">
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">התראות אימייל</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        ספק אימייל
+                      </label>
+                      <select
+                        value={config.emailNotifications.provider}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          emailNotifications: {
+                            ...config.emailNotifications,
+                            provider: e.target.value as any
+                          }
+                        })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      >
+                        <option value="sendgrid">SendGrid</option>
+                        <option value="mailgun">Mailgun</option>
+                        <option value="smtp">SMTP</option>
+                      </select>
+                    </div>
+
+                    {config.emailNotifications.provider !== 'smtp' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          API Key
+                        </label>
+                        <input
+                          type="password"
+                          value={config.emailNotifications.apiKey || ''}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            emailNotifications: {
+                              ...config.emailNotifications,
+                              apiKey: e.target.value
+                            }
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                    )}
+
+                    {config.emailNotifications.provider === 'smtp' && (
+                      <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+                        <h4 className="font-medium">הגדרות SMTP</h4>
+                        <div className="grid grid-cols-2 gap-3">
+                          <input
+                            type="text"
+                            value={config.emailNotifications.smtpCredentials?.host || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              emailNotifications: {
+                                ...config.emailNotifications,
+                                smtpCredentials: {
+                                  ...config.emailNotifications.smtpCredentials!,
+                                  host: e.target.value
+                                }
+                              }
+                            })}
+                            className="px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="SMTP Host"
+                          />
+                          <input
+                            type="number"
+                            value={config.emailNotifications.smtpCredentials?.port || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              emailNotifications: {
+                                ...config.emailNotifications,
+                                smtpCredentials: {
+                                  ...config.emailNotifications.smtpCredentials!,
+                                  port: parseInt(e.target.value) || 587
+                                }
+                              }
+                            })}
+                            className="px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="Port"
+                          />
+                          <input
+                            type="text"
+                            value={config.emailNotifications.smtpCredentials?.username || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              emailNotifications: {
+                                ...config.emailNotifications,
+                                smtpCredentials: {
+                                  ...config.emailNotifications.smtpCredentials!,
+                                  username: e.target.value
+                                }
+                              }
+                            })}
+                            className="px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="Username"
+                          />
+                          <input
+                            type="password"
+                            value={config.emailNotifications.smtpCredentials?.password || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              emailNotifications: {
+                                ...config.emailNotifications,
+                                smtpCredentials: {
+                                  ...config.emailNotifications.smtpCredentials!,
+                                  password: e.target.value
+                                }
+                              }
+                            })}
+                            className="px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="Password"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="border-t pt-4">
+                      <h4 className="font-medium mb-3">תבניות אימייל</h4>
+                      <div className="space-y-3">
+                        {Object.entries(config.emailNotifications.templates).map(([key, value]) => (
+                          <div key={key}>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              {key === 'approvalRequest' && 'בקשת אישור'}
+                              {key === 'approvalGranted' && 'אישור אושר'}
+                              {key === 'approvalDenied' && 'אישור נדחה'}
+                              {key === 'escalation' && 'הסלמה'}
+                              {key === 'timeout' && 'פג זמן'}
+                            </label>
+                            <textarea
+                              value={value}
+                              onChange={(e) => setConfig({
+                                ...config,
+                                emailNotifications: {
+                                  ...config.emailNotifications,
+                                  templates: {
+                                    ...config.emailNotifications.templates,
+                                    [key]: e.target.value
+                                  }
+                                }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                              rows={3}
+                              placeholder="תבנית אימייל..."
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">שיטות אישור</h3>
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={config.approvalMethods.emailBased}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          approvalMethods: {
+                            ...config.approvalMethods,
+                            emailBased: e.target.checked
+                          }
+                        })}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm">אישור דרך אימייל (Magic Links)</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={config.approvalMethods.uiBased}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          approvalMethods: {
+                            ...config.approvalMethods,
+                            uiBased: e.target.checked
+                          }
+                        })}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm">ממשק אישורים ייעודי</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={config.approvalMethods.slackBased || false}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          approvalMethods: {
+                            ...config.approvalMethods,
+                            slackBased: e.target.checked
+                          }
+                        })}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm">אישור דרך Slack</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={config.approvalMethods.teamsBased || false}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          approvalMethods: {
+                            ...config.approvalMethods,
+                            teamsBased: e.target.checked
+                          }
+                        })}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm">אישור דרך Microsoft Teams</span>
+                    </label>
+                  </div>
+
+                  {config.approvalMethods.emailBased && (
+                    <div className="mt-4 bg-gray-50 p-4 rounded-lg space-y-3">
+                      <h4 className="font-medium">הגדרות Magic Link</h4>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            תוקף (שעות)
+                          </label>
+                          <input
+                            type="number"
+                            value={config.approvalMethods.magicLinkConfig?.expirationHours || 24}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              approvalMethods: {
+                                ...config.approvalMethods,
+                                magicLinkConfig: {
+                                  ...config.approvalMethods.magicLinkConfig!,
+                                  expirationHours: parseInt(e.target.value) || 24
+                                }
+                              }
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            min="1"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Base URL
+                          </label>
+                          <input
+                            type="url"
+                            value={config.approvalMethods.magicLinkConfig?.baseUrl || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              approvalMethods: {
+                                ...config.approvalMethods,
+                                magicLinkConfig: {
+                                  ...config.approvalMethods.magicLinkConfig!,
+                                  baseUrl: e.target.value
+                                }
+                              }
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="https://approvals.example.com"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {config.approvalMethods.uiBased && (
+                    <div className="mt-4 bg-gray-50 p-4 rounded-lg space-y-3">
+                      <h4 className="font-medium">הגדרות ממשק</h4>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          כתובת דף אישורים
+                        </label>
+                        <input
+                          type="url"
+                          value={config.approvalMethods.uiConfig?.approvalPageUrl || ''}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            approvalMethods: {
+                              ...config.approvalMethods,
+                              uiConfig: {
+                                ...config.approvalMethods.uiConfig!,
+                                approvalPageUrl: e.target.value
+                              }
+                            }
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          placeholder="https://app.example.com/approvals"
+                        />
+                      </div>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={config.approvalMethods.uiConfig?.authenticationRequired || false}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            approvalMethods: {
+                              ...config.approvalMethods,
+                              uiConfig: {
+                                ...config.approvalMethods.uiConfig!,
+                                authenticationRequired: e.target.checked
+                              }
+                            }
+                          })}
+                          className="rounded border-gray-300"
+                        />
+                        <span className="text-sm">דרוש אימות</span>
+                      </label>
+                    </div>
+                  )}
+                </Card>
+              </div>
+            )}
+
+            {/* Escalation Tab */}
+            {activeTab === 'escalation' && (
+              <div className="space-y-6">
+                <Card className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">הגדרות הסלמה</h3>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={config.escalation.enabled}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          escalation: {
+                            ...config.escalation,
+                            enabled: e.target.checked
+                          }
+                        })}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm font-medium">הפעל הסלמה</span>
+                    </label>
+                  </div>
+
+                  {config.escalation.enabled && (
+                    <>
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="font-medium">רמות הסלמה</h4>
+                        <button
+                          onClick={addEscalationTier}
+                          className="flex items-center gap-2 px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200"
+                        >
+                          <Plus className="w-3 h-3" />
+                          הוסף רמת הסלמה
+                        </button>
+                      </div>
+
+                      {config.escalation.escalationTiers.map((tier, index) => (
+                        <div key={index} className="bg-gray-50 p-4 rounded-lg mb-3">
+                          <div className="grid grid-cols-3 gap-3 mb-3">
+                            <div>
+                              <label className="block text-xs font-medium text-gray-700 mb-1">
+                                Timeout (שעות)
+                              </label>
+                              <input
+                                type="number"
+                                value={tier.timeoutHours}
+                                onChange={(e) => {
+                                  const updatedTiers = [...config.escalation.escalationTiers];
+                                  updatedTiers[index].timeoutHours = parseInt(e.target.value) || 24;
+                                  setConfig({
+                                    ...config,
+                                    escalation: {
+                                      ...config.escalation,
+                                      escalationTiers: updatedTiers
+                                    }
+                                  });
+                                }}
+                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                                min="1"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-gray-700 mb-1">
+                                העבר ל
+                              </label>
+                              <input
+                                type="text"
+                                value={tier.escalateTo}
+                                onChange={(e) => {
+                                  const updatedTiers = [...config.escalation.escalationTiers];
+                                  updatedTiers[index].escalateTo = e.target.value;
+                                  setConfig({
+                                    ...config,
+                                    escalation: {
+                                      ...config.escalation,
+                                      escalationTiers: updatedTiers
+                                    }
+                                  });
+                                }}
+                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                                placeholder="Email/User ID"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-gray-700 mb-1">
+                                שיטת התראה
+                              </label>
+                              <select
+                                value={tier.notificationMethod}
+                                onChange={(e) => {
+                                  const updatedTiers = [...config.escalation.escalationTiers];
+                                  updatedTiers[index].notificationMethod = e.target.value as any;
+                                  setConfig({
+                                    ...config,
+                                    escalation: {
+                                      ...config.escalation,
+                                      escalationTiers: updatedTiers
+                                    }
+                                  });
+                                }}
+                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                              >
+                                <option value="email">Email</option>
+                                <option value="sms">SMS</option>
+                                <option value="slack">Slack</option>
+                                <option value="all">All</option>
+                              </select>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => removeEscalationTier(index)}
+                            className="text-red-600 text-xs hover:text-red-700"
+                          >
+                            הסר רמת הסלמה
+                          </button>
+                        </div>
+                      ))}
+
+                      <div className="border-t pt-4 mt-4">
+                        <h4 className="font-medium mb-3">הסלמה סופית</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              פעולה
+                            </label>
+                            <select
+                              value={config.escalation.finalEscalation?.action || 'alert_admin'}
+                              onChange={(e) => setConfig({
+                                ...config,
+                                escalation: {
+                                  ...config.escalation,
+                                  finalEscalation: {
+                                    ...config.escalation.finalEscalation,
+                                    action: e.target.value as any
+                                  }
+                                }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            >
+                              <option value="auto_approve">אישור אוטומטי</option>
+                              <option value="auto_reject">דחייה אוטומטית</option>
+                              <option value="alert_admin">התרעה למנהל</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              אימייל מנהל
+                            </label>
+                            <input
+                              type="email"
+                              value={config.escalation.finalEscalation?.adminEmail || ''}
+                              onChange={(e) => setConfig({
+                                ...config,
+                                escalation: {
+                                  ...config.escalation,
+                                  finalEscalation: {
+                                    ...config.escalation.finalEscalation,
+                                    adminEmail: e.target.value
+                                  }
+                                }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                              placeholder="admin@example.com"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </Card>
+              </div>
+            )}
+
+            {/* Audit Trail Tab */}
+            {activeTab === 'audit' && (
+              <div className="space-y-6">
+                <Card className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">Audit Trail</h3>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={config.auditTrail.enabled}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          auditTrail: {
+                            ...config.auditTrail,
+                            enabled: e.target.checked
+                          }
+                        })}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm font-medium">הפעל Audit Trail</span>
+                    </label>
+                  </div>
+
+                  {config.auditTrail.enabled && (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          סוג אחסון לוגים
+                        </label>
+                        <select
+                          value={config.auditTrail.logStorage}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            auditTrail: {
+                              ...config.auditTrail,
+                              logStorage: e.target.value as any
+                            }
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        >
+                          <option value="database">Database</option>
+                          <option value="file">File</option>
+                          <option value="both">Both</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          תקופת שמירה (ימים)
+                        </label>
+                        <input
+                          type="number"
+                          value={config.auditTrail.retentionDays}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            auditTrail: {
+                              ...config.auditTrail,
+                              retentionDays: parseInt(e.target.value) || 365
+                            }
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          min="1"
+                        />
+                      </div>
+
+                      <div className="border-t pt-4">
+                        <h4 className="font-medium mb-3">שדות לרישום</h4>
+                        <div className="space-y-2">
+                          {Object.entries(config.auditTrail.logFields).map(([key, value]) => (
+                            <label key={key} className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={value}
+                                onChange={(e) => setConfig({
+                                  ...config,
+                                  auditTrail: {
+                                    ...config.auditTrail,
+                                    logFields: {
+                                      ...config.auditTrail.logFields,
+                                      [key]: e.target.checked
+                                    }
+                                  }
+                                })}
+                                className="rounded border-gray-300"
+                              />
+                              <span className="text-sm">
+                                {key === 'timestamp' && 'חותמת זמן'}
+                                {key === 'approverId' && 'מזהה מאשר'}
+                                {key === 'decision' && 'החלטה'}
+                                {key === 'comments' && 'הערות'}
+                                {key === 'ipAddress' && 'כתובת IP'}
+                                {key === 'userAgent' && 'User Agent'}
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </Card>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Save Button at Bottom */}
+        <div className="flex justify-end gap-4">
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+          >
+            <Save className="w-4 h-4" />
+            {isSaving ? 'שומר...' : 'שמור והמשך'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

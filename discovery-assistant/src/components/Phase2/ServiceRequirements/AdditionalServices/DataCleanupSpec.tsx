@@ -1,52 +1,787 @@
+/**
+ * Data Cleanup Requirements Specification Component
+ *
+ * Service #50: Data Cleanup - ניקוי והסרת כפילויות בנתונים
+ * Collects detailed technical requirements for data cleanup service.
+ *
+ * @component
+ * @category AdditionalServices
+ */
+
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import type { DataCleanupRequirements } from '../../../../types/additionalServices';
 import { Card } from '../../../Common/Card';
 
 export function DataCleanupSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
-  const [config, setConfig] = useState<any>({
-    ...{ recordCount: 0, estimatedDays: 5 }
+
+  const [config, setConfig] = useState<DataCleanupRequirements>({
+    dataSources: [],
+    cleanupScope: {
+      removeDuplicates: true,
+      fixDataQualityIssues: true,
+      standardizeFormats: true,
+      enrichData: false,
+      mergeAccounts: false
+    },
+    deduplicationRules: {
+      matchFields: [],
+      matchingAlgorithm: 'fuzzy',
+      fuzzyThreshold: 80,
+      mergeStrategy: 'keep_most_complete',
+      conflictResolution: []
+    },
+    dataQualityRules: [],
+    backupRequired: true,
+    dryRunFirst: true,
+    requiresApproval: true,
+    stagingEnvironment: false,
+    businessRules: [],
+    deliverables: {
+      beforeAfterReport: true,
+      duplicatesList: true,
+      cleanedData: true,
+      validationReport: true,
+      documentedRules: true
+    },
+    estimatedDays: 5,
+    recordVolumeCategory: 'medium',
+    successMetrics: {
+      targetDuplicateReduction: 95,
+      targetDataQualityScore: 90,
+      targetEmptyFieldReduction: 80
+    }
   });
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Load existing data
   useEffect(() => {
     const category = currentMeeting?.implementationSpec?.additionalServices || [];
-    const existing = category.find((s: any) => s.serviceId === 'data-cleanup');
+    const existing = Array.isArray(category)
+      ? category.find(item => item.serviceId === 'data-cleanup')
+      : undefined;
+
     if (existing?.requirements) {
-      setConfig(existing.requirements);
+      setConfig(existing.requirements as DataCleanupRequirements);
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
+  // Validation
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (config.dataSources.length === 0) {
+      newErrors.dataSources = 'יש להוסיף לפחות מקור נתונים אחד';
+    }
+
+    if (config.deduplicationRules.matchFields.length === 0) {
+      newErrors.matchFields = 'יש להוסיף לפחות שדה התאמה אחד';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Save handler
+  const handleSave = async () => {
+    if (!validateForm()) {
+      alert('נא למלא את כל השדות הנדרשים');
+      return;
+    }
+
     if (!currentMeeting) return;
 
-    const category = currentMeeting?.implementationSpec?.additionalServices || [];
-    const updated = category.filter((s: any) => s.serviceId !== 'data-cleanup');
+    setIsSaving(true);
+    try {
+      const category = currentMeeting?.implementationSpec?.additionalServices || [];
+      const updated = category.filter(item => item.serviceId !== 'data-cleanup');
 
-    updated.push({
-      serviceId: 'data-cleanup',
-      serviceName: 'ניקוי והסרת כפילויות',
-      requirements: config,
-      completedAt: new Date().toISOString()
+      updated.push({
+        serviceId: 'data-cleanup',
+        serviceName: 'ניקוי והסרת כפילויות',
+        requirements: config,
+        completedAt: new Date().toISOString()
+      });
+
+      await updateMeeting({
+        implementationSpec: {
+          ...currentMeeting.implementationSpec,
+          additionalServices: updated
+        }
+      });
+
+      alert('הגדרות נשמרו בהצלחה!');
+    } catch (error) {
+      console.error('Error saving data-cleanup config:', error);
+      alert('שגיאה בשמירת הגדרות');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Add data source
+  const addDataSource = () => {
+    setConfig({
+      ...config,
+      dataSources: [
+        ...config.dataSources,
+        {
+          systemName: '',
+          accessType: 'api',
+          recordCount: 0,
+          hasBackup: false
+        }
+      ]
     });
+  };
 
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        additionalServices: updated,
-      },
+  // Remove data source
+  const removeDataSource = (index: number) => {
+    setConfig({
+      ...config,
+      dataSources: config.dataSources.filter((_, i) => i !== index)
+    });
+  };
+
+  // Add match field
+  const addMatchField = () => {
+    const field = prompt('הזן שם שדה להתאמה (לדוגמה: email, phone, name):');
+    if (field && field.trim()) {
+      setConfig({
+        ...config,
+        deduplicationRules: {
+          ...config.deduplicationRules,
+          matchFields: [...config.deduplicationRules.matchFields, field.trim()]
+        }
+      });
+    }
+  };
+
+  // Remove match field
+  const removeMatchField = (index: number) => {
+    setConfig({
+      ...config,
+      deduplicationRules: {
+        ...config.deduplicationRules,
+        matchFields: config.deduplicationRules.matchFields.filter((_, i) => i !== index)
+      }
+    });
+  };
+
+  // Add data quality rule
+  const addDataQualityRule = () => {
+    setConfig({
+      ...config,
+      dataQualityRules: [
+        ...(config.dataQualityRules || []),
+        {
+          ruleName: '',
+          fieldName: '',
+          validation: '',
+          action: 'flag'
+        }
+      ]
+    });
+  };
+
+  // Remove data quality rule
+  const removeDataQualityRule = (index: number) => {
+    setConfig({
+      ...config,
+      dataQualityRules: (config.dataQualityRules || []).filter((_, i) => i !== index)
     });
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <Card title="שירות #50: ניקוי והסרת כפילויות">
+    <div className="space-y-6 p-8" dir="rtl">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">שירות #50: ניקוי והסרת כפילויות בנתונים</h2>
+        <p className="text-gray-600 mt-2">הסרת כפילויות, איחוד נתונים, תיקון שגיאות ושיפור איכות הנתונים במערכות</p>
+      </div>
+
+      {/* Data Sources */}
+      <Card className="p-6">
         <div className="space-y-4">
-          <div><input type="number" className="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="מספר רשומות" /></div>
-          <div className="flex justify-end pt-4 border-t">
-            <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">שמור הגדרות</button>
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-semibold">מקורות נתונים <span className="text-red-500">*</span></h3>
+            <button
+              type="button"
+              onClick={addDataSource}
+              className="px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
+            >
+              + הוסף מקור נתונים
+            </button>
+          </div>
+          {errors.dataSources && <p className="text-red-500 text-sm">{errors.dataSources}</p>}
+
+          {config.dataSources.map((source, index) => (
+            <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+              <div className="flex justify-between items-center">
+                <h4 className="font-medium">מקור נתונים #{index + 1}</h4>
+                <button
+                  type="button"
+                  onClick={() => removeDataSource(index)}
+                  className="text-red-600 hover:text-red-800 text-sm"
+                >
+                  הסר
+                </button>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">שם המערכת</label>
+                <input
+                  type="text"
+                  value={source.systemName}
+                  onChange={(e) => {
+                    const updated = [...config.dataSources];
+                    updated[index].systemName = e.target.value;
+                    setConfig({ ...config, dataSources: updated });
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  placeholder="Zoho CRM, MySQL Database, Excel Files"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">סוג גישה</label>
+                <select
+                  value={source.accessType}
+                  onChange={(e) => {
+                    const updated = [...config.dataSources];
+                    updated[index].accessType = e.target.value as 'api' | 'export' | 'direct_db' | 'spreadsheet';
+                    setConfig({ ...config, dataSources: updated });
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="api">API</option>
+                  <option value="export">ייצוא קבצים</option>
+                  <option value="direct_db">גישה ישירה למסד נתונים</option>
+                  <option value="spreadsheet">גיליון אלקטרוני</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">מספר רשומות</label>
+                <input
+                  type="number"
+                  value={source.recordCount}
+                  onChange={(e) => {
+                    const updated = [...config.dataSources];
+                    updated[index].recordCount = parseInt(e.target.value) || 0;
+                    setConfig({ ...config, dataSources: updated });
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  min="0"
+                />
+              </div>
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={source.hasBackup}
+                  onChange={(e) => {
+                    const updated = [...config.dataSources];
+                    updated[index].hasBackup = e.target.checked;
+                    setConfig({ ...config, dataSources: updated });
+                  }}
+                  className="rounded border-gray-300"
+                />
+                <span className="text-sm">קיים גיבוי</span>
+              </label>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Cleanup Scope */}
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4">היקף הניקוי</h3>
+        <div className="space-y-3">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={config.cleanupScope.removeDuplicates}
+              onChange={(e) => setConfig({
+                ...config,
+                cleanupScope: { ...config.cleanupScope, removeDuplicates: e.target.checked }
+              })}
+              className="rounded border-gray-300"
+            />
+            <span className="text-sm">הסרת כפילויות</span>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={config.cleanupScope.fixDataQualityIssues}
+              onChange={(e) => setConfig({
+                ...config,
+                cleanupScope: { ...config.cleanupScope, fixDataQualityIssues: e.target.checked }
+              })}
+              className="rounded border-gray-300"
+            />
+            <span className="text-sm">תיקון בעיות איכות נתונים</span>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={config.cleanupScope.standardizeFormats}
+              onChange={(e) => setConfig({
+                ...config,
+                cleanupScope: { ...config.cleanupScope, standardizeFormats: e.target.checked }
+              })}
+              className="rounded border-gray-300"
+            />
+            <span className="text-sm">סטנדרטיזציה של פורמטים (טלפונים, מיילים, כתובות)</span>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={config.cleanupScope.enrichData || false}
+              onChange={(e) => setConfig({
+                ...config,
+                cleanupScope: { ...config.cleanupScope, enrichData: e.target.checked }
+              })}
+              className="rounded border-gray-300"
+            />
+            <span className="text-sm">העשרת נתונים (השלמת מידע חסר)</span>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={config.cleanupScope.mergeAccounts || false}
+              onChange={(e) => setConfig({
+                ...config,
+                cleanupScope: { ...config.cleanupScope, mergeAccounts: e.target.checked }
+              })}
+              className="rounded border-gray-300"
+            />
+            <span className="text-sm">איחוד חשבונות קשורים</span>
+          </label>
+        </div>
+      </Card>
+
+      {/* Deduplication Rules */}
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4">כללי זיהוי כפילויות</h3>
+        <div className="space-y-4">
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                שדות להתאמה <span className="text-red-500">*</span>
+              </label>
+              <button
+                type="button"
+                onClick={addMatchField}
+                className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                + הוסף שדה
+              </button>
+            </div>
+            {errors.matchFields && <p className="text-red-500 text-sm mb-2">{errors.matchFields}</p>}
+            <div className="flex flex-wrap gap-2">
+              {config.deduplicationRules.matchFields.map((field, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                >
+                  {field}
+                  <button
+                    type="button"
+                    onClick={() => removeMatchField(index)}
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">אלגוריתם התאמה</label>
+            <select
+              value={config.deduplicationRules.matchingAlgorithm}
+              onChange={(e) => setConfig({
+                ...config,
+                deduplicationRules: {
+                  ...config.deduplicationRules,
+                  matchingAlgorithm: e.target.value as 'exact' | 'fuzzy' | 'ml_based'
+                }
+              })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            >
+              <option value="exact">התאמה מדויקת</option>
+              <option value="fuzzy">התאמה מטושטשת (Fuzzy)</option>
+              <option value="ml_based">מבוסס למידת מכונה (ML)</option>
+            </select>
+          </div>
+
+          {config.deduplicationRules.matchingAlgorithm === 'fuzzy' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                סף דמיון (0-100) - {config.deduplicationRules.fuzzyThreshold}%
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={config.deduplicationRules.fuzzyThreshold || 80}
+                onChange={(e) => setConfig({
+                  ...config,
+                  deduplicationRules: {
+                    ...config.deduplicationRules,
+                    fuzzyThreshold: parseInt(e.target.value)
+                  }
+                })}
+                className="w-full"
+              />
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">אסטרטגיית איחוד</label>
+            <select
+              value={config.deduplicationRules.mergeStrategy}
+              onChange={(e) => setConfig({
+                ...config,
+                deduplicationRules: {
+                  ...config.deduplicationRules,
+                  mergeStrategy: e.target.value as 'keep_first' | 'keep_last' | 'keep_most_complete' | 'manual_review'
+                }
+              })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            >
+              <option value="keep_first">שמור ראשון</option>
+              <option value="keep_last">שמור אחרון</option>
+              <option value="keep_most_complete">שמור השלם ביותר</option>
+              <option value="manual_review">בדיקה ידנית</option>
+            </select>
           </div>
         </div>
       </Card>
+
+      {/* Data Quality Rules */}
+      <Card className="p-6">
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-semibold">כללי איכות נתונים</h3>
+            <button
+              type="button"
+              onClick={addDataQualityRule}
+              className="px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
+            >
+              + הוסף כלל
+            </button>
+          </div>
+
+          {(config.dataQualityRules || []).map((rule, index) => (
+            <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+              <div className="flex justify-between items-center">
+                <h4 className="font-medium">כלל #{index + 1}</h4>
+                <button
+                  type="button"
+                  onClick={() => removeDataQualityRule(index)}
+                  className="text-red-600 hover:text-red-800 text-sm"
+                >
+                  הסר
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">שם הכלל</label>
+                  <input
+                    type="text"
+                    value={rule.ruleName}
+                    onChange={(e) => {
+                      const updated = [...(config.dataQualityRules || [])];
+                      updated[index].ruleName = e.target.value;
+                      setConfig({ ...config, dataQualityRules: updated });
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    placeholder="Valid Email Format"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">שם השדה</label>
+                  <input
+                    type="text"
+                    value={rule.fieldName}
+                    onChange={(e) => {
+                      const updated = [...(config.dataQualityRules || [])];
+                      updated[index].fieldName = e.target.value;
+                      setConfig({ ...config, dataQualityRules: updated });
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    placeholder="email"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">תיאור הוולידציה</label>
+                <input
+                  type="text"
+                  value={rule.validation}
+                  onChange={(e) => {
+                    const updated = [...(config.dataQualityRules || [])];
+                    updated[index].validation = e.target.value;
+                    setConfig({ ...config, dataQualityRules: updated });
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  placeholder="valid email format, phone 10 digits, required field"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">פעולה</label>
+                <select
+                  value={rule.action}
+                  onChange={(e) => {
+                    const updated = [...(config.dataQualityRules || [])];
+                    updated[index].action = e.target.value as 'flag' | 'fix' | 'remove';
+                    setConfig({ ...config, dataQualityRules: updated });
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="flag">סימון</option>
+                  <option value="fix">תיקון</option>
+                  <option value="remove">הסרה</option>
+                </select>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Backup & Safety */}
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4">גיבוי ובטיחות</h3>
+        <div className="space-y-3">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={config.backupRequired}
+              onChange={(e) => setConfig({ ...config, backupRequired: e.target.checked })}
+              className="rounded border-gray-300"
+            />
+            <span className="text-sm">נדרש גיבוי לפני הניקוי</span>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={config.dryRunFirst}
+              onChange={(e) => setConfig({ ...config, dryRunFirst: e.target.checked })}
+              className="rounded border-gray-300"
+            />
+            <span className="text-sm">הרצת ניסוי ללא שינויים (Dry Run)</span>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={config.requiresApproval}
+              onChange={(e) => setConfig({ ...config, requiresApproval: e.target.checked })}
+              className="rounded border-gray-300"
+            />
+            <span className="text-sm">דרוש אישור ידני לפני ביצוע שינויים</span>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={config.stagingEnvironment || false}
+              onChange={(e) => setConfig({ ...config, stagingEnvironment: e.target.checked })}
+              className="rounded border-gray-300"
+            />
+            <span className="text-sm">ביצוע בסביבת Staging תחילה</span>
+          </label>
+        </div>
+      </Card>
+
+      {/* Deliverables */}
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4">תוצרים</h3>
+        <div className="space-y-3">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={config.deliverables.beforeAfterReport}
+              onChange={(e) => setConfig({
+                ...config,
+                deliverables: { ...config.deliverables, beforeAfterReport: e.target.checked }
+              })}
+              className="rounded border-gray-300"
+            />
+            <span className="text-sm">דוח השוואה לפני/אחרי</span>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={config.deliverables.duplicatesList}
+              onChange={(e) => setConfig({
+                ...config,
+                deliverables: { ...config.deliverables, duplicatesList: e.target.checked }
+              })}
+              className="rounded border-gray-300"
+            />
+            <span className="text-sm">רשימת כפילויות שזוהו (Excel)</span>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={config.deliverables.cleanedData}
+              onChange={(e) => setConfig({
+                ...config,
+                deliverables: { ...config.deliverables, cleanedData: e.target.checked }
+              })}
+              className="rounded border-gray-300"
+            />
+            <span className="text-sm">נתונים מנוקים חזרה למערכת</span>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={config.deliverables.validationReport || false}
+              onChange={(e) => setConfig({
+                ...config,
+                deliverables: { ...config.deliverables, validationReport: e.target.checked }
+              })}
+              className="rounded border-gray-300"
+            />
+            <span className="text-sm">דוח וולידציה לאחר הניקוי</span>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={config.deliverables.documentedRules || false}
+              onChange={(e) => setConfig({
+                ...config,
+                deliverables: { ...config.deliverables, documentedRules: e.target.checked }
+              })}
+              className="rounded border-gray-300"
+            />
+            <span className="text-sm">תיעוד הכללים שהוחלו</span>
+          </label>
+        </div>
+      </Card>
+
+      {/* Timeline & Success Metrics */}
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4">לוח זמנים ומדדי הצלחה</h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">זמן משוער (ימים)</label>
+            <input
+              type="number"
+              value={config.estimatedDays}
+              onChange={(e) => setConfig({ ...config, estimatedDays: parseInt(e.target.value) || 5 })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              min="1"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">קטגוריית נפח רשומות</label>
+            <select
+              value={config.recordVolumeCategory}
+              onChange={(e) => setConfig({
+                ...config,
+                recordVolumeCategory: e.target.value as 'small' | 'medium' | 'large'
+              })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            >
+              <option value="small">קטן (&lt;100K רשומות)</option>
+              <option value="medium">בינוני (100K-1M רשומות)</option>
+              <option value="large">גדול (&gt;1M רשומות)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              יעד הפחתת כפילויות (%) - {config.successMetrics?.targetDuplicateReduction || 95}%
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={config.successMetrics?.targetDuplicateReduction || 95}
+              onChange={(e) => setConfig({
+                ...config,
+                successMetrics: {
+                  ...config.successMetrics,
+                  targetDuplicateReduction: parseInt(e.target.value)
+                } as any
+              })}
+              className="w-full"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              יעד ציון איכות נתונים (%) - {config.successMetrics?.targetDataQualityScore || 90}%
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={config.successMetrics?.targetDataQualityScore || 90}
+              onChange={(e) => setConfig({
+                ...config,
+                successMetrics: {
+                  ...config.successMetrics,
+                  targetDataQualityScore: parseInt(e.target.value)
+                } as any
+              })}
+              className="w-full"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              יעד הפחתת שדות ריקים (%) - {config.successMetrics?.targetEmptyFieldReduction || 80}%
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={config.successMetrics?.targetEmptyFieldReduction || 80}
+              onChange={(e) => setConfig({
+                ...config,
+                successMetrics: {
+                  ...config.successMetrics,
+                  targetEmptyFieldReduction: parseInt(e.target.value)
+                } as any
+              })}
+              className="w-full"
+            />
+          </div>
+        </div>
+      </Card>
+
+      {/* Save Button */}
+      <div className="flex justify-end gap-4">
+        <button
+          onClick={handleSave}
+          disabled={isSaving}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+        >
+          {isSaving ? 'שומר...' : 'שמור הגדרות'}
+        </button>
+      </div>
     </div>
   );
 }

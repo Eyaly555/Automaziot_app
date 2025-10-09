@@ -1,87 +1,1178 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Save,
+  Info,
+  Loader,
+  Database,
+  Book,
+  Calendar,
+  MessageSquare,
+  TrendingUp,
+  Settings,
+  Plus,
+  Trash2
+} from 'lucide-react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
-import { Card } from '../../../Common/Card';
+import type { AISalesAgentRequirements, AIProvider, CRMSystem, VectorDatabaseProvider, MessagingChannel } from '../../../../types/aiAgentServices';
+import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
+import { Button, Input, Select } from '../../../Base';
 
-export function AISalesAgentSpec() {
+const AI_PROVIDERS = [
+  { value: 'openai', label: 'OpenAI' },
+  { value: 'anthropic', label: 'Anthropic (Claude)' },
+  { value: 'google', label: 'Google' },
+  { value: 'azure_openai', label: 'Azure OpenAI' }
+];
+
+const OPENAI_MODELS = [
+  { value: 'gpt-4o', label: 'GPT-4o (מומלץ)' },
+  { value: 'gpt-4o-mini', label: 'GPT-4o Mini' },
+  { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' }
+];
+
+const ANTHROPIC_MODELS = [
+  { value: 'claude-sonnet-4.5', label: 'Claude Sonnet 4.5 (מומלץ)' },
+  { value: 'claude-3.5-sonnet', label: 'Claude 3.5 Sonnet' },
+  { value: 'claude-3.5-haiku', label: 'Claude 3.5 Haiku' }
+];
+
+const VECTOR_DBS = [
+  { value: 'supabase_pgvector', label: 'Supabase pgvector (חינמי)' },
+  { value: 'pinecone_starter', label: 'Pinecone Starter' },
+  { value: 'pinecone_standard', label: 'Pinecone Standard' },
+  { value: 'qdrant', label: 'Qdrant' },
+  { value: 'weaviate', label: 'Weaviate' },
+  { value: 'chromadb', label: 'ChromaDB' }
+];
+
+const CRM_SYSTEMS = [
+  { value: 'zoho', label: 'Zoho CRM' },
+  { value: 'salesforce', label: 'Salesforce' },
+  { value: 'hubspot', label: 'HubSpot' },
+  { value: 'pipedrive', label: 'Pipedrive' },
+  { value: 'monday', label: 'Monday.com' },
+  { value: 'other', label: 'אחר' }
+];
+
+const CALENDAR_SYSTEMS = [
+  { value: 'google_calendar', label: 'Google Calendar' },
+  { value: 'calendly', label: 'Calendly' },
+  { value: 'microsoft_outlook', label: 'Microsoft Outlook' },
+  { value: 'other', label: 'אחר' }
+];
+
+const MESSAGING_CHANNELS = [
+  { value: 'whatsapp', label: 'WhatsApp' },
+  { value: 'website', label: 'אתר (Widget)' },
+  { value: 'facebook', label: 'Facebook Messenger' },
+  { value: 'instagram', label: 'Instagram' },
+  { value: 'email', label: 'Email' },
+  { value: 'sms', label: 'SMS' },
+  { value: 'chat', label: 'Chat' }
+];
+
+export const AISalesAgentSpec: React.FC = () => {
+  const navigate = useNavigate();
   const { currentMeeting, updateMeeting } = useMeetingStore();
-  const [config, setConfig] = useState<any>({
-    aiModel: 'gpt4',
-    conversationStyle: 'professional',
-    integrationCRM: 'zoho',
-    autoFollowup: true,
-    humanHandoff: true,
+
+  const [config, setConfig] = useState<AISalesAgentRequirements>({
+    aiProvider: 'openai',
+    model: 'gpt-4o',
+    vectorDatabase: 'supabase_pgvector',
+    productKnowledgeBase: {
+      documentCount: 10,
+      includes: {
+        productCatalog: true,
+        pricingInfo: true,
+        caseStudies: true,
+        competitorComparisons: false,
+        technicalSpecs: true
+      },
+      embeddingModel: 'text-embedding-3-small',
+      storageLocation: ''
+    },
+    salesPlaybook: {
+      objectionHandling: [
+        { objection: 'המחיר גבוה מדי', response: 'אני מבין את החשש. בואו נסתכל על ROI...' }
+      ],
+      pricingStrategies: ['Value-based pricing', 'Volume discounts'],
+      qualificationQuestions: ['מה הבעיה העיקרית שאתם מנסים לפתור?', 'מה התקציב?'],
+      handoffCriteria: {
+        budgetThreshold: 50000,
+        dealType: ['Enterprise', 'Custom'],
+        complexity: 'high'
+      }
+    },
+    calendarIntegration: {
+      system: 'google_calendar',
+      apiConfigured: false,
+      availabilityRules: {
+        businessHours: {
+          start: '09:00',
+          end: '18:00'
+        },
+        bufferTime: 15,
+        meetingTypes: [
+          { type: 'Discovery Call', durationMinutes: 30 },
+          { type: 'Demo', durationMinutes: 60 }
+        ]
+      }
+    },
+    crmIntegration: {
+      system: 'zoho',
+      realTimeUpdates: true,
+      webhooksConfigured: false,
+      fieldsToUpdate: ['Lead Status', 'Last Contact', 'Notes', 'Meeting Scheduled']
+    },
+    channels: [
+      { channel: 'website', enabled: true },
+      { channel: 'whatsapp', enabled: false }
+    ],
+    messageTemplates: {
+      greeting: 'שלום! אני הסוכן הדיגיטלי שלנו. איך אוכל לעזור לך היום?',
+      productPitch: 'הפתרון שלנו עוזר לעסקים כמו שלך לחסוך זמן ולהגדיל הכנסות.',
+      meetingInvite: 'אשמח לתאם פגישת היכרות. מתי נוח לך?',
+      followUp: 'רציתי לוודא שקיבלת את המידע. יש שאלות נוספות?'
+    },
+    conversationLimits: {
+      maxMessages: 20,
+      timeoutMinutes: 30
+    },
+    performance: {
+      dailyConversations: 100,
+      targets: {
+        conversationToLead: 40,
+        leadToMeeting: 25
+      }
+    }
   });
 
+  const [activeTab, setActiveTab] = useState<'basic' | 'knowledge' | 'playbook' | 'calendar' | 'channels' | 'performance'>('basic');
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Load existing config
   useEffect(() => {
     const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
-    const existing = aiAgentServices.find(a => a.serviceId === 'ai-sales-agent');
+    const existing = aiAgentServices.find((a: AIAgentServiceEntry) => a.serviceId === 'ai-sales-agent');
     if (existing?.requirements) {
-      setConfig(existing.requirements);
+      setConfig(existing.requirements as AISalesAgentRequirements);
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      if (!currentMeeting) return;
 
-    const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
-    const updated = aiAgentServices.filter(a => a.serviceId !== 'ai-sales-agent');
+      const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
+      const updated = aiAgentServices.filter((a: AIAgentServiceEntry) => a.serviceId !== 'ai-sales-agent');
 
-    updated.push({
-      serviceId: 'ai-sales-agent',
-      serviceName: 'סוכן AI למכירות',
-      requirements: config,
-      completedAt: new Date().toISOString()
+      updated.push({
+        serviceId: 'ai-sales-agent',
+        serviceName: 'סוכן AI למכירות מלא',
+        requirements: config,
+        completedAt: new Date().toISOString()
+      });
+
+      updateMeeting({
+        implementationSpec: {
+          ...currentMeeting.implementationSpec,
+          aiAgentServices: updated,
+        }
+      });
+
+      setTimeout(() => {
+        setIsSaving(false);
+        navigate('/phase2');
+      }, 500);
+    } catch (error) {
+      console.error('Error saving ai-sales-agent config:', error);
+      setIsSaving(false);
+    }
+  };
+
+  const getModelOptions = () => {
+    return config.aiProvider === 'openai' ? OPENAI_MODELS :
+           config.aiProvider === 'anthropic' ? ANTHROPIC_MODELS :
+           [{ value: 'default', label: 'Default Model' }];
+  };
+
+  // Objection handlers
+  const addObjectionHandler = () => {
+    setConfig({
+      ...config,
+      salesPlaybook: {
+        ...config.salesPlaybook,
+        objectionHandling: [
+          ...config.salesPlaybook.objectionHandling,
+          { objection: '', response: '' }
+        ]
+      }
     });
+  };
 
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        aiAgentServices: updated,
-      },
+  const removeObjectionHandler = (index: number) => {
+    const handlers = [...config.salesPlaybook.objectionHandling];
+    handlers.splice(index, 1);
+    setConfig({
+      ...config,
+      salesPlaybook: {
+        ...config.salesPlaybook,
+        objectionHandling: handlers
+      }
+    });
+  };
+
+  const updateObjectionHandler = (index: number, field: 'objection' | 'response', value: string) => {
+    const handlers = [...config.salesPlaybook.objectionHandling];
+    handlers[index] = { ...handlers[index], [field]: value };
+    setConfig({
+      ...config,
+      salesPlaybook: {
+        ...config.salesPlaybook,
+        objectionHandling: handlers
+      }
+    });
+  };
+
+  // Meeting types
+  const addMeetingType = () => {
+    setConfig({
+      ...config,
+      calendarIntegration: {
+        ...config.calendarIntegration,
+        availabilityRules: {
+          ...config.calendarIntegration.availabilityRules,
+          meetingTypes: [
+            ...config.calendarIntegration.availabilityRules.meetingTypes,
+            { type: '', durationMinutes: 30 }
+          ]
+        }
+      }
+    });
+  };
+
+  const removeMeetingType = (index: number) => {
+    const types = [...config.calendarIntegration.availabilityRules.meetingTypes];
+    types.splice(index, 1);
+    setConfig({
+      ...config,
+      calendarIntegration: {
+        ...config.calendarIntegration,
+        availabilityRules: {
+          ...config.calendarIntegration.availabilityRules,
+          meetingTypes: types
+        }
+      }
+    });
+  };
+
+  const updateMeetingType = (index: number, field: 'type' | 'durationMinutes', value: string | number) => {
+    const types = [...config.calendarIntegration.availabilityRules.meetingTypes];
+    types[index] = { ...types[index], [field]: value };
+    setConfig({
+      ...config,
+      calendarIntegration: {
+        ...config.calendarIntegration,
+        availabilityRules: {
+          ...config.calendarIntegration.availabilityRules,
+          meetingTypes: types
+        }
+      }
     });
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <Card title="שירות #23: AI - סוכן מכירות וירטואלי">
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+    <div className="min-h-screen bg-gray-50 p-6" dir="rtl">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <div className="flex items-center justify-between">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">מודל AI</label>
-              <select value={config.aiModel} onChange={(e) => setConfig({ ...config, aiModel: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md">
-                <option value="gpt4">GPT-4</option>
-                <option value="claude">Claude</option>
-                <option value="custom">מותאם אישית</option>
-              </select>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                סוכן AI למכירות מלא
+              </h1>
+              <p className="text-gray-600">
+                AI Sales Agent - Service #23 - Full Sales Automation with Calendar & CRM
+              </p>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">סגנון שיחה</label>
-              <select value={config.conversationStyle} onChange={(e) => setConfig({ ...config, conversationStyle: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md">
-                <option value="professional">מקצועי</option>
-                <option value="friendly">ידידותי</option>
-                <option value="consultative">ייעוצי</option>
-              </select>
-            </div>
-          </div>
-          <div className="space-y-3">
-            <label className="flex items-center">
-              <input type="checkbox" checked={config.autoFollowup}
-                onChange={(e) => setConfig({ ...config, autoFollowup: e.target.checked })} className="mr-2" />
-              <span className="text-sm">מעקב אוטומטי</span>
-            </label>
-            <label className="flex items-center">
-              <input type="checkbox" checked={config.humanHandoff}
-                onChange={(e) => setConfig({ ...config, humanHandoff: e.target.checked })} className="mr-2" />
-              <span className="text-sm">העברה לאנושי</span>
-            </label>
-          </div>
-          <div className="flex justify-end pt-4 border-t">
-            <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">שמור הגדרות</button>
+            <Button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="flex items-center gap-2"
+            >
+              {isSaving ? (
+                <>
+                  <Loader className="w-4 h-4 animate-spin" />
+                  שומר...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  שמור
+                </>
+              )}
+            </Button>
           </div>
         </div>
-      </Card>
+
+        {/* Tabs */}
+        <div className="bg-white rounded-lg shadow-sm mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="flex gap-2 px-6 overflow-x-auto">
+              {[
+                { id: 'basic', label: 'הגדרות בסיס', icon: Settings },
+                { id: 'knowledge', label: 'בסיס ידע', icon: Database },
+                { id: 'playbook', label: 'Playbook מכירות', icon: Book },
+                { id: 'calendar', label: 'יומן פגישות', icon: Calendar },
+                { id: 'channels', label: 'ערוצי תקשורת', icon: MessageSquare },
+                { id: 'performance', label: 'יעדי ביצועים', icon: TrendingUp }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors whitespace-nowrap ${
+                    activeTab === tab.id
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <tab.icon className="w-4 h-4" />
+                  {tab.label}
+                </button>
+              ))}
+            </nav>
+          </div>
+
+          <div className="p-6">
+            {/* Basic Settings */}
+            {activeTab === 'basic' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ספק AI
+                    </label>
+                    <Select
+                      value={config.aiProvider}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        aiProvider: e.target.value as AIProvider,
+                        model: e.target.value === 'openai' ? 'gpt-4o' : 'claude-sonnet-4.5'
+                      })}
+                      options={AI_PROVIDERS}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      מודל AI
+                    </label>
+                    <Select
+                      value={config.model}
+                      onChange={(e) => setConfig({ ...config, model: e.target.value })}
+                      options={getModelOptions()}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Vector Database
+                    </label>
+                    <Select
+                      value={config.vectorDatabase}
+                      onChange={(e) => setConfig({ ...config, vectorDatabase: e.target.value as VectorDatabaseProvider })}
+                      options={VECTOR_DBS}
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-blue-900 mb-1">AI Sales Agent</h4>
+                      <p className="text-sm text-blue-700">
+                        סוכן מכירות AI מלא שמנהל שיחות, עונה על שאלות מוצר, מתאם פגישות ומעדכן CRM בזמן אמת.
+                        תומך במספר ערוצים: WhatsApp, אתר, Facebook, Instagram.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <Info className="w-5 h-5 text-yellow-600 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-yellow-900 mb-1">עלויות</h4>
+                      <p className="text-sm text-yellow-700">
+                        GPT-4o output tokens עולים פי 4 מ-input ($10 vs $3 לכל 1M tokens).
+                        Prompt caching חוסך 75% על תוכן סטטי.
+                        תקציב משוער: $20-30/יום ל-200 שיחות.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Knowledge Base */}
+            {activeTab === 'knowledge' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      מספר מסמכי מוצר
+                    </label>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={config.productKnowledgeBase.documentCount}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        productKnowledgeBase: {
+                          ...config.productKnowledgeBase,
+                          documentCount: parseInt(e.target.value)
+                        }
+                      })}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Embedding Model
+                    </label>
+                    <Select
+                      value={config.productKnowledgeBase.embeddingModel}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        productKnowledgeBase: {
+                          ...config.productKnowledgeBase,
+                          embeddingModel: e.target.value
+                        }
+                      })}
+                      options={[
+                        { value: 'text-embedding-3-small', label: 'text-embedding-3-small (מומלץ)' },
+                        { value: 'text-embedding-3-large', label: 'text-embedding-3-large' },
+                        { value: 'text-embedding-ada-002', label: 'text-embedding-ada-002' }
+                      ]}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    מיקום אחסון (Google Drive / Dropbox / URL)
+                  </label>
+                  <Input
+                    value={config.productKnowledgeBase.storageLocation}
+                    onChange={(e) => setConfig({
+                      ...config,
+                      productKnowledgeBase: {
+                        ...config.productKnowledgeBase,
+                        storageLocation: e.target.value
+                      }
+                    })}
+                    placeholder="https://drive.google.com/..."
+                  />
+                </div>
+
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-3">סוגי תוכן כלולים</h4>
+                  <div className="space-y-3">
+                    {[
+                      { key: 'productCatalog', label: 'קטלוג מוצרים' },
+                      { key: 'pricingInfo', label: 'מידע תמחור' },
+                      { key: 'caseStudies', label: 'Case Studies' },
+                      { key: 'competitorComparisons', label: 'השוואות מתחרים' },
+                      { key: 'technicalSpecs', label: 'מפרטים טכניים' }
+                    ].map(item => (
+                      <label key={item.key} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={config.productKnowledgeBase.includes[item.key as keyof typeof config.productKnowledgeBase.includes]}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            productKnowledgeBase: {
+                              ...config.productKnowledgeBase,
+                              includes: {
+                                ...config.productKnowledgeBase.includes,
+                                [item.key]: e.target.checked
+                              }
+                            }
+                          })}
+                          className="rounded border-gray-300"
+                        />
+                        <span className="text-sm text-gray-700">{item.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Sales Playbook */}
+            {activeTab === 'playbook' && (
+              <div className="space-y-6">
+                {/* Objection Handling */}
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-medium text-gray-900">טיפול בהתנגדויות</h4>
+                    <Button onClick={addObjectionHandler} size="sm" variant="outline">
+                      <Plus className="w-4 h-4 ml-1" />
+                      הוסף
+                    </Button>
+                  </div>
+                  <div className="space-y-3">
+                    {config.salesPlaybook.objectionHandling.map((obj, idx) => (
+                      <div key={idx} className="bg-white border border-gray-200 rounded p-3 space-y-2">
+                        <div className="flex items-start gap-2">
+                          <div className="flex-1 space-y-2">
+                            <Input
+                              value={obj.objection}
+                              onChange={(e) => updateObjectionHandler(idx, 'objection', e.target.value)}
+                              placeholder="התנגדות (למשל: 'המחיר גבוה מדי')"
+                            />
+                            <textarea
+                              value={obj.response}
+                              onChange={(e) => updateObjectionHandler(idx, 'response', e.target.value)}
+                              placeholder="תגובה מומלצת..."
+                              rows={2}
+                              className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                            />
+                          </div>
+                          <button
+                            onClick={() => removeObjectionHandler(idx)}
+                            className="text-red-600 hover:text-red-700 p-1"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Pricing Strategies */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    אסטרטגיות תמחור (מופרדות בפסיק)
+                  </label>
+                  <Input
+                    value={config.salesPlaybook.pricingStrategies.join(', ')}
+                    onChange={(e) => setConfig({
+                      ...config,
+                      salesPlaybook: {
+                        ...config.salesPlaybook,
+                        pricingStrategies: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+                      }
+                    })}
+                    placeholder="Value-based pricing, Volume discounts, Bundle pricing"
+                  />
+                </div>
+
+                {/* Qualification Questions */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    שאלות סינון (מופרדות בפסיק)
+                  </label>
+                  <textarea
+                    value={config.salesPlaybook.qualificationQuestions.join(', ')}
+                    onChange={(e) => setConfig({
+                      ...config,
+                      salesPlaybook: {
+                        ...config.salesPlaybook,
+                        qualificationQuestions: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+                      }
+                    })}
+                    rows={3}
+                    className="w-full rounded-md border border-gray-300 p-2"
+                    placeholder="מה הבעיה העיקרית?, מה התקציב?, מתי תרצו להתחיל?"
+                  />
+                </div>
+
+                {/* Handoff Criteria */}
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-3">קריטריונים להעברה לאדם</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        סף תקציב (לעסקאות גדולות)
+                      </label>
+                      <Input
+                        type="number"
+                        value={config.salesPlaybook.handoffCriteria.budgetThreshold || ''}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          salesPlaybook: {
+                            ...config.salesPlaybook,
+                            handoffCriteria: {
+                              ...config.salesPlaybook.handoffCriteria,
+                              budgetThreshold: parseInt(e.target.value) || undefined
+                            }
+                          }
+                        })}
+                        placeholder="50000"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        רמת מורכבות
+                      </label>
+                      <Select
+                        value={config.salesPlaybook.handoffCriteria.complexity || 'medium'}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          salesPlaybook: {
+                            ...config.salesPlaybook,
+                            handoffCriteria: {
+                              ...config.salesPlaybook.handoffCriteria,
+                              complexity: e.target.value as 'high' | 'medium' | 'low'
+                            }
+                          }
+                        })}
+                        options={[
+                          { value: 'low', label: 'נמוכה' },
+                          { value: 'medium', label: 'בינונית' },
+                          { value: 'high', label: 'גבוהה' }
+                        ]}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      סוגי עסקאות להעברה (מופרדים בפסיק)
+                    </label>
+                    <Input
+                      value={config.salesPlaybook.handoffCriteria.dealType?.join(', ') || ''}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        salesPlaybook: {
+                          ...config.salesPlaybook,
+                          handoffCriteria: {
+                            ...config.salesPlaybook.handoffCriteria,
+                            dealType: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+                          }
+                        }
+                      })}
+                      placeholder="Enterprise, Custom, Multi-site"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Calendar Integration */}
+            {activeTab === 'calendar' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      מערכת יומן
+                    </label>
+                    <Select
+                      value={config.calendarIntegration.system}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        calendarIntegration: {
+                          ...config.calendarIntegration,
+                          system: e.target.value as any
+                        }
+                      })}
+                      options={CALENDAR_SYSTEMS}
+                    />
+                  </div>
+
+                  <div className="flex items-center pt-8">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={config.calendarIntegration.apiConfigured}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          calendarIntegration: {
+                            ...config.calendarIntegration,
+                            apiConfigured: e.target.checked
+                          }
+                        })}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm font-medium text-gray-700">
+                        API מוגדר
+                      </span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Business Hours */}
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-3">שעות פעילות</h4>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        שעת התחלה
+                      </label>
+                      <Input
+                        type="time"
+                        value={config.calendarIntegration.availabilityRules.businessHours.start}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          calendarIntegration: {
+                            ...config.calendarIntegration,
+                            availabilityRules: {
+                              ...config.calendarIntegration.availabilityRules,
+                              businessHours: {
+                                ...config.calendarIntegration.availabilityRules.businessHours,
+                                start: e.target.value
+                              }
+                            }
+                          }
+                        })}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        שעת סיום
+                      </label>
+                      <Input
+                        type="time"
+                        value={config.calendarIntegration.availabilityRules.businessHours.end}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          calendarIntegration: {
+                            ...config.calendarIntegration,
+                            availabilityRules: {
+                              ...config.calendarIntegration.availabilityRules,
+                              businessHours: {
+                                ...config.calendarIntegration.availabilityRules.businessHours,
+                                end: e.target.value
+                              }
+                            }
+                          }
+                        })}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Buffer (דקות)
+                      </label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="60"
+                        value={config.calendarIntegration.availabilityRules.bufferTime}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          calendarIntegration: {
+                            ...config.calendarIntegration,
+                            availabilityRules: {
+                              ...config.calendarIntegration.availabilityRules,
+                              bufferTime: parseInt(e.target.value)
+                            }
+                          }
+                        })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Meeting Types */}
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-medium text-gray-900">סוגי פגישות</h4>
+                    <Button onClick={addMeetingType} size="sm" variant="outline">
+                      <Plus className="w-4 h-4 ml-1" />
+                      הוסף סוג
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    {config.calendarIntegration.availabilityRules.meetingTypes.map((mt, idx) => (
+                      <div key={idx} className="flex gap-2">
+                        <Input
+                          value={mt.type}
+                          onChange={(e) => updateMeetingType(idx, 'type', e.target.value)}
+                          placeholder="סוג פגישה"
+                          className="flex-1"
+                        />
+                        <Input
+                          type="number"
+                          min="15"
+                          max="240"
+                          step="15"
+                          value={mt.durationMinutes}
+                          onChange={(e) => updateMeetingType(idx, 'durationMinutes', parseInt(e.target.value))}
+                          placeholder="דקות"
+                          className="w-24"
+                        />
+                        <button
+                          onClick={() => removeMeetingType(idx)}
+                          className="text-red-600 hover:text-red-700 px-2"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Channels */}
+            {activeTab === 'channels' && (
+              <div className="space-y-6">
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-3">ערוצי תקשורת</h4>
+                  <div className="space-y-3">
+                    {config.channels.map((ch, idx) => (
+                      <label key={idx} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={ch.enabled}
+                          onChange={(e) => {
+                            const updated = [...config.channels];
+                            updated[idx] = { ...updated[idx], enabled: e.target.checked };
+                            setConfig({ ...config, channels: updated });
+                          }}
+                          className="rounded border-gray-300"
+                        />
+                        <span className="text-sm text-gray-700">
+                          {MESSAGING_CHANNELS.find(c => c.value === ch.channel)?.label || ch.channel}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Message Templates */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      הודעת פתיחה
+                    </label>
+                    <textarea
+                      value={config.messageTemplates.greeting}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        messageTemplates: {
+                          ...config.messageTemplates,
+                          greeting: e.target.value
+                        }
+                      })}
+                      rows={2}
+                      className="w-full rounded-md border border-gray-300 p-2"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      הצגת מוצר
+                    </label>
+                    <textarea
+                      value={config.messageTemplates.productPitch}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        messageTemplates: {
+                          ...config.messageTemplates,
+                          productPitch: e.target.value
+                        }
+                      })}
+                      rows={2}
+                      className="w-full rounded-md border border-gray-300 p-2"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      הזמנה לפגישה
+                    </label>
+                    <textarea
+                      value={config.messageTemplates.meetingInvite}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        messageTemplates: {
+                          ...config.messageTemplates,
+                          meetingInvite: e.target.value
+                        }
+                      })}
+                      rows={2}
+                      className="w-full rounded-md border border-gray-300 p-2"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      מעקב
+                    </label>
+                    <textarea
+                      value={config.messageTemplates.followUp}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        messageTemplates: {
+                          ...config.messageTemplates,
+                          followUp: e.target.value
+                        }
+                      })}
+                      rows={2}
+                      className="w-full rounded-md border border-gray-300 p-2"
+                    />
+                  </div>
+                </div>
+
+                {/* CRM Integration */}
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-3">CRM Integration</h4>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        מערכת CRM
+                      </label>
+                      <Select
+                        value={config.crmIntegration.system}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          crmIntegration: {
+                            ...config.crmIntegration,
+                            system: e.target.value as CRMSystem
+                          }
+                        })}
+                        options={CRM_SYSTEMS}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 mb-4">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={config.crmIntegration.realTimeUpdates}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          crmIntegration: {
+                            ...config.crmIntegration,
+                            realTimeUpdates: e.target.checked
+                          }
+                        })}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm text-gray-700">עדכונים בזמן אמת</span>
+                    </label>
+
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={config.crmIntegration.webhooksConfigured}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          crmIntegration: {
+                            ...config.crmIntegration,
+                            webhooksConfigured: e.target.checked
+                          }
+                        })}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm text-gray-700">Webhooks מוגדרים</span>
+                    </label>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      שדות לעדכון (מופרדים בפסיק)
+                    </label>
+                    <Input
+                      value={config.crmIntegration.fieldsToUpdate.join(', ')}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        crmIntegration: {
+                          ...config.crmIntegration,
+                          fieldsToUpdate: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+                        }
+                      })}
+                      placeholder="Lead Status, Last Contact, Notes"
+                    />
+                  </div>
+                </div>
+
+                {/* Conversation Limits */}
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      מקסימום הודעות לפני העברה
+                    </label>
+                    <Input
+                      type="number"
+                      min="5"
+                      max="50"
+                      value={config.conversationLimits.maxMessages}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        conversationLimits: {
+                          ...config.conversationLimits,
+                          maxMessages: parseInt(e.target.value)
+                        }
+                      })}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Timeout שיחה (דקות)
+                    </label>
+                    <Input
+                      type="number"
+                      min="5"
+                      max="120"
+                      value={config.conversationLimits.timeoutMinutes}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        conversationLimits: {
+                          ...config.conversationLimits,
+                          timeoutMinutes: parseInt(e.target.value)
+                        }
+                      })}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Performance */}
+            {activeTab === 'performance' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      שיחות יומיות משוערות
+                    </label>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={config.performance.dailyConversations}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        performance: {
+                          ...config.performance,
+                          dailyConversations: parseInt(e.target.value)
+                        }
+                      })}
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-3">יעדי המרה</h4>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        שיחה → ליד (%)
+                      </label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={config.performance.targets.conversationToLead}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          performance: {
+                            ...config.performance,
+                            targets: {
+                              ...config.performance.targets,
+                              conversationToLead: parseInt(e.target.value)
+                            }
+                          }
+                        })}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        ליד → פגישה (%)
+                      </label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={config.performance.targets.leadToMeeting}
+                        onChange={(e) => setConfig({
+                          ...config,
+                          performance: {
+                            ...config.performance,
+                            targets: {
+                              ...config.performance.targets,
+                              leadToMeeting: parseInt(e.target.value)
+                            }
+                          }
+                        })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">תחזית ביצועים</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-700">שיחות יומיות:</span>
+                      <span className="font-bold text-gray-900">{config.performance.dailyConversations}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-700">לידים יומיים צפויים:</span>
+                      <span className="font-bold text-green-600">
+                        {Math.round(config.performance.dailyConversations * config.performance.targets.conversationToLead / 100)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-700">פגישות יומיות צפויות:</span>
+                      <span className="text-2xl font-bold text-blue-600">
+                        {Math.round(
+                          config.performance.dailyConversations *
+                          config.performance.targets.conversationToLead / 100 *
+                          config.performance.targets.leadToMeeting / 100
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-700">פגישות חודשיות צפויות:</span>
+                      <span className="text-2xl font-bold text-purple-600">
+                        {Math.round(
+                          config.performance.dailyConversations *
+                          config.performance.targets.conversationToLead / 100 *
+                          config.performance.targets.leadToMeeting / 100 *
+                          30
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Save Button */}
+        <div className="flex justify-end gap-4">
+          <Button onClick={() => navigate('/phase2')} variant="outline">
+            ביטול
+          </Button>
+          <Button onClick={handleSave} disabled={isSaving} className="flex items-center gap-2">
+            {isSaving ? (
+              <>
+                <Loader className="w-4 h-4 animate-spin" />
+                שומר...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                שמור והמשך
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
     </div>
   );
-}
+};

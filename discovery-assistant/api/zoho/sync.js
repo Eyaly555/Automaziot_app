@@ -1,5 +1,6 @@
 // Vercel serverless function for syncing meeting data with Zoho CRM
 import { zohoAPI, updateRecord } from './service.js';
+import { calculateDiscoveryStatus } from './helpers/discoveryStatus.js';
 
 /**
  * Calculate overall progress percentage based on module completion
@@ -75,7 +76,7 @@ export default async function handler(req, res) {
       Discovery_Progress: JSON.stringify(meeting), // Full meeting data as JSON
       Discovery_Last_Update: now.toISOString().split('.')[0] + '+00:00', // Zoho datetime format (no milliseconds)
       Discovery_Completion: `${progressPercentage}%`,
-      Discovery_Status: progressPercentage === 100 ? 'Completed' : 'In Progress',
+      Discovery_Status: calculateDiscoveryStatus(meeting), // ✅ NEW: 5-stage workflow tracking
       Discovery_Date: now.toISOString().split('T')[0],
       Discovery_Modules_Completed: Object.keys(meeting.modules || {}).length,
       Discovery_Notes: JSON.stringify({

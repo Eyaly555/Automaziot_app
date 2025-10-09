@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
+import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
 
 export function AIActionAgentSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
@@ -13,7 +14,7 @@ export function AIActionAgentSpec() {
 
   useEffect(() => {
     const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
-    const existing = aiAgentServices.find(a => a.serviceId === 'ai-action-agent');
+    const existing = aiAgentServices.find((a: AIAgentServiceEntry) => a.serviceId === 'ai-action-agent');
     if (existing?.requirements) {
       setConfig(existing.requirements);
     }
@@ -23,7 +24,7 @@ export function AIActionAgentSpec() {
     if (!currentMeeting) return;
 
     const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
-    const updated = aiAgentServices.filter(a => a.serviceId !== 'ai-action-agent');
+    const updated = aiAgentServices.filter((a: AIAgentServiceEntry) => a.serviceId !== 'ai-action-agent');
 
     updated.push({
       serviceId: 'ai-action-agent',

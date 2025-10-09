@@ -18,6 +18,7 @@ import {
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { AIFAQBotConfig } from '../../../../types/automationServices';
 import { Button, Input, Select } from '../../../Base';
+import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
 
 const AI_PROVIDERS = [
   { value: 'openai', label: 'OpenAI' },
@@ -165,7 +166,7 @@ export const AIFAQBotSpec: React.FC = () => {
   // Load existing config from meeting store if available
   useEffect(() => {
     const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
-    const existing = aiAgentServices.find(a => a.serviceId === 'ai-faq-bot');
+    const existing = aiAgentServices.find((a: AIAgentServiceEntry) => a.serviceId === 'ai-faq-bot');
     if (existing?.requirements) {
       setConfig(existing.requirements);
     }
@@ -221,7 +222,7 @@ export const AIFAQBotSpec: React.FC = () => {
       if (!currentMeeting) return;
 
       const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
-      const updated = aiAgentServices.filter(a => a.serviceId !== 'ai-faq-bot');
+      const updated = aiAgentServices.filter((a: AIAgentServiceEntry) => a.serviceId !== 'ai-faq-bot');
 
       updated.push({
         serviceId: 'ai-faq-bot',

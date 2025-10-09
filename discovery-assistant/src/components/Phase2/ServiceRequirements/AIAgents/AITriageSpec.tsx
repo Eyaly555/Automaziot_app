@@ -23,6 +23,7 @@ import {
   RoutingRule
 } from '../../../../types/automationServices';
 import { Button, Input, Select } from '../../../Base';
+import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -161,7 +162,7 @@ export const AITriageSpec: React.FC = () => {
   // Load existing config from meeting store if available
   useEffect(() => {
     const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
-    const existing = aiAgentServices.find(a => a.serviceId === 'ai-triage');
+    const existing = aiAgentServices.find((a: AIAgentServiceEntry) => a.serviceId === 'ai-triage');
     if (existing?.requirements) {
       setConfig(existing.requirements);
     }
@@ -173,7 +174,7 @@ export const AITriageSpec: React.FC = () => {
       if (!currentMeeting) return;
 
       const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
-      const updated = aiAgentServices.filter(a => a.serviceId !== 'ai-triage');
+      const updated = aiAgentServices.filter((a: AIAgentServiceEntry) => a.serviceId !== 'ai-triage');
 
       updated.push({
         serviceId: 'ai-triage',
