@@ -154,7 +154,6 @@ const generateServiceRequirements = (serviceId: string, serviceName: string): Fu
         description: 'הקצאה אוטומטית של לידים לנציגים',
         priority: 'must_have',
         testScenario: 'יצירת 10 לידים ובדיקת ההקצאה',
-        priority: 'must_have',
         acceptanceCriteria: 'כל ליד מוקצה לנציג על בסיס round-robin או טריטוריה',
         status: 'pending'
       }

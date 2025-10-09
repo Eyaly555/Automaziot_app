@@ -1,4 +1,4 @@
-import * as XLSX from 'xlsx';
+import * as ExcelJS from 'exceljs';
 import { Meeting, PainPoint, ROIModule, SelectedService } from '../types';
 import type { DevelopmentTask, Sprint, Blocker } from '../types/phase3';
 import type { DetailedSystemSpec, IntegrationFlow, DetailedAIAgentSpec } from '../types/phase2';
@@ -103,10 +103,11 @@ function calculate12MonthROI(roi: ROIModule | undefined): number {
 /**
  * Export Discovery phase data to Excel
  */
-export function exportDiscoveryToExcel(meeting: Meeting): void {
-  const wb = XLSX.utils.book_new();
+export async function exportDiscoveryToExcel(meeting: Meeting): Promise<void> {
+  const workbook = new ExcelJS.Workbook();
 
   // Sheet 1: Overview
+  const overviewSheet = workbook.addWorksheet('סקירה כללית');
   const overviewData = [
     ['Discovery Assistant - סיכום פגישת גילוי'],
     [''],
@@ -128,17 +129,21 @@ export function exportDiscoveryToExcel(meeting: Meeting): void {
     ])
   ];
 
-  const wsOverview = XLSX.utils.aoa_to_sheet(overviewData);
+  overviewData.forEach((row, rowIndex) => {
+    const excelRow = overviewSheet.getRow(rowIndex + 1);
+    row.forEach((cell, cellIndex) => {
+      excelRow.getCell(cellIndex + 1).value = cell;
+    });
+  });
 
   // Set column widths
-  wsOverview['!cols'] = [
-    { wch: 25 },
-    { wch: 40 }
+  overviewSheet.columns = [
+    { width: 25 },
+    { width: 40 }
   ];
 
-  XLSX.utils.book_append_sheet(wb, wsOverview, 'סקירה כללית');
-
   // Sheet 2: Pain Points
+  const painPointsSheet = workbook.addWorksheet('נקודות כאב');
   const painPoints = meeting.painPoints || [];
   const painPointsData = [
     ['נקודות כאב מזוהות'],
@@ -157,18 +162,23 @@ export function exportDiscoveryToExcel(meeting: Meeting): void {
     painPointsData.push(['אין נקודות כאב רשומות', '', '', '', '']);
   }
 
-  const wsPainPoints = XLSX.utils.aoa_to_sheet(painPointsData);
-  wsPainPoints['!cols'] = [
-    { wch: 20 },
-    { wch: 20 },
-    { wch: 50 },
-    { wch: 15 },
-    { wch: 20 }
+  painPointsData.forEach((row, rowIndex) => {
+    const excelRow = painPointsSheet.getRow(rowIndex + 1);
+    row.forEach((cell, cellIndex) => {
+      excelRow.getCell(cellIndex + 1).value = cell;
+    });
+  });
+
+  painPointsSheet.columns = [
+    { width: 20 },
+    { width: 20 },
+    { width: 50 },
+    { width: 15 },
+    { width: 20 }
   ];
 
-  XLSX.utils.book_append_sheet(wb, wsPainPoints, 'נקודות כאב');
-
   // Sheet 3: ROI Summary
+  const roiSheet = workbook.addWorksheet('ניתוח ROI');
   const roi = meeting.modules.roi;
   const manualHours = roi?.currentCosts?.manualHours ? parseFloat(roi.currentCosts.manualHours) : 0;
   const hourlyCost = roi?.currentCosts?.hourlyCost ? parseFloat(roi.currentCosts.hourlyCost) : 0;
@@ -193,15 +203,20 @@ export function exportDiscoveryToExcel(meeting: Meeting): void {
     ['ROI ל-12 חודשים (%)', calculate12MonthROI(roi)]
   ];
 
-  const wsROI = XLSX.utils.aoa_to_sheet(roiData);
-  wsROI['!cols'] = [
-    { wch: 30 },
-    { wch: 25 }
+  roiData.forEach((row, rowIndex) => {
+    const excelRow = roiSheet.getRow(rowIndex + 1);
+    row.forEach((cell, cellIndex) => {
+      excelRow.getCell(cellIndex + 1).value = cell;
+    });
+  });
+
+  roiSheet.columns = [
+    { width: 30 },
+    { width: 25 }
   ];
 
-  XLSX.utils.book_append_sheet(wb, wsROI, 'ניתוח ROI');
-
   // Sheet 4: Proposed Services
+  const servicesSheet = workbook.addWorksheet('שירותים מוצעים');
   const services = meeting.modules.proposal?.selectedServices || [];
   const servicesData = [
     ['שירותים מוצעים'],
@@ -223,23 +238,25 @@ export function exportDiscoveryToExcel(meeting: Meeting): void {
     servicesData.push(['סה"כ משך', '', `${services.reduce((sum: number, s: SelectedService) => sum + (s.customDuration ?? s.estimatedDays ?? 0), 0)} ימים`]);
   }
 
-  const wsServices = XLSX.utils.aoa_to_sheet(servicesData);
-  wsServices['!cols'] = [
-    { wch: 40 },
-    { wch: 25 },
-    { wch: 20 },
-    { wch: 20 },
-    { wch: 15 }
+  servicesData.forEach((row, rowIndex) => {
+    const excelRow = servicesSheet.getRow(rowIndex + 1);
+    row.forEach((cell, cellIndex) => {
+      excelRow.getCell(cellIndex + 1).value = cell;
+    });
+  });
+
+  servicesSheet.columns = [
+    { width: 40 },
+    { width: 25 },
+    { width: 20 },
+    { width: 20 },
+    { width: 15 }
   ];
 
-  XLSX.utils.book_append_sheet(wb, wsServices, 'שירותים מוצעים');
-
   // Sheet 5: Systems Inventory
-  // Use detailedSystems if available, fallback to currentSystems (which might be strings or objects)
+  const systemsSheet = workbook.addWorksheet('מערכות');
   const detailedSystems = meeting.modules.systems?.detailedSystems || [];
   const currentSystems = meeting.modules.systems?.currentSystems || [];
-
-  // Handle both detailed systems and simple strings
   const systemsToExport = detailedSystems.length > 0 ? detailedSystems : currentSystems;
 
   const systemsData: (string | number)[][] = [
@@ -265,20 +282,31 @@ export function exportDiscoveryToExcel(meeting: Meeting): void {
     systemsData.push(['אין מערכות רשומות', '', '', '', '']);
   }
 
-  const wsSystems = XLSX.utils.aoa_to_sheet(systemsData);
-  wsSystems['!cols'] = [
-    { wch: 30 },
-    { wch: 20 },
-    { wch: 15 },
-    { wch: 20 },
-    { wch: 15 }
-  ];
+  systemsData.forEach((row, rowIndex) => {
+    const excelRow = systemsSheet.getRow(rowIndex + 1);
+    row.forEach((cell, cellIndex) => {
+      excelRow.getCell(cellIndex + 1).value = cell;
+    });
+  });
 
-  XLSX.utils.book_append_sheet(wb, wsSystems, 'מערכות');
+  systemsSheet.columns = [
+    { width: 30 },
+    { width: 20 },
+    { width: 15 },
+    { width: 20 },
+    { width: 15 }
+  ];
 
   // Export file
   const timestamp = new Date().toISOString().split('T')[0];
-  XLSX.writeFile(wb, `Discovery_${meeting.clientName.replace(/\s+/g, '_')}_${timestamp}.xlsx`);
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `Discovery_${meeting.clientName.replace(/\s+/g, '_')}_${timestamp}.xlsx`;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 /**

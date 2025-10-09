@@ -5,64 +5,49 @@ import { useSmartField } from '../../../../hooks/useSmartField';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 interface AutoTeamAlertsConfig {
-  notificationChannels: ('email' | 'slack' | 'teams' | 'sms' | 'whatsapp')[];
-  crmSystem: 'zoho' | 'salesforce' | 'hubspot' | 'pipedrive' | 'other';
-  triggers: Array<{
-    id: string;
-    name: string;
-    condition: string;
-    priority: 'low' | 'medium' | 'high' | 'critical';
-  }>;
-  slackWebhookUrl?: string;
-  teamsWebhookUrl?: string;
-  emailRecipients: string[];
-  businessHoursOnly: boolean;
+  notificationChannels: string[];
+  alertTypes: string[];
+  escalationLevels: number;
+  workingHoursOnly: boolean;
+  customMessageTemplates: boolean;
 }
 
-/**
- * Smart Auto Team Alerts Spec Component
- *
- * NOW WITH INTELLIGENT FIELD PRE-POPULATION:
- * - Auto-fills notification channels from Phase 1 requirements
- * - Auto-fills alert email from company contact or automation defaults
- * - Auto-fills n8n instance URL from Phase 1 automation requirements
- * - Shows "Auto-filled from Phase 1" badges
- * - Detects and warns about conflicts
- */
 export function AutoTeamAlertsSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
 
   // Smart fields with auto-population
-  const notificationChannels = useSmartField<string[]>({
+  const notificationChannels = useSmartField<string>({
     fieldId: 'notification_channels',
-    localPath: 'notificationChannels',
+    localPath: 'communication.notificationChannels',
     serviceId: 'auto-team-alerts',
-    autoSave: false // We'll batch save
+    autoSave: false
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
-    localPath: 'alertEmail',
+    localPath: 'n8nWorkflow.errorHandling.alertEmail',
     serviceId: 'auto-team-alerts',
     autoSave: false
   });
 
   const n8nInstanceUrl = useSmartField<string>({
     fieldId: 'n8n_instance_url',
-    localPath: 'n8nInstanceUrl',
+    localPath: 'n8nWorkflow.instanceUrl',
     serviceId: 'auto-team-alerts',
     autoSave: false
   });
 
   const [config, setConfig] = useState<Partial<AutoTeamAlertsConfig>>({
-    triggers: [],
-    emailRecipients: [],
-    businessHoursOnly: false,
+    notificationChannels: [],
+    alertTypes: [],
+    escalationLevels: 3,
+    workingHoursOnly: true,
+    customMessageTemplates: false,
   });
 
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
-    const existing = automations.find(a => a.serviceId === 'auto-team-alerts');
+    const existing = automations.find((a: any) => a.serviceId === 'auto-team-alerts');
     if (existing?.requirements) {
       setConfig(existing.requirements);
     }
@@ -75,21 +60,25 @@ export function AutoTeamAlertsSpec() {
     const automations = currentMeeting?.implementationSpec?.automations || [];
 
     // הסרת רשומה קיימת (אם יש) למניעת כפילויות
-    const updated = automations.filter(a => a.serviceId !== 'auto-team-alerts');
+    const updated = automations.filter((a: any) => a.serviceId !== 'auto-team-alerts');
 
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
       notificationChannels: notificationChannels.value,
-      alertEmail: alertEmail.value,
-      n8nInstanceUrl: n8nInstanceUrl.value
+      n8nWorkflow: {
+        instanceUrl: n8nInstanceUrl.value,
+        errorHandling: {
+          alertEmail: alertEmail.value
+        }
+      }
     };
 
     // הוספת רשומה חדשה/מעודכנת
     updated.push({
       serviceId: 'auto-team-alerts',
-      serviceName: 'התראות לצוות על לידים חשובים',
-      serviceNameHe: 'התראות לצוות על לידים חשובים',
+      serviceName: 'התראות אוטומטיות לצוות',
+      serviceNameHe: 'התראות אוטומטיות לצוות',
       requirements: completeConfig,
       completedAt: new Date().toISOString()
     });
@@ -100,11 +89,12 @@ export function AutoTeamAlertsSpec() {
         automations: updated,
       },
     });
+
+    alert('✅ הגדרות נשמרו בהצלחה!');
   };
 
   return (
     <div className="space-y-6" dir="rtl">
-      {/* Header with smart field indicators */}
       <Card title="שירות #4: התראות אוטומטיות לצוות">
         <div className="space-y-6">
           {/* Smart Fields Info Banner */}
@@ -134,153 +124,156 @@ export function AutoTeamAlertsSpec() {
             </div>
           )}
 
-          <div className="space-y-4">
-          {/* Smart Notification Channels Field */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700">
-                {notificationChannels.metadata.label.he}
-              </label>
-              {notificationChannels.isAutoPopulated && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
-                  <CheckCircle className="w-3 h-3" />
-                  מולא אוטומטית
-                </span>
-              )}
-            </div>
-            <div className="space-y-2">
-              {['email', 'slack', 'teams', 'sms', 'whatsapp'].map((channel) => (
-                <label key={channel} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={notificationChannels.value?.includes(channel)}
-                    onChange={(e) => {
-                      const currentChannels = notificationChannels.value || [];
-                      let newChannels;
-                      if (e.target.checked) {
-                        newChannels = [...currentChannels, channel];
-                      } else {
-                        newChannels = currentChannels.filter(c => c !== channel);
-                      }
-                      notificationChannels.setValue(newChannels);
-                    }}
-                    className="mr-2"
-                  />
-                  <span className="text-sm capitalize">{channel}</span>
+          {/* Smart Fields Section */}
+          <div className="grid grid-cols-1 gap-4">
+            {/* Smart Notification Channels Field */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  {notificationChannels.metadata.label.he}
                 </label>
-              ))}
-            </div>
-            {notificationChannels.isAutoPopulated && notificationChannels.source && (
-              <p className="text-xs text-gray-500 mt-1">
-                מקור: {notificationChannels.source.description}
-              </p>
-            )}
-          </div>
-
-          {/* Alert Email Field */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700">
-                {alertEmail.metadata.label.he}
-              </label>
-              {alertEmail.isAutoPopulated && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
-                  <CheckCircle className="w-3 h-3" />
-                  מולא אוטומטית
-                </span>
+                {notificationChannels.isAutoPopulated && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                    <CheckCircle className="w-3 h-3" />
+                    מולא אוטומטית
+                  </span>
+                )}
+              </div>
+              <select
+                value={notificationChannels.value || 'email'}
+                onChange={(e) => notificationChannels.setValue(e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md ${
+                  notificationChannels.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                } ${notificationChannels.hasConflict ? 'border-orange-300' : ''}`}
+              >
+                <option value="email">מייל</option>
+                <option value="sms">SMS</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="slack">Slack</option>
+                <option value="teams">Microsoft Teams</option>
+              </select>
+              {notificationChannels.isAutoPopulated && notificationChannels.source && (
+                <p className="text-xs text-gray-500 mt-1">
+                  מקור: {notificationChannels.source.description}
+                </p>
               )}
             </div>
-            <input
-              type="email"
-              value={alertEmail.value || ''}
-              onChange={(e) => alertEmail.setValue(e.target.value)}
-              placeholder="alerts@company.com"
-              className={`w-full px-3 py-2 border rounded-md ${
-                alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
-              } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
-            />
-            {alertEmail.isAutoPopulated && alertEmail.source && (
-              <p className="text-xs text-gray-500 mt-1">
-                מקור: {alertEmail.source.description}
-              </p>
-            )}
-          </div>
 
-          {/* N8N Instance URL Field */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700">
-                {n8nInstanceUrl.metadata.label.he}
-              </label>
-              {n8nInstanceUrl.isAutoPopulated && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
-                  <CheckCircle className="w-3 h-3" />
-                  מולא אוטומטית
-                </span>
+            {/* Smart n8n Instance URL Field */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  {n8nInstanceUrl.metadata.label.he}
+                </label>
+                {n8nInstanceUrl.isAutoPopulated && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                    <CheckCircle className="w-3 h-3" />
+                    מולא אוטומטית
+                  </span>
+                )}
+              </div>
+              <input
+                type="url"
+                value={n8nInstanceUrl.value || ''}
+                onChange={(e) => n8nInstanceUrl.setValue(e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md ${
+                  n8nInstanceUrl.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                } ${n8nInstanceUrl.hasConflict ? 'border-orange-300' : ''}`}
+                placeholder="https://n8n.example.com"
+              />
+              {n8nInstanceUrl.isAutoPopulated && n8nInstanceUrl.source && (
+                <p className="text-xs text-gray-500 mt-1">
+                  מקור: {n8nInstanceUrl.source.description}
+                </p>
               )}
             </div>
-            <input
-              type="url"
-              value={n8nInstanceUrl.value || ''}
-              onChange={(e) => n8nInstanceUrl.setValue(e.target.value)}
-              placeholder="https://n8n.example.com"
-              className={`w-full px-3 py-2 border rounded-md ${
-                n8nInstanceUrl.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
-              } ${n8nInstanceUrl.hasConflict ? 'border-orange-300' : ''}`}
-            />
-            {n8nInstanceUrl.isAutoPopulated && n8nInstanceUrl.source && (
-              <p className="text-xs text-gray-500 mt-1">
-                מקור: {n8nInstanceUrl.source.description}
-              </p>
-            )}
+
+            {/* Smart Alert Email Field */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  {alertEmail.metadata.label.he}
+                </label>
+                {alertEmail.isAutoPopulated && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                    <CheckCircle className="w-3 h-3" />
+                    מולא אוטומטית
+                  </span>
+                )}
+              </div>
+              <input
+                type="email"
+                value={alertEmail.value || ''}
+                onChange={(e) => alertEmail.setValue(e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md ${
+                  alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
+                placeholder="admin@example.com"
+              />
+              {alertEmail.isAutoPopulated && alertEmail.source && (
+                <p className="text-xs text-gray-500 mt-1">
+                  מקור: {alertEmail.source.description}
+                </p>
+              )}
+            </div>
           </div>
 
-          {config.notificationChannels?.includes('slack') && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Slack Webhook URL
-              </label>
-              <input
-                type="url"
-                value={config.slackWebhookUrl || ''}
-                onChange={(e) => setConfig({ ...config, slackWebhookUrl: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="https://hooks.slack.com/services/..."
-              />
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">רמת הסלמה</label>
+                <select value={config.escalationLevels} onChange={(e) => setConfig({ ...config, escalationLevels: parseInt(e.target.value) })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md">
+                  <option value={1}>1 - התראה בלבד</option>
+                  <option value={2}>2 - התראה + מנהל</option>
+                  <option value={3}>3 - התראה + מנהל + הנהלה</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">ערוצי התראה</label>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input type="checkbox" checked={config.notificationChannels?.includes('email')}
+                      onChange={(e) => {
+                        const channels = config.notificationChannels || [];
+                        if (e.target.checked) {
+                          setConfig({ ...config, notificationChannels: [...channels, 'email'] });
+                        } else {
+                          setConfig({ ...config, notificationChannels: channels.filter(c => c !== 'email') });
+                        }
+                      }} className="mr-2" />
+                    <span className="text-sm">מייל</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input type="checkbox" checked={config.notificationChannels?.includes('sms')}
+                      onChange={(e) => {
+                        const channels = config.notificationChannels || [];
+                        if (e.target.checked) {
+                          setConfig({ ...config, notificationChannels: [...channels, 'sms'] });
+                        } else {
+                          setConfig({ ...config, notificationChannels: channels.filter(c => c !== 'sms') });
+                        }
+                      }} className="mr-2" />
+                    <span className="text-sm">SMS</span>
+                  </label>
+                </div>
+              </div>
             </div>
-          )}
-
-          {config.notificationChannels?.includes('teams') && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Teams Webhook URL
+            <div className="space-y-3">
+              <label className="flex items-center">
+                <input type="checkbox" checked={config.workingHoursOnly}
+                  onChange={(e) => setConfig({ ...config, workingHoursOnly: e.target.checked })} className="mr-2" />
+                <span className="text-sm">שלח התראות רק בשעות עבודה</span>
               </label>
-              <input
-                type="url"
-                value={config.teamsWebhookUrl || ''}
-                onChange={(e) => setConfig({ ...config, teamsWebhookUrl: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="https://outlook.office.com/webhook/..."
-              />
+              <label className="flex items-center">
+                <input type="checkbox" checked={config.customMessageTemplates}
+                  onChange={(e) => setConfig({ ...config, customMessageTemplates: e.target.checked })} className="mr-2" />
+                <span className="text-sm">תבניות הודעות מותאמות אישית</span>
+              </label>
             </div>
-          )}
-
-          <div className="space-y-3">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={config.businessHoursOnly}
-                onChange={(e) => setConfig({ ...config, businessHoursOnly: e.target.checked })}
-                className="mr-2"
-              />
-              <span className="text-sm">שלח התראות רק בשעות עבודה</span>
-            </label>
-          </div>
-
-          <div className="flex justify-end pt-4 border-t">
-            <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-              שמור הגדרות
-            </button>
+            <div className="flex justify-end pt-4 border-t">
+              <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">שמור הגדרות</button>
+            </div>
           </div>
         </div>
       </Card>

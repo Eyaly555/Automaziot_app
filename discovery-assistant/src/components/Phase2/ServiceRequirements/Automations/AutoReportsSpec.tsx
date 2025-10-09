@@ -37,6 +37,7 @@ export function AutoReportsSpec() {
     serviceId: 'auto-reports',
     autoSave: false
   });
+
   const [config, setConfig] = useState<Partial<AutoReportsConfig>>({
     reportType: 'sales',
     frequency: 'weekly',
@@ -221,47 +222,51 @@ export function AutoReportsSpec() {
           </div>
 
           <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">סוג דוח</label>
-              <select value={config.reportType} onChange={(e) => setConfig({ ...config, reportType: e.target.value as any })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md">
-                <option value="sales">מכירות</option>
-                <option value="operations">תפעול</option>
-                <option value="financial">כספי</option>
-                <option value="custom">מותאם אישית</option>
-              </select>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">תדירות דוח</label>
+                <select value={config.reportFrequency} onChange={(e) => setConfig({ ...config, reportFrequency: e.target.value as any })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md">
+                  <option value="daily">יומי</option>
+                  <option value="weekly">שבועי</option>
+                  <option value="monthly">חודשי</option>
+                  <option value="quarterly">רבעוני</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">פורמט</label>
+                <select value={config.format} onChange={(e) => setConfig({ ...config, format: e.target.value as any })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md">
+                  <option value="pdf">PDF</option>
+                  <option value="excel">Excel</option>
+                  <option value="csv">CSV</option>
+                  <option value="html">HTML</option>
+                </select>
+              </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">תדירות</label>
-              <select value={config.frequency} onChange={(e) => setConfig({ ...config, frequency: e.target.value as any })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md">
-                <option value="daily">יומי</option>
-                <option value="weekly">שבועי</option>
-                <option value="monthly">חודשי</option>
-                <option value="quarterly">רבעוני</option>
-              </select>
+              <label className="block text-sm font-medium text-gray-700 mb-2">נמענים</label>
+              <div className="space-y-2">
+                <label className="flex items-center">
+                  <input type="checkbox" checked={config.includeManagement}
+                    onChange={(e) => setConfig({ ...config, includeManagement: e.target.checked })} className="mr-2" />
+                  <span className="text-sm">הנהלה</span>
+                </label>
+                <label className="flex items-center">
+                  <input type="checkbox" checked={config.includeTeam}
+                    onChange={(e) => setConfig({ ...config, includeTeam: e.target.checked })} className="mr-2" />
+                  <span className="text-sm">צוות</span>
+                </label>
+                <label className="flex items-center">
+                  <input type="checkbox" checked={config.includeCustomEmails}
+                    onChange={(e) => setConfig({ ...config, includeCustomEmails: e.target.checked })} className="mr-2" />
+                  <span className="text-sm">כתובות מייל נוספות</span>
+                </label>
+              </div>
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">פורמט</label>
-              <select value={config.format} onChange={(e) => setConfig({ ...config, format: e.target.value as any })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md">
-                <option value="pdf">PDF</option>
-                <option value="excel">Excel</option>
-                <option value="html">HTML</option>
-                <option value="dashboard">Dashboard</option>
-              </select>
+            <div className="flex justify-end pt-4 border-t">
+              <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">שמור הגדרות</button>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">זמן שליחה</label>
-              <input type="time" value={config.scheduledTime} onChange={(e) => setConfig({ ...config, scheduledTime: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md" />
-            </div>
-          </div>
-          <div className="flex justify-end pt-4 border-t">
-            <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">שמור הגדרות</button>
           </div>
         </div>
       </Card>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import { useSmartField } from '../../../../hooks/useSmartField';
-import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
+import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 export function IntComplexSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
@@ -296,7 +296,7 @@ export function IntComplexSpec() {
               <button onClick={addTransformation} className="px-4 py-2 bg-green-600 text-white rounded">הוסף</button>
               {config.transformationRules.map((rule, index) => (
                 <div key={index} className="flex justify-between bg-gray-50 p-2 rounded">
-                  <span>{rule.source} -> {rule.target}: {rule.logic}</span>
+                  <span>{rule.source} → {rule.target}: {rule.logic}</span>
                   <button onClick={() => removeTransformation(index)} className="text-red-600">הסר</button>
                 </div>
               ))}

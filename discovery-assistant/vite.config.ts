@@ -40,7 +40,7 @@ export default defineConfig(({ mode }) => {
           manualChunks: {
             'vendor-react': ['react', 'react-dom', 'react-router-dom'],
             'vendor-ui': ['lucide-react', '@heroicons/react'],
-            'vendor-export': ['jspdf', 'xlsx', 'html2canvas'],
+            'vendor-export': ['jspdf', 'exceljs', 'html2canvas'],
             'vendor-store': ['zustand'],
           }
         }
@@ -55,7 +55,7 @@ export default defineConfig(({ mode }) => {
         'react-router-dom',
         'zustand',
         'jspdf',
-        'xlsx',
+        'exceljs',
         'lucide-react',
         '@heroicons/react/24/outline',
         '@supabase/supabase-js'

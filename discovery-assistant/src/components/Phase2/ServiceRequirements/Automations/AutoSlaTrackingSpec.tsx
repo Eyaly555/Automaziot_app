@@ -98,7 +98,7 @@ export function AutoSlaTrackingSpec() {
       <Card title="שירות #19: מעקב SLA אוטומטי">
         <div className="space-y-6">
           {/* Smart Fields Info Banner */}
-          {(crmSystem.isAutoPopulated || alertEmail.isAutoPopulated || n8nInstanceUrl.isAutoPopulated) && (
+          {(crmSystem.isAutoPopulated || n8nInstanceUrl.isAutoPopulated || alertEmail.isAutoPopulated) && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
               <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
@@ -112,7 +112,7 @@ export function AutoSlaTrackingSpec() {
           )}
 
           {/* Conflict Warnings */}
-          {(crmSystem.hasConflict || alertEmail.hasConflict || n8nInstanceUrl.hasConflict) && (
+          {(crmSystem.hasConflict || n8nInstanceUrl.hasConflict || alertEmail.hasConflict) && (
             <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
@@ -160,35 +160,6 @@ export function AutoSlaTrackingSpec() {
               )}
             </div>
 
-            {/* Smart Alert Email Field */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  {alertEmail.metadata.label.he}
-                </label>
-                {alertEmail.isAutoPopulated && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
-                    <CheckCircle className="w-3 h-3" />
-                    מולא אוטומטית
-                  </span>
-                )}
-              </div>
-              <input
-                type="email"
-                value={alertEmail.value || ''}
-                onChange={(e) => alertEmail.setValue(e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md ${
-                  alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
-                } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
-                placeholder="admin@example.com"
-              />
-              {alertEmail.isAutoPopulated && alertEmail.source && (
-                <p className="text-xs text-gray-500 mt-1">
-                  מקור: {alertEmail.source.description}
-                </p>
-              )}
-            </div>
-
             {/* Smart n8n Instance URL Field */}
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -217,37 +188,74 @@ export function AutoSlaTrackingSpec() {
                 </p>
               )}
             </div>
+
+            {/* Smart Alert Email Field */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  {alertEmail.metadata.label.he}
+                </label>
+                {alertEmail.isAutoPopulated && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                    <CheckCircle className="w-3 h-3" />
+                    מולא אוטומטית
+                  </span>
+                )}
+              </div>
+              <input
+                type="email"
+                value={alertEmail.value || ''}
+                onChange={(e) => alertEmail.setValue(e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md ${
+                  alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
+                placeholder="admin@example.com"
+              />
+              {alertEmail.isAutoPopulated && alertEmail.source && (
+                <p className="text-xs text-gray-500 mt-1">
+                  מקור: {alertEmail.source.description}
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">תדירות דיווח</label>
-            <select value={config.reportingFrequency} onChange={(e) => setConfig({ ...config, reportingFrequency: e.target.value as any })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md">
-              <option value="daily">יומי</option>
-              <option value="weekly">שבועי</option>
-              <option value="monthly">חודשי</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">מערכת אינטגרציה</label>
-            <input type="text" value={config.integrationSystem} onChange={(e) => setConfig({ ...config, integrationSystem: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="CRM / Helpdesk" />
-          </div>
-          <div className="space-y-3">
-            <label className="flex items-center">
-              <input type="checkbox" checked={config.alertingEnabled}
-                onChange={(e) => setConfig({ ...config, alertingEnabled: e.target.checked })} className="mr-2" />
-              <span className="text-sm">התראות מופעלות</span>
-            </label>
-            <label className="flex items-center">
-              <input type="checkbox" checked={config.escalationEnabled}
-                onChange={(e) => setConfig({ ...config, escalationEnabled: e.target.checked })} className="mr-2" />
-              <span className="text-sm">הסלמה אוטומטית</span>
-            </label>
-          </div>
-          <div className="flex justify-end pt-4 border-t">
-            <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">שמור הגדרות</button>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">תדירות דיווח</label>
+                <select value={config.reportingFrequency} onChange={(e) => setConfig({ ...config, reportingFrequency: e.target.value as any })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md">
+                  <option value="daily">יומי</option>
+                  <option value="weekly">שבועי</option>
+                  <option value="monthly">חודשי</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">מערכת אינטגרציה</label>
+                <select value={config.integrationSystem} onChange={(e) => setConfig({ ...config, integrationSystem: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md">
+                  <option value="zoho">Zoho</option>
+                  <option value="jira">Jira</option>
+                  <option value="servicenow">ServiceNow</option>
+                  <option value="custom">מותאם אישית</option>
+                </select>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <label className="flex items-center">
+                <input type="checkbox" checked={config.alertingEnabled}
+                  onChange={(e) => setConfig({ ...config, alertingEnabled: e.target.checked })} className="mr-2" />
+                <span className="text-sm">התראות SLA</span>
+              </label>
+              <label className="flex items-center">
+                <input type="checkbox" checked={config.escalationEnabled}
+                  onChange={(e) => setConfig({ ...config, escalationEnabled: e.target.checked })} className="mr-2" />
+                <span className="text-sm">הסלמה אוטומטית</span>
+              </label>
+            </div>
+            <div className="flex justify-end pt-4 border-t">
+              <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">שמור הגדרות</button>
+            </div>
           </div>
         </div>
       </Card>

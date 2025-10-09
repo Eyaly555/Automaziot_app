@@ -1,8 +1,67 @@
 {
+  "name": "eym-group-internal-app",
+  "version": "1.0.0",
+  "description": "EYM Group Internal Application - Intelligent Data Flow System",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "discovery-assistant"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=discovery-assistant",
+    "build": "npm run build --workspace=discovery-assistant",
+    "build:typecheck": "npm run build:typecheck --workspace=discovery-assistant",
+    "lint": "npm run lint --workspace=discovery-assistant",
+    "lint:fix": "npm run lint:fix --workspace=discovery-assistant",
+    "test": "npm run test --workspace=discovery-assistant",
+    "test:ui": "npm run test:ui --workspace=discovery-assistant",
+    "test:e2e": "npm run test:e2e --workspace=discovery-assistant",
+    "test:all": "npm run test:all --workspace=discovery-assistant",
+    "preview": "npm run preview --workspace=discovery-assistant",
+    "typecheck": "npm run typecheck --workspace=discovery-assistant",
+    "clean": "npm run clean --workspace=discovery-assistant",
+    "analyze": "npm run analyze --workspace=discovery-assistant",
+    "security-audit": "npm audit",
+    "security-audit:fix": "npm audit fix",
+    "dependency-check": "npx depcheck",
+    "build:production": "NODE_ENV=production npm run build",
+    "build:staging": "NODE_ENV=staging npm run build",
+    "deploy:staging": "npm run build:staging && echo 'Deploy to staging complete'",
+    "deploy:production": "npm run build:production && echo 'Deploy to production complete'",
+    "predeploy": "npm run security-audit && npm run test:all && npm run build:typecheck",
+    "postinstall": "npm run --workspace=discovery-assistant install"
+  },
+  "keywords": [
+    "business-automation",
+    "crm-integration",
+    "intelligent-data-flow",
+    "react",
+    "typescript",
+    "vite"
+  ],
+  "author": "EYM Group",
+  "license": "Private",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eym-group/internal-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eym-group/internal-app/issues"
+  },
+  "homepage": "https://github.com/eym-group/internal-app#readme",
   "dependencies": {
     "framer-motion": "^12.23.22",
     "jspdf": "^3.0.3",
     "jspdf-autotable": "^5.0.2",
     "react-hot-toast": "^2.6.0"
+  },
+  "devDependencies": {
+    "depcheck": "^1.4.7",
+    "typescript": "~5.8.3",
+    "@types/node": "^24.5.2"
   }
 }

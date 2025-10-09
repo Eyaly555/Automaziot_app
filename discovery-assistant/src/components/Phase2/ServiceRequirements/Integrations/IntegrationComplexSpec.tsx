@@ -3,7 +3,7 @@ import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { IntegrationComplexRequirements, SystemConfig } from '../../../../types/integrationServices';
 import { useSmartField } from '../../../../hooks/useSmartField';
-import { InfoIcon } from '../../../../assets/icons/InfoIcon';
+import { Info } from 'lucide-react';
 
 export function IntegrationComplexSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
@@ -151,7 +151,7 @@ export function IntegrationComplexSpec() {
     <div className="space-y-6 p-8" dir="rtl">
       {(apiAuthMethod.isAutoPopulated || syncFrequency.isAutoPopulated || alertEmail.isAutoPopulated) && (
         <div className="bg-blue-50 border rounded-lg p-4">
-          <InfoIcon className="w-5 h-5 text-blue-600" />
+          <Info className="w-5 h-5 text-blue-600" />
           <p>נתונים מולאו אוטומטית.</p>
         </div>
       )}
