@@ -78,9 +78,7 @@ export const ValidatedFormExample: React.FC = () => {
       employees: [
         { type: 'required', message: 'מספר עובדים הוא שדה חובה' },
         { type: 'min', value: 1, message: 'מספר עובדים חייב להיות לפחות 1' },
-        { type: 'max', value: 10000, message: 'מספר עובדים לא יכול להיות יותר מ-10000' },
-        { type: 'integer', message: 'מספר עובדים חייב להיות מספר שלם' },
-        { type: 'positive', message: 'מספר עובדים חייב להיות חיובי' }
+        { type: 'max', value: 10000, message: 'מספר עובדים לא יכול להיות יותר מ-10000' }
       ],
       description: [
         ...hebrewTextRules

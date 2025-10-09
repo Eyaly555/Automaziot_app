@@ -113,20 +113,118 @@ export const ServiceRequirementsRouter: React.FC = () => {
   );
 
   return (
-    <div className="flex h-screen bg-gray-50" dir="rtl">
-      {/* Sidebar */}
-      <div className="w-80 bg-white border-l border-gray-200 overflow-auto shadow-sm">
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">
-            שירותים לפירוט דרישות
-          </h3>
-          <p className="text-sm text-gray-600">
-            {purchasedServices.length} שירותים נרכשו
-          </p>
-        </div>
+    <div className="min-h-screen bg-gray-50" dir="rtl">
+      {/* Header with Progress Bar - similar to Phase 1 */}
+      <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => window.history.back()}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+              <div>
+                <h1 className="text-xl font-semibold">איסוף דרישות טכניות</h1>
+                <p className="text-sm text-gray-500">
+                  {completedServices.size} מתוך {purchasedServices.length} שירותים הושלמו
+                </p>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">{progressPercentage}%</div>
+              <div className="text-sm text-gray-600">השלמה</div>
+            </div>
+          </div>
 
-        {/* Services List */}
-        <div className="p-4 space-y-2">
+          {/* Progress Bar - similar to Phase 1 */}
+          <div className="mt-4">
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-500"
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex gap-6">
+          {/* Services Progress Sidebar */}
+          <div className="w-80 bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="p-6 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                שירותים לפירוט דרישות
+              </h3>
+              <p className="text-sm text-gray-600">
+                {purchasedServices.length} שירותים נרכשו
+              </p>
+            </div>
+
+            {/* Services List with Progress Indicators */}
+            <div className="p-4 space-y-2">
+              {purchasedServices.map((service, index) => {
+                const isCompleted = completedServices.has(service.id);
+                const isCurrent = index === currentServiceIndex;
+                const category = getServiceCategory(service.id);
+
+                return (
+                  <button
+                    key={service.id}
+                    onClick={() => setCurrentServiceIndex(index)}
+                    className={`
+                      w-full text-right p-4 rounded-lg transition-all duration-200
+                      ${isCurrent
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : isCompleted
+                        ? 'bg-green-50 text-gray-900 hover:bg-green-100 border border-green-200'
+                        : 'bg-gray-50 text-gray-900 hover:bg-gray-100 border border-gray-200'
+                      }
+                    `}
+                  >
+                    <div className="flex items-center gap-3">
+                      {/* Status Icon */}
+                      {isCompleted ? (
+                        <CheckCircle className={`w-5 h-5 flex-shrink-0 ${isCurrent ? 'text-white' : 'text-green-600'}`} />
+                      ) : (
+                        <Circle className={`w-5 h-5 flex-shrink-0 ${isCurrent ? 'text-white' : 'text-gray-400'}`} />
+                      )}
+
+                      {/* Service Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm truncate">
+                          {service.nameHe || service.name}
+                        </div>
+                        <div className="text-xs opacity-75 mt-0.5">
+                          {category?.nameHe || 'קטגוריה לא ידועה'}
+                        </div>
+                      </div>
+
+                      {/* Progress Indicator */}
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                        isCompleted ? 'bg-green-500' : isCurrent ? 'bg-white' : 'bg-gray-300'
+                      }`} />
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+            <div className="p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                {currentService ? (currentService.nameHe || currentService.name) : 'בחר שירות'}
+              </h2>
+              <p className="text-sm text-gray-600">
+                מלא את הדרישות הטכניות עבור השירות שנבחר
+              </p>
+            </div>
+
+            {/* Service Form Content */}
+            <div className="p-6">
           {purchasedServices.map((service, index) => {
             const isCompleted = completedServices.has(service.id);
             const isCurrent = index === currentServiceIndex;

@@ -23,8 +23,9 @@ import { ExportMenu } from '../Common/ExportMenu';
 import { Button } from '../Base';
 import { IncompleteServicesAlert } from './IncompleteServicesAlert';
 import { DeveloperRequirementsGuide } from './DeveloperRequirementsGuide';
+import { SmartRequirementsCollector } from './SmartRequirementsCollector';
 
-type SpecSection = 'requirements' | 'systems' | 'integrations' | 'ai_agents' | 'acceptance' | 'guide';
+type SpecSection = 'requirements' | 'systems' | 'integrations' | 'ai_agents' | 'acceptance' | 'guide' | 'smart_collector';
 
 export const ImplementationSpecDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -168,6 +169,15 @@ export const ImplementationSpecDashboard: React.FC = () => {
       count: requirements.length,
       progress: requirementsProgress,
       description: 'דרישות טכניות מפורטות לכל שירות'
+    },
+    {
+      id: 'smart_collector' as SpecSection,
+      name: 'איסוף חכם',
+      icon: Zap,
+      color: 'purple',
+      count: purchasedServicesArray.length,
+      progress: requirementsProgress,
+      description: 'איסוף דרישות טכניות עם זיהוי שדות משותפים'
     },
     {
       id: 'guide' as SpecSection,
@@ -399,6 +409,10 @@ export const ImplementationSpecDashboard: React.FC = () => {
           </div>
 
           {/* Content based on selected section */}
+          {selectedSection === 'smart_collector' && (
+            <SmartRequirementsCollector />
+          )}
+
           {selectedSection === 'guide' && (
             <DeveloperRequirementsGuide />
           )}

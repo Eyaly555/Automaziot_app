@@ -38,7 +38,7 @@ export const FeedbackModal: React.FC<Props> = ({ onClose }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [includeConsoleLogs, setIncludeConsoleLogs] = useState(true);
-  const [screenshot] = useState<string | undefined>(undefined);
+  const [screenshot] = useState<string | undefined>();
   const [isSaving, setIsSaving] = useState(false);
 
   const errors = consoleLogger.getErrors();

@@ -5131,7 +5131,837 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
         ]
       }
     ]
+  },
+
+  // ==================== MISSING SERVICES ====================
+
+  // auto-sla-tracking
+  {
+    serviceId: 'auto-sla-tracking',
+    serviceName: 'SLA Tracking Automation',
+    serviceNameHe: 'מעקב אחר SLA',
+    estimatedTimeMinutes: 25,
+    tips: [
+      'Define clear SLA parameters for each service level',
+      'Set up escalation procedures for SLA breaches',
+      'Consider integration with ticketing systems',
+      'Monitor SLA performance regularly'
+    ],
+    tipsHe: [
+      'הגדר פרמטרי SLA ברורים לכל רמת שירות',
+      'הגדר נהלי הסלמה למקרה של הפרת SLA',
+      'שקול אינטגרציה עם מערכות כרטיסים',
+      'עקוב אחר ביצועי SLA באופן קבוע'
+    ],
+    sections: [
+      {
+        id: 'sla-basics',
+        title: 'SLA Configuration',
+        titleHe: 'הגדרות SLA',
+        order: 1,
+        fields: [
+          {
+            id: 'sla_targets',
+            type: 'multiselect',
+            label: 'SLA targets to track',
+            labelHe: 'יעדי SLA למעקב',
+            required: true,
+            options: [
+              { value: 'response_time', label: 'Response Time', labelHe: 'זמן תגובה' },
+              { value: 'resolution_time', label: 'Resolution Time', labelHe: 'זמן פתרון' },
+              { value: 'first_reply_time', label: 'First Reply Time', labelHe: 'זמן תגובה ראשונה' },
+              { value: 'customer_satisfaction', label: 'Customer Satisfaction', labelHe: 'שביעות רצון לקוח' }
+            ]
+          },
+          {
+            id: 'sla_levels',
+            type: 'multiselect',
+            label: 'SLA levels',
+            labelHe: 'רמות SLA',
+            required: true,
+            options: [
+              { value: 'gold', label: 'Gold (Premium)', labelHe: 'זהב (פרימיום)' },
+              { value: 'silver', label: 'Silver (Standard)', labelHe: 'כסף (סטנדרט)' },
+              { value: 'bronze', label: 'Bronze (Basic)', labelHe: 'ברונזה (בסיסי)' }
+            ]
+          },
+          {
+            id: 'escalation_rules',
+            type: 'textarea',
+            label: 'Escalation rules and procedures',
+            labelHe: 'כללי הסלמה ונהלים',
+            required: true,
+            validation: { minLength: 50 }
+          }
+        ]
+      },
+      {
+        id: 'monitoring',
+        title: 'Monitoring and Reporting',
+        titleHe: 'ניטור ודיווח',
+        order: 2,
+        fields: [
+          {
+            id: 'monitoring_frequency',
+            type: 'select',
+            label: 'How often should SLA be monitored?',
+            labelHe: 'באיזה תדירות יש לנטר את ה-SLA?',
+            required: true,
+            options: [
+              { value: 'realtime', label: 'Real-time', labelHe: 'זמן אמת' },
+              { value: 'hourly', label: 'Hourly', labelHe: 'שעתי' },
+              { value: 'daily', label: 'Daily', labelHe: 'יומי' },
+              { value: 'weekly', label: 'Weekly', labelHe: 'שבועי' }
+            ]
+          },
+          {
+            id: 'reporting_recipients',
+            type: 'textarea',
+            label: 'Who should receive SLA reports?',
+            labelHe: 'מי צריך לקבל דוחות SLA?',
+            required: true,
+            placeholder: 'Enter email addresses or team names'
+          },
+          {
+            id: 'breach_notifications',
+            type: 'checkbox',
+            label: 'Send notifications when SLA is breached',
+            labelHe: 'שלח התראות כאשר ה-SLA מופר',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  // auto-custom
+  {
+    serviceId: 'auto-custom',
+    serviceName: 'Custom Automation',
+    serviceNameHe: 'אוטומציה מותאמת אישית',
+    estimatedTimeMinutes: 45,
+    tips: [
+      'Clearly define the business process to automate',
+      'Identify all stakeholders and decision points',
+      'Consider edge cases and error scenarios',
+      'Plan for future modifications and maintenance'
+    ],
+    tipsHe: [
+      'הגדר בבירור את תהליך העסקי לאוטומציה',
+      'זהה את כל בעלי העניין ונקודות החלטה',
+      'שקול מקרי קצה ותרחישי שגיאה',
+      'תכנן לשינויים ותחזוקה עתידיים'
+    ],
+    sections: [
+      {
+        id: 'process-definition',
+        title: 'Process Definition',
+        titleHe: 'הגדרת התהליך',
+        order: 1,
+        fields: [
+          {
+            id: 'process_name',
+            type: 'text',
+            label: 'Name of the process to automate',
+            labelHe: 'שם התהליך לאוטומציה',
+            required: true,
+            validation: { minLength: 5, maxLength: 100 }
+          },
+          {
+            id: 'process_description',
+            type: 'textarea',
+            label: 'Detailed description of the process',
+            labelHe: 'תיאור מפורט של התהליך',
+            required: true,
+            validation: { minLength: 50, maxLength: 1000 }
+          },
+          {
+            id: 'process_frequency',
+            type: 'select',
+            label: 'How often does this process occur?',
+            labelHe: 'באיזה תדירות מתרחש התהליך?',
+            required: true,
+            options: [
+              { value: 'realtime', label: 'Real-time (immediate)', labelHe: 'זמן אמת (מיידי)' },
+              { value: 'hourly', label: 'Hourly', labelHe: 'שעתי' },
+              { value: 'daily', label: 'Daily', labelHe: 'יומי' },
+              { value: 'weekly', label: 'Weekly', labelHe: 'שבועי' },
+              { value: 'monthly', label: 'Monthly', labelHe: 'חודשי' },
+              { value: 'ondemand', label: 'On-demand', labelHe: 'על פי דרישה' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'stakeholders',
+        title: 'Stakeholders and Approvals',
+        titleHe: 'בעלי עניין ואישורים',
+        order: 2,
+        fields: [
+          {
+            id: 'process_owner',
+            type: 'text',
+            label: 'Who owns this process?',
+            labelHe: 'מי הבעלים של התהליך?',
+            required: true,
+            placeholder: 'Enter name or department'
+          },
+          {
+            id: 'approvers',
+            type: 'textarea',
+            label: 'Who needs to approve changes?',
+            labelHe: 'מי צריך לאשר שינויים?',
+            required: true,
+            placeholder: 'Enter names, roles, or departments'
+          },
+          {
+            id: 'stakeholders',
+            type: 'textarea',
+            label: 'All stakeholders affected by this process',
+            labelHe: 'כל בעלי העניין המושפעים מהתהליך',
+            required: false,
+            placeholder: 'Enter all relevant stakeholders'
+          }
+        ]
+      },
+      {
+        id: 'technical-details',
+        title: 'Technical Requirements',
+        titleHe: 'דרישות טכניות',
+        order: 3,
+        fields: [
+          {
+            id: 'data_sources',
+            type: 'textarea',
+            label: 'Data sources and systems involved',
+            labelHe: 'מקורות נתונים ומערכות מעורבות',
+            required: true,
+            placeholder: 'List all systems, databases, APIs, etc.'
+          },
+          {
+            id: 'error_handling',
+            type: 'textarea',
+            label: 'How should errors be handled?',
+            labelHe: 'איך יש לטפל בשגיאות?',
+            required: true,
+            validation: { minLength: 30 }
+          },
+          {
+            id: 'logging_requirements',
+            type: 'checkbox',
+            label: 'Detailed logging required',
+            labelHe: 'נדרש לוג מפורט',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  // int-crm-marketing
+  {
+    serviceId: 'int-crm-marketing',
+    serviceName: 'CRM to Marketing Integration',
+    serviceNameHe: 'אינטגרציה בין CRM למערכת שיווק',
+    estimatedTimeMinutes: 35,
+    tips: [
+      'Ensure lead scoring is synchronized between systems',
+      'Set up automated campaign triggers based on CRM data',
+      'Consider data privacy and consent management',
+      'Plan for lead nurturing workflows'
+    ],
+    tipsHe: [
+      'ודא שציון הלידים מסונכרן בין המערכות',
+      'הגדר טריגרים אוטומטיים לקמפיינים על בסיס נתוני CRM',
+      'שקול פרטיות נתונים וניהול הסכמה',
+      'תכנן זרימות טיפוח לידים'
+    ],
+    sections: [
+      {
+        id: 'crm-details',
+        title: 'CRM System Details',
+        titleHe: 'פרטי מערכת CRM',
+        order: 1,
+        fields: [
+          {
+            id: 'crm_platform',
+            type: 'select',
+            label: 'CRM Platform',
+            labelHe: 'פלטפורמת CRM',
+            required: true,
+            options: [
+              { value: 'zoho', label: 'Zoho CRM', labelHe: 'Zoho CRM' },
+              { value: 'hubspot', label: 'HubSpot', labelHe: 'HubSpot' },
+              { value: 'salesforce', label: 'Salesforce', labelHe: 'Salesforce' },
+              { value: 'pipedrive', label: 'Pipedrive', labelHe: 'Pipedrive' },
+              { value: 'custom', label: 'Custom/Other', labelHe: 'מותאם אישית/אחר' }
+            ]
+          },
+          {
+            id: 'lead_stages',
+            type: 'multiselect',
+            label: 'Lead stages to sync',
+            labelHe: 'שלבי לידים לסנכרון',
+            required: true,
+            options: [
+              { value: 'new', label: 'New Leads', labelHe: 'לידים חדשים' },
+              { value: 'contacted', label: 'Contacted', labelHe: 'נוצר קשר' },
+              { value: 'qualified', label: 'Qualified', labelHe: 'מוסמך' },
+              { value: 'proposal', label: 'Proposal Sent', labelHe: 'הצעה נשלחה' },
+              { value: 'negotiation', label: 'Negotiation', labelHe: 'משא ומתן' },
+              { value: 'closed_won', label: 'Closed Won', labelHe: 'נסגר בהצלחה' },
+              { value: 'closed_lost', label: 'Closed Lost', labelHe: 'נסגר ללא הצלחה' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'marketing-system',
+        title: 'Marketing System Details',
+        titleHe: 'פרטי מערכת השיווק',
+        order: 2,
+        fields: [
+          {
+            id: 'marketing_platform',
+            type: 'select',
+            label: 'Marketing Platform',
+            labelHe: 'פלטפורמת שיווק',
+            required: true,
+            options: [
+              { value: 'mailchimp', label: 'Mailchimp', labelHe: 'Mailchimp' },
+              { value: 'activecampaign', label: 'ActiveCampaign', labelHe: 'ActiveCampaign' },
+              { value: 'hubspot_marketing', label: 'HubSpot Marketing', labelHe: 'HubSpot שיווק' },
+              { value: 'sendinblue', label: 'Sendinblue', labelHe: 'Sendinblue' },
+              { value: 'custom', label: 'Custom/Other', labelHe: 'מותאם אישית/אחר' }
+            ]
+          },
+          {
+            id: 'campaign_triggers',
+            type: 'multiselect',
+            label: 'Campaign triggers based on CRM data',
+            labelHe: 'טריגרי קמפיינים על בסיס נתוני CRM',
+            required: true,
+            options: [
+              { value: 'new_lead', label: 'New Lead Created', labelHe: 'ליד חדש נוצר' },
+              { value: 'stage_change', label: 'Lead Stage Changed', labelHe: 'שלב ליד השתנה' },
+              { value: 'score_threshold', label: 'Lead Score Threshold', labelHe: 'סף ציון ליד' },
+              { value: 'inactivity', label: 'Lead Inactivity', labelHe: 'חוסר פעילות ליד' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'data-sync',
+        title: 'Data Synchronization',
+        titleHe: 'סנכרון נתונים',
+        order: 3,
+        fields: [
+          {
+            id: 'sync_direction',
+            type: 'radio',
+            label: 'Data sync direction',
+            labelHe: 'כיוון סנכרון נתונים',
+            required: true,
+            options: [
+              { value: 'bidirectional', label: 'Bidirectional', labelHe: 'דו-כיווני' },
+              { value: 'crm_to_marketing', label: 'CRM → Marketing', labelHe: 'CRM ← שיווק' },
+              { value: 'marketing_to_crm', label: 'Marketing → CRM', labelHe: 'שיווק ← CRM' }
+            ]
+          },
+          {
+            id: 'sync_frequency',
+            type: 'select',
+            label: 'Sync frequency',
+            labelHe: 'תדירות סנכרון',
+            required: true,
+            options: [
+              { value: 'realtime', label: 'Real-time', labelHe: 'זמן אמת' },
+              { value: '15min', label: 'Every 15 minutes', labelHe: 'כל 15 דקות' },
+              { value: 'hourly', label: 'Hourly', labelHe: 'שעתי' },
+              { value: 'daily', label: 'Daily', labelHe: 'יומי' }
+            ]
+          },
+          {
+            id: 'conflict_resolution',
+            type: 'select',
+            label: 'How to handle data conflicts?',
+            labelHe: 'איך לטפל בסכסוכי נתונים?',
+            required: true,
+            options: [
+              { value: 'crm_priority', label: 'CRM data takes priority', labelHe: 'נתוני CRM מקבלים עדיפות' },
+              { value: 'marketing_priority', label: 'Marketing data takes priority', labelHe: 'נתוני שיווק מקבלים עדיפות' },
+              { value: 'manual_review', label: 'Manual review required', labelHe: 'נדרש בדיקה ידנית' },
+              { value: 'timestamp_based', label: 'Latest timestamp wins', labelHe: 'החותמת הזמן האחרונה מנצחת' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  // int-crm-accounting
+  {
+    serviceId: 'int-crm-accounting',
+    serviceName: 'CRM to Accounting Integration',
+    serviceNameHe: 'אינטגרציה בין CRM למערכת חשבונאות',
+    estimatedTimeMinutes: 30,
+    tips: [
+      'Ensure financial data accuracy and compliance',
+      'Set up proper audit trails for financial transactions',
+      'Consider tax implications of automated invoicing',
+      'Plan for multi-currency support if needed'
+    ],
+    tipsHe: [
+      'ודא דיוק ותאימות של נתונים פיננסיים',
+      'הגדר מסלולי ביקורת נכונים לעסקאות פיננסיות',
+      'שקול השלכות מס של חיוב אוטומטי',
+      'תכנן תמיכה במטבעות מרובים אם נדרש'
+    ],
+    sections: [
+      {
+        id: 'accounting-system',
+        title: 'Accounting System',
+        titleHe: 'מערכת חשבונאות',
+        order: 1,
+        fields: [
+          {
+            id: 'accounting_platform',
+            type: 'select',
+            label: 'Accounting Platform',
+            labelHe: 'פלטפורמת חשבונאות',
+            required: true,
+            options: [
+              { value: 'quickbooks', label: 'QuickBooks', labelHe: 'QuickBooks' },
+              { value: 'xero', label: 'Xero', labelHe: 'Xero' },
+              { value: 'freshbooks', label: 'FreshBooks', labelHe: 'FreshBooks' },
+              { value: 'sage', label: 'Sage', labelHe: 'Sage' },
+              { value: 'netsuite', label: 'NetSuite', labelHe: 'NetSuite' },
+              { value: 'custom', label: 'Custom/Other', labelHe: 'מותאם אישית/אחר' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'financial-mapping',
+        title: 'Financial Data Mapping',
+        titleHe: 'מיפוי נתונים פיננסיים',
+        order: 2,
+        fields: [
+          {
+            id: 'invoice_triggers',
+            type: 'multiselect',
+            label: 'When should invoices be created?',
+            labelHe: 'מתי יש ליצור חשבוניות?',
+            required: true,
+            options: [
+              { value: 'deal_closed_won', label: 'Deal Closed Won', labelHe: 'עסקה נסגרה בהצלחה' },
+              { value: 'payment_received', label: 'Payment Received', labelHe: 'תשלום התקבל' },
+              { value: 'subscription_renewal', label: 'Subscription Renewal', labelHe: 'חידוש מנוי' },
+              { value: 'manual_trigger', label: 'Manual Trigger', labelHe: 'הפעלה ידנית' }
+            ]
+          },
+          {
+            id: 'payment_methods',
+            type: 'multiselect',
+            label: 'Payment methods to support',
+            labelHe: 'אמצעי תשלום לתמיכה',
+            required: true,
+            options: [
+              { value: 'credit_card', label: 'Credit Card', labelHe: 'כרטיס אשראי' },
+              { value: 'bank_transfer', label: 'Bank Transfer', labelHe: 'העברה בנקאית' },
+              { value: 'paypal', label: 'PayPal', labelHe: 'PayPal' },
+              { value: 'check', label: 'Check', labelHe: 'צ\'ק' },
+              { value: 'cash', label: 'Cash', labelHe: 'מזומן' }
+            ]
+          },
+          {
+            id: 'tax_handling',
+            type: 'radio',
+            label: 'Tax calculation method',
+            labelHe: 'שיטת חישוב מס',
+            required: true,
+            options: [
+              { value: 'automatic', label: 'Automatic (system calculates)', labelHe: 'אוטומטית (המערכת מחשבת)' },
+              { value: 'manual', label: 'Manual entry', labelHe: 'הזנה ידנית' },
+              { value: 'external_service', label: 'External tax service', labelHe: 'שירות מס חיצוני' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'reporting',
+        title: 'Financial Reporting',
+        titleHe: 'דיווח פיננסי',
+        order: 3,
+        fields: [
+          {
+            id: 'revenue_recognition',
+            type: 'select',
+            label: 'Revenue recognition method',
+            labelHe: 'שיטת זיהוי הכנסות',
+            required: true,
+            options: [
+              { value: 'immediate', label: 'Immediate (on deal close)', labelHe: 'מיידי (עם סגירת עסקה)' },
+              { value: 'milestone', label: 'Milestone-based', labelHe: 'מבוסס אבני דרך' },
+              { value: 'subscription', label: 'Subscription-based', labelHe: 'מבוסס מנוי' }
+            ]
+          },
+          {
+            id: 'financial_reports',
+            type: 'multiselect',
+            label: 'Required financial reports',
+            labelHe: 'דוחות פיננסיים נדרשים',
+            required: true,
+            options: [
+              { value: 'revenue_report', label: 'Revenue Report', labelHe: 'דוח הכנסות' },
+              { value: 'invoice_report', label: 'Invoice Report', labelHe: 'דוח חשבוניות' },
+              { value: 'payment_report', label: 'Payment Report', labelHe: 'דוח תשלומים' },
+              { value: 'tax_report', label: 'Tax Report', labelHe: 'דוח מס' },
+              { value: 'profit_loss', label: 'Profit & Loss', labelHe: 'רווח והפסד' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  // int-crm-support
+  {
+    serviceId: 'int-crm-support',
+    serviceName: 'CRM to Support Integration',
+    serviceNameHe: 'אינטגרציה בין CRM למערכת תמיכה',
+    estimatedTimeMinutes: 25,
+    tips: [
+      'Ensure customer context is available in support tickets',
+      'Set up automated ticket creation from CRM activities',
+      'Consider customer satisfaction tracking integration'
+    ],
+    tipsHe: [
+      'ודא שהקשר הלקוח זמין בכרטיסי התמיכה',
+      'הגדר יצירה אוטומטית של כרטיסים מפעילויות CRM',
+      'שקול אינטגרציה של מעקב שביעות רצון לקוחות'
+    ],
+    sections: [
+      {
+        id: 'support-system',
+        title: 'Support System',
+        titleHe: 'מערכת תמיכה',
+        order: 1,
+        fields: [
+          {
+            id: 'support_platform',
+            type: 'select',
+            label: 'Support/Ticketing Platform',
+            labelHe: 'פלטפורמת תמיכה/כרטיסים',
+            required: true,
+            options: [
+              { value: 'zendesk', label: 'Zendesk', labelHe: 'Zendesk' },
+              { value: 'freshdesk', label: 'Freshdesk', labelHe: 'Freshdesk' },
+              { value: 'intercom', label: 'Intercom', labelHe: 'Intercom' },
+              { value: 'helpscout', label: 'Help Scout', labelHe: 'Help Scout' },
+              { value: 'custom', label: 'Custom/Other', labelHe: 'מותאם אישית/אחר' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'ticket-creation',
+        title: 'Ticket Creation Rules',
+        titleHe: 'כללי יצירת כרטיסים',
+        order: 2,
+        fields: [
+          {
+            id: 'auto_ticket_creation',
+            type: 'multiselect',
+            label: 'Automatically create tickets for',
+            labelHe: 'יצירת כרטיסים אוטומטית עבור',
+            required: true,
+            options: [
+              { value: 'customer_complaints', label: 'Customer Complaints', labelHe: 'תלונות לקוחות' },
+              { value: 'technical_issues', label: 'Technical Issues', labelHe: 'בעיות טכניות' },
+              { value: 'feature_requests', label: 'Feature Requests', labelHe: 'בקשות תכונות' },
+              { value: 'billing_issues', label: 'Billing Issues', labelHe: 'בעיות חיוב' }
+            ]
+          },
+          {
+            id: 'ticket_priority',
+            type: 'select',
+            label: 'Default ticket priority',
+            labelHe: 'עדיפות ברירת מחדל לכרטיס',
+            required: true,
+            options: [
+              { value: 'low', label: 'Low', labelHe: 'נמוך' },
+              { value: 'medium', label: 'Medium', labelHe: 'בינוני' },
+              { value: 'high', label: 'High', labelHe: 'גבוה' },
+              { value: 'urgent', label: 'Urgent', labelHe: 'דחוף' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'customer-context',
+        title: 'Customer Context Sharing',
+        titleHe: 'שיתוף הקשר לקוח',
+        order: 3,
+        fields: [
+          {
+            id: 'customer_data_sync',
+            type: 'multiselect',
+            label: 'Customer data to include in tickets',
+            labelHe: 'נתוני לקוח לכלול בכרטיסים',
+            required: true,
+            options: [
+              { value: 'contact_info', label: 'Contact Information', labelHe: 'מידע קשר' },
+              { value: 'purchase_history', label: 'Purchase History', labelHe: 'היסטוריית רכישות' },
+              { value: 'support_history', label: 'Previous Support History', labelHe: 'היסטוריית תמיכה קודמת' },
+              { value: 'account_manager', label: 'Account Manager', labelHe: 'מנהל חשבון' }
+            ]
+          },
+          {
+            id: 'satisfaction_tracking',
+            type: 'checkbox',
+            label: 'Track customer satisfaction in CRM',
+            labelHe: 'עקוב אחר שביעות רצון לקוחות ב-CRM',
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+
+  // int-calendar
+  {
+    serviceId: 'int-calendar',
+    serviceName: 'Calendar Integration',
+    serviceNameHe: 'אינטגרציית לוח שנה',
+    estimatedTimeMinutes: 20,
+    tips: [
+      'Ensure no double-booking occurs',
+      'Set up proper timezone handling',
+      'Consider buffer time between meetings',
+      'Plan for recurring meeting patterns'
+    ],
+    tipsHe: [
+      'ודא שלא מתרחשת כפילות הזמנות',
+      'הגדר טיפול נכון באזורי זמן',
+      'שקול זמן חוצץ בין פגישות',
+      'תכנן דפוסי פגישות חוזרות'
+    ],
+    sections: [
+      {
+        id: 'calendar-system',
+        title: 'Calendar System',
+        titleHe: 'מערכת לוח שנה',
+        order: 1,
+        fields: [
+          {
+            id: 'calendar_platform',
+            type: 'select',
+            label: 'Calendar Platform',
+            labelHe: 'פלטפורמת לוח שנה',
+            required: true,
+            options: [
+              { value: 'google_calendar', label: 'Google Calendar', labelHe: 'Google Calendar' },
+              { value: 'outlook', label: 'Outlook', labelHe: 'Outlook' },
+              { value: 'ical', label: 'iCal', labelHe: 'iCal' },
+              { value: 'custom', label: 'Custom/Other', labelHe: 'מותאם אישית/אחר' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'meeting-settings',
+        title: 'Meeting Settings',
+        titleHe: 'הגדרות פגישות',
+        order: 2,
+        fields: [
+          {
+            id: 'meeting_types',
+            type: 'multiselect',
+            label: 'Types of meetings to sync',
+            labelHe: 'סוגי פגישות לסנכרון',
+            required: true,
+            options: [
+              { value: 'sales_calls', label: 'Sales Calls', labelHe: 'שיחות מכירה' },
+              { value: 'client_meetings', label: 'Client Meetings', labelHe: 'פגישות לקוח' },
+              { value: 'team_meetings', label: 'Team Meetings', labelHe: 'פגישות צוות' },
+              { value: 'training_sessions', label: 'Training Sessions', labelHe: 'הדרכות' }
+            ]
+          },
+          {
+            id: 'buffer_time',
+            type: 'number',
+            label: 'Buffer time between meetings (minutes)',
+            labelHe: 'זמן חוצץ בין פגישות (דקות)',
+            required: true,
+            validation: { min: 0, max: 60 }
+          },
+          {
+            id: 'timezone_handling',
+            type: 'radio',
+            label: 'Timezone handling',
+            labelHe: 'טיפול באזורי זמן',
+            required: true,
+            options: [
+              { value: 'system_default', label: 'Use system default', labelHe: 'השתמש בברירת מחדל המערכת' },
+              { value: 'user_timezone', label: 'Use user\'s timezone', labelHe: 'השתמש באזור זמן של המשתמש' },
+              { value: 'meeting_timezone', label: 'Use meeting location timezone', labelHe: 'השתמש באזור זמן של מיקום הפגישה' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'notifications',
+        title: 'Notifications and Reminders',
+        titleHe: 'התראות ותזכורות',
+        order: 3,
+        fields: [
+          {
+            id: 'reminder_times',
+            type: 'multiselect',
+            label: 'Reminder times before meeting',
+            labelHe: 'זמני תזכורת לפני פגישה',
+            required: true,
+            options: [
+              { value: '15min', label: '15 minutes', labelHe: '15 דקות' },
+              { value: '30min', label: '30 minutes', labelHe: '30 דקות' },
+              { value: '1hour', label: '1 hour', labelHe: 'שעה' },
+              { value: '1day', label: '1 day', labelHe: 'יום' }
+            ]
+          },
+          {
+            id: 'notification_channels',
+            type: 'multiselect',
+            label: 'Notification channels',
+            labelHe: 'ערוצי התראות',
+            required: true,
+            options: [
+              { value: 'email', label: 'Email', labelHe: 'אימייל' },
+              { value: 'sms', label: 'SMS', labelHe: 'SMS' },
+              { value: 'calendar_app', label: 'Calendar App', labelHe: 'אפליקציית לוח שנה' },
+              { value: 'slack', label: 'Slack', labelHe: 'Slack' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  // int-ecommerce
+  {
+    serviceId: 'int-ecommerce',
+    serviceName: 'E-commerce Integration',
+    serviceNameHe: 'אינטגרציית מסחר אלקטרוני',
+    estimatedTimeMinutes: 40,
+    tips: [
+      'Ensure real-time inventory synchronization',
+      'Set up proper order status tracking',
+      'Consider payment gateway integration',
+      'Plan for returns and refunds handling'
+    ],
+    tipsHe: [
+      'ודא סנכרון מלאי בזמן אמת',
+      'הגדר מעקב סטטוס הזמנות נכון',
+      'שקול אינטגרציה עם שער תשלומים',
+      'תכנן טיפול בהחזרות והחזרי כספים'
+    ],
+    sections: [
+      {
+        id: 'ecommerce-platform',
+        title: 'E-commerce Platform',
+        titleHe: 'פלטפורמת מסחר אלקטרוני',
+        order: 1,
+        fields: [
+          {
+            id: 'platform_type',
+            type: 'select',
+            label: 'E-commerce Platform',
+            labelHe: 'פלטפורמת מסחר אלקטרוני',
+            required: true,
+            options: [
+              { value: 'shopify', label: 'Shopify', labelHe: 'Shopify' },
+              { value: 'woocommerce', label: 'WooCommerce', labelHe: 'WooCommerce' },
+              { value: 'magento', label: 'Magento', labelHe: 'Magento' },
+              { value: 'bigcommerce', label: 'BigCommerce', labelHe: 'BigCommerce' },
+              { value: 'custom', label: 'Custom/Other', labelHe: 'מותאם אישית/אחר' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'product-sync',
+        title: 'Product Synchronization',
+        titleHe: 'סנכרון מוצרים',
+        order: 2,
+        fields: [
+          {
+            id: 'sync_products',
+            type: 'radio',
+            label: 'Product synchronization direction',
+            labelHe: 'כיוון סנכרון מוצרים',
+            required: true,
+            options: [
+              { value: 'bidirectional', label: 'Bidirectional', labelHe: 'דו-כיווני' },
+              { value: 'crm_to_ecommerce', label: 'CRM → E-commerce', labelHe: 'CRM ← מסחר אלקטרוני' },
+              { value: 'ecommerce_to_crm', label: 'E-commerce → CRM', labelHe: 'מסחר אלקטרוני ← CRM' }
+            ]
+          },
+          {
+            id: 'inventory_tracking',
+            type: 'checkbox',
+            label: 'Real-time inventory tracking',
+            labelHe: 'מעקב מלאי בזמן אמת',
+            required: false
+          },
+          {
+            id: 'price_sync',
+            type: 'checkbox',
+            label: 'Automatic price synchronization',
+            labelHe: 'סנכרון מחירים אוטומטי',
+            required: false
+          }
+        ]
+      },
+      {
+        id: 'order-management',
+        title: 'Order Management',
+        titleHe: 'ניהול הזמנות',
+        order: 3,
+        fields: [
+          {
+            id: 'order_status_sync',
+            type: 'multiselect',
+            label: 'Order statuses to sync',
+            labelHe: 'סטטוסי הזמנות לסנכרון',
+            required: true,
+            options: [
+              { value: 'pending', label: 'Pending', labelHe: 'ממתין' },
+              { value: 'processing', label: 'Processing', labelHe: 'מעובד' },
+              { value: 'shipped', label: 'Shipped', labelHe: 'נשלח' },
+              { value: 'delivered', label: 'Delivered', labelHe: 'נמסר' },
+              { value: 'cancelled', label: 'Cancelled', labelHe: 'בוטל' },
+              { value: 'refunded', label: 'Refunded', labelHe: 'הוחזר' }
+            ]
+          },
+          {
+            id: 'payment_integration',
+            type: 'select',
+            label: 'Payment gateway integration',
+            labelHe: 'אינטגרציה עם שער תשלומים',
+            required: true,
+            options: [
+              { value: 'stripe', label: 'Stripe', labelHe: 'Stripe' },
+              { value: 'paypal', label: 'PayPal', labelHe: 'PayPal' },
+              { value: 'square', label: 'Square', labelHe: 'Square' },
+              { value: 'authorize_net', label: 'Authorize.Net', labelHe: 'Authorize.Net' },
+              { value: 'none', label: 'No integration needed', labelHe: 'אין צורך באינטגרציה' }
+            ]
+          }
+        ]
+      }
+    ]
   }
+
 ];
 
 // Helper function to get requirements template by service ID
