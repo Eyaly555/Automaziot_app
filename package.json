@@ -28,8 +28,7 @@
     "build:staging": "NODE_ENV=staging npm run build",
     "deploy:staging": "npm run build:staging && echo 'Deploy to staging complete'",
     "deploy:production": "npm run build:production && echo 'Deploy to production complete'",
-    "predeploy": "npm run security-audit && npm run test:all && npm run build:typecheck",
-    "postinstall": "npm run --workspace=discovery-assistant install"
+    "predeploy": "npm run security-audit && npm run test:all && npm run build:typecheck"
   },
   "keywords": [
     "business-automation",
