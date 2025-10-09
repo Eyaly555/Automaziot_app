@@ -104,8 +104,23 @@ async function zohoAPI(endpoint, options = {}) {
 
       // Check for other errors
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Zoho API error (${response.status}): ${errorText}`);
+        let errorData;
+        try {
+          // Try to parse as JSON for detailed Zoho errors
+          errorData = await response.json();
+          console.error('[Zoho Service] Detailed API Error:', JSON.stringify(errorData, null, 2));
+        } catch (e) {
+          // Fallback to text if not JSON
+          const errorText = await response.text();
+          console.error('[Zoho Service] Raw API Error:', errorText);
+          errorData = { message: errorText };
+        }
+
+        // Create a custom error object to preserve details
+        const error = new Error(`Zoho API error (${response.status}): ${errorData.message || 'No message'}`);
+        error.details = errorData;
+        error.status = response.status;
+        throw error;
       }
 
       // Parse and return the response

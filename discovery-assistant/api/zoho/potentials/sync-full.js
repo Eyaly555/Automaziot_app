@@ -25,8 +25,14 @@ function compressJSONField(data, fieldName, maxLength = 31000) {
 
   if (compressed.length > maxLength) {
     console.error(`[Sync Full] ${fieldName} still too large after compression: ${compressed.length} chars`);
-    // Truncate with warning marker
-    return compressed.substring(0, maxLength - 50) + '..."TRUNCATED_BY_SIZE_LIMIT"}';
+    // Create a valid JSON object indicating truncation, ensuring it fits
+    const errorPayload = {
+      _error: "DATA_TRUNCATED",
+      message: `Original size (${jsonString.length}) exceeded Zoho limit (${maxLength}).`,
+      originalLength: jsonString.length,
+      compressedLength: compressed.length
+    };
+    return JSON.stringify(errorPayload);
   }
 
   return compressed;
@@ -230,8 +236,13 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error('[Sync Full] Error:', error);
 
+    // Use the new detailed error if available
+    const errorMessage = error.details?.message || error.message;
+    const errorCode = error.details?.code;
+    const errorStatus = error.status || 500;
+
     // Handle specific Zoho errors
-    if (error.message.includes('DUPLICATE_DATA')) {
+    if (errorCode === 'DUPLICATE_DATA' || errorMessage.includes('DUPLICATE_DATA')) {
       return res.status(409).json({
         success: false,
         error: 'Duplicate record',
@@ -239,15 +250,15 @@ export default async function handler(req, res) {
       });
     }
 
-    if (error.message.includes('MANDATORY_NOT_FOUND')) {
+    if (errorCode === 'MANDATORY_NOT_FOUND' || errorMessage.includes('MANDATORY_NOT_FOUND')) {
       return res.status(400).json({
         success: false,
         error: 'Missing required fields',
-        message: error.message
+        message: errorMessage
       });
     }
-
-    if (error.message.includes('401')) {
+    
+    if (errorStatus === 401) {
       return res.status(401).json({
         success: false,
         error: 'Authentication failed',
@@ -255,11 +266,11 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(500).json({
+    return res.status(errorStatus).json({
       success: false,
       error: 'Failed to sync meeting data',
-      message: error.message,
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      message: errorMessage,
+      details: error.details || (process.env.NODE_ENV === 'development' ? error.stack : undefined)
     });
   }
 }

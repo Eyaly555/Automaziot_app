@@ -12,7 +12,8 @@ import {
   Database,
   Zap,
   ClipboardList,
-  FileCheck
+  FileCheck,
+  FileText
 } from 'lucide-react';
 import { ImplementationSpecData, CollectedRequirements, SelectedService } from '../../types';
 import { DetailedSystemSpec, IntegrationFlow, DetailedAIAgentSpec, FunctionalRequirement } from '../../types/phase2';
