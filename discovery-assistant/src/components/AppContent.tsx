@@ -22,7 +22,7 @@ import { SystemDeepDiveSelection } from './Phase2/SystemDeepDiveSelection';
 import { IntegrationFlowBuilder } from './Phase2/IntegrationFlowBuilder';
 import { AIAgentDetailedSpec } from './Phase2/AIAgentDetailedSpec';
 import { AcceptanceCriteriaBuilder } from './Phase2/AcceptanceCriteriaBuilder';
-import { AutoCRMUpdateSpec } from './Phase2/AutoCRMUpdateSpec';
+import { AutoCRMUpdateSpec } from './Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec';
 import { AITriageSpec } from './Phase2/ServiceRequirements/AIAgents/AITriageSpec';
 import { DeveloperDashboard } from './Phase3/DeveloperDashboard';
 import { SprintView } from './Phase3/SprintView';

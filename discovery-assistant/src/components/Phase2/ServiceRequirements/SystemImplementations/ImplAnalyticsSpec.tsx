@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 
@@ -10,7 +10,7 @@ export function ImplAnalyticsSpec() {
 
   useEffect(() => {
     const category = currentMeeting?.implementationSpec?.systemImplementations || [];
-    const existing = category.find(s => s.serviceId === 'impl-analytics');
+    const existing = category.find((s: any) => s.serviceId === 'impl-analytics');
     if (existing?.requirements) {
       setConfig(existing.requirements);
     }
@@ -20,7 +20,7 @@ export function ImplAnalyticsSpec() {
     if (!currentMeeting) return;
 
     const category = currentMeeting?.implementationSpec?.systemImplementations || [];
-    const updated = category.filter(s => s.serviceId !== 'impl-analytics');
+    const updated = category.filter((s: any) => s.serviceId !== 'impl-analytics');
 
     updated.push({
       serviceId: 'impl-analytics',
@@ -29,7 +29,7 @@ export function ImplAnalyticsSpec() {
       completedAt: new Date().toISOString()
     });
 
-    updateMeeting(currentMeeting.id, {
+    updateMeeting({
       implementationSpec: {
         ...currentMeeting.implementationSpec,
         systemImplementations: updated,

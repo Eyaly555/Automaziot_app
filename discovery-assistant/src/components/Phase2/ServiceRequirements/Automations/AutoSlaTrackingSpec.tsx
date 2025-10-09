@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 
@@ -45,7 +45,7 @@ export function AutoSlaTrackingSpec() {
       completedAt: new Date().toISOString()
     });
 
-    updateMeeting(currentMeeting.id, {
+    updateMeeting({
       implementationSpec: {
         ...currentMeeting.implementationSpec,
         automations: updated,

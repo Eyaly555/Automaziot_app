@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import type { AILeadQualifierRequirements } from '../../../../types/aiAgentServices';
 import { Card } from '../../../Common/Card';
@@ -36,7 +36,7 @@ export function AILeadQualifierSpec() {
       completedAt: new Date().toISOString()
     });
 
-    updateMeeting(currentMeeting.id, {
+    updateMeeting({
       implementationSpec: {
         ...currentMeeting.implementationSpec,
         aiAgentServices: updated,

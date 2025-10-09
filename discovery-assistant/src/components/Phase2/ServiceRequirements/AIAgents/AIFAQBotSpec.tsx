@@ -236,7 +236,7 @@ export const AIFAQBotSpec: React.FC = () => {
         completedAt: new Date().toISOString()
       });
 
-      updateMeeting(currentMeeting.id, {
+      updateMeeting({
         implementationSpec: {
           ...currentMeeting.implementationSpec,
           aiAgentServices: updated,

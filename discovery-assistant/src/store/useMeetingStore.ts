@@ -1483,9 +1483,11 @@ export const useMeetingStore = create<MeetingStore>()(
 
             // NEW: Validate that all purchased services have completed requirements
             const purchasedServices = currentMeeting.modules?.proposal?.purchasedServices || [];
+
+            // FIXED: If no services purchased, allow transition (nothing to validate)
             if (purchasedServices.length === 0) {
-              console.warn('[Phase Validation] No purchased services found');
-              return false;
+              console.log('[Phase Validation] No purchased services - allowing transition');
+              return true;
             }
 
             const validation = validateServiceRequirements(

@@ -1086,18 +1086,18 @@ src/store/useMeetingStore.ts(1294,46): error TS2339: Property 'id' does not exis
 src/store/useMeetingStore.ts(1301,44): error TS2339: Property 'id' does not exist on type 'Meeting'.
 src/store/useMeetingStore.ts(1366,18): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'Modules'.
   No index signature with a parameter of type 'string' was found on type 'Modules'.
-src/store/useMeetingStore.ts(1518,50): error TS7006: Parameter 't' implicitly has an 'any' type.
-src/store/useMeetingStore.ts(1520,52): error TS7006: Parameter 't' implicitly has an 'any' type.
-src/store/useMeetingStore.ts(1599,28): error TS2339: Property 'supabaseId' does not exist on type 'Meeting'.
-src/store/useMeetingStore.ts(1649,28): error TS2339: Property 'supabaseId' does not exist on type 'Meeting'.
-src/store/useMeetingStore.ts(1695,49): error TS7006: Parameter 't' implicitly has an 'any' type.
-src/store/useMeetingStore.ts(1736,81): error TS7006: Parameter 'task' implicitly has an 'any' type.
-src/store/useMeetingStore.ts(1759,11): error TS7006: Parameter 'task' implicitly has an 'any' type.
-src/store/useMeetingStore.ts(1786,74): error TS7006: Parameter 't' implicitly has an 'any' type.
-src/store/useMeetingStore.ts(1803,74): error TS7006: Parameter 't' implicitly has an 'any' type.
-src/store/useMeetingStore.ts(1806,53): error TS7006: Parameter 'tc' implicitly has an 'any' type.
-src/store/useMeetingStore.ts(1847,88): error TS7006: Parameter 'blocker' implicitly has an 'any' type.
-src/store/useMeetingStore.ts(2079,15): error TS2322: Type '{ zohoIntegration: { recordId: any; lastSyncTime: string; syncEnabled: boolean; module?: "Potentials1" | undefined; contactInfo?: { email?: string; phone?: string; }; }; ... 16 more ...; developmentTracking?: DevelopmentTrackingData; }' is not assignable to type 'Meeting'.
+src/store/useMeetingStore.ts(1516,50): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/store/useMeetingStore.ts(1518,52): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/store/useMeetingStore.ts(1597,28): error TS2339: Property 'supabaseId' does not exist on type 'Meeting'.
+src/store/useMeetingStore.ts(1647,28): error TS2339: Property 'supabaseId' does not exist on type 'Meeting'.
+src/store/useMeetingStore.ts(1693,49): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/store/useMeetingStore.ts(1734,81): error TS7006: Parameter 'task' implicitly has an 'any' type.
+src/store/useMeetingStore.ts(1757,11): error TS7006: Parameter 'task' implicitly has an 'any' type.
+src/store/useMeetingStore.ts(1784,74): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/store/useMeetingStore.ts(1801,74): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/store/useMeetingStore.ts(1804,53): error TS7006: Parameter 'tc' implicitly has an 'any' type.
+src/store/useMeetingStore.ts(1845,88): error TS7006: Parameter 'blocker' implicitly has an 'any' type.
+src/store/useMeetingStore.ts(2077,15): error TS2322: Type '{ zohoIntegration: { recordId: any; lastSyncTime: string; syncEnabled: boolean; module?: "Potentials1" | undefined; contactInfo?: { email?: string; phone?: string; }; }; ... 16 more ...; developmentTracking?: DevelopmentTrackingData; }' is not assignable to type 'Meeting'.
   The types of 'zohoIntegration.module' are incompatible between these types.
     Type '"Potentials1" | undefined' is not assignable to type '"Potentials1"'.
       Type 'undefined' is not assignable to type '"Potentials1"'.

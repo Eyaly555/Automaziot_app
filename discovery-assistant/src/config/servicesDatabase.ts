@@ -215,7 +215,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
   // NEW: Additional automation services
   {
     id: 'whatsapp-api-setup',
-    category: 'automations',
+    category: 'integrations',
     name: 'WhatsApp Business API Setup',
     nameHe: 'הקמת WhatsApp Business API',
     description: 'Complete WhatsApp Business API setup with templates',
@@ -394,6 +394,30 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     estimatedDays: 8,
     complexity: 'complex',
     tags: ['projects', 'tasks', 'tracking', 'management']
+  },
+  {
+    id: 'auto-sla-tracking',
+    category: 'automations',
+    name: 'SLA Tracking & Alerts',
+    nameHe: 'מעקב והתראות SLA',
+    description: 'Track SLAs and send alerts when approaching deadlines',
+    descriptionHe: 'מעקב אחר SLA והתראות בעת התקרבות לדדליינים',
+    basePrice: 2000,
+    estimatedDays: 3,
+    complexity: 'medium',
+    tags: ['sla', 'tracking', 'alerts', 'monitoring']
+  },
+  {
+    id: 'auto-custom',
+    category: 'automations',
+    name: 'Custom Automation',
+    nameHe: 'אוטומציה מותאמת אישית',
+    description: 'Custom automation tailored to specific business needs',
+    descriptionHe: 'אוטומציה מותאמת אישית לצרכים עסקיים ספציפיים',
+    basePrice: 5000,
+    estimatedDays: 7,
+    complexity: 'complex',
+    tags: ['custom', 'automation', 'tailored', 'specific']
   },
 
   // ==================== AI AGENTS (PRIMARY) ====================
@@ -644,6 +668,66 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     complexity: 'complex',
     tags: ['legacy', 'old-systems', 'integration']
   },
+  {
+    id: 'int-crm-marketing',
+    category: 'integrations',
+    name: 'CRM ↔ Marketing Platform Integration',
+    nameHe: 'אינטגרציה CRM ↔ פלטפורמת שיווק',
+    description: 'Sync leads and campaigns between CRM and marketing tools',
+    descriptionHe: 'סנכרון לידים וקמפיינים בין CRM וכלי שיווק',
+    basePrice: 2500,
+    estimatedDays: 4,
+    complexity: 'medium',
+    tags: ['crm', 'marketing', 'integration', 'sync']
+  },
+  {
+    id: 'int-crm-accounting',
+    category: 'integrations',
+    name: 'CRM ↔ Accounting System Integration',
+    nameHe: 'אינטגרציה CRM ↔ מערכת חשבונאות',
+    description: 'Sync customer data and invoices between CRM and accounting',
+    descriptionHe: 'סנכרון נתוני לקוחות וחשבוניות בין CRM וחשבונאות',
+    basePrice: 3000,
+    estimatedDays: 5,
+    complexity: 'medium',
+    tags: ['crm', 'accounting', 'integration', 'invoices']
+  },
+  {
+    id: 'int-crm-support',
+    category: 'integrations',
+    name: 'CRM ↔ Support System Integration',
+    nameHe: 'אינטגרציה CRM ↔ מערכת תמיכה',
+    description: 'Sync customer tickets between CRM and helpdesk',
+    descriptionHe: 'סנכרון פניות לקוחות בין CRM ומערכת תמיכה',
+    basePrice: 2500,
+    estimatedDays: 4,
+    complexity: 'medium',
+    tags: ['crm', 'support', 'helpdesk', 'integration', 'tickets']
+  },
+  {
+    id: 'int-calendar',
+    category: 'integrations',
+    name: 'Calendar Integration (Google/Outlook)',
+    nameHe: 'אינטגרציית לוח שנה (Google/Outlook)',
+    description: 'Sync appointments and events with calendar systems',
+    descriptionHe: 'סנכרון פגישות ואירועים עם מערכות לוח שנה',
+    basePrice: 1500,
+    estimatedDays: 3,
+    complexity: 'simple',
+    tags: ['calendar', 'google', 'outlook', 'integration', 'appointments']
+  },
+  {
+    id: 'int-ecommerce',
+    category: 'integrations',
+    name: 'E-commerce Platform Integration',
+    nameHe: 'אינטגרציית פלטפורמת מסחר אלקטרוני',
+    description: 'Integrate with Shopify, WooCommerce, or other e-commerce platforms',
+    descriptionHe: 'אינטגרציה עם Shopify, WooCommerce או פלטפורמות מסחר אחרות',
+    basePrice: 3000,
+    estimatedDays: 5,
+    complexity: 'medium',
+    tags: ['ecommerce', 'shopify', 'woocommerce', 'integration', 'orders']
+  },
 
   // ==================== SYSTEM IMPLEMENTATION (SECONDARY) ====================
   {
@@ -693,6 +777,66 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     estimatedDays: 4,
     complexity: 'medium',
     tags: ['project-management', 'implementation', 'setup']
+  },
+  {
+    id: 'impl-helpdesk',
+    category: 'system_implementation',
+    name: 'Helpdesk System Implementation',
+    nameHe: 'הטמעת מערכת תמיכה',
+    description: 'Setup and configure helpdesk/ticketing system',
+    descriptionHe: 'הקמה והגדרה של מערכת תמיכה/טיקטים',
+    basePrice: 2500,
+    estimatedDays: 4,
+    complexity: 'medium',
+    tags: ['helpdesk', 'support', 'tickets', 'implementation']
+  },
+  {
+    id: 'impl-ecommerce',
+    category: 'system_implementation',
+    name: 'E-commerce Platform Implementation',
+    nameHe: 'הטמעת פלטפורמת מסחר אלקטרוני',
+    description: 'Setup and configure e-commerce platform (Shopify/WooCommerce)',
+    descriptionHe: 'הקמה והגדרה של פלטפורמת מסחר אלקטרוני',
+    basePrice: 4000,
+    estimatedDays: 6,
+    complexity: 'medium',
+    tags: ['ecommerce', 'shopify', 'woocommerce', 'implementation']
+  },
+  {
+    id: 'impl-workflow-platform',
+    category: 'system_implementation',
+    name: 'Workflow Platform Implementation',
+    nameHe: 'הטמעת פלטפורמת תהליכי עבודה',
+    description: 'Setup and configure workflow automation platform (n8n/Zapier/Make)',
+    descriptionHe: 'הקמה והגדרה של פלטפורמת אוטומציה',
+    basePrice: 3000,
+    estimatedDays: 5,
+    complexity: 'medium',
+    tags: ['workflow', 'automation', 'platform', 'implementation']
+  },
+  {
+    id: 'impl-analytics',
+    category: 'system_implementation',
+    name: 'Analytics Platform Implementation',
+    nameHe: 'הטמעת פלטפורמת אנליטיקס',
+    description: 'Setup and configure analytics and BI tools',
+    descriptionHe: 'הקמה והגדרה של כלי אנליטיקס ו-BI',
+    basePrice: 3500,
+    estimatedDays: 5,
+    complexity: 'medium',
+    tags: ['analytics', 'bi', 'reporting', 'implementation']
+  },
+  {
+    id: 'impl-custom',
+    category: 'system_implementation',
+    name: 'Custom System Implementation',
+    nameHe: 'הטמעת מערכת מותאמת אישית',
+    description: 'Custom system setup and implementation',
+    descriptionHe: 'הקמה והטמעה של מערכת מותאמת אישית',
+    basePrice: 5000,
+    estimatedDays: 7,
+    complexity: 'complex',
+    tags: ['custom', 'implementation', 'system']
   },
 
   // ==================== ADDITIONAL SERVICES (OPTIONAL) ====================

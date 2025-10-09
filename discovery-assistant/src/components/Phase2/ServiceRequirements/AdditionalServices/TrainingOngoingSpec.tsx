@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 
@@ -10,7 +10,7 @@ export function TrainingOngoingSpec() {
 
   useEffect(() => {
     const category = currentMeeting?.implementationSpec?.additionalServices || [];
-    const existing = category.find(s => s.serviceId === 'training-ongoing');
+    const existing = category.find((s: any) => s.serviceId === 'training-ongoing');
     if (existing?.requirements) {
       setConfig(existing.requirements);
     }
@@ -20,7 +20,7 @@ export function TrainingOngoingSpec() {
     if (!currentMeeting) return;
 
     const category = currentMeeting?.implementationSpec?.additionalServices || [];
-    const updated = category.filter(s => s.serviceId !== 'training-ongoing');
+    const updated = category.filter((s: any) => s.serviceId !== 'training-ongoing');
 
     updated.push({
       serviceId: 'training-ongoing',
@@ -29,7 +29,7 @@ export function TrainingOngoingSpec() {
       completedAt: new Date().toISOString()
     });
 
-    updateMeeting(currentMeeting.id, {
+    updateMeeting({
       implementationSpec: {
         ...currentMeeting.implementationSpec,
         additionalServices: updated,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 
@@ -10,7 +10,7 @@ export function DataMigrationSpec() {
 
   useEffect(() => {
     const category = currentMeeting?.implementationSpec?.additionalServices || [];
-    const existing = category.find(s => s.serviceId === 'data-migration');
+    const existing = category.find((s: any) => s.serviceId === 'data-migration');
     if (existing?.requirements) {
       setConfig(existing.requirements);
     }
@@ -20,7 +20,7 @@ export function DataMigrationSpec() {
     if (!currentMeeting) return;
 
     const category = currentMeeting?.implementationSpec?.additionalServices || [];
-    const updated = category.filter(s => s.serviceId !== 'data-migration');
+    const updated = category.filter((s: any) => s.serviceId !== 'data-migration');
 
     updated.push({
       serviceId: 'data-migration',
@@ -29,7 +29,7 @@ export function DataMigrationSpec() {
       completedAt: new Date().toISOString()
     });
 
-    updateMeeting(currentMeeting.id, {
+    updateMeeting({
       implementationSpec: {
         ...currentMeeting.implementationSpec,
         additionalServices: updated,

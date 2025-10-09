@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { IntegrationSimpleRequirements, SystemConfig, FieldMapping, ErrorHandlingConfig } from '../../../../types/integrationServices';
@@ -77,7 +77,7 @@ export function IntegrationSimpleSpec() {
       completedAt: new Date().toISOString()
     });
 
-    updateMeeting(currentMeeting.id, {
+    updateMeeting({
       implementationSpec: {
         ...currentMeeting.implementationSpec,
         integrationServices: updated,

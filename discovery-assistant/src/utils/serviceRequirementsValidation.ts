@@ -28,6 +28,16 @@ export const validateServiceRequirements = (
   purchasedServices: any[],
   implementationSpec: any
 ): ServiceValidationResult => {
+  // Handle empty array case: no services = nothing to validate = valid
+  if (!Array.isArray(purchasedServices) || purchasedServices.length === 0) {
+    return {
+      isValid: true,
+      missingServices: [],
+      completedCount: 0,
+      totalCount: 0
+    };
+  }
+
   // Get all completed service IDs from all service categories
   const completed = new Set<string>();
 
@@ -116,9 +126,11 @@ export const isPhase2Complete = (meeting: Meeting | null): boolean => {
 
   // Check if there are any purchased services
   const purchasedServices = meeting.modules?.proposal?.purchasedServices || [];
+
+  // FIXED: If no services purchased, Phase 2 is considered complete (nothing to validate)
   if (purchasedServices.length === 0) {
-    console.warn('[Phase2 Validation] No purchased services found');
-    return false;
+    console.log('[Phase2 Validation] No purchased services - Phase 2 complete by default');
+    return true;
   }
 
   // Validate all services have completed requirements

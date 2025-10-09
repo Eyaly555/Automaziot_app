@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Save,
@@ -154,7 +154,7 @@ export const AutoCRMUpdateSpec: React.FC = () => {
         completedAt: new Date().toISOString()
       });
 
-      updateMeeting(currentMeeting.id, {
+      updateMeeting({
         implementationSpec: {
           ...currentMeeting.implementationSpec,
           automations: updated,

@@ -291,7 +291,7 @@ describe('serviceRequirementsValidation', () => {
       expect(isPhase2Complete(undefined as any)).toBe(false);
     });
 
-    it('should return false when purchasedServices is empty', () => {
+    it('should return TRUE when purchasedServices is empty (CRITICAL FIX)', () => {
       const meeting = {
         modules: {
           proposal: {
@@ -303,10 +303,11 @@ describe('serviceRequirementsValidation', () => {
         }
       } as unknown as Meeting;
 
-      expect(isPhase2Complete(meeting)).toBe(false);
+      // FIXED: Zero services = nothing to validate = complete
+      expect(isPhase2Complete(meeting)).toBe(true);
     });
 
-    it('should return false when purchasedServices is missing', () => {
+    it('should return TRUE when purchasedServices is missing (CRITICAL FIX)', () => {
       const meeting = {
         modules: {
           proposal: {}
@@ -316,20 +317,22 @@ describe('serviceRequirementsValidation', () => {
         }
       } as unknown as Meeting;
 
-      expect(isPhase2Complete(meeting)).toBe(false);
+      // FIXED: No services = nothing to validate = complete
+      expect(isPhase2Complete(meeting)).toBe(true);
     });
 
-    it('should return false when modules is missing', () => {
+    it('should return TRUE when modules is missing (CRITICAL FIX)', () => {
       const meeting = {
         implementationSpec: {
           automations: []
         }
       } as unknown as Meeting;
 
-      expect(isPhase2Complete(meeting)).toBe(false);
+      // FIXED: No modules = no purchasedServices = nothing to validate = complete
+      expect(isPhase2Complete(meeting)).toBe(true);
     });
 
-    it('should return false when proposal module is missing', () => {
+    it('should return TRUE when proposal module is missing (CRITICAL FIX)', () => {
       const meeting = {
         modules: {},
         implementationSpec: {
@@ -337,7 +340,8 @@ describe('serviceRequirementsValidation', () => {
         }
       } as unknown as Meeting;
 
-      expect(isPhase2Complete(meeting)).toBe(false);
+      // FIXED: No proposal module = no purchasedServices = nothing to validate = complete
+      expect(isPhase2Complete(meeting)).toBe(true);
     });
 
     it('should handle multiple service categories correctly', () => {

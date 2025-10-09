@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 
@@ -10,7 +10,7 @@ export function ReportsAutomatedSpec() {
 
   useEffect(() => {
     const category = currentMeeting?.implementationSpec?.additionalServices || [];
-    const existing = category.find(s => s.serviceId === 'reports-automated');
+    const existing = category.find((s: any) => s.serviceId === 'reports-automated');
     if (existing?.requirements) {
       setConfig(existing.requirements);
     }
@@ -20,7 +20,7 @@ export function ReportsAutomatedSpec() {
     if (!currentMeeting) return;
 
     const category = currentMeeting?.implementationSpec?.additionalServices || [];
-    const updated = category.filter(s => s.serviceId !== 'reports-automated');
+    const updated = category.filter((s: any) => s.serviceId !== 'reports-automated');
 
     updated.push({
       serviceId: 'reports-automated',
@@ -29,7 +29,7 @@ export function ReportsAutomatedSpec() {
       completedAt: new Date().toISOString()
     });
 
-    updateMeeting(currentMeeting.id, {
+    updateMeeting({
       implementationSpec: {
         ...currentMeeting.implementationSpec,
         additionalServices: updated,
