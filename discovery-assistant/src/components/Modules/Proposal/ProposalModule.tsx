@@ -33,7 +33,7 @@ interface Filters {
 
 // Service icon mapper
 const getServiceIcon = (category: string, size = 24) => {
-  const iconMap: Record<string, JSX.Element> = {
+  const iconMap: Record<string, React.JSX.Element> = {
     automations: <Zap size={size} className="text-blue-500" />,
     ai_agents: <Bot size={size} className="text-purple-500" />,
     integrations: <Link size={size} className="text-green-500" />,
@@ -309,7 +309,7 @@ export const ProposalModule: React.FC = () => {
 
       // ✅ NEW: Mark proposal as sent
       if (currentMeeting) {
-        await markProposalAsSent(currentMeeting.meetingId, updateModule);
+        await markProposalAsSent(currentMeeting.meetingId, updateModule as (moduleName: keyof Modules, data: any) => void);
         console.log('[ProposalModule] Proposal marked as sent (via Send button)');
       }
 
@@ -381,7 +381,7 @@ export const ProposalModule: React.FC = () => {
 
       // ✅ NEW: Mark proposal as sent
       if (currentMeeting) {
-        await markProposalAsSent(currentMeeting.meetingId, updateModule);
+        await markProposalAsSent(currentMeeting.meetingId, updateModule as (moduleName: keyof Modules, data: any) => void);
         console.log('[ProposalModule] Proposal marked as sent (via Download button)');
       }
 
@@ -440,7 +440,7 @@ export const ProposalModule: React.FC = () => {
       monthlySavings: proposalSummary?.potentialMonthlySavings || 0
     };
 
-    updateModule('proposal', proposalData);
+    updateModule('proposal' as keyof Modules, proposalData);
     updatePhaseStatus('awaiting_client_decision');
     navigate('/approval');
   };

@@ -15,20 +15,39 @@ if (import.meta.env.DEV) {
 const finalSupabaseUrl = supabaseUrl || 'https://your-project.supabase.co';
 const finalSupabaseAnonKey = supabaseAnonKey || 'your-anon-key';
 
-// Create Supabase client
-export const supabase = createClient<Database>(finalSupabaseUrl, finalSupabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    flowType: 'pkce'
-  },
-  realtime: {
-    params: {
-      eventsPerSecond: 10
-    }
+// Global singleton pattern to prevent multiple instances
+declare global {
+  interface Window {
+    __SUPABASE_CLIENT__?: ReturnType<typeof createClient<Database>>;
   }
-});
+}
+
+// Create singleton Supabase client
+export const supabase = (() => {
+  if (typeof window !== 'undefined' && window.__SUPABASE_CLIENT__) {
+    return window.__SUPABASE_CLIENT__;
+  }
+
+  const client = createClient<Database>(finalSupabaseUrl, finalSupabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      flowType: 'pkce'
+    },
+    realtime: {
+      params: {
+        eventsPerSecond: 10
+      }
+    }
+  });
+
+  if (typeof window !== 'undefined') {
+    window.__SUPABASE_CLIENT__ = client;
+  }
+
+  return client;
+})();
 
 // Helper function to check if Supabase is properly configured
 export const isSupabaseConfigured = (): boolean => {

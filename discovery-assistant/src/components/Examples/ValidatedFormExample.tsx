@@ -60,28 +60,34 @@ export const ValidatedFormExample: React.FC = () => {
       website: ''
     },
     validationRules: {
-      clientName: hebrewTextRules('שם לקוח', true),
-      email: emailRules(true),
-      phone: phoneRules(true),
-      businessType: [
-        {
-          type: 'required',
-          message: 'סוג העסק הוא שדה חובה'
-        }
+      clientName: [
+        ...hebrewTextRules,
+        { type: 'required', message: 'שם לקוח הוא שדה חובה' }
       ],
-      employees: numberRules('מספר עובדים', {
-        required: true,
-        min: 1,
-        max: 10000,
-        integer: true,
-        positive: true
-      }),
-      description: hebrewTextRules('תיאור העסק', false),
+      email: [
+        ...emailRules,
+        { type: 'required', message: 'כתובת אימייל היא שדה חובה' }
+      ],
+      phone: [
+        ...phoneRules,
+        { type: 'required', message: 'מספר טלפון הוא שדה חובה' }
+      ],
+      businessType: [
+        { type: 'required', message: 'סוג העסק הוא שדה חובה' }
+      ],
+      employees: [
+        ...numberRules,
+        { type: 'required', message: 'מספר עובדים הוא שדה חובה' },
+        { type: 'min', value: 1, message: 'מספר עובדים חייב להיות לפחות 1' },
+        { type: 'max', value: 10000, message: 'מספר עובדים לא יכול להיות יותר מ-10000' },
+        { type: 'integer', message: 'מספר עובדים חייב להיות מספר שלם' },
+        { type: 'positive', message: 'מספר עובדים חייב להיות חיובי' }
+      ],
+      description: [
+        ...hebrewTextRules
+      ],
       website: [
-        {
-          type: 'url',
-          message: 'כתובת אתר לא תקינה'
-        }
+        { type: 'url', message: 'כתובת אתר לא תקינה' }
       ]
     },
     onSubmit: async (values) => {

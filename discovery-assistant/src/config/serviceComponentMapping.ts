@@ -29,6 +29,10 @@ import { AutoEndToEndSpec } from '../components/Phase2/ServiceRequirements/Autom
 import { AutoSlaTrackingSpec } from '../components/Phase2/ServiceRequirements/Automations/AutoSlaTrackingSpec';
 import { AutoCustomSpec } from '../components/Phase2/ServiceRequirements/Automations/AutoCustomSpec';
 import { AutoEmailTemplatesSpec } from '../components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec';
+import { AutoAppointmentRemindersSpec } from '../components/Phase2/ServiceRequirements/Automations/AutoAppointmentRemindersSpec';
+import { AutoWelcomeEmailSpec } from '../components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec';
+import { AutoServiceWorkflowSpec } from '../components/Phase2/ServiceRequirements/Automations/AutoServiceWorkflowSpec';
+import { AutoComplexLogicSpec } from '../components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec';
 
 // AI Agents (Services 21-30)
 import { AIFAQBotSpec } from '../components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec';
@@ -41,6 +45,8 @@ import { AIPredictiveSpec } from '../components/Phase2/ServiceRequirements/AIAge
 import { AIFullIntegrationSpec } from '../components/Phase2/ServiceRequirements/AIAgents/AIFullIntegrationSpec';
 import { AIMultiAgentSpec } from '../components/Phase2/ServiceRequirements/AIAgents/AIMultiAgentSpec';
 import { AITriageSpec } from '../components/Phase2/ServiceRequirements/AIAgents/AITriageSpec';
+import { AIBrandedSpec } from '../components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec';
+import { AIFormAssistantSpec } from '../components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec';
 
 // Integrations (Services 31-40)
 import { IntegrationSimpleSpec } from '../components/Phase2/ServiceRequirements/Integrations/IntegrationSimpleSpec';
@@ -108,10 +114,10 @@ export const SERVICE_COMPONENT_MAP: Record<string, React.FC> = {
   'auto-email-templates': AutoEmailTemplatesSpec,
 
   // Additional automation services (if they exist in serviceRequirementsTemplates.ts)
-  'auto-appointment-reminders': AutoNotificationsSpec, // Reuse notifications component
-  'auto-welcome-email': AutoEmailTemplatesSpec, // Reuse email templates
-  'auto-service-workflow': AutoLeadWorkflowSpec, // Reuse workflow component
-  'auto-complex-logic': AutoCustomSpec, // Reuse custom component
+  'auto-appointment-reminders': AutoAppointmentRemindersSpec, // Dedicated component
+  'auto-welcome-email': AutoWelcomeEmailSpec, // Dedicated component
+  'auto-service-workflow': AutoServiceWorkflowSpec, // Dedicated workflow component
+  'auto-complex-logic': AutoComplexLogicSpec, // Dedicated complex logic component
   'auto-sales-pipeline': AutoLeadWorkflowSpec, // Reuse workflow component
   'auto-cross-dept': AutoMultiSystemSpec, // Reuse multi-system component
   'auto-financial': AutoCustomSpec, // Reuse custom component
@@ -130,9 +136,9 @@ export const SERVICE_COMPONENT_MAP: Record<string, React.FC> = {
   'ai-triage': AITriageSpec,
 
   // Additional AI services
-  'ai-form-assistant': AIServiceAgentSpec, // Reuse service agent
+  'ai-form-assistant': AIFormAssistantSpec, // Dedicated form assistant component
   'ai-learning': AIComplexWorkflowSpec, // Reuse complex workflow
-  'ai-branded': AIServiceAgentSpec, // Reuse service agent
+  'ai-branded': AIBrandedSpec, // Dedicated branded agent component
   'ai-multimodal': AIFullIntegrationSpec, // Reuse full integration
 
   // ==================== INTEGRATIONS (31-40) ====================

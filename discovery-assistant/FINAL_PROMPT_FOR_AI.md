@@ -1,7 +1,7 @@
 # 🎯 Generate Service-to-Technical Requirements Mapping
 
 ## Mission
-Generate a comprehensive TypeScript mapping file (`serviceToSystemMapping.ts`) that connects **each of the 59 services** in the Discovery Assistant application to their exact technical requirements for Phase 2 (Implementation Specification).
+Generate a comprehensive TypeScript mapping file (`serviceToSystemMapping.ts`) that connects **each of the 73 services** in the Discovery Assistant application to their exact technical requirements for Phase 2 (Implementation Specification).
 
 ---
 
@@ -21,7 +21,7 @@ Generate a comprehensive TypeScript mapping file (`serviceToSystemMapping.ts`) t
    - Validation checklist
 
 3. **Codebase Files** - Read these from the repository:
-   - `src/config/servicesDatabase.ts` - All 59 services
+   - `src/config/servicesDatabase.ts` - All 73 services
    - `src/config/serviceRequirementsTemplates.ts` - Existing requirements (4,112 lines)
    - `src/types/phase2.ts` - Phase 2 data structures
    - `src/types/index.ts` - Phase 1 modules and Meeting structure
@@ -32,7 +32,7 @@ Generate a comprehensive TypeScript mapping file (`serviceToSystemMapping.ts`) t
 
 ## 🎯 Your Task
 
-For **ALL 59 services**, create a mapping that defines:
+For **ALL 73 services**, create a mapping that defines:
 
 ### 1. Required Systems
 Which systems need detailed specification (authentication, modules, data migration)?
@@ -67,7 +67,7 @@ What must exist before this service can be implemented?
 
 ---
 
-## 📋 Complete Service List (59 Services)
+## 📋 Complete Service List (73 Services)
 
 ### Automations (20)
 auto-lead-response, auto-sms-whatsapp, auto-crm-update, auto-team-alerts, auto-lead-workflow, auto-smart-followup, auto-meeting-scheduler, auto-form-to-crm, auto-email-templates, auto-notifications, auto-approval-workflow, auto-document-generation, auto-document-mgmt, auto-data-sync, auto-system-sync, auto-reports, auto-multi-system, auto-end-to-end, auto-sla-tracking, auto-custom
@@ -141,7 +141,7 @@ export interface ServiceTechnicalRequirements {
 // ... interface definitions (see PHASE2_MAPPING_PROMPT.md for complete types)
 
 export const SERVICE_TECHNICAL_REQUIREMENTS: ServiceTechnicalRequirements[] = [
-  // Map all 59 services here
+  // Map all 73 services here
   {
     serviceId: 'auto-lead-response',
     // ... complete mapping
@@ -203,7 +203,7 @@ export const getServiceById = (serviceId: string): ServiceTechnicalRequirements 
 ## ✅ Validation Checklist
 
 Your output must have:
-- [ ] All 59 services mapped
+- [ ] All 73 services mapped
 - [ ] Each service has required systems identified (or explicitly marked as none)
 - [ ] Integration flows specified with source/target/direction/priority
 - [ ] AI agent requirements clear (or marked N/A)

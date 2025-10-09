@@ -5,6 +5,7 @@
  */
 
 import { Meeting, DevelopmentTask, DetailedSystemSpec, IntegrationFlow, DetailedAIAgentSpec, SystemModule, TestCase, SampleConversation, ImplementationSpecData } from '../types';
+import { AutomationServiceEntry, AIAgentServiceEntry, IntegrationServiceEntry, SystemImplementationServiceEntry, AdditionalServiceEntry } from '../types/automationServices';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -31,6 +32,9 @@ export function generateTasksFromPhase2(meeting: Meeting): DevelopmentTask[] {
   spec.aiAgents.forEach((agent: DetailedAIAgentSpec) => {
     tasks.push(...generateAIAgentTasks(meeting.meetingId, agent));
   });
+
+  // Generate tasks from purchased services
+  tasks.push(...generateServiceTasks(meeting.meetingId, spec));
 
   // Generate testing tasks
   tasks.push(...generateTestingTasks(meeting.meetingId, spec));
@@ -512,4 +516,284 @@ function assignToSprints(tasks: DevelopmentTask[]): void {
     task.sprint = `Sprint ${Math.ceil((index + 1) / tasksPerSprint)}`;
     task.sprintNumber = Math.ceil((index + 1) / tasksPerSprint);
   });
+}
+
+/**
+ * Generate tasks from purchased services
+ * This creates specific implementation tasks for each service that was purchased
+ */
+function generateServiceTasks(meetingId: string, spec: ImplementationSpecData): DevelopmentTask[] {
+  const tasks: DevelopmentTask[] = [];
+
+  // Process automation services
+  if (spec.automations) {
+    spec.automations.forEach((service: AutomationServiceEntry) => {
+      tasks.push({
+        id: generateId(),
+        meetingId,
+        title: `Implement ${service.serviceNameHe}`,
+        description: `Implement the ${service.serviceName} automation service.\n\nCategory: ${service.category}\nService ID: ${service.serviceId}\nStatus: ${service.status}`,
+        type: 'service_implementation',
+        relatedSpec: {
+          type: 'service',
+          specId: service.serviceId,
+          specName: service.serviceNameHe
+        },
+        status: 'todo',
+        estimatedHours: service.config ? estimateServiceHours(service) : 8,
+        actualHours: 0,
+        priority: service.category === 'lead_management' ? 'high' : 'medium',
+        dependencies: [],
+        blocksOtherTasks: [],
+        testingRequired: true,
+        testCases: generateServiceTestCases(service),
+        testStatus: 'not_started',
+        technicalNotes: service.notes || '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        createdBy: 'system'
+      });
+    });
+  }
+
+  // Process AI agent services
+  if (spec.aiAgentServices) {
+    spec.aiAgentServices.forEach((service: AIAgentServiceEntry) => {
+      tasks.push({
+        id: generateId(),
+        meetingId,
+        title: `Implement ${service.serviceNameHe}`,
+        description: `Implement the ${service.serviceName} AI agent service.\n\nDepartment: ${service.department}\nComplexity: ${service.complexity}`,
+        type: 'ai_agent',
+        relatedSpec: {
+          type: 'service',
+          specId: service.serviceId,
+          specName: service.serviceNameHe
+        },
+        status: 'todo',
+        estimatedHours: service.complexity === 'complex' ? 40 : service.complexity === 'medium' ? 24 : 16,
+        actualHours: 0,
+        priority: 'high',
+        dependencies: [],
+        blocksOtherTasks: [],
+        testingRequired: true,
+        testCases: generateAIServiceTestCases(service),
+        testStatus: 'not_started',
+        technicalNotes: service.notes || '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        createdBy: 'system'
+      });
+    });
+  }
+
+  // Process integration services
+  if (spec.integrationServices) {
+    spec.integrationServices.forEach((service: IntegrationServiceEntry) => {
+      tasks.push({
+        id: generateId(),
+        meetingId,
+        title: `Implement ${service.serviceNameHe}`,
+        description: `Implement the ${service.serviceName} integration service.\n\nComplexity: ${service.complexity}\nSystems: ${service.sourceSystem} → ${service.targetSystem}`,
+        type: 'integration',
+        relatedSpec: {
+          type: 'service',
+          specId: service.serviceId,
+          specName: service.serviceNameHe
+        },
+        status: 'todo',
+        estimatedHours: service.complexity === 'complex' ? 32 : service.complexity === 'medium' ? 20 : 12,
+        actualHours: 0,
+        priority: 'medium',
+        dependencies: [],
+        blocksOtherTasks: [],
+        testingRequired: true,
+        testCases: generateIntegrationServiceTestCases(service),
+        testStatus: 'not_started',
+        technicalNotes: service.notes || '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        createdBy: 'system'
+      });
+    });
+  }
+
+  // Process system implementation services
+  if (spec.systemImplementations) {
+    spec.systemImplementations.forEach((service: SystemImplementationServiceEntry) => {
+      tasks.push({
+        id: generateId(),
+        meetingId,
+        title: `Implement ${service.serviceNameHe}`,
+        description: `Implement the ${service.serviceName} system.\n\nPlatform: ${service.platform}\nModules: ${service.modules?.length || 0}`,
+        type: 'system_implementation',
+        relatedSpec: {
+          type: 'service',
+          specId: service.serviceId,
+          specName: service.serviceNameHe
+        },
+        status: 'todo',
+        estimatedHours: (service.modules?.length || 1) * 8,
+        actualHours: 0,
+        priority: 'high',
+        dependencies: [],
+        blocksOtherTasks: [],
+        testingRequired: true,
+        testCases: generateSystemImplementationTestCases(service),
+        testStatus: 'not_started',
+        technicalNotes: service.notes || '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        createdBy: 'system'
+      });
+    });
+  }
+
+  // Process additional services
+  if (spec.additionalServices) {
+    spec.additionalServices.forEach((service: AdditionalServiceEntry) => {
+      tasks.push({
+        id: generateId(),
+        meetingId,
+        title: `Implement ${service.serviceNameHe}`,
+        description: `Implement the ${service.serviceName} service.\n\nType: ${service.type}\nScope: ${service.scope}`,
+        type: 'additional_service',
+        relatedSpec: {
+          type: 'service',
+          specId: service.serviceId,
+          specName: service.serviceNameHe
+        },
+        status: 'todo',
+        estimatedHours: service.scope === 'enterprise' ? 40 : service.scope === 'multi_department' ? 24 : 16,
+        actualHours: 0,
+        priority: 'medium',
+        dependencies: [],
+        blocksOtherTasks: [],
+        testingRequired: true,
+        testCases: generateAdditionalServiceTestCases(service),
+        testStatus: 'not_started',
+        technicalNotes: service.notes || '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        createdBy: 'system'
+      });
+    });
+  }
+
+  return tasks;
+}
+
+/**
+ * Estimate hours for automation service based on complexity
+ */
+function estimateServiceHours(service: AutomationServiceEntry): number {
+  if (service.category === 'lead_management') return 12;
+  if (service.category === 'communication') return 8;
+  if (service.category === 'crm_sync') return 16;
+  if (service.category === 'team_productivity') return 10;
+  if (service.category === 'ai_agents') return 24;
+  return 12; // default
+}
+
+/**
+ * Generate test cases for automation services
+ */
+function generateServiceTestCases(service: AutomationServiceEntry): TestCase[] {
+  return [
+    {
+      id: generateId(),
+      description: `Test ${service.serviceNameHe} functionality`,
+      steps: ['Configure service with provided settings', 'Trigger test scenario', 'Verify expected behavior'],
+      expectedResult: 'Service operates according to specifications',
+      passed: false
+    },
+    {
+      id: generateId(),
+      description: 'Test error handling',
+      steps: ['Simulate error conditions', 'Verify error handling', 'Check logging'],
+      expectedResult: 'Errors are properly handled and logged',
+      passed: false
+    }
+  ];
+}
+
+/**
+ * Generate test cases for AI agent services
+ */
+function generateAIServiceTestCases(service: AIAgentServiceEntry): TestCase[] {
+  return [
+    {
+      id: generateId(),
+      description: 'Test AI agent responses',
+      steps: ['Configure AI agent', 'Test various conversation scenarios', 'Verify response quality'],
+      expectedResult: 'AI agent provides accurate and helpful responses',
+      passed: false
+    },
+    {
+      id: generateId(),
+      description: 'Test knowledge base integration',
+      steps: ['Verify knowledge base sources', 'Test information retrieval', 'Check response accuracy'],
+      expectedResult: 'AI agent correctly uses knowledge base information',
+      passed: false
+    }
+  ];
+}
+
+/**
+ * Generate test cases for integration services
+ */
+function generateIntegrationServiceTestCases(service: IntegrationServiceEntry): TestCase[] {
+  return [
+    {
+      id: generateId(),
+      description: 'Test data flow between systems',
+      steps: ['Configure integration', 'Send test data', 'Verify data arrives correctly'],
+      expectedResult: 'Data flows correctly between systems',
+      passed: false
+    },
+    {
+      id: generateId(),
+      description: 'Test error handling',
+      steps: ['Simulate connection failures', 'Verify retry logic', 'Check error notifications'],
+      expectedResult: 'Integration handles errors gracefully',
+      passed: false
+    }
+  ];
+}
+
+/**
+ * Generate test cases for system implementation services
+ */
+function generateSystemImplementationTestCases(service: SystemImplementationServiceEntry): TestCase[] {
+  return [
+    {
+      id: generateId(),
+      description: 'Test system setup and configuration',
+      steps: ['Install and configure system', 'Test basic functionality', 'Verify user access'],
+      expectedResult: 'System is properly installed and accessible',
+      passed: false
+    },
+    {
+      id: generateId(),
+      description: 'Test module functionality',
+      steps: ['Test each configured module', 'Verify data flow', 'Check integrations'],
+      expectedResult: 'All modules function correctly',
+      passed: false
+    }
+  ];
+}
+
+/**
+ * Generate test cases for additional services
+ */
+function generateAdditionalServiceTestCases(service: AdditionalServiceEntry): TestCase[] {
+  return [
+    {
+      id: generateId(),
+      description: `Test ${service.serviceNameHe} delivery`,
+      steps: ['Deliver service according to specifications', 'Verify client satisfaction', 'Document outcomes'],
+      expectedResult: 'Service delivered successfully',
+      passed: false
+    }
+  ];
 }

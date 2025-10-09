@@ -1,5 +1,8 @@
 import { ServiceCategory, ServiceCategoryId, ServiceItem } from '../types/proposal';
 
+// Re-export for convenience
+export type { ServiceCategoryId };
+
 // Service Categories
 export const SERVICE_CATEGORIES: ServiceCategory[] = [
   {

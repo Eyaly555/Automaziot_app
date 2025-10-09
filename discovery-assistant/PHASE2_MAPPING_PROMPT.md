@@ -2,7 +2,7 @@
 
 ## 🎯 Mission
 
-Generate a comprehensive mapping file that connects **each of the 59 services** to their exact technical requirements for Phase 2 (Implementation Specification). This mapping will guide developers on what information to collect from clients to successfully implement each purchased service.
+Generate a comprehensive mapping file that connects **each of the 73 services** to their exact technical requirements for Phase 2 (Implementation Specification). This mapping will guide developers on what information to collect from clients to successfully implement each purchased service.
 
 ---
 
@@ -10,7 +10,7 @@ Generate a comprehensive mapping file that connects **each of the 59 services** 
 
 ### Business Flow
 1. **Phase 1 (Discovery)**: Client fills out 9 modules about their business
-2. **Proposal Generation**: `proposalEngine.ts` analyzes Phase 1 data and suggests 59 possible services
+2. **Proposal Generation**: `proposalEngine.ts` analyzes Phase 1 data and suggests 73 possible services
 3. **Client Approval**: Client selects which services to purchase → saved as `purchasedServices`
 4. **Phase 2 (Implementation Spec)**: Collect detailed technical specs needed to implement ONLY the purchased services
 5. **Phase 3 (Development)**: Developers receive complete specification to implement
@@ -37,7 +37,7 @@ Create a mapping where for each service, we define:
 
 ### 1. Complete Service Catalog
 Location: `src/config/servicesDatabase.ts`
-- 59 services across 5 categories
+- 73 services across 5 categories
 - Categories: automations, ai_agents, integrations, system_implementation, additional_services
 
 ### 2. Existing Requirements Templates
@@ -194,7 +194,7 @@ interface TechnicalField {
 ## 📝 Instructions for AI Generation
 
 ### Step 1: Understand Each Service
-For EACH of the 59 services, analyze:
+For EACH of the 73 services, analyze:
 1. What does this service do? (from servicesDatabase.ts)
 2. What already exists in the requirements template? (from serviceRequirementsTemplates.ts)
 3. What Phase 1 data is relevant? (from discovery modules)
@@ -271,7 +271,7 @@ additionalTechnicalFields: [
 
 ## 🔍 Analysis Framework - Apply to Each Service
 
-Use this framework for ALL 59 services:
+Use this framework for ALL 73 services:
 
 ### 1. Service Analysis
 - **Service Name**: [from servicesDatabase.ts]
@@ -817,7 +817,7 @@ Think: "What must exist before we can implement this?"
 
 ---
 
-## 📋 Complete List of 59 Services to Map
+## 📋 Complete List of 73 Services to Map
 
 Process EACH of these services with the framework above:
 
@@ -888,14 +888,14 @@ Process EACH of these services with the framework above:
 56. training-ongoing
 57. support-ongoing
 58. consulting-process
-59. consulting-strategy
+73. consulting-strategy
 
 ---
 
 ## ✅ Validation Checklist
 
 For your output, ensure:
-- [ ] All 59 services mapped
+- [ ] All 73 services mapped
 - [ ] Each service has required systems identified
 - [ ] Integration flows specified with source/target
 - [ ] AI agent requirements clear (or marked as not applicable)
@@ -911,7 +911,7 @@ For your output, ensure:
 ## 🎓 Success Criteria for Your Output
 
 Your mapping is successful if:
-1. **Comprehensive**: All 59 services covered
+1. **Comprehensive**: All 73 services covered
 2. **Developer-Focused**: Technical fields answer "what do developers need to know?"
 3. **Non-Redundant**: Don't ask for info already in requirements templates
 4. **Actionable**: Integrations have suggested triggers/steps
@@ -939,7 +939,7 @@ Your mapping is successful if:
 Generate complete TypeScript code for `serviceToSystemMapping.ts` that exports:
 ```typescript
 export const SERVICE_TECHNICAL_REQUIREMENTS: ServiceTechnicalRequirements[] = [
-  // ... all 59 services mapped
+  // ... all 73 services mapped
 ];
 
 // Helper functions
@@ -958,7 +958,7 @@ You now have:
 - Understanding of Phase 1 → Phase 2 flow
 - Data structures for Phase 2
 - Three detailed examples
-- All 59 services to process
+- All 73 services to process
 - Validation checklist
 
 **Generate the complete mapping file with extended thinking enabled.**

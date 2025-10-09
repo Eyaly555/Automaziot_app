@@ -2,7 +2,7 @@
 > discovery-assistant@0.0.0 build:typecheck
 > tsc -b && vite build
 
-src/components/AppContent.tsx(25,35): error TS2307: Cannot find module './Phase2/AutoCRMUpdateSpec' or its corresponding type declarations.
+src/components/Common/DiscoveryStatusBadge.tsx(22,47): error TS2503: Cannot find namespace 'JSX'.
 src/components/Examples/ValidatedFormExample.tsx(63,19): error TS2349: This expression is not callable.
   Type 'ValidationRule[]' has no call signatures.
 src/components/Examples/ValidatedFormExample.tsx(64,14): error TS2349: This expression is not callable.
@@ -17,25 +17,36 @@ src/components/Feedback/FeedbackModal.tsx(41,22): error TS6133: 'setScreenshot' 
 src/components/Modules/Operations/OperationsModule.tsx(204,7): error TS2365: Operator '>' cannot be applied to types 'string' and 'number'.
 src/components/Modules/Overview/OverviewModule.tsx(164,17): error TS2322: Type '{ children: Element[]; title: string; subtitle: string; }' is not assignable to type 'IntrinsicAttributes & CardProps'.
   Property 'title' does not exist on type 'IntrinsicAttributes & CardProps'.
-src/components/Modules/Overview/OverviewModule.tsx(196,17): error TS2322: Type '{ children: Element[]; title: string; subtitle: string; icon: Element; }' is not assignable to type 'IntrinsicAttributes & CardProps'.
+src/components/Modules/Overview/OverviewModule.tsx(176,17): error TS2322: Type 'string | number' is not assignable to type 'string'.
+  Type 'number' is not assignable to type 'string'.
+src/components/Modules/Overview/OverviewModule.tsx(177,17): error TS2322: Type 'Dispatch<SetStateAction<number | undefined>>' is not assignable to type '(value: string) => void'.
+  Types of parameters 'value' and 'value' are incompatible.
+    Type 'string' is not assignable to type 'SetStateAction<number | undefined>'.
+src/components/Modules/Overview/OverviewModule.tsx(202,17): error TS2322: Type '{ children: Element[]; title: string; subtitle: string; icon: Element; }' is not assignable to type 'IntrinsicAttributes & CardProps'.
   Property 'title' does not exist on type 'IntrinsicAttributes & CardProps'.
-src/components/Modules/Overview/OverviewModule.tsx(217,13): error TS2322: Type '{ children: Element[]; title: string; subtitle: string; icon: Element; className: string; }' is not assignable to type 'IntrinsicAttributes & CardProps'.
+src/components/Modules/Overview/OverviewModule.tsx(223,13): error TS2322: Type '{ children: Element[]; title: string; subtitle: string; icon: Element; className: string; }' is not assignable to type 'IntrinsicAttributes & CardProps'.
   Property 'title' does not exist on type 'IntrinsicAttributes & CardProps'.
-src/components/Modules/Overview/OverviewModule.tsx(237,19): error TS2322: Type '{ children: Element; title: string; subtitle: string; className: string; }' is not assignable to type 'IntrinsicAttributes & CardProps'.
+src/components/Modules/Overview/OverviewModule.tsx(243,19): error TS2322: Type '{ children: Element; title: string; subtitle: string; className: string; }' is not assignable to type 'IntrinsicAttributes & CardProps'.
   Property 'title' does not exist on type 'IntrinsicAttributes & CardProps'.
-src/components/Modules/Overview/OverviewModule.tsx(270,19): error TS2322: Type '{ children: Element; title: string; subtitle: string; className: string; }' is not assignable to type 'IntrinsicAttributes & CardProps'.
+src/components/Modules/Overview/OverviewModule.tsx(276,19): error TS2322: Type '{ children: Element; title: string; subtitle: string; className: string; }' is not assignable to type 'IntrinsicAttributes & CardProps'.
   Property 'title' does not exist on type 'IntrinsicAttributes & CardProps'.
-src/components/Modules/Overview/OverviewModule.tsx(304,13): error TS2322: Type '{ children: Element; title: string; subtitle: string; className: string; }' is not assignable to type 'IntrinsicAttributes & CardProps'.
+src/components/Modules/Overview/OverviewModule.tsx(310,13): error TS2322: Type '{ children: Element; title: string; subtitle: string; className: string; }' is not assignable to type 'IntrinsicAttributes & CardProps'.
   Property 'title' does not exist on type 'IntrinsicAttributes & CardProps'.
-src/components/Modules/Overview/OverviewModule.tsx(312,17): error TS2322: Type 'Dispatch<SetStateAction<"none" | "full" | "basic">>' is not assignable to type '(value: string) => void'.
+src/components/Modules/Overview/OverviewModule.tsx(318,17): error TS2322: Type 'Dispatch<SetStateAction<"none" | "full" | "basic">>' is not assignable to type '(value: string) => void'.
   Types of parameters 'value' and 'value' are incompatible.
     Type 'string' is not assignable to type 'SetStateAction<"none" | "full" | "basic">'.
-src/components/Modules/Overview/OverviewModule.tsx(354,19): error TS2322: Type '{ children: Element; title: string; className: string; }' is not assignable to type 'IntrinsicAttributes & CardProps'.
+src/components/Modules/Overview/OverviewModule.tsx(360,19): error TS2322: Type '{ children: Element; title: string; className: string; }' is not assignable to type 'IntrinsicAttributes & CardProps'.
   Property 'title' does not exist on type 'IntrinsicAttributes & CardProps'.
 src/components/Modules/Planning/PlanningModule.tsx(10,41): error TS2339: Property 'completeMeeting' does not exist on type 'MeetingStore'.
 src/components/Modules/Planning/PlanningModule.tsx(276,17): error TS2322: Type '"date"' is not assignable to type '"url" | "email" | "text" | "tel" | undefined'.
 src/components/Modules/Proposal/ProposalModule.tsx(16,3): error TS2724: '"../../../config/servicesDatabase"' has no exported member named 'ServiceCategoryId'. Did you mean 'SERVICE_CATEGORIES'?
-src/components/Modules/Proposal/ProposalModule.tsx(35,33): error TS2503: Cannot find namespace 'JSX'.
+src/components/Modules/Proposal/ProposalModule.tsx(36,33): error TS2503: Cannot find namespace 'JSX'.
+src/components/Modules/Proposal/ProposalModule.tsx(312,60): error TS2345: Argument of type '(moduleName: keyof Modules, data: any) => void' is not assignable to parameter of type '(moduleName: string, data: any) => void'.
+  Types of parameters 'moduleName' and 'moduleName' are incompatible.
+    Type 'string' is not assignable to type 'keyof Modules'.
+src/components/Modules/Proposal/ProposalModule.tsx(384,60): error TS2345: Argument of type '(moduleName: keyof Modules, data: any) => void' is not assignable to parameter of type '(moduleName: string, data: any) => void'.
+  Types of parameters 'moduleName' and 'moduleName' are incompatible.
+    Type 'string' is not assignable to type 'keyof Modules'.
 src/components/Modules/ROI/ROIModule.tsx(184,17): error TS2322: Type '{ children: Element; title: string; subtitle: string; }' is not assignable to type 'IntrinsicAttributes & CardProps'.
   Property 'title' does not exist on type 'IntrinsicAttributes & CardProps'.
 src/components/Modules/ROI/ROIModule.tsx(248,17): error TS2322: Type '{ children: Element; title: string; subtitle: string; }' is not assignable to type 'IntrinsicAttributes & CardProps'.
@@ -191,9 +202,6 @@ src/components/Phase2/AIAgentDetailedSpec.tsx(1303,28): error TS18048: 'agentCri
 src/components/Phase2/AIAgentDetailedSpec.tsx(1320,22): error TS18048: 'agentCriteria.usability' is possibly 'undefined'.
 src/components/Phase2/AIAgentDetailedSpec.tsx(1323,45): error TS18048: 'agentCriteria.usability' is possibly 'undefined'.
 src/components/Phase2/AIAgentDetailedSpec.tsx(1326,28): error TS18048: 'agentCriteria.usability' is possibly 'undefined'.
-src/components/Phase2/ImplementationSpecDashboard.tsx(59,11): error TS2741: Property 'automations' is missing in type '{ systems: never[]; integrations: never[]; aiAgents: never[]; acceptanceCriteria: { functional: never[]; performance: never[]; security: never[]; usability: never[]; }; totalEstimatedHours: number; completionPercentage: number; lastUpdated: Date; updatedBy: string; }' but required in type 'ImplementationSpecData'.
-src/components/Phase2/ImplementationSpecDashboard.tsx(459,71): error TS7006: Parameter 'i' implicitly has an 'any' type.
-src/components/Phase2/ImplementationSpecDashboard.tsx(523,63): error TS7006: Parameter 'a' implicitly has an 'any' type.
 src/components/Phase2/IntegrationFlowBuilder.tsx(68,61): error TS7006: Parameter 'f' implicitly has an 'any' type.
 src/components/Phase2/IntegrationFlowBuilder.tsx(72,76): error TS7006: Parameter 's' implicitly has an 'any' type.
 src/components/Phase2/IntegrationFlowBuilder.tsx(143,41): error TS2345: Argument of type 'string' is not assignable to parameter of type 'SystemCategory'.
@@ -220,463 +228,611 @@ src/components/Phase2/IntegrationFlowBuilder.tsx(917,28): error TS18048: 'integr
 src/components/Phase2/IntegrationFlowBuilder.tsx(934,22): error TS18048: 'integrationCriteria.performance' is possibly 'undefined'.
 src/components/Phase2/IntegrationFlowBuilder.tsx(937,44): error TS18048: 'integrationCriteria.performance' is possibly 'undefined'.
 src/components/Phase2/IntegrationFlowBuilder.tsx(940,28): error TS18048: 'integrationCriteria.performance' is possibly 'undefined'.
-src/components/Phase2/ServiceRequirements/AdditionalServices/AddCustomReportsSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AdditionalServices/AddCustomReportsSpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/AddCustomReportsSpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/AddCustomReportsSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AdditionalServices/AddCustomReportsSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AdditionalServices/AddDashboardSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AdditionalServices/AddDashboardSpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/AddDashboardSpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/AddDashboardSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AdditionalServices/AddDashboardSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AdditionalServices/ConsultingProcessSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AdditionalServices/ConsultingProcessSpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/ConsultingProcessSpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/ConsultingProcessSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AdditionalServices/ConsultingProcessSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AdditionalServices/ConsultingStrategySpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AdditionalServices/ConsultingStrategySpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/ConsultingStrategySpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/ConsultingStrategySpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AdditionalServices/ConsultingStrategySpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AdditionalServices/DataCleanupSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AdditionalServices/DataCleanupSpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/DataCleanupSpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/DataCleanupSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AdditionalServices/DataCleanupSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AdditionalServices/DataMigrationSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AdditionalServices/DataMigrationSpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/DataMigrationSpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/DataMigrationSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AdditionalServices/DataMigrationSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AdditionalServices/ReportsAutomatedSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AdditionalServices/ReportsAutomatedSpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/ReportsAutomatedSpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/ReportsAutomatedSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AdditionalServices/ReportsAutomatedSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AdditionalServices/SupportOngoingSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AdditionalServices/SupportOngoingSpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/SupportOngoingSpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/SupportOngoingSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AdditionalServices/SupportOngoingSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AdditionalServices/TrainingOngoingSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AdditionalServices/TrainingOngoingSpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/TrainingOngoingSpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/TrainingOngoingSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AdditionalServices/TrainingOngoingSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AdditionalServices/TrainingWorkshopsSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AdditionalServices/TrainingWorkshopsSpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/TrainingWorkshopsSpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AdditionalServices/TrainingWorkshopsSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AdditionalServices/TrainingWorkshopsSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AIAgents/AIActionAgentSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AIAgents/AIActionAgentSpec.tsx(16,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AIActionAgentSpec.tsx(26,44): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AIActionAgentSpec.tsx(35,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIActionAgentSpec.tsx(35,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AIAgents/AIComplexWorkflowSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AIAgents/AIComplexWorkflowSpec.tsx(16,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AIComplexWorkflowSpec.tsx(26,44): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AIComplexWorkflowSpec.tsx(35,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIComplexWorkflowSpec.tsx(35,38): error TS2554: Expected 1 arguments, but got 2.
+src/components/Phase2/ServiceRequirements/AdditionalServices/AddCustomReportsSpec.tsx(111,39): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AdditionalServices/AddDashboardSpec.tsx(121,39): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AdditionalServices/AddDashboardSpec.tsx(214,9): error TS6133: 'addUserRole' is declared but its value is never read.
+src/components/Phase2/ServiceRequirements/AdditionalServices/AddDashboardSpec.tsx(231,9): error TS6133: 'removeUserRole' is declared but its value is never read.
+src/components/Phase2/ServiceRequirements/AdditionalServices/DataCleanupSpec.tsx(100,39): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AdditionalServices/DataMigrationSpec.tsx(117,39): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AdditionalServices/TrainingWorkshopsSpec.tsx(137,39): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(3,15): error TS2724: '"../../../../types/aiAgentServices"' has no exported member named 'AIBrandedRequirements'. Did you mean 'AITriageRequirements'?
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(118,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(132,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(146,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(159,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(180,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(197,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(214,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(227,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(245,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(262,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(279,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(306,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(319,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(334,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(347,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(370,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(384,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIBrandedSpec.tsx(401,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(15,3): error TS6133: 'Zap' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(168,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(224,46): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(239,36): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(239,40): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(336,39): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(337,34): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(349,72): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(360,81): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(371,81): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(445,23): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(448,88): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(466,80): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(480,89): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(494,95): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(508,23): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(511,95): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(609,25): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(612,111): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(628,91): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(645,49): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(645,77): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(693,23): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(696,83): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(711,23): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(714,93): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(728,23): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(731,85): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(781,91): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(795,95): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(809,99): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(820,23): error TS2322: Type '"color"' is not assignable to type '"number" | "email" | "text" | "password" | "tel" | undefined'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(824,96): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(870,23): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(873,107): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(889,90): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(971,23): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(974,110): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(987,23): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(990,112): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(1003,23): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(1006,91): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(1019,23): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(1022,89): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(1070,25): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(1073,96): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(1087,25): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(1090,94): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(1149,13): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFullIntegrationSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFullIntegrationSpec.tsx(16,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFullIntegrationSpec.tsx(26,44): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFullIntegrationSpec.tsx(35,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIFullIntegrationSpec.tsx(35,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(9,5): error TS2353: Object literal may only specify known properties, and 'aiModel' does not exist in type 'Partial<AILeadQualifierRequirements> | (() => Partial<AILeadQualifierRequirements>)'.
-src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(20,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(30,44): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(39,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(39,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(54,37): error TS2551: Property 'aiModel' does not exist on type 'Partial<AILeadQualifierRequirements>'. Did you mean 'model'?
-src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(54,86): error TS2353: Object literal may only specify known properties, and 'aiModel' does not exist in type 'SetStateAction<Partial<AILeadQualifierRequirements>>'.
-src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(64,37): error TS2339: Property 'trainingDataSource' does not exist on type 'Partial<AILeadQualifierRequirements>'.
-src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(64,97): error TS2353: Object literal may only specify known properties, and 'trainingDataSource' does not exist in type 'SetStateAction<Partial<AILeadQualifierRequirements>>'.
-src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(74,35): error TS2339: Property 'integrationSystem' does not exist on type 'Partial<AILeadQualifierRequirements>'.
-src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(74,94): error TS2353: Object literal may only specify known properties, and 'integrationSystem' does not exist in type 'SetStateAction<Partial<AILeadQualifierRequirements>>'.
-src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(84,48): error TS2339: Property 'scoringThreshold' does not exist on type 'Partial<AILeadQualifierRequirements>'.
-src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(84,106): error TS2353: Object literal may only specify known properties, and 'scoringThreshold' does not exist in type 'SetStateAction<Partial<AILeadQualifierRequirements>>'.
-src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(89,54): error TS2339: Property 'autoAssignment' does not exist on type 'Partial<AILeadQualifierRequirements>'.
-src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(90,57): error TS2353: Object literal may only specify known properties, and 'autoAssignment' does not exist in type 'SetStateAction<Partial<AILeadQualifierRequirements>>'.
-src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(94,54): error TS2339: Property 'humanReview' does not exist on type 'Partial<AILeadQualifierRequirements>'.
-src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(95,57): error TS2353: Object literal may only specify known properties, and 'humanReview' does not exist in type 'SetStateAction<Partial<AILeadQualifierRequirements>>'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIMultiAgentSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AIAgents/AIMultiAgentSpec.tsx(15,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AIMultiAgentSpec.tsx(25,44): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AIMultiAgentSpec.tsx(34,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIMultiAgentSpec.tsx(34,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AIAgents/AIPredictiveSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AIAgents/AIPredictiveSpec.tsx(16,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AIPredictiveSpec.tsx(26,44): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AIPredictiveSpec.tsx(35,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIPredictiveSpec.tsx(35,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(17,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(27,44): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(36,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(36,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AIAgents/AIServiceAgentSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/AIAgents/AIServiceAgentSpec.tsx(17,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AIServiceAgentSpec.tsx(27,44): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AIServiceAgentSpec.tsx(36,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AIAgents/AIServiceAgentSpec.tsx(36,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(164,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(176,46): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(185,36): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(185,40): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(377,39): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(378,46): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(390,74): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(401,76): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(415,82): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(436,25): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(439,95): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(451,25): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(454,91): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(468,25): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(471,103): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(533,84): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(544,86): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(557,41): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(557,69): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(569,90): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(610,55): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(638,86): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(649,88): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(662,96): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(708,54): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(736,89): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(747,89): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(761,69): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(779,71): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(793,99): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(810,31): error TS2322: Type 'string | number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(337,39): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(338,34): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(350,72): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(361,81): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(372,81): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(446,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(449,88): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(467,80): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(481,89): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(495,95): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(509,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(512,95): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(610,25): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(613,111): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(629,91): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(646,49): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(646,77): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(694,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(697,83): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(712,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(715,93): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(729,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(732,85): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(782,91): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(796,95): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(810,99): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(821,23): error TS2322: Type '"color"' is not assignable to type '"number" | "email" | "text" | "password" | "tel" | undefined'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(825,96): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(871,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(874,107): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(890,90): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(972,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(975,110): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(988,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(991,112): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(1004,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(1007,91): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(1020,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(1023,89): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(1071,25): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(1074,96): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(1088,25): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(1091,94): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec.tsx(1150,13): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(3,15): error TS2305: Module '"../../../../types/aiAgentServices"' has no exported member 'AIFormAssistantRequirements'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(126,21): error TS2322: Type 'unknown' is not assignable to type 'boolean | undefined'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(127,48): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(152,21): error TS2322: Type 'unknown' is not assignable to type 'boolean | undefined'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(153,48): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(182,21): error TS2322: Type 'unknown' is not assignable to type 'boolean | undefined'.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(188,33): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(210,58): error TS7006: Parameter 'field' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(210,65): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(221,37): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(239,37): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(260,35): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(279,49): error TS7006: Parameter 'faq' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(279,54): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(289,35): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(305,35): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(328,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(345,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(372,31): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(393,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(405,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(417,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AIFormAssistantSpec.tsx(429,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(292,39): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(293,34): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(305,72): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(316,76): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(367,23): error TS2322: Type 'string | number' is not assignable to type 'string'.
   Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(811,100): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(872,29): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(877,114): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(891,29): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(896,110): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(910,29): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(915,109): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(929,29): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(934,110): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(948,29): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(953,114): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1099,94): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1118,82): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1134,79): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1152,43): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1152,71): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1171,45): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1171,73): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1190,44): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1190,72): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1220,92): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1254,13): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
-src/components/Phase2/ServiceRequirements/Automations/AutoApprovalWorkflowSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/Automations/AutoApprovalWorkflowSpec.tsx(23,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoApprovalWorkflowSpec.tsx(36,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoApprovalWorkflowSpec.tsx(46,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoApprovalWorkflowSpec.tsx(46,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(6,3): error TS6133: 'CheckCircle' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(9,3): error TS6133: 'ArrowRight' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(12,3): error TS6133: 'FileText' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(13,3): error TS6133: 'Zap' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(157,36): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(157,40): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(206,9): error TS6133: 'addValidationRule' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(220,9): error TS6133: 'removeValidationRule' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(298,76): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(309,79): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(320,76): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(331,77): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(438,55): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(453,94): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(464,98): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(475,93): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(486,97): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(497,99): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(580,88): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(593,53): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(593,81): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(627,88): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(638,23): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(639,89): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(651,23): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(652,86): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(665,89): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCRMUpdateSpec.tsx(719,13): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCustomSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(372,94): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(384,83): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(394,82): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(416,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(421,92): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(447,51): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(447,79): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(460,86): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(470,85): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(492,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(497,98): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(523,43): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(523,71): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(536,81): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(546,80): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(568,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(573,88): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(599,47): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(599,75): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(612,85): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(622,84): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(644,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(649,96): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(688,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(691,98): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(705,93): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(769,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(772,94): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(807,29): error TS2322: Type '{ websiteBehavior: boolean; emailEngagement?: boolean | undefined; contentDownloads?: boolean | undefined; }' is not assignable to type '{ websiteBehavior: boolean; emailEngagement: boolean; contentDownloads: boolean; }'.
+  Types of property 'emailEngagement' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(826,29): error TS2322: Type '{ emailEngagement: boolean; websiteBehavior?: boolean | undefined; contentDownloads?: boolean | undefined; }' is not assignable to type '{ websiteBehavior: boolean; emailEngagement: boolean; contentDownloads: boolean; }'.
+  Types of property 'websiteBehavior' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(845,29): error TS2322: Type '{ contentDownloads: boolean; websiteBehavior?: boolean | undefined; emailEngagement?: boolean | undefined; }' is not assignable to type '{ websiteBehavior: boolean; emailEngagement: boolean; contentDownloads: boolean; }'.
+  Types of property 'websiteBehavior' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(900,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(903,89): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(967,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(970,91): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(983,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(986,99): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(1000,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(1003,96): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec.tsx(1061,55): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(17,88): error TS6196: 'MessagingChannel' is declared but never used.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(361,39): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(362,34): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(374,72): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(385,81): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(431,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(436,53): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(452,45): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(474,44): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(522,69): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(534,91): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(568,46): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(568,74): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(605,25): error TS2322: Type 'string | number' is not assignable to type 'string'.
+  Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(612,59): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(632,45): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(657,41): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(657,69): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(682,37): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(719,25): error TS2322: Type '"time"' is not assignable to type '"number" | "email" | "text" | "password" | "tel" | undefined'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(729,42): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(742,25): error TS2322: Type '"time"' is not assignable to type '"number" | "email" | "text" | "password" | "tel" | undefined'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(752,40): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(768,25): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(775,54): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(788,64): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(798,77): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(807,27): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(808,97): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(940,39): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(992,45): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(992,73): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(1010,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(1015,51): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(1029,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(1034,54): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(1054,23): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(1059,58): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(1077,25): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(1084,62): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(1099,25): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(1106,57): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec.tsx(1158,55): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(378,39): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(379,46): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(391,74): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(402,76): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(416,82): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(437,25): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(440,95): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(452,25): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(455,91): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(469,25): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(472,103): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(534,84): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(545,86): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(558,41): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(558,69): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(570,90): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(611,55): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(639,86): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(650,88): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(663,96): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(709,54): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(737,89): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(748,89): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(762,69): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(780,71): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(794,99): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(811,31): error TS2322: Type 'string | number' is not assignable to type 'string'.
+  Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(812,100): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(873,29): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(878,114): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(892,29): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(897,110): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(911,29): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(916,109): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(930,29): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(935,110): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(949,29): error TS2322: Type 'number' is not assignable to type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(954,114): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1100,94): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1119,82): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1135,79): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1153,43): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1153,71): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1172,45): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1172,73): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1191,44): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1191,72): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1221,92): error TS2339: Property 'target' does not exist on type 'string'.
+src/components/Phase2/ServiceRequirements/AIAgents/AITriageSpec.tsx(1255,13): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
+src/components/Phase2/ServiceRequirements/Automations/AutoAppointmentRemindersSpec.tsx(3,15): error TS2305: Module '"../../../../types/automationServices"' has no exported member 'AutoAppointmentRemindersRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoAppointmentRemindersSpec.tsx(5,10): error TS6133: 'Plus' is declared but its value is never read.
+src/components/Phase2/ServiceRequirements/Automations/AutoAppointmentRemindersSpec.tsx(5,16): error TS6133: 'Trash2' is declared but its value is never read.
+src/components/Phase2/ServiceRequirements/Automations/AutoAppointmentRemindersSpec.tsx(7,7): error TS6133: 'generateId' is declared but its value is never read.
+src/components/Phase2/ServiceRequirements/Automations/AutoAppointmentRemindersSpec.tsx(108,44): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoAppointmentRemindersSpec.tsx(124,44): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoAppointmentRemindersSpec.tsx(139,44): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoAppointmentRemindersSpec.tsx(162,72): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoAppointmentRemindersSpec.tsx(163,33): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoAppointmentRemindersSpec.tsx(185,48): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoAppointmentRemindersSpec.tsx(203,48): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoAppointmentRemindersSpec.tsx(227,48): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoApprovalWorkflowSpec.tsx(74,7): error TS2353: Object literal may only specify known properties, and 'webhookEndpoint' does not exist in type '{ system: "custom" | "crm" | "erp" | "hrms" | "document_management"; authMethod: "oauth" | "api_key" | "basic_auth"; credentials: { clientId?: string | undefined; clientSecret?: string | undefined; apiKey?: string | undefined; }; webhookSupport: boolean; updateStatusEndpoint?: string | undefined; }'.
+src/components/Phase2/ServiceRequirements/Automations/AutoApprovalWorkflowSpec.tsx(83,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoApprovalWorkflowSpec.tsx(95,42): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoApprovalWorkflowSpec.tsx(462,50): error TS2339: Property 'webhookEndpoint' does not exist on type '{ system: "custom" | "crm" | "erp" | "hrms" | "document_management"; authMethod: "oauth" | "api_key" | "basic_auth"; credentials: { clientId?: string | undefined; clientSecret?: string | undefined; apiKey?: string | undefined; }; webhookSupport: boolean; updateStatusEndpoint?: string | undefined; }'.
+src/components/Phase2/ServiceRequirements/Automations/AutoApprovalWorkflowSpec.tsx(467,27): error TS2353: Object literal may only specify known properties, and 'webhookEndpoint' does not exist in type '{ system: "custom" | "crm" | "erp" | "hrms" | "document_management"; authMethod: "oauth" | "api_key" | "basic_auth"; credentials: { clientId?: string | undefined; clientSecret?: string | undefined; apiKey?: string | undefined; }; webhookSupport: boolean; updateStatusEndpoint?: string | undefined; }'.
+src/components/Phase2/ServiceRequirements/Automations/AutoApprovalWorkflowSpec.tsx(1267,35): error TS2322: Type '{ adminEmail: string; action?: "alert_admin" | "auto_approve" | "auto_reject" | undefined; }' is not assignable to type '{ action: "alert_admin" | "auto_approve" | "auto_reject"; adminEmail?: string | undefined; }'.
+  Types of property 'action' are incompatible.
+    Type '"alert_admin" | "auto_approve" | "auto_reject" | undefined' is not assignable to type '"alert_admin" | "auto_approve" | "auto_reject"'.
+      Type 'undefined' is not assignable to type '"alert_admin" | "auto_approve" | "auto_reject"'.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(3,15): error TS2305: Module '"../../../../types/automationServices"' has no exported member 'AutoComplexLogicRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(117,39): error TS7006: Parameter 'rule' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(117,45): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(166,22): error TS18046: 'tree' is of type 'unknown'.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(166,38): error TS7006: Parameter 'step' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(166,44): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(174,48): error TS7006: Parameter 'answer' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(174,56): error TS7006: Parameter 'ansIndex' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(197,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(214,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(231,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(250,51): error TS7006: Parameter 'endpoint' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(250,61): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(261,37): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(278,37): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(294,37): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(317,35): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(340,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(352,60): error TS7006: Parameter 'action' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(352,68): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(368,48): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(383,48): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoComplexLogicSpec.tsx(398,48): error TS7006: Parameter 'prev' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Automations/AutoCustomSpec.tsx(27,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Automations/AutoCustomSpec.tsx(40,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoCustomSpec.tsx(50,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoCustomSpec.tsx(50,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoDataSyncSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
 src/components/Phase2/ServiceRequirements/Automations/AutoDataSyncSpec.tsx(27,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Automations/AutoDataSyncSpec.tsx(40,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoDataSyncSpec.tsx(50,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoDataSyncSpec.tsx(50,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoDocumentGenerationSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
 src/components/Phase2/ServiceRequirements/Automations/AutoDocumentGenerationSpec.tsx(25,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Automations/AutoDocumentGenerationSpec.tsx(38,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoDocumentGenerationSpec.tsx(48,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoDocumentGenerationSpec.tsx(48,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoDocumentMgmtSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
 src/components/Phase2/ServiceRequirements/Automations/AutoDocumentMgmtSpec.tsx(27,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Automations/AutoDocumentMgmtSpec.tsx(40,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoDocumentMgmtSpec.tsx(50,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoDocumentMgmtSpec.tsx(50,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(6,3): error TS6133: 'CheckCircle' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(11,3): error TS6133: 'FileText' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(13,3): error TS6133: 'Eye' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(14,3): error TS6133: 'Code' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(167,36): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(167,40): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(336,79): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(347,81): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(358,76): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(369,81): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(380,87): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(391,23): error TS2322: Type 'string | number' is not assignable to type 'string'.
-  Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(392,91): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(520,51): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(533,88): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(533,112): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(559,94): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(570,92): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(588,91): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(652,31): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(667,31): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(711,63): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(726,97): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(738,98): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(749,100): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(760,98): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(774,105): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(786,100): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(797,94): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(1008,90): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(1019,25): error TS2322: Type 'number' is not assignable to type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(1020,91): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(1033,91): error TS2339: Property 'target' does not exist on type 'string'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEmailTemplatesSpec.tsx(1078,13): error TS2322: Type '"outline"' is not assignable to type '"success" | "primary" | "danger" | "secondary" | "ghost" | undefined'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEndToEndSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
 src/components/Phase2/ServiceRequirements/Automations/AutoEndToEndSpec.tsx(27,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Automations/AutoEndToEndSpec.tsx(40,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoEndToEndSpec.tsx(50,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoEndToEndSpec.tsx(50,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoFormToCrmSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
 src/components/Phase2/ServiceRequirements/Automations/AutoFormToCrmSpec.tsx(31,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Automations/AutoFormToCrmSpec.tsx(44,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoFormToCrmSpec.tsx(54,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoFormToCrmSpec.tsx(54,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoLeadResponseSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/Automations/AutoLeadResponseSpec.tsx(38,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoLeadResponseSpec.tsx(51,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoLeadResponseSpec.tsx(61,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoLeadResponseSpec.tsx(61,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoLeadWorkflowSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/Phase2/ServiceRequirements/Automations/AutoLeadResponseSpec.tsx(108,39): error TS7006: Parameter 'item' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Automations/AutoLeadWorkflowSpec.tsx(32,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Automations/AutoLeadWorkflowSpec.tsx(45,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoLeadWorkflowSpec.tsx(55,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoLeadWorkflowSpec.tsx(55,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoMeetingSchedulerSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
 src/components/Phase2/ServiceRequirements/Automations/AutoMeetingSchedulerSpec.tsx(34,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Automations/AutoMeetingSchedulerSpec.tsx(47,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoMeetingSchedulerSpec.tsx(57,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoMeetingSchedulerSpec.tsx(57,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoMultiSystemSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
 src/components/Phase2/ServiceRequirements/Automations/AutoMultiSystemSpec.tsx(23,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Automations/AutoMultiSystemSpec.tsx(36,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoMultiSystemSpec.tsx(46,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoMultiSystemSpec.tsx(46,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(23,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(36,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(46,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(46,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoReportsSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(13,5): error TS2353: Object literal may only specify known properties, and 'stateManagement' does not exist in type 'AutoNotificationsRequirements | (() => AutoNotificationsRequirements)'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(83,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(95,42): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(123,7): error TS2353: Object literal may only specify known properties, and 'approvalHierarchy' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(124,19): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(126,21): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(128,27): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(141,7): error TS2353: Object literal may only specify known properties, and 'approvalHierarchy' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(142,19): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(143,24): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(143,57): error TS7006: Parameter '_' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(143,60): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(149,38): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(158,7): error TS2353: Object literal may only specify known properties, and 'approvalHierarchy' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(159,19): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(166,38): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(167,87): error TS7006: Parameter '_' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(167,90): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(170,7): error TS2353: Object literal may only specify known properties, and 'approvalHierarchy' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(171,19): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(180,7): error TS2353: Object literal may only specify known properties, and 'routingLogic' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(181,19): error TS2339: Property 'routingLogic' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(183,21): error TS2339: Property 'routingLogic' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(196,7): error TS2353: Object literal may only specify known properties, and 'routingLogic' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(197,19): error TS2339: Property 'routingLogic' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(198,30): error TS2339: Property 'routingLogic' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(198,64): error TS7006: Parameter '_' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(198,67): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(206,7): error TS2353: Object literal may only specify known properties, and 'escalation' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(207,19): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(209,21): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(211,26): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(224,7): error TS2353: Object literal may only specify known properties, and 'escalation' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(225,19): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(226,33): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(226,68): error TS7006: Parameter '_' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(226,71): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(294,39): error TS2339: Property 'stateManagement' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(297,27): error TS2353: Object literal may only specify known properties, and 'stateManagement' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(298,39): error TS2339: Property 'stateManagement' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(310,30): error TS2339: Property 'stateManagement' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(310,83): error TS2339: Property 'stateManagement' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(319,43): error TS2339: Property 'stateManagement' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(322,31): error TS2353: Object literal may only specify known properties, and 'stateManagement' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(323,43): error TS2339: Property 'stateManagement' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(325,45): error TS2339: Property 'stateManagement' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(340,43): error TS2339: Property 'stateManagement' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(343,31): error TS2353: Object literal may only specify known properties, and 'stateManagement' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(344,43): error TS2339: Property 'stateManagement' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(346,45): error TS2339: Property 'stateManagement' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(358,30): error TS2339: Property 'stateManagement' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(358,78): error TS2339: Property 'stateManagement' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(368,45): error TS2339: Property 'stateManagement' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(371,33): error TS2353: Object literal may only specify known properties, and 'stateManagement' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(372,45): error TS2339: Property 'stateManagement' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(374,47): error TS2339: Property 'stateManagement' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(389,45): error TS2339: Property 'stateManagement' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(392,33): error TS2353: Object literal may only specify known properties, and 'stateManagement' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(393,45): error TS2339: Property 'stateManagement' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(395,47): error TS2339: Property 'stateManagement' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(418,39): error TS2339: Property 'sourceSystem' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(421,27): error TS2353: Object literal may only specify known properties, and 'sourceSystem' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(422,39): error TS2339: Property 'sourceSystem' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(440,39): error TS2339: Property 'sourceSystem' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(443,27): error TS2353: Object literal may only specify known properties, and 'sourceSystem' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(444,39): error TS2339: Property 'sourceSystem' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(462,37): error TS2339: Property 'sourceSystem' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(465,25): error TS2353: Object literal may only specify known properties, and 'sourceSystem' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(466,37): error TS2339: Property 'sourceSystem' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(482,41): error TS2339: Property 'multiLevelConfig' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(485,27): error TS2353: Object literal may only specify known properties, and 'multiLevelConfig' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(486,39): error TS2339: Property 'multiLevelConfig' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(496,29): error TS2339: Property 'multiLevelConfig' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(503,41): error TS2339: Property 'multiLevelConfig' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(506,29): error TS2353: Object literal may only specify known properties, and 'multiLevelConfig' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(507,41): error TS2339: Property 'multiLevelConfig' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(536,25): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(536,55): error TS7006: Parameter 'level' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(536,62): error TS7006: Parameter 'levelIndex' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(557,62): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(561,31): error TS2353: Object literal may only specify known properties, and 'approvalHierarchy' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(562,43): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(579,62): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(583,31): error TS2353: Object literal may only specify known properties, and 'approvalHierarchy' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(584,43): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(607,45): error TS7006: Parameter 'approver' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(607,55): error TS7006: Parameter 'approverIndex' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(614,66): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(618,35): error TS2353: Object literal may only specify known properties, and 'approvalHierarchy' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(619,47): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(631,66): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(635,35): error TS2353: Object literal may only specify known properties, and 'approvalHierarchy' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(636,47): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(648,66): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(652,35): error TS2353: Object literal may only specify known properties, and 'approvalHierarchy' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(653,47): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(680,41): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(683,27): error TS2353: Object literal may only specify known properties, and 'approvalHierarchy' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(684,39): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(695,41): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(698,27): error TS2353: Object literal may only specify known properties, and 'approvalHierarchy' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(699,39): error TS2339: Property 'approvalHierarchy' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(727,37): error TS2339: Property 'routingLogic' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(730,25): error TS2353: Object literal may only specify known properties, and 'routingLogic' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(731,37): error TS2339: Property 'routingLogic' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(744,27): error TS2339: Property 'routingLogic' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(744,58): error TS7006: Parameter 'rule' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(744,64): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(751,61): error TS2339: Property 'routingLogic' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(755,31): error TS2353: Object literal may only specify known properties, and 'routingLogic' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(756,43): error TS2339: Property 'routingLogic' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(768,61): error TS2339: Property 'routingLogic' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(772,31): error TS2353: Object literal may only specify known properties, and 'routingLogic' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(773,43): error TS2339: Property 'routingLogic' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(806,39): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(809,27): error TS2353: Object literal may only specify known properties, and 'emailNotifications' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(810,39): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(822,29): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(829,41): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(832,29): error TS2353: Object literal may only specify known properties, and 'emailNotifications' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(833,41): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(842,29): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(848,43): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(851,31): error TS2353: Object literal may only specify known properties, and 'emailNotifications' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(852,43): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(854,45): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(864,43): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(867,31): error TS2353: Object literal may only specify known properties, and 'emailNotifications' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(868,43): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(870,45): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(880,43): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(883,31): error TS2353: Object literal may only specify known properties, and 'emailNotifications' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(884,43): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(886,45): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(896,43): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(899,31): error TS2353: Object literal may only specify known properties, and 'emailNotifications' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(900,43): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(902,45): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(917,48): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(927,31): error TS2322: Type 'unknown' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(930,33): error TS2353: Object literal may only specify known properties, and 'emailNotifications' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(931,45): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(933,47): error TS2339: Property 'emailNotifications' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(955,41): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(958,27): error TS2353: Object literal may only specify known properties, and 'approvalMethods' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(959,39): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(970,41): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(973,27): error TS2353: Object literal may only specify known properties, and 'approvalMethods' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(974,39): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(985,41): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(988,27): error TS2353: Object literal may only specify known properties, and 'approvalMethods' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(989,39): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1000,41): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1003,27): error TS2353: Object literal may only specify known properties, and 'approvalMethods' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1004,39): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1014,27): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1024,43): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1027,31): error TS2353: Object literal may only specify known properties, and 'approvalMethods' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1028,43): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1030,45): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1045,43): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1048,31): error TS2353: Object literal may only specify known properties, and 'approvalMethods' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1049,43): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1051,45): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1064,27): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1073,41): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1076,29): error TS2353: Object literal may only specify known properties, and 'approvalMethods' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1077,41): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1079,43): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1091,43): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1094,29): error TS2353: Object literal may only specify known properties, and 'approvalMethods' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1095,41): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1097,43): error TS2339: Property 'approvalMethods' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1121,41): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1124,27): error TS2353: Object literal may only specify known properties, and 'escalation' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1125,39): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1135,27): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1148,31): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1148,63): error TS7006: Parameter 'tier' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1148,69): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1159,67): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1163,37): error TS2353: Object literal may only specify known properties, and 'escalation' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1164,49): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1181,67): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1185,37): error TS2353: Object literal may only specify known properties, and 'escalation' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1186,49): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1202,67): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1206,37): error TS2353: Object literal may only specify known properties, and 'escalation' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1207,49): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1238,45): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1241,33): error TS2353: Object literal may only specify known properties, and 'escalation' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1242,45): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1244,47): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1262,45): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1265,33): error TS2353: Object literal may only specify known properties, and 'escalation' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1266,45): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1268,47): error TS2339: Property 'escalation' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1294,41): error TS2339: Property 'auditTrail' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1297,27): error TS2353: Object literal may only specify known properties, and 'auditTrail' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1298,39): error TS2339: Property 'auditTrail' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1308,27): error TS2339: Property 'auditTrail' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1315,41): error TS2339: Property 'auditTrail' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1318,29): error TS2353: Object literal may only specify known properties, and 'auditTrail' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1319,41): error TS2339: Property 'auditTrail' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1337,41): error TS2339: Property 'auditTrail' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1340,29): error TS2353: Object literal may only specify known properties, and 'auditTrail' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1341,41): error TS2339: Property 'auditTrail' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1353,50): error TS2339: Property 'auditTrail' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1357,33): error TS2322: Type 'unknown' is not assignable to type 'boolean | undefined'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1360,35): error TS2353: Object literal may only specify known properties, and 'auditTrail' does not exist in type 'SetStateAction<AutoNotificationsRequirements>'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1361,47): error TS2339: Property 'auditTrail' does not exist on type 'AutoNotificationsRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx(1363,49): error TS2339: Property 'auditTrail' does not exist on type 'AutoNotificationsRequirements'.
 src/components/Phase2/ServiceRequirements/Automations/AutoReportsSpec.tsx(27,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Automations/AutoReportsSpec.tsx(40,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoReportsSpec.tsx(50,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoReportsSpec.tsx(50,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoSlaTrackingSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/Phase2/ServiceRequirements/Automations/AutoServiceWorkflowSpec.tsx(3,15): error TS2724: '"../../../../types/automationServices"' has no exported member named 'AutoServiceWorkflowRequirements'. Did you mean 'AutoLeadWorkflowRequirements'?
+src/components/Phase2/ServiceRequirements/Automations/AutoServiceWorkflowSpec.tsx(100,42): error TS7006: Parameter 'step' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoServiceWorkflowSpec.tsx(100,48): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoServiceWorkflowSpec.tsx(126,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoServiceWorkflowSpec.tsx(143,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoServiceWorkflowSpec.tsx(190,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoServiceWorkflowSpec.tsx(202,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoServiceWorkflowSpec.tsx(214,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Automations/AutoSlaTrackingSpec.tsx(25,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Automations/AutoSlaTrackingSpec.tsx(38,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoSlaTrackingSpec.tsx(48,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoSlaTrackingSpec.tsx(48,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoSmartFollowupSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
 src/components/Phase2/ServiceRequirements/Automations/AutoSmartFollowupSpec.tsx(34,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Automations/AutoSmartFollowupSpec.tsx(47,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoSmartFollowupSpec.tsx(57,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoSmartFollowupSpec.tsx(57,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoSmsWhatsappSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/Automations/AutoSmsWhatsappSpec.tsx(34,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoSmsWhatsappSpec.tsx(47,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoSmsWhatsappSpec.tsx(57,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoSmsWhatsappSpec.tsx(57,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoSystemSyncSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/Automations/AutoSystemSyncSpec.tsx(25,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoSystemSyncSpec.tsx(38,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoSystemSyncSpec.tsx(48,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoSystemSyncSpec.tsx(48,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Automations/AutoTeamAlertsSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
 src/components/Phase2/ServiceRequirements/Automations/AutoTeamAlertsSpec.tsx(33,39): error TS7006: Parameter 'a' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Automations/AutoTeamAlertsSpec.tsx(46,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Automations/AutoTeamAlertsSpec.tsx(56,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Automations/AutoTeamAlertsSpec.tsx(56,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Integrations/IntCalendarSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/Integrations/IntCalendarSpec.tsx(13,47): error TS7006: Parameter 'i' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Integrations/IntCalendarSpec.tsx(23,48): error TS7006: Parameter 'i' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Integrations/IntCalendarSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Integrations/IntCalendarSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Integrations/IntComplexSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(3,15): error TS2305: Module '"../../../../types/automationServices"' has no exported member 'AutoWelcomeEmailRequirements'.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(5,10): error TS6133: 'Plus' is declared but its value is never read.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(5,16): error TS6133: 'Trash2' is declared but its value is never read.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(7,7): error TS6133: 'generateId' is declared but its value is never read.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(148,21): error TS2322: Type 'unknown' is not assignable to type 'boolean | undefined'.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(149,48): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(171,44): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(189,44): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(203,44): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(217,44): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(240,50): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(254,50): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(278,50): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(292,50): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(316,50): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(330,50): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(353,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(367,44): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(382,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(396,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(414,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(426,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Automations/AutoWelcomeEmailSpec.tsx(438,46): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Integrations/IntCalendarSpec.tsx(4,40): error TS6196: 'SystemConfig' is declared but never used.
+src/components/Phase2/ServiceRequirements/Integrations/IntCalendarSpec.tsx(171,47): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Integrations/IntCalendarSpec.tsx(181,48): error TS7006: Parameter 'i' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Integrations/IntComplexSpec.tsx(13,47): error TS7006: Parameter 'i' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Integrations/IntComplexSpec.tsx(23,48): error TS7006: Parameter 'i' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Integrations/IntComplexSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Integrations/IntComplexSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Integrations/IntCrmAccountingSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
 src/components/Phase2/ServiceRequirements/Integrations/IntCrmAccountingSpec.tsx(13,47): error TS7006: Parameter 'i' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Integrations/IntCrmAccountingSpec.tsx(23,48): error TS7006: Parameter 'i' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Integrations/IntCrmAccountingSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Integrations/IntCrmAccountingSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Integrations/IntCrmMarketingSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/Integrations/IntCrmMarketingSpec.tsx(13,47): error TS7006: Parameter 'i' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Integrations/IntCrmMarketingSpec.tsx(23,48): error TS7006: Parameter 'i' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Integrations/IntCrmMarketingSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Integrations/IntCrmMarketingSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Integrations/IntCrmSupportSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/Phase2/ServiceRequirements/Integrations/IntCrmMarketingSpec.tsx(4,44): error TS6196: 'SystemConfig' is declared but never used.
+src/components/Phase2/ServiceRequirements/Integrations/IntCrmMarketingSpec.tsx(4,58): error TS6196: 'FieldMapping' is declared but never used.
+src/components/Phase2/ServiceRequirements/Integrations/IntCrmMarketingSpec.tsx(118,47): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Integrations/IntCrmMarketingSpec.tsx(128,48): error TS7006: Parameter 'i' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Integrations/IntCrmSupportSpec.tsx(13,47): error TS7006: Parameter 'i' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Integrations/IntCrmSupportSpec.tsx(23,48): error TS7006: Parameter 'i' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Integrations/IntCrmSupportSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Integrations/IntCrmSupportSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Integrations/IntCustomSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
 src/components/Phase2/ServiceRequirements/Integrations/IntCustomSpec.tsx(13,47): error TS7006: Parameter 'i' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Integrations/IntCustomSpec.tsx(23,48): error TS7006: Parameter 'i' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Integrations/IntCustomSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Integrations/IntCustomSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Integrations/IntEcommerceSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
 src/components/Phase2/ServiceRequirements/Integrations/IntEcommerceSpec.tsx(13,47): error TS7006: Parameter 'i' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Integrations/IntEcommerceSpec.tsx(23,48): error TS7006: Parameter 'i' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Integrations/IntEcommerceSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Integrations/IntEcommerceSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Integrations/IntegrationComplexSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
 src/components/Phase2/ServiceRequirements/Integrations/IntegrationComplexSpec.tsx(71,47): error TS7006: Parameter 'i' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Integrations/IntegrationComplexSpec.tsx(81,48): error TS7006: Parameter 'i' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Integrations/IntegrationComplexSpec.tsx(90,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Integrations/IntegrationComplexSpec.tsx(90,38): error TS2554: Expected 1 arguments, but got 2.
 src/components/Phase2/ServiceRequirements/Integrations/IntegrationComplexSpec.tsx(207,60): error TS2322: Type 'boolean' is not assignable to type 'true'.
-src/components/Phase2/ServiceRequirements/Integrations/IntegrationSimpleSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
 src/components/Phase2/ServiceRequirements/Integrations/IntegrationSimpleSpec.tsx(4,46): error TS6196: 'SystemConfig' is declared but never used.
 src/components/Phase2/ServiceRequirements/Integrations/IntegrationSimpleSpec.tsx(4,74): error TS6196: 'ErrorHandlingConfig' is declared but never used.
 src/components/Phase2/ServiceRequirements/Integrations/IntegrationSimpleSpec.tsx(61,47): error TS7006: Parameter 'i' implicitly has an 'any' type.
 src/components/Phase2/ServiceRequirements/Integrations/IntegrationSimpleSpec.tsx(71,48): error TS7006: Parameter 'i' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Integrations/IntegrationSimpleSpec.tsx(80,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Integrations/IntegrationSimpleSpec.tsx(80,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/Integrations/WhatsappApiSetupSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/Integrations/WhatsappApiSetupSpec.tsx(13,47): error TS7006: Parameter 'i' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Integrations/WhatsappApiSetupSpec.tsx(23,48): error TS7006: Parameter 'i' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/Integrations/WhatsappApiSetupSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/Integrations/WhatsappApiSetupSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplAnalyticsSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplAnalyticsSpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplAnalyticsSpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplAnalyticsSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplAnalyticsSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplCrmSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplCrmSpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplCrmSpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplCrmSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplCrmSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplCustomSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplCustomSpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplCustomSpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplCustomSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplCustomSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplEcommerceSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplEcommerceSpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplEcommerceSpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplEcommerceSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplEcommerceSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplErpSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplErpSpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplErpSpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplErpSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplErpSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplHelpdeskSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplHelpdeskSpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplHelpdeskSpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplHelpdeskSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplHelpdeskSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplMarketingAutomationSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplMarketingAutomationSpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplMarketingAutomationSpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplMarketingAutomationSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplMarketingAutomationSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplProjectManagementSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplProjectManagementSpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplProjectManagementSpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplProjectManagementSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplProjectManagementSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplWorkflowPlatformSpec.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplWorkflowPlatformSpec.tsx(13,36): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplWorkflowPlatformSpec.tsx(23,37): error TS7006: Parameter 's' implicitly has an 'any' type.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplWorkflowPlatformSpec.tsx(32,34): error TS2339: Property 'id' does not exist on type 'Meeting'.
-src/components/Phase2/ServiceRequirements/SystemImplementations/ImplWorkflowPlatformSpec.tsx(32,38): error TS2554: Expected 1 arguments, but got 2.
+src/components/Phase2/ServiceRequirements/Integrations/WhatsappApiSetupSpec.tsx(125,47): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/Integrations/WhatsappApiSetupSpec.tsx(135,48): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/SystemImplementations/ImplAnalyticsSpec.tsx(214,39): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/SystemImplementations/ImplCrmSpec.tsx(216,39): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/components/Phase2/ServiceRequirements/SystemImplementations/ImplCrmSpec.tsx(655,17): error TS2322: Type '{ email: boolean; calendar?: boolean | undefined; website?: boolean | undefined; emailMarketing?: boolean; phoneSystem?: boolean; }' is not assignable to type '{ email: boolean; calendar: boolean; website: boolean; emailMarketing?: boolean | undefined; phoneSystem?: boolean | undefined; }'.
+  Types of property 'calendar' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+src/components/Phase2/ServiceRequirements/SystemImplementations/ImplCrmSpec.tsx(668,17): error TS2322: Type '{ calendar: boolean; email?: boolean | undefined; website?: boolean | undefined; emailMarketing?: boolean; phoneSystem?: boolean; }' is not assignable to type '{ email: boolean; calendar: boolean; website: boolean; emailMarketing?: boolean | undefined; phoneSystem?: boolean | undefined; }'.
+  Types of property 'email' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+src/components/Phase2/ServiceRequirements/SystemImplementations/ImplCrmSpec.tsx(681,17): error TS2322: Type '{ website: boolean; email?: boolean | undefined; calendar?: boolean | undefined; emailMarketing?: boolean; phoneSystem?: boolean; }' is not assignable to type '{ email: boolean; calendar: boolean; website: boolean; emailMarketing?: boolean | undefined; phoneSystem?: boolean | undefined; }'.
+  Types of property 'email' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+src/components/Phase2/ServiceRequirements/SystemImplementations/ImplCrmSpec.tsx(694,17): error TS2322: Type '{ emailMarketing: boolean; email?: boolean | undefined; calendar?: boolean | undefined; website?: boolean | undefined; phoneSystem?: boolean; }' is not assignable to type '{ email: boolean; calendar: boolean; website: boolean; emailMarketing?: boolean | undefined; phoneSystem?: boolean | undefined; }'.
+  Types of property 'email' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+src/components/Phase2/ServiceRequirements/SystemImplementations/ImplCrmSpec.tsx(707,17): error TS2322: Type '{ phoneSystem: boolean; email?: boolean | undefined; calendar?: boolean | undefined; website?: boolean | undefined; emailMarketing?: boolean; }' is not assignable to type '{ email: boolean; calendar: boolean; website: boolean; emailMarketing?: boolean | undefined; phoneSystem?: boolean | undefined; }'.
+  Types of property 'email' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
 src/components/Phase2/SystemDeepDive.tsx(26,5): error TS7006: Parameter 's' implicitly has an 'any' type.
 src/components/Phase2/SystemDeepDive.tsx(106,55): error TS7006: Parameter 's' implicitly has an 'any' type.
 src/components/Phase2/SystemDeepDive.tsx(285,11): error TS2322: Type '{ completionPercentage: number; authComplete: boolean; modulesCount: number; migrationRequired: boolean; }' is not assignable to type 'IntrinsicAttributes & SystemSpecProgressProps'.
@@ -898,6 +1054,7 @@ src/components/Wizard/WizardSummary.tsx(326,56): error TS7006: Parameter 'step' 
 src/components/Wizard/WizardSummary.tsx(326,62): error TS7006: Parameter 'index' implicitly has an 'any' type.
 src/components/ZohoNotifications.tsx(161,14): error TS2322: Type '{ children: string; jsx: true; }' is not assignable to type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
   Property 'jsx' does not exist on type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
+src/config/serviceComponentMapping.ts(55,1): error TS6133: 'IntComplexSpec' is declared but its value is never read.
 src/config/serviceRequirementsTemplates.ts(1235,13): error TS2353: Object literal may only specify known properties, and 'rows' does not exist in type 'RequirementField'.
 src/config/serviceRequirementsTemplates.ts(2477,13): error TS2353: Object literal may only specify known properties, and 'rows' does not exist in type 'RequirementField'.
 src/config/serviceRequirementsTemplates.ts(2514,13): error TS2353: Object literal may only specify known properties, and 'rows' does not exist in type 'RequirementField'.
@@ -959,8 +1116,8 @@ src/hooks/useFormValidation.ts(170,14): error TS18047: 'result' is possibly 'nul
 src/hooks/useFormValidation.ts(170,21): error TS2339: Property 'error' does not exist on type 'string'.
 src/hooks/useFormValidation.ts(406,5): error TS2322: Type '(name: keyof T, value: any) => string | null' is not assignable to type '(name: keyof T) => string | null'.
   Target signature provides too few arguments. Expected 2 or more, but got 1.
-src/lib/supabase.ts(159,15): error TS2345: Argument of type 'Partial<T>' is not assignable to parameter of type 'never'.
-src/lib/supabase.ts(187,13): error TS2769: No overload matches this call.
+src/lib/supabase.ts(178,15): error TS2345: Argument of type 'Partial<T>' is not assignable to parameter of type 'never'.
+src/lib/supabase.ts(206,13): error TS2769: No overload matches this call.
   Overload 1 of 2, '(values: never, options?: { count?: "exact" | "planned" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, string, never, "POST">', gave the following error.
     Argument of type 'T[]' is not assignable to parameter of type 'never'.
   Overload 2 of 2, '(values: never[], options?: { count?: "exact" | "planned" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, string, never, "POST">', gave the following error.
@@ -1039,6 +1196,7 @@ src/services/AIService.ts(784,53): error TS2339: Property 'timestamp' does not e
 src/services/AIService.ts(793,7): error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'AIRequest'.
 src/services/AIService.ts(826,27): error TS2339: Property 'success' does not exist on type 'AIResponse'.
 src/services/AIService.ts(827,27): error TS2339: Property 'success' does not exist on type 'AIResponse'.
+src/services/discoveryStatusService.ts(67,53): error TS7006: Parameter 's' implicitly has an 'any' type.
 src/services/emailService.ts(85,32): error TS2551: Property 'totalServices' does not exist on type 'ProposalData'. Did you mean 'totalPrice'?
 src/services/emailService.ts(315,54): error TS2551: Property 'totalServices' does not exist on type 'ProposalData'. Did you mean 'totalPrice'?
 src/services/syncService.ts(131,21): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
@@ -1086,18 +1244,25 @@ src/store/useMeetingStore.ts(1294,46): error TS2339: Property 'id' does not exis
 src/store/useMeetingStore.ts(1301,44): error TS2339: Property 'id' does not exist on type 'Meeting'.
 src/store/useMeetingStore.ts(1366,18): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'Modules'.
   No index signature with a parameter of type 'string' was found on type 'Modules'.
-src/store/useMeetingStore.ts(1516,50): error TS7006: Parameter 't' implicitly has an 'any' type.
-src/store/useMeetingStore.ts(1518,52): error TS7006: Parameter 't' implicitly has an 'any' type.
-src/store/useMeetingStore.ts(1597,28): error TS2339: Property 'supabaseId' does not exist on type 'Meeting'.
-src/store/useMeetingStore.ts(1647,28): error TS2339: Property 'supabaseId' does not exist on type 'Meeting'.
-src/store/useMeetingStore.ts(1693,49): error TS7006: Parameter 't' implicitly has an 'any' type.
-src/store/useMeetingStore.ts(1734,81): error TS7006: Parameter 'task' implicitly has an 'any' type.
-src/store/useMeetingStore.ts(1757,11): error TS7006: Parameter 'task' implicitly has an 'any' type.
-src/store/useMeetingStore.ts(1784,74): error TS7006: Parameter 't' implicitly has an 'any' type.
-src/store/useMeetingStore.ts(1801,74): error TS7006: Parameter 't' implicitly has an 'any' type.
-src/store/useMeetingStore.ts(1804,53): error TS7006: Parameter 'tc' implicitly has an 'any' type.
-src/store/useMeetingStore.ts(1845,88): error TS7006: Parameter 'blocker' implicitly has an 'any' type.
-src/store/useMeetingStore.ts(2077,15): error TS2322: Type '{ zohoIntegration: { recordId: any; lastSyncTime: string; syncEnabled: boolean; module?: "Potentials1" | undefined; contactInfo?: { email?: string; phone?: string; }; }; ... 16 more ...; developmentTracking?: DevelopmentTrackingData; }' is not assignable to type 'Meeting'.
+src/store/useMeetingStore.ts(1416,25): error TS2364: The left-hand side of an assignment expression must be a variable or a property access.
+src/store/useMeetingStore.ts(1417,25): error TS2693: 'Record' only refers to a type, but is being used as a value here.
+src/store/useMeetingStore.ts(1417,25): error TS2364: The left-hand side of an assignment expression must be a variable or a property access.
+src/store/useMeetingStore.ts(1444,30): error TS2339: Property '_validationCache' does not exist on type 'MeetingStore'.
+src/store/useMeetingStore.ts(1526,58): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/store/useMeetingStore.ts(1528,60): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/store/useMeetingStore.ts(1546,15): error TS2339: Property '_validationCache' does not exist on type 'MeetingStore'.
+src/store/useMeetingStore.ts(1550,19): error TS2339: Property '_lastLoggedState' does not exist on type 'MeetingStore'.
+src/store/useMeetingStore.ts(1554,17): error TS2339: Property '_lastLoggedState' does not exist on type 'MeetingStore'.
+src/store/useMeetingStore.ts(1627,28): error TS2339: Property 'supabaseId' does not exist on type 'Meeting'.
+src/store/useMeetingStore.ts(1677,28): error TS2339: Property 'supabaseId' does not exist on type 'Meeting'.
+src/store/useMeetingStore.ts(1723,49): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/store/useMeetingStore.ts(1764,81): error TS7006: Parameter 'task' implicitly has an 'any' type.
+src/store/useMeetingStore.ts(1787,11): error TS7006: Parameter 'task' implicitly has an 'any' type.
+src/store/useMeetingStore.ts(1814,74): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/store/useMeetingStore.ts(1831,74): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/store/useMeetingStore.ts(1834,53): error TS7006: Parameter 'tc' implicitly has an 'any' type.
+src/store/useMeetingStore.ts(1875,88): error TS7006: Parameter 'blocker' implicitly has an 'any' type.
+src/store/useMeetingStore.ts(2107,15): error TS2322: Type '{ zohoIntegration: { recordId: any; lastSyncTime: string; syncEnabled: boolean; module?: "Potentials1" | undefined; contactInfo?: { email?: string; phone?: string; }; }; ... 16 more ...; developmentTracking?: DevelopmentTrackingData; }' is not assignable to type 'Meeting'.
   The types of 'zohoIntegration.module' are incompatible between these types.
     Type '"Potentials1" | undefined' is not assignable to type '"Potentials1"'.
       Type 'undefined' is not assignable to type '"Potentials1"'.

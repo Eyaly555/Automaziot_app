@@ -6,12 +6,14 @@
  */
 
 import { Meeting } from '../types';
+import { getRequirementsTemplate } from '../config/serviceRequirementsTemplates';
 
 export interface ServiceValidationResult {
   isValid: boolean;
   missingServices: string[];
   completedCount: number;
   totalCount: number;
+  requiredFieldsByService?: Record<string, string[]>;
 }
 
 /**
@@ -34,9 +36,25 @@ export const validateServiceRequirements = (
       isValid: true,
       missingServices: [],
       completedCount: 0,
-      totalCount: 0
+      totalCount: 0,
+      requiredFieldsByService: {}
     };
   }
+
+  // Collect required fields for each service for documentation purposes
+  const requiredFieldsByService: Record<string, string[]> = {};
+  purchasedServices.forEach(service => {
+    const template = getRequirementsTemplate(service.id);
+    if (template) {
+      const fields: string[] = [];
+      template.sections.forEach(section => {
+        section.fields.forEach(field => {
+          fields.push(`${section.titleHe}: ${field.labelHe} (${field.type})`);
+        });
+      });
+      requiredFieldsByService[service.id] = fields;
+    }
+  });
 
   // Get all completed service IDs from all service categories
   const completed = new Set<string>();
@@ -51,7 +69,10 @@ export const validateServiceRequirements = (
     };
   }
 
-  // Automations (Services 1-20)
+  // Check service requirements completion based on the actual structure
+  // Each service requirement form should add an entry to its respective array
+
+  // Automations (Services 1-20) - check if requirements were collected
   if (Array.isArray(implementationSpec.automations)) {
     implementationSpec.automations.forEach((automation: any) => {
       if (automation.serviceId) {
@@ -87,7 +108,7 @@ export const validateServiceRequirements = (
     });
   }
 
-  // Additional Services (Services 50-59)
+  // Additional Services (Services 50-73)
   if (Array.isArray(implementationSpec.additionalServices)) {
     implementationSpec.additionalServices.forEach((service: any) => {
       if (service.serviceId) {
@@ -105,7 +126,8 @@ export const validateServiceRequirements = (
     isValid: missingServices.length === 0,
     missingServices,
     completedCount: completed.size,
-    totalCount: purchasedServices.length
+    totalCount: purchasedServices.length,
+    requiredFieldsByService
   };
 };
 
@@ -179,3 +201,87 @@ export const getServiceCompletionStatus = (meeting: Meeting | null): ServiceVali
     meeting.implementationSpec || {}
   );
 };
+
+/**
+ * Generate comprehensive requirements documentation for developers
+ * This creates a detailed specification of all fields that need to be collected for each service
+ */
+export function generateRequirementsDocumentation(purchasedServices: any[]): string {
+  let documentation = `# מפרט דרישות טכניות לכל השירותים\n\n`;
+
+  purchasedServices.forEach(service => {
+    const template = getRequirementsTemplate(service.id);
+    if (!template) return;
+
+    documentation += `## ${template.serviceNameHe} (${service.id})\n\n`;
+    documentation += `**זמן משוער לאיסוף:** ${template.estimatedTimeMinutes} דקות\n\n`;
+
+    if (template.tipsHe.length > 0) {
+      documentation += `**טיפים לאיסוף:**\n`;
+      template.tipsHe.forEach(tip => {
+        documentation += `- ${tip}\n`;
+      });
+      documentation += `\n`;
+    }
+
+    template.sections.forEach(section => {
+      documentation += `### ${section.titleHe}\n\n`;
+
+      section.fields.forEach(field => {
+        const required = field.required ? '**(חובה)**' : '**(אופציונלי)**';
+        documentation += `- **${field.labelHe}** ${required}\n`;
+        documentation += `  - סוג: ${field.type}\n`;
+
+        if (field.options && field.options.length > 0) {
+          documentation += `  - אפשרויות: ${field.options.map(opt => opt.labelHe).join(', ')}\n`;
+        }
+
+        if (field.validation) {
+          const validations = [];
+          if (field.validation.min !== undefined) validations.push(`מינימום: ${field.validation.min}`);
+          if (field.validation.max !== undefined) validations.push(`מקסימום: ${field.validation.max}`);
+          if (field.validation.pattern) validations.push(`תבנית: ${field.validation.pattern}`);
+          if (validations.length > 0) {
+            documentation += `  - אימות: ${validations.join(', ')}\n`;
+          }
+        }
+
+        documentation += `\n`;
+      });
+
+      documentation += `\n`;
+    });
+
+    documentation += `---\n\n`;
+  });
+
+  return documentation;
+}
+
+/**
+ * Validate that all required fields for a service are properly collected
+ */
+export function validateServiceFields(serviceId: string, collectedData: any): { isValid: boolean; missingFields: string[] } {
+  const template = getRequirementsTemplate(serviceId);
+  if (!template) {
+    return { isValid: true, missingFields: [] };
+  }
+
+  const missingFields: string[] = [];
+
+  template.sections.forEach(section => {
+    section.fields.forEach(field => {
+      if (field.required) {
+        const fieldValue = collectedData[field.id];
+        if (fieldValue === undefined || fieldValue === null || fieldValue === '') {
+          missingFields.push(`${section.titleHe}: ${field.labelHe}`);
+        }
+      }
+    });
+  });
+
+  return {
+    isValid: missingFields.length === 0,
+    missingFields
+  };
+}

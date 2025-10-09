@@ -563,6 +563,122 @@ export const SERVICE_TO_SYSTEM_MAP: Record<string, ServiceRequirements> = {
     integrations: [],
     aiAgents: [],
     reasoning: 'Ongoing support and maintenance service. No specific systems required - covers all existing implementations.'
+  },
+
+  // ============================================================================
+  // MISSING SERVICES - Added October 2025
+  // ============================================================================
+
+  'auto-sla-tracking': {
+    systems: ['project_management', 'crm'],
+    integrations: ['crm_to_notification'],
+    aiAgents: [],
+    reasoning: 'Tracks SLA deadlines in project management/CRM, sends alerts via notification system. Rule-based monitoring without AI.'
+  },
+
+  'auto-custom': {
+    systems: [], // Varies based on client needs
+    integrations: ['multi_system_integration'],
+    aiAgents: [],
+    reasoning: 'Custom automation tailored to specific business needs. Systems and integrations depend entirely on the use case.'
+  },
+
+  'int-crm-marketing': {
+    systems: ['crm', 'marketing_automation'],
+    integrations: ['email_to_marketing'],
+    aiAgents: [],
+    reasoning: 'Sync leads and campaigns between CRM and marketing automation platform. Bidirectional sync for lead tracking and campaign ROI.'
+  },
+
+  'int-crm-accounting': {
+    systems: ['crm', 'accounting'],
+    integrations: ['crm_to_accounting'],
+    aiAgents: [],
+    reasoning: 'Sync customer data and invoices between CRM and accounting system. Customer → invoice workflow automation.'
+  },
+
+  'int-crm-support': {
+    systems: ['crm', 'helpdesk'],
+    integrations: ['crm_to_helpdesk'],
+    aiAgents: [],
+    reasoning: 'Sync customer tickets between CRM and support system. Provides customer context to support agents and tracks service history.'
+  },
+
+  'int-calendar': {
+    systems: ['calendar', 'crm'],
+    integrations: ['calendar_to_crm'],
+    aiAgents: [],
+    reasoning: 'Sync appointments and events between calendar (Google/Outlook) and CRM. Ensures unified view of customer interactions.'
+  },
+
+  'int-ecommerce': {
+    systems: ['ecommerce', 'crm', 'inventory'],
+    integrations: ['ecommerce_to_crm', 'ecommerce_to_inventory'],
+    aiAgents: [],
+    reasoning: 'Integrate e-commerce platform (Shopify/WooCommerce) with CRM and inventory. Syncs orders, customers, and stock levels.'
+  },
+
+  'impl-helpdesk': {
+    systems: ['helpdesk'],
+    integrations: [],
+    aiAgents: [],
+    reasoning: 'Helpdesk/ticketing system setup and configuration. Standalone implementation, integrations sold separately.'
+  },
+
+  'impl-ecommerce': {
+    systems: ['ecommerce'],
+    integrations: [],
+    aiAgents: [],
+    reasoning: 'E-commerce platform (Shopify/WooCommerce) setup and configuration. Store setup, payment gateway, shipping. Integrations optional.'
+  },
+
+  'impl-workflow-platform': {
+    systems: ['project_management'], // n8n/Zapier/Make as workflow platform
+    integrations: [],
+    aiAgents: [],
+    reasoning: 'Workflow automation platform (n8n/Zapier/Make) setup. Foundation for automation services. No integrations in base setup.'
+  },
+
+  'impl-analytics': {
+    systems: ['bi_analytics'],
+    integrations: [],
+    aiAgents: [],
+    reasoning: 'Analytics and BI platform setup (Google Analytics, Tableau, Power BI). Dashboard and reporting foundation. Integrations optional.'
+  },
+
+  'impl-custom': {
+    systems: [], // Varies based on client needs
+    integrations: [],
+    aiAgents: [],
+    reasoning: 'Custom system implementation tailored to specific business requirements. System type depends entirely on client needs.'
+  },
+
+  'data-migration': {
+    systems: [], // Source and target systems vary
+    integrations: ['bidirectional_sync'],
+    aiAgents: [],
+    reasoning: 'Data migration service between any two systems. Requires ETL, mapping, validation. Specific systems depend on migration scenario.'
+  },
+
+  'training-ongoing': {
+    systems: [],
+    integrations: [],
+    aiAgents: [],
+    reasoning: 'Ongoing training and learning support service. No technical systems required - human service delivery with documentation.'
+  },
+
+  'consulting-strategy': {
+    systems: [],
+    integrations: [],
+    aiAgents: [],
+    reasoning: 'Strategic consulting for automation and digital transformation. Advisory service without technical implementation.'
+  },
+
+  'consulting-process': {
+    systems: [],
+    integrations: [],
+    aiAgents: [],
+    reasoning: 'Process mapping and optimization consulting. Business analysis service without technical system requirements.'
   }
 };
 

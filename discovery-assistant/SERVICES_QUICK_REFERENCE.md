@@ -1,6 +1,6 @@
 # Services Quick Reference Guide
 
-Quick lookup for all 59 services with implementation details.
+Quick lookup for all 73 services with implementation details.
 
 ---
 
@@ -113,7 +113,7 @@ Quick lookup for all 59 services with implementation details.
 
 ---
 
-## Additional Services (50-59)
+## Additional Services (50-73)
 
 **Research File**: `ADDITIONAL_SERVICES_TECHNICAL_REQUIREMENTS.md`
 
@@ -128,10 +128,10 @@ Quick lookup for all 59 services with implementation details.
 | 56 | training-ongoing | הדרכה שוטפת | ⭐⭐ Medium | Ongoing | LMS |
 | 57 | support-ongoing | תמיכה שוטפת | ⭐⭐ Medium | Ongoing | Ticketing |
 | 58 | consulting-process | ייעוץ תהליכים | ⭐⭐⭐ Complex | 15-30 days | Lean Six Sigma |
-| 59 | consulting-strategy | ייעוץ אסטרטגי | ⭐⭐⭐⭐ Very Complex | 20-40 days | BSC, OKRs |
+| 73 | consulting-strategy | ייעוץ אסטרטגי | ⭐⭐⭐⭐ Very Complex | 20-40 days | BSC, OKRs |
 
 **Best Starting Points**: #55, #52 (training, dashboards - quick value)
-**Most Complex**: #51, #59 (data migration, strategic consulting)
+**Most Complex**: #51, #73 (data migration, strategic consulting)
 
 ---
 
@@ -156,7 +156,7 @@ Quick lookup for all 59 services with implementation details.
 - **Service #28** (ai-predictive) - 15-20 days, predictive analytics
 - **Service #33** (int-complex) - 5-10 days, enterprise integration
 - **Service #45** (impl-erp) - 6-18 months, comprehensive system
-- **Service #59** (consulting-strategy) - 20-40 days, strategic planning
+- **Service #73** (consulting-strategy) - 20-40 days, strategic planning
 
 ### Enterprise-Grade (Most Complex)
 - **Service #29** (ai-full-integration) - 18-25 days, all-system AI
@@ -188,7 +188,7 @@ Quick lookup for all 59 services with implementation details.
 - Services #17-20, #25, #26, #28, #39, #40, #42, #56-58
 
 ### Enterprise Cost ($2000+/month)
-- Services #29, #30, #45, #49, #59
+- Services #29, #30, #45, #49, #73
 
 **Note**: Costs vary significantly based on volume, platforms chosen, and implementation scope.
 
@@ -202,9 +202,9 @@ Quick lookup for all 59 services with implementation details.
 | AI_AGENTS_TECHNICAL_REQUIREMENTS.md | 21-30 | 568 | ChatGPT, Claude, LangGraph, ML |
 | INTEGRATIONS_TECHNICAL_REQUIREMENTS.md | 31-40 | 923 | APIs, webhooks, bi-directional sync |
 | SYSTEM_IMPLEMENTATION_REQUIREMENTS.md | 41-49 | 549 | CRM, ERP, helpdesk, analytics |
-| ADDITIONAL_SERVICES_TECHNICAL_REQUIREMENTS.md | 50-59 | 528 | Data, reporting, training, consulting |
+| ADDITIONAL_SERVICES_TECHNICAL_REQUIREMENTS.md | 50-73 | 528 | Data, reporting, training, consulting |
 
-**Total**: 3,422 lines of detailed technical research across 59 services
+**Total**: 3,422 lines of detailed technical research across 73 services
 
 ---
 
@@ -237,7 +237,7 @@ Quick lookup for all 59 services with implementation details.
 ### Phase 5: Enterprise (Year 2+)
 17. Service #29 (ai-full-integration) - Complete AI integration
 18. Service #45 (impl-erp) - If needed, full ERP
-19. Service #59 (consulting-strategy) - Strategic planning
+19. Service #73 (consulting-strategy) - Strategic planning
 20. Service #30 (ai-multi-agent) - Advanced AI orchestration
 
 ---

@@ -80,7 +80,7 @@ export const OverviewModule: React.FC = () => {
   const [focusAreas, setFocusAreas] = useState<string[]>((overviewData.focusAreas as string[]) || []);
 
   // NEW: CRM Status
-  const [crmStatus, setCrmStatus] = useState(overviewData.crmStatus || 'none');
+  const [crmStatus, setCrmStatus] = useState<'none' | 'basic' | 'full'>(overviewData.crmStatus || 'none');
   const [crmName, setCrmName] = useState(overviewData.crmName || '');
   const [crmSatisfaction, setCrmSatisfaction] = useState<number | undefined>(overviewData.crmSatisfaction);
 
@@ -171,12 +171,18 @@ export const OverviewModule: React.FC = () => {
                 placeholder="בחר סוג עסק"
                 dir="rtl"
               />
-              <Input
+              <Select
                 label="מספר עובדים"
-                type="number"
-                value={employees?.toString() || ''}
-                onChange={(val) => setEmployees(val ? parseInt(val) : undefined)}
-                placeholder="0"
+                value={String(employees || '')}
+                onChange={(value) => setEmployees(value)}
+                options={[
+                  { value: '1-10', label: '1-10 עובדים' },
+                  { value: '11-50', label: '11-50 עובדים' },
+                  { value: '51-200', label: '51-200 עובדים' },
+                  { value: '201-500', label: '201-500 עובדים' },
+                  { value: '501+', label: '501+ עובדים' }
+                ]}
+                placeholder="בחר טווח"
                 dir="rtl"
               />
             </div>

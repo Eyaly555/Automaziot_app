@@ -201,7 +201,7 @@ export const OperationsModule: React.FC = () => {
       projectIssues.length > 0 ||
       resourceAllocationMethod ||
       timelineAccuracy > 0 ||
-      projectVisibility > 0 ||
+      projectVisibility.length > 0 ||
       deadlineMissRate > 0 ||
       departments.length > 0 ||
       onboardingSteps > 0 ||

@@ -4,7 +4,7 @@
 
 ### 1. Service Catalog
 **File**: `src/config/servicesDatabase.ts`
-- Contains all 59 services
+- Contains all 73 services
 - Service categories, names (EN/HE), descriptions
 - Base prices, estimated days, complexity level
 - Tags for each service
@@ -136,7 +136,7 @@
 
 ### Step 1: Understand the Service Catalog
 Read: `servicesDatabase.ts`
-Goal: Get complete list of 59 services and their basic info
+Goal: Get complete list of 73 services and their basic info
 
 ### Step 2: See What's Already Covered
 Read: `serviceRequirementsTemplates.ts`
@@ -221,7 +221,7 @@ Goal: Understand why services are suggested and their relationships
 ## ✅ Validation Before Generation
 
 Before generating the mapping, confirm:
-- [ ] You've read all 59 services from servicesDatabase.ts
+- [ ] You've read all 73 services from servicesDatabase.ts
 - [ ] You understand the 18 existing requirements templates
 - [ ] You know the Phase 2 data structures from phase2.ts
 - [ ] You know what Phase 1 data is available from index.ts
@@ -232,4 +232,4 @@ Before generating the mapping, confirm:
 
 ## 🚀 Ready to Generate
 
-Once you've read these files and understand the patterns, you're ready to generate the complete `serviceToSystemMapping.ts` file with all 59 services mapped according to the framework in `PHASE2_MAPPING_PROMPT.md`.
+Once you've read these files and understand the patterns, you're ready to generate the complete `serviceToSystemMapping.ts` file with all 73 services mapped according to the framework in `PHASE2_MAPPING_PROMPT.md`.

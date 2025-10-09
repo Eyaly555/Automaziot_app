@@ -22,8 +22,9 @@ import { getRequirementsTemplate } from '../../config/serviceRequirementsTemplat
 import { ExportMenu } from '../Common/ExportMenu';
 import { Button } from '../Base';
 import { IncompleteServicesAlert } from './IncompleteServicesAlert';
+import { DeveloperRequirementsGuide } from './DeveloperRequirementsGuide';
 
-type SpecSection = 'requirements' | 'systems' | 'integrations' | 'ai_agents' | 'acceptance';
+type SpecSection = 'requirements' | 'systems' | 'integrations' | 'ai_agents' | 'acceptance' | 'guide';
 
 export const ImplementationSpecDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -165,6 +166,15 @@ export const ImplementationSpecDashboard: React.FC = () => {
       description: 'דרישות טכניות מפורטות לכל שירות'
     },
     {
+      id: 'guide' as SpecSection,
+      name: 'מדריך למפתחים',
+      icon: FileText,
+      color: 'teal',
+      count: purchasedServicesArray.length,
+      progress: requirementsProgress,
+      description: 'מפרט מלא של כל השדות לאיסוף'
+    },
+    {
       id: 'systems' as SpecSection,
       name: 'מפרט מערכות',
       icon: Server,
@@ -207,8 +217,8 @@ export const ImplementationSpecDashboard: React.FC = () => {
   ];
 
   const handleCompleteSpec = () => {
-    if (overallProgress < 70) {
-      alert('יש להשלים לפחות 70% מהמפרט לפני המעבר לשלב הפיתוח');
+    if (overallProgress < 100) {
+      alert('יש להשלים 100% מהמפרט לפני המעבר לשלב הפיתוח');
       return;
     }
 
@@ -385,6 +395,10 @@ export const ImplementationSpecDashboard: React.FC = () => {
           </div>
 
           {/* Content based on selected section */}
+          {selectedSection === 'guide' && (
+            <DeveloperRequirementsGuide />
+          )}
+
           {selectedSection === 'requirements' && (
             <div className="space-y-4">
               {requirementsProgress >= 100 ? (
@@ -654,13 +668,13 @@ export const ImplementationSpecDashboard: React.FC = () => {
         </div>
 
         {/* Complete Spec Button */}
-        {overallProgress >= 70 && (
+        {overallProgress >= 100 && (
           <div className="mt-8 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border border-green-200">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">מוכן להעברה לפיתוח!</h3>
                 <p className="text-gray-700">
-                  המפרט הטכני הושלם ב-{overallProgress}%. ניתן כעת לעבור לשלב הפיתוח ולייצר משימות אוטומטית.
+                  המפרט הטכני הושלם ב-{overallProgress}%. כל הדרישות הטכניות מוכנות לשלב הפיתוח.
                 </p>
               </div>
               <Button

@@ -115,9 +115,14 @@ export function AutoCRMUpdateSpec() {
 
       updated.push({
         serviceId: 'auto-crm-update',
-        serviceName: 'עדכון אוטומטי ל-CRM',
-        requirements: config,
-        completedAt: new Date().toISOString()
+        serviceName: 'Auto CRM Update',
+        serviceNameHe: 'עדכון אוטומטי ל-CRM',
+        category: 'crm_sync',
+        config: config,
+        status: 'configuring',
+        completedAt: new Date(),
+        updatedAt: new Date(),
+        createdBy: 'user'
       });
 
       await updateMeeting({

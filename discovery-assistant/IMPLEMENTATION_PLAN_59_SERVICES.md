@@ -1,6 +1,6 @@
-# תוכנית הטמעת 59 שירותים ב-Phase 2
+# תוכנית הטמעת 73 שירותים ב-Phase 2
 **תאריך:** 9 אוקטובר 2025
-**מטרה:** להטמיע מערכת איסוף פרטים טכניים עבור כל 59 השירותים ב-Phase 2
+**מטרה:** להטמיע מערכת איסוף פרטים טכניים עבור כל 73 השירותים ב-Phase 2
 
 ---
 
@@ -29,7 +29,7 @@
    - שומר ב-`meeting.implementationSpec.automations`
 
 5. **Services Database** (`servicesDatabase.ts`):
-   - 59 שירותים מוגדרים עם IDs
+   - 73 שירותים מוגדרים עם IDs
    - חלוקה ל-5 קטגוריות
 
 6. **Research Files** (5 קבצים):
@@ -37,7 +37,7 @@
    - ✅ `AI_AGENTS_TECHNICAL_REQUIREMENTS.md` → שירותים 21-30
    - ✅ `INTEGRATIONS_TECHNICAL_REQUIREMENTS.md` → שירותים 31-40
    - ⚠️ חסר: `SYSTEM_IMPLEMENTATION_REQUIREMENTS.md` → שירותים 41-49
-   - ✅ `ADDITIONAL_SERVICES_TECHNICAL_REQUIREMENTS.md` → שירותים 50-59
+   - ✅ `ADDITIONAL_SERVICES_TECHNICAL_REQUIREMENTS.md` → שירותים 50-73
 
 ---
 
@@ -141,15 +141,15 @@
    ```
    - אם חסר - לתעד ולהתריע
 
-4. **אימות שכל 59 השירותים מכוסים:**
+4. **אימות שכל 73 השירותים מכוסים:**
    - רשימה: שירותים 1-20 ב-Automations
    - רשימה: שירותים 21-30 ב-AI Agents
    - רשימה: שירותים 31-40 ב-Integrations
    - רשימה: שירותים 41-49 ב-System Implementation (אם קיים)
-   - רשימה: שירותים 50-59 ב-Additional Services
+   - רשימה: שירותים 50-73 ב-Additional Services
 
 ### Deliverable:
-✅ רשימת check של 59 שירותים עם ציון לכל אחד: ✅ יש research / ❌ חסר research
+✅ רשימת check של 73 שירותים עם ציון לכל אחד: ✅ יש research / ❌ חסר research
 
 ---
 
@@ -158,7 +158,7 @@
 **Sub-Agent:** `typescript-type-specialist`
 
 ### מטרה:
-ליצור TypeScript interfaces עבור כל 59 השירותים.
+ליצור TypeScript interfaces עבור כל 73 השירותים.
 
 ### אסטרטגיה:
 **חלוקה ל-5 תת-משימות** (אחת לכל קטגוריה)
@@ -497,7 +497,7 @@ export type AIAgentServiceConfig =
 
 ---
 
-### תת-משימה 2.5: Additional Services (שירותים 50-59)
+### תת-משימה 2.5: Additional Services (שירותים 50-73)
 
 **Sub-Agent:** `typescript-type-specialist`
 **קריאה:** `ADDITIONAL_SERVICES_TECHNICAL_REQUIREMENTS.md`
@@ -505,7 +505,7 @@ export type AIAgentServiceConfig =
 
 **Sub-Agent Prompt:**
 ```
-צור src/types/additionalServices.ts עבור 10 שירותים נוספים (50-59):
+צור src/types/additionalServices.ts עבור 10 שירותים נוספים (50-73):
 - data-cleanup
 - data-migration
 - add-dashboard
@@ -894,7 +894,7 @@ export const AutoLeadResponseSpec: React.FC = () => {
 
 ---
 
-### תת-משימה 3.5: Additional Services Components (שירותים 50-59)
+### תת-משימה 3.5: Additional Services Components (שירותים 50-73)
 
 **Sub-Agent:** `react-component-architect`
 
@@ -902,7 +902,7 @@ export const AutoLeadResponseSpec: React.FC = () => {
 
 **Sub-Agent Prompt:**
 ```
-צור 10 components עבור Additional Services (50-59).
+צור 10 components עבור Additional Services (50-73).
 
 מיקום: src/components/Phase2/ServiceRequirements/AdditionalServices/
 
@@ -935,7 +935,7 @@ export const SERVICE_COMPONENT_MAP: Record<string, React.FC> = {
   'auto-lead-response': AutoLeadResponseSpec,
   'auto-sms-whatsapp': AutoSmsWhatsappSpec,
   'auto-crm-update': AutoCRMUpdateSpec,
-  // ... all 59 services
+  // ... all 73 services
 };
 
 export const SERVICE_CATEGORY_MAP: Record<string, string> = {
@@ -1277,7 +1277,7 @@ export const IncompleteServicesAlert: React.FC = () => {
 
 ### שלב 1: ✅ אימות Research
 - [ ] מצא את 5 קבצי research
-- [ ] אמת כיסוי של 59 שירותים
+- [ ] אמת כיסוי של 73 שירותים
 - [ ] זהה חוסרים (אם יש)
 
 ### שלב 2: ✅ Types
@@ -1345,8 +1345,8 @@ export const IncompleteServicesAlert: React.FC = () => {
 ## 📊 מדדי הצלחה
 
 ✅ **הושלם בהצלחה כאשר:**
-1. כל 59 השירותים יש להם interface TypeScript
-2. כל 59 השירותים יש להם React component
+1. כל 73 השירותים יש להם interface TypeScript
+2. כל 73 השירותים יש להם React component
 3. ServiceRequirementsRouter מציג את הטפסים הנכונים
 4. Validation מונע מעבר לפני השלמת הכל
 5. כל ה-tests עוברים

@@ -7,6 +7,7 @@ import { isSupabaseConfigured } from '../lib/supabase';
 import { supabaseService, isSupabaseConfigured as isSupabaseReady } from '../services/supabaseService';
 import { migrateMeetingData, needsMigration, CURRENT_DATA_VERSION } from '../utils/dataMigration';
 import { validateServiceRequirements } from '../utils/serviceRequirementsValidation';
+import { logger } from '../utils/consoleLogger';
 
 interface MeetingStore {
   currentMeeting: Meeting | null;
@@ -132,7 +133,7 @@ const normalizePhase = (phase: string | undefined): MeetingPhase => {
   if (['discovery', 'implementation_spec', 'development', 'completed'].includes(normalized)) {
     return normalized as MeetingPhase;
   }
-  console.warn('[Store] Invalid phase value:', phase, '- defaulting to discovery');
+  logger.warn('Invalid phase value, defaulting to discovery', { phase });
   return 'discovery';
 };
 
@@ -158,12 +159,12 @@ const debouncedSaveToSupabase = (meeting: Meeting) => {
 
   // Set new timeout
   saveTimeout = setTimeout(async () => {
-    console.log('[Store] Saving to Supabase (debounced)...');
+    logger.info('Saving to Supabase (debounced)');
     const result = await supabaseService.saveMeeting(meeting);
     if (result.success) {
-      console.log('[Store] Saved to Supabase successfully');
+      logger.info('Saved to Supabase successfully');
     } else {
-      console.error('[Store] Failed to save to Supabase:', result.error);
+      logger.error('Failed to save to Supabase', result.error);
     }
   }, 5000); // 5 seconds delay
 };
@@ -300,12 +301,12 @@ export const useMeetingStore = create<MeetingStore>()(
 
           // STEP 1: Check Supabase first (for cross-device data)
           if (isSupabaseReady()) {
-            console.log('[Store] Checking Supabase for existing meeting:', recordId);
+            logger.info('Checking Supabase for existing meeting', { recordId });
             try {
               const supabaseMeeting = await supabaseService.loadMeeting(recordId);
 
               if (supabaseMeeting) {
-                console.log('[Store] ✅ Found existing meeting in Supabase, loading...');
+                logger.info('Found existing meeting in Supabase, loading');
                 // Normalize phase (handle capitalized phases from Zoho/legacy data)
                 const normalizedPhase = normalizePhase(initialData.phase as any || supabaseMeeting.phase as any);
 
@@ -341,14 +342,14 @@ export const useMeetingStore = create<MeetingStore>()(
                   const storageKey = `discovery_zoho_${recordId}`;
                   localStorage.setItem(storageKey, JSON.stringify(updatedMeeting));
                 } catch (error) {
-                  console.error('[Store] Failed to update localStorage:', error);
+                  logger.error('Failed to update localStorage', error);
                 }
 
                 return; // Meeting found and loaded - exit
               }
-              console.log('[Store] No meeting found in Supabase, checking localStorage...');
+              logger.info('No meeting found in Supabase, checking localStorage');
             } catch (error) {
-              console.error('[Store] Error checking Supabase:', error);
+              logger.error('Error checking Supabase', error);
               // Continue to localStorage check
             }
           }
@@ -1412,6 +1413,10 @@ export const useMeetingStore = create<MeetingStore>()(
         }
       },
 
+      // Memoization cache for phase validation to reduce console spam
+      _validationCache: new Map<string, { result: boolean; timestamp: number }>() = new Map(),
+      _lastLoggedState: Record<string, boolean> = {},
+
       /**
        * Validates if the current meeting can transition to the target phase
        *
@@ -1426,7 +1431,6 @@ export const useMeetingStore = create<MeetingStore>()(
       canTransitionTo: (targetPhase) => {
         const { currentMeeting } = get();
         if (!currentMeeting) {
-          console.warn('[Phase Validation] No current meeting');
           return false;
         }
 
@@ -1434,99 +1438,129 @@ export const useMeetingStore = create<MeetingStore>()(
         const currentPhase = (currentMeeting.phase?.toLowerCase() || 'discovery') as MeetingPhase;
         const normalizedTargetPhase = (targetPhase?.toLowerCase() || 'discovery') as MeetingPhase;
 
+        // Create cache key
+        const cacheKey = `${currentMeeting.meetingId}_${currentPhase}_to_${normalizedTargetPhase}_${currentMeeting.status}`;
+
+        // Check cache first (TTL: 1 second)
+        const cached = get()._validationCache.get(cacheKey);
+        const CACHE_TTL = 1000;
+
+        if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+          return cached.result;
+        }
+
+        // Perform validation
+        let result = false;
+        let failureReason = '';
+
         // Cannot transition to the same phase
         if (currentPhase === normalizedTargetPhase) {
-          console.warn('[Phase Validation] Already in target phase:', normalizedTargetPhase);
-          return false;
+          failureReason = `Already in target phase: ${normalizedTargetPhase}`;
+          result = false;
+        } else {
+          // Define the phase order for validation
+          const phaseOrder: MeetingPhase[] = ['discovery', 'implementation_spec', 'development', 'completed'];
+          const currentIndex = phaseOrder.indexOf(currentPhase);
+          const targetIndex = phaseOrder.indexOf(normalizedTargetPhase);
+
+          // Prevent backwards transitions (data integrity)
+          if (targetIndex < currentIndex) {
+            failureReason = `Backwards transition not allowed: ${currentPhase} → ${normalizedTargetPhase}`;
+            result = false;
+          }
+          // Prevent phase skipping (completeness check)
+          else if (targetIndex > currentIndex + 1) {
+            failureReason = `Cannot skip phases: ${currentPhase} → ${normalizedTargetPhase}`;
+            result = false;
+          }
+          // Check prerequisites based on target phase
+          else {
+            switch (normalizedTargetPhase) {
+              case 'implementation_spec':
+                if (currentMeeting.status !== 'client_approved') {
+                  failureReason = `Client approval required for spec phase. Current status: ${currentMeeting.status}`;
+                  result = false;
+                } else {
+                  result = true;
+                }
+                break;
+
+              case 'development':
+                if (!currentMeeting.implementationSpec) {
+                  failureReason = 'Implementation spec required for development phase';
+                  result = false;
+                } else {
+                  const specProgress = currentMeeting.implementationSpec.completionPercentage || 0;
+
+                  // Require 100% completion for spec (not 90%)
+                  if (specProgress < 100) {
+                    failureReason = `Spec must be 100% complete. Current: ${specProgress}%`;
+                    result = false;
+                  } else {
+                    const purchasedServices = currentMeeting.modules?.proposal?.purchasedServices || [];
+
+                    // Don't allow transition with 0 purchased services
+                    if (purchasedServices.length === 0) {
+                      failureReason = 'At least one service must be purchased before transitioning to development';
+                      result = false;
+                    } else {
+                      const validation = validateServiceRequirements(
+                        purchasedServices,
+                        currentMeeting.implementationSpec || {}
+                      );
+                      if (!validation.isValid) {
+                        failureReason = `Missing service requirements: ${validation.missingServices.join(', ')}`;
+                        result = false;
+                      } else {
+                        result = true;
+                      }
+                    }
+                  }
+                }
+                break;
+
+              case 'completed':
+                if (!currentMeeting.developmentTracking) {
+                  failureReason = 'Development tracking required for completion';
+                  result = false;
+                } else {
+                  const tasks = currentMeeting.developmentTracking.tasks || [];
+                  if (tasks.length === 0) {
+                    failureReason = 'No development tasks found';
+                    result = false;
+                  } else {
+                    const allTasksComplete = tasks.every(t => t.status === 'done');
+                    if (!allTasksComplete) {
+                      const incompleteTasks = tasks.filter(t => t.status !== 'done').length;
+                      failureReason = `All tasks must be complete. Incomplete: ${incompleteTasks}`;
+                      result = false;
+                    } else {
+                      result = true;
+                    }
+                  }
+                }
+                break;
+
+              default:
+                failureReason = `Unknown target phase: ${normalizedTargetPhase}`;
+                result = false;
+            }
+          }
         }
 
-        // Define the phase order for validation
-        const phaseOrder: MeetingPhase[] = ['discovery', 'implementation_spec', 'development', 'completed'];
-        const currentIndex = phaseOrder.indexOf(currentPhase);
-        const targetIndex = phaseOrder.indexOf(normalizedTargetPhase);
+        // Cache result
+        get()._validationCache.set(cacheKey, { result, timestamp: Date.now() });
 
-        // Prevent backwards transitions (data integrity)
-        if (targetIndex < currentIndex) {
-          console.warn('[Phase Validation] Backwards transition not allowed:', currentPhase, '→', normalizedTargetPhase);
-          return false;
+        // Only log if validation state changed or first check
+        const stateKey = `${currentPhase}_to_${normalizedTargetPhase}`;
+        if (get()._lastLoggedState[stateKey] !== result || !cached) {
+          if (!result && failureReason) {
+            console.warn(`[Phase Validation] ${failureReason}`);
+          }
+          get()._lastLoggedState[stateKey] = result;
         }
 
-        // Prevent phase skipping (completeness check)
-        if (targetIndex > currentIndex + 1) {
-          console.warn('[Phase Validation] Cannot skip phases:', currentPhase, '→', normalizedTargetPhase);
-          return false;
-        }
-
-        // Check prerequisites based on target phase
-        switch (normalizedTargetPhase) {
-          case 'implementation_spec':
-            // Must have client approval status
-            if (currentMeeting.status !== 'client_approved') {
-              console.warn('[Phase Validation] Client approval required for spec phase. Current status:', currentMeeting.status);
-              return false;
-            }
-            // Client approval is sufficient - no need to check progress percentage
-            // User has completed proposal and client has approved, ready for implementation spec
-            return true;
-
-          case 'development':
-            // Must have implementation spec with sufficient completion
-            if (!currentMeeting.implementationSpec) {
-              console.warn('[Phase Validation] Implementation spec required for development phase');
-              return false;
-            }
-            const specProgress = currentMeeting.implementationSpec.completionPercentage || 0;
-            if (specProgress < 90) {
-              console.warn('[Phase Validation] Spec must be at least 90% complete. Current:', specProgress);
-              return false;
-            }
-
-            // NEW: Validate that all purchased services have completed requirements
-            const purchasedServices = currentMeeting.modules?.proposal?.purchasedServices || [];
-
-            // FIXED: If no services purchased, allow transition (nothing to validate)
-            if (purchasedServices.length === 0) {
-              console.log('[Phase Validation] No purchased services - allowing transition');
-              return true;
-            }
-
-            const validation = validateServiceRequirements(
-              purchasedServices,
-              currentMeeting.implementationSpec || {}
-            );
-
-            if (!validation.isValid) {
-              console.warn('[Phase Validation] Missing service requirements:', validation.missingServices);
-              console.warn(`[Phase Validation] Completed: ${validation.completedCount}/${validation.totalCount}`);
-              return false;
-            }
-
-            console.log('[Phase Validation] All service requirements completed ✓');
-            return true;
-
-          case 'completed':
-            // Must have development tracking with all tasks complete
-            if (!currentMeeting.developmentTracking) {
-              console.warn('[Phase Validation] Development tracking required for completion');
-              return false;
-            }
-            const tasks = currentMeeting.developmentTracking.tasks || [];
-            if (tasks.length === 0) {
-              console.warn('[Phase Validation] No development tasks found');
-              return false;
-            }
-            const allTasksComplete = tasks.every(t => t.status === 'done');
-            if (!allTasksComplete) {
-              const incompleteTasks = tasks.filter(t => t.status !== 'done').length;
-              console.warn('[Phase Validation] All tasks must be complete. Incomplete:', incompleteTasks);
-              return false;
-            }
-            return true;
-
-          default:
-            console.warn('[Phase Validation] Unknown target phase:', normalizedTargetPhase);
-            return false;
-        }
+        return result;
       },
 
       /**

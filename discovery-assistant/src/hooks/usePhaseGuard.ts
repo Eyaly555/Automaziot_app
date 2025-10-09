@@ -196,11 +196,11 @@ export const getPhaseTransitionRequirements = (
         );
       }
       const discoveryProgress = getOverallProgress();
-      if (discoveryProgress < 70) {
+      if (discoveryProgress < 100) {
         reasons.push(
           language === 'he'
-            ? `יש להשלים ${70 - discoveryProgress}% נוספים מגילוי הדרישות`
-            : `Complete ${70 - discoveryProgress}% more of discovery phase`
+            ? `יש להשלים ${100 - discoveryProgress}% נוספים מגילוי הדרישות`
+            : `Complete ${100 - discoveryProgress}% more of discovery phase`
         );
       }
       break;

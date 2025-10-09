@@ -41,6 +41,7 @@ import { usePhaseGuard } from '../hooks/usePhaseGuard';
 import { useMeetingStore } from '../store/useMeetingStore';
 import { autoSyncService } from '../services/autoSyncService';
 import { useLocation } from 'react-router-dom';
+import { logger } from '../utils/consoleLogger';
 
 // Layer 6: Integration - New UX System Components
 import { AppLayout } from './Layout/AppLayout';
@@ -70,10 +71,10 @@ export const AppContent = () => {
     const meeting = currentMeeting;
 
     if (meeting?.zohoIntegration?.syncEnabled) {
-      console.log('[AppContent] Starting auto-sync for meeting:', meeting.clientName);
+      logger.info('Starting auto-sync for meeting', { clientName: meeting.clientName });
       autoSyncService.start();
     } else {
-      console.log('[AppContent] Stopping auto-sync');
+      logger.info('Stopping auto-sync');
       autoSyncService.stop();
     }
 

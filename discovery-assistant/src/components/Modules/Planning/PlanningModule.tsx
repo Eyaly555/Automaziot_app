@@ -7,7 +7,7 @@ import { TextField, CheckboxGroup, RadioGroup, TextAreaField } from '../../Commo
 
 export const PlanningModule: React.FC = () => {
   const navigate = useNavigate();
-  const { currentMeeting, updateModule, completeMeeting } = useMeetingStore();
+  const { currentMeeting, updateModule } = useMeetingStore();
   const moduleData = currentMeeting?.modules?.planning || {};
 
   // Vision & Goals
@@ -273,7 +273,6 @@ export const PlanningModule: React.FC = () => {
                 label="תאריך פגישת המשך"
                 value={followUpDate}
                 onChange={setFollowUpDate}
-                type="date"
               />
 
               <TextField

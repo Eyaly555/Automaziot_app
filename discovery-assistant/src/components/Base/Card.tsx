@@ -9,6 +9,9 @@ export interface CardProps {
   hoverable?: boolean;
   header?: React.ReactNode;
   footer?: React.ReactNode;
+  title?: string;
+  subtitle?: string;
+  icon?: React.ReactNode;
 }
 
 /**
@@ -25,6 +28,9 @@ export const Card: React.FC<CardProps> = ({
   hoverable = false,
   header,
   footer,
+  title,
+  subtitle,
+  icon,
 }) => {
   // Variant styles
   const variantStyles = {
@@ -60,6 +66,21 @@ export const Card: React.FC<CardProps> = ({
     }
   };
 
+  // Auto-generate header if title/subtitle/icon provided
+  const autoHeader = (title || subtitle || icon) && !header ? (
+    <div className="flex items-start gap-3">
+      {icon && (
+        <div className="flex-shrink-0 mt-1">
+          {icon}
+        </div>
+      )}
+      <div className="flex-1">
+        {title && <h3 className="text-lg font-semibold text-gray-900 mb-1">{title}</h3>}
+        {subtitle && <p className="text-sm text-gray-600">{subtitle}</p>}
+      </div>
+    </div>
+  ) : null;
+
   return (
     <div
       className={`
@@ -73,15 +94,15 @@ export const Card: React.FC<CardProps> = ({
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
     >
-      {/* Header */}
-      {header && (
+      {/* Header - either custom or auto-generated */}
+      {(header || autoHeader) && (
         <div className={`border-b border-gray-200 ${paddingStyles[padding]}`}>
-          {header}
+          {header || autoHeader}
         </div>
       )}
 
       {/* Main content */}
-      <div className={!header && !footer ? paddingStyles[padding] : padding === 'none' ? '' : 'p-4'}>
+      <div className={(!header && !autoHeader && !footer) ? paddingStyles[padding] : padding === 'none' ? '' : 'p-4'}>
         {children}
       </div>
 
