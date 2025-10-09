@@ -755,6 +755,30 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     estimatedDays: 0, // ongoing
     complexity: 'simple',
     tags: ['support', 'maintenance', 'ongoing']
+  },
+  {
+    id: 'data-migration',
+    category: 'additional_services',
+    name: 'Data Migration',
+    nameHe: 'העברת נתונים בין מערכות',
+    description: 'Transfer data between systems with ETL, mapping, and validation',
+    descriptionHe: 'העברת נתונים בין מערכות עם ETL, מיפוי ואימות',
+    basePrice: 3000,
+    estimatedDays: 5,
+    complexity: 'medium',
+    tags: ['data', 'migration', 'etl', 'transfer']
+  },
+  {
+    id: 'training-ongoing',
+    category: 'additional_services',
+    name: 'Ongoing Training & Support',
+    nameHe: 'הדרכה מתמשכת ותמיכה בלמידה',
+    description: 'Continuous training, updated materials, and learning support',
+    descriptionHe: 'הדרכה מתמשכת, חומרים מעודכנים ותמיכה בלמידה',
+    basePrice: 2000,
+    estimatedDays: 0, // ongoing
+    complexity: 'simple',
+    tags: ['training', 'ongoing', 'support', 'learning']
   }
 ];
 

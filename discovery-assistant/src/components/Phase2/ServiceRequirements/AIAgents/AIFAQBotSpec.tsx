@@ -15,9 +15,9 @@ import {
   Zap,
   BookOpen
 } from 'lucide-react';
-import { useMeetingStore } from '../../store/useMeetingStore';
-import { AIFAQBotConfig } from '../../types/automationServices';
-import { Button, Input, Select } from '../Base';
+import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { AIFAQBotConfig } from '../../../../types/automationServices';
+import { Button, Input, Select } from '../../../Base';
 
 const AI_PROVIDERS = [
   { value: 'openai', label: 'OpenAI' },

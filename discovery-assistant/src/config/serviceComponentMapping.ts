@@ -31,7 +31,7 @@ import { AutoCustomSpec } from '../components/Phase2/ServiceRequirements/Automat
 import { AutoEmailTemplatesSpec } from '../components/Phase2/AutoEmailTemplatesSpec';
 
 // AI Agents (Services 21-30)
-import { AIFAQBotSpec } from '../components/Phase2/AIFAQBotSpec';
+import { AIFAQBotSpec } from '../components/Phase2/ServiceRequirements/AIAgents/AIFAQBotSpec';
 import { AILeadQualifierSpec } from '../components/Phase2/ServiceRequirements/AIAgents/AILeadQualifierSpec';
 import { AISalesAgentSpec } from '../components/Phase2/ServiceRequirements/AIAgents/AISalesAgentSpec';
 import { AIServiceAgentSpec } from '../components/Phase2/ServiceRequirements/AIAgents/AIServiceAgentSpec';
@@ -40,7 +40,7 @@ import { AIComplexWorkflowSpec } from '../components/Phase2/ServiceRequirements/
 import { AIPredictiveSpec } from '../components/Phase2/ServiceRequirements/AIAgents/AIPredictiveSpec';
 import { AIFullIntegrationSpec } from '../components/Phase2/ServiceRequirements/AIAgents/AIFullIntegrationSpec';
 import { AIMultiAgentSpec } from '../components/Phase2/ServiceRequirements/AIAgents/AIMultiAgentSpec';
-import { AITriageSpec } from '../components/Phase2/AITriageSpec';
+import { AITriageSpec } from '../components/Phase2/ServiceRequirements/AIAgents/AITriageSpec';
 
 // Integrations (Services 31-40)
 import { IntegrationSimpleSpec } from '../components/Phase2/ServiceRequirements/Integrations/IntegrationSimpleSpec';

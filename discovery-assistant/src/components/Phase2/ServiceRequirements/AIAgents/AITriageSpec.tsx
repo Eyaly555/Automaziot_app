@@ -15,14 +15,14 @@ import {
   Info,
   Brain
 } from 'lucide-react';
-import { useMeetingStore } from '../../store/useMeetingStore';
+import { useMeetingStore } from '../../../../store/useMeetingStore';
 import {
   AITriageConfig,
   TriageCategory,
   PriorityRule,
   RoutingRule
-} from '../../types/automationServices';
-import { Button, Input, Select } from '../Base';
+} from '../../../../types/automationServices';
+import { Button, Input, Select } from '../../../Base';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 

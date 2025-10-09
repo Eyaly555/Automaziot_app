@@ -23,7 +23,7 @@ import { IntegrationFlowBuilder } from './Phase2/IntegrationFlowBuilder';
 import { AIAgentDetailedSpec } from './Phase2/AIAgentDetailedSpec';
 import { AcceptanceCriteriaBuilder } from './Phase2/AcceptanceCriteriaBuilder';
 import { AutoCRMUpdateSpec } from './Phase2/AutoCRMUpdateSpec';
-import { AITriageSpec } from './Phase2/AITriageSpec';
+import { AITriageSpec } from './Phase2/ServiceRequirements/AIAgents/AITriageSpec';
 import { DeveloperDashboard } from './Phase3/DeveloperDashboard';
 import { SprintView } from './Phase3/SprintView';
 import { SystemView } from './Phase3/SystemView';
@@ -46,6 +46,10 @@ import { useLocation } from 'react-router-dom';
 import { AppLayout } from './Layout/AppLayout';
 import { ToastContainer } from '../utils/toast';
 import { AutoSaveIndicator } from './Feedback/AutoSaveIndicator';
+
+// Developer Feedback System
+import { FeedbackButton } from './Feedback/FeedbackButton';
+import { FeedbackViewer } from './Feedback/FeedbackViewer';
 
 export const AppContent = () => {
   const { currentMeeting } = useMeetingStore();
@@ -95,6 +99,9 @@ export const AppContent = () => {
           showProgress={true}
         />
       )}
+
+      {/* Developer Feedback Button - shown on all pages except login and clients list */}
+      {showPhaseNavigator && <FeedbackButton />}
 
       <Routes>
         <Route path="/" element={<Navigate to="/clients" replace />} />
@@ -300,6 +307,10 @@ export const AppContent = () => {
             </ProtectedRoute>
           }
         />
+
+        {/* Developer Feedback Admin */}
+        <Route path="/dev/feedback" element={<FeedbackViewer />} />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
