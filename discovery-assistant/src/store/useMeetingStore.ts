@@ -8,6 +8,8 @@ import { supabaseService, isSupabaseConfigured as isSupabaseReady } from '../ser
 import { migrateMeetingData, needsMigration, CURRENT_DATA_VERSION } from '../utils/dataMigration';
 import { validateServiceRequirements } from '../utils/serviceRequirementsValidation';
 import { logger } from '../utils/consoleLogger';
+import { backupPhaseHistory, restorePhaseHistory } from '../utils/phaseHistoryBackup';
+import { getSmartValidationMessages, formatValidationMessagesForUI } from '../utils/smartValidationMessages';
 
 interface MeetingStore {
   currentMeeting: Meeting | null;
@@ -271,12 +273,26 @@ export const useMeetingStore = create<MeetingStore>()(
 
             // Ensure status exists (for backward compatibility with old data)
             if (!meeting.status) meeting.status = 'discovery_in_progress';
-            if (!meeting.phaseHistory) meeting.phaseHistory = [{
-              fromPhase: null,
-              toPhase: meeting.phase,
-              timestamp: new Date(),
-              transitionedBy: 'system'
-            }];
+
+            // ✅ NEW: Restore phase history if missing
+            if (!meeting.phaseHistory || meeting.phaseHistory.length === 0) {
+              console.warn('[Store] Phase history missing - attempting restore');
+              const restored = restorePhaseHistory(meetingId);
+
+              if (restored) {
+                meeting.phaseHistory = restored;
+                console.log('[Store] ✅ Phase history restored from backup');
+              } else {
+                // Create default if no backup exists
+                meeting.phaseHistory = [{
+                  fromPhase: null,
+                  toPhase: meeting.phase,
+                  timestamp: new Date(),
+                  transitionedBy: 'system'
+                }];
+                console.warn('[Store] ⚠️ Created default phase history');
+              }
+            }
           }
           return { currentMeeting: meeting || null };
         });
@@ -522,12 +538,26 @@ export const useMeetingStore = create<MeetingStore>()(
 
             // Ensure status exists (for backward compatibility with old data)
             if (!meeting.status) meeting.status = 'discovery_in_progress';
-            if (!meeting.phaseHistory) meeting.phaseHistory = [{
-              fromPhase: null,
-              toPhase: meeting.phase,
-              timestamp: new Date(),
-              transitionedBy: 'system'
-            }];
+
+            // ✅ NEW: Restore phase history if missing
+            if (!meeting.phaseHistory || meeting.phaseHistory.length === 0) {
+              console.warn('[Store] Phase history missing - attempting restore');
+              const restored = restorePhaseHistory(meetingId);
+
+              if (restored) {
+                meeting.phaseHistory = restored;
+                console.log('[Store] ✅ Phase history restored from backup');
+              } else {
+                // Create default if no backup exists
+                meeting.phaseHistory = [{
+                  fromPhase: null,
+                  toPhase: meeting.phase,
+                  timestamp: new Date(),
+                  transitionedBy: 'system'
+                }];
+                console.warn('[Store] ⚠️ Created default phase history');
+              }
+            }
             return meeting;
           } catch (e) {
             console.error('Failed to parse meeting data:', e);
@@ -1555,7 +1585,14 @@ export const useMeetingStore = create<MeetingStore>()(
         const stateKey = `${currentPhase}_to_${normalizedTargetPhase}`;
         if (get()._lastLoggedState[stateKey] !== result || !cached) {
           if (!result && failureReason) {
-            console.warn(`[Phase Validation] ${failureReason}`);
+            // ✅ NEW: Get smart messages
+            const smartMessages = getSmartValidationMessages(currentMeeting, normalizedTargetPhase);
+            if (smartMessages.length > 0) {
+              const formatted = formatValidationMessagesForUI(smartMessages);
+              console.warn('[Phase Validation] ❌ Validation failed:\n' + formatted);
+            } else {
+              console.warn(`[Phase Validation] ${failureReason}`);
+            }
           }
           get()._lastLoggedState[stateKey] = result;
         }
@@ -1618,6 +1655,9 @@ export const useMeetingStore = create<MeetingStore>()(
             m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
           )
         }));
+
+        // ✅ NEW: Backup phase history
+        backupPhaseHistory(updatedMeeting.meetingId, updatedMeeting.phaseHistory);
 
         console.log('[Phase Transition] ✓ Successfully transitioned:', currentMeeting.phase, '→', targetPhase);
 

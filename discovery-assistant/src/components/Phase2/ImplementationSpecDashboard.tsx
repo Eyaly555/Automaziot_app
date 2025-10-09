@@ -114,8 +114,12 @@ export const ImplementationSpecDashboard: React.FC = () => {
   const acceptanceCriteria = spec.acceptanceCriteria || { functional: [], performance: [], security: [], usability: [] };
 
   // Get purchased services from proposal (services client actually bought)
-  const purchasedServicesArray = currentMeeting.modules?.proposal?.purchasedServices ||
-                                  currentMeeting.modules?.proposal?.selectedServices || [];
+  const purchasedServicesArray = currentMeeting.modules?.proposal?.purchasedServices || [];
+
+  // Add warning if empty
+  if (purchasedServicesArray.length === 0) {
+    console.warn('[Phase2] No purchased services found - cannot proceed');
+  }
   const requirements = currentMeeting.modules?.requirements || [];
 
   // Extract service IDs from purchased services

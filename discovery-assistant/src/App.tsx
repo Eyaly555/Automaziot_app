@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { AppContent } from './components/AppContent';
 import { ZohoIntegrationWrapper } from './components/ZohoIntegrationWrapper';
 import { ErrorBoundary } from './components/Common/ErrorBoundary';
+import { AppErrorBoundary } from './components/Common/AppErrorBoundary';
 import { setupGlobalErrorHandlers } from './services/errorReportingService';
 
 function App() {
@@ -14,7 +15,8 @@ function App() {
   }, []);
 
   return (
-    <ErrorBoundary>
+    <AppErrorBoundary>
+      <ErrorBoundary>
       <AuthProvider>
         <Router>
           <ZohoIntegrationWrapper>
@@ -49,6 +51,7 @@ function App() {
         </Router>
       </AuthProvider>
     </ErrorBoundary>
+    </AppErrorBoundary>
   );
 }
 
