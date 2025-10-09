@@ -17,11 +17,40 @@ export const RequirementField: React.FC<RequirementFieldProps> = ({
   prefilledData,
   language
 }) => {
-  const isPrefilled = prefilledData && isFieldPrefilled(field.id, prefilledData);
-  const label = language === 'he' ? field.labelHe : field.label;
-  const description = language === 'he' ? field.descriptionHe : field.description;
-  const helperText = language === 'he' ? field.helperTextHe : field.helperText;
-  const placeholder = language === 'he' ? (field as any).placeholderHe : (field as any).placeholder;
+  // ===== DEFENSIVE CODING: Validate field exists =====
+  if (!field) {
+    console.error('[RequirementField] Field prop is undefined or null');
+    return null;
+  }
+
+  // ===== DEFENSIVE CODING: Validate field has required properties =====
+  if (!field.id || !field.type) {
+    console.error('[RequirementField] Field missing required properties (id or type):', field);
+    return (
+      <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+        <p className="text-red-700 text-sm">
+          {language === 'he'
+            ? 'שדה לא תקין (חסר ID או סוג)'
+            : 'Invalid field (missing ID or type)'}
+        </p>
+      </div>
+    );
+  }
+
+  // ===== SAFE PROPERTY ACCESS: Use optional chaining and fallbacks =====
+  const isPrefilled = prefilledData && field.id && isFieldPrefilled(field.id, prefilledData);
+  const label = language === 'he'
+    ? (field.labelHe || field.label || field.id)
+    : (field.label || field.labelHe || field.id);
+  const description = language === 'he'
+    ? (field.descriptionHe || field.description)
+    : (field.description || field.descriptionHe);
+  const helperText = language === 'he'
+    ? (field.helperTextHe || field.helperText)
+    : (field.helperText || field.helperTextHe);
+  const placeholder = language === 'he'
+    ? ((field as any).placeholderHe || (field as any).placeholder)
+    : ((field as any).placeholder || (field as any).placeholderHe);
 
   const renderField = () => {
     switch (field.type) {
@@ -197,7 +226,16 @@ export const RequirementField: React.FC<RequirementFieldProps> = ({
         );
 
       default:
-        return null;
+        console.warn('[RequirementField] Unknown field type:', field.type, 'for field:', field.id);
+        return (
+          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-yellow-700 text-sm">
+              {language === 'he'
+                ? `סוג שדה לא נתמך: ${field.type}`
+                : `Unsupported field type: ${field.type}`}
+            </p>
+          </div>
+        );
     }
   };
 

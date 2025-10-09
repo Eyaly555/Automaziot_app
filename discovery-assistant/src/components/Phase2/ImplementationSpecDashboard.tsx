@@ -60,6 +60,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
       systems: [],
       integrations: [],
       aiAgents: [],
+      automations: [],
       acceptanceCriteria: {
         functional: [],
         performance: [],
@@ -73,9 +74,43 @@ export const ImplementationSpecDashboard: React.FC = () => {
     };
 
     updateMeeting({ implementationSpec: newSpec });
+
+    // Return early to allow React to re-render with the new spec
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir="rtl">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">מאתחל מפרט יישום...</p>
+        </div>
+      </div>
+    );
   }
 
-  const spec = currentMeeting.implementationSpec!;
+  // Defensive access to implementationSpec - should never be null after initialization check above
+  const spec = currentMeeting.implementationSpec;
+
+  // Safety check - if spec is still null, return error state
+  if (!spec) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir="rtl">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-800 mb-4">שגיאה באתחול המפרט</h2>
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            חזרה לדשבורד
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Defensive access to spec properties with fallback to empty arrays
+  const systems = spec.systems || [];
+  const integrations = spec.integrations || [];
+  const aiAgents = spec.aiAgents || [];
+  const acceptanceCriteria = spec.acceptanceCriteria || { functional: [], performance: [], security: [], usability: [] };
 
   // Get purchased services from proposal (services client actually bought)
   const purchasedServicesArray = currentMeeting.modules?.proposal?.purchasedServices ||
@@ -100,20 +135,20 @@ export const ImplementationSpecDashboard: React.FC = () => {
     ? (requirements.length / servicesWithRequirements.length * 100)
     : 100; // If no services need requirements, consider complete
 
-  const systemsProgress = spec.systems.length > 0 ?
-    (spec.systems.filter((s: DetailedSystemSpec) => s.authentication.credentialsProvided).length / spec.systems.length * 100) : 0;
+  const systemsProgress = systems.length > 0 ?
+    (systems.filter((s: DetailedSystemSpec) => s.authentication?.credentialsProvided).length / systems.length * 100) : 0;
 
-  const integrationsProgress = spec.integrations.length > 0 ?
-    (spec.integrations.filter((i: IntegrationFlow) => i.testCases.length > 0).length / spec.integrations.length * 100) : 0;
+  const integrationsProgress = integrations.length > 0 ?
+    (integrations.filter((i: IntegrationFlow) => i.testCases?.length > 0).length / integrations.length * 100) : 0;
 
-  const aiAgentsProgress = spec.aiAgents.length > 0 ?
-    (spec.aiAgents.filter((a: DetailedAIAgentSpec) => a.knowledgeBase.sources.length > 0).length / spec.aiAgents.length * 100) : 0;
+  const aiAgentsProgress = aiAgents.length > 0 ?
+    (aiAgents.filter((a: DetailedAIAgentSpec) => a.knowledgeBase?.sources?.length > 0).length / aiAgents.length * 100) : 0;
 
   const acceptanceProgress =
-    (spec.acceptanceCriteria.functional.length +
-     spec.acceptanceCriteria.performance.length +
-     spec.acceptanceCriteria.security.length +
-     spec.acceptanceCriteria.usability.length) > 0 ? 50 : 0;
+    ((acceptanceCriteria.functional?.length || 0) +
+     (acceptanceCriteria.performance?.length || 0) +
+     (acceptanceCriteria.security?.length || 0) +
+     (acceptanceCriteria.usability?.length || 0)) > 0 ? 50 : 0;
 
   const overallProgress = Math.round(
     (requirementsProgress + systemsProgress + integrationsProgress + aiAgentsProgress + acceptanceProgress) / 5
@@ -134,7 +169,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
       name: 'מפרט מערכות',
       icon: Server,
       color: 'blue',
-      count: spec.systems.length,
+      count: systems.length,
       progress: systemsProgress,
       description: 'פירוט טכני מלא של כל מערכת'
     },
@@ -143,7 +178,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
       name: 'זרימות אינטגרציה',
       icon: Link2,
       color: 'green',
-      count: spec.integrations.length,
+      count: integrations.length,
       progress: integrationsProgress,
       description: 'הגדרת תהליכי אינטגרציה בין מערכות'
     },
@@ -152,7 +187,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
       name: 'סוכני AI מפורטים',
       icon: Bot,
       color: 'purple',
-      count: spec.aiAgents.length,
+      count: aiAgents.length,
       progress: aiAgentsProgress,
       description: 'מפרט מלא לכל סוכן AI'
     },
@@ -162,10 +197,10 @@ export const ImplementationSpecDashboard: React.FC = () => {
       icon: CheckSquare,
       color: 'orange',
       count:
-        spec.acceptanceCriteria.functional.length +
-        spec.acceptanceCriteria.performance.length +
-        spec.acceptanceCriteria.security.length +
-        spec.acceptanceCriteria.usability.length,
+        (acceptanceCriteria.functional?.length || 0) +
+        (acceptanceCriteria.performance?.length || 0) +
+        (acceptanceCriteria.security?.length || 0) +
+        (acceptanceCriteria.usability?.length || 0),
       progress: acceptanceProgress,
       description: 'דרישות ותנאי סיום'
     }
@@ -456,7 +491,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
           {selectedSection === 'integrations' && (
             <div className="space-y-4">
               {/* Auto-suggestion info */}
-              {spec.integrations.length > 0 && spec.integrations.some(i => i.id) && (
+              {spec.integrations.length > 0 && spec.integrations.some((i: IntegrationFlow) => i.id) && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <div className="flex items-start gap-3">
                     <Zap className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
@@ -520,7 +555,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
           {selectedSection === 'ai_agents' && (
             <div className="space-y-4">
               {/* Auto-expansion info */}
-              {spec.aiAgents.length > 0 && spec.aiAgents.some(a => a.id) && (
+              {spec.aiAgents.length > 0 && spec.aiAgents.some((a: DetailedAIAgentSpec) => a.id) && (
                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
                   <div className="flex items-start gap-3">
                     <Bot className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />

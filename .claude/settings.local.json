@@ -58,7 +58,9 @@
       "Bash(do echo -n \"$file.tsx: \")",
       "Bash(wc:*)",
       "Bash(awk:*)",
-      "Bash(src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx)"
+      "Bash(src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx)",
+      "Bash(Select-String \"ImplementationSpecDashboard\" -Context 3)",
+      "Bash(del fix-implementation-spec.cjs)"
     ],
     "deny": [],
     "ask": []
