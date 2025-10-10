@@ -168,7 +168,7 @@ export class AIProposalGenerator {
     const requestBody: any = {
       model: params.model,
       messages: params.messages,
-      max_completion_tokens: params.max_output_tokens,
+      max_tokens: params.max_output_tokens,
       response_format: params.response_format
     };
 

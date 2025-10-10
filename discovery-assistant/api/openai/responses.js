@@ -16,32 +16,22 @@ export default async function handler(req, res) {
       });
     }
 
+    // Build request body dynamically based on model capabilities
+    const requestBody = {
+      model,
+      messages,
+      max_tokens: max_output_tokens,
+      ...(seed !== undefined && { seed }),
+      ...(temperature !== undefined && { temperature }),
+      ...(response_format && { response_format })
+    };
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
       },
-      // Build request body dynamically based on model capabilities
-      const requestBody: any = {
-        model,
-        messages,
-        max_completion_tokens: max_output_tokens
-      };
-
-      // Add optional parameters only if provided and supported
-      if (seed !== undefined) {
-        requestBody.seed = seed;
-      }
-
-      if (temperature !== undefined) {
-        requestBody.temperature = temperature;
-      }
-
-      if (response_format) {
-        requestBody.response_format = response_format;
-      }
-
       body: JSON.stringify(requestBody)
     });
 
