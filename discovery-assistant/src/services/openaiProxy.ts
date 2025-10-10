@@ -57,7 +57,7 @@ export async function callOpenAIThroughProxy(request: OpenAIRequest): Promise<Op
 
     return {
       success: true,
-      data: data.output_text,
+      data: data.choices?.[0]?.message?.content || data.output_text,
       usage: {
         promptTokens: data.usage?.prompt_tokens,
         completionTokens: data.usage?.completion_tokens,

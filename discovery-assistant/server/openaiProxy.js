@@ -18,7 +18,7 @@ app.post('/api/openai/responses', async (req, res) => {
       });
     }
 
-    const response = await fetch('https://api.openai.com/v1/responses', {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -26,9 +26,9 @@ app.post('/api/openai/responses', async (req, res) => {
       },
       body: JSON.stringify({
         model,
-        input: messages,
+        messages,
         seed,
-        max_output_tokens,
+        max_tokens: max_output_tokens,
         temperature,
         response_format
       })
