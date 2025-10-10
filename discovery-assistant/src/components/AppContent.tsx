@@ -60,6 +60,9 @@ export const AppContent = () => {
   useAccessibility();
   useSkipToContent();
 
+  // Force re-render on location change by using location as key
+  const locationKey = location.pathname + location.search;
+
   // Determine language for phase guard (English for Phase 3, Hebrew otherwise)
   const phaseGuardLanguage = currentMeeting?.phase === 'development' ? 'en' : 'he';
 
@@ -104,28 +107,28 @@ export const AppContent = () => {
       {/* Developer Feedback Button - shown on all pages except login and clients list */}
       {showPhaseNavigator && <FeedbackButton />}
 
-      <Routes key={location.pathname}>
+      <Routes key={locationKey}>
         <Route path="/" element={<Navigate to="/clients" replace />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/meeting/:recordId" element={<Dashboard />} />
-        <Route path="/clients" element={<ClientsListView />} />
+        <Route path="/dashboard" element={<Dashboard key={locationKey} />} />
+        <Route path="/meeting/:recordId" element={<Dashboard key={locationKey} />} />
+        <Route path="/clients" element={<ClientsListView key={locationKey} />} />
         <Route path="/login" element={<Login />} />
         <Route path="/test-pdf" element={<PDFTestPage />} />
-        <Route path="/summary" element={<SummaryTab />} />
-        <Route path="/wizard" element={<WizardMode />} />
-        <Route path="/wizard/:stepId" element={<WizardMode />} />
+        <Route path="/summary" element={<SummaryTab key={locationKey} />} />
+        <Route path="/wizard" element={<WizardMode key={locationKey} />} />
+        <Route path="/wizard/:stepId" element={<WizardMode key={locationKey} />} />
         <Route path="/settings/ai" element={<AISettings />} />
-        <Route path="/module/overview" element={<OverviewModule />} />
-        <Route path="/module/essentialDetails" element={<EssentialDetailsModule />} />
-        <Route path="/module/leadsAndSales" element={<LeadsAndSalesModule />} />
-        <Route path="/module/customerService" element={<CustomerServiceModule />} />
-        <Route path="/module/operations" element={<OperationsModule />} />
-        <Route path="/module/reporting" element={<ReportingModule />} />
-        <Route path="/module/aiAgents" element={<AIAgentsModule />} />
-        <Route path="/module/systems" element={<SystemsModuleEnhanced />} />
-        <Route path="/module/roi" element={<ROIModule />} />
-        <Route path="/module/proposal" element={<ProposalModule />} />
-        <Route path="/module/planning" element={<ProposalModule />} /> {/* Keep for backward compatibility */}
+        <Route path="/module/overview" element={<OverviewModule key={locationKey} />} />
+        <Route path="/module/essentialDetails" element={<EssentialDetailsModule key={locationKey} />} />
+        <Route path="/module/leadsAndSales" element={<LeadsAndSalesModule key={locationKey} />} />
+        <Route path="/module/customerService" element={<CustomerServiceModule key={locationKey} />} />
+        <Route path="/module/operations" element={<OperationsModule key={locationKey} />} />
+        <Route path="/module/reporting" element={<ReportingModule key={locationKey} />} />
+        <Route path="/module/aiAgents" element={<AIAgentsModule key={locationKey} />} />
+        <Route path="/module/systems" element={<SystemsModuleEnhanced key={locationKey} />} />
+        <Route path="/module/roi" element={<ROIModule key={locationKey} />} />
+        <Route path="/module/proposal" element={<ProposalModule key={locationKey} />} />
+        <Route path="/module/planning" element={<ProposalModule key={locationKey} />} /> {/* Keep for backward compatibility */}
 
         {/* Requirements Flow - Protected: Discovery phase, complete status */}
         <Route
@@ -140,7 +143,7 @@ export const AppContent = () => {
               }}
               language={phaseGuardLanguage}
             >
-              <RequirementsFlow />
+              <RequirementsFlow key={locationKey} />
             </ProtectedRoute>
           }
         />
@@ -158,7 +161,7 @@ export const AppContent = () => {
               }}
               language={phaseGuardLanguage}
             >
-              <ClientApprovalView />
+              <ClientApprovalView key={locationKey} />
             </ProtectedRoute>
           }
         />
@@ -175,7 +178,7 @@ export const AppContent = () => {
               }}
               language={phaseGuardLanguage}
             >
-              <ImplementationSpecDashboard />
+              <ImplementationSpecDashboard key={locationKey} />
             </ProtectedRoute>
           }
         />
@@ -183,7 +186,7 @@ export const AppContent = () => {
           path="/phase2/systems"
           element={
             <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
-              <SystemDeepDiveSelection />
+              <SystemDeepDiveSelection key={locationKey} />
             </ProtectedRoute>
           }
         />
@@ -191,7 +194,7 @@ export const AppContent = () => {
           path="/phase2/systems/:systemId/dive"
           element={
             <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
-              <SystemDeepDive />
+              <SystemDeepDive key={locationKey} />
             </ProtectedRoute>
           }
         />
@@ -199,7 +202,7 @@ export const AppContent = () => {
           path="/phase2/integrations/new"
           element={
             <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
-              <IntegrationFlowBuilder />
+              <IntegrationFlowBuilder key={locationKey} />
             </ProtectedRoute>
           }
         />
@@ -207,7 +210,7 @@ export const AppContent = () => {
           path="/phase2/integrations/:flowId"
           element={
             <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
-              <IntegrationFlowBuilder />
+              <IntegrationFlowBuilder key={locationKey} />
             </ProtectedRoute>
           }
         />
@@ -215,7 +218,7 @@ export const AppContent = () => {
           path="/phase2/agents/new"
           element={
             <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
-              <AIAgentDetailedSpec />
+              <AIAgentDetailedSpec key={locationKey} />
             </ProtectedRoute>
           }
         />
@@ -223,7 +226,7 @@ export const AppContent = () => {
           path="/phase2/agents/:agentId"
           element={
             <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
-              <AIAgentDetailedSpec />
+              <AIAgentDetailedSpec key={locationKey} />
             </ProtectedRoute>
           }
         />
@@ -231,7 +234,7 @@ export const AppContent = () => {
           path="/phase2/automations/auto-crm-update"
           element={
             <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
-              <AutoCRMUpdateSpec />
+              <AutoCRMUpdateSpec key={locationKey} />
             </ProtectedRoute>
           }
         />
@@ -239,7 +242,7 @@ export const AppContent = () => {
           path="/phase2/automations/ai-triage"
           element={
             <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
-              <AITriageSpec />
+              <AITriageSpec key={locationKey} />
             </ProtectedRoute>
           }
         />
@@ -247,7 +250,7 @@ export const AppContent = () => {
           path="/phase2/acceptance"
           element={
             <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
-              <AcceptanceCriteriaBuilder />
+              <AcceptanceCriteriaBuilder key={locationKey} />
             </ProtectedRoute>
           }
         />
@@ -255,7 +258,7 @@ export const AppContent = () => {
           path="/phase2/service-requirements"
           element={
             <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
-              <ServiceRequirementsRouter />
+              <ServiceRequirementsRouter key={locationKey} />
             </ProtectedRoute>
           }
         />
@@ -263,7 +266,7 @@ export const AppContent = () => {
           path="/phase2/service-requirements/:serviceId"
           element={
             <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
-              <ServiceRequirementsRouter />
+              <ServiceRequirementsRouter key={locationKey} />
             </ProtectedRoute>
           }
         />
@@ -280,7 +283,7 @@ export const AppContent = () => {
               }}
               language="en"
             >
-              <DeveloperDashboard />
+              <DeveloperDashboard key={locationKey} />
             </ProtectedRoute>
           }
         />
@@ -288,7 +291,7 @@ export const AppContent = () => {
           path="/phase3/sprints"
           element={
             <ProtectedRoute requiredPhase="development" language="en">
-              <SprintView />
+              <SprintView key={locationKey} />
             </ProtectedRoute>
           }
         />
@@ -296,7 +299,7 @@ export const AppContent = () => {
           path="/phase3/systems"
           element={
             <ProtectedRoute requiredPhase="development" language="en">
-              <SystemView />
+              <SystemView key={locationKey} />
             </ProtectedRoute>
           }
         />
@@ -304,7 +307,7 @@ export const AppContent = () => {
           path="/phase3/progress"
           element={
             <ProtectedRoute requiredPhase="development" language="en">
-              <ProgressTracking />
+              <ProgressTracking key={locationKey} />
             </ProtectedRoute>
           }
         />
@@ -312,13 +315,13 @@ export const AppContent = () => {
           path="/phase3/blockers"
           element={
             <ProtectedRoute requiredPhase="development" language="en">
-              <BlockerManagement />
+              <BlockerManagement key={locationKey} />
             </ProtectedRoute>
           }
         />
 
         {/* Developer Feedback Admin */}
-        <Route path="/dev/feedback" element={<FeedbackViewer />} />
+        <Route path="/dev/feedback" element={<FeedbackViewer key={locationKey} />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
