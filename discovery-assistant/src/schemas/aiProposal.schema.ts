@@ -96,6 +96,6 @@ export const AiProposalJsonSchema = {
     },
     required: ['executiveSummary', 'services', 'financialSummary', 'terms', 'nextSteps']
   },
-  strict: false
+  strict: true
 } as const;
 
