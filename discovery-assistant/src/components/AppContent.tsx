@@ -259,6 +259,14 @@ export const AppContent = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/phase2/service-requirements/:serviceId"
+          element={
+            <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
+              <ServiceRequirementsRouter />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Phase 3 Routes - Protected: Development phase */}
         <Route

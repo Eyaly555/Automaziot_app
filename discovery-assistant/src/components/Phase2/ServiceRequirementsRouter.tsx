@@ -12,7 +12,8 @@
  * because Phase 2 should only show forms for services the client actually purchased.
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { SERVICE_COMPONENT_MAP, getServiceCategory } from '../../config/serviceComponentMapping';
 import { CheckCircle, Circle, AlertCircle, ChevronRight } from 'lucide-react';
@@ -20,6 +21,8 @@ import type { SelectedService } from '../../types/proposal';
 
 export const ServiceRequirementsRouter: React.FC = () => {
   const { currentMeeting } = useMeetingStore();
+  const params = useParams();
+  const navigate = useNavigate();
 
   // DEFENSIVE: Get purchased services with null checks
   const purchasedServices: SelectedService[] = useMemo(() => {
@@ -80,6 +83,22 @@ export const ServiceRequirementsRouter: React.FC = () => {
 
   // Current service being edited
   const [currentServiceIndex, setCurrentServiceIndex] = useState(0);
+
+  // Sync selected service with URL param (if provided)
+  useEffect(() => {
+    const idFromUrl = params.serviceId;
+    if (!idFromUrl) {
+      // Ensure URL stays without param if index is 0 and path has param
+      return;
+    }
+    const idx = purchasedServices.findIndex((s) => s.id === idFromUrl);
+    if (idx >= 0) {
+      setCurrentServiceIndex(idx);
+    } else if (purchasedServices.length > 0) {
+      // If invalid id, redirect to first
+      navigate('/phase2/service-requirements', { replace: true });
+    }
+  }, [params.serviceId, purchasedServices, navigate]);
   const currentService = purchasedServices[currentServiceIndex];
 
   // Empty state: No purchased services
@@ -174,7 +193,11 @@ export const ServiceRequirementsRouter: React.FC = () => {
                 return (
                   <button
                     key={service.id}
-                    onClick={() => setCurrentServiceIndex(index)}
+                    onClick={() => {
+                      setCurrentServiceIndex(index);
+                      // Push URL with service id for deep linking
+                      navigate(`/phase2/service-requirements/${service.id}`);
+                    }}
                     className={`
                       w-full text-right p-4 rounded-lg transition-all duration-200
                       ${isCurrent
