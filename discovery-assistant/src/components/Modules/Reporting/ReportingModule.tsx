@@ -10,6 +10,7 @@ import {
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 import { PhaseReadOnlyBanner } from '../../Common/PhaseReadOnlyBanner';
 import { Alert, Report, KPI } from '../../../types';
+import { useBeforeUnload } from '../../../hooks/useBeforeUnload';
 
 export const ReportingModule: React.FC = () => {
   const navigate = useNavigate();
@@ -34,24 +35,28 @@ export const ReportingModule: React.FC = () => {
   const [realTimeDashboard, setRealTimeDashboard] = useState(moduleData.dashboards?.realTime || false);
   const [anomalyDetection, setAnomalyDetection] = useState(moduleData.dashboards?.anomalyDetection || '');
 
+  const saveData = () => {
+    updateModule('reporting', {
+      realTimeAlerts: alerts,
+      criticalAlerts: criticalAlerts,
+      scheduledReports: reports,
+      kpis: kpis,
+      dashboards: {
+        exists: dashboardExists,
+        realTime: realTimeDashboard,
+        anomalyDetection
+      }
+    });
+  };
+
+  useBeforeUnload(saveData);
+
   // Auto-save - save whenever any state changes
   useEffect(() => {
     // Always save when any state changes - no restrictive checks
     // This ensures tests pass when entering simple data
 
-    const timer = setTimeout(() => {
-      updateModule('reporting', {
-        realTimeAlerts: alerts,
-        criticalAlerts: criticalAlerts,
-        scheduledReports: reports,
-        kpis: kpis,
-        dashboards: {
-          exists: dashboardExists,
-          realTime: realTimeDashboard,
-          anomalyDetection
-        }
-      });
-    }, 1000);
+    const timer = setTimeout(saveData, 1000);
 
     return () => clearTimeout(timer);
   }, [alerts, criticalAlerts, reports, kpis, dashboardExists, realTimeDashboard, anomalyDetection, updateModule]);

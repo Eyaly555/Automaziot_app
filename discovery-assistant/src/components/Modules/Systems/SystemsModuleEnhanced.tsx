@@ -9,6 +9,7 @@ import { DetailedSystemCard } from './DetailedSystemCard';
 import { DetailedSystemInfo } from '../../../types';
 import { SYSTEM_CATEGORIES } from '../../../config/systemsDatabase';
 import { IntegrationVisualizer } from '../../Visualizations/IntegrationVisualizer';
+import { useBeforeUnload } from '../../../hooks/useBeforeUnload';
 
 export const SystemsModuleEnhanced: React.FC = () => {
   const navigate = useNavigate();
@@ -44,34 +45,38 @@ export const SystemsModuleEnhanced: React.FC = () => {
   const [securityMeasures, setSecurityMeasures] = useState<string[]>(moduleData.infrastructure?.security || []);
   const [backupFrequency, setBackupFrequency] = useState(moduleData.infrastructure?.backup || '');
 
+  const saveData = () => {
+    updateModule('systems', {
+      currentSystems,
+      customSystems,
+      detailedSystems, // NEW
+      integrations: {
+        level: integrationLevel,
+        issues: integrationIssues,
+        manualDataTransfer
+      },
+      dataQuality: {
+        overall: dataQuality,
+        duplicates: duplicateData,
+        completeness: dataCompleteness
+      },
+      apiWebhooks: {
+        usage: apiUsage,
+        webhooks: webhookUsage,
+        needs: apiNeeds
+      },
+      infrastructure: {
+        hosting: hostingType,
+        security: securityMeasures,
+        backup: backupFrequency
+      }
+    });
+  };
+
+  useBeforeUnload(saveData);
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      updateModule('systems', {
-        currentSystems,
-        customSystems,
-        detailedSystems, // NEW
-        integrations: {
-          level: integrationLevel,
-          issues: integrationIssues,
-          manualDataTransfer
-        },
-        dataQuality: {
-          overall: dataQuality,
-          duplicates: duplicateData,
-          completeness: dataCompleteness
-        },
-        apiWebhooks: {
-          usage: apiUsage,
-          webhooks: webhookUsage,
-          needs: apiNeeds
-        },
-        infrastructure: {
-          hosting: hostingType,
-          security: securityMeasures,
-          backup: backupFrequency
-        }
-      });
-    }, 1000);
+    const timer = setTimeout(saveData, 1000);
 
     return () => clearTimeout(timer);
   }, [currentSystems, customSystems, detailedSystems, integrationLevel, integrationIssues, manualDataTransfer,

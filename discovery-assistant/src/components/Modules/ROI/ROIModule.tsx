@@ -7,6 +7,7 @@ import { CheckboxGroup, RadioGroup } from '../../Common/FormFields';
 import { formatCurrency } from '../../../utils/formatters';
 import { calculateROI } from '../../../utils/roiCalculator';
 import { ROIVisualization } from './ROIVisualization';
+import { useBeforeUnload } from '../../../hooks/useBeforeUnload';
 
 export const ROIModule: React.FC = () => {
   const navigate = useNavigate();
@@ -37,60 +38,64 @@ export const ROIModule: React.FC = () => {
   // Calculate live ROI - recalculates when meeting data changes
   const roiData = calculateROI(currentMeeting || {} as any);
 
+  const saveData = () => {
+    updateModule('roi', {
+      // Form data inputs
+      currentCosts: {
+        manualHours: currentManualHours,
+        hourlyCost: averageHourlyCost,
+        toolsCost: currentToolsCost,
+        errorCost: errorCostPerMonth,
+        lostOpportunities
+      },
+      timeSavings: {
+        estimatedHoursSaved,
+        processes: processesToAutomate,
+        implementation: immediateVsGradual
+      },
+      investment: {
+        range: investmentRange,
+        paybackExpectation,
+        budgetAvailable
+      },
+      successMetrics,
+      measurementFrequency,
+
+      // ✅ CRITICAL FIX: Save calculated ROI summary
+      // This is what proposalEngine.ts reads to show savings!
+      summary: {
+        totalMonthlySaving: roiData.totalMonthlySavings,
+        totalHoursSaved: roiData.hoursSavedMonthly,
+        paybackPeriod: roiData.paybackPeriod,
+        implementationCost: roiData.implementationCosts
+      },
+
+      // Advanced metrics (Phase 4)
+      implementationCosts: {
+        total: roiData.implementationCosts
+      },
+      ongoingCosts: {
+        total: roiData.ongoingMonthlyCosts
+      },
+      netSavings: {
+        month12: roiData.netSavings12Month,
+        month24: roiData.netSavings24Month,
+        month36: roiData.netSavings36Month
+      },
+      paybackPeriodMonths: roiData.paybackPeriod,
+      roiPercentages: {
+        roi12Month: roiData.roi12Month,
+        roi24Month: roiData.roi24Month,
+        roi36Month: roiData.roi36Month
+      },
+      scenarios: roiData.scenarios
+    });
+  };
+
+  useBeforeUnload(saveData);
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      updateModule('roi', {
-        // Form data inputs
-        currentCosts: {
-          manualHours: currentManualHours,
-          hourlyCost: averageHourlyCost,
-          toolsCost: currentToolsCost,
-          errorCost: errorCostPerMonth,
-          lostOpportunities
-        },
-        timeSavings: {
-          estimatedHoursSaved,
-          processes: processesToAutomate,
-          implementation: immediateVsGradual
-        },
-        investment: {
-          range: investmentRange,
-          paybackExpectation,
-          budgetAvailable
-        },
-        successMetrics,
-        measurementFrequency,
-
-        // ✅ CRITICAL FIX: Save calculated ROI summary
-        // This is what proposalEngine.ts reads to show savings!
-        summary: {
-          totalMonthlySaving: roiData.totalMonthlySavings,
-          totalHoursSaved: roiData.hoursSavedMonthly,
-          paybackPeriod: roiData.paybackPeriod,
-          implementationCost: roiData.implementationCosts
-        },
-
-        // Advanced metrics (Phase 4)
-        implementationCosts: {
-          total: roiData.implementationCosts
-        },
-        ongoingCosts: {
-          total: roiData.ongoingMonthlyCosts
-        },
-        netSavings: {
-          month12: roiData.netSavings12Month,
-          month24: roiData.netSavings24Month,
-          month36: roiData.netSavings36Month
-        },
-        paybackPeriodMonths: roiData.paybackPeriod,
-        roiPercentages: {
-          roi12Month: roiData.roi12Month,
-          roi24Month: roiData.roi24Month,
-          roi36Month: roiData.roi36Month
-        },
-        scenarios: roiData.scenarios
-      });
-    }, 1000);
+    const timer = setTimeout(saveData, 1000);
 
     return () => clearTimeout(timer);
   }, [

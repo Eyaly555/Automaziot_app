@@ -11,6 +11,7 @@ import {
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 import { PhaseReadOnlyBanner } from '../../Common/PhaseReadOnlyBanner';
 import { ServiceChannel, FAQ } from '../../../types';
+import { useBeforeUnload } from '../../../hooks/useBeforeUnload';
 
 const channelOptions = [
   { value: 'phone', label: 'טלפון' },
@@ -104,61 +105,65 @@ export const CustomerServiceModule: React.FC = () => {
   const [missingAlerts, setMissingAlerts] = useState(moduleData.onboarding?.missingAlerts || false);
   const [commonOnboardingIssues, setCommonOnboardingIssues] = useState(moduleData.onboarding?.commonIssues || '');
 
+  const saveData = () => {
+    updateModule('customerService', {
+      // Direct array format (v2 structure)
+      channels,
+      multiChannelIssue,
+      unificationMethod,
+      autoResponse: {
+        topQuestions,
+        commonRequests,
+        automationPotential: calculateAutomationPotential()
+      },
+      proactiveCommunication: {
+        updateTriggers,
+        updateChannelMapping,
+        whatMattersToCustomers,
+        frequency: communicationFrequency,
+        type: communicationType,
+        timeSpentWeekly: weeklyTimeSpent
+      },
+      communityManagement: {
+        exists: communityExists,
+        size: communitySize,
+        platforms: communityPlatforms,
+        challenges: communityChallenges,
+        eventsPerMonth,
+        registrationMethod,
+        actualAttendanceRate,
+        eventAutomationOpportunity
+      },
+      reputationManagement: {
+        feedbackCollection: {
+          when: feedbackWhen,
+          how: feedbackHow,
+          responseRate: feedbackResponseRate
+        },
+        whatDoWithFeedback,
+        reviewsPerMonth,
+        platforms: reviewPlatforms,
+        positiveReviewStrategy,
+        negativeReviewStrategy,
+        sentimentDetectionOpportunity
+      },
+      onboarding: {
+        steps: onboardingSteps,
+        followUpChecks,
+        missingAlerts,
+        commonIssues: commonOnboardingIssues
+      }
+    });
+  };
+
+  useBeforeUnload(saveData);
+
   // Auto-save with enhanced data - save whenever any state changes
   useEffect(() => {
     // Always save when any state changes - no restrictive checks
     // This ensures tests pass when entering simple data
 
-    const timer = setTimeout(() => {
-      updateModule('customerService', {
-        // Direct array format (v2 structure)
-        channels,
-        multiChannelIssue,
-        unificationMethod,
-        autoResponse: {
-          topQuestions,
-          commonRequests,
-          automationPotential: calculateAutomationPotential()
-        },
-        proactiveCommunication: {
-          updateTriggers,
-          updateChannelMapping,
-          whatMattersToCustomers,
-          frequency: communicationFrequency,
-          type: communicationType,
-          timeSpentWeekly: weeklyTimeSpent
-        },
-        communityManagement: {
-          exists: communityExists,
-          size: communitySize,
-          platforms: communityPlatforms,
-          challenges: communityChallenges,
-          eventsPerMonth,
-          registrationMethod,
-          actualAttendanceRate,
-          eventAutomationOpportunity
-        },
-        reputationManagement: {
-          feedbackCollection: {
-            when: feedbackWhen,
-            how: feedbackHow,
-            responseRate: feedbackResponseRate
-          },
-          whatDoWithFeedback,
-          reviewsPerMonth,
-          platforms: reviewPlatforms,
-          positiveReviewStrategy,
-          negativeReviewStrategy,
-          sentimentDetectionOpportunity
-        },
-        onboarding: {
-          steps: onboardingSteps,
-          followUpChecks,
-          missingAlerts,
-          commonIssues: commonOnboardingIssues
-        }
-      });
-    }, 1000);
+    const timer = setTimeout(saveData, 1000);
 
     return () => clearTimeout(timer);
   }, [

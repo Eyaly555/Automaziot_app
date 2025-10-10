@@ -8,6 +8,7 @@ import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 import { LeadSourceBuilder } from '../LeadsAndSales/components/LeadSourceBuilder';
 import { ServiceChannelBuilder } from '../CustomerService/components/ServiceChannelBuilder';
 import type { FocusArea, LeadSource, ServiceChannel } from '../../../types';
+import { useBeforeUnload } from '../../../hooks/useBeforeUnload';
 
 const businessTypeOptions = [
   { value: 'b2b', label: 'B2B' },
@@ -74,23 +75,27 @@ export const OverviewModule: React.FC = () => {
   // NEW: Focus Areas
   const [focusAreas, setFocusAreas] = useState<string[]>((overviewData.focusAreas as string[]) || []);
 
+  const saveData = () => {
+    updateModule('overview', {
+      businessType,
+      employees,
+      mainChallenge,
+      budget,
+      leadSources,
+      leadCaptureChannels,
+      leadStorageMethod,
+      serviceChannels,
+      serviceVolume,
+      serviceSystemExists,
+      focusAreas: focusAreas as FocusArea[]
+    });
+  };
+
+  useBeforeUnload(saveData);
+
   // Auto-save on changes
   useEffect(() => {
-    const timer = setTimeout(() => {
-      updateModule('overview', {
-        businessType,
-        employees,
-        mainChallenge,
-        budget,
-        leadSources,
-        leadCaptureChannels,
-        leadStorageMethod,
-        serviceChannels,
-        serviceVolume,
-        serviceSystemExists,
-        focusAreas: focusAreas as FocusArea[]
-      });
-    }, 1000);
+    const timer = setTimeout(saveData, 1000);
 
     return () => clearTimeout(timer);
   }, [

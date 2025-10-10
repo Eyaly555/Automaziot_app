@@ -10,6 +10,7 @@ import {
 } from '../../Common/FormFields';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 import { PhaseReadOnlyBanner } from '../../Common/PhaseReadOnlyBanner';
+import { useBeforeUnload } from '../../../hooks/useBeforeUnload';
 
 interface WorkProcess {
   name: string;
@@ -184,97 +185,60 @@ export const OperationsModule: React.FC = () => {
     moduleData.logistics?.inventoryAccuracy || 90
   );
 
+  const saveData = () => {
+    updateModule('operations', {
+      workProcesses: {
+        processes: workProcesses,
+        commonFailures,
+        errorTrackingSystem,
+        processDocumentation,
+        automationReadiness
+      },
+      documentManagement: {
+        flows: documentFlows,
+        storageLocations,
+        searchDifficulties,
+        versionControlMethod,
+        approvalWorkflow,
+        documentRetention
+      },
+      projectManagement: {
+        tools: projectTools,
+        taskCreationSources,
+        issues: projectIssues,
+        resourceAllocationMethod,
+        timelineAccuracy,
+        projectVisibility,
+        deadlineMissRate
+      },
+      hr: {
+        employeeCount, // NEW consolidated field
+        departments,
+        onboardingSteps,
+        onboardingDuration,
+        trainingRequirements,
+        performanceReviewFrequency,
+        employeeTurnoverRate,
+        hrSystemsInUse
+      },
+      logistics: {
+        inventoryMethod,
+        shippingProcesses,
+        supplierCount,
+        orderFulfillmentTime,
+        warehouseOperations,
+        deliveryIssues,
+        returnProcessTime,
+        inventoryAccuracy
+      }
+    });
+  };
+
+  useBeforeUnload(saveData);
+
   // Auto-save with debounce - only save if there's actual user input
   useEffect(() => {
-    // Check if any meaningful data exists before saving
-    const hasData =
-      workProcesses.length > 0 ||
-      commonFailures.length > 0 ||
-      (errorTrackingSystem && errorTrackingSystem !== 'none') ||
-      processDocumentation ||
-      automationReadiness > 0 ||
-      documentFlows.length > 0 ||
-      storageLocations.length > 0 ||
-      searchDifficulties ||
-      (versionControlMethod && versionControlMethod !== 'none') ||
-      approvalWorkflow ||
-      documentRetention > 0 ||
-      projectTools.length > 0 ||
-      taskCreationSources.length > 0 ||
-      projectIssues.length > 0 ||
-      resourceAllocationMethod ||
-      timelineAccuracy > 0 ||
-      projectVisibility && projectVisibility.trim().length > 0 ||
-      deadlineMissRate > 0 ||
-      departments.length > 0 ||
-      onboardingSteps > 0 ||
-      onboardingDuration > 0 ||
-      trainingRequirements.length > 0 ||
-      performanceReviewFrequency ||
-      employeeTurnoverRate > 0 ||
-      hrSystemsInUse.length > 0 ||
-      inventoryMethod ||
-      shippingProcesses.length > 0 ||
-      supplierCount > 0 ||
-      orderFulfillmentTime > 0 ||
-      warehouseOperations.length > 0 ||
-      deliveryIssues ||
-      returnProcessTime > 0 ||
-      (inventoryAccuracy && inventoryAccuracy !== 90); // 90 is the default
-
-    if (!hasData) {
-      // Don't save if there's no meaningful data
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      updateModule('operations', {
-        workProcesses: {
-          processes: workProcesses,
-          commonFailures,
-          errorTrackingSystem,
-          processDocumentation,
-          automationReadiness
-        },
-        documentManagement: {
-          flows: documentFlows,
-          storageLocations,
-          searchDifficulties,
-          versionControlMethod,
-          approvalWorkflow,
-          documentRetention
-        },
-        projectManagement: {
-          tools: projectTools,
-          taskCreationSources,
-          issues: projectIssues,
-          resourceAllocationMethod,
-          timelineAccuracy,
-          projectVisibility,
-          deadlineMissRate
-        },
-        hr: {
-          employeeCount, // NEW consolidated field
-          departments,
-          onboardingSteps,
-          onboardingDuration,
-          trainingRequirements,
-          performanceReviewFrequency,
-          employeeTurnoverRate,
-          hrSystemsInUse
-        },
-        logistics: {
-          inventoryMethod,
-          shippingProcesses,
-          supplierCount,
-          orderFulfillmentTime,
-          warehouseOperations,
-          deliveryIssues,
-          returnProcessTime,
-          inventoryAccuracy
-        }
-      });
-    }, 1000);
+    const timer = setTimeout(saveData, 1000);
 
     return () => clearTimeout(timer);
   }, [

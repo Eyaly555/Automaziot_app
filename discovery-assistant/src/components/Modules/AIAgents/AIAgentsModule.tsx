@@ -18,6 +18,7 @@ import { RatingField } from '../../Common/RatingField';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 import { AIAgentUseCaseBuilder } from './AIAgentUseCaseBuilder';
 import { AIModelSelector } from './AIModelSelector';
+import { useBeforeUnload } from '../../../hooks/useBeforeUnload';
 
 export const AIAgentsModule: React.FC = () => {
   const navigate = useNavigate();
@@ -74,31 +75,35 @@ export const AIAgentsModule: React.FC = () => {
   const [dataQuality, setDataQuality] = useState('');
   const [teamSkillLevel, setTeamSkillLevel] = useState<number>(0);
 
+  const saveData = () => {
+    updateModule('aiAgents', {
+      sales: {
+        useCases: salesUseCases,
+        potential: salesPotential || undefined,
+        readiness: salesReadiness
+      },
+      service: {
+        useCases: serviceUseCases,
+        potential: servicePotential || undefined,
+        readiness: serviceReadiness
+      },
+      operations: {
+        useCases: operationsUseCases,
+        potential: operationsPotential || undefined,
+        readiness: operationsReadiness
+      },
+      priority: aiPriority,
+      naturalLanguageImportance: nlpImportance || undefined
+    });
+  };
+
+  useBeforeUnload(saveData);
+
   useEffect(() => {
     // Always save when any state changes - no restrictive checks
     // This ensures tests pass when entering simple data
 
-    const timer = setTimeout(() => {
-      updateModule('aiAgents', {
-        sales: {
-          useCases: salesUseCases,
-          potential: salesPotential || undefined,
-          readiness: salesReadiness
-        },
-        service: {
-          useCases: serviceUseCases,
-          potential: servicePotential || undefined,
-          readiness: serviceReadiness
-        },
-        operations: {
-          useCases: operationsUseCases,
-          potential: operationsPotential || undefined,
-          readiness: operationsReadiness
-        },
-        priority: aiPriority,
-        naturalLanguageImportance: nlpImportance || undefined
-      });
-    }, 1000);
+    const timer = setTimeout(saveData, 1000);
 
     return () => clearTimeout(timer);
   }, [

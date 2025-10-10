@@ -12,6 +12,7 @@ import {
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 import { PhaseReadOnlyBanner } from '../../Common/PhaseReadOnlyBanner';
 import { LeadSource } from '../../../types';
+import { useBeforeUnload } from '../../../hooks/useBeforeUnload';
 
 const channelOptions = [
   { value: 'website', label: 'אתר' },
@@ -104,71 +105,75 @@ export const LeadsAndSalesModule: React.FC = () => {
   const [customReminderTime, setCustomReminderTime] = useState(moduleData.appointments?.reminders?.customTime || '');
   const [appointmentsCriticalPain, setAppointmentsCriticalPain] = useState(moduleData.appointments?.criticalPain || false);
 
+  const saveData = () => {
+    updateModule('leadsAndSales', {
+      // Direct array format (v2 structure)
+      leadSources,
+      centralSystem,
+      commonIssues,
+      missingOpportunities,
+      fallingLeadsPerMonth,
+      duplicatesFrequency,
+      missingInfoPercent,
+      timeToProcessLead,
+      costPerLostLead,
+      speedToLead: {
+        duringBusinessHours: responseTime,
+        responseTimeUnit,
+        afterHours: afterHoursResponse,
+        weekends: weekendResponse,
+        unansweredPercentage,
+        whatHappensWhenUnavailable,
+        urgentVsRegular,
+        urgentHandling,
+        opportunity: speedToLeadOpportunity
+      },
+      leadRouting: {
+        method: routingMethod,
+        methodDetails: routingMethodDetails,
+        unavailableAgentHandling: unavailableHandling,
+        hotLeadCriteria,
+        customHotLeadCriteria,
+        hotLeadPriority,
+        aiPotential: aiPotentialRouting
+      },
+      followUp: {
+        attempts: followUpAttempts,
+        day1Interval: followUpDay1,
+        day3Interval: followUpDay3,
+        day7Interval: followUpDay7,
+        channels: followUpChannels,
+        dropOffRate,
+        notNowHandling: notNowLeadsHandling,
+        nurturing: hasNurturing,
+        nurturingDescription,
+        customerJourneyOpportunity
+      },
+      appointments: {
+        avgSchedulingTime,
+        messagesPerScheduling,
+        cancellationRate,
+        noShowRate,
+        multipleParticipants,
+        changesPerWeek,
+        reminders: {
+          when: reminderWhen,
+          channels: reminderChannels,
+          customTime: customReminderTime
+        },
+        criticalPain: appointmentsCriticalPain
+      }
+    });
+  };
+
+  useBeforeUnload(saveData);
+
   // Auto-save with enhanced data - save whenever any state changes
   useEffect(() => {
     // Always save when any state changes - no restrictive checks
     // This ensures tests pass when entering simple data
 
-    const timer = setTimeout(() => {
-      updateModule('leadsAndSales', {
-        // Direct array format (v2 structure)
-        leadSources,
-        centralSystem,
-        commonIssues,
-        missingOpportunities,
-        fallingLeadsPerMonth,
-        duplicatesFrequency,
-        missingInfoPercent,
-        timeToProcessLead,
-        costPerLostLead,
-        speedToLead: {
-          duringBusinessHours: responseTime,
-          responseTimeUnit,
-          afterHours: afterHoursResponse,
-          weekends: weekendResponse,
-          unansweredPercentage,
-          whatHappensWhenUnavailable,
-          urgentVsRegular,
-          urgentHandling,
-          opportunity: speedToLeadOpportunity
-        },
-        leadRouting: {
-          method: routingMethod,
-          methodDetails: routingMethodDetails,
-          unavailableAgentHandling: unavailableHandling,
-          hotLeadCriteria,
-          customHotLeadCriteria,
-          hotLeadPriority,
-          aiPotential: aiPotentialRouting
-        },
-        followUp: {
-          attempts: followUpAttempts,
-          day1Interval: followUpDay1,
-          day3Interval: followUpDay3,
-          day7Interval: followUpDay7,
-          channels: followUpChannels,
-          dropOffRate,
-          notNowHandling: notNowLeadsHandling,
-          nurturing: hasNurturing,
-          nurturingDescription,
-          customerJourneyOpportunity
-        },
-        appointments: {
-          avgSchedulingTime,
-          messagesPerScheduling,
-          cancellationRate,
-          noShowRate,
-          multipleParticipants,
-          changesPerWeek,
-          reminders: {
-            when: reminderWhen,
-            channels: reminderChannels,
-            customTime: customReminderTime
-          },
-          criticalPain: appointmentsCriticalPain
-        }
-      });
-    }, 1000);
+    const timer = setTimeout(saveData, 1000);
 
     return () => clearTimeout(timer);
   }, [

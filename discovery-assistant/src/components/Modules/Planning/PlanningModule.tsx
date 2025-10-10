@@ -4,6 +4,7 @@ import { ArrowRight, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Card } from '../../Common/Card';
 import { TextField, CheckboxGroup, RadioGroup, TextAreaField } from '../../Common/FormFields';
+import { useBeforeUnload } from '../../../hooks/useBeforeUnload';
 
 export const PlanningModule: React.FC = () => {
   const navigate = useNavigate();
@@ -34,31 +35,35 @@ export const PlanningModule: React.FC = () => {
   const [mainRisks, setMainRisks] = useState<string[]>(moduleData.risks || []);
   const [additionalSupport, setAdditionalSupport] = useState(moduleData.additionalSupport || '');
 
+  const saveData = () => {
+    updateModule('planning', {
+      vision,
+      primaryGoals,
+      timeframe,
+      priorities: {
+        top: topPriorities,
+        quickWins,
+        longTerm: longTermProjects
+      },
+      implementation: {
+        approach: implementationApproach,
+        team: teamInvolvement,
+        training: trainingNeeded
+      },
+      nextSteps: {
+        immediate: immediateActions,
+        followUp: followUpDate,
+        decisionMakers
+      },
+      risks: mainRisks,
+      additionalSupport
+    });
+  };
+
+  useBeforeUnload(saveData);
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      updateModule('planning', {
-        vision,
-        primaryGoals,
-        timeframe,
-        priorities: {
-          top: topPriorities,
-          quickWins,
-          longTerm: longTermProjects
-        },
-        implementation: {
-          approach: implementationApproach,
-          team: teamInvolvement,
-          training: trainingNeeded
-        },
-        nextSteps: {
-          immediate: immediateActions,
-          followUp: followUpDate,
-          decisionMakers
-        },
-        risks: mainRisks,
-        additionalSupport
-      });
-    }, 1000);
+    const timer = setTimeout(saveData, 1000);
 
     return () => clearTimeout(timer);
   }, [vision, primaryGoals, timeframe, topPriorities, quickWins, longTermProjects,
@@ -66,7 +71,8 @@ export const PlanningModule: React.FC = () => {
       followUpDate, decisionMakers, mainRisks, additionalSupport]);
 
   const handleComplete = () => {
-    completeMeeting();
+    // BUG: This was navigating away without saving. The hook will now save.
+    // Kept for legacy reasons, may be removed later.
     navigate('/dashboard');
   };
 
