@@ -296,7 +296,7 @@ export async function exportDiscoveryPDF(meeting: Meeting): Promise<void> {
     const overview = meeting.modules.overview;
     addRTLText(`סוג עסק: ${overview.businessType || 'לא צוין'}`, pageWidth - margin, y);
     y += 7;
-    addRTLText(`מספר עובדים: ${overview.employees || 'לא צוין'}`, pageWidth - margin, y);
+    addRTLText(`מספר עובדים: ${meeting.modules?.operations?.hr?.employeeCount || 'לא צוין'}`, pageWidth - margin, y);
     y += 7;
     if (overview.mainChallenge) {
       addRTLText(`אתגר מרכזי: ${overview.mainChallenge}`, pageWidth - margin, y);

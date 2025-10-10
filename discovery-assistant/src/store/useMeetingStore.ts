@@ -624,6 +624,49 @@ export const useMeetingStore = create<MeetingStore>()(
             };
           }
 
+          // NEW: Systems ↔ Overview sync for CRM fields
+          if (moduleName === 'systems' && (data.crmStatus !== undefined || data.crmName !== undefined || data.crmSatisfaction !== undefined)) {
+            updatedMeeting.modules.overview = {
+              ...updatedMeeting.modules.overview,
+              crmStatus: data.crmStatus,
+              crmName: data.crmName,
+              crmSatisfaction: data.crmSatisfaction
+            };
+          }
+
+          if (moduleName === 'overview' && (data.crmStatus !== undefined || data.crmName !== undefined || data.crmSatisfaction !== undefined)) {
+            if (!updatedMeeting.modules.systems) updatedMeeting.modules.systems = {};
+            updatedMeeting.modules.systems.crmStatus = data.crmStatus;
+            updatedMeeting.modules.systems.crmName = data.crmName;
+            updatedMeeting.modules.systems.crmSatisfaction = data.crmSatisfaction;
+          }
+
+          // NEW: Operations ↔ Overview sync for employee count
+          if (moduleName === 'operations' && data.hr?.employeeCount !== undefined) {
+            updatedMeeting.modules.overview = {
+              ...updatedMeeting.modules.overview,
+              employees: data.hr.employeeCount
+            };
+          }
+
+          if (moduleName === 'overview' && data.employees !== undefined) {
+            if (!updatedMeeting.modules.operations) updatedMeeting.modules.operations = {};
+            if (!updatedMeeting.modules.operations.hr) updatedMeeting.modules.operations.hr = {};
+            updatedMeeting.modules.operations.hr.employeeCount = data.employees;
+          }
+
+          // NEW: Systems ↔ Leads & Sales sync for data quality
+          if (moduleName === 'systems' && data.dataQuality?.duplicates !== undefined) {
+            if (!updatedMeeting.modules.leadsAndSales) updatedMeeting.modules.leadsAndSales = {};
+            updatedMeeting.modules.leadsAndSales.duplicatesFrequency = data.dataQuality.duplicates;
+          }
+
+          if (moduleName === 'leadsAndSales' && data.duplicatesFrequency !== undefined) {
+            if (!updatedMeeting.modules.systems) updatedMeeting.modules.systems = {};
+            if (!updatedMeeting.modules.systems.dataQuality) updatedMeeting.modules.systems.dataQuality = {};
+            updatedMeeting.modules.systems.dataQuality.duplicates = data.duplicatesFrequency;
+          }
+
           // Save to Supabase (debounced)
           debouncedSaveToSupabase(updatedMeeting);
 

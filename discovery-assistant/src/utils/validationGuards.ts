@@ -53,7 +53,7 @@ export const validateOverviewModule = (meeting: Meeting): ModuleCompletionResult
 
   // Required fields
   if (!overview?.businessType) requiredFieldsMissing.push('סוג העסק');
-  if (!overview?.employees) requiredFieldsMissing.push('מספר עובדים');
+  if (!meeting.modules?.operations?.hr?.employeeCount) requiredFieldsMissing.push('מספר עובדים');
 
   // Optional but recommended
   if (!overview?.mainChallenge) optionalFieldsMissing.push('אתגר מרכזי');

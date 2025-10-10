@@ -57,7 +57,7 @@ export function generateAutoCompletions(
   }
 
   // Example 4: If employee count > 50, suggest CRM
-  const employees = meeting.modules?.overview?.employees;
+  const employees = meeting.modules?.operations?.hr?.employeeCount;
   if (typeof employees === 'number' && employees > 50) {
     suggestions.push({
       field: 'recommended_system',

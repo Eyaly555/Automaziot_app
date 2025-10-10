@@ -62,16 +62,15 @@ export const OverviewModule: React.FC = () => {
 
   // Basic Information
   const [businessType, setBusinessType] = useState(overviewData.businessType || '');
-  const [employees, setEmployees] = useState<string | number | undefined>(overviewData.employees);
   const [mainChallenge, setMainChallenge] = useState(overviewData.mainChallenge || '');
   const [budget, setBudget] = useState(overviewData.budget || '');
 
-  // NEW: Lead Sources (from LeadsAndSales 2.1)
+  // KEEP: Lead Sources (for business context - detailed lead management stays in Leads & Sales)
   const [leadSources, setLeadSources] = useState<LeadSource[]>(overviewData.leadSources || []);
   const [leadCaptureChannels, setLeadCaptureChannels] = useState<string[]>(overviewData.leadCaptureChannels || []);
   const [leadStorageMethod, setLeadStorageMethod] = useState(overviewData.leadStorageMethod || '');
 
-  // NEW: Service Channels (from CustomerService 3.1)
+  // KEEP: Service Channels (for business context - detailed service management stays in Customer Service)
   const [serviceChannels, setServiceChannels] = useState<ServiceChannel[]>(overviewData.serviceChannels || []);
   const [serviceVolume, setServiceVolume] = useState(overviewData.serviceVolume || '');
   const [serviceSystemExists, setServiceSystemExists] = useState(overviewData.serviceSystemExists || false);
@@ -79,17 +78,11 @@ export const OverviewModule: React.FC = () => {
   // NEW: Focus Areas
   const [focusAreas, setFocusAreas] = useState<string[]>((overviewData.focusAreas as string[]) || []);
 
-  // NEW: CRM Status
-  const [crmStatus, setCrmStatus] = useState<'none' | 'basic' | 'full'>(overviewData.crmStatus || 'none');
-  const [crmName, setCrmName] = useState(overviewData.crmName || '');
-  const [crmSatisfaction, setCrmSatisfaction] = useState<number | undefined>(overviewData.crmSatisfaction);
-
   // Auto-save on changes
   useEffect(() => {
     const timer = setTimeout(() => {
       updateModule('overview', {
         businessType,
-        employees,
         mainChallenge,
         budget,
         leadSources,
@@ -98,17 +91,13 @@ export const OverviewModule: React.FC = () => {
         serviceChannels,
         serviceVolume,
         serviceSystemExists,
-        focusAreas: focusAreas as FocusArea[],
-        crmStatus,
-        crmName,
-        crmSatisfaction
+        focusAreas: focusAreas as FocusArea[]
       });
     }, 1000);
 
     return () => clearTimeout(timer);
   }, [
     businessType,
-    employees,
     mainChallenge,
     budget,
     leadSources,
@@ -117,10 +106,7 @@ export const OverviewModule: React.FC = () => {
     serviceChannels,
     serviceVolume,
     serviceSystemExists,
-    focusAreas,
-    crmStatus,
-    crmName,
-    crmSatisfaction
+    focusAreas
   ]);
 
   return (

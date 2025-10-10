@@ -281,27 +281,21 @@ export interface PainPoint {
 // Module 1 - Overview
 export interface OverviewModule {
   businessType?: string;
-  employees?: number;
   mainChallenge?: string;
   budget?: string;
 
-  // NEW: Lead Sources (moved from LeadsAndSales 2.1)
+  // KEEP: Lead Sources (for business context - detailed lead management stays in Leads & Sales)
   leadSources?: LeadSource[];
   leadCaptureChannels?: string[]; // website, phone, chat, etc.
   leadStorageMethod?: string; // excel, crm, email, paper
 
-  // NEW: Service Channels (moved from CustomerService 3.1)
+  // KEEP: Service Channels (for business context - detailed service management stays in Customer Service)
   serviceChannels?: ServiceChannel[];
   serviceVolume?: string; // daily/weekly volume estimate
   serviceSystemExists?: boolean;
 
   // NEW: Focus Areas - what the client wants to improve
   focusAreas?: FocusArea[];
-
-  // NEW: CRM Status
-  crmStatus?: 'none' | 'basic' | 'full';
-  crmName?: string;
-  crmSatisfaction?: 1 | 2 | 3 | 4 | 5;
 
   // Contact Information - Used by ProposalModule for client contact details
   companyName?: string;
@@ -750,6 +744,8 @@ export interface OperationsModule {
 
   /** Human resources management */
   hr?: {
+    /** Total employee count (consolidated from Overview) */
+    employeeCount?: number;
     /** Organizational departments with employee counts */
     departments: Department[];
     /** Number of steps in employee onboarding process */
@@ -1107,6 +1103,11 @@ export interface SystemsModule {
 
   /** Type of data warehouse in use */
   dataWarehouseType?: string;
+
+  // NEW: Consolidated CRM fields (moved from Overview)
+  crmStatus?: 'none' | 'basic' | 'full';
+  crmName?: string;
+  crmSatisfaction?: 1 | 2 | 3 | 4 | 5;
 
   /** Infrastructure and hosting configuration */
   infrastructure?: {

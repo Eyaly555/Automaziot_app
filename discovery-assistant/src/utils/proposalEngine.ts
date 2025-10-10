@@ -61,13 +61,13 @@ const analyzeOverviewModule = (meeting: Meeting, suggestions: SuggestionContext[
   if (!overview) return;
 
   // FIELD 1: employees - Business size-based recommendations
-  const employees = overview.employees;
+  const employees = meeting.modules?.operations?.hr?.employeeCount;
   if (employees && employees >= 50) {
     addSuggestion(suggestions, 'auto-end-to-end', {
       reason: `With ${employees}+ employees, you need comprehensive automation to scale efficiently`,
       reasonHe: `עם ${employees}+ עובדים, אתה צריך אוטומציה מקיפה כדי להתרחב ביעילות`,
       relevanceScore: 9,
-      dataSource: ['overview.employees'],
+        dataSource: ['operations.hr.employeeCount'],
       relatedData: { employees }
     });
   }
@@ -109,7 +109,7 @@ const analyzeOverviewModule = (meeting: Meeting, suggestions: SuggestionContext[
         reason: 'Small team with lead challenges - AI sales agent can multiply your capacity',
         reasonHe: 'צוות קטן עם אתגרי לידים - סוכן AI למכירות יכול להכפיל את הקיבולת',
         relevanceScore: 9,
-        dataSource: ['overview.mainChallenge', 'overview.employees'],
+        dataSource: ['overview.mainChallenge', 'operations.hr.employeeCount'],
         relatedData: { challenge: mainChallenge, employees }
       });
     }
@@ -170,7 +170,7 @@ const analyzeOverviewModule = (meeting: Meeting, suggestions: SuggestionContext[
         reason: 'B2B business with team - CRM is essential for managing complex sales cycles',
         reasonHe: 'עסק B2B עם צוות - CRM חיוני לניהול מחזורי מכירה מורכבים',
         relevanceScore: 8,
-        dataSource: ['overview.businessType', 'overview.employees'],
+        dataSource: ['overview.businessType', 'operations.hr.employeeCount'],
         relatedData: { businessType, employees }
       });
     }
@@ -320,37 +320,37 @@ const analyzeOverviewModule = (meeting: Meeting, suggestions: SuggestionContext[
   });
 
   // FIELD 6: crmStatus - CRITICAL prerequisite logic
-  const crmStatus = overview.crmStatus;
+  const crmStatus = meeting.modules?.systems?.crmStatus;
   if (crmStatus === 'none') {
     addSuggestion(suggestions, 'impl-crm', {
       reason: 'No CRM detected - CRM implementation is PREREQUISITE for other automations',
       reasonHe: 'לא זוהה CRM - הטמעת CRM היא תנאי מוקדם לאוטומציות אחרות',
       relevanceScore: 10,
-      dataSource: ['overview.crmStatus'],
+      dataSource: ['systems.crmStatus'],
       relatedData: { crmStatus, priority: 'PREREQUISITE' }
     });
   }
 
   // FIELD 7: crmName - Existing CRM analysis
-  const crmName = overview.crmName;
+  const crmName = meeting.modules?.systems?.crmName;
   if (crmName && crmStatus === 'basic') {
     addSuggestion(suggestions, 'impl-crm', {
       reason: `Current CRM (${crmName}) is basic - upgrade to full CRM recommended`,
       reasonHe: `ה-CRM הנוכחי (${crmName}) בסיסי - מומלץ שדרוג ל-CRM מלא`,
       relevanceScore: 7,
-      dataSource: ['overview.crmName', 'overview.crmStatus'],
+      dataSource: ['systems.crmName', 'systems.crmStatus'],
       relatedData: { crmName, crmStatus }
     });
   }
 
   // FIELD 8: crmSatisfaction - Low satisfaction triggers migration
-  const crmSatisfaction = overview.crmSatisfaction;
+  const crmSatisfaction = meeting.modules?.systems?.crmSatisfaction;
   if (crmSatisfaction && crmSatisfaction <= 2) {
     addSuggestion(suggestions, 'impl-crm', {
       reason: `Low CRM satisfaction (${crmSatisfaction}/5) - migration to better CRM recommended`,
       reasonHe: `שביעות רצון נמוכה מ-CRM (${crmSatisfaction}/5) - מומלץ מעבר ל-CRM טוב יותר`,
       relevanceScore: 8,
-      dataSource: ['overview.crmSatisfaction'],
+      dataSource: ['systems.crmSatisfaction'],
       relatedData: { satisfaction: crmSatisfaction, priority: 'HIGH-IMPACT' }
     });
   }
@@ -1911,7 +1911,7 @@ const applyCrossModuleRules = (meeting: Meeting, suggestions: SuggestionContext[
       reason: `CRITICAL: No CRM + ${unansweredLeads}% unanswered leads - CRM implementation is URGENT PREREQUISITE`,
       reasonHe: `קריטי: אין CRM + ${unansweredLeads}% לידים לא נענים - הטמעת CRM היא תנאי מוקדם דחוף`,
       relevanceScore: 10,
-      dataSource: ['overview.crmStatus', 'leadsAndSales.speedToLead.unansweredPercentage'],
+      dataSource: ['systems.crmStatus', 'leadsAndSales.speedToLead.unansweredPercentage'],
       relatedData: { noCRM, unansweredLeads, priority: 'URGENT', prerequisite: true }
     });
   }
@@ -2003,7 +2003,7 @@ const applyCrossModuleRules = (meeting: Meeting, suggestions: SuggestionContext[
       reason: `High budget (${budget}) + ${employees} employees - comprehensive end-to-end automation recommended`,
       reasonHe: `תקציב גבוה (${budget}) + ${employees} עובדים - מומלצת אוטומציה מקיפה מקצה לקצה`,
       relevanceScore: 10,
-      dataSource: ['overview.budget', 'overview.employees'],
+      dataSource: ['overview.budget', 'operations.hr.employeeCount'],
       relatedData: { budget, employees, strategy: 'comprehensive' }
     });
 
@@ -2011,7 +2011,7 @@ const applyCrossModuleRules = (meeting: Meeting, suggestions: SuggestionContext[
       reason: 'High budget + large organization - full AI integration will maximize ROI',
       reasonHe: 'תקציב גבוה + ארגון גדול - אינטגרציית AI מלאה תמקסם ROI',
       relevanceScore: 9,
-      dataSource: ['overview.budget', 'overview.employees'],
+      dataSource: ['overview.budget', 'operations.hr.employeeCount'],
       relatedData: { budget, employees, strategy: 'comprehensive' }
     });
 
@@ -2094,7 +2094,7 @@ const generateSummary = (meeting: Meeting, proposedServices: ProposedService[]):
   // 1. OVERVIEW MODULE
   const overview = modules?.overview;
   if (overview) {
-    if (overview.employees) identifiedProcesses += 1; // Business size is a process dimension
+    if (modules?.operations?.hr?.employeeCount) identifiedProcesses += 1; // Business size is a process dimension
     if (overview.mainChallenge) identifiedProcesses += 1; // Main challenge indicates a process gap
   }
 

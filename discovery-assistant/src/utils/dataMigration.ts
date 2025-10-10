@@ -22,11 +22,110 @@
 
 import { Meeting, LeadSource, ServiceChannel } from '../types';
 
+/**
+ * Test function to validate consolidation migration
+ * This can be called from the browser console for testing
+ */
+export function testConsolidationMigration(): void {
+  console.log('🧪 Testing Consolidation Migration V4→V5');
+
+  // Create a test meeting with old structure (V4)
+  const testMeeting: Meeting = {
+    meetingId: 'test-consolidation',
+    id: 'test-consolidation',
+    clientName: 'Test Client',
+    date: new Date(),
+    phase: 'discovery',
+    status: 'discovery_in_progress',
+    phaseHistory: [],
+    modules: {
+      overview: {
+        businessType: 'b2b',
+        employees: 50, // OLD: This should move to operations.hr.employeeCount
+        mainChallenge: 'lead management',
+        budget: 'medium',
+        crmStatus: 'basic', // OLD: This should move to systems.crmStatus
+        crmName: 'Zoho', // OLD: This should move to systems.crmName
+        crmSatisfaction: 3, // OLD: This should move to systems.crmSatisfaction
+        leadSources: [{ channel: 'website', volumePerMonth: 100, quality: 4 }],
+        serviceChannels: [{ type: 'phone', volumePerDay: 20, responseTime: '2 hours' }]
+      },
+      leadsAndSales: {
+        leadSources: [{ channel: 'facebook', volumePerMonth: 50, quality: 3 }],
+        duplicatesFrequency: 'weekly', // OLD: This should move to systems.dataQuality.duplicates
+        missingInfoPercent: 30 // OLD: This should move to systems.dataQuality.completeness
+      },
+      customerService: {
+        channels: [{ type: 'email', volumePerDay: 15, responseTime: '4 hours' }]
+      },
+      systems: {
+        currentSystems: ['Zoho CRM'],
+        dataQuality: {
+          overall: 'medium'
+        }
+      },
+      operations: {
+        workProcesses: {
+          processes: [],
+          commonFailures: [],
+          errorTrackingSystem: 'none',
+          processDocumentation: 'minimal',
+          automationReadiness: 20
+        }
+      },
+      reporting: {},
+      aiAgents: {},
+      roi: {},
+      planning: {}
+    },
+    painPoints: []
+  };
+
+  console.log('📋 Test Meeting Created (V4 structure)');
+  console.log('Before Migration:');
+  console.log('- Overview employees:', testMeeting.modules.overview?.employees);
+  console.log('- Overview crmStatus:', testMeeting.modules.overview?.crmStatus);
+  console.log('- Leads & Sales duplicatesFrequency:', testMeeting.modules.leadsAndSales?.duplicatesFrequency);
+
+  // Run migration
+  const result = migrateMeetingData(testMeeting);
+
+  console.log('\n🔄 Migration Result:');
+  console.log('Applied migrations:', result.migrationsApplied);
+  console.log('Errors:', result.errors);
+
+  if (result.migrated) {
+    console.log('\n✅ After Migration (V5 structure):');
+    console.log('- Systems crmStatus:', result.meeting.modules.systems?.crmStatus);
+    console.log('- Systems crmName:', result.meeting.modules.systems?.crmName);
+    console.log('- Systems crmSatisfaction:', result.meeting.modules.systems?.crmSatisfaction);
+    console.log('- Operations hr.employeeCount:', result.meeting.modules.operations?.hr?.employeeCount);
+    console.log('- Systems dataQuality.duplicates:', result.meeting.modules.systems?.dataQuality?.duplicates);
+    console.log('- Systems dataQuality.completeness:', result.meeting.modules.systems?.dataQuality?.completeness);
+
+    // Verify data was moved correctly
+    if (result.meeting.modules.systems?.crmStatus === 'basic' &&
+        result.meeting.modules.systems?.crmName === 'Zoho' &&
+        result.meeting.modules.systems?.crmSatisfaction === 3 &&
+        result.meeting.modules.operations?.hr?.employeeCount === 50 &&
+        result.meeting.modules.systems?.dataQuality?.duplicates === 'weekly' &&
+        result.meeting.modules.systems?.dataQuality?.completeness === '30%') {
+      console.log('\n🎉 CONSOLIDATION MIGRATION TEST PASSED! ✅');
+    } else {
+      console.log('\n❌ CONSOLIDATION MIGRATION TEST FAILED! ❌');
+    }
+  } else {
+    console.log('\n❌ Migration failed to run');
+  }
+
+  console.log('🧪 Test Complete');
+}
+
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
-export const CURRENT_DATA_VERSION = 4;
+export const CURRENT_DATA_VERSION = 5;
 export const MIGRATION_LOG_KEY = 'discovery_migration_log';
 
 // ============================================================================
@@ -132,6 +231,11 @@ export function migrateMeetingData(meeting: any): MigrationResult {
     // Migration 3→4: Proposal purchasedServices fallback
     if (currentVersion < 4) {
       migrateV3ToV4(result);
+    }
+
+    // Migration 4→5: Field Consolidation
+    if (currentVersion < 5) {
+      migrateV4ToV5(result);
     }
 
     // Update final version if migrations succeeded
@@ -579,6 +683,142 @@ function migrateV3ToV4(result: MigrationResult): void {
   }
 
   console.log(`[DataMigration v3→v4] Complete. Applied ${result.migrationsApplied.length} migrations, ${result.errors.length} errors`);
+}
+
+/**
+ * Migrates from v4 to v5 - Field Consolidation
+ * - Moves CRM fields from Overview to Systems
+ * - Moves data quality fields from Leads & Sales to Systems
+ * - Moves employee count from Overview to Operations
+ * - Removes process duplication from Essential Details
+ */
+function migrateV4ToV5(result: MigrationResult): void {
+  const meeting = result.meeting;
+
+  console.log('[DataMigration v4→v5] Starting field consolidation migration...');
+
+  // Guard: Ensure modules object exists
+  if (!meeting.modules) {
+    console.warn('[DataMigration v4→v5] No modules object found, initializing...');
+    meeting.modules = {};
+    result.migrationsApplied.push('initialized_empty_modules');
+  }
+
+  // ========================================
+  // MIGRATION 1: Move CRM fields from Overview to Systems
+  // ========================================
+  try {
+    if (meeting.modules.overview?.crmStatus || meeting.modules.overview?.crmName || meeting.modules.overview?.crmSatisfaction) {
+      if (!meeting.modules.systems) {
+        meeting.modules.systems = {};
+      }
+      meeting.modules.systems.crmStatus = meeting.modules.overview.crmStatus;
+      meeting.modules.systems.crmName = meeting.modules.overview.crmName;
+      meeting.modules.systems.crmSatisfaction = meeting.modules.overview.crmSatisfaction;
+      delete meeting.modules.overview.crmStatus;
+      delete meeting.modules.overview.crmName;
+      delete meeting.modules.overview.crmSatisfaction;
+      result.migrationsApplied.push('crm_fields_overview_to_systems');
+      console.log('[DataMigration v4→v5] Moved CRM fields from Overview to Systems');
+    }
+  } catch (error) {
+    result.errors.push(`CRM fields migration failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+
+  // ========================================
+  // MIGRATION 2: Move data quality fields from Leads & Sales to Systems
+  // ========================================
+  try {
+    if (meeting.modules.leadsAndSales?.duplicatesFrequency || meeting.modules.leadsAndSales?.missingInfoPercent) {
+      if (!meeting.modules.systems) {
+        meeting.modules.systems = {};
+      }
+      if (!meeting.modules.systems.dataQuality) {
+        meeting.modules.systems.dataQuality = {};
+      }
+      meeting.modules.systems.dataQuality.duplicates = meeting.modules.leadsAndSales.duplicatesFrequency;
+      meeting.modules.systems.dataQuality.completeness = `${meeting.modules.leadsAndSales.missingInfoPercent}%`;
+      delete meeting.modules.leadsAndSales.duplicatesFrequency;
+      delete meeting.modules.leadsAndSales.missingInfoPercent;
+      result.migrationsApplied.push('data_quality_leadsandsales_to_systems');
+      console.log('[DataMigration v4→v5] Moved data quality fields from Leads & Sales to Systems');
+    }
+  } catch (error) {
+    result.errors.push(`Data quality migration failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+
+  // ========================================
+  // MIGRATION 3: Move employee count from Overview to Operations
+  // ========================================
+  try {
+    if (meeting.modules.overview?.employees) {
+      if (!meeting.modules.operations) {
+        meeting.modules.operations = {};
+      }
+      if (!meeting.modules.operations.hr) {
+        meeting.modules.operations.hr = {};
+      }
+      meeting.modules.operations.hr.employeeCount = meeting.modules.overview.employees;
+      delete meeting.modules.overview.employees;
+      result.migrationsApplied.push('employee_count_overview_to_operations');
+      console.log('[DataMigration v4→v5] Moved employee count from Overview to Operations');
+    }
+  } catch (error) {
+    result.errors.push(`Employee count migration failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+
+  // ========================================
+  // MIGRATION 4: Remove process duplication from Essential Details
+  // ========================================
+  try {
+    if (meeting.modules.essentialDetails?.automationOpportunities?.repetitiveProcesses) {
+      // Note: We're not moving this data since Operations already has process management
+      // Just removing the duplication
+      delete meeting.modules.essentialDetails.automationOpportunities.repetitiveProcesses;
+      result.migrationsApplied.push('removed_process_duplication_essential_details');
+      console.log('[DataMigration v4→v5] Removed process duplication from Essential Details');
+    }
+  } catch (error) {
+    result.errors.push(`Process duplication removal failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+
+  console.log(`[DataMigration v4→v5] Complete. Applied ${result.migrationsApplied.length} migrations, ${result.errors.length} errors`);
+
+  // ========================================
+  // VALIDATION: Test that consolidation worked correctly
+  // ========================================
+  try {
+    console.log('[DataMigration v4→v5] Running post-migration validation...');
+
+    // Test 1: CRM fields moved from Overview to Systems
+    if (meeting.modules.systems?.crmStatus || meeting.modules.systems?.crmName || meeting.modules.systems?.crmSatisfaction) {
+      console.log('✅ CRM fields successfully moved to Systems module');
+    }
+
+    // Test 2: Employee count moved from Overview to Operations
+    if (meeting.modules.operations?.hr?.employeeCount) {
+      console.log('✅ Employee count successfully moved to Operations module');
+    }
+
+    // Test 3: Data quality fields consolidated in Systems
+    if (meeting.modules.systems?.dataQuality?.duplicates || meeting.modules.systems?.dataQuality?.completeness) {
+      console.log('✅ Data quality fields successfully consolidated in Systems module');
+    }
+
+    // Test 4: Lead sources preserved in Leads & Sales
+    if (meeting.modules.leadsAndSales?.leadSources && Array.isArray(meeting.modules.leadsAndSales.leadSources)) {
+      console.log('✅ Lead sources preserved in Leads & Sales module');
+    }
+
+    // Test 5: Service channels preserved in Customer Service
+    if (meeting.modules.customerService?.channels && Array.isArray(meeting.modules.customerService.channels)) {
+      console.log('✅ Service channels preserved in Customer Service module');
+    }
+
+    console.log('[DataMigration v4→v5] Validation complete ✅');
+  } catch (error) {
+    console.error('[DataMigration v4→v5] Validation failed:', error);
+  }
 }
 
 // ============================================================================

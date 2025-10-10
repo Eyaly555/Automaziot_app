@@ -118,7 +118,7 @@ export async function exportDiscoveryToExcel(meeting: Meeting): Promise<void> {
     [''],
     ['פרטי עסק'],
     ['סוג עסק', meeting.modules.overview?.businessType || 'לא צוין'],
-    ['מספר עובדים', meeting.modules.overview?.employees || 'לא צוין'],
+    ['מספר עובדים', meeting.modules.operations?.hr?.employeeCount || 'לא צוין'],
     ['אתגר מרכזי', meeting.modules.overview?.mainChallenge || 'לא צוין'],
     [''],
     ['סיכום השלמת מודולים'],

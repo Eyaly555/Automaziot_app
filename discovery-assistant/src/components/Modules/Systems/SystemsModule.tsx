@@ -25,6 +25,11 @@ export const SystemsModule: React.FC = () => {
   const [duplicateData, setDuplicateData] = useState(moduleData.dataQuality?.duplicates || '');
   const [dataCompleteness, setDataCompleteness] = useState(moduleData.dataQuality?.completeness || '');
 
+  // NEW: Consolidated CRM fields (moved from Overview)
+  const [crmStatus, setCrmStatus] = useState<'none' | 'basic' | 'full'>(moduleData.crmStatus || 'none');
+  const [crmName, setCrmName] = useState(moduleData.crmName || '');
+  const [crmSatisfaction, setCrmSatisfaction] = useState<number | undefined>(moduleData.crmSatisfaction);
+
   // API & Webhooks
   const [apiUsage, setApiUsage] = useState(moduleData.apiWebhooks?.usage || '');
   const [webhookUsage, setWebhookUsage] = useState(moduleData.apiWebhooks?.webhooks || '');
@@ -50,6 +55,10 @@ export const SystemsModule: React.FC = () => {
           duplicates: duplicateData,
           completeness: dataCompleteness
         },
+        // NEW: Consolidated CRM fields
+        crmStatus,
+        crmName,
+        crmSatisfaction,
         apiWebhooks: {
           usage: apiUsage,
           webhooks: webhookUsage,
@@ -65,8 +74,8 @@ export const SystemsModule: React.FC = () => {
 
     return () => clearTimeout(timer);
   }, [currentSystems, customSystems, integrationLevel, integrationIssues, manualDataTransfer,
-      dataQuality, duplicateData, dataCompleteness, apiUsage, webhookUsage, apiNeeds,
-      hostingType, securityMeasures, backupFrequency]);
+      dataQuality, duplicateData, dataCompleteness, crmStatus, crmName, crmSatisfaction,
+      apiUsage, webhookUsage, apiNeeds, hostingType, securityMeasures, backupFrequency]);
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">

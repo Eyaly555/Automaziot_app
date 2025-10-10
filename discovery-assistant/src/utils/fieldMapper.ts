@@ -362,10 +362,10 @@ export function extractBusinessContext(meeting: Meeting): {
 } {
   return {
     industry: meeting.modules?.overview?.industry,
-    employees: meeting.modules?.overview?.employees,
+    employees: meeting.modules?.operations?.hr?.employeeCount,
     mainChallenge: meeting.modules?.overview?.mainChallenge,
     monthlyLeadVolume: meeting.modules?.leadsAndSales?.leadVolume,
-    crmSystem: meeting.modules?.overview?.crmName,
+    crmSystem: meeting.modules?.systems?.crmName,
     currentResponseTime: meeting.modules?.leadsAndSales?.speedToLead?.duringBusinessHours,
     painPoints: meeting.painPoints?.map(p => p.description) || []
   };

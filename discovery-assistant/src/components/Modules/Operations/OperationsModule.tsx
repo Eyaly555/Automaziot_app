@@ -155,6 +155,9 @@ export const OperationsModule: React.FC = () => {
     moduleData.hr?.hrSystemsInUse || []
   );
 
+  // NEW: Consolidated employee count (moved from Overview)
+  const [employeeCount, setEmployeeCount] = useState(moduleData.hr?.employeeCount || 0);
+
   // 4.5 לוגיסטיקה - Logistics
   const [inventoryMethod, setInventoryMethod] = useState(
     moduleData.logistics?.inventoryMethod || ''
@@ -251,6 +254,7 @@ export const OperationsModule: React.FC = () => {
           deadlineMissRate
         },
         hr: {
+          employeeCount, // NEW consolidated field
           departments,
           onboardingSteps,
           onboardingDuration,
@@ -277,7 +281,7 @@ export const OperationsModule: React.FC = () => {
     workProcesses, commonFailures, errorTrackingSystem, processDocumentation, automationReadiness,
     documentFlows, storageLocations, searchDifficulties, versionControlMethod, approvalWorkflow, documentRetention,
     projectTools, taskCreationSources, projectIssues, resourceAllocationMethod, timelineAccuracy, projectVisibility, deadlineMissRate,
-    departments, onboardingSteps, onboardingDuration, trainingRequirements, performanceReviewFrequency, employeeTurnoverRate, hrSystemsInUse,
+    employeeCount, departments, onboardingSteps, onboardingDuration, trainingRequirements, performanceReviewFrequency, employeeTurnoverRate, hrSystemsInUse,
     inventoryMethod, shippingProcesses, supplierCount, orderFulfillmentTime, warehouseOperations, deliveryIssues, returnProcessTime, inventoryAccuracy,
     updateModule
   ]);

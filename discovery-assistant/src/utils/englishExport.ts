@@ -20,7 +20,7 @@ export function generateEnglishTechnicalDoc(meeting: Meeting): string {
   doc.push('### Client Information\n');
   doc.push(`**Company:** ${meeting.clientName}`);
   doc.push(`**Industry:** ${meeting.modules?.overview?.industry || 'Not specified'}`);
-  doc.push(`**Company Size:** ${meeting.modules?.overview?.employees || 'Not specified'} employees`);
+  doc.push(`**Company Size:** ${meeting.modules?.operations?.hr?.employeeCount || 'Not specified'} employees`);
   doc.push(`**Budget:** ${meeting.modules?.overview?.budget || 'Not specified'}\n`);
 
   // Current Systems
