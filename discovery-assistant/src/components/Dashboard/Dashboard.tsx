@@ -18,7 +18,9 @@ import {
   Code,
   Users,
   Lock,
-  Info
+  Info,
+  RotateCcw,
+  Database
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { formatTime, formatCurrency, formatDate } from '../../utils/formatters';
@@ -31,6 +33,8 @@ import { NextStepsGenerator } from '../NextSteps/NextStepsGenerator';
 import { ExportMenu } from '../Common/ExportMenu';
 import { ClientProgressSummary } from './ClientProgressSummary';
 import { calculateClientProgressSummary } from '../../utils/dashboardHelpers';
+import { ResetMeetingModal } from '../Common/Modals/ResetMeetingModal';
+import { RestoreBackupMenu } from '../Common/Modals/RestoreBackupMenu';
 
 interface ModuleConfig {
   id: string;
@@ -72,6 +76,8 @@ export const Dashboard: React.FC = () => {
 
   const [showMeetingSelector, setShowMeetingSelector] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [showRestoreBackupMenu, setShowRestoreBackupMenu] = useState(false);
 
   const moduleProgress = getModuleProgress();
   const overallProgress = getOverallProgress();
@@ -269,12 +275,34 @@ export const Dashboard: React.FC = () => {
                   {/* Export Menu */}
                   <ExportMenu variant="button" />
 
+                  {/* Restore Backup Button */}
+                  <Button
+                    onClick={() => setShowRestoreBackupMenu(true)}
+                    variant="ghost"
+                    icon={<Database className="w-4 h-4" />}
+                    className="bg-blue-100 hover:bg-blue-200 text-blue-700"
+                    title="שחזור מגיבוי"
+                  >
+                    שחזור
+                  </Button>
+
+                  {/* Reset Meeting Data Button */}
+                  <Button
+                    onClick={() => setShowResetModal(true)}
+                    variant="ghost"
+                    icon={<RotateCcw className="w-4 h-4" />}
+                    className="bg-red-100 hover:bg-red-200 text-red-700"
+                    title="איפוס מידע פגישה"
+                  >
+                    איפוס
+                  </Button>
+
                   {/* Switch Meeting */}
                   <Button
                     onClick={() => setShowMeetingSelector(!showMeetingSelector)}
                     variant="ghost"
                     icon={<RefreshCw className="w-4 h-4" />}
-                    className="bg-blue-100 hover:bg-blue-200 text-blue-700"
+                    className="bg-gray-100 hover:bg-gray-200 text-gray-700"
                   >
                     החלף פגישה
                   </Button>
@@ -725,6 +753,26 @@ export const Dashboard: React.FC = () => {
           }
         }
       `}</style>
+
+      {/* Reset Meeting Modal */}
+      <ResetMeetingModal
+        isOpen={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onSuccess={() => {
+          setShowResetModal(false);
+          // Optionally refresh or update state
+        }}
+      />
+
+      {/* Restore Backup Menu */}
+      <RestoreBackupMenu
+        isOpen={showRestoreBackupMenu}
+        onClose={() => setShowRestoreBackupMenu(false)}
+        onSuccess={() => {
+          setShowRestoreBackupMenu(false);
+          // Optionally refresh or update state
+        }}
+      />
     </div>
   );
 };

@@ -10,6 +10,7 @@ import { validateServiceRequirements } from '../utils/serviceRequirementsValidat
 import { logger } from '../utils/consoleLogger';
 import { backupPhaseHistory, restorePhaseHistory } from '../utils/phaseHistoryBackup';
 import { getSmartValidationMessages, formatValidationMessagesForUI } from '../utils/smartValidationMessages';
+import { getBackupMetadata } from '../services/meetingBackupService';
 
 interface MeetingStore {
   currentMeeting: Meeting | null;
@@ -115,6 +116,11 @@ interface MeetingStore {
   refreshClientsList: () => Promise<void>;
   searchClients: (query: string) => Promise<ZohoClientListItem[]>;
   clearClientsCache: () => void;
+
+  // NEW: Meeting data reset and backup
+  resetMeetingData: (createBackup?: boolean) => Promise<boolean>;
+  restoreFromBackup: (backupId: string) => Promise<boolean>;
+  getAvailableBackups: () => any[];
 
   // Internal cache fields (private, used for optimization)
   _validationCache?: any;
@@ -2244,6 +2250,229 @@ export const useMeetingStore = create<MeetingStore>()(
           zohoClientsCache: null
         });
         console.log('[ZohoClients] Cache cleared');
+      },
+
+      // ========================================================================
+      // MEETING DATA RESET AND BACKUP
+      // ========================================================================
+
+      /**
+       * Resets all meeting data while preserving Zoho identity information
+       * 
+       * This function clears all discovery data (modules, painPoints, notes, etc.)
+       * while keeping client identity info from Zoho (name, phone, email, recordId).
+       * 
+       * What is preserved:
+       * - clientName, meetingId, date
+       * - zohoIntegration (recordId, contactInfo, lastSyncTime)
+       * - phase, status (current state)
+       * - dataVersion, supabaseId
+       * 
+       * What is reset:
+       * - modules (all 9 modules)
+       * - painPoints, notes, timer
+       * - customFieldValues, wizardState
+       * - implementationSpec, developmentTracking
+       * - phaseHistory (reset to current phase only)
+       * 
+       * @param createBackup - Whether to create a backup before reset (default: true)
+       * @returns Promise<boolean> - true if successful, false otherwise
+       */
+      resetMeetingData: async (createBackup: boolean = true): Promise<boolean> => {
+        const state = get();
+        const meeting = state.currentMeeting;
+
+        if (!meeting) {
+          console.error('[ResetMeeting] No current meeting to reset');
+          return false;
+        }
+
+        try {
+          // Step 1: Create backup if requested
+          if (createBackup) {
+            const { createBackup: createBackupFn } = await import('../services/meetingBackupService');
+            const backupResult = createBackupFn(meeting, 'pre_reset');
+            
+            if (!backupResult.success) {
+              console.error('[ResetMeeting] Failed to create backup:', backupResult.error);
+              // Continue anyway - user explicitly requested reset
+            } else {
+              console.log('[ResetMeeting] ✓ Backup created:', backupResult.backupId);
+            }
+          }
+
+          // Step 2: Create reset meeting with preserved fields
+          const resetMeeting: Meeting = {
+            // Preserve identity and metadata
+            meetingId: meeting.meetingId,
+            id: meeting.meetingId,
+            clientName: meeting.clientName,
+            date: meeting.date,
+            dataVersion: meeting.dataVersion || 2,
+            
+            // Preserve Zoho integration
+            zohoIntegration: meeting.zohoIntegration,
+            
+            // Preserve current phase/status
+            phase: meeting.phase,
+            status: meeting.status,
+            
+            // Reset phaseHistory to current state only
+            phaseHistory: [{
+              fromPhase: null,
+              toPhase: meeting.phase,
+              timestamp: new Date(),
+              transitionedBy: meeting.zohoIntegration?.contactInfo?.email || 'system',
+              notes: 'Meeting data reset'
+            }],
+            
+            // Preserve database IDs
+            supabaseId: meeting.supabaseId,
+            updatedAt: new Date().toISOString(),
+            
+            // Reset all discovery data
+            modules: {
+              overview: {},
+              leadsAndSales: {},
+              customerService: {},
+              operations: {},
+              reporting: {},
+              aiAgents: {},
+              systems: {},
+              roi: {},
+              planning: {}
+            },
+            painPoints: [],
+            notes: '',
+            timer: 0,
+            
+            // Reset optional fields
+            totalROI: undefined,
+            customFieldValues: undefined,
+            wizardState: undefined,
+            implementationSpec: undefined,
+            developmentTracking: undefined
+          };
+
+          // Step 3: Update state
+          set((state: MeetingStore) => ({
+            currentMeeting: resetMeeting,
+            meetings: state.meetings.map((m: Meeting) =>
+              m.meetingId === resetMeeting.meetingId ? resetMeeting : m
+            )
+          }));
+
+          // Step 4: Update localStorage
+          try {
+            const storageKey = meeting.zohoIntegration?.recordId 
+              ? `discovery_zoho_${meeting.zohoIntegration.recordId}`
+              : `discovery_standalone_${meeting.meetingId}`;
+            localStorage.setItem(storageKey, JSON.stringify(resetMeeting));
+          } catch (error) {
+            console.error('[ResetMeeting] Failed to update localStorage:', error);
+          }
+
+          // Step 5: Sync to Zoho if enabled
+          if (meeting.zohoIntegration?.syncEnabled) {
+            console.log('[ResetMeeting] Syncing reset data to Zoho...');
+            try {
+              await get().syncCurrentToZoho({ silent: true });
+            } catch (error) {
+              console.error('[ResetMeeting] Zoho sync failed:', error);
+              // Non-critical, continue
+            }
+          }
+
+          // Step 6: Sync to Supabase if configured
+          if (meeting.supabaseId && isSupabaseReady()) {
+            console.log('[ResetMeeting] Syncing reset data to Supabase...');
+            try {
+              await supabaseService.saveMeeting(resetMeeting);
+            } catch (error) {
+              console.error('[ResetMeeting] Supabase sync failed:', error);
+              // Non-critical, continue
+            }
+          }
+
+          console.log('[ResetMeeting] ✓ Meeting data reset successfully');
+          return true;
+
+        } catch (error) {
+          console.error('[ResetMeeting] Failed to reset meeting data:', error);
+          return false;
+        }
+      },
+
+      /**
+       * Restores a meeting from a backup
+       * 
+       * @param backupId - The ID of the backup to restore
+       * @returns Promise<boolean> - true if successful, false otherwise
+       */
+      restoreFromBackup: async (backupId: string): Promise<boolean> => {
+        try {
+          const { restoreFromBackup: restoreBackupFn } = await import('../services/meetingBackupService');
+          const result = restoreBackupFn(backupId);
+
+          if (!result.success || !result.meeting) {
+            console.error('[RestoreBackup] Failed to restore:', result.error);
+            return false;
+          }
+
+          const restoredMeeting = result.meeting;
+
+          // Update state
+          set((state: MeetingStore) => ({
+            currentMeeting: restoredMeeting,
+            meetings: state.meetings.map((m: Meeting) =>
+              m.meetingId === restoredMeeting.meetingId ? restoredMeeting : m
+            )
+          }));
+
+          // Update localStorage
+          try {
+            const storageKey = restoredMeeting.zohoIntegration?.recordId 
+              ? `discovery_zoho_${restoredMeeting.zohoIntegration.recordId}`
+              : `discovery_standalone_${restoredMeeting.meetingId}`;
+            localStorage.setItem(storageKey, JSON.stringify(restoredMeeting));
+          } catch (error) {
+            console.error('[RestoreBackup] Failed to update localStorage:', error);
+          }
+
+          // Sync to Supabase if configured
+          if (restoredMeeting.supabaseId && isSupabaseReady()) {
+            console.log('[RestoreBackup] Syncing restored data to Supabase...');
+            try {
+              await supabaseService.saveMeeting(restoredMeeting);
+            } catch (error) {
+              console.error('[RestoreBackup] Supabase sync failed:', error);
+            }
+          }
+
+          console.log('[RestoreBackup] ✓ Meeting restored successfully');
+          return true;
+
+        } catch (error) {
+          console.error('[RestoreBackup] Failed to restore backup:', error);
+          return false;
+        }
+      },
+
+      /**
+       * Gets available backups for the current meeting
+       * 
+       * @returns Array of backup metadata
+       */
+      getAvailableBackups: () => {
+        const meeting = get().currentMeeting;
+        if (!meeting) return [];
+
+        try {
+          return getBackupMetadata(meeting.meetingId);
+        } catch (error) {
+          console.error('[GetBackups] Failed to get backups:', error);
+          return [];
+        }
       }
     }),
     {

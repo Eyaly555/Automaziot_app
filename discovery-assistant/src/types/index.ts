@@ -29,6 +29,9 @@ export * from './proposal';
 // Re-export service requirements types
 export * from './serviceRequirements';
 
+// Re-export backup types
+export * from './backup';
+
 // ============================================================================
 // PHASE 2 SERVICE TYPES (Services 1-59)
 // ============================================================================
