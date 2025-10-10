@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
-import { Card } from '../../../Common/Card';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
+import { Card } from '../../../Common/Card';
 import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 export function IntCustomSpec() {
@@ -49,6 +51,33 @@ export function IntCustomSpec() {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'int-custom',
+    immediateFields: ['endpoint', 'method', 'authType', 'syncConfig'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in IntCustomSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      authType: apiAuthMethod.value,
+      syncConfig: {
+        ...config.syncConfig,
+        frequency: syncFrequency.value
+      },
+      errorHandling: {
+        ...config.errorHandling,
+        alertRecipients: alertEmail.value ? [alertEmail.value] : config.errorHandling?.alertRecipients || []
+      }
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
     const existing = integrationServices.find(i => i.serviceId === 'int-custom');
@@ -57,9 +86,8 @@ export function IntCustomSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
-
+  // Save handler
+  const handleSave = async () => {
     let frequencyValue = syncFrequency.value;
     if (frequencyValue === 'realtime') frequencyValue = 'real-time';
 
@@ -76,22 +104,7 @@ export function IntCustomSpec() {
       }
     };
 
-    const integrationServices = currentMeeting.implementationSpec?.integrationServices || [];
-    const updated = integrationServices.filter(i => i.serviceId !== 'int-custom');
-
-    updated.push({
-      serviceId: 'int-custom',
-      serviceName: 'אינטגרציה מותאמת אישית',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
-
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        integrationServices: updated,
-      },
-    });
+    await saveData(completeConfig);
   };
 
   return (
@@ -316,12 +329,33 @@ export function IntCustomSpec() {
             </div>
           </div>
 
-          <div className="flex justify-end pt-4 border-t">
+          {/* Save Status and Button */}
+          <div className="flex justify-between items-center gap-4 pt-4 border-t">
+            <div className="flex items-center gap-2">
+              {isSaving && (
+                <div className="flex items-center gap-2 text-blue-600">
+                  <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm">שומר אוטומטית...</span>
+                </div>
+              )}
+              {saveError && (
+                <div className="flex items-center gap-2 text-red-600">
+                  <span className="text-sm">שגיאה בשמירה</span>
+                </div>
+              )}
+              {!isSaving && !saveError && config.endpoint && (
+                <div className="flex items-center gap-2 text-green-600">
+                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                  <span className="text-sm">נשמר אוטומטית</span>
+                </div>
+              )}
+            </div>
             <button
               onClick={handleSave}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              disabled={isSaving}
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              שמור הגדרות
+              {isSaving ? 'שומר...' : 'שמור ידנית'}
             </button>
           </div>
         </div>

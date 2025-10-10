@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import type { AutoServiceWorkflowRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
 import { Save, Workflow, CheckCircle, Info as InfoIcon } from 'lucide-react';
-import { useSmartField } from '../../../../hooks/useSmartField';
 
 export function AutoServiceWorkflowSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
@@ -137,6 +139,56 @@ export function AutoServiceWorkflowSpec() {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'auto-service-workflow',
+    immediateFields: ['workflowSteps', 'escalationRules', 'serviceMetrics', 'integration'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AutoServiceWorkflowSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      technicalConfig: {
+        ...config.technicalConfig,
+        trigger: workflowTrigger.value || config.technicalConfig.trigger
+      },
+      databaseConfig: {
+        ...config.databaseConfig,
+        type: databaseType.value || config.databaseConfig.type
+      },
+      notificationConfig: {
+        ...config.notificationConfig,
+        channels: notificationChannels.value || config.notificationConfig.channels
+      },
+      schedulingRules: {
+        ...config.schedulingRules,
+        businessHours: {
+          ...config.schedulingRules.businessHours,
+          start: businessHoursStart.value || config.schedulingRules.businessHours.start,
+          end: businessHoursEnd.value || config.schedulingRules.businessHours.end
+        }
+      },
+      integration: {
+        ...config.integration,
+        crmSystem: crmSystem.value || config.integration.crmSystem
+      },
+      n8nWorkflow: {
+        ...config.n8nWorkflow,
+        instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow.instanceUrl,
+        errorHandling: {
+          ...config.n8nWorkflow.errorHandling,
+          alertEmail: alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail
+        }
+      }
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     if (currentMeeting?.implementationSpec?.automations) {
       const existing = currentMeeting.implementationSpec.automations.find(
@@ -148,10 +200,8 @@ export function AutoServiceWorkflowSpec() {
     }
   }, [currentMeeting]);
 
-  const saveConfig = () => {
-    if (!currentMeeting) return;
-
-    // Build complete config with smart field values
+  // Save handler
+  const handleSave = async () => {
     const completeConfig = {
       ...config,
       technicalConfig: {
@@ -188,29 +238,7 @@ export function AutoServiceWorkflowSpec() {
       }
     };
 
-    const updatedAutomations = [...(currentMeeting.implementationSpec?.automations || [])];
-    const existingIndex = updatedAutomations.findIndex((a: any) => a.serviceId === 'auto-service-workflow');
-
-    const automationData = {
-      serviceId: 'auto-service-workflow',
-      serviceName: 'זרימת עבודה לשירות לקוחות',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    };
-
-    if (existingIndex >= 0) {
-      updatedAutomations[existingIndex] = automationData;
-    } else {
-      updatedAutomations.push(automationData);
-    }
-
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        automations: updatedAutomations,
-        lastUpdated: new Date()
-      }
-    });
+    await saveData(completeConfig);
   };
 
   return (
@@ -666,14 +694,34 @@ export function AutoServiceWorkflowSpec() {
             </div>
           </div>
 
-          {/* שמירה */}
-          <div className="flex justify-end">
+          {/* Save Status and Button */}
+          <div className="flex justify-between items-center gap-4 pt-4 border-t">
+            <div className="flex items-center gap-2">
+              {isSaving && (
+                <div className="flex items-center gap-2 text-blue-600">
+                  <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm">שומר אוטומטית...</span>
+                </div>
+              )}
+              {saveError && (
+                <div className="flex items-center gap-2 text-red-600">
+                  <span className="text-sm">שגיאה בשמירה</span>
+                </div>
+              )}
+              {!isSaving && !saveError && config.workflowSteps.length > 0 && (
+                <div className="flex items-center gap-2 text-green-600">
+                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                  <span className="text-sm">נשמר אוטומטית</span>
+                </div>
+              )}
+            </div>
             <button
-              onClick={saveConfig}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              onClick={handleSave}
+              disabled={isSaving}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               <Save className="w-4 h-4" />
-              שמור הגדרות זרימה
+              {isSaving ? 'שומר...' : 'שמור ידנית'}
             </button>
           </div>
         </div>

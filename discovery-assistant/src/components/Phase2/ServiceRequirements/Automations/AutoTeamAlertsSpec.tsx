@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
-import { Card } from '../../../Common/Card';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
+import { Card } from '../../../Common/Card';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 interface AutoTeamAlertsConfig {
@@ -45,6 +47,31 @@ export function AutoTeamAlertsSpec() {
     customMessageTemplates: false,
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'auto-team-alerts',
+    immediateFields: ['notificationChannels', 'alertTypes', 'escalationLevels'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AutoTeamAlertsSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      notificationChannels: notificationChannels.value || config.notificationChannels,
+      n8nWorkflow: {
+        instanceUrl: n8nInstanceUrl.value,
+        errorHandling: {
+          alertEmail: alertEmail.value
+        }
+      }
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
     const existing = automations.find((a: any) => a.serviceId === 'auto-team-alerts');
@@ -53,19 +80,11 @@ export function AutoTeamAlertsSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
-
-    // קריאת המערך הקיים
-    const automations = currentMeeting?.implementationSpec?.automations || [];
-
-    // הסרת רשומה קיימת (אם יש) למניעת כפילויות
-    const updated = automations.filter((a: any) => a.serviceId !== 'auto-team-alerts');
-
-    // Build complete config with smart field values
+  // Save handler
+  const handleSave = async () => {
     const completeConfig = {
       ...config,
-      notificationChannels: notificationChannels.value,
+      notificationChannels: notificationChannels.value || config.notificationChannels,
       n8nWorkflow: {
         instanceUrl: n8nInstanceUrl.value,
         errorHandling: {
@@ -74,23 +93,7 @@ export function AutoTeamAlertsSpec() {
       }
     };
 
-    // הוספת רשומה חדשה/מעודכנת
-    updated.push({
-      serviceId: 'auto-team-alerts',
-      serviceName: 'התראות אוטומטיות לצוות',
-      serviceNameHe: 'התראות אוטומטיות לצוות',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
-
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        automations: updated,
-      },
-    });
-
-    alert('✅ הגדרות נשמרו בהצלחה!');
+    await saveData(completeConfig);
   };
 
   return (
@@ -271,8 +274,33 @@ export function AutoTeamAlertsSpec() {
                 <span className="text-sm">תבניות הודעות מותאמות אישית</span>
               </label>
             </div>
-            <div className="flex justify-end pt-4 border-t">
-              <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">שמור הגדרות</button>
+            <div className="flex justify-between items-center gap-4 pt-4 border-t">
+              <div className="flex items-center gap-2">
+                {isSaving && (
+                  <div className="flex items-center gap-2 text-blue-600">
+                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-sm">שומר אוטומטית...</span>
+                  </div>
+                )}
+                {saveError && (
+                  <div className="flex items-center gap-2 text-red-600">
+                    <span className="text-sm">שגיאה בשמירה</span>
+                  </div>
+                )}
+                {!isSaving && !saveError && config.alertTypes && config.alertTypes.length > 0 && (
+                  <div className="flex items-center gap-2 text-green-600">
+                    <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                    <span className="text-sm">נשמר אוטומטית</span>
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                {isSaving ? 'שומר...' : 'שמור ידנית'}
+              </button>
             </div>
           </div>
         </div>

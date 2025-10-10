@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import type { AutoSystemSyncRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
 import { Plus, Trash2, Save } from 'lucide-react';
-import { useSmartField } from '../../../../hooks/useSmartField';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 const generateId = () => Math.random().toString(36).substring(2, 11);
@@ -118,6 +120,36 @@ export function AutoSystemSyncSpec() {
   const [activeTab, setActiveTab] = useState<'systems' | 'flows' | 'mapping' | 'logic' | 'transform' | 'errors' | 'webhooks' | 'initial' | 'monitoring' | 'n8n'>('systems');
   const [isSaving, setIsSaving] = useState(false);
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving: autoSaveIsSaving, saveError } = useAutoSave({
+    moduleId: 'auto-system-sync',
+    immediateFields: ['systems', 'dataFlow', 'globalFieldMapping', 'syncLogic'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AutoSystemSyncSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      n8nWorkflow: {
+        ...config.n8nWorkflow,
+        instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow.instanceUrl,
+        errorHandling: {
+          ...config.n8nWorkflow.errorHandling,
+          alertEmail: alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail
+        }
+      },
+      syncLogic: {
+        ...config.syncLogic,
+        syncFrequency: syncFrequency.value || config.syncLogic.syncFrequency
+      }
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
     const existing = automations.find((a: any) => a.serviceId === 'auto-system-sync');
@@ -126,53 +158,25 @@ export function AutoSystemSyncSpec() {
     }
   }, [currentMeeting]);
 
+  // Save handler
   const handleSave = async () => {
-    if (!currentMeeting) return;
-
-    setIsSaving(true);
-    try {
-      const automations = currentMeeting?.implementationSpec?.automations || [];
-      const updated = automations.filter((a: any) => a.serviceId !== 'auto-system-sync');
-
-      // Build complete config with smart field values
-      const completeConfig = {
-        ...config,
-        syncLogic: {
-          ...config.syncLogic,
-          syncFrequency: syncFrequency.value
-        },
-        n8nWorkflow: {
-          ...config.n8nWorkflow,
-          instanceUrl: n8nInstanceUrl.value,
-          errorHandling: {
-            ...config.n8nWorkflow.errorHandling,
-            alertEmail: alertEmail.value
-          }
+    const completeConfig = {
+      ...config,
+      syncLogic: {
+        ...config.syncLogic,
+        syncFrequency: syncFrequency.value || config.syncLogic.syncFrequency
+      },
+      n8nWorkflow: {
+        ...config.n8nWorkflow,
+        instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow.instanceUrl,
+        errorHandling: {
+          ...config.n8nWorkflow.errorHandling,
+          alertEmail: alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail
         }
-      };
+      }
+    };
 
-      updated.push({
-        serviceId: 'auto-system-sync',
-        serviceName: 'סנכרון בין מערכות',
-        serviceNameHe: 'סנכרון בין מערכות',
-        requirements: completeConfig,
-        completedAt: new Date().toISOString()
-      });
-
-      updateMeeting({
-        implementationSpec: {
-          ...currentMeeting.implementationSpec,
-          automations: updated,
-        },
-      });
-
-      alert('הגדרות נשמרו בהצלחה!');
-    } catch (error) {
-      console.error('Error saving auto-system-sync:', error);
-      alert('שגיאה בשמירת הגדרות');
-    } finally {
-      setIsSaving(false);
-    }
+    await saveData(completeConfig);
   };
 
   // Systems management
@@ -359,11 +363,11 @@ export function AutoSystemSyncSpec() {
             </div>
             <button
               onClick={handleSave}
-              disabled={isSaving}
+              disabled={autoSaveIsSaving}
               className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
             >
               <Save className="w-4 h-4" />
-              {isSaving ? 'שומר...' : 'שמור'}
+              {autoSaveIsSaving ? 'שומר...' : 'שמור ידנית'}
             </button>
           </div>
         </div>
@@ -2089,15 +2093,34 @@ export function AutoSystemSyncSpec() {
           </div>
         </div>
 
-        {/* Save Button at Bottom */}
-        <div className="flex justify-end gap-4">
+        {/* Save Status and Button */}
+        <div className="flex justify-between items-center gap-4 pt-4 border-t">
+          <div className="flex items-center gap-2">
+            {autoSaveIsSaving && (
+              <div className="flex items-center gap-2 text-blue-600">
+                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-sm">שומר אוטומטית...</span>
+              </div>
+            )}
+            {saveError && (
+              <div className="flex items-center gap-2 text-red-600">
+                <span className="text-sm">שגיאה בשמירה</span>
+              </div>
+            )}
+            {!autoSaveIsSaving && !saveError && config.systems.length > 0 && (
+              <div className="flex items-center gap-2 text-green-600">
+                <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                <span className="text-sm">נשמר אוטומטית</span>
+              </div>
+            )}
+          </div>
           <button
             onClick={handleSave}
-            disabled={isSaving}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+            disabled={autoSaveIsSaving}
+            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             <Save className="w-4 h-4" />
-            {isSaving ? 'שומר...' : 'שמור והמשך'}
+            {autoSaveIsSaving ? 'שומר...' : 'שמור ידנית'}
           </button>
         </div>
       </div>

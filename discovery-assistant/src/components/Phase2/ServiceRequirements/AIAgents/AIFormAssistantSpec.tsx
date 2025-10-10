@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import type { AIFormAssistantRequirements } from '../../../../types/aiAgentServices';
 import { Card } from '../../../Common/Card';
 import { Save, FileText, HelpCircle } from 'lucide-react';
-import { useSmartField } from '../../../../hooks/useSmartField';
 import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 const AI_MODELS = [
@@ -86,6 +88,25 @@ export function AIFormAssistantSpec() {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'ai-form-assistant',
+    immediateFields: ['aiModel', 'formTypes', 'assistanceLevel', 'helpContent'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AIFormAssistantSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      aiModel: aiModelPreference.value || config.aiModel
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     if (currentMeeting?.implementationSpec?.aiAgents) {
       const existing = currentMeeting.implementationSpec.aiAgents.find(
@@ -101,38 +122,14 @@ export function AIFormAssistantSpec() {
     }
   }, [currentMeeting]);
 
-  const saveConfig = () => {
-    if (!currentMeeting) return;
-
-    const updatedAIAgents = [...(currentMeeting.implementationSpec?.aiAgents || [])];
-    const existingIndex = updatedAIAgents.findIndex((a: any) => a.serviceId === 'ai-form-assistant');
-
-    // Build complete config with smart field value
+  // Save handler
+  const handleSave = async () => {
     const completeConfig = {
       ...config,
       aiModel: aiModelPreference.value || config.aiModel
     };
 
-    const agentData = {
-      serviceId: 'ai-form-assistant',
-      serviceName: 'עוזר AI לטפסים',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    };
-
-    if (existingIndex >= 0) {
-      updatedAIAgents[existingIndex] = agentData;
-    } else {
-      updatedAIAgents.push(agentData);
-    }
-
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        aiAgents: updatedAIAgents,
-        lastUpdated: new Date()
-      }
-    });
+    await saveData(completeConfig);
   };
 
   return (
@@ -517,14 +514,34 @@ export function AIFormAssistantSpec() {
             </div>
           </div>
 
-          {/* שמירה */}
-          <div className="flex justify-end">
+          {/* Save Status and Button */}
+          <div className="flex justify-between items-center gap-4 pt-4 border-t">
+            <div className="flex items-center gap-2">
+              {isSaving && (
+                <div className="flex items-center gap-2 text-blue-600">
+                  <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm">שומר אוטומטית...</span>
+                </div>
+              )}
+              {saveError && (
+                <div className="flex items-center gap-2 text-red-600">
+                  <span className="text-sm">שגיאה בשמירה</span>
+                </div>
+              )}
+              {!isSaving && !saveError && config.formTypes.contactForms && (
+                <div className="flex items-center gap-2 text-green-600">
+                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                  <span className="text-sm">נשמר אוטומטית</span>
+                </div>
+              )}
+            </div>
             <button
-              onClick={saveConfig}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              onClick={handleSave}
+              disabled={isSaving}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               <Save className="w-4 h-4" />
-              שמור הגדרות עוזר טפסים
+              {isSaving ? 'שומר...' : 'שמור ידנית'}
             </button>
           </div>
         </div>
