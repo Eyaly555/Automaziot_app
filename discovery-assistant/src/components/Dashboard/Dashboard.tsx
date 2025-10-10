@@ -29,6 +29,8 @@ import jsPDF from 'jspdf';
 import { getSmartRecommendations } from '../../utils/smartRecommendationsEngine';
 import { NextStepsGenerator } from '../NextSteps/NextStepsGenerator';
 import { ExportMenu } from '../Common/ExportMenu';
+import { ClientProgressSummary } from './ClientProgressSummary';
+import { calculateClientProgressSummary } from '../../utils/dashboardHelpers';
 
 interface ModuleConfig {
   id: string;
@@ -463,6 +465,12 @@ export const Dashboard: React.FC = () => {
               <p className="text-sm text-gray-600">חיסכון חודשי משוער</p>
             </Card>
           </div>
+
+          {/* NEW: Client Progress Summary */}
+          <ClientProgressSummary
+            progress={calculateClientProgressSummary(currentMeeting)}
+            onActionClick={(action) => action.action()}
+          />
 
           {/* Next Steps Generator - Always show for guidance */}
           <div className="mb-8">
