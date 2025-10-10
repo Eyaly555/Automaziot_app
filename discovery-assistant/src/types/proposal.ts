@@ -47,7 +47,9 @@ export interface SelectedService extends ProposedService {
   customDuration?: number; // user can edit estimated days
   customDescription?: string; // user can edit
   customDescriptionHe?: string;
+  customNameHe?: string; // user can edit service name
   notes?: string; // additional notes per service
+  manuallyAdded?: boolean; // true if service was manually added by user
 }
 
 export interface ProposalSummary {

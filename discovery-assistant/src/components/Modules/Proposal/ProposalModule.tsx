@@ -4,7 +4,7 @@ import {
   ArrowRight, Check, FileText, DollarSign, Clock, Target,
   Zap, Bot, Link, Database, Settings, ShoppingCart, X,
   Search, BarChart, Sparkles, FileX,
-  Plus, Send, Pencil, Download
+  Plus, Send, Pencil, Download, Edit3, Trash2, UserPlus
 } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Input, Select } from '../../Base';
@@ -13,6 +13,7 @@ import { ProposedService, SelectedService, ProposalData } from '../../../types/p
 import {
   SERVICE_CATEGORIES,
   getCategoryById,
+  getServiceById,
   ServiceCategoryId
 } from '../../../config/servicesDatabase';
 import { getSmartRecommendations } from '../../../utils/smartRecommendationsEngine';
@@ -21,6 +22,7 @@ import { downloadProposalPDF } from '../../../utils/downloadProposalPDF';
 import { sendProposalViaWhatsApp } from '../../../services/whatsappService';
 import { openGmailCompose } from '../../../services/emailService';
 import { ContactCompletionModal, ClientContact } from './ContactCompletionModal';
+import { AddServicesModal } from './AddServicesModal';
 import { markProposalAsSent } from '../../../services/discoveryStatusService';
 import { aiProposalGenerator } from '../../../services/aiProposalGenerator';
 import { AiProposalDoc } from '../../../schemas/aiProposal.schema';
@@ -122,6 +124,20 @@ export const ProposalModule: React.FC = () => {
     searchQuery: ''
   });
   const [showComparison, setShowComparison] = useState(false);
+
+  // NEW: Add services modal state
+  const [showAddServicesModal, setShowAddServicesModal] = useState(false);
+  
+  // NEW: Description editing state
+  const [editingDescriptions, setEditingDescriptions] = useState<{ [key: string]: string }>({});
+  const [activeEditDescription, setActiveEditDescription] = useState<string | null>(null);
+  
+  // NEW: Name editing state
+  const [editingNames, setEditingNames] = useState<{ [key: string]: string }>({});
+  const [activeEditName, setActiveEditName] = useState<string | null>(null);
+  
+  // NEW: Quick edit mode
+  const [quickEditMode, setQuickEditMode] = useState<string | null>(null);
 
   // Generate proposal when component mounts
   useEffect(() => {
@@ -252,6 +268,69 @@ export const ProposalModule: React.FC = () => {
     setEditingDurations(prev => ({ ...prev, [serviceId]: newDuration }));
     setSelectedServices(prev =>
       prev.map(s => s.id === serviceId ? { ...s, customDuration: newDuration } : s)
+    );
+  };
+
+  // NEW: Update service description
+  const updateServiceDescription = (serviceId: string, newDescription: string) => {
+    setSelectedServices(prev =>
+      prev.map(s => s.id === serviceId ? { ...s, customDescriptionHe: newDescription } : s)
+    );
+  };
+
+  // NEW: Update service name
+  const updateServiceName = (serviceId: string, newName: string) => {
+    setSelectedServices(prev =>
+      prev.map(s => s.id === serviceId ? { ...s, customNameHe: newName } : s)
+    );
+  };
+
+  // NEW: Add manual service
+  const addManualService = (serviceId: string) => {
+    const service = getServiceById(serviceId);
+    if (!service) {
+      console.error('[ProposalModule] Service not found:', serviceId);
+      return;
+    }
+    
+    // Check if service already exists
+    const existingService = selectedServices.find(s => s.id === serviceId);
+    if (existingService) {
+      // If exists but not selected, just select it
+      if (!existingService.selected) {
+        setSelectedServices(prev =>
+          prev.map(s => s.id === serviceId ? { ...s, selected: true } : s)
+        );
+      }
+      return;
+    }
+    
+    const newService: SelectedService = {
+      ...service,
+      selected: true,
+      relevanceScore: 5,
+      reasonSuggested: 'Manually added by user',
+      reasonSuggestedHe: 'נוסף ידנית על ידי המשתמש',
+      dataSource: ['manual'],
+      relatedData: undefined,
+      manuallyAdded: true,
+    };
+    
+    setSelectedServices(prev => [...prev, newService]);
+    setProposedServices(prev => {
+      // Only add if not already in proposedServices
+      const exists = prev.find(s => s.id === serviceId);
+      if (exists) return prev;
+      return [...prev, newService];
+    });
+    
+    console.log('[ProposalModule] Manual service added:', serviceId);
+  };
+
+  // NEW: Remove service
+  const removeService = (serviceId: string) => {
+    setSelectedServices(prev =>
+      prev.map(s => s.id === serviceId ? { ...s, selected: false } : s)
     );
   };
 
@@ -841,6 +920,18 @@ export const ProposalModule: React.FC = () => {
           )}
         </div>
 
+        {/* NEW: Add Services Button */}
+        <div className="mb-6">
+          <button
+            onClick={() => setShowAddServicesModal(true)}
+            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 px-6 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg flex items-center justify-center gap-3 font-semibold text-lg"
+          >
+            <Plus size={24} />
+            הוסף שירותים נוספים להצעה
+            <UserPlus size={20} />
+          </button>
+        </div>
+
         {/* Category Tabs */}
         <div className="bg-white rounded-lg shadow-sm border mb-6 overflow-x-auto">
           <div className="flex border-b">
@@ -881,20 +972,47 @@ export const ProposalModule: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
             {filteredServices.map(service => {
               const isSelected = selectedServices.find(s => s.id === service.id)?.selected || false;
+              const serviceData = selectedServices.find(s => s.id === service.id);
               const categoryInfo = getCategoryById(service.category);
+              const isManuallyAdded = serviceData?.manuallyAdded || false;
+              const hasCustomPrice = serviceData?.customPrice !== undefined && serviceData.customPrice !== service.basePrice;
+              const hasCustomDuration = serviceData?.customDuration !== undefined && serviceData.customDuration !== service.estimatedDays;
+              const hasCustomDescription = serviceData?.customDescriptionHe !== undefined;
+              const hasCustomName = serviceData?.customNameHe !== undefined;
 
               return (
                 <div
                   key={service.id}
-                  className={`group bg-white rounded-xl border-2 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
+                  className={`group bg-white rounded-xl border-2 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative ${
                     isSelected
-                      ? 'border-blue-400 ring-2 ring-blue-200'
+                      ? isManuallyAdded
+                        ? 'border-orange-400 ring-2 ring-orange-200 bg-orange-50/30'
+                        : 'border-blue-400 ring-2 ring-blue-200'
                       : 'border-gray-200 hover:border-blue-300'
                   }`}
                 >
+                  {/* NEW: Remove button (X) - Top right corner */}
+                  {isSelected && (
+                    <button
+                      onClick={() => removeService(service.id)}
+                      className="absolute top-2 left-2 z-10 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                      title="הסר שירות"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+
+                  {/* NEW: Manually added badge - Top left corner */}
+                  {isManuallyAdded && (
+                    <div className="absolute top-2 right-2 z-10 bg-orange-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 shadow-md">
+                      <UserPlus size={12} />
+                      נוסף ידנית
+                    </div>
+                  )}
+
                   {/* Card Header */}
                   <div className="p-4 border-b border-gray-100">
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-start justify-between mb-3 mt-6">
                       <div className="transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">
                         {getServiceIcon(service.category, 32)}
                       </div>
@@ -903,16 +1021,96 @@ export const ProposalModule: React.FC = () => {
                       </span>
                     </div>
 
-                    <h3 className="font-bold text-lg text-gray-900 mb-2">
-                      {service.nameHe}
-                    </h3>
+                    {/* Editable Service Name */}
+                    {activeEditName === service.id ? (
+                      <input
+                        type="text"
+                        value={editingNames[service.id] || serviceData?.customNameHe || service.nameHe}
+                        onChange={(e) => setEditingNames(prev => ({ ...prev, [service.id]: e.target.value }))}
+                        onBlur={() => {
+                          const newName = editingNames[service.id];
+                          if (newName && newName.trim()) {
+                            updateServiceName(service.id, newName);
+                          }
+                          setActiveEditName(null);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            const newName = editingNames[service.id];
+                            if (newName && newName.trim()) {
+                              updateServiceName(service.id, newName);
+                            }
+                            setActiveEditName(null);
+                          } else if (e.key === 'Escape') {
+                            setActiveEditName(null);
+                          }
+                        }}
+                        autoFocus
+                        className="w-full font-bold text-lg text-gray-900 mb-2 border border-blue-300 rounded px-2 py-1"
+                        dir="rtl"
+                      />
+                    ) : (
+                      <div className="flex items-center gap-2 group/name">
+                        <h3 className={`font-bold text-lg text-gray-900 mb-2 flex-1 ${hasCustomName ? 'text-green-700' : ''}`}>
+                          {serviceData?.customNameHe || service.nameHe}
+                          {hasCustomName && <span className="text-xs text-green-600 mr-1">✏️</span>}
+                        </h3>
+                        <button
+                          onClick={() => {
+                            setActiveEditName(service.id);
+                            setEditingNames(prev => ({ ...prev, [service.id]: serviceData?.customNameHe || service.nameHe }));
+                          }}
+                          className="opacity-0 group-hover/name:opacity-100 transition-opacity"
+                          title="ערוך שם"
+                        >
+                          <Edit3 size={14} className="text-gray-500 hover:text-blue-600" />
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   {/* Card Content */}
                   <div className="p-4">
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                      {service.descriptionHe}
-                    </p>
+                    {/* Editable Description */}
+                    {activeEditDescription === service.id ? (
+                      <textarea
+                        value={editingDescriptions[service.id] || serviceData?.customDescriptionHe || service.descriptionHe}
+                        onChange={(e) => setEditingDescriptions(prev => ({ ...prev, [service.id]: e.target.value }))}
+                        onBlur={() => {
+                          const newDesc = editingDescriptions[service.id];
+                          if (newDesc && newDesc.trim()) {
+                            updateServiceDescription(service.id, newDesc);
+                          }
+                          setActiveEditDescription(null);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Escape') {
+                            setActiveEditDescription(null);
+                          }
+                        }}
+                        autoFocus
+                        className="w-full text-sm text-gray-600 mb-4 p-2 border border-blue-300 rounded resize-none"
+                        rows={3}
+                        dir="rtl"
+                      />
+                    ) : (
+                      <div className="group/desc relative mb-4">
+                        <p className={`text-sm text-gray-600 line-clamp-3 ${hasCustomDescription ? 'text-green-700' : ''}`}>
+                          {serviceData?.customDescriptionHe || service.descriptionHe}
+                          {hasCustomDescription && <span className="text-xs text-green-600 mr-1">✏️</span>}
+                        </p>
+                        <button
+                          onClick={() => {
+                            setActiveEditDescription(service.id);
+                            setEditingDescriptions(prev => ({ ...prev, [service.id]: serviceData?.customDescriptionHe || service.descriptionHe }));
+                          }}
+                          className="absolute top-0 left-0 opacity-0 group-hover/desc:opacity-100 transition-opacity bg-blue-600 text-white p-1 rounded text-xs"
+                          title="ערוך תיאור"
+                        >
+                          <Edit3 size={12} />
+                        </button>
+                      </div>
+                    )}
 
                     {/* Why Relevant */}
                     <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 mb-4">
@@ -925,13 +1123,15 @@ export const ProposalModule: React.FC = () => {
                     {/* Metadata badges */}
                     <div className="flex flex-wrap gap-2 mb-4">
                       {/* Editable Duration */}
-                      <div className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded group">
+                      <div className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded group ${
+                        hasCustomDuration ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                      }`}>
                         <Clock size={12} />
                         {activeEditDuration === service.id ? (
                           <input
                             type="number"
                             min="1"
-                            value={editingDurations[service.id] !== undefined ? editingDurations[service.id] : (selectedServices.find(s => s.id === service.id)?.customDuration || service.estimatedDays)}
+                            value={editingDurations[service.id] !== undefined ? editingDurations[service.id] : (serviceData?.customDuration || service.estimatedDays)}
                             onChange={(e) => {
                               const value = parseInt(e.target.value) || 0;
                               setEditingDurations(prev => ({ ...prev, [service.id]: value }));
@@ -959,13 +1159,16 @@ export const ProposalModule: React.FC = () => {
                           />
                         ) : (
                           <span className="flex items-center gap-1">
-                            {selectedServices.find(s => s.id === service.id)?.customDuration || service.estimatedDays} ימים
+                            {hasCustomDuration && service.estimatedDays !== serviceData?.customDuration && (
+                              <span className="line-through text-gray-400">{service.estimatedDays}</span>
+                            )}
+                            {serviceData?.customDuration || service.estimatedDays} ימים
                             <button
                               onClick={() => {
                                 setActiveEditDuration(service.id);
                                 setEditingDurations(prev => ({
                                   ...prev,
-                                  [service.id]: selectedServices.find(s => s.id === service.id)?.customDuration || service.estimatedDays
+                                  [service.id]: serviceData?.customDuration || service.estimatedDays
                                 }));
                               }}
                               className="opacity-0 group-hover:opacity-100 transition-opacity"
@@ -995,7 +1198,7 @@ export const ProposalModule: React.FC = () => {
                               type="number"
                               min="0"
                               step="100"
-                              value={editingPrices[service.id] !== undefined ? editingPrices[service.id] : (selectedServices.find(s => s.id === service.id)?.customPrice || service.basePrice)}
+                              value={editingPrices[service.id] !== undefined ? editingPrices[service.id] : (serviceData?.customPrice || service.basePrice)}
                               onChange={(e) => {
                                 const value = parseInt(e.target.value) || 0;
                                 setEditingPrices(prev => ({ ...prev, [service.id]: value }));
@@ -1024,15 +1227,22 @@ export const ProposalModule: React.FC = () => {
                           </div>
                         ) : (
                           <div className="flex items-center gap-2">
-                            <span className="text-2xl font-bold text-blue-600">
-                              {formatPrice(selectedServices.find(s => s.id === service.id)?.customPrice || service.basePrice)}
-                            </span>
+                            <div className="flex flex-col items-end">
+                              {hasCustomPrice && service.basePrice !== serviceData?.customPrice && (
+                                <span className="text-sm line-through text-gray-400">
+                                  {formatPrice(service.basePrice)}
+                                </span>
+                              )}
+                              <span className={`text-2xl font-bold ${hasCustomPrice ? 'text-green-600' : 'text-blue-600'}`}>
+                                {formatPrice(serviceData?.customPrice || service.basePrice)}
+                              </span>
+                            </div>
                             <button
                               onClick={() => {
                                 setActiveEditPrice(service.id);
                                 setEditingPrices(prev => ({
                                   ...prev,
-                                  [service.id]: selectedServices.find(s => s.id === service.id)?.customPrice || service.basePrice
+                                  [service.id]: serviceData?.customPrice || service.basePrice
                                 }));
                               }}
                               className="opacity-0 group-hover:opacity-100 transition-opacity"
@@ -1389,6 +1599,15 @@ export const ProposalModule: React.FC = () => {
           onUpdate={setClientContact}
           onSend={() => sendProposalToClient(clientContact)}
           onCancel={() => setShowContactModal(false)}
+        />
+      )}
+
+      {/* NEW: Add Services Modal */}
+      {showAddServicesModal && (
+        <AddServicesModal
+          onClose={() => setShowAddServicesModal(false)}
+          onAddService={addManualService}
+          selectedServiceIds={selectedServices.map(s => s.id)}
         />
       )}
 
