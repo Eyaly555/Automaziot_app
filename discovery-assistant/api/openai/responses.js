@@ -26,7 +26,7 @@ export default async function handler(req, res) {
         model,
         messages,
         seed,
-        max_tokens: max_output_tokens,
+        max_completion_tokens: max_output_tokens,
         temperature,
         response_format
       })

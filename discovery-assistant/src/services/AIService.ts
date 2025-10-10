@@ -79,8 +79,12 @@ export class AIService {
 
   // Get default model for provider
   private getDefaultModel(): string {
+    // Use environment variable if available, otherwise fallback to provider defaults
+    const envModel = import.meta.env.VITE_AI_MODEL;
+    if (envModel) return envModel;
+
     switch (this.provider) {
-      case 'openai': return 'gpt-4';
+      case 'openai': return 'gpt-5-mini-2025-08-07';
       case 'anthropic': return 'claude-3-opus-20240229';
       case 'cohere': return 'command-r-plus';
       case 'huggingface': return 'meta-llama/Llama-2-70b-chat-hf';
@@ -250,7 +254,7 @@ export class AIService {
             content: prompt
           }
         ],
-        max_tokens: this.config!.maxTokens,
+        max_completion_tokens: this.config!.maxTokens,
         temperature: this.config!.temperature
       })
     });

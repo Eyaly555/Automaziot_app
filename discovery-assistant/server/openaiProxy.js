@@ -28,7 +28,7 @@ app.post('/api/openai/responses', async (req, res) => {
         model,
         messages,
         seed,
-        max_tokens: max_output_tokens,
+        max_completion_tokens: max_output_tokens,
         temperature,
         response_format
       })
@@ -65,7 +65,7 @@ app.post('/api/openai/test', async (req, res) => {
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
         messages: [{ role: 'user', content: req.body.message || 'Say "Hello" in Hebrew' }],
-        max_tokens: 50
+        max_completion_tokens: 50
       })
     });
 

@@ -87,7 +87,7 @@ export class AIProposalGenerator {
 
         // Use the AI service to call OpenAI Responses API
         const response = await this.callOpenAIResponsesAPI({
-          model: model || 'gpt-5',
+          model: model || import.meta.env.VITE_AI_MODEL || 'gpt-5-mini-2025-08-07',
           messages,
           seed: 7,
           max_output_tokens: 1800,
