@@ -1,11 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { Card } from '../../../Common/Card';
 
 export function ImplEcommerceSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
   const [config, setConfig] = useState<any>({
     ...{ platform: 'shopify', estimatedWeeks: 4 }
+  });
+
+  // Auto-save hook for immediate saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'impl-ecommerce',
+    immediateFields: ['platform'], // Critical identifier
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in ImplEcommerceSpec:', error);
+    }
   });
 
   useEffect(() => {
@@ -16,25 +27,45 @@ export function ImplEcommerceSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save whenever config changes
+  useEffect(() => {
+    if (config.platform) { // Only save if we have basic data
+      const category = currentMeeting?.implementationSpec?.systemImplementations || [];
+      const updated = category.filter((s: any) => s.serviceId !== 'impl-ecommerce');
 
-    const category = currentMeeting?.implementationSpec?.systemImplementations || [];
-    const updated = category.filter((s: any) => s.serviceId !== 'impl-ecommerce');
+      updated.push({
+        serviceId: 'impl-ecommerce',
+        serviceName: 'הטמעת eCommerce',
+        requirements: config,
+        completedAt: new Date().toISOString()
+      });
 
-    updated.push({
-      serviceId: 'impl-ecommerce',
-      serviceName: 'הטמעת eCommerce',
-      requirements: config,
-      completedAt: new Date().toISOString()
-    });
+      saveData({
+        implementationSpec: {
+          ...currentMeeting?.implementationSpec,
+          systemImplementations: updated,
+        },
+      });
+    }
+  }, [config, saveData, currentMeeting]);
 
-    updateMeeting({
+  // Manual save handler (kept for compatibility, but auto-save is primary)
+  const handleManualSave = async () => {
+    // Force immediate save
+    await saveData({
       implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        systemImplementations: updated,
+        ...currentMeeting?.implementationSpec,
+        systemImplementations: [
+          ...(currentMeeting?.implementationSpec?.systemImplementations || []).filter((s: any) => s.serviceId !== 'impl-ecommerce'),
+          {
+            serviceId: 'impl-ecommerce',
+            serviceName: 'הטמעת eCommerce',
+            requirements: config,
+            completedAt: new Date().toISOString()
+          }
+        ],
       },
-    });
+    }, 'manual');
   };
 
   return (
@@ -42,8 +73,34 @@ export function ImplEcommerceSpec() {
       <Card title="שירות #46: הטמעת E-commerce">
         <div className="space-y-4">
           <div><select className="w-full px-3 py-2 border border-gray-300 rounded-md"><option>Shopify</option><option>WooCommerce</option><option>Magento</option></select></div>
-          <div className="flex justify-end pt-4 border-t">
-            <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">שמור הגדרות</button>
+          {/* Auto-Save Status and Manual Save */}
+          <div className="flex justify-between items-center gap-4 pt-4 border-t">
+            <div className="flex items-center gap-2">
+              {isSaving && (
+                <div className="flex items-center gap-2 text-blue-600">
+                  <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm">שומר אוטומטית...</span>
+                </div>
+              )}
+              {saveError && (
+                <div className="flex items-center gap-2 text-red-600">
+                  <span className="text-sm">שגיאה בשמירה</span>
+                </div>
+              )}
+              {!isSaving && !saveError && config.platform && (
+                <div className="flex items-center gap-2 text-green-600">
+                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                  <span className="text-sm">נשמר אוטומטית</span>
+                </div>
+              )}
+            </div>
+            <button
+              onClick={handleManualSave}
+              disabled={isSaving}
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
+            >
+              שמור ידנית
+            </button>
           </div>
         </div>
       </Card>

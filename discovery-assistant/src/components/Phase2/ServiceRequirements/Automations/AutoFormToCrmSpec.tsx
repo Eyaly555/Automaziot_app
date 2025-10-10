@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 interface AutoFormToCrmConfig {
@@ -52,6 +54,26 @@ export function AutoFormToCrmSpec() {
     autoAssignment: false,
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'auto-form-to-crm',
+    immediateFields: ['crmSystem', 'formPlatform'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AutoFormToCrmSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      crmSystem: crmSystem.value,
+      formPlatform: formPlatform.value
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
     const existing = automations.find((a: any) => a.serviceId === 'auto-form-to-crm');
@@ -60,15 +82,20 @@ export function AutoFormToCrmSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    const completeConfig = {
+      ...config,
+      crmSystem: crmSystem.value,
+      formPlatform: formPlatform.value
+    };
 
-    // קריאת המערך הקיים
-    const automations = currentMeeting?.implementationSpec?.automations || [];
+    if (crmSystem.value || formPlatform.value) {
+      saveData(completeConfig);
+    }
+  }, [config, crmSystem.value, formPlatform.value, saveData]);
 
-    // הסרת רשומה קיימת (אם יש) למניעת כפילויות
-    const updated = automations.filter((a: any) => a.serviceId !== 'auto-form-to-crm');
-
+  const handleSave = async () => {
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
@@ -76,21 +103,8 @@ export function AutoFormToCrmSpec() {
       formPlatform: formPlatform.value
     };
 
-    // הוספת רשומה חדשה/מעודכנת
-    updated.push({
-      serviceId: 'auto-form-to-crm',
-      serviceName: 'חיבור טפסים ל-CRM',
-      serviceNameHe: 'חיבור טפסים ל-CRM',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
-
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        automations: updated,
-      },
-    });
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
     alert('✅ הגדרות נשמרו בהצלחה!');
   };
@@ -212,8 +226,34 @@ export function AutoFormToCrmSpec() {
               <span className="text-sm">הקצאה אוטומטית</span>
             </label>
           </div>
-          <div className="flex justify-end pt-4 border-t">
-            <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">שמור הגדרות</button>
+          {/* Auto-Save Status and Manual Save */}
+          <div className="flex justify-between items-center gap-4 pt-4 border-t">
+            <div className="flex items-center gap-2">
+              {isSaving && (
+                <div className="flex items-center gap-2 text-blue-600">
+                  <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm">שומר אוטומטית...</span>
+                </div>
+              )}
+              {saveError && (
+                <div className="flex items-center gap-2 text-red-600">
+                  <span className="text-sm">שגיאה בשמירה</span>
+                </div>
+              )}
+              {!isSaving && !saveError && (config.crmSystem || crmSystem.value) && (
+                <div className="flex items-center gap-2 text-green-600">
+                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                  <span className="text-sm">נשמר אוטומטית</span>
+                </div>
+              )}
+            </div>
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
+            >
+              שמור ידנית
+            </button>
           </div>
         </div>
       </Card>

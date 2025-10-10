@@ -11,6 +11,8 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import type { TrainingWorkshopsRequirements } from '../../../../types/additionalServices';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { Card } from '../../../Common/Card';
 
 export function TrainingWorkshopsSpec() {
@@ -95,8 +97,22 @@ export function TrainingWorkshopsSpec() {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'training-workshops',
+    immediateFields: ['workshops', 'learningObjectives', 'deliveryMethod'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in TrainingWorkshopsSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    saveData(config);
+  });
+
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSaving, setIsSaving] = useState(false);
 
   // Load existing data
   useEffect(() => {
@@ -109,6 +125,13 @@ export function TrainingWorkshopsSpec() {
       setConfig(existing.requirements as TrainingWorkshopsRequirements);
     }
   }, [currentMeeting]);
+
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.workshops?.length || config.learningObjectives?.length) {
+      saveData(config);
+    }
+  }, [config, saveData]);
 
   // Validation
   const validateForm = (): boolean => {
@@ -129,34 +152,10 @@ export function TrainingWorkshopsSpec() {
       return;
     }
 
-    if (!currentMeeting) return;
+    // Save using auto-save (manual save trigger)
+    await saveData(config, 'manual');
 
-    setIsSaving(true);
-    try {
-      const category = currentMeeting?.implementationSpec?.additionalServices || [];
-      const updated = category.filter(item => item.serviceId !== 'training-workshops');
-
-      updated.push({
-        serviceId: 'training-workshops',
-        serviceName: 'הדרכות וסדנאות',
-        requirements: config,
-        completedAt: new Date().toISOString()
-      });
-
-      await updateMeeting({
-        implementationSpec: {
-          ...currentMeeting.implementationSpec,
-          additionalServices: updated
-        }
-      });
-
-      alert('הגדרות נשמרו בהצלחה!');
-    } catch (error) {
-      console.error('Error saving training-workshops config:', error);
-      alert('שגיאה בשמירת הגדרות');
-    } finally {
-      setIsSaving(false);
-    }
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   // Add workshop

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useSmartField } from '../../../../hooks/useSmartField';
 import type { AutoEmailTemplatesRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
@@ -83,7 +84,16 @@ export function AutoEmailTemplatesSpec() {
   });
 
   const [activeTab, setActiveTab] = useState<'service' | 'domain' | 'template' | 'crm' | 'workflow' | 'design' | 'testing'>('service');
-  const [isSaving, setIsSaving] = useState(false);
+
+  // Auto-save hook for immediate saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'auto-email-templates',
+    immediateFields: ['emailServiceAccess'], // Critical identifier
+    debounceMs: 1500, // Longer debounce for complex forms
+    onError: (error) => {
+      console.error('Auto-save error in AutoEmailTemplatesSpec:', error);
+    }
+  });
 
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
@@ -93,11 +103,9 @@ export function AutoEmailTemplatesSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
-
-    setIsSaving(true);
-    try {
+  // Auto-save when config or smart field values change
+  useEffect(() => {
+    if (config.emailServiceAccess?.provider) { // Only save if we have basic data
       const automations = currentMeeting?.implementationSpec?.automations || [];
       const updated = automations.filter((item: any) => item.serviceId !== 'auto-email-templates');
 
@@ -130,20 +138,51 @@ export function AutoEmailTemplatesSpec() {
         completedAt: new Date().toISOString()
       });
 
-      updateMeeting({
+      saveData({
         implementationSpec: {
-          ...currentMeeting.implementationSpec,
+          ...currentMeeting?.implementationSpec,
           automations: updated,
         },
       });
-
-      alert('הגדרות נשמרו בהצלחה!');
-    } catch (error) {
-      console.error('Error saving auto-email-templates:', error);
-      alert('שגיאה בשמירת הגדרות');
-    } finally {
-      setIsSaving(false);
     }
+  }, [config, emailProvider.value, crmSystem.value, n8nInstanceUrl.value, alertEmail.value, saveData, currentMeeting]);
+
+  // Manual save handler (kept for compatibility, but auto-save is primary)
+  const handleManualSave = async () => {
+    // Force immediate save
+    await saveData({
+      implementationSpec: {
+        ...currentMeeting?.implementationSpec,
+        automations: [
+          ...(currentMeeting?.implementationSpec?.automations || []).filter((item: any) => item.serviceId !== 'auto-email-templates'),
+          {
+            serviceId: 'auto-email-templates',
+            serviceName: 'ניהול תבניות Email אוטומטיות',
+            serviceNameHe: 'ניהול תבניות Email אוטומטיות',
+            requirements: {
+              ...config,
+              emailServiceAccess: {
+                ...config.emailServiceAccess,
+                provider: emailProvider.value
+              },
+              crmAccess: {
+                ...config.crmAccess,
+                system: crmSystem.value
+              },
+              n8nWorkflow: {
+                ...config.n8nWorkflow,
+                instanceUrl: n8nInstanceUrl.value,
+                errorHandling: {
+                  ...config.n8nWorkflow.errorHandling,
+                  alertEmail: alertEmail.value
+                }
+              }
+            },
+            completedAt: new Date().toISOString()
+          }
+        ],
+      },
+    }, 'manual');
   };
 
   const addCrmField = () => {
@@ -253,14 +292,33 @@ export function AutoEmailTemplatesSpec() {
                 </div>
               </div>
             )}
-            <button
-              onClick={handleSave}
-              disabled={isSaving}
-              className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
-            >
-              <Save className="w-4 h-4" />
-              {isSaving ? 'שומר...' : 'שמור'}
-            </button>
+            <div className="flex items-center gap-2">
+              {isSaving && (
+                <div className="flex items-center gap-2 text-blue-600">
+                  <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm">שומר אוטומטית...</span>
+                </div>
+              )}
+              {saveError && (
+                <div className="flex items-center gap-2 text-red-600">
+                  <span className="text-sm">שגיאה בשמירה</span>
+                </div>
+              )}
+              {!isSaving && !saveError && config.emailServiceAccess?.provider && (
+                <div className="flex items-center gap-2 text-green-600">
+                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                  <span className="text-sm">נשמר אוטומטית</span>
+                </div>
+              )}
+              <button
+                onClick={handleManualSave}
+                disabled={isSaving}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 text-sm"
+              >
+                <Save className="w-4 h-4" />
+                שמור ידנית
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1570,15 +1628,34 @@ export function AutoEmailTemplatesSpec() {
           </div>
         </div>
 
-        {/* Save Button at Bottom */}
-        <div className="flex justify-end gap-4">
+        {/* Auto-Save Status and Manual Save at Bottom */}
+        <div className="flex justify-between items-center gap-4">
+          <div className="flex items-center gap-2">
+            {isSaving && (
+              <div className="flex items-center gap-2 text-blue-600">
+                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-sm">שומר אוטומטית...</span>
+              </div>
+            )}
+            {saveError && (
+              <div className="flex items-center gap-2 text-red-600">
+                <span className="text-sm">שגיאה בשמירה</span>
+              </div>
+            )}
+            {!isSaving && !saveError && config.emailServiceAccess?.provider && (
+              <div className="flex items-center gap-2 text-green-600">
+                <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                <span className="text-sm">נשמר אוטומטית</span>
+              </div>
+            )}
+          </div>
           <button
-            onClick={handleSave}
+            onClick={handleManualSave}
             disabled={isSaving}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 text-sm"
           >
             <Save className="w-4 h-4" />
-            {isSaving ? 'שומר...' : 'שמור והמשך'}
+            שמור ידנית
           </button>
         </div>
       </div>

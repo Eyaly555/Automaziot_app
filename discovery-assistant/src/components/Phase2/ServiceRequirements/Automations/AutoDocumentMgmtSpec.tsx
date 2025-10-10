@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 interface AutoDocumentMgmtConfig {
@@ -39,6 +41,26 @@ export function AutoDocumentMgmtSpec() {
     autoTagging: false,
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'auto-document-mgmt',
+    immediateFields: ['storageProvider', 'folderStructure', 'namingConvention'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AutoDocumentMgmtSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      n8nInstanceUrl: n8nInstanceUrl.value,
+      alertEmail: alertEmail.value
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
     const existing = automations.find((a: any) => a.serviceId === 'auto-document-mgmt');
@@ -47,43 +69,30 @@ export function AutoDocumentMgmtSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.storageProvider || config.folderStructure) {
+      const completeConfig = {
+        ...config,
+        n8nInstanceUrl: n8nInstanceUrl.value,
+        alertEmail: alertEmail.value
+      };
+      saveData(completeConfig);
+    }
+  }, [config, n8nInstanceUrl.value, alertEmail.value, saveData]);
 
-    // קריאת המערך הקיים
-    const automations = currentMeeting?.implementationSpec?.automations || [];
-
-    // הסרת רשומה קיימת (אם יש) למניעת כפילויות
-    const updated = automations.filter((a: any) => a.serviceId !== 'auto-document-mgmt');
-
+  const handleSave = async () => {
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
-      n8nWorkflow: {
-        instanceUrl: n8nInstanceUrl.value,
-        errorHandling: {
-          alertEmail: alertEmail.value
-        }
-      }
+      n8nInstanceUrl: n8nInstanceUrl.value,
+      alertEmail: alertEmail.value
     };
 
-    // הוספת רשומה חדשה/מעודכנת
-    updated.push({
-      serviceId: 'auto-document-mgmt',
-      serviceName: 'ניהול מסמכים אוטומטי',
-      serviceNameHe: 'ניהול מסמכים אוטומטי',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        automations: updated,
-      },
-    });
-
-    alert('✅ הגדרות נשמרו בהצלחה!');
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   return (

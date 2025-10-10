@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import type { AISalesAgentRequirements, AIProvider, CRMSystem, VectorDatabaseProvider, MessagingChannel } from '../../../../types/aiAgentServices';
 import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
 import { Button, Input, Select } from '../../../Base';
@@ -189,8 +191,26 @@ export const AISalesAgentSpec: React.FC = () => {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'ai-sales-agent',
+    immediateFields: ['aiProvider', 'model', 'vectorDatabase'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AISalesAgentSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      aiModel: aiModelPreference.value
+    };
+    saveData(completeConfig);
+  });
+
   const [activeTab, setActiveTab] = useState<'basic' | 'knowledge' | 'playbook' | 'calendar' | 'channels' | 'performance'>('basic');
-  const [isSaving, setIsSaving] = useState(false);
 
   // Load existing config
   useEffect(() => {
@@ -201,58 +221,47 @@ export const AISalesAgentSpec: React.FC = () => {
     }
   }, [currentMeeting]);
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      if (!currentMeeting) return;
-
-      const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
-      const updated = aiAgentServices.filter((a: AIAgentServiceEntry) => a.serviceId !== 'ai-sales-agent');
-
-      // Build complete config with smart field values
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.aiProvider || config.model) {
       const completeConfig = {
         ...config,
+        aiModel: aiModelPreference.value,
         crmIntegration: {
           ...config.crmIntegration,
           system: crmSystem.value
-        },
-        aiProvider: aiModel.value || config.aiProvider,
-        messagingChannels: {
-          ...config.messagingChannels,
-          whatsapp: {
-            ...config.messagingChannels.whatsapp,
-            provider: whatsappApi.value
-          }
-        },
-        calendarIntegration: {
-          ...config.calendarIntegration,
-          system: calendarSystem.value
         }
       };
-
-      updated.push({
-        serviceId: 'ai-sales-agent',
-        serviceName: 'סוכן AI למכירות מלא',
-        serviceNameHe: 'סוכן AI למכירות מלא',
-        requirements: completeConfig,
-        completedAt: new Date().toISOString()
-      });
-
-      updateMeeting({
-        implementationSpec: {
-          ...currentMeeting.implementationSpec,
-          aiAgentServices: updated,
-        }
-      });
-
-      setTimeout(() => {
-        setIsSaving(false);
-        navigate('/phase2');
-      }, 500);
-    } catch (error) {
-      console.error('Error saving ai-sales-agent config:', error);
-      setIsSaving(false);
+      saveData(completeConfig);
     }
+  }, [config, aiModelPreference.value, crmSystem.value, saveData]);
+
+  const handleSave = async () => {
+    // Build complete config with smart field values
+    const completeConfig = {
+      ...config,
+      crmIntegration: {
+        ...config.crmIntegration,
+        system: crmSystem.value
+      },
+      aiProvider: aiModel.value || config.aiProvider,
+      messagingChannels: {
+        ...config.messagingChannels,
+        whatsapp: {
+          ...config.messagingChannels.whatsapp,
+          provider: whatsappApi.value
+        }
+      },
+      calendarIntegration: {
+        ...config.calendarIntegration,
+        system: calendarSystem.value
+      }
+    };
+
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
+
+    navigate('/phase2');
   };
 
   const getModelOptions = () => {

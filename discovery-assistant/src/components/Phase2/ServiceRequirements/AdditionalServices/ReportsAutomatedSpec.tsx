@@ -1,11 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { Card } from '../../../Common/Card';
 
 export function ReportsAutomatedSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
   const [config, setConfig] = useState<any>({
     ...{ frequency: 'weekly', recipients: [], estimatedDays: 3 }
+  });
+
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'reports-automated',
+    immediateFields: ['frequency', 'recipients'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in ReportsAutomatedSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    saveData(config);
   });
 
   useEffect(() => {
@@ -16,25 +33,18 @@ export function ReportsAutomatedSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.frequency || config.recipients?.length) {
+      saveData(config);
+    }
+  }, [config, saveData]);
 
-    const category = currentMeeting?.implementationSpec?.additionalServices || [];
-    const updated = category.filter((s: any) => s.serviceId !== 'reports-automated');
+  const handleSave = async () => {
+    // Save using auto-save (manual save trigger)
+    await saveData(config, 'manual');
 
-    updated.push({
-      serviceId: 'reports-automated',
-      serviceName: 'דוחות אוטומטיים',
-      requirements: config,
-      completedAt: new Date().toISOString()
-    });
-
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        additionalServices: updated,
-      },
-    });
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   return (

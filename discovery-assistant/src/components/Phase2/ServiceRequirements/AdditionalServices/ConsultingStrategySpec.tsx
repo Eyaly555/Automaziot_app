@@ -1,11 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { Card } from '../../../Common/Card';
 
 export function ConsultingStrategySpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
   const [config, setConfig] = useState<any>({
     ...{ scope: 'comprehensive', estimatedWeeks: 4 }
+  });
+
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'consulting-strategy',
+    immediateFields: ['scope', 'estimatedWeeks'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in ConsultingStrategySpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    saveData(config);
   });
 
   useEffect(() => {
@@ -16,25 +33,18 @@ export function ConsultingStrategySpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.scope || config.estimatedWeeks) {
+      saveData(config);
+    }
+  }, [config, saveData]);
 
-    const category = currentMeeting?.implementationSpec?.additionalServices || [];
-    const updated = category.filter((s: any) => s.serviceId !== 'consulting-strategy');
+  const handleSave = async () => {
+    // Save using auto-save (manual save trigger)
+    await saveData(config, 'manual');
 
-    updated.push({
-      serviceId: 'consulting-strategy',
-      serviceName: 'ייעוץ אסטרטגי',
-      requirements: config,
-      completedAt: new Date().toISOString()
-    });
-
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        additionalServices: updated,
-      },
-    });
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   return (

@@ -10,6 +10,7 @@
 
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
 import type { ImplAnalyticsRequirements } from '../../../../types/systemImplementationServices';
 import { Card } from '../../../Common/Card';
 
@@ -56,7 +57,17 @@ export function ImplAnalyticsSpec() {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSaving, setIsSaving] = useState(false);
+
+  // Auto-save hook for immediate saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'impl-analytics',
+    immediateFields: ['platform'], // Critical identifier
+    debounceMs: 1500, // Longer debounce for complex forms
+    onError: (error) => {
+      console.error('Auto-save error in ImplAnalyticsSpec:', error);
+      setErrors({ general: 'שגיאה בשמירה אוטומטית' });
+    }
+  });
 
   // Load existing data
   useEffect(() => {
@@ -199,17 +210,9 @@ export function ImplAnalyticsSpec() {
     });
   };
 
-  // Save handler
-  const handleSave = async () => {
-    if (!validateForm()) {
-      alert('נא למלא את כל השדות הנדרשים');
-      return;
-    }
-
-    if (!currentMeeting) return;
-
-    setIsSaving(true);
-    try {
+  // Auto-save when config changes
+  useEffect(() => {
+    if (config.platform) { // Only save if we have basic data
       const category = currentMeeting?.implementationSpec?.systemImplementations || [];
       const updated = category.filter(item => item.serviceId !== 'impl-analytics');
 
@@ -220,20 +223,37 @@ export function ImplAnalyticsSpec() {
         completedAt: new Date().toISOString()
       });
 
-      await updateMeeting({
+      saveData({
         implementationSpec: {
-          ...currentMeeting.implementationSpec,
+          ...currentMeeting?.implementationSpec,
           systemImplementations: updated
         }
       });
-
-      alert('הגדרות נשמרו בהצלחה!');
-    } catch (error) {
-      console.error('Error saving impl-analytics config:', error);
-      alert('שגיאה בשמירת הגדרות');
-    } finally {
-      setIsSaving(false);
     }
+  }, [config, saveData, currentMeeting]);
+
+  // Manual save handler (kept for compatibility, but auto-save is primary)
+  const handleManualSave = async () => {
+    if (!validateForm()) {
+      alert('נא למלא את כל השדות הנדרשים');
+      return;
+    }
+
+    // Force immediate save
+    await saveData({
+      implementationSpec: {
+        ...currentMeeting?.implementationSpec,
+        systemImplementations: [
+          ...(currentMeeting?.implementationSpec?.systemImplementations || []).filter(item => item.serviceId !== 'impl-analytics'),
+          {
+            serviceId: 'impl-analytics',
+            serviceName: 'הטמעת Analytics',
+            requirements: config,
+            completedAt: new Date().toISOString()
+          }
+        ]
+      }
+    }, 'manual');
   };
 
   return (
@@ -749,13 +769,33 @@ export function ImplAnalyticsSpec() {
         </div>
       </Card>
 
-      <div className="flex justify-end gap-4">
+      {/* Auto-Save Status and Manual Save */}
+      <div className="flex justify-between items-center gap-4">
+        <div className="flex items-center gap-2">
+          {isSaving && (
+            <div className="flex items-center gap-2 text-blue-600">
+              <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-sm">שומר אוטומטית...</span>
+            </div>
+          )}
+          {saveError && (
+            <div className="flex items-center gap-2 text-red-600">
+              <span className="text-sm">שגיאה בשמירה</span>
+            </div>
+          )}
+          {!isSaving && !saveError && config.platform && (
+            <div className="flex items-center gap-2 text-green-600">
+              <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+              <span className="text-sm">נשמר אוטומטית</span>
+            </div>
+          )}
+        </div>
         <button
-          onClick={handleSave}
+          onClick={handleManualSave}
           disabled={isSaving}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
         >
-          {isSaving ? 'שומר...' : 'שמור הגדרות'}
+          שמור ידנית
         </button>
       </div>
     </div>

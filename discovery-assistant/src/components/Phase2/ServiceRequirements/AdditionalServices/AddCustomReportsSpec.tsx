@@ -6,6 +6,8 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 import type { AddCustomReportsRequirements } from '../../../../types/additionalServices';
 import { Card } from '../../../Common/Card';
@@ -92,8 +94,27 @@ export function AddCustomReportsSpec() {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'add-custom-reports',
+    immediateFields: ['reportSpecifications', 'dataSources', 'dataFields', 'groupBy', 'calculations', 'generationMethod', 'complexityLevel'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AddCustomReportsSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      databaseType: databaseType.value,
+      alertEmail: alertEmail.value
+    };
+    saveData(completeConfig);
+  });
+
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const category = currentMeeting?.implementationSpec?.additionalServices || [];
@@ -120,41 +141,14 @@ export function AddCustomReportsSpec() {
       alert('נא למלא את כל השדות הנדרשים');
       return;
     }
-    if (!currentMeeting) return;
 
-    setIsSaving(true);
-    try {
-      const category = currentMeeting?.implementationSpec?.additionalServices || [];
-      const updated = category.filter(item => item.serviceId !== 'add-custom-reports');
+    const completeConfig = {
+      ...config,
+      databaseType: databaseType.value,
+      alertEmail: alertEmail.value
+    };
 
-      const completeConfig = {
-        ...config,
-        databaseType: databaseType.value,
-        alertEmail: alertEmail.value
-      };
-
-      updated.push({
-        serviceId: 'add-custom-reports',
-        serviceName: 'דוחות מותאמים',
-        serviceNameHe: 'דוחות מותאמים',
-        requirements: completeConfig,
-        completedAt: new Date().toISOString()
-      });
-
-      await updateMeeting({
-        implementationSpec: {
-          ...currentMeeting.implementationSpec,
-          additionalServices: updated
-        }
-      });
-
-      alert('הגדרות נשמרו בהצלחה!');
-    } catch (error) {
-      console.error('Error saving add-custom-reports config:', error);
-      alert('שגיאה בשמירת הגדרות');
-    } finally {
-      setIsSaving(false);
-    }
+    await saveData(completeConfig);
   };
 
   const addReport = () => {
@@ -286,7 +280,9 @@ export function AddCustomReportsSpec() {
                   onChange={(e) => {
                     const updated = [...config.reportSpecifications];
                     updated[index].reportName = e.target.value;
-                    setConfig({ ...config, reportSpecifications: updated });
+                    const newConfig = { ...config, reportSpecifications: updated };
+                    setConfig(newConfig);
+                    saveData(newConfig, 'reportSpecifications');
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="מכירות חודשיות לפי אזור"
@@ -300,7 +296,9 @@ export function AddCustomReportsSpec() {
                   onChange={(e) => {
                     const updated = [...config.reportSpecifications];
                     updated[index].reportPurpose = e.target.value;
-                    setConfig({ ...config, reportSpecifications: updated });
+                    const newConfig = { ...config, reportSpecifications: updated };
+                    setConfig(newConfig);
+                    saveData(newConfig, 'reportSpecifications');
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   rows={2}
@@ -315,7 +313,9 @@ export function AddCustomReportsSpec() {
                   onChange={(e) => {
                     const updated = [...config.reportSpecifications];
                     updated[index].reportType = e.target.value as any;
-                    setConfig({ ...config, reportSpecifications: updated });
+                    const newConfig = { ...config, reportSpecifications: updated };
+                    setConfig(newConfig);
+                    saveData(newConfig, 'reportSpecifications');
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
@@ -335,7 +335,9 @@ export function AddCustomReportsSpec() {
                     onChange={(e) => {
                       const updated = [...config.reportSpecifications];
                       updated[index].hasSampleReport = e.target.checked;
-                      setConfig({ ...config, reportSpecifications: updated });
+                      const newConfig = { ...config, reportSpecifications: updated };
+                      setConfig(newConfig);
+                      saveData(newConfig, 'reportSpecifications');
                     }}
                     className="rounded border-gray-300"
                   />
@@ -349,7 +351,9 @@ export function AddCustomReportsSpec() {
                     onChange={(e) => {
                       const updated = [...config.reportSpecifications];
                       updated[index].hasMockup = e.target.checked;
-                      setConfig({ ...config, reportSpecifications: updated });
+                      const newConfig = { ...config, reportSpecifications: updated };
+                      setConfig(newConfig);
+                      saveData(newConfig, 'reportSpecifications');
                     }}
                     className="rounded border-gray-300"
                   />
@@ -397,10 +401,12 @@ export function AddCustomReportsSpec() {
                     onChange={(e) => {
                       const updated = [...config.dataRequirements.dataFields];
                       updated[index].fieldName = e.target.value;
-                      setConfig({
+                      const newConfig = {
                         ...config,
                         dataRequirements: { ...config.dataRequirements, dataFields: updated }
-                      });
+                      };
+                      setConfig(newConfig);
+                      saveData(newConfig, 'dataFields');
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
@@ -414,10 +420,12 @@ export function AddCustomReportsSpec() {
                     onChange={(e) => {
                       const updated = [...config.dataRequirements.dataFields];
                       updated[index].fieldSource = e.target.value;
-                      setConfig({
+                      const newConfig = {
                         ...config,
                         dataRequirements: { ...config.dataRequirements, dataFields: updated }
-                      });
+                      };
+                      setConfig(newConfig);
+                      saveData(newConfig, 'dataFields');
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
@@ -432,10 +440,12 @@ export function AddCustomReportsSpec() {
                     onChange={(e) => {
                       const updated = [...config.dataRequirements.dataFields];
                       updated[index].dataType = e.target.value as any;
-                      setConfig({
+                      const newConfig = {
                         ...config,
                         dataRequirements: { ...config.dataRequirements, dataFields: updated }
-                      });
+                      };
+                      setConfig(newConfig);
+                      saveData(newConfig, 'dataFields');
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   >
@@ -455,10 +465,12 @@ export function AddCustomReportsSpec() {
                     onChange={(e) => {
                       const updated = [...config.dataRequirements.dataFields];
                       updated[index].requiresCalculation = e.target.value;
-                      setConfig({
+                      const newConfig = {
                         ...config,
                         dataRequirements: { ...config.dataRequirements, dataFields: updated }
-                      });
+                      };
+                      setConfig(newConfig);
+                      saveData(newConfig, 'dataFields');
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     placeholder="SUM, AVG, COUNT"
@@ -550,7 +562,9 @@ export function AddCustomReportsSpec() {
                   onChange={(e) => {
                     const updated = [...(config.calculations || [])];
                     updated[index].calculationName = e.target.value;
-                    setConfig({ ...config, calculations: updated });
+                    const newConfig = { ...config, calculations: updated };
+                    setConfig(newConfig);
+                    saveData(newConfig, 'calculations');
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="שולי רווח, שיעור המרה"
@@ -565,7 +579,9 @@ export function AddCustomReportsSpec() {
                   onChange={(e) => {
                     const updated = [...(config.calculations || [])];
                     updated[index].formula = e.target.value;
-                    setConfig({ ...config, calculations: updated });
+                    const newConfig = { ...config, calculations: updated };
+                    setConfig(newConfig);
+                    saveData(newConfig, 'calculations');
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="(הכנסות - עלויות) / הכנסות * 100"
@@ -580,7 +596,9 @@ export function AddCustomReportsSpec() {
                   onChange={(e) => {
                     const updated = [...(config.calculations || [])];
                     updated[index].displayFormat = e.target.value;
-                    setConfig({ ...config, calculations: updated });
+                    const newConfig = { ...config, calculations: updated };
+                    setConfig(newConfig);
+                    saveData(newConfig, 'calculations');
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="אחוזים עם 2 ספרות אחרי הנקודה"
@@ -643,10 +661,14 @@ export function AddCustomReportsSpec() {
             <label className="block text-sm font-medium text-gray-700 mb-2">שיטת יצירה</label>
             <select
               value={config.generation.generationMethod}
-              onChange={(e) => setConfig({
-                ...config,
-                generation: { ...config.generation, generationMethod: e.target.value as any }
-              })}
+              onChange={(e) => {
+                const newConfig = {
+                  ...config,
+                  generation: { ...config.generation, generationMethod: e.target.value as any }
+                };
+                setConfig(newConfig);
+                saveData(newConfig, 'generationMethod');
+              }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="ssrs">SSRS</option>
@@ -763,14 +785,33 @@ export function AddCustomReportsSpec() {
         </div>
       </Card>
 
-      {/* Save Button */}
-      <div className="flex justify-end gap-4">
+      {/* Save Status and Button */}
+      <div className="flex justify-between items-center gap-4 pt-4 border-t">
+        <div className="flex items-center gap-2">
+          {isSaving && (
+            <div className="flex items-center gap-2 text-blue-600">
+              <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-sm">שומר אוטומטית...</span>
+            </div>
+          )}
+          {saveError && (
+            <div className="flex items-center gap-2 text-red-600">
+              <span className="text-sm">שגיאה בשמירה</span>
+            </div>
+          )}
+          {!isSaving && !saveError && config.reportSpecifications.length > 0 && (
+            <div className="flex items-center gap-2 text-green-600">
+              <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+              <span className="text-sm">נשמר אוטומטית</span>
+            </div>
+          )}
+        </div>
         <button
           onClick={handleSave}
           disabled={isSaving}
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
-          {isSaving ? 'שומר...' : 'שמור הגדרות'}
+          {isSaving ? 'שומר...' : 'שמור ידנית'}
         </button>
       </div>
     </div>

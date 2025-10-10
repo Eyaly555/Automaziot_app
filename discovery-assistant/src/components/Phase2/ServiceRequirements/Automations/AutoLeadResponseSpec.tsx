@@ -13,6 +13,8 @@ import { useMeetingStore } from '../../../../store/useMeetingStore';
 import type { AutoLeadResponseRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 import { extractBusinessContext } from '../../../../utils/fieldMapper';
 
@@ -98,8 +100,29 @@ export function AutoLeadResponseSpec() {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'auto-lead-response',
+    immediateFields: ['formPlatformAccess', 'emailServiceAccess', 'crmAccess'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AutoLeadResponseSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      crmSystem: crmSystem.value,
+      emailProvider: emailProvider.value,
+      n8nInstanceUrl: n8nInstanceUrl.value,
+      alertEmail: alertEmail.value
+    };
+    saveData(completeConfig);
+  });
+
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSaving, setIsSaving] = useState(false);
 
   // Load existing data
   useEffect(() => {
@@ -112,6 +135,20 @@ export function AutoLeadResponseSpec() {
       setConfig(existing.requirements);
     }
   }, [currentMeeting]);
+
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.formPlatformAccess?.platform || config.emailServiceAccess?.provider) {
+      const completeConfig = {
+        ...config,
+        crmSystem: crmSystem.value,
+        emailProvider: emailProvider.value,
+        n8nInstanceUrl: n8nInstanceUrl.value,
+        alertEmail: alertEmail.value
+      };
+      saveData(completeConfig);
+    }
+  }, [config, crmSystem.value, emailProvider.value, n8nInstanceUrl.value, alertEmail.value, saveData]);
 
   // Validation function
   const validateForm = (): boolean => {
@@ -144,54 +181,28 @@ export function AutoLeadResponseSpec() {
       return;
     }
 
-    if (!currentMeeting) return;
+    // Build complete config with smart field values
+    const completeConfig = {
+      ...config,
+      crmAccess: {
+        ...config.crmAccess,
+        system: crmSystem.value || config.crmAccess.system
+      },
+      emailServiceAccess: {
+        ...config.emailServiceAccess,
+        provider: emailProvider.value || config.emailServiceAccess.provider
+      },
+      n8nWorkflow: {
+        ...config.n8nWorkflow,
+        instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow.instanceUrl,
+        webhookEndpoint: n8nWebhookEndpoint.value || config.n8nWorkflow.webhookEndpoint
+      }
+    };
 
-    setIsSaving(true);
-    try {
-      const category = currentMeeting?.implementationSpec?.automations || [];
-      const updated = category.filter((item: any) => item.serviceId !== 'auto-lead-response');
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
-      // Build complete config with smart field values
-      const completeConfig = {
-        ...config,
-        crmAccess: {
-          ...config.crmAccess,
-          system: crmSystem.value || config.crmAccess.system
-        },
-        emailServiceAccess: {
-          ...config.emailServiceAccess,
-          provider: emailProvider.value || config.emailServiceAccess.provider
-        },
-        n8nWorkflow: {
-          ...config.n8nWorkflow,
-          instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow.instanceUrl,
-          webhookEndpoint: n8nWebhookEndpoint.value || config.n8nWorkflow.webhookEndpoint
-        }
-      };
-
-      updated.push({
-        serviceId: 'auto-lead-response',
-        serviceName: 'Auto Lead Response',
-        serviceNameHe: 'מענה אוטומטי ללידים מטפסים',
-        category: 'lead_management' as const,
-        requirements: completeConfig,
-        completedAt: new Date().toISOString()
-      });
-
-      await updateMeeting({
-        implementationSpec: {
-          ...currentMeeting.implementationSpec,
-          automations: updated
-        }
-      });
-
-      alert('✅ הגדרות נשמרו בהצלחה! השדות האוטומטיים ישמרו גם לשירותים אחרים.');
-    } catch (error) {
-      console.error('Error saving auto-lead-response config:', error);
-      alert('שגיאה בשמירת הגדרות');
-    } finally {
-      setIsSaving(false);
-    }
+    alert('✅ הגדרות נשמרו בהצלחה! השדות האוטומטיים ישמרו גם לשירותים אחרים.');
   };
 
   return (

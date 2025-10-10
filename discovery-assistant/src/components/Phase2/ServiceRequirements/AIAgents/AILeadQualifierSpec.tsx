@@ -19,6 +19,8 @@ import type { AILeadQualifierRequirements, AIProvider, CRMSystem } from '../../.
 import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
 import { Button, Input, Select } from '../../../Base';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 const AI_PROVIDERS = [
@@ -137,8 +139,27 @@ export const AILeadQualifierSpec: React.FC = () => {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'ai-lead-qualifier',
+    immediateFields: ['aiProvider', 'model', 'crmSystem'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AILeadQualifierSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      aiModel: aiModelPreference.value,
+      crmSystem: crmSystem.value
+    };
+    saveData(completeConfig);
+  });
+
   const [activeTab, setActiveTab] = useState<'basic' | 'bant' | 'conversation' | 'scoring' | 'followup' | 'performance'>('basic');
-  const [isSaving, setIsSaving] = useState(false);
 
   // Load existing config
   useEffect(() => {
@@ -149,44 +170,30 @@ export const AILeadQualifierSpec: React.FC = () => {
     }
   }, [currentMeeting]);
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      if (!currentMeeting) return;
-
-      const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
-      const updated = aiAgentServices.filter((a: AIAgentServiceEntry) => a.serviceId !== 'ai-lead-qualifier');
-
-      // Build complete config with smart field values
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.aiProvider || config.model || config.crmSystem) {
       const completeConfig = {
         ...config,
-        crmSystem: crmSystem.value,
-        model: aiModelPreference.value
+        aiModel: aiModelPreference.value,
+        crmSystem: crmSystem.value
       };
-
-      updated.push({
-        serviceId: 'ai-lead-qualifier',
-        serviceName: 'AI לאיסוף מידע ראשוני מלידים (BANT)',
-        serviceNameHe: 'AI לאיסוף מידע ראשוני מלידים (BANT)',
-        requirements: completeConfig,
-        completedAt: new Date().toISOString()
-      });
-
-      updateMeeting({
-        implementationSpec: {
-          ...currentMeeting.implementationSpec,
-          aiAgentServices: updated,
-        }
-      });
-
-      setTimeout(() => {
-        setIsSaving(false);
-        navigate('/phase2');
-      }, 500);
-    } catch (error) {
-      console.error('Error saving ai-lead-qualifier config:', error);
-      setIsSaving(false);
+      saveData(completeConfig);
     }
+  }, [config, aiModelPreference.value, crmSystem.value, saveData]);
+
+  const handleSave = async () => {
+    // Build complete config with smart field values
+    const completeConfig = {
+      ...config,
+      aiModel: aiModelPreference.value,
+      crmSystem: crmSystem.value
+    };
+
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
+
+    navigate('/phase2');
   };
 
   const getModelOptions = () => {

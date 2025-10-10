@@ -21,6 +21,8 @@ import { AIFAQBotConfig } from '../../../../types/automationServices';
 import { Button, Input, Select } from '../../../Base';
 import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 
 const AI_PROVIDERS = [
   { value: 'openai', label: 'OpenAI' },
@@ -170,8 +172,27 @@ export const AIFAQBotSpec: React.FC = () => {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'ai-faq-bot',
+    immediateFields: ['aiProvider', 'model', 'vectorDatabase'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AIFAQBotSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      model: aiModelPreference.value,
+      vectorDatabase: vectorDatabasePreference.value
+    };
+    saveData(completeConfig);
+  });
+
   const [activeTab, setActiveTab] = useState<'basic' | 'knowledge' | 'templates' | 'rag' | 'integration' | 'gdpr' | 'cost'>('basic');
-  const [isSaving, setIsSaving] = useState(false);
 
   // Load existing config from meeting store if available
   useEffect(() => {
@@ -185,6 +206,18 @@ export const AIFAQBotSpec: React.FC = () => {
       }
     }
   }, [currentMeeting]);
+
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.aiProvider || config.model || config.vectorDatabase) {
+      const completeConfig = {
+        ...config,
+        model: aiModelPreference.value,
+        vectorDatabase: vectorDatabasePreference.value
+      };
+      saveData(completeConfig);
+    }
+  }, [config, aiModelPreference.value, vectorDatabasePreference.value, saveData]);
 
   // Cost calculator
   const estimatedMonthlyCost = useMemo(() => {
@@ -231,47 +264,20 @@ export const AIFAQBotSpec: React.FC = () => {
   }, [config.costEstimation, config.aiProvider, config.model, config.knowledgeBase.faqCount, config.vectorDatabase]);
 
   const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      if (!currentMeeting) return;
+    // Build complete config with smart field values
+    const completeConfig = {
+      ...config,
+      model: aiModelPreference.value || config.model,
+      costEstimation: {
+        ...config.costEstimation,
+        estimatedMonthlyCost: parseFloat(estimatedMonthlyCost.totalMonthlyCost)
+      }
+    };
 
-      const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
-      const updated = aiAgentServices.filter((a: AIAgentServiceEntry) => a.serviceId !== 'ai-faq-bot');
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
-      // Build complete config with smart field values
-      const completeConfig = {
-        ...config,
-        model: aiModelPreference.value || config.model
-      };
-
-      updated.push({
-        serviceId: 'ai-faq-bot',
-        serviceName: 'צ\'אטבוט למענה על שאלות נפוצות',
-        requirements: {
-          ...completeConfig,
-          costEstimation: {
-            ...completeConfig.costEstimation,
-            estimatedMonthlyCost: parseFloat(estimatedMonthlyCost.totalMonthlyCost)
-          }
-        },
-        completedAt: new Date().toISOString()
-      });
-
-      updateMeeting({
-        implementationSpec: {
-          ...currentMeeting.implementationSpec,
-          aiAgentServices: updated,
-        }
-      });
-
-      setTimeout(() => {
-        setIsSaving(false);
-        navigate('/phase2');
-      }, 500);
-    } catch (error) {
-      console.error('Error saving ai-faq-bot config:', error);
-      setIsSaving(false);
-    }
+    navigate('/phase2');
   };
 
   const getModelOptions = () => {

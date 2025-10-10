@@ -3,6 +3,8 @@ import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useSmartField } from '../../../../hooks/useSmartField';
 import { SmartFieldWidget } from '../../../Common/FormFields/SmartFieldWidget';
 import { extractBusinessContext } from '../../../../utils/fieldMapper';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { Card } from '../../../Common/Card';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
@@ -53,6 +55,26 @@ export function AutoDataSyncSpec() {
     errorHandling: 'retry',
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'auto-data-sync',
+    immediateFields: ['sourceSystem', 'targetSystem', 'syncDirection'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AutoDataSyncSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      syncFrequency: syncFrequency.value,
+      alertEmail: alertEmail.value
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
     const existing = automations.find(a => a.serviceId === 'auto-data-sync');
@@ -61,29 +83,30 @@ export function AutoDataSyncSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.sourceSystem || config.targetSystem) {
+      const completeConfig = {
+        ...config,
+        syncFrequency: syncFrequency.value,
+        alertEmail: alertEmail.value
+      };
+      saveData(completeConfig);
+    }
+  }, [config, syncFrequency.value, alertEmail.value, saveData]);
 
-    // קריאת המערך הקיים
-    const automations = currentMeeting?.implementationSpec?.automations || [];
+  const handleSave = async () => {
+    // Build complete config with smart field values
+    const completeConfig = {
+      ...config,
+      syncFrequency: syncFrequency.value,
+      alertEmail: alertEmail.value
+    };
 
-    // הסרת רשומה קיימת (אם יש) למניעת כפילויות
-    const updated = automations.filter(a => a.serviceId !== 'auto-data-sync');
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
-    // הוספת רשומה חדשה/מעודכנת
-    updated.push({
-      serviceId: 'auto-data-sync',
-      serviceName: 'סנכרון נתונים אוטומטי',
-      requirements: config,
-      completedAt: new Date().toISOString()
-    });
-
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        automations: updated,
-      },
-    });
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   return (

@@ -11,6 +11,8 @@ import {
   BoltIcon
 } from '@heroicons/react/24/outline';
 import { aiService } from '../../services/AIService';
+import { useAutoSave } from '../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../hooks/useBeforeUnload';
 import type { AIProvider, AIConfig } from '../../types';
 
 export const AISettings: React.FC = () => {
@@ -25,6 +27,23 @@ export const AISettings: React.FC = () => {
     size: number;
     entries: string[];
   } | null>(null);
+
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'ai-settings',
+    immediateFields: ['provider', 'model', 'enabled'], // Critical AI configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AISettings:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    if (config) {
+      saveData(config);
+    }
+  });
 
   // Load current configuration
   useEffect(() => {
@@ -49,6 +68,13 @@ export const AISettings: React.FC = () => {
     // Load cache statistics
     setCacheStats(aiService.getCacheStats());
   }, []);
+
+  // Auto-save on changes
+  useEffect(() => {
+    if (config) {
+      saveData(config);
+    }
+  }, [config, saveData]);
 
   // Test AI connection
   const handleTestConnection = async () => {
@@ -75,25 +101,19 @@ export const AISettings: React.FC = () => {
   const handleSave = async () => {
     if (!config) return;
 
-    setSaving(true);
-    try {
-      aiService.updateConfig(config);
+    // Save using auto-save (manual save trigger)
+    await saveData(config, 'manual');
 
-      // Save to localStorage for persistence
-      localStorage.setItem('ai_config', JSON.stringify(config));
+    // Also update aiService for immediate effect
+    aiService.updateConfig(config);
 
-      setTestResult({
-        success: true,
-        message: 'הגדרות נשמרו בהצלחה'
-      });
-    } catch (error) {
-      setTestResult({
-        success: false,
-        message: 'שמירת הגדרות נכשלה'
-      });
-    } finally {
-      setSaving(false);
-    }
+    // Save to localStorage for persistence
+    localStorage.setItem('ai_config', JSON.stringify(config));
+
+    setTestResult({
+      success: true,
+      message: 'הגדרות נשמרו בהצלחה'
+    });
   };
 
   // Clear cache

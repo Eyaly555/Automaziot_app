@@ -3,6 +3,8 @@ import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { IntegrationSimpleRequirements, SystemConfig, FieldMapping, ErrorHandlingConfig } from '../../../../types/integrationServices';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 export function IntegrationSimpleSpec() {
@@ -50,6 +52,28 @@ export function IntegrationSimpleSpec() {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'integration-simple',
+    immediateFields: ['sourceSystem', 'targetSystem', 'syncConfig'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in IntegrationSimpleSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      sourceSystem: {
+        ...config.sourceSystem,
+        authType: apiAuthMethod.value
+      }
+    };
+    saveData(completeConfig);
+  });
+
   const [newField, setNewField] = useState<Partial<FieldMapping>>({
     sourceField: '',
     targetField: '',
@@ -87,12 +111,25 @@ export function IntegrationSimpleSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.sourceSystem?.name || config.targetSystem?.name) {
+      const completeConfig = {
+        ...config,
+        sourceSystem: {
+          ...config.sourceSystem,
+          authType: apiAuthMethod.value
+        },
+        syncConfig: {
+          ...config.syncConfig,
+          frequency: syncFrequency.value
+        }
+      };
+      saveData(completeConfig);
+    }
+  }, [config, apiAuthMethod.value, syncFrequency.value, saveData]);
 
-    const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
-    const updated = integrationServices.filter(i => i.serviceId !== 'integration-simple');
-
+  const handleSave = async () => {
     // Map frequency if needed
     let frequencyValue = syncFrequency.value;
     if (frequencyValue === 'realtime') frequencyValue = 'real-time';
@@ -113,19 +150,10 @@ export function IntegrationSimpleSpec() {
       }
     };
 
-    updated.push({
-      serviceId: 'integration-simple',
-      serviceName: 'אינטגרציה פשוטה בין 2 מערכות',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        integrationServices: updated,
-      },
-    });
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   const addFieldMapping = () => {

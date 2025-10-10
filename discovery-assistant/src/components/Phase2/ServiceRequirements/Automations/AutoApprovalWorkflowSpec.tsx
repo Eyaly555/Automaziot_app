@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import type { AutoApprovalWorkflowRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
 import { Plus, Trash2, Save, CheckCircle, AlertCircle, Info } from 'lucide-react';
@@ -105,8 +107,29 @@ export function AutoApprovalWorkflowSpec() {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'auto-approval-workflow',
+    immediateFields: ['stateManagement', 'approvalHierarchy', 'routingLogic'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AutoApprovalWorkflowSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      emailProvider: emailProvider.value,
+      crmSystem: crmSystem.value,
+      authMethod: authMethod.value,
+      alertEmail: alertEmail.value
+    };
+    saveData(completeConfig);
+  });
+
   const [activeTab, setActiveTab] = useState<'basic' | 'hierarchy' | 'notifications' | 'escalation' | 'audit'>('basic');
-  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
@@ -116,51 +139,34 @@ export function AutoApprovalWorkflowSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = async () => {
-    if (!currentMeeting) return;
-
-    setIsSaving(true);
-    try {
-      const automations = currentMeeting?.implementationSpec?.automations || [];
-      const updated = automations.filter(a => a.serviceId !== 'auto-approval-workflow');
-
-      // Build complete config with smart field values
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.stateManagement?.storageType) {
       const completeConfig = {
         ...config,
-        emailNotifications: {
-          ...config.emailNotifications,
-          provider: emailProvider.value
-        },
-        sourceSystem: {
-          ...config.sourceSystem,
-          system: crmSystem.value,
-          authMethod: authMethod.value
-        },
+        emailProvider: emailProvider.value,
+        crmSystem: crmSystem.value,
+        authMethod: authMethod.value,
         alertEmail: alertEmail.value
       };
-
-      updated.push({
-        serviceId: 'auto-approval-workflow',
-        serviceName: 'workflow אישורים אוטומטי',
-        serviceNameHe: 'workflow אישורים אוטומטי',
-        requirements: completeConfig,
-        completedAt: new Date().toISOString()
-      });
-
-      await updateMeeting({
-        implementationSpec: {
-          ...currentMeeting.implementationSpec,
-          automations: updated,
-        },
-      });
-
-      alert('הגדרות נשמרו בהצלחה!');
-    } catch (error) {
-      console.error('Error saving auto-approval-workflow:', error);
-      alert('שגיאה בשמירת הגדרות');
-    } finally {
-      setIsSaving(false);
+      saveData(completeConfig);
     }
+  }, [config, emailProvider.value, crmSystem.value, authMethod.value, alertEmail.value, saveData]);
+
+  const handleSave = async () => {
+    // Build complete config with smart field values
+    const completeConfig = {
+      ...config,
+      emailProvider: emailProvider.value,
+      crmSystem: crmSystem.value,
+      authMethod: authMethod.value,
+      alertEmail: alertEmail.value
+    };
+
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
+
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   const addApprovalLevel = () => {

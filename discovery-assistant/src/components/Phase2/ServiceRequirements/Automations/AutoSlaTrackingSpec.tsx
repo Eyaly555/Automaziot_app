@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 interface AutoSlaTrackingConfig {
@@ -45,6 +47,27 @@ export function AutoSlaTrackingSpec() {
     integrationSystem: '',
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'auto-sla-tracking',
+    immediateFields: ['slaRules', 'alertingEnabled', 'escalationEnabled'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AutoSlaTrackingSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      crmSystem: crmSystem.value,
+      n8nInstanceUrl: n8nInstanceUrl.value,
+      alertEmail: alertEmail.value
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
     const existing = automations.find((a: any) => a.serviceId === 'auto-sla-tracking');
@@ -53,42 +76,30 @@ export function AutoSlaTrackingSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.slaRules?.length || config.alertingEnabled || config.escalationEnabled) {
+      const completeConfig = {
+        ...config,
+        crmSystem: crmSystem.value,
+        n8nInstanceUrl: n8nInstanceUrl.value,
+        alertEmail: alertEmail.value
+      };
+      saveData(completeConfig);
+    }
+  }, [config, crmSystem.value, n8nInstanceUrl.value, alertEmail.value, saveData]);
 
-    // קריאת המערך הקיים
-    const automations = currentMeeting?.implementationSpec?.automations || [];
-
-    // הסרת רשומה קיימת (אם יש) למניעת כפילויות
-    const updated = automations.filter((a: any) => a.serviceId !== 'auto-sla-tracking');
-
+  const handleSave = async () => {
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
       crmSystem: crmSystem.value,
-      n8nWorkflow: {
-        instanceUrl: n8nInstanceUrl.value,
-        errorHandling: {
-          alertEmail: alertEmail.value
-        }
-      }
+      n8nInstanceUrl: n8nInstanceUrl.value,
+      alertEmail: alertEmail.value
     };
 
-    // הוספת רשומה חדשה/מעודכנת
-    updated.push({
-      serviceId: 'auto-sla-tracking',
-      serviceName: 'מעקב SLA אוטומטי',
-      serviceNameHe: 'מעקב SLA אוטומטי',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
-
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        automations: updated,
-      },
-    });
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
     alert('✅ הגדרות נשמרו בהצלחה!');
   };

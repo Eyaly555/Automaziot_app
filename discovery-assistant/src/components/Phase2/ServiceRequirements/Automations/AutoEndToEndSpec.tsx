@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { Card } from '../../../Common/Card';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
@@ -46,6 +48,27 @@ export function AutoEndToEndSpec() {
     performanceTracking: true,
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'auto-end-to-end',
+    immediateFields: ['processName', 'startTrigger', 'endCondition'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AutoEndToEndSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      n8nInstanceUrl: n8nInstanceUrl.value,
+      alertEmail: alertEmail.value,
+      workflowTrigger: workflowTrigger.value
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
     const existing = automations.find(a => a.serviceId === 'auto-end-to-end');
@@ -54,15 +77,20 @@ export function AutoEndToEndSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.processName || config.startTrigger) {
+      const completeConfig = {
+        ...config,
+        n8nInstanceUrl: n8nInstanceUrl.value,
+        alertEmail: alertEmail.value,
+        workflowTrigger: workflowTrigger.value
+      };
+      saveData(completeConfig);
+    }
+  }, [config, n8nInstanceUrl.value, alertEmail.value, workflowTrigger.value, saveData]);
 
-    // קריאת המערך הקיים
-    const automations = currentMeeting?.implementationSpec?.automations || [];
-
-    // הסרת רשומה קיימת (אם יש) למניעת כפילויות
-    const updated = automations.filter(a => a.serviceId !== 'auto-end-to-end');
-
+  const handleSave = async () => {
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
@@ -71,21 +99,10 @@ export function AutoEndToEndSpec() {
       workflowTrigger: workflowTrigger.value
     };
 
-    // הוספת רשומה חדשה/מעודכנת
-    updated.push({
-      serviceId: 'auto-end-to-end',
-      serviceName: 'אוטומציה מקצה לקצה',
-      serviceNameHe: 'אוטומציה מקצה לקצה',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        automations: updated,
-      },
-    });
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   return (

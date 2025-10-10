@@ -4,6 +4,8 @@ import { Button } from '../Base/Button';
 import { Card } from '../Base/Card';
 import { X, Save, AlertTriangle } from 'lucide-react';
 import { Input, TextArea, Select } from '../Base';
+import { useAutoSave } from '../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../hooks/useBeforeUnload';
 
 interface TaskEditorProps {
   task: DevelopmentTask;
@@ -74,6 +76,23 @@ export const TaskEditor: React.FC<TaskEditorProps> = ({
   const [formData, setFormData] = useState<Partial<DevelopmentTask>>({});
   const t = translations[language];
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'task-editor',
+    immediateFields: ['title', 'description', 'priority'], // Critical task fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in TaskEditor:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    if (Object.keys(formData).length > 0) {
+      saveData(formData);
+    }
+  });
+
   useEffect(() => {
     if (task) {
       setFormData({
@@ -88,7 +107,17 @@ export const TaskEditor: React.FC<TaskEditorProps> = ({
     }
   }, [task]);
 
-  const handleSave = () => {
+  // Auto-save on changes
+  useEffect(() => {
+    if (Object.keys(formData).length > 0) {
+      saveData(formData);
+    }
+  }, [formData, saveData]);
+
+  const handleSave = async () => {
+    // Save using auto-save (manual save trigger)
+    await saveData(formData, 'manual');
+
     onSave(formData);
   };
 

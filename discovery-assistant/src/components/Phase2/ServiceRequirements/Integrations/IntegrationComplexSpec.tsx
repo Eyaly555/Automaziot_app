@@ -3,6 +3,8 @@ import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { IntegrationComplexRequirements, SystemConfig } from '../../../../types/integrationServices';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { Info } from 'lucide-react';
 
 export function IntegrationComplexSpec() {
@@ -60,6 +62,21 @@ export function IntegrationComplexSpec() {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'integration-complex',
+    immediateFields: ['systems', 'syncConfig', 'fieldMappings'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in IntegrationComplexSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    saveData(config);
+  });
+
   const [newSystem, setNewSystem] = useState<Partial<SystemConfig>>({
     name: '',
     authType: 'oauth2',
@@ -97,12 +114,14 @@ export function IntegrationComplexSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.systems?.length || config.syncConfig?.direction) {
+      saveData(config);
+    }
+  }, [config, saveData]);
 
-    const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
-    const updated = integrationServices.filter(i => i.serviceId !== 'integration-complex');
-
+  const handleSave = async () => {
     const completeConfig = {
       ...config,
       syncConfig: {
@@ -115,19 +134,10 @@ export function IntegrationComplexSpec() {
       }
     };
 
-    updated.push({
-      serviceId: 'integration-complex',
-      serviceName: 'אינטגרציה מורכבת בין מערכות',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        integrationServices: updated,
-      },
-    });
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   const addSystem = () => {

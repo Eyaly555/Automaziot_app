@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import type { AutoNotificationsRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
 import { Plus, Trash2, Save, CheckCircle, AlertCircle, Info } from 'lucide-react';
@@ -99,7 +101,21 @@ export function AutoNotificationsSpec() {
   });
 
   const [activeTab, setActiveTab] = useState<'basic' | 'hierarchy' | 'notifications' | 'escalation' | 'audit'>('basic');
-  const [isSaving, setIsSaving] = useState(false);
+
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'auto-notifications',
+    immediateFields: ['stateManagement', 'emailNotifications', 'approvalHierarchy'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AutoNotificationsSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    saveData(config);
+  });
 
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
@@ -109,50 +125,32 @@ export function AutoNotificationsSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = async () => {
-    if (!currentMeeting) return;
-
-    setIsSaving(true);
-    try {
-      const automations = currentMeeting?.implementationSpec?.automations || [];
-      const updated = automations.filter(a => a.serviceId !== 'auto-notifications');
-
-      // Build complete config with smart field values
-      const completeConfig = {
-        ...config,
-        emailNotifications: {
-          ...config.emailNotifications,
-          provider: emailProvider.value
-        },
-        alertEmail: alertEmail.value,
-        n8nWorkflow: {
-          ...config.n8nWorkflow,
-          instanceUrl: n8nInstanceUrl.value
-        }
-      };
-
-      updated.push({
-        serviceId: 'auto-notifications',
-        serviceName: 'התראות אוטומטיות',
-        serviceNameHe: 'התראות אוטומטיות',
-        requirements: completeConfig,
-        completedAt: new Date().toISOString()
-      });
-
-      await updateMeeting({
-        implementationSpec: {
-          ...currentMeeting.implementationSpec,
-          automations: updated,
-        },
-      });
-
-      alert('הגדרות נשמרו בהצלחה!');
-    } catch (error) {
-      console.error('Error saving auto-notifications:', error);
-      alert('שגיאה בשמירת הגדרות');
-    } finally {
-      setIsSaving(false);
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.stateManagement?.storageType) {
+      saveData(config);
     }
+  }, [config, saveData]);
+
+  const handleSave = async () => {
+    // Build complete config with smart field values
+    const completeConfig = {
+      ...config,
+      emailNotifications: {
+        ...config.emailNotifications,
+        provider: emailProvider.value
+      },
+      alertEmail: alertEmail.value,
+      n8nWorkflow: {
+        ...config.n8nWorkflow,
+        instanceUrl: n8nInstanceUrl.value
+      }
+    };
+
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
+
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   const addApprovalLevel = () => {
@@ -307,14 +305,33 @@ export function AutoNotificationsSpec() {
                 </div>
               </div>
             )}
-            <button
-              onClick={handleSave}
-              disabled={isSaving}
-              className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
-            >
-              <Save className="w-4 h-4" />
-              {isSaving ? 'שומר...' : 'שמור'}
-            </button>
+            <div className="flex items-center gap-2">
+              {isSaving && (
+                <div className="flex items-center gap-2 text-blue-600">
+                  <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm">שומר אוטומטית...</span>
+                </div>
+              )}
+              {saveError && (
+                <div className="flex items-center gap-2 text-red-600">
+                  <span className="text-sm">שגיאה בשמירה</span>
+                </div>
+              )}
+              {!isSaving && !saveError && config.stateManagement?.storageType && (
+                <div className="flex items-center gap-2 text-green-600">
+                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                  <span className="text-sm">נשמר אוטומטית</span>
+                </div>
+              )}
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 text-sm"
+              >
+                <Save className="w-4 h-4" />
+                שמור ידנית
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1452,15 +1469,34 @@ export function AutoNotificationsSpec() {
           </div>
         </div>
 
-        {/* Save Button at Bottom */}
-        <div className="flex justify-end gap-4">
+        {/* Auto-Save Status and Manual Save at Bottom */}
+        <div className="flex justify-between items-center gap-4">
+          <div className="flex items-center gap-2">
+            {isSaving && (
+              <div className="flex items-center gap-2 text-blue-600">
+                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-sm">שומר אוטומטית...</span>
+              </div>
+            )}
+            {saveError && (
+              <div className="flex items-center gap-2 text-red-600">
+                <span className="text-sm">שגיאה בשמירה</span>
+              </div>
+            )}
+            {!isSaving && !saveError && config.stateManagement?.storageType && (
+              <div className="flex items-center gap-2 text-green-600">
+                <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                <span className="text-sm">נשמר אוטומטית</span>
+              </div>
+            )}
+          </div>
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 text-sm"
           >
             <Save className="w-4 h-4" />
-            {isSaving ? 'שומר...' : 'שמור והמשך'}
+            שמור ידנית
           </button>
         </div>
       </div>

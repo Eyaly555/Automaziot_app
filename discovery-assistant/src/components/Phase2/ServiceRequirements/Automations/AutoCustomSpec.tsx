@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { Card } from '../../../Common/Card';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
@@ -39,6 +41,26 @@ export function AutoCustomSpec() {
     specialRequirements: '',
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'auto-custom',
+    immediateFields: ['customDescription', 'requirements', 'systems'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AutoCustomSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      n8nInstanceUrl: n8nInstanceUrl.value,
+      alertEmail: alertEmail.value
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
     const existing = automations.find(a => a.serviceId === 'auto-custom');
@@ -47,15 +69,19 @@ export function AutoCustomSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.customDescription || config.requirements?.length || config.systems?.length) {
+      const completeConfig = {
+        ...config,
+        n8nInstanceUrl: n8nInstanceUrl.value,
+        alertEmail: alertEmail.value
+      };
+      saveData(completeConfig);
+    }
+  }, [config, n8nInstanceUrl.value, alertEmail.value, saveData]);
 
-    // קריאת המערך הקיים
-    const automations = currentMeeting?.implementationSpec?.automations || [];
-
-    // הסרת רשומה קיימת (אם יש) למניעת כפילויות
-    const updated = automations.filter(a => a.serviceId !== 'auto-custom');
-
+  const handleSave = async () => {
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
@@ -63,21 +89,10 @@ export function AutoCustomSpec() {
       alertEmail: alertEmail.value
     };
 
-    // הוספת רשומה חדשה/מעודכנת
-    updated.push({
-      serviceId: 'auto-custom',
-      serviceName: 'אוטומציה מותאמת אישית',
-      serviceNameHe: 'אוטומציה מותאמת אישית',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        automations: updated,
-      },
-    });
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   return (

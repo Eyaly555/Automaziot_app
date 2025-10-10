@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 interface AutoReportsConfig {
@@ -47,6 +49,27 @@ export function AutoReportsSpec() {
     scheduledTime: '08:00',
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'auto-reports',
+    immediateFields: ['reportType', 'frequency', 'recipients'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AutoReportsSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      crmSystem: crmSystem.value,
+      n8nInstanceUrl: n8nInstanceUrl.value,
+      alertEmail: alertEmail.value
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
     const existing = automations.find((a: any) => a.serviceId === 'auto-reports');
@@ -55,42 +78,30 @@ export function AutoReportsSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.reportType || config.frequency) {
+      const completeConfig = {
+        ...config,
+        crmSystem: crmSystem.value,
+        n8nInstanceUrl: n8nInstanceUrl.value,
+        alertEmail: alertEmail.value
+      };
+      saveData(completeConfig);
+    }
+  }, [config, crmSystem.value, n8nInstanceUrl.value, alertEmail.value, saveData]);
 
-    // קריאת המערך הקיים
-    const automations = currentMeeting?.implementationSpec?.automations || [];
-
-    // הסרת רשומה קיימת (אם יש) למניעת כפילויות
-    const updated = automations.filter((a: any) => a.serviceId !== 'auto-reports');
-
+  const handleSave = async () => {
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
       crmSystem: crmSystem.value,
-      n8nWorkflow: {
-        instanceUrl: n8nInstanceUrl.value,
-        errorHandling: {
-          alertEmail: alertEmail.value
-        }
-      }
+      n8nInstanceUrl: n8nInstanceUrl.value,
+      alertEmail: alertEmail.value
     };
 
-    // הוספת רשומה חדשה/מעודכנת
-    updated.push({
-      serviceId: 'auto-reports',
-      serviceName: 'דוחות אוטומטיים',
-      serviceNameHe: 'דוחות אוטומטיים',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
-
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        automations: updated,
-      },
-    });
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
     alert('✅ הגדרות נשמרו בהצלחה!');
   };

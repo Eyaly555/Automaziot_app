@@ -11,6 +11,8 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import type { DataMigrationRequirements } from '../../../../types/additionalServices';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { Card } from '../../../Common/Card';
 
 export function DataMigrationSpec() {
@@ -71,8 +73,22 @@ export function DataMigrationSpec() {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'data-migration',
+    immediateFields: ['sourceSystems', 'targetSystems', 'migrationStrategy'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in DataMigrationSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    saveData(config);
+  });
+
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSaving, setIsSaving] = useState(false);
 
   // Load existing data
   useEffect(() => {
@@ -85,6 +101,13 @@ export function DataMigrationSpec() {
       setConfig(existing.requirements as DataMigrationRequirements);
     }
   }, [currentMeeting]);
+
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.sourceSystems?.length || config.targetSystems?.length) {
+      saveData(config);
+    }
+  }, [config, saveData]);
 
   // Validation
   const validateForm = (): boolean => {
@@ -109,34 +132,10 @@ export function DataMigrationSpec() {
       return;
     }
 
-    if (!currentMeeting) return;
+    // Save using auto-save (manual save trigger)
+    await saveData(config, 'manual');
 
-    setIsSaving(true);
-    try {
-      const category = currentMeeting?.implementationSpec?.additionalServices || [];
-      const updated = category.filter(item => item.serviceId !== 'data-migration');
-
-      updated.push({
-        serviceId: 'data-migration',
-        serviceName: 'העברת נתונים',
-        requirements: config,
-        completedAt: new Date().toISOString()
-      });
-
-      await updateMeeting({
-        implementationSpec: {
-          ...currentMeeting.implementationSpec,
-          additionalServices: updated
-        }
-      });
-
-      alert('הגדרות נשמרו בהצלחה!');
-    } catch (error) {
-      console.error('Error saving data-migration config:', error);
-      alert('שגיאה בשמירת הגדרות');
-    } finally {
-      setIsSaving(false);
-    }
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   // Add source system

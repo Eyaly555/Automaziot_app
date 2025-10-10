@@ -3,6 +3,8 @@ import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { WhatsappApiSetupRequirements } from '../../../../types/integrationServices';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 export function WhatsappApiSetupSpec() {
@@ -111,6 +113,35 @@ export function WhatsappApiSetupSpec() {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'whatsapp-api-setup',
+    immediateFields: ['whatsappBusinessAccount', 'apiConfig', 'webhookConfig'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in WhatsappApiSetupSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      whatsappBusinessAccount: {
+        ...config.whatsappBusinessAccount,
+        phoneNumber: whatsappPhoneNumber.value
+      },
+      integrations: {
+        ...config.integrations,
+        crm: {
+          ...config.integrations?.crm,
+          system: crmSystem.value
+        }
+      }
+    };
+    saveData(completeConfig);
+  });
+
   const whatsappPhoneNumber = useSmartField<string>({
     fieldId: 'whatsapp_phone_number',
     localPath: 'whatsappBusinessAccount.phoneNumber',
@@ -152,12 +183,28 @@ export function WhatsappApiSetupSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.whatsappBusinessAccount?.phoneNumber || config.apiConfig?.type) {
+      const completeConfig = {
+        ...config,
+        whatsappBusinessAccount: {
+          ...config.whatsappBusinessAccount,
+          phoneNumber: whatsappPhoneNumber.value
+        },
+        integrations: {
+          ...config.integrations,
+          crm: {
+            ...config.integrations?.crm,
+            system: crmSystem.value
+          }
+        }
+      };
+      saveData(completeConfig);
+    }
+  }, [config, whatsappPhoneNumber.value, crmSystem.value, saveData]);
 
-    const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
-    const updated = integrationServices.filter(i => i.serviceId !== 'whatsapp-api-setup');
-
+  const handleSave = async () => {
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
@@ -178,19 +225,10 @@ export function WhatsappApiSetupSpec() {
       }
     };
 
-    updated.push({
-      serviceId: 'whatsapp-api-setup',
-      serviceName: 'הקמת WhatsApp Business API',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        integrationServices: updated,
-      },
-    });
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   const addTemplate = () => {

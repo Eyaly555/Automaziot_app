@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 export function IntCrmAccountingSpec() {
@@ -59,6 +61,31 @@ export function IntCrmAccountingSpec() {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'int-crm-accounting',
+    immediateFields: ['crmSystem', 'accountingSystem', 'autoInvoicing'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in IntCrmAccountingSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      crmSystem: crmSystem.value,
+      crmAuthMethod: apiAuthMethod.value,
+      alertEmail: alertEmail.value,
+      syncConfig: {
+        ...config.syncConfig,
+        frequency: syncFrequency.value
+      }
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
     const existing = integrationServices.find(i => i.serviceId === 'int-crm-accounting');
@@ -67,12 +94,24 @@ export function IntCrmAccountingSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.crmSystem || config.accountingSystem) {
+      const completeConfig = {
+        ...config,
+        crmSystem: crmSystem.value,
+        crmAuthMethod: apiAuthMethod.value,
+        alertEmail: alertEmail.value,
+        syncConfig: {
+          ...config.syncConfig,
+          frequency: syncFrequency.value
+        }
+      };
+      saveData(completeConfig);
+    }
+  }, [config, crmSystem.value, apiAuthMethod.value, alertEmail.value, syncFrequency.value, saveData]);
 
-    const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
-    const updated = integrationServices.filter(i => i.serviceId !== 'int-crm-accounting');
-
+  const handleSave = async () => {
     const completeConfig = {
       ...config,
       crmSystem: crmSystem.value,
@@ -88,19 +127,10 @@ export function IntCrmAccountingSpec() {
       }
     };
 
-    updated.push({
-      serviceId: 'int-crm-accounting',
-      serviceName: 'אינטגרציה CRM ↔ Accounting',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        integrationServices: updated,
-      },
-    });
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   return (

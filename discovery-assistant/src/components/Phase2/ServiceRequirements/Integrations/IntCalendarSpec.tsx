@@ -3,6 +3,8 @@ import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { IntCalendarRequirements, SystemConfig } from '../../../../types/integrationServices';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 export function IntCalendarSpec() {
@@ -168,6 +170,32 @@ export function IntCalendarSpec() {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'int-calendar',
+    immediateFields: ['calendarProviders', 'crmIntegration', 'syncConfig'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in IntCalendarSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      crmIntegration: {
+        ...config.crmIntegration,
+        system: crmSystem.value,
+        config: {
+          ...config.crmIntegration?.config,
+          authType: apiAuthMethod.value
+        }
+      }
+    };
+    saveData(completeConfig);
+  });
+
   const crmSystem = useSmartField<string>({
     fieldId: 'crm_system',
     localPath: 'crmIntegration.system',
@@ -197,12 +225,25 @@ export function IntCalendarSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.calendarProviders?.google?.enabled || config.crmIntegration?.system) {
+      const completeConfig = {
+        ...config,
+        crmIntegration: {
+          ...config.crmIntegration,
+          system: crmSystem.value,
+          config: {
+            ...config.crmIntegration?.config,
+            authType: apiAuthMethod.value
+          }
+        }
+      };
+      saveData(completeConfig);
+    }
+  }, [config, crmSystem.value, apiAuthMethod.value, saveData]);
 
-    const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
-    const updated = integrationServices.filter(i => i.serviceId !== 'int-calendar');
-
+  const handleSave = async () => {
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
@@ -220,19 +261,10 @@ export function IntCalendarSpec() {
       }
     };
 
-    updated.push({
-      serviceId: 'int-calendar',
-      serviceName: 'אינטגרציית Calendar APIs',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        integrationServices: updated,
-      },
-    });
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   return (

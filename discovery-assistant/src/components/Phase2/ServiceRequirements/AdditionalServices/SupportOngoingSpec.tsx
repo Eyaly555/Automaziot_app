@@ -1,11 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { Card } from '../../../Common/Card';
 
 export function SupportOngoingSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
   const [config, setConfig] = useState<any>({
     ...{ supportLevel: 'extended', hoursPerMonth: 10 }
+  });
+
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'support-ongoing',
+    immediateFields: ['supportLevel', 'hoursPerMonth'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in SupportOngoingSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    saveData(config);
   });
 
   useEffect(() => {
@@ -16,25 +33,18 @@ export function SupportOngoingSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.supportLevel || config.hoursPerMonth) {
+      saveData(config);
+    }
+  }, [config, saveData]);
 
-    const category = currentMeeting?.implementationSpec?.additionalServices || [];
-    const updated = category.filter((s: any) => s.serviceId !== 'support-ongoing');
+  const handleSave = async () => {
+    // Save using auto-save (manual save trigger)
+    await saveData(config, 'manual');
 
-    updated.push({
-      serviceId: 'support-ongoing',
-      serviceName: 'תמיכה שוטפת',
-      requirements: config,
-      completedAt: new Date().toISOString()
-    });
-
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        additionalServices: updated,
-      },
-    });
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   return (

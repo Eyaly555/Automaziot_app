@@ -3,6 +3,8 @@ import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 export function AIFullIntegrationSpec() {
@@ -37,6 +39,27 @@ export function AIFullIntegrationSpec() {
     continuousLearning: true,
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'ai-full-integration',
+    immediateFields: ['aiModel', 'systems', 'orchestration'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AIFullIntegrationSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      aiModel: aiModelPreference.value,
+      crmSystem: crmSystem.value,
+      whatsappApiProvider: whatsappApiProvider.value
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
     const existing = aiAgentServices.find((a: AIAgentServiceEntry) => a.serviceId === 'ai-full-integration');
@@ -45,12 +68,20 @@ export function AIFullIntegrationSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.systems?.length || config.aiModel || config.orchestration) {
+      const completeConfig = {
+        ...config,
+        aiModel: aiModelPreference.value,
+        crmSystem: crmSystem.value,
+        whatsappApiProvider: whatsappApiProvider.value
+      };
+      saveData(completeConfig);
+    }
+  }, [config, aiModelPreference.value, crmSystem.value, whatsappApiProvider.value, saveData]);
 
-    const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
-    const updated = aiAgentServices.filter((a: AIAgentServiceEntry) => a.serviceId !== 'ai-full-integration');
-
+  const handleSave = async () => {
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
@@ -59,20 +90,10 @@ export function AIFullIntegrationSpec() {
       whatsappApiProvider: whatsappApiProvider.value
     };
 
-    updated.push({
-      serviceId: 'ai-full-integration',
-      serviceName: 'אינטגרציית AI מלאה',
-      serviceNameHe: 'אינטגרציית AI מלאה',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        aiAgentServices: updated,
-      },
-    });
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   return (

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 interface AutoDocumentGenerationConfig {
@@ -44,6 +46,27 @@ export function AutoDocumentGenerationSpec() {
     automatedDelivery: true,
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'auto-document-generation',
+    immediateFields: ['documentType', 'templateFormat', 'dataSource'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AutoDocumentGenerationSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      crmSystem: crmSystem.value,
+      n8nInstanceUrl: n8nInstanceUrl.value,
+      alertEmail: alertEmail.value
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
     const existing = automations.find(a => a.serviceId === 'auto-document-generation');
@@ -52,44 +75,32 @@ export function AutoDocumentGenerationSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.documentType || config.templateFormat) {
+      const completeConfig = {
+        ...config,
+        crmSystem: crmSystem.value,
+        n8nInstanceUrl: n8nInstanceUrl.value,
+        alertEmail: alertEmail.value
+      };
+      saveData(completeConfig);
+    }
+  }, [config, crmSystem.value, n8nInstanceUrl.value, alertEmail.value, saveData]);
 
-    // קריאת המערך הקיים
-    const automations = currentMeeting?.implementationSpec?.automations || [];
-
-    // הסרת רשומה קיימת (אם יש) למניעת כפילויות
-    const updated = automations.filter(a => a.serviceId !== 'auto-document-generation');
-
+  const handleSave = async () => {
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
       crmSystem: crmSystem.value,
-      n8nWorkflow: {
-        instanceUrl: n8nInstanceUrl.value,
-        errorHandling: {
-          alertEmail: alertEmail.value
-        }
-      }
+      n8nInstanceUrl: n8nInstanceUrl.value,
+      alertEmail: alertEmail.value
     };
 
-    // הוספת רשומה חדשה/מעודכנת
-    updated.push({
-      serviceId: 'auto-document-generation',
-      serviceName: 'יצירת מסמכים אוטומטית',
-      serviceNameHe: 'יצירת מסמכים אוטומטית',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        automations: updated,
-      },
-    });
-
-    alert('✅ הגדרות נשמרו בהצלחה!');
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   return (

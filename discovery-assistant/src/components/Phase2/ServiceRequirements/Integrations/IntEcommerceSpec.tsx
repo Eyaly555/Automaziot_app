@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 export function IntEcommerceSpec() {
@@ -62,6 +64,34 @@ export function IntEcommerceSpec() {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'int-ecommerce',
+    immediateFields: ['platform', 'crmSystem', 'orderSync'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in IntEcommerceSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      crmSystem: crmSystem.value,
+      crmAuthMethod: apiAuthMethod.value,
+      syncConfig: {
+        ...config.syncConfig,
+        frequency: syncFrequency.value
+      },
+      errorHandling: {
+        ...config.errorHandling,
+        alertRecipients: alertEmail.value ? [alertEmail.value] : config.errorHandling?.alertRecipients || []
+      }
+    };
+    saveData(completeConfig);
+  });
+
   const [newMapping, setNewMapping] = useState({ source: '', target: '', type: 'string' });
 
   useEffect(() => {
@@ -72,12 +102,27 @@ export function IntEcommerceSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.platform || config.crmSystem) {
+      const completeConfig = {
+        ...config,
+        crmSystem: crmSystem.value,
+        crmAuthMethod: apiAuthMethod.value,
+        syncConfig: {
+          ...config.syncConfig,
+          frequency: syncFrequency.value
+        },
+        errorHandling: {
+          ...config.errorHandling,
+          alertRecipients: alertEmail.value ? [alertEmail.value] : config.errorHandling?.alertRecipients || []
+        }
+      };
+      saveData(completeConfig);
+    }
+  }, [config, crmSystem.value, apiAuthMethod.value, syncFrequency.value, alertEmail.value, saveData]);
 
-    const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
-    const updated = integrationServices.filter(i => i.serviceId !== 'int-ecommerce');
-
+  const handleSave = async () => {
     let frequencyValue = syncFrequency.value;
     if (frequencyValue === 'realtime') frequencyValue = 'real-time';
 
@@ -95,19 +140,10 @@ export function IntEcommerceSpec() {
       }
     };
 
-    updated.push({
-      serviceId: 'int-ecommerce',
-      serviceName: 'אינטגרציה עם eCommerce',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        integrationServices: updated,
-      },
-    });
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   const addMapping = () => {

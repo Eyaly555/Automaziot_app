@@ -25,6 +25,8 @@ import {
 import { Button, Input, Select } from '../../../Base';
 import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -173,8 +175,26 @@ export const AITriageSpec: React.FC = () => {
     testAccountAvailable: false
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'ai-triage',
+    immediateFields: ['aiProvider', 'aiModel', 'categories'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AITriageSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      aiModel: aiModelPreference.value
+    };
+    saveData(completeConfig);
+  });
+
   const [activeTab, setActiveTab] = useState<'basic' | 'categories' | 'priority' | 'routing' | 'sentiment' | 'vip'>('basic');
-  const [isSaving, setIsSaving] = useState(false);
 
   // Load existing config from meeting store if available
   useEffect(() => {
@@ -185,47 +205,32 @@ export const AITriageSpec: React.FC = () => {
     }
   }, [currentMeeting]);
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      if (!currentMeeting) return;
-
-      const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
-      const updated = aiAgentServices.filter((a: AIAgentServiceEntry) => a.serviceId !== 'ai-triage');
-
-      // Build complete config with smart field values
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.aiProvider || config.aiModel) {
       const completeConfig = {
         ...config,
-        aiModel: aiModelPreference.value,
-        errorHandling: {
-          ...config.errorHandling,
-          errorNotificationEmail: alertEmail.value
-        }
+        aiModel: aiModelPreference.value
       };
-
-      updated.push({
-        serviceId: 'ai-triage',
-        serviceName: 'AI לסינון ותיעדוף פניות',
-        serviceNameHe: 'AI לסינון ותיעדוף פניות',
-        requirements: completeConfig,
-        completedAt: new Date().toISOString()
-      });
-
-      updateMeeting({
-        implementationSpec: {
-          ...currentMeeting.implementationSpec,
-          aiAgentServices: updated,
-        }
-      });
-
-      setTimeout(() => {
-        setIsSaving(false);
-        navigate('/phase2');
-      }, 500);
-    } catch (error) {
-      console.error('Error saving ai-triage config:', error);
-      setIsSaving(false);
+      saveData(completeConfig);
     }
+  }, [config, aiModelPreference.value, saveData]);
+
+  const handleSave = async () => {
+    // Build complete config with smart field values
+    const completeConfig = {
+      ...config,
+      aiModel: aiModelPreference.value,
+      errorHandling: {
+        ...config.errorHandling,
+        errorNotificationEmail: alertEmail.value
+      }
+    };
+
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
+
+    navigate('/phase2');
   };
 
   // Category Management

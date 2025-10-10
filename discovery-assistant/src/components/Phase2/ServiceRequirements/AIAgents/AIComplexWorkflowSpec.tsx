@@ -3,6 +3,8 @@ import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 const AI_MODELS = [
@@ -29,6 +31,25 @@ export function AIComplexWorkflowSpec() {
     monitoringEnabled: true,
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'ai-complex-workflow',
+    immediateFields: ['aiModel', 'workflowName', 'decisionPoints'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AIComplexWorkflowSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      aiModel: aiModelPreference.value
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
     const existing = aiAgentServices.find((a: AIAgentServiceEntry) => a.serviceId === 'ai-complex-workflow');
@@ -41,31 +62,28 @@ export function AIComplexWorkflowSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.aiModel || config.workflowName) {
+      const completeConfig = {
+        ...config,
+        aiModel: aiModelPreference.value
+      };
+      saveData(completeConfig);
+    }
+  }, [config, aiModelPreference.value, saveData]);
 
-    const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
-    const updated = aiAgentServices.filter((a: AIAgentServiceEntry) => a.serviceId !== 'ai-complex-workflow');
-
+  const handleSave = async () => {
     // Build complete config with smart field value
     const completeConfig = {
       ...config,
       aiModel: aiModelPreference.value || config.aiModel
     };
 
-    updated.push({
-      serviceId: 'ai-complex-workflow',
-      serviceName: 'AI לworkflows מורכבים',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        aiAgentServices: updated,
-      },
-    });
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   return (

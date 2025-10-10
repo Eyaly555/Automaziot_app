@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 interface AutoMeetingSchedulerConfig {
@@ -53,6 +55,27 @@ export function AutoMeetingSchedulerSpec() {
     availabilityRules: [],
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'auto-meeting-scheduler',
+    immediateFields: ['schedulingTool', 'crmSystem', 'calendarSync'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AutoMeetingSchedulerSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      calendarSystem: calendarSystem.value,
+      crmSystem: crmSystem.value,
+      alertEmail: alertEmail.value
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
     const existing = automations.find((a: any) => a.serviceId === 'auto-meeting-scheduler');
@@ -61,15 +84,20 @@ export function AutoMeetingSchedulerSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.schedulingTool || config.crmSystem) {
+      const completeConfig = {
+        ...config,
+        calendarSystem: calendarSystem.value,
+        crmSystem: crmSystem.value,
+        alertEmail: alertEmail.value
+      };
+      saveData(completeConfig);
+    }
+  }, [config, calendarSystem.value, crmSystem.value, alertEmail.value, saveData]);
 
-    // קריאת המערך הקיים
-    const automations = currentMeeting?.implementationSpec?.automations || [];
-
-    // הסרת רשומה קיימת (אם יש) למניעת כפילויות
-    const updated = automations.filter((a: any) => a.serviceId !== 'auto-meeting-scheduler');
-
+  const handleSave = async () => {
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
@@ -82,21 +110,8 @@ export function AutoMeetingSchedulerSpec() {
       }
     };
 
-    // הוספת רשומה חדשה/מעודכנת
-    updated.push({
-      serviceId: 'auto-meeting-scheduler',
-      serviceName: 'תזמון פגישות אוטומטי',
-      serviceNameHe: 'תזמון פגישות אוטומטי',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
-
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        automations: updated,
-      },
-    });
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
     alert('✅ הגדרות נשמרו בהצלחה!');
   };

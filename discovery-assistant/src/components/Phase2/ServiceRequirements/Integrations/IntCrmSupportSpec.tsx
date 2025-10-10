@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 export function IntCrmSupportSpec() {
@@ -33,6 +35,27 @@ export function IntCrmSupportSpec() {
     ...{ crmSystem: 'zoho', helpdeskSystem: 'zendesk', ticketSync: true }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'int-crm-support',
+    immediateFields: ['crmSystem', 'helpdeskSystem', 'ticketSync'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in IntCrmSupportSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      crmSystem: crmSystem.value,
+      crmAuthMethod: apiAuthMethod.value,
+      alertEmail: alertEmail.value
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
     const existing = integrationServices.find(i => i.serviceId === 'int-crm-support');
@@ -41,12 +64,20 @@ export function IntCrmSupportSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
+  // Auto-save on changes
+  useEffect(() => {
+    if (config.crmSystem || config.helpdeskSystem) {
+      const completeConfig = {
+        ...config,
+        crmSystem: crmSystem.value,
+        crmAuthMethod: apiAuthMethod.value,
+        alertEmail: alertEmail.value
+      };
+      saveData(completeConfig);
+    }
+  }, [config, crmSystem.value, apiAuthMethod.value, alertEmail.value, saveData]);
 
-    const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
-    const updated = integrationServices.filter(i => i.serviceId !== 'int-crm-support');
-
+  const handleSave = async () => {
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
@@ -55,20 +86,10 @@ export function IntCrmSupportSpec() {
       alertEmail: alertEmail.value
     };
 
-    updated.push({
-      serviceId: 'int-crm-support',
-      serviceName: 'אינטגרציה CRM ↔ Support',
-      serviceNameHe: 'אינטגרציה CRM ↔ Support',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
+    // Save using auto-save (manual save trigger)
+    await saveData(completeConfig, 'manual');
 
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        integrationServices: updated,
-      },
-    });
+    alert('הגדרות נשמרו בהצלחה!');
   };
 
   return (
