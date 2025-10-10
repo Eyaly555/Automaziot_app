@@ -53,6 +53,8 @@ const leadStorageOptions = [
 ];
 
 export const OverviewModule: React.FC = () => {
+  console.log('[OverviewModule] 🔵 Component rendering/mounting');
+  
   const navigate = useNavigate();
   const { currentMeeting, updateModule } = useMeetingStore();
   const overviewData = currentMeeting?.modules?.overview || {};

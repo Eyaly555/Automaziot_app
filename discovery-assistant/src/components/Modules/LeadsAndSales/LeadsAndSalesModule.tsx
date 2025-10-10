@@ -31,6 +31,8 @@ const channelOptions = [
 ];
 
 export const LeadsAndSalesModule: React.FC = () => {
+  console.log('[LeadsAndSalesModule] 🟡 Component rendering/mounting');
+  
   const navigate = useNavigate();
   const { currentMeeting, updateModule } = useMeetingStore();
   const moduleData = currentMeeting?.modules?.leadsAndSales || {};

@@ -13,6 +13,8 @@ import { AIDetailsSection } from './components/AIDetailsSection';
 import type { FocusArea, EssentialDetailsModule as EssentialDetailsType } from '../../../types';
 
 export const EssentialDetailsModule: React.FC = () => {
+  console.log('[EssentialDetailsModule] 🟢 Component rendering/mounting');
+  
   const navigate = useNavigate();
   const { currentMeeting, updateModule } = useMeetingStore();
 
