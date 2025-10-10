@@ -91,7 +91,7 @@ export class AIProposalGenerator {
           messages,
           seed: 7,
           max_output_tokens: 1800,
-          temperature: 0.4,
+          // Note: temperature not specified - uses model default (1.0 for gpt-5-mini)
           response_format: {
             type: 'json_schema',
             json_schema: AiProposalJsonSchema
@@ -156,22 +156,33 @@ export class AIProposalGenerator {
   private async callOpenAIResponsesAPI(params: {
     model: string;
     messages: Array<{ role: 'system' | 'user'; content: string }>;
-    seed: number;
+    seed?: number; // Optional for models that don't support seed
     max_output_tokens: number;
-    temperature: number;
+    temperature?: number; // Optional for models that don't support custom temperature
     response_format: {
       type: 'json_schema';
       json_schema: typeof AiProposalJsonSchema;
     };
   }) {
-    const response = await callOpenAIThroughProxy({
+    // Build request body dynamically based on model support
+    const requestBody: any = {
       model: params.model,
       messages: params.messages,
-      seed: params.seed,
-      max_output_tokens: params.max_output_tokens,
-      temperature: params.temperature,
+      max_completion_tokens: params.max_output_tokens,
       response_format: params.response_format
-    });
+    };
+
+    // Add seed if supported (most modern models support it)
+    if (params.seed !== undefined) {
+      requestBody.seed = params.seed;
+    }
+
+    // Add temperature only if provided (for models that support custom temperature)
+    if (params.temperature !== undefined) {
+      requestBody.temperature = params.temperature;
+    }
+
+    const response = await callOpenAIThroughProxy(requestBody);
 
     if (!response.success) {
       throw new Error(response.error || 'OpenAI API call failed');

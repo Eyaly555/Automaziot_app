@@ -23,9 +23,9 @@ interface OpenAIMessage {
 interface OpenAIRequest {
   model: string;
   messages: OpenAIMessage[];
-  seed: number;
+  seed?: number; // Optional - not all models support seed
   max_output_tokens: number;
-  temperature: number;
+  temperature?: number; // Optional - newer models may not support custom temperature
   response_format: {
     type: 'json_schema';
     json_schema: any;
@@ -37,12 +37,29 @@ interface OpenAIRequest {
  */
 export async function callOpenAIThroughProxy(request: OpenAIRequest): Promise<OpenAIResponse> {
   try {
+    // Build request body dynamically, excluding undefined optional parameters
+    const requestBody: any = {
+      model: request.model,
+      messages: request.messages,
+      max_output_tokens: request.max_output_tokens,
+      response_format: request.response_format
+    };
+
+    // Add optional parameters only if provided
+    if (request.seed !== undefined) {
+      requestBody.seed = request.seed;
+    }
+
+    if (request.temperature !== undefined) {
+      requestBody.temperature = request.temperature;
+    }
+
     const response = await fetch('/api/openai/responses', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(request),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
