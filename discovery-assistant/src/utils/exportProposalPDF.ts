@@ -21,10 +21,11 @@ const formatHebrewDate = (date: Date): string => {
   return `${day}/${month}/${year}`;
 };
 
+import html2pdf from 'html2pdf.js';
+
 /**
- * Generate Professional PDF using Browser Print Dialog
- * Uses browser's native BiDi rendering for perfect Hebrew/English/Numbers
- * Returns empty Blob - user will save PDF manually via print dialog
+ * Generate Professional PDF using html2pdf.js
+ * Returns Blob for WhatsApp/Email sending
  */
 export const generateProposalPDF = async (options: ProposalPDFOptions): Promise<Blob> => {
   const { clientName, clientCompany, services, proposalData, aiProposal } = options;
@@ -33,19 +34,23 @@ export const generateProposalPDF = async (options: ProposalPDFOptions): Promise<
   const validUntil = new Date(today);
   validUntil.setDate(validUntil.getDate() + COMPANY_BRANDING.proposalValidity);
 
-  const htmlContent = `
-<!DOCTYPE html>
-<html dir="rtl" lang="he">
-<head>
-  <meta charset="UTF-8">
-  <title>הצעת מחיר - ${clientName}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    @page {
-      size: A4;
-      margin: 15mm;
-    }
+  // Create a temporary div to hold the HTML content
+  const tempDiv = document.createElement('div');
+  tempDiv.id = 'proposal-content';
+  tempDiv.style.position = 'absolute';
+  tempDiv.style.left = '-9999px';
+  tempDiv.style.width = '210mm';
+  tempDiv.style.direction = 'rtl';
+  tempDiv.style.fontFamily = "'Rubik', sans-serif";
 
+  // Load Rubik font first
+  const fontLink = document.createElement('link');
+  fontLink.href = 'https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap';
+  fontLink.rel = 'stylesheet';
+  document.head.appendChild(fontLink);
+
+  const htmlContent = `
+  <style>
     * {
       box-sizing: border-box;
       margin: 0;
@@ -559,22 +564,38 @@ export const generateProposalPDF = async (options: ProposalPDFOptions): Promise<
 </html>
   `;
 
-  // Open print dialog
-  const printWindow = window.open('', '_blank', 'width=1000,height=800');
-  if (!printWindow) {
-    throw new Error('נא לאפשר חלונות קופצים עבור אתר זה');
-  }
+  tempDiv.innerHTML = htmlContent;
+  document.body.appendChild(tempDiv);
 
-  printWindow.document.write(htmlContent);
-  printWindow.document.close();
+  // Wait for fonts to load
+  await document.fonts.ready;
 
-  // Print after content loads
-  printWindow.onload = () => {
-    setTimeout(() => {
-      printWindow.print();
-    }, 500);
+  // Configure html2pdf options for Blob generation
+  const opt = {
+    margin: 0.5,
+    image: { type: 'jpeg' as const, quality: 0.98 },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      letterRendering: true,
+      logging: false,
+      windowWidth: 794, // A4 width in pixels at 96 DPI
+      windowHeight: 1123 // A4 height in pixels at 96 DPI
+    },
+    jsPDF: { unit: 'in' as const, format: 'a4' as const, orientation: 'portrait' as const },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
   };
 
-  // Return empty blob for compatibility
-  return new Blob([''], { type: 'application/pdf' });
+  try {
+    // Generate PDF and return blob
+    const pdfBlob = await html2pdf().set(opt).from(tempDiv).outputPdf('blob');
+    return pdfBlob;
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    throw error;
+  } finally {
+    // Clean up
+    document.body.removeChild(tempDiv);
+    document.head.removeChild(fontLink);
+  }
 };
