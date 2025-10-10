@@ -4,7 +4,7 @@ import {
   ArrowRight, Check, FileText, DollarSign, Clock, Target,
   Zap, Bot, Link, Database, Settings, ShoppingCart, X,
   Search, BarChart, Sparkles, FileX,
-  Plus, Send, Pencil
+  Plus, Send, Pencil, Download
 } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Input, Select } from '../../Base';
@@ -22,6 +22,8 @@ import { sendProposalViaWhatsApp } from '../../../services/whatsappService';
 import { openGmailCompose } from '../../../services/emailService';
 import { ContactCompletionModal, ClientContact } from './ContactCompletionModal';
 import { markProposalAsSent } from '../../../services/discoveryStatusService';
+import { aiProposalGenerator } from '../../../services/aiProposalGenerator';
+import { AiProposalDoc } from '../../../schemas/aiProposal.schema';
 
 // Type for filters
 interface Filters {
@@ -100,6 +102,16 @@ export const ProposalModule: React.FC = () => {
 
   // NEW: Loading state for PDF generation
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+
+  // NEW: PM note for AI proposal generation
+  const [pmNote, setPmNote] = useState('');
+
+  // NEW: AI proposal generation state
+  const [isGeneratingAIProposal, setIsGeneratingAIProposal] = useState(false);
+  const [aiProposal, setAiProposal] = useState<AiProposalDoc | null>(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [additionalInstructions, setAdditionalInstructions] = useState('');
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   // UI state
   const [activeTab, setActiveTab] = useState<ServiceCategoryId | 'all'>('all');
@@ -303,6 +315,7 @@ export const ProposalModule: React.FC = () => {
           expectedROIMonths: Math.ceil(calculateTotals().totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
           monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
         },
+        aiProposal: aiProposal || undefined,
       });
 
       setIsGeneratingPDF(false);
@@ -375,6 +388,7 @@ export const ProposalModule: React.FC = () => {
           expectedROIMonths: Math.ceil(calculateTotals().totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
           monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
         },
+        aiProposal: aiProposal || undefined,
       });
 
       setIsGeneratingPDF(false);
@@ -437,12 +451,84 @@ export const ProposalModule: React.FC = () => {
       totalPrice: totals.totalPrice,
       totalDays: totals.totalDays,
       expectedROIMonths: Math.ceil(totals.totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
-      monthlySavings: proposalSummary?.potentialMonthlySavings || 0
+      monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
+      pmNote: pmNote || undefined,
+      aiProposal: aiProposal ? {
+        createdAt: new Date().toISOString(),
+        model: 'gpt-5',
+        status: 'success',
+        sections: aiProposal
+      } : undefined
     };
 
     updateModule('proposal' as keyof Modules, proposalData);
     updatePhaseStatus('awaiting_client_decision');
     navigate('/approval');
+  };
+
+  // NEW: Generate AI proposal
+  const handleGenerateAIProposal = async () => {
+    if (cartServices.length === 0) {
+      alert('❌ בחר לפחות שירות אחד כדי ליצור הצעת מחיר');
+      return;
+    }
+
+    try {
+      setIsGeneratingAIProposal(true);
+
+      const result = await aiProposalGenerator.generateProposal({
+        meeting: currentMeeting!,
+        selectedServices: cartServices,
+        pmNote: pmNote || undefined
+      });
+
+      if (result.success && result.sections) {
+        setAiProposal(result.sections);
+        setShowPreviewModal(true);
+      } else {
+        alert(`❌ שגיאה ביצירת הצעת המחיר: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('AI proposal generation error:', error);
+      alert('❌ שגיאה ביצירת הצעת המחיר. אנא נסה שוב.');
+    } finally {
+      setIsGeneratingAIProposal(false);
+    }
+  };
+
+  // NEW: Regenerate AI proposal with additional instructions
+  const handleRegenerateAIProposal = async () => {
+    if (!additionalInstructions.trim()) {
+      alert('❌ הכנס הוראות נוספות לשיפור ההצעה');
+      return;
+    }
+
+    if (cartServices.length === 0) {
+      alert('❌ בחר לפחות שירות אחד כדי ליצור הצעת מחיר');
+      return;
+    }
+
+    try {
+      setIsRegenerating(true);
+
+      const result = await aiProposalGenerator.regenerateProposal({
+        meeting: currentMeeting!,
+        selectedServices: cartServices,
+        pmNote: pmNote || undefined
+      }, additionalInstructions);
+
+      if (result.success && result.sections) {
+        setAiProposal(result.sections);
+        setAdditionalInstructions(''); // Clear instructions after successful regeneration
+      } else {
+        alert(`❌ שגיאה בשיפור ההצעה: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('AI proposal regeneration error:', error);
+      alert('❌ שגיאה בשיפור ההצעה. אנא נסה שוב.');
+    } finally {
+      setIsRegenerating(false);
+    }
   };
 
   const updateFilters = (newFilters: Partial<Filters>) => {
@@ -505,6 +591,24 @@ export const ProposalModule: React.FC = () => {
       </div>
 
       <div className="container mx-auto px-4 py-6 max-w-7xl pb-32">
+        {/* PM Note Section */}
+        <div className="bg-yellow-50 rounded-lg p-6 mb-6 border border-yellow-200">
+          <h2 className="text-lg font-semibold mb-3 text-yellow-800 flex items-center gap-2">
+            <FileText className="w-5 h-5" />
+            הערת מנהל פרויקט
+          </h2>
+          <p className="text-sm text-yellow-700 mb-3">
+            הערה זו תיכלל ביצירת הצעת המחיר AI ותעזור להתאים את ההצעה לצרכים הספציפיים של הלקוח
+          </p>
+          <textarea
+            value={pmNote}
+            onChange={(e) => setPmNote(e.target.value)}
+            placeholder="הוסף הערות מיוחדות, דגשים חשובים, או הוראות ספציפיות ליצירת ההצעה..."
+            className="w-full h-24 p-3 border border-yellow-300 rounded-lg resize-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"
+            dir="rtl"
+          />
+        </div>
+
         {/* Summary Box */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-6 border border-blue-200">
           <h2 className="text-2xl font-bold mb-4 text-gray-800">סיכום מה זוהה</h2>
@@ -1036,40 +1140,21 @@ export const ProposalModule: React.FC = () => {
               חזור
             </button>
 
-            {/* NEW: Send Proposal Button */}
+            {/* NEW: Generate AI Proposal Button */}
             <button
-              onClick={handleSendProposal}
-              disabled={isGeneratingPDF || cartServices.length === 0}
-              className="px-6 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg hover:from-green-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg flex items-center gap-2"
+              onClick={handleGenerateAIProposal}
+              disabled={isGeneratingAIProposal || cartServices.length === 0}
+              className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg flex items-center gap-2 font-semibold"
             >
-              {isGeneratingPDF ? (
+              {isGeneratingAIProposal ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  יוצר PDF...
+                  יוצר הצעת מחיר...
                 </>
               ) : (
                 <>
-                  <Send className="w-5 h-5" />
-                  שלח הצעת מחיר ללקוח
-                </>
-              )}
-            </button>
-
-            {/* NEW: Download PDF Button */}
-            <button
-              onClick={handleDownloadPDF}
-              disabled={isGeneratingPDF || cartServices.length === 0}
-              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg flex items-center gap-2"
-            >
-              {isGeneratingPDF ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  מוריד...
-                </>
-              ) : (
-                <>
-                  <FileText className="w-5 h-5" />
-                  הורד PDF
+                  <Sparkles className="w-5 h-5" />
+                  ייצר הצעת מחיר
                 </>
               )}
             </button>
@@ -1079,7 +1164,7 @@ export const ProposalModule: React.FC = () => {
               className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
             >
               <Check className="w-5 h-5" />
-              שמור והשלם שלב 1
+              שמור והמשך
             </button>
           </div>
         </div>
@@ -1252,6 +1337,225 @@ export const ProposalModule: React.FC = () => {
           onSend={() => sendProposalToClient(clientContact)}
           onCancel={() => setShowContactModal(false)}
         />
+      )}
+
+      {/* NEW: AI Proposal Preview Modal */}
+      {showPreviewModal && aiProposal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+            <div className="sticky top-0 bg-white border-b p-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold flex items-center gap-2">
+                <Sparkles className="text-purple-600" />
+                הצעת מחיר AI
+              </h2>
+              <button
+                onClick={() => setShowPreviewModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              {/* Executive Summary */}
+              <div className="mb-8">
+                <h3 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">סיכום מנהלים</h3>
+                <div className="prose prose-lg max-w-none" dir="rtl">
+                  {aiProposal.executiveSummary.map((paragraph, index) => (
+                    <p key={index} className="mb-4 text-gray-700 leading-relaxed">
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+              </div>
+
+              {/* Services */}
+              <div className="mb-8">
+                <h3 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">פירוט השירותים</h3>
+                <div className="space-y-6">
+                  {aiProposal.services.map((service, index) => (
+                    <div key={index} className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                      <h4 className="text-lg font-semibold mb-3 text-gray-900">
+                        {service.titleHe}
+                      </h4>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div>
+                          <h5 className="font-medium text-gray-800 mb-2">למה זה רלוונטי:</h5>
+                          <p className="text-gray-600">{service.whyRelevantHe}</p>
+                        </div>
+                        <div>
+                          <h5 className="font-medium text-gray-800 mb-2">מה כלול:</h5>
+                          <p className="text-gray-600">{service.whatIncludedHe}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Financial Summary */}
+              <div className="mb-8">
+                <h3 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">סיכום פיננסי</h3>
+                <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <p className="text-gray-700 mb-2">השקעה כוללת:</p>
+                      <p className="text-3xl font-bold text-blue-600">
+                        ₪{aiProposal.financialSummary.totalPrice.toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-700 mb-2">זמן יישום משוער:</p>
+                      <p className="text-3xl font-bold text-blue-600">
+                        {aiProposal.financialSummary.totalDays} ימים
+                      </p>
+                    </div>
+                  </div>
+                  {aiProposal.financialSummary.monthlySavings && (
+                    <div className="mt-4 pt-4 border-t border-blue-300">
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                          <p className="text-gray-700 mb-2">חיסכון חודשי צפוי:</p>
+                          <p className="text-2xl font-bold text-green-600">
+                            ₪{aiProposal.financialSummary.monthlySavings.toLocaleString()}
+                          </p>
+                        </div>
+                        {aiProposal.financialSummary.expectedROIMonths && (
+                          <div>
+                            <p className="text-gray-700 mb-2">החזר השקעה תוך:</p>
+                            <p className="text-2xl font-bold text-orange-600">
+                              {aiProposal.financialSummary.expectedROIMonths} חודשים
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Terms */}
+              <div className="mb-8">
+                <h3 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">תנאים</h3>
+                <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                  <ul className="space-y-2">
+                    {aiProposal.terms.map((term, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <span className="text-gray-400 mt-1">•</span>
+                        <span className="text-gray-700">{term}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Next Steps */}
+              <div className="mb-8">
+                <h3 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">הצעדים הבאים</h3>
+                <div className="bg-green-50 rounded-lg p-6 border border-green-200">
+                  <ol className="space-y-2">
+                    {aiProposal.nextSteps.map((step, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <span className="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mt-0.5">
+                          {index + 1}
+                        </span>
+                        <span className="text-gray-700">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              </div>
+            </div>
+
+            <div className="sticky bottom-0 bg-gray-50 border-t p-6">
+              {/* Additional Instructions Section */}
+              <div className="mb-4">
+                <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                  <Sparkles size={16} className="text-purple-600" />
+                  שפר את ההצעה
+                </h4>
+                <div className="flex gap-3">
+                  <textarea
+                    value={additionalInstructions}
+                    onChange={(e) => setAdditionalInstructions(e.target.value)}
+                    placeholder="הוסף הוראות נוספות לשיפור ההצעה... (למשל: 'הדגש יותר את החיסכון בזמן', 'הוסף פרטים טכניים נוספים', 'שנה את הטון ליותר פורמלי')"
+                    className="flex-1 p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400"
+                    rows={2}
+                    dir="rtl"
+                  />
+                  <button
+                    onClick={handleRegenerateAIProposal}
+                    disabled={isRegenerating || !additionalInstructions.trim()}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 self-end"
+                  >
+                    {isRegenerating ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        משפר...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={14} />
+                        שפר
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-between items-center">
+                <div className="flex-1">
+                  <p className="text-sm text-gray-600">
+                    הצעה זו נוצרה באמצעות בינה מלאכותית ומותאמת ללקוח
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowPreviewModal(false)}
+                    className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    סגור
+                  </button>
+                  <button
+                    onClick={handleDownloadPDF}
+                    disabled={isGeneratingPDF}
+                    className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                  >
+                    {isGeneratingPDF ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        מוריד...
+                      </>
+                    ) : (
+                      <>
+                        <Download size={16} />
+                        הורד PDF
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={handleSendProposal}
+                    disabled={isGeneratingPDF}
+                    className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 font-semibold"
+                  >
+                    {isGeneratingPDF ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        שולח...
+                      </>
+                    ) : (
+                      <>
+                        <Send size={16} />
+                        שלח ללקוח
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

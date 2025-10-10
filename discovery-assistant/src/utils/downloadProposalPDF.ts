@@ -1,12 +1,14 @@
 import html2pdf from 'html2pdf.js';
 import { SelectedService, ProposalData } from '../types/proposal';
 import { COMPANY_BRANDING } from '../config/companyBranding';
+import { AiProposalDoc } from '../schemas/aiProposal.schema';
 
 interface ProposalPDFOptions {
   clientName: string;
   clientCompany?: string;
   services: SelectedService[];
   proposalData: ProposalData;
+  aiProposal?: AiProposalDoc; // Optional AI-generated content
 }
 
 const formatPrice = (price: number): string => {
@@ -25,7 +27,7 @@ const formatHebrewDate = (date: Date): string => {
  * No print dialog - direct download
  */
 export const downloadProposalPDF = async (options: ProposalPDFOptions): Promise<void> => {
-  const { clientName, clientCompany, services, proposalData } = options;
+  const { clientName, clientCompany, services, proposalData, aiProposal } = options;
 
   const today = new Date();
   const validUntil = new Date(today);
@@ -315,14 +317,18 @@ export const downloadProposalPDF = async (options: ProposalPDFOptions): Promise<
     </div>
 
     <h2>תקציר מנהלים</h2>
-    <p style="font-size: 11pt;">
-      לאחר ניתוח מעמיק של תהליכי העבודה שלכם, זיהינו ${proposalData.summary.totalServices} פתרונות
-      אוטומציה ו-AI. ההשקעה הכוללת: ${formatPrice(proposalData.totalPrice)}${
-        proposalData.monthlySavings > 0
-          ? `, שיחסכו לכם ${formatPrice(proposalData.monthlySavings)} בחודש עם החזר השקעה תוך ${proposalData.expectedROIMonths} חודשים`
-          : ''
-      }.
-    </p>
+    ${aiProposal?.executiveSummary ? `
+      ${aiProposal.executiveSummary.map(paragraph => `<p style="font-size: 11pt; margin-bottom: 8px;">${paragraph}</p>`).join('')}
+    ` : `
+      <p style="font-size: 11pt;">
+        לאחר ניתוח מעמיק של תהליכי העבודה שלכם, זיהינו ${proposalData.summary.totalServices} פתרונות
+        אוטומציה ו-AI. ההשקעה הכוללת: ${formatPrice(proposalData.totalPrice)}${
+          proposalData.monthlySavings > 0
+            ? `, שיחסכו לכם ${formatPrice(proposalData.monthlySavings)} בחודש עם החזר השקעה תוך ${proposalData.expectedROIMonths} חודשים`
+            : ''
+        }.
+      </p>
+    `}
   </div>
 
   <!-- PAGE 2: SERVICES TABLE -->
@@ -363,40 +369,58 @@ export const downloadProposalPDF = async (options: ProposalPDFOptions): Promise<
     <h2>פירוט מלא של השירותים</h2>
     <p style="color: #666; margin-bottom: 15px;">כל שירות מותאם במיוחד לצרכים שזיהינו</p>
 
-    ${services
-      .map(
-        (service, index) => `
-      <div class="service-box">
-        <div class="service-title">${index + 1}. ${service.nameHe}</div>
+    ${aiProposal?.services ? `
+      ${aiProposal.services.map((aiService, index) => `
+        <div class="service-box">
+          <div class="service-title">${index + 1}. ${aiService.titleHe}</div>
 
-        <div class="service-section">
-          <strong>💡 למה זה רלוונטי לך:</strong>
-          <p>${service.reasonSuggestedHe}</p>
-        </div>
+          <div class="service-section">
+            <strong>💡 למה זה רלוונטי לך:</strong>
+            <p>${aiService.whyRelevantHe}</p>
+          </div>
 
-        <div class="service-section">
-          <strong>📋 מה זה כולל:</strong>
-          <p>${service.descriptionHe}</p>
+          <div class="service-section">
+            <strong>📋 מה זה כולל:</strong>
+            <p>${aiService.whatIncludedHe}</p>
+          </div>
         </div>
+      `).join('')}
+    ` : `
+      ${services
+        .map(
+          (service, index) => `
+        <div class="service-box">
+          <div class="service-title">${index + 1}. ${service.nameHe}</div>
 
-        ${
-          service.notes
-            ? `
-        <div class="service-section">
-          <p style="color: #666;">💬 הערה: ${service.notes}</p>
-        </div>
-        `
-            : ''
-        }
+          <div class="service-section">
+            <strong>💡 למה זה רלוונטי לך:</strong>
+            <p>${service.reasonSuggestedHe}</p>
+          </div>
 
-        <div class="service-footer">
-          <span class="price-highlight">💰 השקעה: ${formatPrice(service.customPrice || service.basePrice)}</span>
-          <span>⏱️ זמן יישום: ${service.customDuration || service.estimatedDays} ימים</span>
+          <div class="service-section">
+            <strong>📋 מה זה כולל:</strong>
+            <p>${service.descriptionHe}</p>
+          </div>
+
+          ${
+            service.notes
+              ? `
+          <div class="service-section">
+            <p style="color: #666;">💬 הערה: ${service.notes}</p>
+          </div>
+          `
+              : ''
+          }
+
+          <div class="service-footer">
+            <span class="price-highlight">💰 השקעה: ${formatPrice(service.customPrice || service.basePrice)}</span>
+            <span>⏱️ זמן יישום: ${service.customDuration || service.estimatedDays} ימים</span>
+          </div>
         </div>
-      </div>
-    `
-      )
-      .join('')}
+      `
+        )
+        .join('')}
+    `}
   </div>
 
   <!-- PAGE 4: FINANCIAL SUMMARY -->
@@ -407,28 +431,28 @@ export const downloadProposalPDF = async (options: ProposalPDFOptions): Promise<
       <div class="summary-grid">
         <div class="summary-item">
           <div class="summary-label">מספר שירותים</div>
-          <div class="summary-value">${proposalData.summary.totalServices}</div>
+          <div class="summary-value">${aiProposal?.financialSummary.totalPrice ? services.length : proposalData.summary.totalServices}</div>
         </div>
         <div class="summary-item">
           <div class="summary-label">זמן יישום</div>
-          <div class="summary-value" style="color: ${COMPANY_BRANDING.secondaryColor};">${proposalData.totalDays} ימים</div>
+          <div class="summary-value" style="color: ${COMPANY_BRANDING.secondaryColor};">${aiProposal?.financialSummary.totalDays || proposalData.totalDays} ימים</div>
         </div>
         <div class="summary-item">
           <div class="summary-label">השקעה כוללת</div>
-          <div class="summary-value">${formatPrice(proposalData.totalPrice)}</div>
+          <div class="summary-value">${formatPrice(aiProposal?.financialSummary.totalPrice || proposalData.totalPrice)}</div>
         </div>
       </div>
     </div>
 
     ${
-      proposalData.monthlySavings > 0
+      (aiProposal?.financialSummary.monthlySavings || proposalData.monthlySavings) > 0
         ? `
     <div class="roi-highlight">
       <h3>🎯 תשואה שנתית צפויה</h3>
-      <div class="value">${formatPrice(proposalData.monthlySavings * 12)}</div>
+      <div class="value">${formatPrice((aiProposal?.financialSummary.monthlySavings || proposalData.monthlySavings) * 12)}</div>
       <p style="margin-top: 12px; font-size: 12pt;">
-        חיסכון חודשי: ${formatPrice(proposalData.monthlySavings)} |
-        החזר השקעה: ${proposalData.expectedROIMonths} חודשים
+        חיסכון חודשי: ${formatPrice(aiProposal?.financialSummary.monthlySavings || proposalData.monthlySavings)} |
+        החזר השקעה: ${aiProposal?.financialSummary.expectedROIMonths || proposalData.expectedROIMonths} חודשים
       </p>
     </div>
     `
@@ -449,41 +473,53 @@ export const downloadProposalPDF = async (options: ProposalPDFOptions): Promise<
   <div class="page">
     <h2>תנאים ולוח זמנים</h2>
 
-    <h3>💳 תנאי תשלום:</h3>
-    <p style="padding-right: 15px; margin-bottom: 20px;">• ${COMPANY_BRANDING.paymentTermsHe}</p>
+    ${aiProposal?.terms ? `
+      <div>
+        ${aiProposal.terms.map(term => `<p style="padding-right: 15px; margin-bottom: 8px;">• ${term}</p>`).join('')}
+      </div>
+    ` : `
+      <h3>💳 תנאי תשלום:</h3>
+      <p style="padding-right: 15px; margin-bottom: 20px;">• ${COMPANY_BRANDING.paymentTermsHe}</p>
 
-    <h3>⏱️ לוח זמנים משוער:</h3>
-    <ul style="padding-right: 30px; margin-bottom: 20px;">
-      <li>משך הפרויקט: ${Math.ceil(proposalData.totalDays / 5)} שבועות (${proposalData.totalDays} ימי עבודה)</li>
-      <li>עדכוני סטטוס שבועיים</li>
-      <li>מעקב צמוד ושקיפות מלאה</li>
-    </ul>
+      <h3>⏱️ לוח זמנים משוער:</h3>
+      <ul style="padding-right: 30px; margin-bottom: 20px;">
+        <li>משך הפרויקט: ${Math.ceil(proposalData.totalDays / 5)} שבועות (${proposalData.totalDays} ימי עבודה)</li>
+        <li>עדכוני סטטוס שבועיים</li>
+        <li>מעקב צמוד ושקיפות מלאה</li>
+      </ul>
 
-    <h3>📞 תמיכה:</h3>
-    <ul style="padding-right: 30px; margin-bottom: 20px;">
-      <li>זמינה בשעות העבודה</li>
-      <li>תגובה תוך 24 שעות</li>
-    </ul>
+      <h3>📞 תמיכה:</h3>
+      <ul style="padding-right: 30px; margin-bottom: 20px;">
+        <li>זמינה בשעות העבודה</li>
+        <li>תגובה תוך 24 שעות</li>
+      </ul>
 
-    <h3>📋 תנאים נוספים:</h3>
-    <ul style="padding-right: 30px; font-size: 10pt; color: #666;">
-      <li>ההצעה תקפה ל-${COMPANY_BRANDING.proposalValidity} ימים מתאריך שליחה</li>
-      <li>זכויות יוצרים על הקוד והפתרונות שפותחו שייכים ללקוח</li>
-      <li>ביטול ההזמנה לאחר תחילת העבודה כרוך בחיוב יחסי</li>
-    </ul>
+      <h3>📋 תנאים נוספים:</h3>
+      <ul style="padding-right: 30px; font-size: 10pt; color: #666;">
+        <li>ההצעה תקפה ל-${COMPANY_BRANDING.proposalValidity} ימים מתאריך שליחה</li>
+        <li>זכויות יוצרים על הקוד והפתרונות שפותחו שייכים ללקוח</li>
+        <li>ביטול ההזמנה לאחר תחילת העבודה כרוך בחיוב יחסי</li>
+      </ul>
+    `}
   </div>
 
   <!-- PAGE 6: NEXT STEPS -->
   <div class="page">
     <h1 style="text-align: center; margin-bottom: 25px;">🚀 השלב הבא</h1>
 
-    <ol style="padding-right: 30px; font-size: 12pt; line-height: 2; margin-bottom: 25px;">
-      <li>סקירת ההצעה ושאלות הבהרה</li>
-      <li>תיאום פגישת קיק-אוף</li>
-      <li>חתימה על הסכם</li>
-      <li>תשלום מקדמה</li>
-      <li>התחלת העבודה!</li>
-    </ol>
+    ${aiProposal?.nextSteps ? `
+      <ol style="padding-right: 30px; font-size: 12pt; line-height: 2; margin-bottom: 25px;">
+        ${aiProposal.nextSteps.map(step => `<li>${step}</li>`).join('')}
+      </ol>
+    ` : `
+      <ol style="padding-right: 30px; font-size: 12pt; line-height: 2; margin-bottom: 25px;">
+        <li>סקירת ההצעה ושאלות הבהרה</li>
+        <li>תיאום פגישת קיק-אוף</li>
+        <li>חתימה על הסכם</li>
+        <li>תשלום מקדמה</li>
+        <li>התחלת העבודה!</li>
+      </ol>
+    `}
 
     <div class="contact-box">
       <h3 style="color: ${COMPANY_BRANDING.secondaryColor}; margin-bottom: 12px;">

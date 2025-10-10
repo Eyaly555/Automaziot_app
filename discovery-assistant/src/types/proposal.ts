@@ -1,4 +1,5 @@
 // Proposal & Service Types for dynamic price quotation
+import { AiProposalDoc } from '../schemas/aiProposal.schema';
 
 export type ServicePriority = 'primary' | 'secondary' | 'optional';
 
@@ -72,6 +73,21 @@ export interface ProposalData {
   expectedROIMonths: number;
   monthlySavings: number;
   customNotes?: string;
+  pmNote?: string; // הערת מנהל פרויקט
+
+  // AI-generated proposal fields
+  aiProposal?: {
+    createdAt: string;
+    model?: string;
+    status: 'generating' | 'success' | 'failed';
+    sections?: AiProposalDoc; // matches schema
+    rawMarkdown?: string;
+    usage?: { promptTokens?: number; completionTokens?: number; totalTokens?: number };
+    instructions?: string; // last additional instructions used
+  };
+
+  // Optional history for regeneration tracking
+  aiProposalHistory?: Array<Pick<ProposalData['aiProposal'], 'createdAt' | 'sections' | 'instructions'>>;
 
   // הנחות ומחירים מיוחדים
   discountPercentage?: number; // אחוז הנחה על המחיר הבסיסי
