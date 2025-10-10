@@ -21,6 +21,7 @@ import { ExportMenu } from '../Common/ExportMenu';
 import { TaskQuickFilters } from './TaskQuickFilters';
 import { Button } from '../Base/Button';
 import { Card } from '../Base/Card';
+import { TaskEditor } from './TaskEditor';
 
 type ViewMode = 'kanban' | 'list' | 'sprint' | 'system' | 'team';
 type Language = 'he' | 'en';
@@ -165,6 +166,7 @@ export const DeveloperDashboard: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterPriority, setFilterPriority] = useState<string>('all');
   const [language, setLanguage] = useState<Language>('he');
+  const [editingTask, setEditingTask] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem('phase3_language');
@@ -333,6 +335,45 @@ export const DeveloperDashboard: React.FC = () => {
     return 'green';
   };
 
+  // Task editing functions
+  const handleEditTask = (taskId: string) => {
+    setEditingTask(taskId);
+  };
+
+  const handleSaveTask = (taskId: string, updates: Partial<DevelopmentTask>) => {
+    if (!currentMeeting?.developmentTracking) return;
+
+    const updatedTasks = updateTask(
+      currentMeeting.developmentTracking.tasks,
+      taskId,
+      updates
+    );
+
+    updateMeeting({
+      developmentTracking: {
+        ...currentMeeting.developmentTracking,
+        tasks: updatedTasks,
+        lastUpdated: new Date()
+      }
+    });
+
+    setEditingTask(null);
+  };
+
+  const handleRegeneratePlan = () => {
+    if (!currentMeeting) return;
+
+    const newTasks = regenerateTaskPlan(currentMeeting, currentMeeting.developmentTracking?.tasks || []);
+
+    updateMeeting({
+      developmentTracking: {
+        ...currentMeeting.developmentTracking,
+        tasks: newTasks,
+        lastUpdated: new Date()
+      }
+    });
+  };
+
   const healthColor = getHealthColor();
 
   return (
@@ -357,6 +398,16 @@ export const DeveloperDashboard: React.FC = () => {
             <div className="flex items-center gap-4">
               {/* Export Menu */}
               <ExportMenu variant="button" />
+
+              {/* Regenerate Plan Button */}
+              <button
+                onClick={handleRegeneratePlan}
+                className="flex items-center gap-2 px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition"
+                title={language === 'he' ? 'יצירת מחדש של התוכנית מהנתונים העדכניים' : 'Regenerate plan from current data'}
+              >
+                <TrendingUp className="w-5 h-5" />
+                <span className="font-medium">{language === 'he' ? 'יצירת מחדש' : 'Regenerate'}</span>
+              </button>
 
               {/* Language Toggle */}
               <button
@@ -511,7 +562,7 @@ export const DeveloperDashboard: React.FC = () => {
           <div className="bg-white rounded-lg shadow">
             <div className="divide-y divide-gray-200">
               {filteredTasks.map(task => (
-                <div key={task.id} className="p-6 hover:bg-gray-50 transition">
+                <div key={task.id} className="p-6 hover:bg-gray-50 transition group">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
@@ -523,6 +574,15 @@ export const DeveloperDashboard: React.FC = () => {
                           'bg-gray-300'
                         }`} />
                         <h3 className="text-lg font-semibold text-gray-900">{task.title}</h3>
+                        <button
+                          onClick={() => handleEditTask(task.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded ml-auto"
+                          title={language === 'he' ? 'ערוך משימה' : 'Edit Task'}
+                        >
+                          <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
                       </div>
                       <p className="text-sm text-gray-600 mb-3">{task.description}</p>
                       <div className="flex items-center gap-4 text-sm">
@@ -564,18 +624,48 @@ export const DeveloperDashboard: React.FC = () => {
                   </div>
                   <div className="space-y-3">
                     {statusTasks.map(task => (
-                      <div key={task.id} className="bg-white rounded-lg p-4 shadow-sm border-l-4" style={{
+                      <div key={task.id} className="bg-white rounded-lg p-4 shadow-sm border-l-4 relative group" style={{
                         borderColor:
                           task.priority === 'critical' ? '#DC2626' :
                           task.priority === 'high' ? '#F59E0B' :
                           task.priority === 'medium' ? '#3B82F6' :
                           '#10B981'
                       }}>
-                        <h4 className="font-semibold text-sm text-gray-900 mb-2">{task.title}</h4>
-                        <div className="flex items-center gap-2 text-xs text-gray-600">
-                          <Clock className="w-3 h-3" />
-                          <span>{task.estimatedHours}h</span>
+                        <button
+                          onClick={() => handleEditTask(task.id)}
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded"
+                          title={language === 'he' ? 'ערוך משימה' : 'Edit Task'}
+                        >
+                          <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+
+                        <h4 className="font-semibold text-sm text-gray-900 mb-2 pr-8">{task.title}</h4>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-xs text-gray-600">
+                            <Clock className="w-3 h-3" />
+                            <span>{task.estimatedHours}h</span>
+                            {task.actualHours > 0 && (
+                              <>
+                                <span>/</span>
+                                <span className="font-medium">{task.actualHours}h</span>
+                              </>
+                            )}
+                          </div>
+
+                          {task.assignedTo && (
+                            <div className="text-xs text-gray-500">
+                              {task.assignedTo}
+                            </div>
+                          )}
                         </div>
+
+                        {task.blockingReason && (
+                          <div className="mt-2 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
+                            Blocked: {task.blockingReason}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -597,6 +687,17 @@ export const DeveloperDashboard: React.FC = () => {
               {t.comingSoon.underDevelopment}
             </p>
           </div>
+        )}
+
+        {/* Task Editor Modal */}
+        {editingTask && currentMeeting?.developmentTracking?.tasks && (
+          <TaskEditor
+            task={currentMeeting.developmentTracking.tasks.find(t => t.id === editingTask)!}
+            isOpen={!!editingTask}
+            onClose={() => setEditingTask(null)}
+            onSave={(updates) => handleSaveTask(editingTask, updates)}
+            language={language}
+          />
         )}
       </div>
     </div>

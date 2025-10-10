@@ -545,8 +545,9 @@ function assignToSprints(tasks: DevelopmentTask[]): void {
 /**
  * Generate tasks from purchased services
  * This creates specific implementation tasks for each service that was purchased
- * 
+ *
  * ENHANCED: Now uses actual collected requirements to generate detailed instructions
+ * SMART: Intelligent time estimation based on service complexity and requirements
  */
 function generateServiceTasks(meetingId: string, spec: ImplementationSpecData, meeting: Meeting): DevelopmentTask[] {
   const tasks: DevelopmentTask[] = [];
@@ -557,21 +558,27 @@ function generateServiceTasks(meetingId: string, spec: ImplementationSpecData, m
       // Generate intelligent instructions based on service type and collected requirements
       let detailedInstructions: string;
       let estimatedHours: number;
-      
+
       if (service.serviceId === 'auto-lead-response' && service.requirements) {
         // Use the smart instruction generator
         const instructions = generateAutoLeadResponseInstructions(service.requirements, meeting);
         detailedInstructions = formatInstructionsAsMarkdown(instructions);
-        estimatedHours = instructions.estimatedHours;
+        estimatedHours = calculateSmartServiceHours(service, instructions.estimatedComplexity);
       } else if (service.serviceId === 'auto-form-to-crm' && service.requirements) {
         const instructions = generateAutoFormToCrmInstructions(service.requirements, meeting);
         detailedInstructions = formatInstructionsAsMarkdown(instructions);
-        estimatedHours = instructions.estimatedHours;
+        estimatedHours = calculateSmartServiceHours(service, instructions.estimatedComplexity);
       } else {
         // Fallback to basic description for services without custom generators yet
         detailedInstructions = generateBasicServiceDescription(service, meeting);
-        estimatedHours = service.config ? estimateServiceHours(service) : 8;
+        estimatedHours = calculateSmartServiceHours(service, 'medium');
       }
+
+      // SMART PRIORITY ASSIGNMENT based on business impact
+      const smartPriority = calculateSmartPriority(service, meeting);
+
+      // SMART DEPENDENCY DETECTION
+      const smartDependencies = calculateSmartDependencies(service, spec);
 
       tasks.push({
         id: generateId(),
@@ -587,8 +594,8 @@ function generateServiceTasks(meetingId: string, spec: ImplementationSpecData, m
         status: 'todo',
         estimatedHours,
         actualHours: 0,
-        priority: service.category === 'lead_management' ? 'high' : 'medium',
-        dependencies: [],
+        priority: smartPriority,
+        dependencies: smartDependencies,
         blocksOtherTasks: [],
         testingRequired: true,
         testCases: generateServiceTestCases(service).map(convertToTaskTestCase),
@@ -780,15 +787,88 @@ ${service.notes || 'No additional notes'}
 }
 
 /**
- * Estimate hours for automation service based on complexity
+ * SMART: Estimate hours for automation service based on complexity and requirements
  */
-function estimateServiceHours(service: AutomationServiceEntry): number {
-  if (service.category === 'lead_management') return 12;
-  if (service.category === 'communication') return 8;
-  if (service.category === 'crm_sync') return 16;
-  if (service.category === 'team_productivity') return 10;
-  if (service.category === 'ai_agents') return 24;
-  return 12; // default
+function calculateSmartServiceHours(service: AutomationServiceEntry, complexity: 'simple' | 'medium' | 'complex'): number {
+  // Base hours by category
+  let baseHours: number;
+  if (service.category === 'lead_management') baseHours = 12;
+  else if (service.category === 'communication') baseHours = 8;
+  else if (service.category === 'crm_sync') baseHours = 16;
+  else if (service.category === 'team_productivity') baseHours = 10;
+  else if (service.category === 'ai_agents') baseHours = 24;
+  else baseHours = 12;
+
+  // Adjust based on complexity
+  const complexityMultiplier = {
+    simple: 0.7,
+    medium: 1.0,
+    complex: 1.4
+  };
+
+  // Adjust based on requirements completeness
+  const requirements = service.requirements as any;
+  let completenessFactor = 1.0;
+
+  if (requirements) {
+    const requiredFields = ['formPlatformAccess', 'emailServiceAccess', 'crmAccess', 'n8nWorkflow'];
+    const completedFields = requiredFields.filter(field => requirements[field]);
+    completenessFactor = 1 + (completedFields.length / requiredFields.length) * 0.3; // Up to 30% more for complete requirements
+  }
+
+  return Math.round(baseHours * complexityMultiplier[complexity] * completenessFactor);
+}
+
+/**
+ * SMART: Calculate priority based on business impact
+ */
+function calculateSmartPriority(service: AutomationServiceEntry, meeting: Meeting): DevelopmentTask['priority'] {
+  const businessCtx = require('./fieldMapper').extractBusinessContext(meeting);
+
+  // Critical if it affects lead response time
+  if (service.category === 'lead_management' && businessCtx.currentResponseTime === 'מעל 24 שעות') {
+    return 'critical';
+  }
+
+  // High priority for revenue-impacting services
+  if (service.category === 'lead_management' || service.category === 'crm_sync') {
+    return 'high';
+  }
+
+  // Medium for communication services
+  if (service.category === 'communication') {
+    return 'medium';
+  }
+
+  // Lower for productivity services
+  return 'low';
+}
+
+/**
+ * SMART: Calculate task dependencies based on service relationships
+ */
+function calculateSmartDependencies(service: AutomationServiceEntry, spec: ImplementationSpecData): string[] {
+  const dependencies: string[] = [];
+
+  // CRM setup must happen before CRM-dependent services
+  if (service.category === 'crm_sync' || service.serviceId === 'auto-form-to-crm') {
+    const crmSystemTasks = spec.systems
+      .filter(sys => sys.authentication.method)
+      .map(sys => `system_auth_${sys.id}`);
+    dependencies.push(...crmSystemTasks);
+  }
+
+  // Email setup for communication services
+  if (service.category === 'communication') {
+    dependencies.push('email_service_setup');
+  }
+
+  // n8n setup for workflow services
+  if (service.category === 'workflow' || service.category === 'automation') {
+    dependencies.push('n8n_instance_setup');
+  }
+
+  return dependencies;
 }
 
 /**
@@ -901,4 +981,223 @@ function generateAdditionalServiceTestCases(_service: AdditionalServiceEntry): T
       passed: false
     }
   ];
+}
+
+// ============================================================================
+// TASK EDITING AND REGENERATION
+// ============================================================================
+
+/**
+ * Update an existing task with new values
+ * Allows developers to edit task details, hours, and instructions
+ */
+export function updateTask(
+  tasks: DevelopmentTask[],
+  taskId: string,
+  updates: Partial<DevelopmentTask>
+): DevelopmentTask[] {
+  return tasks.map(task => {
+    if (task.id === taskId) {
+      const updatedTask = {
+        ...task,
+        ...updates,
+        updatedAt: new Date(),
+        // If description or requirements changed, regenerate instructions
+        ...(updates.description && { description: regenerateTaskInstructions(task, updates.description) })
+      };
+
+      // Update dependencies if priority or status changed
+      if (updates.priority || updates.status) {
+        return updateTaskDependencies(updatedTask, tasks);
+      }
+
+      return updatedTask;
+    }
+    return task;
+  });
+}
+
+/**
+ * Regenerate task instructions based on updated requirements
+ */
+function regenerateTaskInstructions(task: DevelopmentTask, newDescription?: string): string {
+  // For now, return the new description or existing one
+  // In a full implementation, this would regenerate based on service requirements
+  return newDescription || task.description;
+}
+
+/**
+ * Update task dependencies when a task's priority or status changes
+ */
+function updateTaskDependencies(updatedTask: DevelopmentTask, allTasks: DevelopmentTask[]): DevelopmentTask {
+  // If task becomes critical, ensure it has no dependencies that could block it
+  if (updatedTask.priority === 'critical') {
+    updatedTask.dependencies = updatedTask.dependencies.filter(depId => {
+      const depTask = allTasks.find(t => t.id === depId);
+      return depTask?.priority === 'critical';
+    });
+  }
+
+  // Update blocksOtherTasks based on new dependencies
+  updatedTask.blocksOtherTasks = allTasks
+    .filter(t => t.dependencies.includes(updatedTask.id))
+    .map(t => t.id);
+
+  return updatedTask;
+}
+
+/**
+ * Regenerate task plan based on updated requirements
+ * Useful when Phase 2 data changes after initial generation
+ */
+export function regenerateTaskPlan(
+  meeting: Meeting,
+  existingTasks: DevelopmentTask[] = []
+): DevelopmentTask[] {
+  // Generate new tasks
+  const newTasks = generateTasksFromPhase2(meeting);
+
+  // Preserve existing task data where possible
+  const mergedTasks = newTasks.map(newTask => {
+    const existingTask = existingTasks.find(et => et.relatedSpec.specId === newTask.relatedSpec.specId);
+
+    if (existingTask) {
+      // Preserve actual hours, status, and manual edits
+      return {
+        ...newTask,
+        actualHours: existingTask.actualHours,
+        status: existingTask.status,
+        assignedTo: existingTask.assignedTo,
+        technicalNotes: existingTask.technicalNotes,
+        // Keep custom description if it was manually edited
+        description: existingTask.description.includes('CUSTOM EDIT') ? existingTask.description : newTask.description,
+        updatedAt: new Date()
+      };
+    }
+
+    return newTask;
+  });
+
+  return mergedTasks;
+}
+
+/**
+ * Bulk update tasks with smart reordering
+ */
+export function bulkUpdateTasks(
+  tasks: DevelopmentTask[],
+  updates: Array<{ taskId: string; updates: Partial<DevelopmentTask> }>
+): DevelopmentTask[] {
+  let updatedTasks = [...tasks];
+
+  // Apply all updates
+  updates.forEach(({ taskId, updates: taskUpdates }) => {
+    updatedTasks = updateTask(updatedTasks, taskId, taskUpdates);
+  });
+
+  // Reorder tasks based on new priorities and dependencies
+  return reorderTasks(updatedTasks);
+}
+
+/**
+ * Smart task reordering based on priorities and dependencies
+ */
+function reorderTasks(tasks: DevelopmentTask[]): DevelopmentTask[] {
+  // Sort by priority (critical first), then by dependency count (fewer dependencies first)
+  return tasks.sort((a, b) => {
+    const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+    const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+
+    if (priorityDiff !== 0) return priorityDiff;
+
+    // If same priority, put tasks with fewer dependencies first
+    return a.dependencies.length - b.dependencies.length;
+  });
+}
+
+/**
+ * Validate task plan for consistency
+ */
+export function validateTaskPlan(tasks: DevelopmentTask[]): {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+} {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Check for circular dependencies
+  const circularDeps = findCircularDependencies(tasks);
+  if (circularDeps.length > 0) {
+    errors.push(`Circular dependencies detected: ${circularDeps.join(', ')}`);
+  }
+
+  // Check for orphaned tasks (no dependencies but not critical)
+  const orphanedTasks = tasks.filter(task =>
+    task.dependencies.length === 0 &&
+    task.priority !== 'critical' &&
+    !tasks.some(t => t.dependencies.includes(task.id))
+  );
+
+  if (orphanedTasks.length > 0) {
+    warnings.push(`${orphanedTasks.length} tasks have no dependencies or dependents`);
+  }
+
+  // Check for unrealistic time estimates
+  const unrealisticTasks = tasks.filter(task =>
+    task.estimatedHours > 40 || task.estimatedHours < 1
+  );
+
+  if (unrealisticTasks.length > 0) {
+    warnings.push(`${unrealisticTasks.length} tasks have unrealistic time estimates`);
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+    warnings
+  };
+}
+
+/**
+ * Find circular dependencies in task graph
+ */
+function findCircularDependencies(tasks: DevelopmentTask[]): string[] {
+  const visited = new Set<string>();
+  const recursionStack = new Set<string>();
+  const circularDeps: string[] = [];
+
+  function hasCircularDependency(taskId: string): boolean {
+    if (recursionStack.has(taskId)) {
+      return true; // Found a cycle
+    }
+
+    if (visited.has(taskId)) {
+      return false; // Already processed
+    }
+
+    visited.add(taskId);
+    recursionStack.add(taskId);
+
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      for (const depId of task.dependencies) {
+        if (hasCircularDependency(depId)) {
+          circularDeps.push(`${taskId} -> ${depId}`);
+          return true;
+        }
+      }
+    }
+
+    recursionStack.delete(taskId);
+    return false;
+  }
+
+  tasks.forEach(task => {
+    if (!visited.has(task.id)) {
+      hasCircularDependency(task.id);
+    }
+  });
+
+  return [...new Set(circularDeps)]; // Remove duplicates
 }
