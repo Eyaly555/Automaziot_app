@@ -30,11 +30,6 @@ const focusAreaOptions = [
   { value: 'ai_agents', label: 'אוטומציה מבוססת AI' }
 ];
 
-const crmStatusOptions = [
-  { value: 'none', label: 'אין - הכל ב-Excel/נייר/אימייל' },
-  { value: 'basic', label: 'יש מערכת פשוטה (Google Sheets, Airtable וכדומה)' },
-  { value: 'full', label: 'יש CRM מלא (Zoho, Salesforce, HubSpot וכדומה)' }
-];
 
 const leadCaptureChannelOptions = [
   { value: 'website_form', label: 'טופס באתר' },
@@ -62,6 +57,7 @@ export const OverviewModule: React.FC = () => {
 
   // Basic Information
   const [businessType, setBusinessType] = useState(overviewData.businessType || '');
+  const [employees, setEmployees] = useState(overviewData.employees || '');
   const [mainChallenge, setMainChallenge] = useState(overviewData.mainChallenge || '');
   const [budget, setBudget] = useState(overviewData.budget || '');
 
@@ -83,6 +79,7 @@ export const OverviewModule: React.FC = () => {
     const timer = setTimeout(() => {
       updateModule('overview', {
         businessType,
+        employees,
         mainChallenge,
         budget,
         leadSources,
@@ -98,6 +95,7 @@ export const OverviewModule: React.FC = () => {
     return () => clearTimeout(timer);
   }, [
     businessType,
+    employees,
     mainChallenge,
     budget,
     leadSources,
@@ -290,56 +288,6 @@ export const OverviewModule: React.FC = () => {
               </div>
             </Card>
           )}
-
-          {/* CRM Status - Always show but highlight if relevant */}
-          <Card
-            title="מערכת ניהול לקוחות (CRM)"
-            subtitle="מה מצב הניהול שלכם היום?"
-            className={focusAreas.includes('crm_upgrade') ? 'border-l-4 border-l-orange-500' : ''}
-          >
-            <div className="space-y-4">
-              <Select
-                label="מה המצב הנוכחי?"
-                value={crmStatus}
-                onChange={setCrmStatus}
-                options={crmStatusOptions}
-                dir="rtl"
-              />
-
-              {crmStatus !== 'none' && (
-                <>
-                  <Input
-                    label="שם המערכת"
-                    value={crmName}
-                    onChange={setCrmName}
-                    placeholder="לדוגמה: Zoho CRM, Salesforce..."
-                    dir="rtl"
-                  />
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      רמת שביעות רצון מהמערכת (1-5)
-                    </label>
-                    <div className="flex gap-2">
-                      {[1, 2, 3, 4, 5].map((rating) => (
-                        <button
-                          key={rating}
-                          onClick={() => setCrmSatisfaction(rating)}
-                          className={`px-4 py-2 rounded-lg border-2 transition-colors ${
-                            crmSatisfaction === rating
-                              ? 'border-blue-600 bg-blue-50 text-blue-700'
-                              : 'border-gray-300 hover:border-gray-400'
-                          }`}
-                        >
-                          {rating}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </Card>
 
           {/* Summary Card */}
           {focusAreas.length > 0 && (
