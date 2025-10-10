@@ -484,6 +484,34 @@ export const ProposalModule: React.FC = () => {
 
       if (result.success && result.sections) {
         setAiProposal(result.sections);
+
+        // ✅ NEW: Save AI proposal to meeting data and Supabase automatically
+        const proposalData: ProposalData = {
+          meetingId: currentMeeting?.meetingId || '',
+          generatedAt: new Date(),
+          summary: proposalSummary,
+          proposedServices,
+          selectedServices: cartServices, // Use cartServices as selectedServices
+          totalPrice: calculateTotals().totalPrice,
+          totalDays: calculateTotals().totalDays,
+          expectedROIMonths: Math.ceil(calculateTotals().totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
+          monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
+          pmNote: pmNote || undefined,
+          aiProposal: {
+            createdAt: new Date().toISOString(),
+            model: 'gpt-5',
+            status: 'success',
+            sections: result.sections,
+            rawMarkdown: result.rawMarkdown,
+            usage: result.usage,
+            instructions: pmNote || undefined
+          }
+        };
+
+        // Save to meeting data (this will auto-save to Supabase)
+        updateModule('proposal' as keyof Modules, proposalData);
+        console.log('[ProposalModule] AI proposal saved to meeting and Supabase automatically');
+
         setShowPreviewModal(true);
       } else {
         alert(`❌ שגיאה ביצירת הצעת המחיר: ${result.error}`);
@@ -528,6 +556,22 @@ export const ProposalModule: React.FC = () => {
       alert('❌ שגיאה בשיפור ההצעה. אנא נסה שוב.');
     } finally {
       setIsRegenerating(false);
+    }
+  };
+
+  // NEW: Open saved AI proposal for editing
+  const handleOpenSavedProposal = () => {
+    // Check if there's a saved AI proposal
+    const savedProposal = currentMeeting?.modules?.proposal?.aiProposal;
+
+    if (savedProposal?.sections) {
+      // Load saved proposal into state and open modal
+      setAiProposal(savedProposal.sections);
+      setShowPreviewModal(true);
+      console.log('[ProposalModule] Opened saved AI proposal for editing');
+    } else {
+      // No saved proposal - offer to create new one
+      alert('❌ אין הצעה שמורה. לחץ על "ייצר הצעת מחיר" כדי ליצור הצעה חדשה.');
     }
   };
 
@@ -1157,6 +1201,15 @@ export const ProposalModule: React.FC = () => {
                   ייצר הצעת מחיר
                 </>
               )}
+            </button>
+
+            {/* NEW: Open Saved Proposal Button */}
+            <button
+              onClick={handleOpenSavedProposal}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            >
+              <FileText className="w-5 h-5" />
+              {currentMeeting?.modules?.proposal?.aiProposal?.sections ? 'ערוך הצעה שמורה' : 'היכנס להצעה שמורה'}
             </button>
 
             <button
