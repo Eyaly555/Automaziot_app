@@ -8,14 +8,18 @@ import {
   List,
   Search,
   X,
-  Filter
+  Filter,
+  Users,
+  TrendingUp,
+  CheckCircle,
+  Clock
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { ClientCard } from './ClientCard';
 import { MeetingPhase, MeetingStatus } from '../../types';
 
 type ViewMode = 'grid' | 'list';
-type SortBy = 'name' | 'date' | 'progress';
+type SortBy = 'name' | 'created' | 'progress';
 
 export const ClientsListView: React.FC = () => {
   const navigate = useNavigate();
@@ -31,7 +35,7 @@ export const ClientsListView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [phaseFilter, setPhaseFilter] = useState<MeetingPhase | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<MeetingStatus | 'all'>('all');
-  const [sortBy, setSortBy] = useState<SortBy>('date');
+  const [sortBy, setSortBy] = useState<SortBy>('created');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
 
@@ -62,7 +66,7 @@ export const ClientsListView: React.FC = () => {
     setSearchTerm('');
     setPhaseFilter('all');
     setStatusFilter('all');
-    setSortBy('date');
+    setSortBy('created');
   };
 
   // Filter and sort logic
@@ -94,8 +98,8 @@ export const ClientsListView: React.FC = () => {
     filtered.sort((a, b) => {
       if (sortBy === 'name') {
         return a.clientName.localeCompare(b.clientName, 'he');
-      } else if (sortBy === 'date') {
-        return new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime();
+      } else if (sortBy === 'created') {
+        return new Date(b.created).getTime() - new Date(a.created).getTime();
       } else {
         // progress
         return b.overallProgress - a.overallProgress;
@@ -107,6 +111,25 @@ export const ClientsListView: React.FC = () => {
 
   const hasActiveFilters =
     searchTerm.trim() !== '' || phaseFilter !== 'all' || statusFilter !== 'all';
+
+  // Calculate dashboard metrics
+  const dashboardMetrics = useMemo(() => {
+    const totalClients = zohoClientsList.length;
+    const activeClients = zohoClientsList.filter(c =>
+      ['discovery', 'implementation_spec', 'development'].includes(c.phase)
+    ).length;
+    const completedClients = zohoClientsList.filter(c => c.phase === 'completed').length;
+    const avgProgress = totalClients > 0
+      ? Math.round(zohoClientsList.reduce((sum, c) => sum + c.overallProgress, 0) / totalClients)
+      : 0;
+
+    return {
+      totalClients,
+      activeClients,
+      completedClients,
+      avgProgress
+    };
+  }, [zohoClientsList]);
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
@@ -165,65 +188,111 @@ export const ClientsListView: React.FC = () => {
               </button>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Filters Bar */}
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            {/* Search */}
-            <div className="flex-1 min-w-[250px] relative">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="חיפוש לקוח, חברה או אימייל..."
-                className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm('')}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+      {/* Dashboard Overview */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="container mx-auto px-6 py-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
+              <Users className="w-6 h-6 mx-auto mb-2 opacity-80" />
+              <div className="text-2xl font-bold">{dashboardMetrics.totalClients}</div>
+              <div className="text-sm opacity-80">סה"כ לקוחות</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
+              <Clock className="w-6 h-6 mx-auto mb-2 opacity-80" />
+              <div className="text-2xl font-bold">{dashboardMetrics.activeClients}</div>
+              <div className="text-sm opacity-80">בפיתוח</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
+              <CheckCircle className="w-6 h-6 mx-auto mb-2 opacity-80" />
+              <div className="text-2xl font-bold">{dashboardMetrics.completedClients}</div>
+              <div className="text-sm opacity-80">הושלמו</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
+              <TrendingUp className="w-6 h-6 mx-auto mb-2 opacity-80" />
+              <div className="text-2xl font-bold">{dashboardMetrics.avgProgress}%</div>
+              <div className="text-sm opacity-80">התקדמות ממוצעת</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters Bar */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="container mx-auto px-6 py-6">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+            {/* Search Section */}
+            <div className="flex-1 min-w-[280px]">
+              <label className="block text-sm font-medium text-gray-700 mb-2">חיפוש לקוחות</label>
+              <div className="relative">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="חיפוש לפי שם, חברה או אימייל..."
+                  className="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Filters Section */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* Phase Filter */}
+              <div className="min-w-[180px]">
+                <label className="block text-sm font-medium text-gray-700 mb-2">שלב פרויקט</label>
+                <div className="relative">
+                  <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  <select
+                    value={phaseFilter}
+                    onChange={(e) => setPhaseFilter(e.target.value as any)}
+                    className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg appearance-none bg-white cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  >
+                    <option value="all">כל השלבים</option>
+                    <option value="discovery">🔍 Discovery</option>
+                    <option value="implementation_spec">📋 Implementation Spec</option>
+                    <option value="development">⚙️ Development</option>
+                    <option value="completed">✅ Completed</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Sort */}
+              <div className="min-w-[160px]">
+                <label className="block text-sm font-medium text-gray-700 mb-2">מיין לפי</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as SortBy)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none bg-white cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                 >
-                  <X className="w-4 h-4" />
-                </button>
+                  <option value="created">📅 תאריך יצירה</option>
+                  <option value="name">👤 שם לקוח</option>
+                  <option value="progress">📈 התקדמות</option>
+                </select>
+              </div>
+
+              {/* Clear Filters */}
+              {hasActiveFilters && (
+                <div className="flex items-end">
+                  <button
+                    onClick={handleClearFilters}
+                    className="px-6 py-3 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors border border-red-200 hover:border-red-300"
+                  >
+                    🗑️ נקה פילטרים
+                  </button>
+                </div>
               )}
             </div>
-
-            {/* Phase Filter */}
-            <div className="relative">
-              <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-              <select
-                value={phaseFilter}
-                onChange={(e) => setPhaseFilter(e.target.value as any)}
-                className="pr-10 pl-4 py-2 border border-gray-300 rounded-lg appearance-none bg-white cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">כל השלבים</option>
-                <option value="discovery">Discovery</option>
-                <option value="implementation_spec">Implementation Spec</option>
-                <option value="development">Development</option>
-                <option value="completed">Completed</option>
-              </select>
-            </div>
-
-            {/* Sort */}
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortBy)}
-              className="px-4 py-2 border border-gray-300 rounded-lg appearance-none bg-white cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="date">תאריך עדכון</option>
-              <option value="name">שם לקוח</option>
-              <option value="progress">התקדמות</option>
-            </select>
-
-            {/* Clear Filters */}
-            {hasActiveFilters && (
-              <button
-                onClick={handleClearFilters}
-                className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                נקה פילטרים
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -231,45 +300,63 @@ export const ClientsListView: React.FC = () => {
       {/* Content */}
       <div className="container mx-auto px-6 py-8">
         {isLoadingClients ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="text-center">
-              <RefreshCw className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-              <p className="text-gray-600">טוען לקוחות מזוהו...</p>
+          <div className="flex items-center justify-center py-24">
+            <div className="text-center bg-white rounded-2xl shadow-lg p-8 max-w-md w-full">
+              <div className="relative mb-6">
+                <RefreshCw className="w-12 h-12 animate-spin text-blue-600 mx-auto" />
+                <div className="absolute inset-0 w-12 h-12 mx-auto border-4 border-blue-200 rounded-full"></div>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">טוען לקוחות</h3>
+              <p className="text-gray-600 text-sm">אנא המתן בזמן שאנחנו טוענים את נתוני הלקוחות מ-Zoho CRM...</p>
             </div>
           </div>
         ) : clientsLoadError ? (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-            <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-3" />
-            <p className="text-red-700 font-semibold mb-2">שגיאה בטעינת הלקוחות</p>
-            <p className="text-red-600 text-sm mb-4">{clientsLoadError}</p>
-            <button
-              onClick={handleRefresh}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-            >
-              נסה שוב
-            </button>
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-gradient-to-r from-red-50 to-red-100 border border-red-200 rounded-2xl p-8 text-center shadow-lg">
+              <div className="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-8 h-8 text-red-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-red-800 mb-2">שגיאה בטעינת הלקוחות</h3>
+              <p className="text-red-700 text-sm mb-6 leading-relaxed">{clientsLoadError}</p>
+              <button
+                onClick={handleRefresh}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium shadow-md hover:shadow-lg"
+              >
+                <RefreshCw className="w-4 h-4" />
+                נסה שוב
+              </button>
+            </div>
           </div>
         ) : filteredClients.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-gray-400 text-6xl mb-4">🔍</div>
-            <p className="text-gray-500 text-lg mb-2">
-              {hasActiveFilters ? 'לא נמצאו לקוחות התואמים לחיפוש' : 'לא נמצאו לקוחות'}
-            </p>
-            {hasActiveFilters && (
-              <button
-                onClick={handleClearFilters}
-                className="mt-4 text-blue-600 hover:text-blue-700 font-medium"
-              >
-                נקה פילטרים
-              </button>
-            )}
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 rounded-2xl p-12 text-center shadow-lg">
+              <div className="text-8xl mb-6">🔍</div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                {hasActiveFilters ? 'לא נמצאו לקוחות התואמים לחיפוש' : 'אין לקוחות עדיין'}
+              </h3>
+              <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+                {hasActiveFilters
+                  ? 'נסה לשנות את הפילטרים או להרחיב את חיפושך כדי למצוא לקוחות'
+                  : 'התחל ביצירת לקוח ראשון או ייבא נתונים מ-Zoho CRM'
+                }
+              </p>
+              {hasActiveFilters && (
+                <button
+                  onClick={handleClearFilters}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium shadow-md hover:shadow-lg"
+                >
+                  <X className="w-4 h-4" />
+                  נקה פילטרים
+                </button>
+              )}
+            </div>
           </div>
         ) : (
           <div
             className={
               viewMode === 'grid'
-                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
-                : 'space-y-4'
+                ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8'
+                : 'space-y-6 max-w-4xl mx-auto'
             }
           >
             {filteredClients.map((client) => (

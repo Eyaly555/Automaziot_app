@@ -95,6 +95,7 @@ export interface ZohoClientListItem {
   overallProgress: number;
   phase2Progress?: number;
   phase3Progress?: number;
+  created: Date;
   lastModified: Date;
   lastSync?: Date;
   syncStatus: 'synced' | 'pending' | 'error';
