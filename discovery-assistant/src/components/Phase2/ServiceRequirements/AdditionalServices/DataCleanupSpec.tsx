@@ -10,6 +10,8 @@
 
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import type { DataCleanupRequirements } from '../../../../types/additionalServices';
 import { Card } from '../../../Common/Card';
 
@@ -54,8 +56,22 @@ export function DataCleanupSpec() {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'data-cleanup',
+    immediateFields: ['dataSources', 'deduplicationRules', 'dataQualityRules'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in DataCleanupSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    saveData(config);
+  });
+
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSaving, setIsSaving] = useState(false);
 
   // Load existing data
   useEffect(() => {
@@ -92,34 +108,7 @@ export function DataCleanupSpec() {
       return;
     }
 
-    if (!currentMeeting) return;
-
-    setIsSaving(true);
-    try {
-      const category = currentMeeting?.implementationSpec?.additionalServices || [];
-      const updated = category.filter(item => item.serviceId !== 'data-cleanup');
-
-      updated.push({
-        serviceId: 'data-cleanup',
-        serviceName: 'ניקוי והסרת כפילויות',
-        requirements: config,
-        completedAt: new Date().toISOString()
-      });
-
-      await updateMeeting({
-        implementationSpec: {
-          ...currentMeeting.implementationSpec,
-          additionalServices: updated
-        }
-      });
-
-      alert('הגדרות נשמרו בהצלחה!');
-    } catch (error) {
-      console.error('Error saving data-cleanup config:', error);
-      alert('שגיאה בשמירת הגדרות');
-    } finally {
-      setIsSaving(false);
-    }
+    await saveData(config);
   };
 
   // Add data source
@@ -772,14 +761,33 @@ export function DataCleanupSpec() {
         </div>
       </Card>
 
-      {/* Save Button */}
-      <div className="flex justify-end gap-4">
+      {/* Save Status and Button */}
+      <div className="flex justify-between items-center gap-4 pt-4 border-t">
+        <div className="flex items-center gap-2">
+          {isSaving && (
+            <div className="flex items-center gap-2 text-blue-600">
+              <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-sm">שומר אוטומטית...</span>
+            </div>
+          )}
+          {saveError && (
+            <div className="flex items-center gap-2 text-red-600">
+              <span className="text-sm">שגיאה בשמירה</span>
+            </div>
+          )}
+          {!isSaving && !saveError && config.dataSources.length > 0 && (
+            <div className="flex items-center gap-2 text-green-600">
+              <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+              <span className="text-sm">נשמר אוטומטית</span>
+            </div>
+          )}
+        </div>
         <button
           onClick={handleSave}
           disabled={isSaving}
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
-          {isSaving ? 'שומר...' : 'שמור הגדרות'}
+          {isSaving ? 'שומר...' : 'שמור ידנית'}
         </button>
       </div>
     </div>

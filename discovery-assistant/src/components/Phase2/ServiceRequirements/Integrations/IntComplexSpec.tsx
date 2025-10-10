@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
-import { Card } from '../../../Common/Card';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
+import { Card } from '../../../Common/Card';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 export function IntComplexSpec() {
@@ -57,6 +59,36 @@ export function IntComplexSpec() {
   const [newRule, setNewRule] = useState({ type: 'transformation', source: '', target: '', logic: '' });
   const [newValidation, setNewValidation] = useState({ field: '', rule: '', message: '' });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'int-complex',
+    immediateFields: ['sourceSystem', 'targetSystem', 'syncConfig', 'transformationRules'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in IntComplexSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      sourceSystem: {
+        ...config.sourceSystem,
+        authType: apiAuthMethod.value
+      },
+      syncConfig: {
+        ...config.syncConfig,
+        frequency: syncFrequency.value
+      },
+      errorHandling: {
+        ...config.errorHandling,
+        alertRecipients: [alertEmail.value]
+      }
+    };
+    saveData(completeConfig);
+  });
+
   useEffect(() => {
     const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
     const existing = integrationServices.find(i => i.serviceId === 'int-complex');
@@ -65,9 +97,7 @@ export function IntComplexSpec() {
     }
   }, [currentMeeting]);
 
-  const handleSave = () => {
-    if (!currentMeeting) return;
-
+  const handleSave = async () => {
     let frequencyValue = syncFrequency.value;
     if (frequencyValue === 'realtime') frequencyValue = 'real-time';
 
@@ -87,22 +117,7 @@ export function IntComplexSpec() {
       }
     };
 
-    const integrationServices = currentMeeting.implementationSpec?.integrationServices || [];
-    const updated = integrationServices.filter(i => i.serviceId !== 'int-complex');
-
-    updated.push({
-      serviceId: 'int-complex',
-      serviceName: 'אינטגרציה מורכבת עם טרנספורמציות',
-      requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
-
-    updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-        integrationServices: updated,
-      },
-    });
+    await saveData(completeConfig);
   };
 
   const addTransformation = () => {
@@ -383,9 +398,33 @@ export function IntComplexSpec() {
             </div>
           </div>
 
-          <div className="flex justify-end pt-4 border-t">
-            <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-              שמור
+          {/* Save Status and Button */}
+          <div className="flex justify-between items-center gap-4 pt-4 border-t">
+            <div className="flex items-center gap-2">
+              {isSaving && (
+                <div className="flex items-center gap-2 text-blue-600">
+                  <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm">שומר אוטומטית...</span>
+                </div>
+              )}
+              {saveError && (
+                <div className="flex items-center gap-2 text-red-600">
+                  <span className="text-sm">שגיאה בשמירה</span>
+                </div>
+              )}
+              {!isSaving && !saveError && config.sourceSystem.name && (
+                <div className="flex items-center gap-2 text-green-600">
+                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                  <span className="text-sm">נשמר אוטומטית</span>
+                </div>
+              )}
+            </div>
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {isSaving ? 'שומר...' : 'שמור ידנית'}
             </button>
           </div>
         </div>

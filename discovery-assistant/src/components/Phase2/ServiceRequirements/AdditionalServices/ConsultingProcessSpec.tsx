@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info, Trash2 } from 'lucide-react';
 import type { ConsultingProcessRequirements } from '../../../../types/additionalServices';
 import { Card } from '../../../Common/Card';
@@ -21,6 +23,26 @@ export function ConsultingProcessSpec() {
     localPath: 'alertEmail',
     serviceId: 'consulting-process',
     autoSave: false
+  });
+
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'consulting-process',
+    immediateFields: ['processIdentification', 'analysisMethodology', 'stakeholderEngagement'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in ConsultingProcessSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      databaseType: databaseType.value,
+      alertEmail: alertEmail.value
+    };
+    saveData(completeConfig);
   });
 
   const [config, setConfig] = useState<ConsultingProcessRequirements>({
@@ -194,46 +216,20 @@ export function ConsultingProcessSpec() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Save handler
   const handleSave = async () => {
     if (!validateForm()) {
       alert('נא למלא את כל השדות הנדרשים');
       return;
     }
-    if (!currentMeeting) return;
 
-    setIsSaving(true);
-    try {
-    const category = currentMeeting?.implementationSpec?.additionalServices || [];
-      const updated = category.filter(item => item.serviceId !== 'consulting-process');
+    const completeConfig = {
+      ...config,
+      databaseType: databaseType.value,
+      alertEmail: alertEmail.value
+    };
 
-      const completeConfig = {
-        ...config,
-        databaseType: databaseType.value,
-        alertEmail: alertEmail.value
-      };
-
-    updated.push({
-      serviceId: 'consulting-process',
-      serviceName: 'ייעוץ תהליכים',
-        serviceNameHe: 'ייעוץ תהליכים',
-        requirements: completeConfig,
-      completedAt: new Date().toISOString()
-    });
-
-      await updateMeeting({
-      implementationSpec: {
-        ...currentMeeting.implementationSpec,
-          additionalServices: updated
-        }
-      });
-
-      alert('הגדרות נשמרו בהצלחה!');
-    } catch (error) {
-      console.error('Error saving consulting-process config:', error);
-      alert('שגיאה בשמירת הגדרות');
-    } finally {
-      setIsSaving(false);
-    }
+    await saveData(completeConfig);
   };
 
   // Helper functions for managing arrays
@@ -886,14 +882,33 @@ export function ConsultingProcessSpec() {
         </div>
       </Card>
 
-      {/* Save Button */}
-      <div className="flex justify-end gap-4">
+      {/* Save Status and Button */}
+      <div className="flex justify-between items-center gap-4 pt-4 border-t">
+        <div className="flex items-center gap-2">
+          {isSaving && (
+            <div className="flex items-center gap-2 text-blue-600">
+              <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-sm">שומר אוטומטית...</span>
+            </div>
+          )}
+          {saveError && (
+            <div className="flex items-center gap-2 text-red-600">
+              <span className="text-sm">שגיאה בשמירה</span>
+            </div>
+          )}
+          {!isSaving && !saveError && config.processIdentification.some(p => p.processName) && (
+            <div className="flex items-center gap-2 text-green-600">
+              <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+              <span className="text-sm">נשמר אוטומטית</span>
+            </div>
+          )}
+        </div>
         <button
           onClick={handleSave}
           disabled={isSaving}
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
-          {isSaving ? 'שומר...' : 'שמור הגדרות'}
+          {isSaving ? 'שומר...' : 'שמור ידנית'}
         </button>
       </div>
     </div>

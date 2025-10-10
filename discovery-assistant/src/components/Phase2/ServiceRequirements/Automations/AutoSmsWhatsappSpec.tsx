@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useSmartField } from '../../../../hooks/useSmartField';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import type { AutoSmsWhatsappRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
 import { Plus, Trash2, Save, AlertCircle } from 'lucide-react';
-import { useSmartField } from '../../../../hooks/useSmartField';
 import { CheckCircle, Info as InfoIcon } from 'lucide-react';
 
 export function AutoSmsWhatsappSpec() {
@@ -109,8 +111,34 @@ export function AutoSmsWhatsappSpec() {
     }
   });
 
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'auto-sms-whatsapp',
+    immediateFields: ['metaBusinessAccess', 'twilioAccess', 'messageTemplates', 'crmAccess'], // Critical configuration fields
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in AutoSmsWhatsappSpec:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    const completeConfig = {
+      ...config,
+      whatsappApiProvider: whatsappApiProvider.value,
+      n8nWorkflow: {
+        ...config.n8nWorkflow,
+        instanceUrl: n8nInstanceUrl.value,
+        errorHandling: {
+          ...config.n8nWorkflow.errorHandling,
+          alertEmail: alertEmail.value
+        }
+      }
+    };
+    saveData(completeConfig);
+  });
+
   const [activeTab, setActiveTab] = useState<'meta' | 'twilio' | 'templates' | 'crm' | 'n8n' | 'prerequisites'>('meta');
-  const [isSaving, setIsSaving] = useState(false);
 
   // Load existing data
   useEffect(() => {
@@ -123,46 +151,20 @@ export function AutoSmsWhatsappSpec() {
 
   // Save handler
   const handleSave = async () => {
-    if (!currentMeeting) return;
-
-    setIsSaving(true);
-    try {
-      const automations = currentMeeting?.implementationSpec?.automations || [];
-      const updated = automations.filter((a: any) => a.serviceId !== 'auto-sms-whatsapp');
-
-      // Build complete config with smart field values
-      const completeConfig = {
-        ...config,
-        whatsappApiProvider: whatsappApiProvider.value,
-        n8nWorkflow: {
-          ...config.n8nWorkflow,
-          instanceUrl: n8nInstanceUrl.value,
-          errorHandling: {
-            ...config.n8nWorkflow.errorHandling,
-            alertEmail: alertEmail.value
-          }
+    const completeConfig = {
+      ...config,
+      whatsappApiProvider: whatsappApiProvider.value,
+      n8nWorkflow: {
+        ...config.n8nWorkflow,
+        instanceUrl: n8nInstanceUrl.value,
+        errorHandling: {
+          ...config.n8nWorkflow.errorHandling,
+          alertEmail: alertEmail.value
         }
-      };
+      }
+    };
 
-      updated.push({
-        serviceId: 'auto-sms-whatsapp',
-        serviceName: 'SMS/WhatsApp אוטומטי ללידים',
-        serviceNameHe: 'SMS/WhatsApp אוטומטי ללידים',
-        requirements: completeConfig,
-        completedAt: new Date().toISOString()
-      });
-
-      updateMeeting({
-        implementationSpec: {
-          ...currentMeeting.implementationSpec,
-          automations: updated,
-        },
-      });
-
-      alert('✅ הגדרות נשמרו בהצלחה!');
-    } finally {
-      setIsSaving(false);
-    }
+    await saveData(completeConfig);
   };
 
   // Helper: Add event to webhook
@@ -1579,15 +1581,34 @@ export function AutoSmsWhatsappSpec() {
           )}
         </div>
 
-        {/* Save Button */}
-        <div className="flex justify-end pt-6 border-t mt-8">
+        {/* Save Status and Button */}
+        <div className="flex justify-between items-center gap-4 pt-6 border-t mt-8">
+          <div className="flex items-center gap-2">
+            {isSaving && (
+              <div className="flex items-center gap-2 text-blue-600">
+                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-sm">שומר אוטומטית...</span>
+              </div>
+            )}
+            {saveError && (
+              <div className="flex items-center gap-2 text-red-600">
+                <span className="text-sm">שגיאה בשמירה</span>
+              </div>
+            )}
+            {!isSaving && !saveError && (config.metaBusinessAccess.businessAccountId || config.twilioAccess.accountSid) && (
+              <div className="flex items-center gap-2 text-green-600">
+                <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                <span className="text-sm">נשמר אוטומטית</span>
+              </div>
+            )}
+          </div>
           <button
             onClick={handleSave}
             disabled={isSaving}
             className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             <Save className="w-4 h-4" />
-            <span>{isSaving ? 'שומר...' : 'שמור הגדרות'}</span>
+            <span>{isSaving ? 'שומר...' : 'שמור ידנית'}</span>
           </button>
         </div>
       </Card>
