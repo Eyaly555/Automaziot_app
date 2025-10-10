@@ -1,0 +1,13 @@
+{
+  "buildCommand": "npm run build --workspace=discovery-assistant",
+  "outputDirectory": "discovery-assistant/dist",
+  "installCommand": "npm install",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/((?!api|_next/static|_next/image|favicon.ico).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+

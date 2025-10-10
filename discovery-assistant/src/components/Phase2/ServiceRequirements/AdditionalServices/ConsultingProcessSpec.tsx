@@ -187,7 +187,6 @@ export function ConsultingProcessSpec() {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const category = currentMeeting?.implementationSpec?.additionalServices || [];
