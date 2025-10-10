@@ -46,7 +46,7 @@ export const EssentialDetailsModule: React.FC = () => {
   // If no focus areas selected, show message
   if (focusAreas.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir="rtl">
+      <div className="bg-gray-50 flex items-center justify-center" dir="rtl" style={{minHeight: 'calc(100vh - 64px)'}}>
         <Card className="max-w-md">
           <div className="text-center py-8">
             <Circle className="w-16 h-16 mx-auto text-gray-400 mb-4" />
@@ -142,7 +142,7 @@ export const EssentialDetailsModule: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
+    <div className="bg-gray-50" dir="rtl">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">

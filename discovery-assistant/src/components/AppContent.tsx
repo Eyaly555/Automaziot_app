@@ -104,7 +104,7 @@ export const AppContent = () => {
       {/* Developer Feedback Button - shown on all pages except login and clients list */}
       {showPhaseNavigator && <FeedbackButton />}
 
-      <Routes>
+      <Routes key={location.pathname}>
         <Route path="/" element={<Navigate to="/clients" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/meeting/:recordId" element={<Dashboard />} />
