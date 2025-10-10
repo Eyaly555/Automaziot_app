@@ -10,6 +10,7 @@
 
 import { useState, useEffect } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
+import { useAutoSave } from '../../../../hooks/useAutoSave';
 import type { ImplCrmRequirements } from '../../../../types/systemImplementationServices';
 import { Card } from '../../../Common/Card';
 
@@ -46,7 +47,17 @@ export function ImplCrmSpec() {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSaving, setIsSaving] = useState(false);
+
+  // Auto-save hook for immediate saving
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'impl-crm',
+    immediateFields: ['platform', 'subscriptionTier', 'adminAccess'],
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error:', error);
+      setErrors({ general: 'שגיאה בשמירה אוטומטית' });
+    }
+  });
 
   // Load existing data
   useEffect(() => {
@@ -59,6 +70,13 @@ export function ImplCrmSpec() {
       setConfig(existing.requirements as ImplCrmRequirements);
     }
   }, [currentMeeting]);
+
+  // Auto-save whenever config changes
+  useEffect(() => {
+    if (config.platform) { // Only save if we have basic data
+      saveData(config);
+    }
+  }, [config, saveData]);
 
   // Validation function
   const validateForm = (): boolean => {
@@ -201,41 +219,15 @@ export function ImplCrmSpec() {
     });
   };
 
-  // Save handler
-  const handleSave = async () => {
+  // Manual save handler (kept for compatibility, but auto-save is primary)
+  const handleManualSave = async () => {
     if (!validateForm()) {
       alert('נא למלא את כל השדות הנדרשים');
       return;
     }
 
-    if (!currentMeeting) return;
-
-    setIsSaving(true);
-    try {
-      const category = currentMeeting?.implementationSpec?.systemImplementations || [];
-      const updated = category.filter(item => item.serviceId !== 'impl-crm');
-
-      updated.push({
-        serviceId: 'impl-crm',
-        serviceName: 'הטמעת CRM',
-        requirements: config,
-        completedAt: new Date().toISOString()
-      });
-
-      await updateMeeting({
-        implementationSpec: {
-          ...currentMeeting.implementationSpec,
-          systemImplementations: updated
-        }
-      });
-
-      alert('הגדרות נשמרו בהצלחה!');
-    } catch (error) {
-      console.error('Error saving impl-crm config:', error);
-      alert('שגיאה בשמירת הגדרות');
-    } finally {
-      setIsSaving(false);
-    }
+    // Force immediate save
+    await saveData(config, 'manual');
   };
 
   return (
@@ -767,13 +759,33 @@ export function ImplCrmSpec() {
         </div>
       </Card>
 
-      <div className="flex justify-end gap-4">
+      {/* Auto-Save Status and Manual Save (for compatibility) */}
+      <div className="flex justify-between items-center gap-4">
+        <div className="flex items-center gap-2">
+          {isSaving && (
+            <div className="flex items-center gap-2 text-blue-600">
+              <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-sm">שומר אוטומטית...</span>
+            </div>
+          )}
+          {saveError && (
+            <div className="flex items-center gap-2 text-red-600">
+              <span className="text-sm">שגיאה בשמירה</span>
+            </div>
+          )}
+          {!isSaving && !saveError && (
+            <div className="flex items-center gap-2 text-green-600">
+              <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+              <span className="text-sm">נשמר אוטומטית</span>
+            </div>
+          )}
+        </div>
         <button
-          onClick={handleSave}
+          onClick={handleManualSave}
           disabled={isSaving}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
         >
-          {isSaving ? 'שומר...' : 'שמור הגדרות'}
+          שמור ידנית
         </button>
       </div>
     </div>

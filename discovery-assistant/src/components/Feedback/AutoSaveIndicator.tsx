@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Cloud, CloudOff, AlertCircle } from 'lucide-react';
+import { Check, Cloud, CloudOff, AlertCircle, Loader2 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error' | 'offline';
@@ -17,15 +17,40 @@ export const AutoSaveIndicator: React.FC = () => {
 
   const isEnglish = currentMeeting?.phase === 'development';
 
-  // Monitor localStorage changes to detect saves
+  // Monitor localStorage changes and custom save events
   useEffect(() => {
-    // Currently monitoring online/offline status only
-    // checkSaveStatus would be called here when implementing real save detection
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key?.startsWith('discovery_')) {
+        setSaveStatus('saved');
+        setLastSaveTime(new Date());
+
+        // Auto-hide after 3 seconds
+        setTimeout(() => {
+          setSaveStatus('idle');
+        }, 3000);
+      }
+    };
+
+    // Listen for custom save events from useAutoSave hook
+    const handleCustomSaveEvent = (e: CustomEvent) => {
+      setSaveStatus('saved');
+      setLastSaveTime(new Date(e.detail.timestamp));
+
+      setTimeout(() => {
+        setSaveStatus('idle');
+      }, 3000);
+    };
 
     // Check online status
-    const handleOnline = () => setSaveStatus('idle');
+    const handleOnline = () => {
+      if (saveStatus === 'offline') {
+        setSaveStatus('idle');
+      }
+    };
     const handleOffline = () => setSaveStatus('offline');
 
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('dataSaved', handleCustomSaveEvent as EventListener);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
@@ -35,10 +60,12 @@ export const AutoSaveIndicator: React.FC = () => {
     }
 
     return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('dataSaved', handleCustomSaveEvent as EventListener);
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [saveStatus]);
 
   // Format last save time
   const formatLastSaveTime = (date: Date): string => {
@@ -69,7 +96,7 @@ export const AutoSaveIndicator: React.FC = () => {
       bgColor: 'bg-gray-100',
     },
     saving: {
-      icon: <Cloud className="w-4 h-4 animate-pulse" />,
+      icon: <Loader2 className="w-4 h-4 animate-spin" />,
       text: isEnglish ? 'Saving...' : 'שומר...',
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',

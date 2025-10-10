@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Target, CreditCard } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
+import { useAutoSave } from '../../../hooks/useAutoSave';
 import { Card, Input, Select, TextArea, Button } from '../../Base';
 import { CheckboxGroup } from '../../Common/FormFields';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
@@ -75,8 +76,19 @@ export const OverviewModule: React.FC = () => {
   // NEW: Focus Areas
   const [focusAreas, setFocusAreas] = useState<string[]>((overviewData.focusAreas as string[]) || []);
 
-  const saveData = () => {
-    updateModule('overview', {
+  // Auto-save hook for immediate and debounced saving
+  const { saveData, isSaving, saveError, hasUnsavedChanges } = useAutoSave({
+    moduleId: 'overview',
+    immediateFields: ['businessType', 'employees'], // Critical business info
+    debounceMs: 1000,
+    onError: (error) => {
+      console.error('Auto-save error in Overview:', error);
+    }
+  });
+
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    saveData({
       businessType,
       employees,
       mainChallenge,
@@ -89,15 +101,23 @@ export const OverviewModule: React.FC = () => {
       serviceSystemExists,
       focusAreas: focusAreas as FocusArea[]
     });
-  };
-
-  useBeforeUnload(saveData);
+  });
 
   // Auto-save on changes
   useEffect(() => {
-    const timer = setTimeout(saveData, 1000);
-
-    return () => clearTimeout(timer);
+    saveData({
+      businessType,
+      employees,
+      mainChallenge,
+      budget,
+      leadSources,
+      leadCaptureChannels,
+      leadStorageMethod,
+      serviceChannels,
+      serviceVolume,
+      serviceSystemExists,
+      focusAreas: focusAreas as FocusArea[]
+    });
   }, [
     businessType,
     employees,
@@ -109,7 +129,8 @@ export const OverviewModule: React.FC = () => {
     serviceChannels,
     serviceVolume,
     serviceSystemExists,
-    focusAreas
+    focusAreas,
+    saveData
   ]);
 
   return (

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, MoveUp, MoveDown, Save } from 'lucide-react';
 import { Card } from '../../Common/Card';
 import { TextField } from '../../Common/FormFields/TextField';
 import { SelectField } from '../../Common/FormFields/SelectField';
 import { CheckboxGroup } from '../../Common/FormFields/CheckboxGroup';
 import { useMeetingStore } from '../../../store/useMeetingStore';
+import { useAutoSave } from '../../../hooks/useAutoSave';
 import { AIAgentUseCase, ConversationFlowStep } from '../../../types';
 
 interface AIAgentUseCaseBuilderProps {
@@ -20,6 +21,16 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
 }) => {
   const { updateModule, currentMeeting } = useMeetingStore();
   const moduleData = currentMeeting?.modules?.aiAgents || {};
+
+  // Auto-save hook for this component
+  const { saveData, isSaving, saveError } = useAutoSave({
+    moduleId: 'aiAgents',
+    immediateFields: ['useCaseName'], // Critical identifier
+    debounceMs: 1500, // Slightly longer debounce for complex forms
+    onError: (error) => {
+      console.error('Auto-save error in AIAgentUseCaseBuilder:', error);
+    }
+  });
 
   // State for use case builder
   const [useCaseName, setUseCaseName] = useState(initialData?.name || '');
@@ -102,8 +113,8 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
     setSuccessCriteria(successCriteria.filter((_, i) => i !== index));
   };
 
-  // Save handler
-  const handleSave = () => {
+  // Save handler (now uses auto-save)
+  const handleSave = async () => {
     const useCase: AIAgentUseCase = {
       id: initialData?.id || generateId(),
       name: useCaseName,
@@ -119,21 +130,55 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
       department: department as AIAgentUseCase['department']
     };
 
-    // Save to store
+    // Save to store using auto-save
     const existingSpecs = moduleData.agentSpecs || [];
     const updatedSpecs = initialData
       ? existingSpecs.map(spec => spec.id === initialData.id ? useCase : spec)
       : [...existingSpecs, useCase];
 
-    updateModule('aiAgents', {
+    await saveData({
       ...moduleData,
       agentSpecs: updatedSpecs
-    });
+    }, 'manual');
 
     if (onSave) {
       onSave(useCase);
     }
   };
+
+  // Auto-save when state changes
+  useEffect(() => {
+    if (useCaseName) { // Only auto-save if we have a name
+      const useCase: AIAgentUseCase = {
+        id: initialData?.id || generateId(),
+        name: useCaseName,
+        trigger: trigger as AIAgentUseCase['trigger'],
+        customTrigger: trigger === 'custom' ? customTrigger : undefined,
+        objective,
+        conversationFlow,
+        knowledgeBaseRequirements,
+        fallbackStrategy: fallbackStrategy as AIAgentUseCase['fallbackStrategy'],
+        successCriteria,
+        expectedVolume: parseInt(expectedVolume) || 0,
+        priority: priority as AIAgentUseCase['priority'],
+        department: department as AIAgentUseCase['department']
+      };
+
+      const existingSpecs = moduleData.agentSpecs || [];
+      const updatedSpecs = initialData
+        ? existingSpecs.map(spec => spec.id === initialData.id ? useCase : spec)
+        : [...existingSpecs, useCase];
+
+      saveData({
+        ...moduleData,
+        agentSpecs: updatedSpecs
+      });
+    }
+  }, [
+    useCaseName, trigger, customTrigger, objective, conversationFlow,
+    knowledgeBaseRequirements, fallbackStrategy, successCriteria,
+    expectedVolume, priority, department, initialData, moduleData, saveData
+  ]);
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -401,25 +446,45 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
           </div>
 
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-4 border-t border-gray-200">
-            <button
-              onClick={handleSave}
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg
-                       hover:from-blue-700 hover:to-blue-800 transition-all duration-300
-                       shadow-md hover:shadow-lg flex items-center justify-center gap-2"
-            >
-              <Save className="w-5 h-5" />
-              שמור מפרט
-            </button>
-            {onCancel && (
+          {/* Auto-Save Status and Manual Save */}
+          <div className="flex justify-between items-center gap-4 pt-4 border-t border-gray-200">
+            <div className="flex items-center gap-2">
+              {isSaving && (
+                <div className="flex items-center gap-2 text-blue-600">
+                  <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm">שומר אוטומטית...</span>
+                </div>
+              )}
+              {saveError && (
+                <div className="flex items-center gap-2 text-red-600">
+                  <span className="text-sm">שגיאה בשמירה</span>
+                </div>
+              )}
+              {!isSaving && !saveError && useCaseName && (
+                <div className="flex items-center gap-2 text-green-600">
+                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                  <span className="text-sm">נשמר אוטומטית</span>
+                </div>
+              )}
+            </div>
+            <div className="flex gap-3">
               <button
-                onClick={onCancel}
-                className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm flex items-center gap-2"
               >
-                ביטול
+                <Save className="w-4 h-4" />
+                שמור ידנית
               </button>
-            )}
+              {onCancel && (
+                <button
+                  onClick={onCancel}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  ביטול
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </Card>
