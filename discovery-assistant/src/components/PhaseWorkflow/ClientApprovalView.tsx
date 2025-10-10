@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { Card } from '../Common/Card';
+import { Input } from '../Base';
 import { formatCurrency } from '../../utils/formatters';
 import type { ProposalData, SelectedService } from '../../types/proposal';
 
@@ -258,14 +259,41 @@ export const ClientApprovalView: React.FC = () => {
 
   // Calculate totals for PURCHASED services only
   const purchasedServices = selectedServices.filter(s => purchasedServiceIds.has(s.id));
-  const totalPrice = purchasedServices.reduce(
+
+  // חישוב מחיר בסיס ללא הנחות (כבר מופחת ב-30%)
+  const baseTotalPrice = purchasedServices.reduce(
     (sum, service) => sum + (service.customPrice || service.basePrice || 0),
     0
   );
+
+  // אין הפחתה אוטומטית נוספת - המחירים כבר מופחתים ב-30%
+
+  // חישוב זמן יישום מופחת ביום אחד לכל שירות
   const totalDays = purchasedServices.reduce(
-    (sum, service) => sum + (service.estimatedDays || 0),
+    (sum, service) => sum + Math.max(1, (service.estimatedDays || 0) - 1),
     0
   );
+
+  // קבועי מע"מ והנחה
+  const VAT_RATE = 0.18; // 18% מע"מ
+
+  // מחיר כולל עם מע"מ (ללא הנחה נוספת)
+  const totalPriceWithVat = baseTotalPrice * (1 + VAT_RATE);
+
+  // מחיר לאחר הנחה נוספת (ללא מע"מ)
+  const discountedPrice = baseTotalPrice * (1 - (discountPercentage / 100));
+
+  // מחיר סופי עם מע"מ לאחר הנחה נוספת
+  const finalPriceWithVat = discountedPrice * (1 + VAT_RATE);
+
+  // שדה אחוזי הנחה
+  const [discountPercentage, setDiscountPercentage] = useState<number>(0);
+
+  // מחיר לאחר הנחה משתנה (ללא מע"מ)
+  const variableDiscountedPrice = baseTotalPrice * (1 - (discountPercentage / 100));
+
+  // מחיר סופי משתנה עם מע"מ לאחר הנחה משתנה
+  const variableFinalPriceWithVat = variableDiscountedPrice * (1 + VAT_RATE);
 
   // Group ALL PROPOSED services by category (for display)
   const servicesByCategory = selectedServices.reduce((acc, service) => {
@@ -452,9 +480,14 @@ export const ClientApprovalView: React.FC = () => {
                                   <h5 className="text-lg font-semibold text-gray-900">
                                     {service.nameHe}
                                   </h5>
-                                  <span className={`text-xl font-bold ${isPurchased ? 'text-green-600' : 'text-blue-600'}`}>
-                                    {formatCurrency(service.customPrice || service.basePrice)}
-                                  </span>
+                                  <div className="text-right">
+                                    <div className={`text-lg font-bold ${isPurchased ? 'text-green-600' : 'text-blue-600'}`}>
+                                      {formatCurrency(service.customPrice || service.basePrice)}
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                      כולל מע"מ (18%)
+                                    </div>
+                                  </div>
                                 </div>
 
                                 <p className="text-gray-600 mb-3">
@@ -464,7 +497,7 @@ export const ClientApprovalView: React.FC = () => {
                                 <div className="flex items-center gap-6 text-sm">
                                   <div className="flex items-center gap-2 text-gray-600">
                                     <Clock className="w-4 h-4" />
-                                    <span>משך זמן משוער: {service.estimatedDays} ימי עבודה</span>
+                                    <span>משך זמן משוער: {Math.max(1, (service.estimatedDays || 0) - 1)} ימי עבודה</span>
                                   </div>
                                   <div className="flex items-center gap-2 text-gray-600">
                                     <TrendingUp className="w-4 h-4" />
@@ -508,13 +541,46 @@ export const ClientApprovalView: React.FC = () => {
                 </p>
               </div>
 
+              {/* שדה אחוזי הנחה */}
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <Percent className="w-5 h-5 text-blue-600" />
+                  <label className="text-sm font-medium text-blue-800">אחוז הנחה נוסף</label>
+                </div>
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={discountPercentage}
+                  onChange={(e) => setDiscountPercentage(Number(e.target.value) || 0)}
+                  placeholder="0"
+                  className="w-32"
+                  dir="rtl"
+                />
+                <p className="text-xs text-blue-600 mt-1">
+                  הנחה נוספת על המחירים שכבר מופחתים ב-30% (לפני מע"מ)
+                </p>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-green-700 mb-1">עלות כוללת של השירותים שנרכשו</p>
-                      <p className="text-3xl font-bold text-green-900">
-                        {formatCurrency(totalPrice)}
+                      <p className="text-sm text-green-700 mb-1">מחיר בסיס (כבר מופחת ב-30%, ללא מע"מ)</p>
+                      <p className="text-xl font-bold text-green-900">
+                        {formatCurrency(baseTotalPrice)}
+                      </p>
+                      {discountPercentage > 0 && (
+                        <>
+                          <p className="text-sm text-green-700 mb-1 mt-2">מחיר לאחר הנחה נוספת ({discountPercentage}%) (ללא מע"מ)</p>
+                          <p className="text-xl font-bold text-green-900">
+                            {formatCurrency(discountedPrice)}
+                          </p>
+                        </>
+                      )}
+                      <p className="text-sm text-green-700 mb-1 mt-2">מחיר סופי כולל מע"מ (18%)</p>
+                      <p className="text-2xl font-bold text-green-900">
+                        {formatCurrency(finalPriceWithVat)}
                       </p>
                       <p className="text-xs text-green-600 mt-1">
                         {purchasedServiceIds.size} שירותים

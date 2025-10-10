@@ -145,9 +145,14 @@ export const ProposalHTMLTemplate = React.forwardRef<HTMLDivElement, ProposalHTM
                 <tr key={service.id} style={{ background: index % 2 === 1 ? '#f8fafc' : 'white' }}>
                   <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{index + 1}</td>
                   <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'right', paddingRight: '12px' }}>{service.nameHe}</td>
-                  <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{service.customDuration || service.estimatedDays} ימים</td>
-                  <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'center', fontWeight: '700', color: COMPANY_BRANDING.secondaryColor }}>
-                    {formatPrice(service.customPrice || service.basePrice)}
+                  <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{Math.max(1, (service.customDuration || service.estimatedDays || 0) - 1)} ימים</td>
+                  <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+                    <div style={{ fontWeight: '700', color: COMPANY_BRANDING.secondaryColor }}>
+                      {formatPrice(service.customPrice || service.basePrice)}
+                    </div>
+                    <div style={{ fontSize: '9px', color: '#666' }}>
+                      כולל מע"מ (18%)
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -184,11 +189,23 @@ export const ProposalHTMLTemplate = React.forwardRef<HTMLDivElement, ProposalHTM
                 </div>
               )}
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px' }}>
-                <p style={{ fontWeight: '700', color: COMPANY_BRANDING.secondaryColor }}>
-                  💰 השקעה: {formatPrice(service.customPrice || service.basePrice)}
-                </p>
-                <p>⏱️ זמן יישום: {service.customDuration || service.estimatedDays} ימים</p>
+              <div style={{ marginTop: '15px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <p style={{ fontSize: '11px', color: '#666' }}>מחיר בסיס (כבר מופחת ב-30%, ללא מע"מ):</p>
+                  <p style={{ fontWeight: '700', color: COMPANY_BRANDING.secondaryColor }}>
+                    {formatPrice(service.customPrice || service.basePrice)}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <p style={{ fontSize: '11px', color: '#666' }}>מחיר סופי כולל מע"מ (18%):</p>
+                  <p style={{ fontWeight: '700', color: COMPANY_BRANDING.primaryColor }}>
+                    {formatPrice((service.customPrice || service.basePrice) * 1.18)}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+                  <p style={{ fontSize: '11px', color: '#666' }}>⏱️ זמן יישום:</p>
+                  <p style={{ fontSize: '11px', color: '#666' }}>{Math.max(1, (service.customDuration || service.estimatedDays || 0) - 1)} ימים</p>
+                </div>
               </div>
             </div>
           ))}
@@ -203,18 +220,31 @@ export const ProposalHTMLTemplate = React.forwardRef<HTMLDivElement, ProposalHTM
             מבט על ההשקעה והתשואה
           </p>
 
-          <div style={{ display: 'flex', justifyContent: 'space-around', background: '#f8fafc', border: `2px solid ${COMPANY_BRANDING.primaryColor}`, borderRadius: '8px', padding: '20px', margin: '20px 0', textAlign: 'center' }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '10px', color: '#666', marginBottom: '5px' }}>מספר שירותים</div>
-              <div style={{ fontSize: '22px', fontWeight: '700', color: COMPANY_BRANDING.primaryColor }}>{proposalData.summary.totalServices}</div>
+          <div style={{ background: '#f8fafc', border: `2px solid ${COMPANY_BRANDING.primaryColor}`, borderRadius: '8px', padding: '20px', margin: '20px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center', marginBottom: '20px' }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '10px', color: '#666', marginBottom: '5px' }}>מספר שירותים</div>
+                <div style={{ fontSize: '22px', fontWeight: '700', color: COMPANY_BRANDING.primaryColor }}>{proposalData.summary.totalServices}</div>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '10px', color: '#666', marginBottom: '5px' }}>זמן יישום</div>
+                <div style={{ fontSize: '22px', fontWeight: '700', color: COMPANY_BRANDING.secondaryColor }}>{Math.max(1, (proposalData.totalDays || 0) - proposalData.summary.totalServices)} ימים</div>
+              </div>
             </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '10px', color: '#666', marginBottom: '5px' }}>זמן יישום</div>
-              <div style={{ fontSize: '22px', fontWeight: '700', color: COMPANY_BRANDING.secondaryColor }}>{proposalData.totalDays} ימים</div>
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '10px', color: '#666', marginBottom: '5px' }}>השקעה כוללת</div>
-              <div style={{ fontSize: '22px', fontWeight: '700', color: COMPANY_BRANDING.primaryColor }}>{formatPrice(proposalData.totalPrice)}</div>
+
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              <div style={{ marginBottom: '10px' }}>
+                <div style={{ fontSize: '10px', color: '#666', marginBottom: '3px' }}>מחיר בסיס (כבר מופחת ב-30%, ללא מע"מ)</div>
+                <div style={{ fontSize: '20px', fontWeight: '700', color: COMPANY_BRANDING.secondaryColor }}>
+                  {formatPrice(proposalData.totalPrice || 0)}
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: '10px', color: '#666', marginBottom: '3px' }}>מחיר סופי כולל מע"מ (18%)</div>
+                <div style={{ fontSize: '24px', fontWeight: '700', color: COMPANY_BRANDING.primaryColor }}>
+                  {formatPrice((proposalData.totalPrice || 0) * 1.18)}
+                </div>
+              </div>
             </div>
           </div>
 

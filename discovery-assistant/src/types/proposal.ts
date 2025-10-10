@@ -66,11 +66,17 @@ export interface ProposalData {
   proposedServices: ProposedService[];
   selectedServices: SelectedService[]; // Services selected for proposal
   purchasedServices?: SelectedService[]; // Services actually purchased by client
-  totalPrice: number;
+  totalPrice: number; // מחיר כולל ללא מע"מ
+  totalPriceWithVat: number; // מחיר כולל עם מע"מ
   totalDays: number;
   expectedROIMonths: number;
   monthlySavings: number;
   customNotes?: string;
+
+  // הנחות ומחירים מיוחדים
+  discountPercentage?: number; // אחוז הנחה על המחיר הבסיסי
+  discountedPrice?: number; // מחיר לאחר הנחה (ללא מע"מ)
+  finalPriceWithVat?: number; // מחיר סופי עם מע"מ לאחר הנחה
 
   // Client approval fields
   approvalSignature?: string; // Base64 image data
