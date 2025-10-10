@@ -123,8 +123,9 @@ interface MeetingStore {
   getAvailableBackups: () => any[];
 
   // Internal cache fields (private, used for optimization)
-  _validationCache?: any;
-  _lastLoggedState?: any;
+  // These are excluded from persistence and reinitialized on rehydration
+  _validationCache: Map<string, { result: boolean; timestamp: number }>;
+  _lastLoggedState: Record<string, boolean>;
 }
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -1526,7 +1527,14 @@ export const useMeetingStore = create<MeetingStore>()(
         const cacheKey = `${currentMeeting.meetingId}_${currentPhase}_to_${normalizedTargetPhase}_${currentMeeting.status}`;
 
         // Check cache first (TTL: 1 second)
-        const cached = get()._validationCache.get(cacheKey);
+        // Defensive: Ensure cache is a Map (might be deserialized as {})
+        const cache = get()._validationCache;
+        if (!cache || !(cache instanceof Map)) {
+          console.warn('[Store] Reinitializing validation cache (was not a Map)');
+          set({ _validationCache: new Map<string, { result: boolean; timestamp: number }>() });
+        }
+
+        const cached = (cache instanceof Map) ? cache.get(cacheKey) : undefined;
         const CACHE_TTL = 1000;
 
         if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
@@ -1632,8 +1640,11 @@ export const useMeetingStore = create<MeetingStore>()(
           }
         }
 
-        // Cache result
-        get()._validationCache.set(cacheKey, { result, timestamp: Date.now() });
+        // Cache result (defensive: only if cache is a Map)
+        const cacheForSet = get()._validationCache;
+        if (cacheForSet instanceof Map) {
+          cacheForSet.set(cacheKey, { result, timestamp: Date.now() });
+        }
 
         // Only log if validation state changed or first check
         const stateKey = `${currentPhase}_to_${normalizedTargetPhase}`;
@@ -2477,6 +2488,22 @@ export const useMeetingStore = create<MeetingStore>()(
     }),
     {
       name: 'discovery-assistant-storage',
+
+      /**
+       * Partialize - Exclude transient caches from persistence
+       *
+       * The validation cache and last logged state are runtime optimizations
+       * that should NOT be persisted to localStorage:
+       * - _validationCache: Map object (can't serialize to JSON)
+       * - _lastLoggedState: State tracking for console spam reduction
+       *
+       * These will be re-initialized on rehydration.
+       */
+      partialize: (state) => {
+        const { _validationCache, _lastLoggedState, ...persistedState } = state;
+        return persistedState;
+      },
+
       /**
        * Data Migration Integration Point
        *
@@ -2516,6 +2543,12 @@ export const useMeetingStore = create<MeetingStore>()(
         if (!state) return;
 
         console.log('[Store] Rehydrating from localStorage...');
+
+        // Re-initialize transient caches (excluded from persistence)
+        // These are runtime optimizations that don't survive serialization
+        state._validationCache = new Map<string, { result: boolean; timestamp: number }>();
+        state._lastLoggedState = {} as Record<string, boolean>;
+        console.log('[Store] ✓ Transient caches reinitialized');
 
         // Migrate current meeting if needed
         if (state.currentMeeting && needsMigration(state.currentMeeting)) {

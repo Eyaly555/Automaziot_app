@@ -60,7 +60,8 @@
       "Bash(awk:*)",
       "Bash(src/components/Phase2/ServiceRequirements/Automations/AutoNotificationsSpec.tsx)",
       "Bash(Select-String \"ImplementationSpecDashboard\" -Context 3)",
-      "Bash(del fix-implementation-spec.cjs)"
+      "Bash(del fix-implementation-spec.cjs)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []
