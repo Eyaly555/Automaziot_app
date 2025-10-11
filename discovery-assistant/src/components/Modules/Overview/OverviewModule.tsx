@@ -10,8 +10,7 @@ import { LeadSourceBuilder } from '../LeadsAndSales/components/LeadSourceBuilder
 import { ServiceChannelBuilder } from '../CustomerService/components/ServiceChannelBuilder';
 import type { FocusArea, LeadSource, ServiceChannel } from '../../../types';
 import { useBeforeUnload } from '../../../hooks/useBeforeUnload';
-import { HelpTooltip } from '../../components/ui/help-tooltip';
-import { SaveStatusIndicator } from '../../components/Common/SaveStatusIndicator';
+import { SaveStatusIndicator } from '../../Common/SaveStatusIndicator';
 
 const businessTypeOptions = [
   { value: 'b2b', label: 'B2B' },
