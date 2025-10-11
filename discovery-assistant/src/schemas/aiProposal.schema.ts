@@ -94,7 +94,8 @@ export const AiProposalJsonSchema = {
         description: 'Array of next steps for the client in Hebrew'
       }
     },
-    required: ['executiveSummary', 'services', 'financialSummary', 'terms', 'nextSteps']
+    required: ['executiveSummary', 'services', 'financialSummary', 'terms', 'nextSteps'],
+    additionalProperties: false
   },
   strict: true
 } as const;
