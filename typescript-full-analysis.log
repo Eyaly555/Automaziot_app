@@ -1,0 +1,26 @@
+﻿
+> eym-group-internal-app@1.0.0 build:typecheck
+> npm run build:typecheck --workspace=discovery-assistant
+
+
+> discovery-assistant@0.0.0 build:typecheck
+> tsc -b && vite build
+
+node.exe : 'tsc' is not recognized as an internal or external command,
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\eyaly\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ('tsc' is not re...ternal command, 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+operable program or batch file.
+npm error Lifecycle script `build:typecheck` failed with error:
+npm error code 1
+npm error path C:\Users\eyaly\Desktop\Businesses\eym-group_n8n\internal_app\dis
+covery-assistant
+npm error workspace discovery-assistant@0.0.0
+npm error location C:\Users\eyaly\Desktop\Businesses\eym-group_n8n\internal_app
+\discovery-assistant
+npm error command failed
+npm error command C:\Windows\system32\cmd.exe /d /s /c tsc -b && vite build

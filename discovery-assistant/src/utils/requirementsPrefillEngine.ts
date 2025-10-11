@@ -11,7 +11,7 @@ export const prefillRequirementsFromMeeting = (
   serviceId: string,
   meeting: Meeting
 ): Partial<CollectedRequirements['data']> => {
-  const modules = modules;
+  const modules = meeting.modules;
 
   switch (serviceId) {
     // ==================== CRM IMPLEMENTATION ====================
