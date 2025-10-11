@@ -122,6 +122,9 @@ interface MeetingStore {
   restoreFromBackup: (backupId: string) => Promise<boolean>;
   getAvailableBackups: () => any[];
 
+  // Save tracking for UI feedback
+  lastSavedTime: Date | null;
+
   // Internal cache fields (private, used for optimization)
   // These are excluded from persistence and reinitialized on rehydration
   _validationCache: Map<string, { result: boolean; timestamp: number }>;
@@ -195,6 +198,9 @@ export const useMeetingStore = create<MeetingStore>()(
       zohoClientsCache: null,
       isLoadingClients: false,
       clientsLoadError: null,
+
+      // Save tracking for UI feedback
+      lastSavedTime: null,
 
       // Memoization cache for phase validation to reduce console spam
       _validationCache: new Map<string, { result: boolean; timestamp: number }>(),
@@ -653,7 +659,8 @@ export const useMeetingStore = create<MeetingStore>()(
             currentMeeting: updatedMeeting,
             meetings: state.meetings.map(m =>
               m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-            )
+            ),
+            lastSavedTime: new Date()
           };
         });
       },

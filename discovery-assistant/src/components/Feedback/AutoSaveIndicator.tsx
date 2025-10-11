@@ -11,37 +11,27 @@ type SaveStatus = 'idle' | 'saving' | 'saved' | 'error' | 'offline';
  * Shows save state, sync status, and errors
  */
 export const AutoSaveIndicator: React.FC = () => {
-  const { currentMeeting } = useMeetingStore();
+  const { currentMeeting, lastSavedTime } = useMeetingStore();
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
-  const [lastSaveTime, _setLastSaveTime] = useState<Date | null>(null);
 
   const isEnglish = currentMeeting?.phase === 'development';
 
-  // Monitor localStorage changes and custom save events
+  // Monitor Zustand save state changes
   useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key?.startsWith('discovery_')) {
-        setSaveStatus('saved');
-        setLastSaveTime(new Date());
-
-        // Auto-hide after 3 seconds
-        setTimeout(() => {
-          setSaveStatus('idle');
-        }, 3000);
-      }
-    };
-
-    // Listen for custom save events from useAutoSave hook
-    const handleCustomSaveEvent = (e: CustomEvent) => {
+    if (lastSavedTime) {
       setSaveStatus('saved');
-      setLastSaveTime(new Date(e.detail.timestamp));
 
-      setTimeout(() => {
+      // Auto-hide after 3 seconds
+      const timeoutId = setTimeout(() => {
         setSaveStatus('idle');
       }, 3000);
-    };
 
-    // Check online status
+      return () => clearTimeout(timeoutId);
+    }
+  }, [lastSavedTime]);
+
+  // Check online status
+  useEffect(() => {
     const handleOnline = () => {
       if (saveStatus === 'offline') {
         setSaveStatus('idle');
@@ -49,8 +39,6 @@ export const AutoSaveIndicator: React.FC = () => {
     };
     const handleOffline = () => setSaveStatus('offline');
 
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('dataSaved', handleCustomSaveEvent as EventListener);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
@@ -60,8 +48,6 @@ export const AutoSaveIndicator: React.FC = () => {
     }
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('dataSaved', handleCustomSaveEvent as EventListener);
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
@@ -147,9 +133,9 @@ export const AutoSaveIndicator: React.FC = () => {
         >
           {config.icon}
           <span className="text-sm font-medium">{config.text}</span>
-          {saveStatus === 'saved' && lastSaveTime && (
+          {saveStatus === 'saved' && lastSavedTime && (
             <span className="text-xs text-gray-500">
-              • {formatLastSaveTime(lastSaveTime)}
+              • {formatLastSaveTime(lastSavedTime)}
             </span>
           )}
         </div>
