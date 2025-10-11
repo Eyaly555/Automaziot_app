@@ -1,0 +1,124 @@
+[
+  {
+    "endpoint": "http://localhost:3001/api/openai/test",
+    "timestamp": "2025-10-10T13:42:52.250Z",
+    "tests": [
+      {
+        "name": "Basic Request",
+        "params": {
+          "model": "gpt-5-mini-2025-08-07",
+          "messages": [
+            {
+              "role": "user",
+              "content": "Say \"Hello\" in Hebrew"
+            }
+          ],
+          "max_tokens": 50
+        },
+        "result": {
+          "success": false,
+          "error": "request to http://localhost:3001/api/openai/test failed, reason: ",
+          "duration": 20
+        }
+      },
+      {
+        "name": "With Temperature",
+        "params": {
+          "model": "gpt-5-mini-2025-08-07",
+          "messages": [
+            {
+              "role": "user",
+              "content": "Say \"Hello\" in Hebrew"
+            }
+          ],
+          "max_tokens": 50,
+          "temperature": 1
+        },
+        "result": {
+          "success": false,
+          "error": "request to http://localhost:3001/api/openai/test failed, reason: ",
+          "duration": 3
+        }
+      },
+      {
+        "name": "With Seed",
+        "params": {
+          "model": "gpt-5-mini-2025-08-07",
+          "messages": [
+            {
+              "role": "user",
+              "content": "Say \"Hello\" in Hebrew"
+            }
+          ],
+          "max_tokens": 50,
+          "seed": 7
+        },
+        "result": {
+          "success": false,
+          "error": "request to http://localhost:3001/api/openai/test failed, reason: ",
+          "duration": 3
+        }
+      },
+      {
+        "name": "With JSON Schema",
+        "params": {
+          "model": "gpt-5-mini-2025-08-07",
+          "messages": [
+            {
+              "role": "user",
+              "content": "Return {\"test\": \"value\"} as JSON"
+            }
+          ],
+          "max_tokens": 50,
+          "response_format": {
+            "type": "json_schema",
+            "json_schema": {
+              "type": "object",
+              "properties": {
+                "test": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "result": {
+          "success": false,
+          "error": "request to http://localhost:3001/api/openai/test failed, reason: ",
+          "duration": 3
+        }
+      },
+      {
+        "name": "All Parameters",
+        "params": {
+          "model": "gpt-5-mini-2025-08-07",
+          "messages": [
+            {
+              "role": "user",
+              "content": "Say \"Hello\" in Hebrew"
+            }
+          ],
+          "max_tokens": 50,
+          "temperature": 1,
+          "seed": 7,
+          "response_format": {
+            "type": "json_schema",
+            "json_schema": {
+              "type": "object",
+              "properties": {
+                "test": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "result": {
+          "success": false,
+          "error": "request to http://localhost:3001/api/openai/test failed, reason: ",
+          "duration": 3
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,33 @@
+{
+  "service": "ZOHO_CRM",
+  "locale": ["en", "he"],
+  "modules": {
+    "Potentials1": {
+      "widgets": {
+        "record": [
+          {
+            "location": "record_detail_page",
+            "widget_code": "widget.html",
+            "name": "Discovery Assistant",
+            "logo": "icon.png",
+            "description": "Launch Discovery Assistant for this client",
+            "default": {
+              "height": "400px",
+              "width": "100%"
+            }
+          }
+        ],
+        "button": [
+          {
+            "name": "Launch Discovery Assistant",
+            "location": "record_detail_page",
+            "widget_code": "widget.html",
+            "logo": "icon.png"
+          }
+        ]
+      }
+    }
+  },
+  "connectors": [],
+  "config": []
+}

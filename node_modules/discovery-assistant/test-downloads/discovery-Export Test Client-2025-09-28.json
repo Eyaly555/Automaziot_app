@@ -1,0 +1,65 @@
+{
+  "meetingId": "cu6jecyg6",
+  "clientName": "Export Test Client",
+  "date": "2025-09-28T21:57:24.046Z",
+  "timer": 0,
+  "modules": {
+    "overview": {
+      "businessType": "saas",
+      "employees": 100,
+      "mainChallenge": "Need to automate sales processes and improve customer service",
+      "processes": [
+        "Sales",
+        "Support",
+        "Marketing",
+        "Development"
+      ],
+      "currentSystems": [
+        "crm",
+        "excel",
+        "monday"
+      ],
+      "mainGoals": [
+        "Increase efficiency by 50%",
+        "Reduce costs by 30%",
+        "Improve customer satisfaction"
+      ]
+    },
+    "leadsAndSales": {
+      "leadSources": {
+        "sources": [
+          "website",
+          "social",
+          "referrals"
+        ],
+        "monthlyLeads": 500,
+        "timeToProcessLead": 30,
+        "costPerLostLead": 1000
+      }
+    },
+    "customerService": {},
+    "operations": {},
+    "reporting": {},
+    "aiAgents": {},
+    "systems": {},
+    "roi": {},
+    "planning": {}
+  },
+  "painPoints": [
+    {
+      "module": "overview",
+      "description": "Manual lead processing takes too long",
+      "impact": "high",
+      "category": "process",
+      "id": "ipvjdernl"
+    },
+    {
+      "module": "leadsAndSales",
+      "description": "No automated lead scoring",
+      "impact": "medium",
+      "category": "efficiency",
+      "id": "pq2w5r39i"
+    }
+  ],
+  "notes": ""
+}
