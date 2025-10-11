@@ -60,6 +60,8 @@ export interface ProposalSummary {
   identifiedProcesses: number;
   potentialMonthlySavings: number;
   potentialWeeklySavingsHours: number;
+  totalPrice: number;
+  totalDays: number;
 }
 
 export interface ProposalData {

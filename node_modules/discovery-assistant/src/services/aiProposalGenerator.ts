@@ -1,10 +1,11 @@
 import { Meeting } from '../types';
-import { SelectedService } from '../types/proposal';
-import { AiProposalDoc, AiProposalJsonSchema } from '../schemas/aiProposal.schema';
+import { SelectedService, ProposalSummary } from '../types/proposal';
+import { AiProposalDoc, AiProposalJsonSchema, buildDynamicProposalSchema } from '../schemas/aiProposal.schema';
 import { callOpenAIThroughProxy } from './openaiProxy';
 
 // System prompt for proposal generation in Hebrew
-const SYSTEM_PROMPT_HE = `אתה מומחה בכתיבת הצעות מחיר מקצועיות לעסקים ישראליים. אתה כותב בעברית בלבד, במקצועיות ובנימה ידידותית.
+const buildSystemPrompt = (hasROI: boolean) => {
+  let prompt = `אתה מומחה בכתיבת הצעות מחיר מקצועיות לעסקים ישראליים. אתה כותב בעברית בלבד, במקצועיות ובנימה ידידותית.
 
 עקרונות הכתיבה:
 - שמור על שפה עסקית מקצועית אך ידידותית ונגישה
@@ -26,6 +27,13 @@ const SYSTEM_PROMPT_HE = `אתה מומחה בכתיבת הצעות מחיר מ�
 3. סיכום פיננסי - השקעה כוללת ותקופת החזר (אם רלוונטי)
 4. תנאים - תנאי התקשרות ותוקף ההצעה
 5. צעדים הבאים - מה הלקוח צריך לעשות הלאה`;
+
+  if (!hasROI) {
+    prompt += `\nחשוב: אין לכלול שדות או חישובי ROI בסיכום הפיננסי (monthlySavings, expectedROIMonths).`;
+  }
+
+  return prompt;
+};
 
 interface ProposalGenerationOptions {
   meeting: Meeting;
@@ -71,26 +79,39 @@ export class AIProposalGenerator {
 
     let lastError: Error | null = null;
 
+    // Get proposal summary early to determine ROI data presence
+    const proposalSummary = this.calculateProposalSummary(meeting, selectedServices);
+    const hasROI = this.hasROIData(meeting, proposalSummary);
+
+    const systemPrompt = buildSystemPrompt(hasROI);
+
+    // Build user payload
+    const userPayload = this.buildUserPayload(meeting, selectedServices, pmNote, proposalSummary);
+
+    // Build messages array
+    const messages = [
+      { role: 'system' as const, content: systemPrompt },
+      { role: 'user' as const, content: userPayload }
+    ];
+
+    // Add regeneration instructions if provided
+    let currentAdditionalInstructions = additionalInstructions || '';
+    if (hasROI) {
+      currentAdditionalInstructions += (currentAdditionalInstructions ? '\n' : '') + 'כלול ROI וחישובי החזר השקעה בסיכום הפיננסי.';
+    } else {
+      currentAdditionalInstructions += (currentAdditionalInstructions ? '\n' : '') + 'אל תכלול שדות ROI (monthlySavings, expectedROIMonths) בסיכום הפיננסי.';
+    }
+
+    if (currentAdditionalInstructions) {
+      messages.push({
+        role: 'user' as const,
+        content: `הוראות נוספות לשיפור ההצעה:\n${currentAdditionalInstructions}`
+      });
+    }
+
     // Retry with exponential backoff
     for (let attempt = 0; attempt < this.retryCount; attempt++) {
       try {
-        // Build user payload
-        const userPayload = this.buildUserPayload(meeting, selectedServices, pmNote);
-
-        // Build messages array
-        const messages = [
-          { role: 'system' as const, content: SYSTEM_PROMPT_HE },
-          { role: 'user' as const, content: userPayload }
-        ];
-
-        // Add regeneration instructions if provided
-        if (additionalInstructions) {
-          messages.push({
-            role: 'user' as const,
-            content: `הוראות נוספות לשיפור ההצעה:\n${additionalInstructions}`
-          });
-        }
-
         // Use the AI service to call OpenAI Responses API
         const response = await this.callOpenAIResponsesAPI({
           model: model || import.meta.env.VITE_AI_MODEL || 'gpt-5-mini-2025-08-07',
@@ -100,7 +121,7 @@ export class AIProposalGenerator {
           // Note: temperature not specified - uses model default (1.0 for gpt-5-mini)
           response_format: {
             type: 'json_schema',
-            json_schema: AiProposalJsonSchema
+            json_schema: buildDynamicProposalSchema(hasROI)
           }
         });
 
@@ -163,6 +184,39 @@ export class AIProposalGenerator {
   }
 
   /**
+   * Calculate the proposal summary including totals and potential savings.
+   */
+  private calculateProposalSummary(meeting: Meeting, selectedServices: SelectedService[]): ProposalSummary {
+    const totals = selectedServices.reduce(
+      (acc, service) => ({
+        totalPrice: acc.totalPrice + (service.customPrice || service.basePrice),
+        totalDays: Math.max(acc.totalDays, service.customDuration || service.estimatedDays)
+      }),
+      { totalPrice: 0, totalDays: 0 }
+    );
+
+    const meetingROI = meeting.modules?.roi;
+    const potentialMonthlySavings =
+      (typeof meetingROI?.summary?.totalMonthlySaving === 'number' && meetingROI.summary.totalMonthlySaving > 0)
+        ? meetingROI.summary.totalMonthlySaving
+        : (typeof meetingROI?.estimatedCostSavings === 'number' && meetingROI.estimatedCostSavings > 0)
+          ? meetingROI.estimatedCostSavings
+          : 0;
+
+    return {
+      totalServices: selectedServices.length,
+      totalAutomations: selectedServices.filter(s => s.category === 'automations').length,
+      totalAIAgents: selectedServices.filter(s => s.category === 'ai_agents').length,
+      totalIntegrations: selectedServices.filter(s => s.category === 'integrations').length,
+      identifiedProcesses: 0, // This would come from meeting.modules.operations or similar
+      potentialMonthlySavings,
+      potentialWeeklySavingsHours: 0, // Placeholder for now, can be calculated later if needed
+      totalPrice: totals.totalPrice,
+      totalDays: totals.totalDays,
+    };
+  }
+
+  /**
    * Call OpenAI Responses API through proxy
    */
   private async callOpenAIResponsesAPI(params: {
@@ -206,10 +260,10 @@ export class AIProposalGenerator {
   /**
    * Build user payload for AI generation
    */
-  private buildUserPayload(meeting: Meeting, selectedServices: SelectedService[], pmNote?: string): string {
+  private buildUserPayload(meeting: Meeting, selectedServices: SelectedService[], pmNote?: string, proposalSummary?: ProposalSummary): string {
     // Serialize meeting data
     const meetingData = {
-      companyName: meeting.companyName,
+      companyName: meeting.modules.overview.companyName,
       clientName: meeting.clientName,
       modules: meeting.modules,
       painPoints: meeting.painPoints
@@ -227,24 +281,37 @@ export class AIProposalGenerator {
       customDuration: service.customDuration
     }));
 
-    // Calculate totals
-    const totals = selectedServices.reduce(
-      (acc, service) => ({
-        totalPrice: acc.totalPrice + (service.customPrice || service.basePrice),
-        totalDays: Math.max(acc.totalDays, service.customDuration || service.estimatedDays)
-      }),
-      { totalPrice: 0, totalDays: 0 }
-    );
-
     // Build comprehensive payload
     const payload = {
       meeting: meetingData,
       selectedServices: servicesData,
-      totals,
+      totals: {
+        totalPrice: proposalSummary?.totalPrice || 0,
+        totalDays: proposalSummary?.totalDays || 0
+      },
+      proposalSummary: proposalSummary,
       pmNote: pmNote || 'אין הערות מיוחדות'
     };
 
     return JSON.stringify(payload, null, 2);
+  }
+
+  /**
+   * Determines if there is sufficient ROI data to include ROI fields in the proposal.
+   * Checks multiple potential sources for ROI related savings.
+   */
+  private hasROIData(meeting: Meeting, proposalSummary?: ProposalSummary): boolean {
+    const meetingROI = meeting.modules?.roi;
+    const totalMonthlySavingFromMeeting = meetingROI?.summary?.totalMonthlySaving;
+    const estimatedCostSavingsFromMeeting = meetingROI?.estimatedCostSavings;
+    const potentialMonthlySavingsFromSummary = proposalSummary?.potentialMonthlySavings; // This will now be populated by calculateProposalSummary
+
+    // Consider ROI data present if any of the key fields indicate a positive saving
+    return (
+      (typeof totalMonthlySavingFromMeeting === 'number' && totalMonthlySavingFromMeeting > 0) ||
+      (typeof estimatedCostSavingsFromMeeting === 'number' && estimatedCostSavingsFromMeeting > 0) ||
+      (typeof potentialMonthlySavingsFromSummary === 'number' && potentialMonthlySavingsFromSummary > 0)
+    );
   }
 
   /**

@@ -1,7 +1,7 @@
 // AI Proposal JSON Schema for structured output
 // Used with OpenAI GPT-5 Responses API for deterministic proposal generation
 
-export interface AiProposalDoc {
+export interface AiProposalDocWithROI {
   executiveSummary: string[];
   services: {
     serviceId: string;
@@ -12,93 +12,123 @@ export interface AiProposalDoc {
   financialSummary: {
     totalPrice: number;
     totalDays: number;
-    monthlySavings?: number;
-    expectedROIMonths?: number;
+    monthlySavings: number;
+    expectedROIMonths: number;
   };
   terms: string[];
   nextSteps: string[];
 }
 
-export const AiProposalJsonSchema = {
-  name: 'AiProposalDoc',
-  schema: {
-    type: 'object',
-    properties: {
-      executiveSummary: {
-        type: 'array',
-        items: {
-          type: 'string'
-        },
-        description: 'Executive summary paragraphs in Hebrew, 3-4 paragraphs explaining the business value and solution overview'
-      },
-      services: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            serviceId: {
-              type: 'string',
-              description: 'Unique service identifier'
-            },
-            titleHe: {
-              type: 'string',
-              description: 'Service title in Hebrew'
-            },
-            whyRelevantHe: {
-              type: 'string',
-              description: 'Explanation in Hebrew why this service is relevant to the client'
-            },
-            whatIncludedHe: {
-              type: 'string',
-              description: 'Detailed description in Hebrew of what is included in this service'
-            }
+export interface AiProposalDocWithoutROI {
+  executiveSummary: string[];
+  services: {
+    serviceId: string;
+    titleHe: string;
+    whyRelevantHe: string;
+    whatIncludedHe: string;
+  }[];
+  financialSummary: {
+    totalPrice: number;
+    totalDays: number;
+  };
+  terms: string[];
+  nextSteps: string[];
+}
+
+export type AiProposalDoc = AiProposalDocWithROI | AiProposalDocWithoutROI;
+
+export const buildDynamicProposalSchema = (hasROI: boolean) => {
+  const financialSummaryProperties: any = {
+    totalPrice: {
+      type: 'number',
+      description: 'Total price in ILS (without VAT)'
+    },
+    totalDays: {
+      type: 'number',
+      description: 'Total estimated implementation days'
+    }
+  };
+
+  const financialSummaryRequired: string[] = ['totalPrice', 'totalDays'];
+
+  if (hasROI) {
+    financialSummaryProperties.monthlySavings = {
+      type: 'number',
+      description: 'Expected monthly savings in ILS (optional, based on ROI analysis)'
+    };
+    financialSummaryProperties.expectedROIMonths = {
+      type: 'number',
+      description: 'Expected ROI period in months (optional, based on savings)'
+    };
+    financialSummaryRequired.push('monthlySavings', 'expectedROIMonths');
+  }
+
+  return {
+    name: 'AiProposalDoc',
+    schema: {
+      type: 'object',
+      properties: {
+        executiveSummary: {
+          type: 'array',
+          items: {
+            type: 'string'
           },
-          required: ['serviceId', 'titleHe', 'whyRelevantHe', 'whatIncludedHe'],
+          description: 'Executive summary paragraphs in Hebrew, 3-4 paragraphs explaining the business value and solution overview'
+        },
+        services: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              serviceId: {
+                type: 'string',
+                description: 'Unique service identifier'
+              },
+              titleHe: {
+                type: 'string',
+                description: 'Service title in Hebrew'
+              },
+              whyRelevantHe: {
+                type: 'string',
+                description: 'Explanation in Hebrew why this service is relevant to the client'
+              },
+              whatIncludedHe: {
+                type: 'string',
+                description: 'Detailed description in Hebrew of what is included in this service'
+              }
+            },
+            required: ['serviceId', 'titleHe', 'whyRelevantHe', 'whatIncludedHe'],
+            additionalProperties: false
+          },
+          description: 'Array of selected services with their detailed descriptions'
+        },
+        financialSummary: {
+          type: 'object',
+          properties: financialSummaryProperties,
+          required: financialSummaryRequired,
           additionalProperties: false
         },
-        description: 'Array of selected services with their detailed descriptions'
-      },
-      financialSummary: {
-        type: 'object',
-        properties: {
-          totalPrice: {
-            type: 'number',
-            description: 'Total price in ILS (without VAT)'
+        terms: {
+          type: 'array',
+          items: {
+            type: 'string'
           },
-          totalDays: {
-            type: 'number',
-            description: 'Total estimated implementation days'
+          description: 'Array of contract terms and conditions in Hebrew'
+        },
+        nextSteps: {
+          type: 'array',
+          items: {
+            type: 'string'
           },
-          monthlySavings: {
-            type: 'number',
-            description: 'Expected monthly savings in ILS (optional, based on ROI analysis)'
-          },
-          expectedROIMonths: {
-            type: 'number',
-            description: 'Expected ROI period in months (optional, based on savings)'
-          }
-        },
-        required: ['totalPrice', 'totalDays'],
-        additionalProperties: false
+          description: 'Array of next steps for the client in Hebrew'
+        }
       },
-      terms: {
-        type: 'array',
-        items: {
-          type: 'string'
-        },
-        description: 'Array of contract terms and conditions in Hebrew'
-      },
-      nextSteps: {
-        type: 'array',
-        items: {
-          type: 'string'
-        },
-        description: 'Array of next steps for the client in Hebrew'
-      }
+      required: ['executiveSummary', 'services', 'financialSummary', 'terms', 'nextSteps'],
+      additionalProperties: false
     },
-    required: ['executiveSummary', 'services', 'financialSummary', 'terms', 'nextSteps'],
-    additionalProperties: false
-  },
-  strict: true
-} as const;
+    strict: true
+  } as const;
+};
+
+export const AiProposalJsonSchema = buildDynamicProposalSchema(false);
 
