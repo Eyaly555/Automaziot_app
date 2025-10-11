@@ -368,68 +368,56 @@ export const useMeetingStore = create<MeetingStore>()(
                   meetings: [...state.meetings.filter(m => m.meetingId !== supabaseMeeting.meetingId), updatedMeeting]
                 });
 
-                // Also update localStorage
-                try {
-                  const storageKey = `discovery_zoho_${recordId}`;
-                  localStorage.setItem(storageKey, JSON.stringify(updatedMeeting));
-                } catch (error) {
-                  logger.error('Failed to update localStorage', error);
-                }
-
                 return; // Meeting found and loaded - exit
               }
-              logger.info('No meeting found in Supabase, checking localStorage');
+              logger.info('No meeting found in Supabase, checking Zustand state');
             } catch (error) {
               logger.error('Error checking Supabase', error);
-              // Continue to localStorage check
+              // Continue to Zustand state check
             }
           }
 
-          // STEP 2: Check localStorage (fallback)
-          const storageKey = `discovery_zoho_${recordId}`;
-          const existingData = localStorage.getItem(storageKey);
+          // STEP 2: Check Zustand state (Zustand persist handles localStorage automatically)
+          const existingMeeting = state.meetings.find(m => m.zohoIntegration?.recordId === recordId);
+          if (existingMeeting) {
+            logger.info('Found existing meeting in Zustand state, loading');
+            // Normalize phase (handle capitalized phases from Zoho/legacy data)
+            const normalizedPhase = normalizePhase(initialData.phase as any || existingMeeting.phase as any);
 
-          if (existingData) {
-            try {
-              const meeting = JSON.parse(existingData);
-              // Normalize phase (handle capitalized phases from Zoho/legacy data)
-              const normalizedPhase = normalizePhase(initialData.phase as any || meeting.phase as any);
+            // Ensure status exists (for backward compatibility with old data)
+            if (!existingMeeting.status) existingMeeting.status = initialData.status || 'discovery_in_progress';
+            if (!existingMeeting.phaseHistory) existingMeeting.phaseHistory = initialData.phaseHistory || [{
+              fromPhase: null,
+              toPhase: normalizedPhase,
+              timestamp: new Date(),
+              transitionedBy: 'system'
+            }];
 
-              // Ensure status exists (for backward compatibility with old data)
-              if (!meeting.status) meeting.status = initialData.status || 'discovery_in_progress';
-              if (!meeting.phaseHistory) meeting.phaseHistory = initialData.phaseHistory || [{
-                fromPhase: null,
-                toPhase: normalizedPhase,
-                timestamp: new Date(),
-                transitionedBy: 'system'
-              }];
-              // Update with any new data from Zoho
-              const updatedMeeting = {
-                ...meeting,
-                ...initialData,
-                modules: {
-                  ...meeting.modules,
-                  ...(initialData.modules || {})
-                },
-                phase: normalizedPhase,
-                status: initialData.status || meeting.status,
-                phaseHistory: initialData.phaseHistory || meeting.phaseHistory
-              };
-              set({
-                currentMeeting: updatedMeeting,
-                meetings: [...state.meetings.filter(m => m.meetingId !== meeting.meetingId), updatedMeeting]
-              });
+            // Update with any new data from Zoho
+            const updatedMeeting = {
+              ...existingMeeting,
+              ...initialData,
+              modules: {
+                ...existingMeeting.modules,
+                ...(initialData.modules || {})
+              },
+              phase: normalizedPhase,
+              status: initialData.status || existingMeeting.status,
+              phaseHistory: initialData.phaseHistory || existingMeeting.phaseHistory
+            };
 
-              // Save to Supabase for cross-device sync
-              if (isSupabaseReady()) {
-                console.log('[Store] Saving localStorage meeting to Supabase for sync...');
-                await supabaseService.saveMeeting(updatedMeeting);
-              }
+            set({
+              currentMeeting: updatedMeeting,
+              meetings: [...state.meetings.filter(m => m.meetingId !== existingMeeting.meetingId), updatedMeeting]
+            });
 
-              return; // Meeting found in localStorage - exit
-            } catch (e) {
-              console.error('[Store] Failed to parse existing meeting data:', e);
+            // Save to Supabase for cross-device sync
+            if (isSupabaseReady()) {
+              console.log('[Store] Saving existing meeting to Supabase for sync...');
+              await supabaseService.saveMeeting(updatedMeeting);
             }
+
+            return; // Meeting found in Zustand state - exit
           }
 
           // STEP 3: No existing meeting found - create new one
@@ -478,13 +466,6 @@ export const useMeetingStore = create<MeetingStore>()(
           meetings: [...state.meetings, meeting]
         }));
 
-        // Save to localStorage with Zoho-specific key if applicable
-        try {
-          localStorage.setItem(getStorageKey(meeting), JSON.stringify(meeting));
-        } catch (error) {
-          console.error('[Store] Failed to save meeting to localStorage:', error);
-        }
-
         // Save to Supabase immediately for new meetings
         if (isSupabaseReady() && meeting.zohoIntegration?.recordId) {
           console.log('[Store] Saving new meeting to Supabase...');
@@ -503,13 +484,6 @@ export const useMeetingStore = create<MeetingStore>()(
               lastSyncTime: time
             }
           };
-
-          // Save to localStorage with Zoho-specific key
-          try {
-            localStorage.setItem(getStorageKey(updatedMeeting), JSON.stringify(updatedMeeting));
-          } catch (error) {
-            console.error('Failed to save Zoho sync time to localStorage:', error);
-          }
 
           return {
             currentMeeting: updatedMeeting,
@@ -542,12 +516,10 @@ export const useMeetingStore = create<MeetingStore>()(
       },
 
       loadMeetingByZohoId: (recordId) => {
-        const storageKey = `discovery_zoho_${recordId}`;
-        const data = localStorage.getItem(storageKey);
+        const meeting = get().meetings.find(m => m.zohoIntegration?.recordId === recordId);
 
-        if (data) {
+        if (meeting) {
           try {
-            const meeting = JSON.parse(data);
             // Normalize phase (handle capitalized phases from Zoho/legacy data)
             meeting.phase = normalizePhase(meeting.phase as any);
 
@@ -557,7 +529,7 @@ export const useMeetingStore = create<MeetingStore>()(
             // ✅ NEW: Restore phase history if missing
             if (!meeting.phaseHistory || meeting.phaseHistory.length === 0) {
               console.warn('[Store] Phase history missing - attempting restore');
-              const restored = restorePhaseHistory(meetingId);
+              const restored = restorePhaseHistory(meeting.meetingId);
 
               if (restored) {
                 meeting.phaseHistory = restored;
@@ -2040,13 +2012,7 @@ export const useMeetingStore = create<MeetingStore>()(
               totalCount: data.total || data.potentials.length
             };
 
-            // Save to localStorage
-            try {
-              localStorage.setItem('zoho_clients_cache', JSON.stringify(newCache));
-            } catch (storageError) {
-              console.warn('[ZohoClients] Failed to cache in localStorage:', storageError);
-            }
-
+            // Zustand persist middleware handles localStorage automatically
             set({
               zohoClientsList: data.potentials,
               zohoClientsCache: newCache,
@@ -2064,17 +2030,7 @@ export const useMeetingStore = create<MeetingStore>()(
             isLoadingClients: false
           });
 
-          // Try to load from localStorage cache as fallback
-          try {
-            const cachedData = localStorage.getItem('zoho_clients_cache');
-            if (cachedData) {
-              const cache = JSON.parse(cachedData);
-              set({ zohoClientsList: cache.clients || [] });
-              console.log('[ZohoClients] Loaded from localStorage fallback');
-            }
-          } catch (cacheError) {
-            console.error('[ZohoClients] Failed to load cache:', cacheError);
-          }
+          // Zustand persist middleware handles cache restoration automatically
         }
       },
 
@@ -2098,29 +2054,32 @@ export const useMeetingStore = create<MeetingStore>()(
             console.log('[ZohoClients] No data in Supabase, trying Zoho...');
           }
 
-          // STEP 2: Try localStorage for instant load (fallback)
-          const localKey = `discovery_zoho_${recordId}`;
-          const localData = localStorage.getItem(localKey);
+          // STEP 2: Try Zustand state (Zustand persist handles localStorage automatically)
+          const existingMeeting = get().meetings.find(m => m.zohoIntegration?.recordId === recordId);
+          if (existingMeeting) {
+            console.log('[ZohoClients] Found existing meeting in Zustand state, loading');
+            // Normalize phase (handle capitalized phases from Zoho/legacy data)
+            existingMeeting.phase = normalizePhase(existingMeeting.phase as any);
 
-          if (localData) {
-            try {
-              const meeting = JSON.parse(localData);
-              // Normalize phase (handle capitalized phases from Zoho/legacy data)
-              meeting.phase = normalizePhase(meeting.phase as any);
+            // Ensure status exists (for backward compatibility with old data)
+            if (!existingMeeting.status) existingMeeting.status = 'discovery_in_progress';
+            if (!existingMeeting.phaseHistory) existingMeeting.phaseHistory = [{
+              fromPhase: null,
+              toPhase: existingMeeting.phase,
+              timestamp: new Date(),
+              transitionedBy: 'system'
+            }];
 
-              // Ensure status exists (for backward compatibility)
-              if (!meeting.status) meeting.status = 'discovery_in_progress';
-              if (!meeting.phaseHistory) meeting.phaseHistory = [{
-                fromPhase: null,
-                toPhase: meeting.phase,
-                timestamp: new Date(),
-                transitionedBy: 'system'
-              }];
-              set({ currentMeeting: meeting });
-              console.log('[ZohoClients] Loaded from localStorage');
-            } catch (parseError) {
-              console.warn('[ZohoClients] Failed to parse local data');
+            set({ currentMeeting: existingMeeting });
+
+            // Save to Supabase for cross-device sync
+            if (isSupabaseReady()) {
+              console.log('[Store] Saving existing meeting to Supabase for sync...');
+              await supabaseService.saveMeeting(existingMeeting);
             }
+
+            console.log('[ZohoClients] ✅ Loaded from Zustand state');
+            return; // Success! Exit early
           }
 
           // STEP 3: Fetch from Zoho API
@@ -2152,13 +2111,6 @@ export const useMeetingStore = create<MeetingStore>()(
             if (isSupabaseReady()) {
               console.log('[ZohoClients] Saving to Supabase...');
               await supabaseService.saveMeeting(meeting);
-            }
-
-            // Also save to localStorage as fallback
-            try {
-              localStorage.setItem(localKey, JSON.stringify(meeting));
-            } catch (storageError) {
-              console.warn('[ZohoClients] Failed to save to localStorage:', storageError);
             }
 
             console.log('[ZohoClients] ✅ Loaded from Zoho');
@@ -2255,7 +2207,7 @@ export const useMeetingStore = create<MeetingStore>()(
       },
 
       clearClientsCache: () => {
-        localStorage.removeItem('zoho_clients_cache');
+        // Zustand persist middleware handles localStorage automatically
         set({
           zohoClientsList: [],
           zohoClientsCache: null
@@ -2373,16 +2325,6 @@ export const useMeetingStore = create<MeetingStore>()(
             )
           }));
 
-          // Step 4: Update localStorage
-          try {
-            const storageKey = meeting.zohoIntegration?.recordId 
-              ? `discovery_zoho_${meeting.zohoIntegration.recordId}`
-              : `discovery_standalone_${meeting.meetingId}`;
-            localStorage.setItem(storageKey, JSON.stringify(resetMeeting));
-          } catch (error) {
-            console.error('[ResetMeeting] Failed to update localStorage:', error);
-          }
-
           // Step 5: Sync to Zoho if enabled
           if (meeting.zohoIntegration?.syncEnabled) {
             console.log('[ResetMeeting] Syncing reset data to Zoho...');
@@ -2439,16 +2381,6 @@ export const useMeetingStore = create<MeetingStore>()(
               m.meetingId === restoredMeeting.meetingId ? restoredMeeting : m
             )
           }));
-
-          // Update localStorage
-          try {
-            const storageKey = restoredMeeting.zohoIntegration?.recordId 
-              ? `discovery_zoho_${restoredMeeting.zohoIntegration.recordId}`
-              : `discovery_standalone_${restoredMeeting.meetingId}`;
-            localStorage.setItem(storageKey, JSON.stringify(restoredMeeting));
-          } catch (error) {
-            console.error('[RestoreBackup] Failed to update localStorage:', error);
-          }
 
           // Sync to Supabase if configured
           if (restoredMeeting.supabaseId && isSupabaseReady()) {
