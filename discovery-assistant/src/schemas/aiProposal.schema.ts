@@ -53,7 +53,8 @@ export const AiProposalJsonSchema = {
               description: 'Detailed description in Hebrew of what is included in this service'
             }
           },
-          required: ['serviceId', 'titleHe', 'whyRelevantHe', 'whatIncludedHe']
+          required: ['serviceId', 'titleHe', 'whyRelevantHe', 'whatIncludedHe'],
+          additionalProperties: false
         },
         description: 'Array of selected services with their detailed descriptions'
       },
