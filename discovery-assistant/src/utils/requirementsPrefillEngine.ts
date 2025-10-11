@@ -118,7 +118,7 @@ const prefillCRMRequirements = (
       '200-500': 300,
       '500+': 500
     };
-    prefilled.crm_users_count = employeeRanges[meeting.modules?.operations?.hr?.employeeCount] || 10;
+    prefilled.crm_users_count = employeeRanges[modules?.operations?.hr?.employeeCount] || 10;
   }
 
   // If they already have a system, detect it
@@ -702,8 +702,8 @@ const prefillMarketingAutomationRequirements = (
   const prefilled: Partial<CollectedRequirements['data']> = {};
 
   // Platform - recommend based on size
-  if (meeting.modules?.operations?.hr?.employeeCount) {
-    const empRange = meeting.modules.operations.hr.employeeCount;
+  if (modules?.operations?.hr?.employeeCount) {
+    const empRange = modules.operations.hr.employeeCount;
     if (empRange === '1-10') prefilled.platform_preference = 'mailchimp';
     else if (empRange === '11-50') prefilled.platform_preference = 'activecampaign';
     else prefilled.platform_preference = 'hubspot';
@@ -747,7 +747,7 @@ const prefillProjectManagementRequirements = (
       '200-500': 150,
       '500+': 300
     };
-    prefilled.team_size = employeeRanges[meeting.modules?.operations?.hr?.employeeCount] || 10;
+    prefilled.team_size = employeeRanges[modules?.operations?.hr?.employeeCount] || 10;
   }
 
   // Platform - based on size
@@ -830,7 +830,7 @@ const prefillSupportTrainingRequirements = (
       '200-500': 30,
       '500+': 50
     };
-    prefilled.participants = employeeRanges[meeting.modules?.operations?.hr?.employeeCount] || 5;
+    prefilled.participants = employeeRanges[modules?.operations?.hr?.employeeCount] || 5;
   }
 
   // Format - default to remote
@@ -850,7 +850,7 @@ const prefillGenericRequirements = (
 
   // Always include basic business info
   prefilled.business_type = modules?.overview?.businessType;
-  prefilled.employees_count = meeting.modules?.operations?.hr?.employeeCount;
+  prefilled.employees_count = modules?.operations?.hr?.employeeCount;
 
   return prefilled;
 };
