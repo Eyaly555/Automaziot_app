@@ -16,7 +16,9 @@
     "test:e2e": "playwright test",
     "test:all": "vitest run && playwright test",
     "test:api": "node test-api-compatibility.mjs",
-    "validate:api": "node validate-api-structure.mjs"
+    "validate:api": "node validate-api-structure.mjs",
+    "validate:prefill": "node scripts/validate-prefill.js",
+    "validate:prefill:fix": "node scripts/validate-prefill.js --fix"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

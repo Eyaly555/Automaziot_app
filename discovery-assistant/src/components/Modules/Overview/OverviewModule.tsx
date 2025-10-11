@@ -105,7 +105,7 @@ export const OverviewModule: React.FC = () => {
     });
   });
 
-  // Auto-save on changes
+  // Auto-save on changes - saveData removed from dependencies to prevent infinite loop
   useEffect(() => {
     saveData({
       businessType,
@@ -131,8 +131,7 @@ export const OverviewModule: React.FC = () => {
     serviceChannels,
     serviceVolume,
     serviceSystemExists,
-    focusAreas,
-    saveData
+    focusAreas
   ]);
 
   return (
