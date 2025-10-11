@@ -78,7 +78,8 @@ export const AiProposalJsonSchema = {
             description: 'Expected ROI period in months (optional, based on savings)'
           }
         },
-        required: ['totalPrice', 'totalDays']
+        required: ['totalPrice', 'totalDays'],
+        additionalProperties: false
       },
       terms: {
         type: 'array',
