@@ -2483,40 +2483,6 @@ export const useMeetingStore = create<MeetingStore>()(
           console.error('[GetBackups] Failed to get backups:', error);
           return [];
         }
-      },
-
-      updateImplementationSpec: (category: 'automations' | 'integrationServices' | 'aiAgentServices' | 'systemImplementations' | 'additionalServices', serviceId: string, data: any) => {
-        set((state) => {
-          if (!state.currentMeeting) return state;
-
-          const updatedModules = {
-            ...state.currentMeeting.modules,
-            [category]: {
-              ...state.currentMeeting.modules[category],
-              [serviceId]: data
-            }
-          };
-
-          const updatedMeeting = {
-            ...state.currentMeeting,
-            modules: updatedModules,
-            updatedAt: new Date().toISOString()
-          };
-
-          // Auto-sync if enabled
-          if (state.syncEnabled && isSupabaseConfigured()) {
-            setTimeout(() => {
-              get().syncMeeting(updatedMeeting.meetingId);
-            }, 1000); // Debounce 1 second
-          }
-
-          return {
-            currentMeeting: updatedMeeting,
-            meetings: state.meetings.map(m =>
-              m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-            )
-          };
-        });
       }
     }),
     {
