@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useSmartField } from '../../../../hooks/useSmartField';
@@ -20,9 +20,9 @@ interface AutoLeadWorkflowConfig {
 }
 
 export function AutoLeadWorkflowSpec() {
-  const { currentMeeting, updateMeeting } = useMeetingStore();
+  const { currentMeeting } = useMeetingStore();
 
-  // Smart fields with auto-population
+  // Smart fields with auto-population (autoSave disabled to prevent loops)
   const crmSystem = useSmartField<string>({
     fieldId: 'crm_system',
     localPath: 'crmSystem',
@@ -36,6 +36,7 @@ export function AutoLeadWorkflowSpec() {
     serviceId: 'auto-lead-workflow',
     autoSave: false
   });
+
   const [config, setConfig] = useState<Partial<AutoLeadWorkflowConfig>>({
     crmSystem: 'zoho',
     workflowSteps: [],
@@ -45,44 +46,76 @@ export function AutoLeadWorkflowSpec() {
     notificationsEnabled: true,
   });
 
-  // Auto-save hook for immediate saving
+  // Auto-save hook
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-lead-workflow',
     category: 'automations'
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
+  // Load existing data ONCE on mount or when service data actually changes
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
-    const existing = automations.find(a => a.serviceId === 'auto-lead-workflow');
+    const existing = automations.find((a: any) => a.serviceId === 'auto-lead-workflow');
+
     if (existing?.requirements) {
-      setConfig(existing.requirements);
-    }
-  }, [currentMeeting]);
+      const existingConfigJson = JSON.stringify(existing.requirements);
 
-  // Auto-save when config or smart field values change
-  useEffect(() => {
-    if (config.crmSystem) { // Only save if we have basic data
-      // Build complete config with smart field values
-      const completeConfig = {
-        ...config,
-        crmSystem: crmSystem.value || 'zoho',
-        primaryLeadSource: primaryLeadSource.value
-      };
-      saveData(completeConfig);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config, crmSystem.value, primaryLeadSource.value, saveData]);
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements);
 
-  // Manual save handler (kept for compatibility, but auto-save is primary)
-  const handleManualSave = async () => {
-    // Build complete config with smart field values for manual save
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
+    }
+  }, [currentMeeting?.implementationSpec?.automations]);
+
+  // Save handler - saves when user makes changes
+  const handleSave = useCallback(() => {
+    // Don't save if we're loading data
+    if (isLoadingRef.current) {
+      return;
+    }
+
+    // Build complete config with smart field values
     const completeConfig = {
       ...config,
-      crmSystem: crmSystem.value || 'zoho',
+      crmSystem: crmSystem.value || config.crmSystem || 'zoho',
       primaryLeadSource: primaryLeadSource.value
     };
-    await saveData(completeConfig);
-  };
+
+    // Only save if config has actual data
+    if (completeConfig.crmSystem) {
+      saveData(completeConfig);
+    }
+  }, [config, crmSystem.value, primaryLeadSource.value, saveData]);
+
+  // Handle field changes with auto-save
+  const handleFieldChange = useCallback((field: keyof AutoLeadWorkflowConfig, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      // Save after state update
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            crmSystem: crmSystem.value || updated.crmSystem || 'zoho',
+            primaryLeadSource: primaryLeadSource.value
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [crmSystem.value, primaryLeadSource.value, saveData]);
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -140,18 +173,30 @@ export function AutoLeadWorkflowSpec() {
           </div>
           <div className="space-y-3">
             <label className="flex items-center">
-              <input type="checkbox" checked={config.scoringEnabled}
-                onChange={(e) => setConfig({ ...config, scoringEnabled: e.target.checked })} className="mr-2" />
+              <input
+                type="checkbox"
+                checked={config.scoringEnabled}
+                onChange={(e) => handleFieldChange('scoringEnabled', e.target.checked)}
+                className="mr-2"
+              />
               <span className="text-sm">הפעל ניקוד לידים</span>
             </label>
             <label className="flex items-center">
-              <input type="checkbox" checked={config.assignmentRules}
-                onChange={(e) => setConfig({ ...config, assignmentRules: e.target.checked })} className="mr-2" />
+              <input
+                type="checkbox"
+                checked={config.assignmentRules}
+                onChange={(e) => handleFieldChange('assignmentRules', e.target.checked)}
+                className="mr-2"
+              />
               <span className="text-sm">כללי הקצאה אוטומטיים</span>
             </label>
             <label className="flex items-center">
-              <input type="checkbox" checked={config.notificationsEnabled}
-                onChange={(e) => setConfig({ ...config, notificationsEnabled: e.target.checked })} className="mr-2" />
+              <input
+                type="checkbox"
+                checked={config.notificationsEnabled}
+                onChange={(e) => handleFieldChange('notificationsEnabled', e.target.checked)}
+                className="mr-2"
+              />
               <span className="text-sm">התראות מופעלות</span>
             </label>
           </div>
@@ -177,11 +222,11 @@ export function AutoLeadWorkflowSpec() {
               )}
             </div>
             <button
-              onClick={handleManualSave}
+              onClick={handleSave}
               disabled={isSaving}
               className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
             >
-              שמור ידנית
+              שמור
             </button>
           </div>
         </div>

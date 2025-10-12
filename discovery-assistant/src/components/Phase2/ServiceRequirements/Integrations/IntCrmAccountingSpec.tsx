@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import { useSmartField } from '../../../../hooks/useSmartField';
@@ -61,6 +61,10 @@ export function IntCrmAccountingSpec() {
     }
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'int-crm-accounting',
@@ -82,32 +86,73 @@ export function IntCrmAccountingSpec() {
     saveData(completeConfig);
   });
 
+  // Load existing data ONCE on mount or when service data actually changes
   useEffect(() => {
     const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
-    const existing = integrationServices.find(i => i.serviceId === 'int-crm-accounting');
+    const existing = integrationServices.find((i: any) => i.serviceId === 'int-crm-accounting');
+
     if (existing?.requirements) {
-      setConfig(existing.requirements);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.integrationServices]);
 
   // Auto-save on changes
-  useEffect(() => {
-    if (config.crmSystem || config.accountingSystem) {
-      const completeConfig = {
-        ...config,
-        crmSystem: crmSystem.value,
-        crmAuthMethod: apiAuthMethod.value,
-        alertEmail: alertEmail.value,
-        syncConfig: {
-          ...config.syncConfig,
-          frequency: syncFrequency.value
-        }
-      };
-      saveData(completeConfig);
-    }
-  }, [config, crmSystem.value, apiAuthMethod.value, alertEmail.value, syncFrequency.value, saveData]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.crmSystem || config.accountingSystem) {
+  //     const completeConfig = {
+  //       ...config,
+  //       crmSystem: crmSystem.value,
+  //       crmAuthMethod: apiAuthMethod.value,
+  //       alertEmail: alertEmail.value,
+  //       syncConfig: {
+  //         ...config.syncConfig,
+  //         frequency: syncFrequency.value
+  //       }
+  //     };
+  //     saveData(completeConfig);
+  //   }
+  // }, [config, crmSystem.value, apiAuthMethod.value, alertEmail.value, syncFrequency.value, saveData]);
 
-  const handleSave = async () => {
+  const handleFieldChange = useCallback((field: keyof typeof config, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            crmSystem: crmSystem.value,
+            crmAuthMethod: apiAuthMethod.value,
+            alertEmail: alertEmail.value,
+            syncConfig: {
+              ...updated.syncConfig,
+              frequency: syncFrequency.value
+            },
+            errorHandling: {
+              ...updated.errorHandling,
+              alertRecipients: alertEmail.value ? [alertEmail.value] : updated.errorHandling?.alertRecipients || []
+            }
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [crmSystem.value, apiAuthMethod.value, alertEmail.value, syncFrequency.value, saveData]);
+
+  const handleSave = useCallback(async () => {
     const completeConfig = {
       ...config,
       crmSystem: crmSystem.value,
@@ -127,7 +172,7 @@ export function IntCrmAccountingSpec() {
     await saveData(completeConfig, 'manual');
 
     alert('הגדרות נשמרו בהצלחה!');
-  };
+  }, [config, crmSystem.value, apiAuthMethod.value, alertEmail.value, syncFrequency.value, saveData]);
 
   return (
     <div className="space-y-6 p-8" dir="rtl">
@@ -237,7 +282,7 @@ export function IntCrmAccountingSpec() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">מערכת Accounting</label>
                 <select
                   value={config.accountingSystem || 'quickbooks'}
-                  onChange={(e) => setConfig({ ...config, accountingSystem: e.target.value })}
+                  onChange={(e) => handleFieldChange('accountingSystem', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="quickbooks">QuickBooks</option>
@@ -251,7 +296,7 @@ export function IntCrmAccountingSpec() {
                 <input
                   type="checkbox"
                   checked={config.autoInvoicing || false}
-                  onChange={(e) => setConfig({ ...config, autoInvoicing: e.target.checked })}
+                  onChange={(e) => handleFieldChange('autoInvoicing', e.target.checked)}
                   className="rounded"
                 />
                 <span>יצירת חשבוניות אוטומטית</span>
@@ -300,10 +345,7 @@ export function IntCrmAccountingSpec() {
                   <input
                     type="checkbox"
                     checked={config.syncConfig?.direction === 'bi-directional'}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      syncConfig: { ...config.syncConfig!, direction: e.target.checked ? 'bi-directional' : 'one-way' }
-                    })}
+                    onChange={(e) => handleFieldChange('syncConfig.direction', e.target.checked ? 'bi-directional' : 'one-way')}
                     className="rounded"
                   />
                   <span>דו-כיווני</span>
@@ -319,15 +361,12 @@ export function IntCrmAccountingSpec() {
                         checked={config.syncConfig?.entities?.includes(entity) || false}
                         onChange={(e) => {
                           const entities = config.syncConfig?.entities || [];
-                          setConfig({
-                            ...config,
-                            syncConfig: {
-                              ...config.syncConfig!,
-                              entities: e.target.checked
-                                ? [...entities, entity]
-                                : entities.filter(ent => ent !== entity)
-                            }
-                          });
+                          handleFieldChange(
+                            'syncConfig.entities',
+                            e.target.checked
+                              ? [...entities, entity]
+                              : entities.filter(ent => ent !== entity)
+                          );
                         }}
                         className="rounded"
                       />
@@ -349,10 +388,7 @@ export function IntCrmAccountingSpec() {
                   <input
                     type="number"
                     value={config.errorHandling?.retryAttempts || 3}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      errorHandling: { ...config.errorHandling!, retryAttempts: parseInt(e.target.value) }
-                    })}
+                    onChange={(e) => handleFieldChange('errorHandling.retryAttempts', parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>

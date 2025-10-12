@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useSmartField } from '../../../../hooks/useSmartField';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
@@ -13,6 +13,8 @@ interface AutoCustomConfig {
   complexity: 'low' | 'medium' | 'high';
   estimatedWeeks: number;
   specialRequirements?: string;
+  n8nInstanceUrl?: string;
+  alertEmail?: string;
 }
 
 export function AutoCustomSpec() {
@@ -41,6 +43,10 @@ export function AutoCustomSpec() {
     specialRequirements: '',
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-custom',
@@ -59,30 +65,51 @@ export function AutoCustomSpec() {
 
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
-    const existing = automations.find(a => a.serviceId === 'auto-custom');
+    const existing = automations.find((a: any) => a.serviceId === 'auto-custom');
     if (existing?.requirements) {
-      setConfig(existing.requirements);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements as AutoCustomConfig);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.automations]);
 
   // Auto-save on changes
-  useEffect(() => {
-    if (config.customDescription || config.requirements?.length || config.systems?.length) {
-      const completeConfig = {
-        ...config,
-        n8nInstanceUrl: n8nInstanceUrl.value,
-        alertEmail: alertEmail.value
-      };
-      saveData(completeConfig);
-    }
-  }, [config, n8nInstanceUrl.value, alertEmail.value, saveData]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // Auto-save is now handled by handleFieldChange callback
+
+  const handleFieldChange = useCallback((field: string, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            n8nInstanceUrl: n8nInstanceUrl.value || updated.n8nInstanceUrl,
+            alertEmail: alertEmail.value || updated.alertEmail
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [saveData, n8nInstanceUrl.value, alertEmail.value]);
 
   const handleSave = async () => {
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
-      n8nInstanceUrl: n8nInstanceUrl.value,
-      alertEmail: alertEmail.value
+      n8nInstanceUrl: n8nInstanceUrl.value || config.n8nInstanceUrl,
+      alertEmail: alertEmail.value || config.alertEmail
     };
 
     // Save using auto-save (manual save trigger)
@@ -124,13 +151,13 @@ export function AutoCustomSpec() {
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">תיאור האוטומציה</label>
-            <textarea value={config.customDescription} onChange={(e) => setConfig({ ...config, customDescription: e.target.value })}
+            <textarea value={config.customDescription} onChange={(e) => handleFieldChange('customDescription', e.target.value)}
               rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="תאר את האוטומציה המבוקשת בפירוט..." />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">רמת מורכבות</label>
-              <select value={config.complexity} onChange={(e) => setConfig({ ...config, complexity: e.target.value as any })}
+              <select value={config.complexity} onChange={(e) => handleFieldChange('complexity', e.target.value as any)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md">
                 <option value="low">נמוכה</option>
                 <option value="medium">בינונית</option>
@@ -139,13 +166,13 @@ export function AutoCustomSpec() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">זמן משוער (שבועות)</label>
-              <input type="number" value={config.estimatedWeeks} onChange={(e) => setConfig({ ...config, estimatedWeeks: parseInt(e.target.value) })}
+              <input type="number" value={config.estimatedWeeks} onChange={(e) => handleFieldChange('estimatedWeeks', parseInt(e.target.value))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md" min="1" max="52" />
             </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">דרישות מיוחדות</label>
-            <textarea value={config.specialRequirements} onChange={(e) => setConfig({ ...config, specialRequirements: e.target.value })}
+            <textarea value={config.specialRequirements} onChange={(e) => handleFieldChange('specialRequirements', e.target.value)}
               rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="אבטחה, ביצועים, אינטגרציות..." />
           </div>
 

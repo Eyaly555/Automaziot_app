@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useSmartField } from '../../../../hooks/useSmartField';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
@@ -101,16 +101,29 @@ export function AutoComplexLogicSpec() {
     },
     // Add technicalConfig
     technicalConfig: {
-      trigger: ''
+      trigger: '',
+      triggerConditions: [],
+      scheduling: {
+        enabled: false,
+        cronExpression: '0 0 * * *'
+      },
+      rateLimiting: {
+        enabled: false,
+        requestsPerMinute: 60
+      }
     },
     // Add databaseConfig
     databaseConfig: {
       type: '',
-      connectionString: ''
+      connectionString: '',
+      tableName: '',
+      schema: {}
     },
     // Add apiConfig
     apiConfig: {
-      authMethod: ''
+      authMethod: '',
+      baseUrl: '',
+      headers: []
     },
     errorHandling: {
       retryAttempts: 3,
@@ -132,6 +145,10 @@ export function AutoComplexLogicSpec() {
       }
     }
   });
+
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
 
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
@@ -169,15 +186,61 @@ export function AutoComplexLogicSpec() {
   });
 
   useEffect(() => {
-    if (currentMeeting?.implementationSpec?.automations) {
-      const existing = currentMeeting.implementationSpec.automations.find(
-        (a: any) => a.serviceId === 'auto-complex-logic'
-      );
-      if (existing) {
-        setConfig(existing.requirements);
+    const automations = currentMeeting?.implementationSpec?.automations || [];
+    const existing = automations.find((a: any) => a.serviceId === 'auto-complex-logic');
+
+    if (existing?.requirements) {
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements as AutoComplexLogicRequirements);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
       }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.automations]);
+
+  const handleFieldChange = useCallback((field: string, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            technicalConfig: {
+              ...updated.technicalConfig,
+              trigger: workflowTrigger.value || updated.technicalConfig.trigger
+            },
+            databaseConfig: {
+              ...updated.databaseConfig,
+              type: databaseType.value || updated.databaseConfig.type
+            },
+            apiConfig: {
+              ...updated.apiConfig,
+              authMethod: apiAuthMethod.value || updated.apiConfig.authMethod
+            },
+            n8nWorkflow: {
+              ...updated.n8nWorkflow,
+              instanceUrl: n8nInstanceUrl.value || updated.n8nWorkflow.instanceUrl,
+              errorHandling: {
+                ...updated.n8nWorkflow.errorHandling,
+                retryAttempts: retryAttempts.value || updated.n8nWorkflow.errorHandling.retryAttempts,
+                alertEmail: alertEmail.value || updated.n8nWorkflow.errorHandling.alertEmail
+              }
+            }
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [saveData, workflowTrigger.value, databaseType.value, apiAuthMethod.value, retryAttempts.value, alertEmail.value, n8nInstanceUrl.value]);
 
   const saveConfig = async () => {
     const completeConfig = {
@@ -314,13 +377,7 @@ export function AutoComplexLogicSpec() {
                 <label className="block text-sm font-medium mb-2">אגרגציות</label>
                 <textarea
                   value={config.dataProcessing.aggregation.join('\n')}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    dataProcessing: {
-                      ...prev.dataProcessing,
-                      aggregation: e.target.value.split('\n').filter(s => s.trim())
-                    }
-                  }))}
+                  onChange={(e) => handleFieldChange('dataProcessing.aggregation', e.target.value.split('\n').filter(s => s.trim()))}
                   rows={3}
                   className="w-full p-2 border rounded-lg text-sm"
                   placeholder="כל שורה - אגרגציה אחת..."
@@ -331,13 +388,7 @@ export function AutoComplexLogicSpec() {
                 <label className="block text-sm font-medium mb-2">חישובים</label>
                 <textarea
                   value={config.dataProcessing.calculations.join('\n')}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    dataProcessing: {
-                      ...prev.dataProcessing,
-                      calculations: e.target.value.split('\n').filter(s => s.trim())
-                    }
-                  }))}
+                  onChange={(e) => handleFieldChange('dataProcessing.calculations', e.target.value.split('\n').filter(s => s.trim()))}
                   rows={3}
                   className="w-full p-2 border rounded-lg text-sm"
                   placeholder="כל שורה - חישוב אחד..."
@@ -348,13 +399,7 @@ export function AutoComplexLogicSpec() {
                 <label className="block text-sm font-medium mb-2">טרנספורמציות</label>
                 <textarea
                   value={config.dataProcessing.transformations.join('\n')}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    dataProcessing: {
-                      ...prev.dataProcessing,
-                      transformations: e.target.value.split('\n').filter(s => s.trim())
-                    }
-                  }))}
+                  onChange={(e) => handleFieldChange('dataProcessing.transformations', e.target.value.split('\n').filter(s => s.trim()))}
                   rows={3}
                   className="w-full p-2 border rounded-lg text-sm"
                   placeholder="כל שורה - טרנספורמציה אחת..."
@@ -410,10 +455,7 @@ export function AutoComplexLogicSpec() {
                         onChange={(e) => {
                           const newEndpoints = [...config.externalApis.endpoints];
                           newEndpoints[index] = { ...newEndpoints[index], name: e.target.value };
-                          setConfig(prev => ({
-                            ...prev,
-                            externalApis: { ...prev.externalApis, endpoints: newEndpoints }
-                          }));
+                          handleFieldChange('externalApis.endpoints', newEndpoints);
                         }}
                         className="w-full p-2 border rounded-lg text-sm"
                       />
@@ -427,10 +469,7 @@ export function AutoComplexLogicSpec() {
                         onChange={(e) => {
                           const newEndpoints = [...config.externalApis.endpoints];
                           newEndpoints[index] = { ...newEndpoints[index], url: e.target.value };
-                          setConfig(prev => ({
-                            ...prev,
-                            externalApis: { ...prev.externalApis, endpoints: newEndpoints }
-                          }));
+                          handleFieldChange('externalApis.endpoints', newEndpoints);
                         }}
                         className="w-full p-2 border rounded-lg text-sm"
                       />
@@ -443,10 +482,7 @@ export function AutoComplexLogicSpec() {
                         onChange={(e) => {
                           const newEndpoints = [...config.externalApis.endpoints];
                           newEndpoints[index] = { ...newEndpoints[index], frequency: e.target.value as any };
-                          setConfig(prev => ({
-                            ...prev,
-                            externalApis: { ...prev.externalApis, endpoints: newEndpoints }
-                          }));
+                          handleFieldChange('externalApis.endpoints', newEndpoints);
                         }}
                         className="w-full p-2 border rounded-lg text-sm"
                       >
@@ -466,10 +502,7 @@ export function AutoComplexLogicSpec() {
                       onChange={(e) => {
                         const newEndpoints = [...config.externalApis.endpoints];
                         newEndpoints[index] = { ...newEndpoints[index], purpose: e.target.value };
-                        setConfig(prev => ({
-                          ...prev,
-                          externalApis: { ...prev.externalApis, endpoints: newEndpoints }
-                        }));
+                        handleFieldChange('externalApis.endpoints', newEndpoints);
                       }}
                       className="w-full p-2 border rounded-lg text-sm"
                       placeholder="למה אנחנו צריכים את ה-API הזה..."
@@ -529,13 +562,7 @@ export function AutoComplexLogicSpec() {
                   <input
                     type="checkbox"
                     checked={config.errorHandling.monitoring.performanceMetrics}
-                    onChange={(e) => setConfig(prev => ({
-                      ...prev,
-                      errorHandling: {
-                        ...prev.errorHandling,
-                        monitoring: { ...prev.errorHandling.monitoring, performanceMetrics: e.target.checked }
-                      }
-                    }))}
+                    onChange={(e) => handleFieldChange('errorHandling.monitoring.performanceMetrics', e.target.checked)}
                   />
                   <span className="text-sm">מדדי ביצועים</span>
                 </label>
@@ -544,13 +571,7 @@ export function AutoComplexLogicSpec() {
                   <input
                     type="checkbox"
                     checked={config.errorHandling.monitoring.errorRates}
-                    onChange={(e) => setConfig(prev => ({
-                      ...prev,
-                      errorHandling: {
-                        ...prev.errorHandling,
-                        monitoring: { ...prev.errorHandling.monitoring, errorRates: e.target.checked }
-                      }
-                    }))}
+                    onChange={(e) => handleFieldChange('errorHandling.monitoring.errorRates', e.target.checked)}
                   />
                   <span className="text-sm">שיעורי שגיאות</span>
                 </label>
@@ -559,13 +580,7 @@ export function AutoComplexLogicSpec() {
                   <input
                     type="checkbox"
                     checked={config.errorHandling.monitoring.responseTimes}
-                    onChange={(e) => setConfig(prev => ({
-                      ...prev,
-                      errorHandling: {
-                        ...prev.errorHandling,
-                        monitoring: { ...prev.errorHandling.monitoring, responseTimes: e.target.checked }
-                      }
-                    }))}
+                    onChange={(e) => handleFieldChange('errorHandling.monitoring.responseTimes', e.target.checked)}
                   />
                   <span className="text-sm">זמני תגובה</span>
                 </label>
@@ -605,10 +620,7 @@ export function AutoComplexLogicSpec() {
               <input
                 type="url"
                 value={config.n8nWorkflow.webhookEndpoint || ''}
-                onChange={(e) => setConfig(prev => ({
-                  ...prev,
-                  n8nWorkflow: { ...prev.n8nWorkflow, webhookEndpoint: e.target.value }
-                }))}
+                onChange={(e) => handleFieldChange('n8nWorkflow.webhookEndpoint', e.target.value)}
                 className="w-full p-2 border rounded-lg"
                 placeholder="https://n8n.example.com/webhook/..."
               />
@@ -617,10 +629,7 @@ export function AutoComplexLogicSpec() {
                 <input
                   type="checkbox"
                   checked={config.n8nWorkflow.httpsEnabled || true}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    n8nWorkflow: { ...prev.n8nWorkflow, httpsEnabled: e.target.checked }
-                  }))}
+                  onChange={(e) => handleFieldChange('n8nWorkflow.httpsEnabled', e.target.checked)}
                   className="rounded border-gray-300"
                 />
                 <span className="text-sm">HTTPS מופעל</span>

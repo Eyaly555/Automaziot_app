@@ -8,7 +8,7 @@
  * @category System Implementations
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
 import type { ImplCrmRequirements } from '../../../../types/systemImplementationServices';
@@ -48,6 +48,10 @@ export function ImplCrmSpec() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'impl-crm',
@@ -60,16 +64,42 @@ export function ImplCrmSpec() {
     const existing = systemImplementations.find(item => item.serviceId === 'impl-crm');
 
     if (existing?.requirements) {
-      setConfig(existing.requirements as ImplCrmRequirements);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements as ImplCrmRequirements);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.systemImplementations]);
 
   // Auto-save whenever config changes
-  useEffect(() => {
-    if (config.platform) { // Only save if we have basic data
-      saveData(config);
-    }
-  }, [config]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.platform) { // Only save if we have basic data
+  //     saveData(config);
+  //   }
+  // }, [config]);
+
+  const handleFieldChange = useCallback((field: keyof ImplCrmRequirements, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = { ...updated }; // No smart fields in this component
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [saveData]);
 
   // Validation function
   const validateForm = (): boolean => {
@@ -93,135 +123,111 @@ export function ImplCrmSpec() {
 
   // Handler functions for array management
   const addCustomField = () => {
-    setConfig({
-      ...config,
-      customFields: [
-        ...config.customFields,
-        {
-          module: 'Leads',
-          fieldName: '',
-          fieldType: 'text',
-          isRequired: false
-        }
-      ]
-    });
+    const updatedCustomFields = [
+      ...config.customFields,
+      {
+        module: 'Leads',
+        fieldName: '',
+        fieldType: 'text',
+        isRequired: false
+      }
+    ];
+    handleFieldChange('customFields', updatedCustomFields);
   };
 
   const removeCustomField = (index: number) => {
-    setConfig({
-      ...config,
-      customFields: config.customFields.filter((_, i) => i !== index)
-    });
+    const updatedCustomFields = config.customFields.filter((_, i) => i !== index);
+    handleFieldChange('customFields', updatedCustomFields);
   };
 
   const updateCustomField = (index: number, field: Partial<typeof config.customFields[0]>) => {
     const updated = [...config.customFields];
     updated[index] = { ...updated[index], ...field };
-    setConfig({ ...config, customFields: updated });
+    handleFieldChange('customFields', updated);
   };
 
   const addWorkflowRule = () => {
-    setConfig({
-      ...config,
-      workflowRules: [
-        ...config.workflowRules,
-        {
-          ruleName: '',
-          module: 'Leads',
-          trigger: 'on_create',
-          actions: []
-        }
-      ]
-    });
+    const updatedWorkflowRules = [
+      ...config.workflowRules,
+      {
+        ruleName: '',
+        module: 'Leads',
+        trigger: 'on_create',
+        actions: []
+      }
+    ];
+    handleFieldChange('workflowRules', updatedWorkflowRules);
   };
 
   const removeWorkflowRule = (index: number) => {
-    setConfig({
-      ...config,
-      workflowRules: config.workflowRules.filter((_, i) => i !== index)
-    });
+    const updatedWorkflowRules = config.workflowRules.filter((_, i) => i !== index);
+    handleFieldChange('workflowRules', updatedWorkflowRules);
   };
 
   const addUserRole = () => {
-    setConfig({
-      ...config,
-      userRoles: [
-        ...config.userRoles,
-        {
-          roleName: '',
-          permissions: [],
-          userCount: 0
-        }
-      ]
-    });
+    const updatedUserRoles = [
+      ...config.userRoles,
+      {
+        roleName: '',
+        permissions: [],
+        userCount: 0
+      }
+    ];
+    handleFieldChange('userRoles', updatedUserRoles);
   };
 
   const removeUserRole = (index: number) => {
-    setConfig({
-      ...config,
-      userRoles: config.userRoles.filter((_, i) => i !== index)
-    });
+    const updatedUserRoles = config.userRoles.filter((_, i) => i !== index);
+    handleFieldChange('userRoles', updatedUserRoles);
   };
 
   const addLeadSource = () => {
-    setConfig({
-      ...config,
-      leadSources: [...config.leadSources, '']
-    });
+    const updatedLeadSources = [...config.leadSources, ''];
+    handleFieldChange('leadSources', updatedLeadSources);
   };
 
   const updateLeadSource = (index: number, value: string) => {
     const updated = [...config.leadSources];
     updated[index] = value;
-    setConfig({ ...config, leadSources: updated });
+    handleFieldChange('leadSources', updated);
   };
 
   const removeLeadSource = (index: number) => {
-    setConfig({
-      ...config,
-      leadSources: config.leadSources.filter((_, i) => i !== index)
-    });
+    const updatedLeadSources = config.leadSources.filter((_, i) => i !== index);
+    handleFieldChange('leadSources', updatedLeadSources);
   };
 
   const addPipelineStage = () => {
-    setConfig({
-      ...config,
-      salesPipeline: {
-        ...config.salesPipeline,
-        stages: [...config.salesPipeline.stages, '']
-      }
-    });
+    const updatedStages = [...config.salesPipeline.stages, ''];
+    handleFieldChange('salesPipeline.stages', updatedStages);
   };
 
   const updatePipelineStage = (index: number, value: string) => {
     const updated = [...config.salesPipeline.stages];
     updated[index] = value;
-    setConfig({
-      ...config,
-      salesPipeline: { ...config.salesPipeline, stages: updated }
-    });
+    handleFieldChange('salesPipeline.stages', updated);
   };
 
   const removePipelineStage = (index: number) => {
-    setConfig({
-      ...config,
-      salesPipeline: {
-        ...config.salesPipeline,
-        stages: config.salesPipeline.stages.filter((_, i) => i !== index)
-      }
-    });
+    const updatedStages = config.salesPipeline.stages.filter((_, i) => i !== index);
+    handleFieldChange('salesPipeline.stages', updatedStages);
   };
 
   // Manual save handler (kept for compatibility, but auto-save is primary)
-  const handleManualSave = async () => {
+  const handleSave = useCallback(async () => {
+    if (isLoadingRef.current) return; // Don't save during loading
+
     if (!validateForm()) {
       alert('נא למלא את כל השדות הנדרשים');
       return;
     }
 
+    const completeConfig = { ...config }; // No smart fields in this component
+
     // Force immediate save
-    await saveData(config);
-  };
+    await saveData(completeConfig, 'manual');
+    alert('הגדרות נשמרו בהצלחה!');
+  }, [config, saveData, validateForm]);
 
   return (
     <div className="space-y-6 p-8" dir="rtl">
@@ -241,7 +247,7 @@ export function ImplCrmSpec() {
             </label>
             <select
               value={config.platform || ''}
-              onChange={(e) => setConfig({ ...config, platform: e.target.value as any })}
+              onChange={(e) => handleFieldChange('platform', e.target.value as any)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             >
               <option value="">בחר פלטפורמה</option>
@@ -260,7 +266,7 @@ export function ImplCrmSpec() {
             <input
               type="text"
               value={config.subscriptionTier || ''}
-              onChange={(e) => setConfig({ ...config, subscriptionTier: e.target.value })}
+              onChange={(e) => handleFieldChange('subscriptionTier', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               placeholder="Professional, Enterprise, וכו'"
             />
@@ -280,10 +286,7 @@ export function ImplCrmSpec() {
             <input
               type="email"
               value={config.adminAccess.email}
-              onChange={(e) => setConfig({
-                ...config,
-                adminAccess: { ...config.adminAccess, email: e.target.value }
-              })}
+              onChange={(e) => handleFieldChange('adminAccess.email', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               placeholder="admin@company.com"
             />
@@ -294,10 +297,7 @@ export function ImplCrmSpec() {
             <label className="block text-sm font-medium text-gray-700 mb-2">תפקיד</label>
             <select
               value={config.adminAccess.role}
-              onChange={(e) => setConfig({
-                ...config,
-                adminAccess: { ...config.adminAccess, role: e.target.value as any }
-              })}
+              onChange={(e) => handleFieldChange('adminAccess.role', e.target.value as any)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             >
               <option value="owner">Owner</option>
@@ -311,10 +311,7 @@ export function ImplCrmSpec() {
             <input
               type="checkbox"
               checked={config.adminAccess.hasApiAccess}
-              onChange={(e) => setConfig({
-                ...config,
-                adminAccess: { ...config.adminAccess, hasApiAccess: e.target.checked }
-              })}
+              onChange={(e) => handleFieldChange('adminAccess.hasApiAccess', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">יש גישה ל-API</span>
@@ -331,10 +328,7 @@ export function ImplCrmSpec() {
             <input
               type="text"
               value={config.salesPipeline.pipelineName}
-              onChange={(e) => setConfig({
-                ...config,
-                salesPipeline: { ...config.salesPipeline, pipelineName: e.target.value }
-              })}
+              onChange={(e) => handleFieldChange('salesPipeline.pipelineName', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               placeholder="Sales Pipeline"
             />
@@ -516,7 +510,7 @@ export function ImplCrmSpec() {
                     onChange={(e) => {
                       const updated = [...config.workflowRules];
                       updated[index] = { ...updated[index], ruleName: e.target.value };
-                      setConfig({ ...config, workflowRules: updated });
+                      handleFieldChange('workflowRules', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                     placeholder="שם הכלל"
@@ -529,7 +523,7 @@ export function ImplCrmSpec() {
                     onChange={(e) => {
                       const updated = [...config.workflowRules];
                       updated[index] = { ...updated[index], module: e.target.value };
-                      setConfig({ ...config, workflowRules: updated });
+                      handleFieldChange('workflowRules', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   >
@@ -547,7 +541,7 @@ export function ImplCrmSpec() {
                   onChange={(e) => {
                     const updated = [...config.workflowRules];
                     updated[index] = { ...updated[index], trigger: e.target.value as any };
-                    setConfig({ ...config, workflowRules: updated });
+                    handleFieldChange('workflowRules', updated);
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                 >
@@ -594,7 +588,7 @@ export function ImplCrmSpec() {
                     onChange={(e) => {
                       const updated = [...config.userRoles];
                       updated[index] = { ...updated[index], roleName: e.target.value };
-                      setConfig({ ...config, userRoles: updated });
+                      handleFieldChange('userRoles', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                     placeholder="מנהל מכירות, נציג שירות..."
@@ -608,7 +602,7 @@ export function ImplCrmSpec() {
                     onChange={(e) => {
                       const updated = [...config.userRoles];
                       updated[index] = { ...updated[index], userCount: parseInt(e.target.value) || 0 };
-                      setConfig({ ...config, userRoles: updated });
+                      handleFieldChange('userRoles', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                     min="0"
@@ -635,10 +629,7 @@ export function ImplCrmSpec() {
             <input
               type="checkbox"
               checked={config.integrations?.email || false}
-              onChange={(e) => setConfig({
-                ...config,
-                integrations: { ...config.integrations, email: e.target.checked }
-              })}
+              onChange={(e) => handleFieldChange('integrations.email', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">סנכרון אימייל (Gmail/Outlook)</span>
@@ -648,10 +639,7 @@ export function ImplCrmSpec() {
             <input
               type="checkbox"
               checked={config.integrations?.calendar || false}
-              onChange={(e) => setConfig({
-                ...config,
-                integrations: { ...config.integrations, calendar: e.target.checked }
-              })}
+              onChange={(e) => handleFieldChange('integrations.calendar', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">סנכרון יומן</span>
@@ -661,10 +649,7 @@ export function ImplCrmSpec() {
             <input
               type="checkbox"
               checked={config.integrations?.website || false}
-              onChange={(e) => setConfig({
-                ...config,
-                integrations: { ...config.integrations, website: e.target.checked }
-              })}
+              onChange={(e) => handleFieldChange('integrations.website', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">טפסים באתר</span>
@@ -674,10 +659,7 @@ export function ImplCrmSpec() {
             <input
               type="checkbox"
               checked={config.integrations?.emailMarketing || false}
-              onChange={(e) => setConfig({
-                ...config,
-                integrations: { ...config.integrations, emailMarketing: e.target.checked }
-              })}
+              onChange={(e) => handleFieldChange('integrations.emailMarketing', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">שיווק באימייל</span>
@@ -687,10 +669,7 @@ export function ImplCrmSpec() {
             <input
               type="checkbox"
               checked={config.integrations?.phoneSystem || false}
-              onChange={(e) => setConfig({
-                ...config,
-                integrations: { ...config.integrations, phoneSystem: e.target.checked }
-              })}
+              onChange={(e) => handleFieldChange('integrations.phoneSystem', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">מערכת טלפון</span>
@@ -707,7 +686,7 @@ export function ImplCrmSpec() {
               <input
                 type="checkbox"
                 checked={config.trainingRequired}
-                onChange={(e) => setConfig({ ...config, trainingRequired: e.target.checked })}
+                onChange={(e) => handleFieldChange('trainingRequired', e.target.checked)}
                 className="rounded border-gray-300"
               />
               <span className="text-sm">נדרשת הדרכה למשתמשים</span>
@@ -718,7 +697,7 @@ export function ImplCrmSpec() {
             <label className="block text-sm font-medium text-gray-700 mb-2">רמת תמיכה</label>
             <select
               value={config.supportLevel}
-              onChange={(e) => setConfig({ ...config, supportLevel: e.target.value as any })}
+              onChange={(e) => handleFieldChange('supportLevel', e.target.value as any)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             >
               <option value="basic">בסיסית</option>
@@ -732,7 +711,7 @@ export function ImplCrmSpec() {
             <input
               type="number"
               value={config.estimatedWeeks}
-              onChange={(e) => setConfig({ ...config, estimatedWeeks: parseInt(e.target.value) || 0 })}
+              onChange={(e) => handleFieldChange('estimatedWeeks', parseInt(e.target.value) || 0)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               min="1"
             />
@@ -743,7 +722,7 @@ export function ImplCrmSpec() {
               <input
                 type="checkbox"
                 checked={config.hasRollbackPlan}
-                onChange={(e) => setConfig({ ...config, hasRollbackPlan: e.target.checked })}
+                onChange={(e) => handleFieldChange('hasRollbackPlan', e.target.checked)}
                 className="rounded border-gray-300"
               />
               <span className="text-sm">יש תכנית rollback</span>
@@ -774,7 +753,7 @@ export function ImplCrmSpec() {
           )}
         </div>
         <button
-          onClick={handleManualSave}
+          onClick={handleSave}
           disabled={isSaving}
           className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
         >

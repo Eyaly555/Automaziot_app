@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useSmartField } from '../../../../hooks/useSmartField';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
@@ -79,6 +79,10 @@ export function AIBrandedSpec() {
     }
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'ai-branded',
@@ -95,28 +99,69 @@ export function AIBrandedSpec() {
   });
 
   useEffect(() => {
-    if (currentMeeting?.implementationSpec?.aiAgents) {
-      const existing = currentMeeting.implementationSpec.aiAgents.find(
-        (a: any) => a.serviceId === 'ai-branded'
-      );
-      if (existing) {
+    const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
+    const existing = aiAgentServices.find((a: any) => a.serviceId === 'ai-branded');
+
+    if (existing?.requirements) {
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
         setConfig(existing.requirements);
+
         // Set smart field value if existing
         if (existing.requirements.aiModel) {
           aiModelPreference.setValue(existing.requirements.aiModel);
         }
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
       }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.aiAgentServices]);
 
-  const saveConfig = async () => {
+  // Auto-save on changes
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.aiModel) {
+  //     const completeConfig = {
+  //       ...config,
+  //       aiModel: aiModelPreference.value
+  //     };
+  //     saveData(completeConfig);
+  //   }
+  // }, [config, aiModelPreference.value, saveData]);
+
+  const handleFieldChange = useCallback((field: keyof AIBrandedRequirements, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            aiModel: aiModelPreference.value
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [aiModelPreference.value, saveData]);
+
+  const handleSave = useCallback(async () => {
+    if (isLoadingRef.current) return; // Don't save during loading
+
     const completeConfig = {
       ...config,
       aiModel: aiModelPreference.value || config.aiModel
     };
 
-    await saveData(completeConfig);
-  };
+    await saveData(completeConfig, 'manual');
+  }, [config, aiModelPreference.value, saveData]);
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -188,10 +233,7 @@ export function AIBrandedSpec() {
                 <input
                   type="text"
                   value={config.branding.companyName}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    branding: { ...prev.branding, companyName: e.target.value }
-                  }))}
+                  onChange={(e) => handleFieldChange('branding.companyName', e.target.value)}
                   className="w-full p-2 border rounded-lg"
                   placeholder="שם החברה שלכם"
                 />
@@ -202,10 +244,7 @@ export function AIBrandedSpec() {
                 <input
                   type="url"
                   value={config.branding.logoUrl}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    branding: { ...prev.branding, logoUrl: e.target.value }
-                  }))}
+                  onChange={(e) => handleFieldChange('branding.logoUrl', e.target.value)}
                   className="w-full p-2 border rounded-lg"
                   placeholder="https://example.com/logo.png"
                 />
@@ -216,10 +255,7 @@ export function AIBrandedSpec() {
                 <input
                   type="color"
                   value={config.branding.primaryColor}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    branding: { ...prev.branding, primaryColor: e.target.value }
-                  }))}
+                  onChange={(e) => handleFieldChange('branding.primaryColor', e.target.value)}
                   className="w-full p-2 border rounded-lg h-10"
                 />
               </div>
@@ -229,10 +265,7 @@ export function AIBrandedSpec() {
                 <input
                   type="color"
                   value={config.branding.secondaryColor}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    branding: { ...prev.branding, secondaryColor: e.target.value }
-                  }))}
+                  onChange={(e) => handleFieldChange('branding.secondaryColor', e.target.value)}
                   className="w-full p-2 border rounded-lg h-10"
                 />
               </div>
@@ -250,10 +283,7 @@ export function AIBrandedSpec() {
                 <label className="block text-sm font-medium mb-2">סגנון שיחה</label>
                 <select
                   value={config.capabilities.conversationStyle}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    capabilities: { ...prev.capabilities, conversationStyle: e.target.value as any }
-                  }))}
+                  onChange={(e) => handleFieldChange('capabilities.conversationStyle', e.target.value as any)}
                   className="w-full p-2 border rounded-lg"
                 >
                   <option value="formal">פורמלי</option>
@@ -267,10 +297,7 @@ export function AIBrandedSpec() {
                 <label className="block text-sm font-medium mb-2">אורך תגובה</label>
                 <select
                   value={config.capabilities.responseLength}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    capabilities: { ...prev.capabilities, responseLength: e.target.value as any }
-                  }))}
+                  onChange={(e) => handleFieldChange('capabilities.responseLength', e.target.value as any)}
                   className="w-full p-2 border rounded-lg"
                 >
                   <option value="short">קצר</option>
@@ -284,10 +311,7 @@ export function AIBrandedSpec() {
                   type="checkbox"
                   id="useEmojis"
                   checked={config.capabilities.useEmojis}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    capabilities: { ...prev.capabilities, useEmojis: e.target.checked }
-                  }))}
+                  onChange={(e) => handleFieldChange('capabilities.useEmojis', e.target.checked)}
                 />
                 <label htmlFor="useEmojis" className="text-sm">השתמש באימוג'ים</label>
               </div>
@@ -297,10 +321,7 @@ export function AIBrandedSpec() {
                   type="checkbox"
                   id="formalLanguage"
                   checked={config.capabilities.formalLanguage}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    capabilities: { ...prev.capabilities, formalLanguage: e.target.checked }
-                  }))}
+                  onChange={(e) => handleFieldChange('capabilities.formalLanguage', e.target.checked)}
                 />
                 <label htmlFor="formalLanguage" className="text-sm">שפה פורמלית</label>
               </div>
@@ -315,13 +336,7 @@ export function AIBrandedSpec() {
                 <label className="block text-sm font-medium mb-2">היסטוריה ורקע</label>
                 <textarea
                   value={config.knowledgeBase.companyInfo.history}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    knowledgeBase: {
-                      ...prev.knowledgeBase,
-                      companyInfo: { ...prev.knowledgeBase.companyInfo, history: e.target.value }
-                    }
-                  }))}
+                  onChange={(e) => handleFieldChange('knowledgeBase.companyInfo.history', e.target.value)}
                   rows={3}
                   className="w-full p-2 border rounded-lg"
                   placeholder="ספר על ההיסטוריה והרקע של החברה..."
@@ -332,13 +347,7 @@ export function AIBrandedSpec() {
                 <label className="block text-sm font-medium mb-2">ערכים וחזון</label>
                 <textarea
                   value={config.knowledgeBase.companyInfo.values}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    knowledgeBase: {
-                      ...prev.knowledgeBase,
-                      companyInfo: { ...prev.knowledgeBase.companyInfo, values: e.target.value }
-                    }
-                  }))}
+                  onChange={(e) => handleFieldChange('knowledgeBase.companyInfo.values', e.target.value)}
                   rows={3}
                   className="w-full p-2 border rounded-lg"
                   placeholder="מה הערכים והחזון של החברה..."
@@ -349,16 +358,7 @@ export function AIBrandedSpec() {
                 <label className="block text-sm font-medium mb-2">נקודות חוזק ייחודיות</label>
                 <textarea
                   value={config.knowledgeBase.companyInfo.uniqueSellingPoints.join('\n')}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    knowledgeBase: {
-                      ...prev.knowledgeBase,
-                      companyInfo: {
-                        ...prev.knowledgeBase.companyInfo,
-                        uniqueSellingPoints: e.target.value.split('\n').filter(s => s.trim())
-                      }
-                    }
-                  }))}
+                  onChange={(e) => handleFieldChange('knowledgeBase.companyInfo.uniqueSellingPoints', e.target.value.split('\n').filter(s => s.trim()))}
                   rows={3}
                   className="w-full p-2 border rounded-lg"
                   placeholder="כל שורה - נקודת חוזק אחת..."
@@ -376,10 +376,7 @@ export function AIBrandedSpec() {
                 <input
                   type="text"
                   value={config.conversationFlow.greeting}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    conversationFlow: { ...prev.conversationFlow, greeting: e.target.value }
-                  }))}
+                  onChange={(e) => handleFieldChange('conversationFlow.greeting', e.target.value)}
                   className="w-full p-2 border rounded-lg"
                   placeholder="שלום! אני העוזר הוירטואלי של {companyName}..."
                 />
@@ -389,10 +386,7 @@ export function AIBrandedSpec() {
                 <label className="block text-sm font-medium mb-2">הודעת חזרה (כשלא מבין)</label>
                 <textarea
                   value={config.conversationFlow.fallback}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    conversationFlow: { ...prev.conversationFlow, fallback: e.target.value }
-                  }))}
+                  onChange={(e) => handleFieldChange('conversationFlow.fallback', e.target.value)}
                   rows={2}
                   className="w-full p-2 border rounded-lg"
                   placeholder="מצטער, לא הבנתי לגמרי..."
@@ -404,10 +398,7 @@ export function AIBrandedSpec() {
                 <input
                   type="text"
                   value={config.conversationFlow.closing}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    conversationFlow: { ...prev.conversationFlow, closing: e.target.value }
-                  }))}
+                  onChange={(e) => handleFieldChange('conversationFlow.closing', e.target.value)}
                   className="w-full p-2 border rounded-lg"
                   placeholder="תודה שפנית אלינו!..."
                 />
@@ -417,13 +408,7 @@ export function AIBrandedSpec() {
                 <label className="block text-sm font-medium mb-2">מילות מפתח להעברה לאדם</label>
                 <textarea
                   value={config.conversationFlow.transferTriggers.join('\n')}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    conversationFlow: {
-                      ...prev.conversationFlow,
-                      transferTriggers: e.target.value.split('\n').filter(s => s.trim())
-                    }
-                  }))}
+                  onChange={(e) => handleFieldChange('conversationFlow.transferTriggers', e.target.value.split('\n').filter(s => s.trim()))}
                   rows={2}
                   className="w-full p-2 border rounded-lg"
                   placeholder="כל שורה - מילת מפתח אחת..."
@@ -440,10 +425,7 @@ export function AIBrandedSpec() {
                 <label className="block text-sm font-medium mb-2">הנחיות מותג</label>
                 <textarea
                   value={config.training.brandGuidelines}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    training: { ...prev.training, brandGuidelines: e.target.value }
-                  }))}
+                  onChange={(e) => handleFieldChange('training.brandGuidelines', e.target.value)}
                   rows={3}
                   className="w-full p-2 border rounded-lg"
                   placeholder="איך הסוכן צריך לייצג את המותג..."
@@ -454,13 +436,7 @@ export function AIBrandedSpec() {
                 <label className="block text-sm font-medium mb-2">נושאים אסורים</label>
                 <textarea
                   value={config.training.forbiddenTopics.join('\n')}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    training: {
-                      ...prev.training,
-                      forbiddenTopics: e.target.value.split('\n').filter(s => s.trim())
-                    }
-                  }))}
+                  onChange={(e) => handleFieldChange('training.forbiddenTopics', e.target.value.split('\n').filter(s => s.trim()))}
                   rows={2}
                   className="w-full p-2 border rounded-lg"
                   placeholder="כל שורה - נושא אסור אחד..."
@@ -471,13 +447,7 @@ export function AIBrandedSpec() {
                 <label className="block text-sm font-medium mb-2">מילות מפתח להסלמה</label>
                 <textarea
                   value={config.training.escalationKeywords.join('\n')}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    training: {
-                      ...prev.training,
-                      escalationKeywords: e.target.value.split('\n').filter(s => s.trim())
-                    }
-                  }))}
+                  onChange={(e) => handleFieldChange('training.escalationKeywords', e.target.value.split('\n').filter(s => s.trim()))}
                   rows={2}
                   className="w-full p-2 border rounded-lg"
                   placeholder="כל שורה - מילת מפתח אחת להסלמה..."
@@ -508,7 +478,7 @@ export function AIBrandedSpec() {
               )}
             </div>
             <button
-              onClick={saveConfig}
+              onClick={handleSave}
               disabled={isSaving}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >

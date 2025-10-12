@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { WhatsappApiSetupRequirements } from '../../../../types/integrationServices';
@@ -113,6 +113,10 @@ export function WhatsappApiSetupSpec() {
     }
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'whatsapp-api-setup',
@@ -137,6 +141,37 @@ export function WhatsappApiSetupSpec() {
     };
     saveData(completeConfig);
   });
+
+  // Handle field changes with auto-save
+  const handleFieldChange = useCallback((field: string, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            whatsappBusinessAccount: {
+              ...updated.whatsappBusinessAccount,
+              phoneNumber: whatsappPhoneNumber.value
+            },
+            integrations: {
+              ...updated.integrations,
+              crm: {
+                ...updated.integrations?.crm,
+                system: crmSystem.value
+              }
+            },
+            webhookConfig: {
+              ...updated.webhookConfig,
+              alertEmail: alertEmail.value
+            }
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [whatsappPhoneNumber.value, crmSystem.value, alertEmail.value, saveData]);
 
   const whatsappPhoneNumber = useSmartField<string>({
     fieldId: 'whatsapp_phone_number',
@@ -171,35 +206,50 @@ export function WhatsappApiSetupSpec() {
 
   const [newTestNumber, setNewTestNumber] = useState('');
 
+  // Load existing data ONCE on mount or when service data actually changes
   useEffect(() => {
     const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
-    const existing = integrationServices.find(i => i.serviceId === 'whatsapp-api-setup');
+    const existing = integrationServices.find((i: any) => i.serviceId === 'whatsapp-api-setup');
+
     if (existing?.requirements) {
-      setConfig(existing.requirements as Partial<WhatsappApiSetupRequirements>);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements as Partial<WhatsappApiSetupRequirements>);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.integrationServices]);
 
   // Auto-save on changes
-  useEffect(() => {
-    if (config.whatsappBusinessAccount?.phoneNumber || config.apiConfig?.type) {
-      const completeConfig = {
-        ...config,
-        whatsappBusinessAccount: {
-          ...config.whatsappBusinessAccount,
-          phoneNumber: whatsappPhoneNumber.value
-        },
-        integrations: {
-          ...config.integrations,
-          crm: {
-            ...config.integrations?.crm,
-            system: crmSystem.value
-          }
-        }
-      };
-      saveData(completeConfig);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config, whatsappPhoneNumber.value, crmSystem.value, saveData]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.whatsappBusinessAccount?.phoneNumber || config.apiConfig?.type) {
+  //     const completeConfig = {
+  //       ...config,
+  //       whatsappBusinessAccount: {
+  //         ...config.whatsappBusinessAccount,
+  //         phoneNumber: whatsappPhoneNumber.value
+  //       },
+  //       integrations: {
+  //         ...config.integrations,
+  //         crm: {
+  //           ...config.integrations?.crm,
+  //           system: crmSystem.value
+  //         }
+  //       }
+  //     };
+  //     saveData(completeConfig);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [config, whatsappPhoneNumber.value, crmSystem.value, saveData]);
 
   const handleSave = async () => {
     // Build complete config with smart field values
@@ -230,10 +280,8 @@ export function WhatsappApiSetupSpec() {
 
   const addTemplate = () => {
     if (newTemplate.templateId && newTemplate.name) {
-      setConfig({
-        ...config,
-        messageTemplates: [...(config.messageTemplates || []), { ...newTemplate }]
-      });
+      const updatedTemplates = [...(config.messageTemplates || []), { ...newTemplate }];
+      handleFieldChange('messageTemplates', updatedTemplates);
       setNewTemplate({
         templateId: '',
         name: '',
@@ -247,33 +295,21 @@ export function WhatsappApiSetupSpec() {
   };
 
   const removeTemplate = (index: number) => {
-    setConfig({
-      ...config,
-      messageTemplates: config.messageTemplates?.filter((_, i) => i !== index) || []
-    });
+    const updatedTemplates = config.messageTemplates?.filter((_, i) => i !== index) || [];
+    handleFieldChange('messageTemplates', updatedTemplates);
   };
 
   const addTestNumber = () => {
     if (newTestNumber) {
-      setConfig({
-        ...config,
-        testing: {
-          ...config.testing!,
-          testNumbers: [...(config.testing?.testNumbers || []), newTestNumber]
-        }
-      });
+      const updatedTestNumbers = [...(config.testing?.testNumbers || []), newTestNumber];
+      handleFieldChange('testing.testNumbers', updatedTestNumbers);
       setNewTestNumber('');
     }
   };
 
   const removeTestNumber = (index: number) => {
-    setConfig({
-      ...config,
-      testing: {
-        ...config.testing!,
-        testNumbers: config.testing?.testNumbers?.filter((_, i) => i !== index) || []
-      }
-    });
+    const updatedTestNumbers = config.testing?.testNumbers?.filter((_, i) => i !== index) || [];
+    handleFieldChange('testing.testNumbers', updatedTestNumbers);
   };
 
   return (
@@ -315,10 +351,7 @@ export function WhatsappApiSetupSpec() {
                 <input
                   type="text"
                   value={config.metaBusinessManager?.accountId || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    metaBusinessManager: { ...config.metaBusinessManager!, accountId: e.target.value }
-                  })}
+                  onChange={(e) => handleFieldChange('metaBusinessManager.accountId', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="123456789012345"
                 />
@@ -329,10 +362,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="email"
                     value={config.metaBusinessManager?.businessEmail || ''}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      metaBusinessManager: { ...config.metaBusinessManager!, businessEmail: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('metaBusinessManager.businessEmail', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -341,10 +371,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="url"
                     value={config.metaBusinessManager?.businessWebsite || ''}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      metaBusinessManager: { ...config.metaBusinessManager!, businessWebsite: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('metaBusinessManager.businessWebsite', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -354,10 +381,7 @@ export function WhatsappApiSetupSpec() {
                 <input
                   type="url"
                   value={config.metaBusinessManager?.privacyPolicyUrl || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    metaBusinessManager: { ...config.metaBusinessManager!, privacyPolicyUrl: e.target.value }
-                  })}
+                  onChange={(e) => handleFieldChange('metaBusinessManager.privacyPolicyUrl', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
@@ -365,10 +389,7 @@ export function WhatsappApiSetupSpec() {
                 <input
                   type="checkbox"
                   checked={config.metaBusinessManager?.verified || false}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    metaBusinessManager: { ...config.metaBusinessManager!, verified: e.target.checked }
-                  })}
+                  onChange={(e) => handleFieldChange('metaBusinessManager.verified', e.target.checked)}
                   className="rounded"
                 />
                 <span>החשבון מאומת (Business Verified)</span>
@@ -386,10 +407,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="text"
                     value={config.facebookApp?.appId || ''}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      facebookApp: { ...config.facebookApp!, appId: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('facebookApp.appId', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -398,10 +416,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="password"
                     value={config.facebookApp?.appSecret || ''}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      facebookApp: { ...config.facebookApp!, appSecret: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('facebookApp.appSecret', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -411,10 +426,7 @@ export function WhatsappApiSetupSpec() {
                 <input
                   type="password"
                   value={config.facebookApp?.accessToken || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    facebookApp: { ...config.facebookApp!, accessToken: e.target.value }
-                  })}
+                  onChange={(e) => handleFieldChange('facebookApp.accessToken', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
@@ -423,10 +435,7 @@ export function WhatsappApiSetupSpec() {
                 <input
                   type="datetime-local"
                   value={config.facebookApp?.tokenExpiry || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    facebookApp: { ...config.facebookApp!, tokenExpiry: e.target.value }
-                  })}
+                  onChange={(e) => handleFieldChange('facebookApp.tokenExpiry', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
@@ -443,10 +452,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="text"
                     value={config.whatsappBusinessAccount?.wabaId || ''}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      whatsappBusinessAccount: { ...config.whatsappBusinessAccount!, wabaId: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('whatsappBusinessAccount.wabaId', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -455,10 +461,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="text"
                     value={config.whatsappBusinessAccount?.phoneNumberId || ''}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      whatsappBusinessAccount: { ...config.whatsappBusinessAccount!, phoneNumberId: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('whatsappBusinessAccount.phoneNumberId', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -496,10 +499,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="text"
                     value={config.whatsappBusinessAccount?.displayName || ''}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      whatsappBusinessAccount: { ...config.whatsappBusinessAccount!, displayName: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('whatsappBusinessAccount.displayName', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     placeholder="שם העסק"
                   />
@@ -509,10 +509,7 @@ export function WhatsappApiSetupSpec() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Messaging Tier</label>
                 <select
                   value={config.whatsappBusinessAccount?.tier || 'tier-1'}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    whatsappBusinessAccount: { ...config.whatsappBusinessAccount!, tier: e.target.value as any }
-                  })}
+                  onChange={(e) => handleFieldChange('whatsappBusinessAccount.tier', e.target.value as any)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="tier-1">Tier 1 (1,000 conversations/day)</option>
@@ -533,10 +530,7 @@ export function WhatsappApiSetupSpec() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">API Type</label>
                   <select
                     value={config.apiConfig?.type || 'cloud-api'}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      apiConfig: { ...config.apiConfig!, type: e.target.value as any }
-                    })}
+                    onChange={(e) => handleFieldChange('apiConfig.type', e.target.value as any)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   >
                     <option value="cloud-api">Cloud API</option>
@@ -548,10 +542,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="text"
                     value={config.apiConfig?.apiVersion || 'v18.0'}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      apiConfig: { ...config.apiConfig!, apiVersion: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('apiConfig.apiVersion', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -562,16 +553,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="number"
                     value={config.apiConfig?.rateLimits?.messagesPerSecond || 80}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      apiConfig: {
-                        ...config.apiConfig!,
-                        rateLimits: {
-                          ...config.apiConfig!.rateLimits!,
-                          messagesPerSecond: parseInt(e.target.value)
-                        }
-                      }
-                    })}
+                    onChange={(e) => handleFieldChange('apiConfig.rateLimits.messagesPerSecond', parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -580,16 +562,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="number"
                     value={config.apiConfig?.rateLimits?.messagesPerDay || 1000000}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      apiConfig: {
-                        ...config.apiConfig!,
-                        rateLimits: {
-                          ...config.apiConfig!.rateLimits!,
-                          messagesPerDay: parseInt(e.target.value)
-                        }
-                      }
-                    })}
+                    onChange={(e) => handleFieldChange('apiConfig.rateLimits.messagesPerDay', parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -698,10 +671,7 @@ export function WhatsappApiSetupSpec() {
                 <input
                   type="url"
                   value={config.webhookConfig?.url || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    webhookConfig: { ...config.webhookConfig!, url: e.target.value }
-                  })}
+                  onChange={(e) => handleFieldChange('webhookConfig.url', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="https://your-server.com/webhook"
                 />
@@ -712,10 +682,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="password"
                     value={config.webhookConfig?.secret || ''}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      webhookConfig: { ...config.webhookConfig!, secret: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('webhookConfig.secret', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -751,10 +718,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="text"
                     value={config.webhookConfig?.verifyToken || ''}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      webhookConfig: { ...config.webhookConfig!, verifyToken: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('webhookConfig.verifyToken', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -763,10 +727,7 @@ export function WhatsappApiSetupSpec() {
                 <input
                   type="checkbox"
                   checked={config.webhookConfig?.sslRequired || false}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    webhookConfig: { ...config.webhookConfig!, sslRequired: e.target.checked }
-                  })}
+                  onChange={(e) => handleFieldChange('webhookConfig.sslRequired', e.target.checked)}
                   className="rounded"
                 />
                 <span>SSL Required</span>
@@ -786,13 +747,7 @@ export function WhatsappApiSetupSpec() {
                     <input
                       type="url"
                       value={config.integrations?.n8n?.incomingWebhookUrl || ''}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        integrations: {
-                          ...config.integrations!,
-                          n8n: { ...config.integrations!.n8n!, incomingWebhookUrl: e.target.value }
-                        }
-                      })}
+                      onChange={(e) => handleFieldChange('integrations.n8n.incomingWebhookUrl', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     />
                   </div>
@@ -801,13 +756,7 @@ export function WhatsappApiSetupSpec() {
                     <input
                       type="url"
                       value={config.integrations?.n8n?.outgoingApiEndpoint || ''}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        integrations: {
-                          ...config.integrations!,
-                          n8n: { ...config.integrations!.n8n!, outgoingApiEndpoint: e.target.value }
-                        }
-                      })}
+                      onChange={(e) => handleFieldChange('integrations.n8n.outgoingApiEndpoint', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     />
                   </div>
@@ -854,13 +803,7 @@ export function WhatsappApiSetupSpec() {
                       <input
                         type="checkbox"
                         checked={config.integrations?.crm?.contactSync || false}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          integrations: {
-                            ...config.integrations!,
-                            crm: { ...config.integrations!.crm!, contactSync: e.target.checked }
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('integrations.crm.contactSync', e.target.checked)}
                         className="rounded"
                       />
                       <span>סנכרון אנשי קשר</span>
@@ -869,13 +812,7 @@ export function WhatsappApiSetupSpec() {
                       <input
                         type="checkbox"
                         checked={config.integrations?.crm?.conversationLogging || false}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          integrations: {
-                            ...config.integrations!,
-                            crm: { ...config.integrations!.crm!, conversationLogging: e.target.checked }
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('integrations.crm.conversationLogging', e.target.checked)}
                         className="rounded"
                       />
                       <span>רישום שיחות</span>
@@ -889,13 +826,7 @@ export function WhatsappApiSetupSpec() {
                 <div className="space-y-3">
                   <select
                     value={config.integrations?.database?.type || 'supabase'}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      integrations: {
-                        ...config.integrations!,
-                        database: { ...config.integrations!.database!, type: e.target.value as any }
-                      }
-                    })}
+                    onChange={(e) => handleFieldChange('integrations.database.type', e.target.value as any)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   >
                     <option value="supabase">Supabase</option>
@@ -906,13 +837,7 @@ export function WhatsappApiSetupSpec() {
                       <input
                         type="checkbox"
                         checked={config.integrations?.database?.messageHistory || false}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          integrations: {
-                            ...config.integrations!,
-                            database: { ...config.integrations!.database!, messageHistory: e.target.checked }
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('integrations.database.messageHistory', e.target.checked)}
                         className="rounded"
                       />
                       <span>היסטוריית הודעות</span>
@@ -921,13 +846,7 @@ export function WhatsappApiSetupSpec() {
                       <input
                         type="checkbox"
                         checked={config.integrations?.database?.templateStorage || false}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          integrations: {
-                            ...config.integrations!,
-                            database: { ...config.integrations!.database!, templateStorage: e.target.checked }
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('integrations.database.templateStorage', e.target.checked)}
                         className="rounded"
                       />
                       <span>אחסון Templates</span>
@@ -975,16 +894,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="number"
                     value={config.mediaConfig?.maxSizes?.image || 5}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      mediaConfig: {
-                        ...config.mediaConfig!,
-                        maxSizes: {
-                          ...config.mediaConfig!.maxSizes!,
-                          image: parseInt(e.target.value)
-                        }
-                      }
-                    })}
+                    onChange={(e) => handleFieldChange('mediaConfig.maxSizes.image', parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -993,16 +903,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="number"
                     value={config.mediaConfig?.maxSizes?.video || 16}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      mediaConfig: {
-                        ...config.mediaConfig!,
-                        maxSizes: {
-                          ...config.mediaConfig!.maxSizes!,
-                          video: parseInt(e.target.value)
-                        }
-                      }
-                    })}
+                    onChange={(e) => handleFieldChange('mediaConfig.maxSizes.video', parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -1011,16 +912,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="number"
                     value={config.mediaConfig?.maxSizes?.document || 100}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      mediaConfig: {
-                        ...config.mediaConfig!,
-                        maxSizes: {
-                          ...config.mediaConfig!.maxSizes!,
-                          document: parseInt(e.target.value)
-                        }
-                      }
-                    })}
+                    onChange={(e) => handleFieldChange('mediaConfig.maxSizes.document', parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -1030,10 +922,7 @@ export function WhatsappApiSetupSpec() {
                 <input
                   type="number"
                   value={config.mediaConfig?.retentionDays || 30}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    mediaConfig: { ...config.mediaConfig!, retentionDays: parseInt(e.target.value) }
-                  })}
+                  onChange={(e) => handleFieldChange('mediaConfig.retentionDays', parseInt(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
@@ -1050,10 +939,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="text"
                     value={config.pricingConfig?.countryCode || 'IL'}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      pricingConfig: { ...config.pricingConfig!, countryCode: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('pricingConfig.countryCode', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -1065,16 +951,7 @@ export function WhatsappApiSetupSpec() {
                     type="number"
                     step="0.001"
                     value={config.pricingConfig?.rates?.marketing || 0}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      pricingConfig: {
-                        ...config.pricingConfig!,
-                        rates: {
-                          ...config.pricingConfig!.rates!,
-                          marketing: parseFloat(e.target.value)
-                        }
-                      }
-                    })}
+                    onChange={(e) => handleFieldChange('pricingConfig.rates.marketing', parseFloat(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -1084,16 +961,7 @@ export function WhatsappApiSetupSpec() {
                     type="number"
                     step="0.001"
                     value={config.pricingConfig?.rates?.utility || 0}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      pricingConfig: {
-                        ...config.pricingConfig!,
-                        rates: {
-                          ...config.pricingConfig!.rates!,
-                          utility: parseFloat(e.target.value)
-                        }
-                      }
-                    })}
+                    onChange={(e) => handleFieldChange('pricingConfig.rates.utility', parseFloat(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -1103,16 +971,7 @@ export function WhatsappApiSetupSpec() {
                     type="number"
                     step="0.001"
                     value={config.pricingConfig?.rates?.authentication || 0}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      pricingConfig: {
-                        ...config.pricingConfig!,
-                        rates: {
-                          ...config.pricingConfig!.rates!,
-                          authentication: parseFloat(e.target.value)
-                        }
-                      }
-                    })}
+                    onChange={(e) => handleFieldChange('pricingConfig.rates.authentication', parseFloat(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -1123,10 +982,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="number"
                     value={config.pricingConfig?.estimatedMonthlyMessages || 0}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      pricingConfig: { ...config.pricingConfig!, estimatedMonthlyMessages: parseInt(e.target.value) }
-                    })}
+                    onChange={(e) => handleFieldChange('pricingConfig.estimatedMonthlyMessages', parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -1136,10 +992,7 @@ export function WhatsappApiSetupSpec() {
                     type="number"
                     step="0.01"
                     value={config.pricingConfig?.estimatedMonthlyCost || 0}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      pricingConfig: { ...config.pricingConfig!, estimatedMonthlyCost: parseFloat(e.target.value) }
-                    })}
+                    onChange={(e) => handleFieldChange('pricingConfig.estimatedMonthlyCost', parseFloat(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -1189,10 +1042,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="checkbox"
                     checked={config.testing?.sandboxMode || false}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      testing: { ...config.testing!, sandboxMode: e.target.checked }
-                    })}
+                    onChange={(e) => handleFieldChange('testing.sandboxMode', e.target.checked)}
                     className="rounded"
                   />
                   <span>Sandbox Mode</span>
@@ -1201,10 +1051,7 @@ export function WhatsappApiSetupSpec() {
                   <input
                     type="checkbox"
                     checked={config.testing?.testingCompleted || false}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      testing: { ...config.testing!, testingCompleted: e.target.checked }
-                    })}
+                    onChange={(e) => handleFieldChange('testing.testingCompleted', e.target.checked)}
                     className="rounded"
                   />
                   <span>בדיקות הושלמו</span>
@@ -1223,10 +1070,7 @@ export function WhatsappApiSetupSpec() {
                   type="number"
                   min="1"
                   value={config.metadata?.estimatedHours || 20}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    metadata: { ...config.metadata!, estimatedHours: parseInt(e.target.value) }
-                  })}
+                  onChange={(e) => handleFieldChange('metadata.estimatedHours', parseInt(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>

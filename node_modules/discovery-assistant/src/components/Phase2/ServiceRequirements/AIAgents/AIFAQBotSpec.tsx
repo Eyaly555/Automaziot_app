@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Save,
@@ -106,6 +106,13 @@ export const AIFAQBotSpec: React.FC = () => {
     autoSave: false
   });
 
+  const vectorDatabasePreference = useSmartField<string>({
+    fieldId: 'vector_database_preference',
+    localPath: 'vectorDatabase',
+    serviceId: 'ai-faq-bot',
+    autoSave: false
+  });
+
   const [config, setConfig] = useState<AIFAQBotConfig>({
     aiProvider: 'openai',
     model: 'gpt-4o-mini',
@@ -172,6 +179,10 @@ export const AIFAQBotSpec: React.FC = () => {
     }
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'ai-faq-bot',
@@ -195,25 +206,39 @@ export const AIFAQBotSpec: React.FC = () => {
     const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
     const existing = aiAgentServices.find((a: AIAgentServiceEntry) => a.serviceId === 'ai-faq-bot');
     if (existing?.requirements) {
-      setConfig(existing.requirements);
-      // Auto-populate smart field if config is already present
-      if (existing.requirements.model) {
-        aiModelPreference.setValue(existing.requirements.model);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements);
+
+        // Auto-populate smart field if config is already present
+        if (existing.requirements.model) {
+          aiModelPreference.setValue(existing.requirements.model);
+        }
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
       }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.aiAgentServices]);
 
   // Auto-save on changes
-  useEffect(() => {
-    if (config.aiProvider || config.model || config.vectorDatabase) {
-      const completeConfig = {
-        ...config,
-        model: aiModelPreference.value,
-        vectorDatabase: vectorDatabasePreference.value
-      };
-      saveData(completeConfig);
-    }
-  }, [config, aiModelPreference.value, vectorDatabasePreference.value, saveData]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.aiProvider || config.model || config.vectorDatabase) {
+  //     const completeConfig = {
+  //       ...config,
+  //       model: aiModelPreference.value,
+  //       vectorDatabase: vectorDatabasePreference.value
+  //     };
+  //     saveData(completeConfig);
+  //   }
+  // }, [config, aiModelPreference.value, vectorDatabasePreference.value, saveData]);
 
   // Cost calculator
   const estimatedMonthlyCost = useMemo(() => {
@@ -259,11 +284,39 @@ export const AIFAQBotSpec: React.FC = () => {
     };
   }, [config.costEstimation, config.aiProvider, config.model, config.knowledgeBase.faqCount, config.vectorDatabase]);
 
+  // ✅ handleFieldChange - לשדות שמשתנים
+  const handleFieldChange = useCallback((field: string, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+
+      // Save after state update
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            model: aiModelPreference.value,
+            vectorDatabase: vectorDatabasePreference.value,
+            costEstimation: {
+              ...updated.costEstimation,
+              estimatedMonthlyCost: parseFloat(estimatedMonthlyCost.totalMonthlyCost)
+            }
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+
+      return updated;
+    });
+  }, [saveData, aiModelPreference.value, vectorDatabasePreference.value, estimatedMonthlyCost]);
+
   const handleSave = async () => {
+    if (isLoadingRef.current) return;
+
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
       model: aiModelPreference.value || config.model,
+      vectorDatabase: vectorDatabasePreference.value,
       costEstimation: {
         ...config.costEstimation,
         estimatedMonthlyCost: parseFloat(estimatedMonthlyCost.totalMonthlyCost)
@@ -271,7 +324,7 @@ export const AIFAQBotSpec: React.FC = () => {
     };
 
     // Save using auto-save (manual save trigger)
-    await saveData(completeConfig);
+    await saveData(completeConfig, 'manual');
 
     navigate('/phase2');
   };

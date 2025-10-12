@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
+import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { Card } from '../../../Common/Card';
 
 export function ImplWorkflowPlatformSpec() {
@@ -9,39 +10,102 @@ export function ImplWorkflowPlatformSpec() {
     ...{ platform: 'n8n_selfhosted', estimatedDays: 7 }
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'impl-workflow-platform',
     category: 'systemImplementations'
   });
 
+  useBeforeUnload(() => {
+    // Force save all data when leaving
+    saveData(config);
+  });
+
   useEffect(() => {
     const systemImplementations = currentMeeting?.implementationSpec?.systemImplementations || [];
     const existing = systemImplementations.find((s: any) => s.serviceId === 'impl-workflow-platform');
     if (existing?.requirements) {
-      setConfig(existing.requirements);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.systemImplementations]);
 
   // Auto-save whenever config changes
-  useEffect(() => {
-    if (config.platform) { // Only save if we have basic data
-      saveData(config);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.platform) { // Only save if we have basic data
+  //     saveData(config);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [config]);
+
+  const handleFieldChange = useCallback((field: keyof typeof config, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = { ...updated }; // No smart fields in this component
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [saveData]);
 
   // Manual save handler (kept for compatibility, but auto-save is primary)
-  const handleManualSave = async () => {
+  const handleSave = useCallback(async () => {
+    if (isLoadingRef.current) return; // Don't save during loading
+
+    const completeConfig = { ...config }; // No smart fields in this component
+
     // Force immediate save
-    await saveData(config);
-  };
+    await saveData(completeConfig, 'manual');
+  }, [config, saveData]);
 
   return (
     <div className="space-y-6" dir="rtl">
       <Card title="שירות #48: הטמעת פלטפורמת Workflow">
         <div className="space-y-4">
-          <div><select className="w-full px-3 py-2 border border-gray-300 rounded-md"><option>n8n Self-Hosted</option><option>n8n Cloud</option><option>Zapier</option><option>Make</option></select></div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">פלטפורמת Workflow</label>
+            <select
+              value={config.platform || 'n8n_selfhosted'}
+              onChange={(e) => handleFieldChange('platform', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            >
+              <option value="n8n_selfhosted">n8n Self-Hosted</option>
+              <option value="n8n_cloud">n8n Cloud</option>
+              <option value="zapier">Zapier</option>
+              <option value="make">Make</option>
+            </select>
+          </div>
+
+          {config.platform === 'n8n_selfhosted' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">ימים משוערים להטמעה</label>
+              <input
+                type="number"
+                value={config.estimatedDays || 7}
+                onChange={(e) => handleFieldChange('estimatedDays', parseInt(e.target.value))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              />
+            </div>
+          )}
           {/* Auto-Save Status and Manual Save */}
           <div className="flex justify-between items-center gap-4 pt-4 border-t">
             <div className="flex items-center gap-2">
@@ -64,7 +128,7 @@ export function ImplWorkflowPlatformSpec() {
               )}
             </div>
             <button
-              onClick={handleManualSave}
+              onClick={handleSave}
               disabled={isSaving}
               className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
             >

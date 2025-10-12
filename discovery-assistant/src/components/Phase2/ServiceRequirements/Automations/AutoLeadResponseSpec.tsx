@@ -8,7 +8,7 @@
  * @category Automations
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import type { AutoLeadResponseRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
@@ -25,7 +25,7 @@ import { extractBusinessContext } from '../../../../utils/fieldMapper';
  * Enhanced Auto Lead Response Spec with Smart Field Pre-population
  * 
  * SMART FEATURES:
- * - Auto-fills CRM system, email provider, n8n instance from Phase 1/other services
+ * - Auto-fills CRM system, email provider, n8n instance from Phase 1 if already selected
  * - Shows business context from Phase 1 (lead volume, current response time)
  * - Validates against Phase 1 data
  * - Generates intelligent developer instructions
@@ -100,6 +100,10 @@ export function AutoLeadResponseSpec() {
     }
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-lead-response',
@@ -110,10 +114,19 @@ export function AutoLeadResponseSpec() {
     // Force save all data when leaving
     const completeConfig = {
       ...config,
-      crmSystem: crmSystem.value,
-      emailProvider: emailProvider.value,
-      n8nInstanceUrl: n8nInstanceUrl.value,
-      alertEmail: alertEmail.value
+      crmAccess: {
+        ...config.crmAccess,
+        system: crmSystem.value || config.crmAccess.system
+      },
+      emailServiceAccess: {
+        ...config.emailServiceAccess,
+        provider: emailProvider.value || config.emailServiceAccess.provider
+      },
+      n8nWorkflow: {
+        ...config.n8nWorkflow,
+        instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow.instanceUrl,
+        webhookEndpoint: n8nWebhookEndpoint.value || config.n8nWorkflow.webhookEndpoint
+      }
     };
     saveData(completeConfig);
   });
@@ -128,23 +141,64 @@ export function AutoLeadResponseSpec() {
       : undefined;
 
     if (existing?.requirements) {
-      setConfig(existing.requirements);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements as AutoLeadResponseRequirements);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.automations]);
 
   // Auto-save on changes
-  useEffect(() => {
-    if (config.formPlatformAccess?.platform || config.emailServiceAccess?.provider) {
-      const completeConfig = {
-        ...config,
-        crmSystem: crmSystem.value,
-        emailProvider: emailProvider.value,
-        n8nInstanceUrl: n8nInstanceUrl.value,
-        alertEmail: alertEmail.value
-      };
-      saveData(completeConfig);
-    }
-  }, [config, crmSystem.value, emailProvider.value, n8nInstanceUrl.value, alertEmail.value, saveData]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.formPlatformAccess?.platform || config.emailServiceAccess?.provider) {
+  //     const completeConfig = {
+  //       ...config,
+  //       crmSystem: crmSystem.value,
+  //       emailProvider: emailProvider.value,
+  //       n8nInstanceUrl: n8nInstanceUrl.value,
+  //       alertEmail: alertEmail.value
+  //     };
+  //     saveData(completeConfig);
+  //   }
+  // }, [config, crmSystem.value, emailProvider.value, n8nInstanceUrl.value, alertEmail.value, saveData]);
+
+  const handleFieldChange = useCallback((field: keyof AutoLeadResponseRequirements, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            crmAccess: {
+              ...updated.crmAccess,
+              system: crmSystem.value || updated.crmAccess.system
+            },
+            emailServiceAccess: {
+              ...updated.emailServiceAccess,
+              provider: emailProvider.value || updated.emailServiceAccess.provider
+            },
+            n8nWorkflow: {
+              ...updated.n8nWorkflow,
+              instanceUrl: n8nInstanceUrl.value || updated.n8nWorkflow.instanceUrl,
+              webhookEndpoint: n8nWebhookEndpoint.value || updated.n8nWorkflow.webhookEndpoint
+            }
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [crmSystem.value, emailProvider.value, n8nInstanceUrl.value, n8nWebhookEndpoint.value, saveData]);
 
   // Validation function
   const validateForm = (): boolean => {
@@ -171,7 +225,9 @@ export function AutoLeadResponseSpec() {
   };
 
   // Save handler
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
+    if (isLoadingRef.current) return; // Don't save during loading
+
     if (!validateForm()) {
       alert('נא למלא את כל השדות הנדרשים');
       return;
@@ -199,7 +255,7 @@ export function AutoLeadResponseSpec() {
     await saveData(completeConfig, 'manual');
 
     alert('✅ הגדרות נשמרו בהצלחה! השדות האוטומטיים ישמרו גם לשירותים אחרים.');
-  };
+  }, [config, crmSystem.value, emailProvider.value, n8nInstanceUrl.value, n8nWebhookEndpoint.value, saveData, validateForm]);
 
   return (
     <div className="space-y-6 p-8" dir="rtl">
@@ -266,10 +322,7 @@ export function AutoLeadResponseSpec() {
                 <input
                   type="text"
                   value={config.formPlatformAccess.platform || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    formPlatformAccess: { ...config.formPlatformAccess, platform: e.target.value }
-                  })}
+                  onChange={(e) => handleFieldChange('formPlatformAccess.platform', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   placeholder="Wix, WordPress, Elementor, Google Forms, וכו'"
                 />
@@ -283,10 +336,7 @@ export function AutoLeadResponseSpec() {
                 <input
                   type="text"
                   value={config.formPlatformAccess.apiKey || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    formPlatformAccess: { ...config.formPlatformAccess, apiKey: e.target.value }
-                  })}
+                  onChange={(e) => handleFieldChange('formPlatformAccess.apiKey', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   placeholder="API Key"
                 />
@@ -297,10 +347,7 @@ export function AutoLeadResponseSpec() {
                   <input
                     type="checkbox"
                     checked={config.formPlatformAccess.webhookCapability || false}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      formPlatformAccess: { ...config.formPlatformAccess, webhookCapability: e.target.checked }
-                    })}
+                    onChange={(e) => handleFieldChange('formPlatformAccess.webhookCapability', e.target.checked)}
                     className="rounded border-gray-300"
                   />
                   <span className="text-sm">תמיכה ב-Webhooks</span>
@@ -310,10 +357,7 @@ export function AutoLeadResponseSpec() {
                   <input
                     type="checkbox"
                     checked={config.formPlatformAccess.pluginRequired || false}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      formPlatformAccess: { ...config.formPlatformAccess, pluginRequired: e.target.checked }
-                    })}
+                    onChange={(e) => handleFieldChange('formPlatformAccess.pluginRequired', e.target.checked)}
                     className="rounded border-gray-300"
                   />
                   <span className="text-sm">נדרש פלאגין</span>
@@ -362,10 +406,7 @@ export function AutoLeadResponseSpec() {
                 <input
                   type="password"
                   value={config.emailServiceAccess.apiKey || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    emailServiceAccess: { ...config.emailServiceAccess, apiKey: e.target.value }
-                  })}
+                  onChange={(e) => handleFieldChange('emailServiceAccess.apiKey', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   placeholder="API Key"
                 />
@@ -379,16 +420,7 @@ export function AutoLeadResponseSpec() {
                   <input
                     type="number"
                     value={config.emailServiceAccess.rateLimits.daily || 0}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      emailServiceAccess: {
-                        ...config.emailServiceAccess,
-                        rateLimits: {
-                          ...config.emailServiceAccess.rateLimits,
-                          daily: parseInt(e.target.value) || 0
-                        }
-                      }
-                    })}
+                    onChange={(e) => handleFieldChange('emailServiceAccess.rateLimits.daily', parseInt(e.target.value) || 0)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     min="0"
                   />
@@ -401,16 +433,7 @@ export function AutoLeadResponseSpec() {
                   <input
                     type="number"
                     value={config.emailServiceAccess.rateLimits.monthly || 0}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      emailServiceAccess: {
-                        ...config.emailServiceAccess,
-                        rateLimits: {
-                          ...config.emailServiceAccess.rateLimits,
-                          monthly: parseInt(e.target.value) || 0
-                        }
-                      }
-                    })}
+                    onChange={(e) => handleFieldChange('emailServiceAccess.rateLimits.monthly', parseInt(e.target.value) || 0)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     min="0"
                   />
@@ -421,10 +444,7 @@ export function AutoLeadResponseSpec() {
                 <input
                   type="checkbox"
                   checked={config.emailServiceAccess.domainVerified || false}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    emailServiceAccess: { ...config.emailServiceAccess, domainVerified: e.target.checked }
-                  })}
+                  onChange={(e) => handleFieldChange('emailServiceAccess.domainVerified', e.target.checked)}
                   className="rounded border-gray-300"
                 />
                 <span className="text-sm">דומיין מאומת</span>
@@ -471,10 +491,7 @@ export function AutoLeadResponseSpec() {
                 </label>
                 <select
                   value={config.crmAccess.authMethod || 'oauth'}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    crmAccess: { ...config.crmAccess, authMethod: e.target.value as 'oauth' | 'api_key' | 'basic_auth' }
-                  })}
+                  onChange={(e) => handleFieldChange('crmAccess.authMethod', e.target.value as 'oauth' | 'api_key' | 'basic_auth')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 >
                   <option value="oauth">OAuth</option>
@@ -490,10 +507,7 @@ export function AutoLeadResponseSpec() {
                 <input
                   type="text"
                   value={config.crmAccess.module || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    crmAccess: { ...config.crmAccess, module: e.target.value }
-                  })}
+                  onChange={(e) => handleFieldChange('crmAccess.module', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   placeholder="Leads, Contacts, Potentials"
                 />
@@ -570,16 +584,7 @@ export function AutoLeadResponseSpec() {
                   <input
                     type="number"
                     value={config.n8nWorkflow.errorHandling.retryAttempts || 3}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      n8nWorkflow: {
-                        ...config.n8nWorkflow,
-                        errorHandling: {
-                          ...config.n8nWorkflow.errorHandling,
-                          retryAttempts: parseInt(e.target.value) || 3
-                        }
-                      }
-                    })}
+                    onChange={(e) => handleFieldChange('n8nWorkflow.errorHandling.retryAttempts', parseInt(e.target.value) || 3)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     min="0"
                     max="10"
@@ -593,16 +598,7 @@ export function AutoLeadResponseSpec() {
                   <input
                     type="email"
                     value={config.n8nWorkflow.errorHandling.alertEmail || ''}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      n8nWorkflow: {
-                        ...config.n8nWorkflow,
-                        errorHandling: {
-                          ...config.n8nWorkflow.errorHandling,
-                          alertEmail: e.target.value
-                        }
-                      }
-                    })}
+                    onChange={(e) => handleFieldChange('n8nWorkflow.errorHandling.alertEmail', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     placeholder="alerts@example.com"
                   />
@@ -613,10 +609,7 @@ export function AutoLeadResponseSpec() {
                 <input
                   type="checkbox"
                   checked={config.n8nWorkflow.httpsEnabled || true}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    n8nWorkflow: { ...config.n8nWorkflow, httpsEnabled: e.target.checked }
-                  })}
+                  onChange={(e) => handleFieldChange('n8nWorkflow.httpsEnabled', e.target.checked)}
                   className="rounded border-gray-300"
                 />
                 <span className="text-sm">HTTPS מופעל</span>

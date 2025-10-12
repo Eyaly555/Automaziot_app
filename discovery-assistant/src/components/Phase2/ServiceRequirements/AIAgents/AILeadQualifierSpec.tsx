@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Save,
@@ -139,6 +139,10 @@ export const AILeadQualifierSpec: React.FC = () => {
     }
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'ai-lead-qualifier',
@@ -149,7 +153,7 @@ export const AILeadQualifierSpec: React.FC = () => {
     // Force save all data when leaving
     const completeConfig = {
       ...config,
-      aiModel: aiModelPreference.value,
+      model: aiModelPreference.value,
       crmSystem: crmSystem.value
     };
     saveData(completeConfig);
@@ -161,36 +165,109 @@ export const AILeadQualifierSpec: React.FC = () => {
   useEffect(() => {
     const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
     const existing = aiAgentServices.find((a: AIAgentServiceEntry) => a.serviceId === 'ai-lead-qualifier');
+
     if (existing?.requirements) {
-      setConfig(existing.requirements as AILeadQualifierRequirements);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements as AILeadQualifierRequirements);
+
+        // Set smart field values if existing
+        if (existing.requirements.model) {
+          aiModelPreference.setValue(existing.requirements.model);
+        }
+        if (existing.requirements.crmSystem) {
+          crmSystem.setValue(existing.requirements.crmSystem);
+        }
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.aiAgentServices]);
 
   // Auto-save on changes
-  useEffect(() => {
-    if (config.aiProvider || config.model || config.crmSystem) {
-      const completeConfig = {
-        ...config,
-        aiModel: aiModelPreference.value,
-        crmSystem: crmSystem.value
-      };
-      saveData(completeConfig);
-    }
-  }, [config, aiModelPreference.value, crmSystem.value, saveData]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.aiProvider || config.model || config.crmSystem) {
+  //     const completeConfig = {
+  //       ...config,
+  //       model: aiModelPreference.value,
+  //       crmSystem: crmSystem.value
+  //     };
+  //     saveData(completeConfig);
+  //   }
+  // }, [config, aiModelPreference.value, crmSystem.value, saveData]);
 
-  const handleSave = async () => {
-    // Build complete config with smart field values
+  const handleFieldChange = useCallback(<T extends keyof AILeadQualifierRequirements>(
+    field: T,
+    value: AILeadQualifierRequirements[T]
+  ) => {
+    setConfig(prevConfig => {
+      const updatedConfig = { ...prevConfig, [field]: value };
+
+      // Save after state update (only if not loading)
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updatedConfig,
+            model: aiModelPreference.value || updatedConfig.model,
+            crmSystem: crmSystem.value || updatedConfig.crmSystem
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+
+      return updatedConfig;
+    });
+  }, [aiModelPreference.value, crmSystem.value, saveData]);
+
+  const handleNestedFieldChange = useCallback((
+    parentField: keyof AILeadQualifierRequirements,
+    nestedPath: string,
+    value: any
+  ) => {
+    setConfig(prevConfig => {
+      const updatedConfig = { ...prevConfig };
+      let current = updatedConfig[parentField];
+      const pathParts = nestedPath.split('.');
+      for (let i = 0; i < pathParts.length - 1; i++) {
+        current = current[pathParts[i]];
+      }
+      current[pathParts[pathParts.length - 1]] = value;
+
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updatedConfig,
+            model: aiModelPreference.value || updatedConfig.model,
+            crmSystem: crmSystem.value || updatedConfig.crmSystem
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+
+      return updatedConfig;
+    });
+  }, [aiModelPreference.value, crmSystem.value, saveData]);
+
+  const handleSave = useCallback(async () => {
+    if (isLoadingRef.current) return; // Don't save during loading
+
     const completeConfig = {
       ...config,
-      aiModel: aiModelPreference.value,
-      crmSystem: crmSystem.value
+      model: aiModelPreference.value || config.model,
+      crmSystem: crmSystem.value || config.crmSystem
     };
 
-    // Save using auto-save (manual save trigger)
-    await saveData(completeConfig);
-
+    await saveData(completeConfig, 'manual');
     navigate('/phase2');
-  };
+  }, [config, aiModelPreference.value, crmSystem.value, saveData, navigate]);
 
   const getModelOptions = () => {
     return config.aiProvider === 'openai' ? OPENAI_MODELS :
@@ -200,45 +277,42 @@ export const AILeadQualifierSpec: React.FC = () => {
 
   // BANT Question Management
   const addBantQuestion = (category: 'budget' | 'authority' | 'need' | 'timeline') => {
-    setConfig({
-      ...config,
+    setConfig(prevConfig => ({
+      ...prevConfig,
       bantCriteria: {
-        ...config.bantCriteria,
+        ...prevConfig.bantCriteria,
         [category]: {
-          ...config.bantCriteria[category],
-          questions: [...config.bantCriteria[category].questions, '']
+          ...prevConfig.bantCriteria[category],
+          questions: [...prevConfig.bantCriteria[category].questions, '']
         }
       }
-    });
+    }));
   };
 
   const removeBantQuestion = (category: 'budget' | 'authority' | 'need' | 'timeline', index: number) => {
-    const questions = [...config.bantCriteria[category].questions];
-    questions.splice(index, 1);
-    setConfig({
-      ...config,
-      bantCriteria: {
-        ...config.bantCriteria,
-        [category]: {
-          ...config.bantCriteria[category],
-          questions
+    setConfig(prevConfig => {
+      const updatedQuestions = prevConfig.bantCriteria[category].questions.filter((_, i) => i !== index);
+      return {
+        ...prevConfig,
+        bantCriteria: {
+          ...prevConfig.bantCriteria,
+          [category]: { ...prevConfig.bantCriteria[category], questions: updatedQuestions }
         }
-      }
+      };
     });
   };
 
   const updateBantQuestion = (category: 'budget' | 'authority' | 'need' | 'timeline', index: number, value: string) => {
-    const questions = [...config.bantCriteria[category].questions];
-    questions[index] = value;
-    setConfig({
-      ...config,
-      bantCriteria: {
-        ...config.bantCriteria,
-        [category]: {
-          ...config.bantCriteria[category],
-          questions
+    setConfig(prevConfig => {
+      const updatedQuestions = [...prevConfig.bantCriteria[category].questions];
+      updatedQuestions[index] = value;
+      return {
+        ...prevConfig,
+        bantCriteria: {
+          ...prevConfig.bantCriteria,
+          [category]: { ...prevConfig.bantCriteria[category], questions: updatedQuestions }
         }
-      }
+      };
     });
   };
 
@@ -342,11 +416,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                     </label>
                     <Select
                       value={config.aiProvider}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        aiProvider: e.target.value as AIProvider,
-                        model: e.target.value === 'openai' ? 'gpt-4o' : 'claude-3.5-sonnet'
-                      })}
+                      onChange={(e) => handleFieldChange('aiProvider', e.target.value as AIProvider)}
                       options={AI_PROVIDERS}
                     />
                   </div>
@@ -410,7 +480,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={config.crmCredentialsReady}
-                        onChange={(e) => setConfig({ ...config, crmCredentialsReady: e.target.checked })}
+                        onChange={(e) => handleFieldChange('crmCredentialsReady', e.target.checked)}
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium text-gray-700">
@@ -452,13 +522,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                     <Input
                       type="number"
                       value={config.bantCriteria.budget.minimumBudget || ''}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        bantCriteria: {
-                          ...config.bantCriteria,
-                          budget: { ...config.bantCriteria.budget, minimumBudget: parseInt(e.target.value) || undefined }
-                        }
-                      })}
+                      onChange={(e) => handleNestedFieldChange('bantCriteria', 'budget.minimumBudget', parseInt(e.target.value) || undefined)}
                       placeholder="50000"
                     />
                   </div>
@@ -501,13 +565,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                       min="0"
                       max="25"
                       value={config.bantCriteria.budget.scoreWeight}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        bantCriteria: {
-                          ...config.bantCriteria,
-                          budget: { ...config.bantCriteria.budget, scoreWeight: parseInt(e.target.value) }
-                        }
-                      })}
+                      onChange={(e) => handleNestedFieldChange('bantCriteria', 'budget.scoreWeight', parseInt(e.target.value))}
                     />
                   </div>
                 </div>
@@ -525,16 +583,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                     </label>
                     <Input
                       value={config.bantCriteria.authority.decisionMakerRoles.join(', ')}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        bantCriteria: {
-                          ...config.bantCriteria,
-                          authority: {
-                            ...config.bantCriteria.authority,
-                            decisionMakerRoles: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                          }
-                        }
-                      })}
+                      onChange={(e) => handleNestedFieldChange('bantCriteria', 'authority.decisionMakerRoles', e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean))}
                       placeholder='מנכ"ל, סמנכ"ל, מנהל פרויקטים'
                     />
                   </div>
@@ -577,13 +626,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                       min="0"
                       max="25"
                       value={config.bantCriteria.authority.scoreWeight}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        bantCriteria: {
-                          ...config.bantCriteria,
-                          authority: { ...config.bantCriteria.authority, scoreWeight: parseInt(e.target.value) }
-                        }
-                      })}
+                      onChange={(e) => handleNestedFieldChange('bantCriteria', 'authority.scoreWeight', parseInt(e.target.value))}
                     />
                   </div>
                 </div>
@@ -601,16 +644,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                     </label>
                     <Input
                       value={config.bantCriteria.need.painPoints.join(', ')}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        bantCriteria: {
-                          ...config.bantCriteria,
-                          need: {
-                            ...config.bantCriteria.need,
-                            painPoints: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                          }
-                        }
-                      })}
+                      onChange={(e) => handleNestedFieldChange('bantCriteria', 'need.painPoints', e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean))}
                       placeholder="תהליך ידני, חוסר אוטומציה, בעיות קנה מידה"
                     />
                   </div>
@@ -653,13 +687,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                       min="0"
                       max="25"
                       value={config.bantCriteria.need.scoreWeight}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        bantCriteria: {
-                          ...config.bantCriteria,
-                          need: { ...config.bantCriteria.need, scoreWeight: parseInt(e.target.value) }
-                        }
-                      })}
+                      onChange={(e) => handleNestedFieldChange('bantCriteria', 'need.scoreWeight', parseInt(e.target.value))}
                     />
                   </div>
                 </div>
@@ -677,16 +705,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                     </label>
                     <Input
                       value={config.bantCriteria.timeline.idealTimelines.join(', ')}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        bantCriteria: {
-                          ...config.bantCriteria,
-                          timeline: {
-                            ...config.bantCriteria.timeline,
-                            idealTimelines: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                          }
-                        }
-                      })}
+                      onChange={(e) => handleNestedFieldChange('bantCriteria', 'timeline.idealTimelines', e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean))}
                       placeholder="מיידי, תוך 30 יום, תוך 90 יום, תוך רבעון"
                     />
                   </div>
@@ -729,13 +748,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                       min="0"
                       max="25"
                       value={config.bantCriteria.timeline.scoreWeight}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        bantCriteria: {
-                          ...config.bantCriteria,
-                          timeline: { ...config.bantCriteria.timeline, scoreWeight: parseInt(e.target.value) }
-                        }
-                      })}
+                      onChange={(e) => handleNestedFieldChange('bantCriteria', 'timeline.scoreWeight', parseInt(e.target.value))}
                     />
                   </div>
                 </div>
@@ -773,10 +786,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                       min="3"
                       max="15"
                       value={config.conversationFlow.maxQuestions}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        conversationFlow: { ...config.conversationFlow, maxQuestions: parseInt(e.target.value) }
-                      })}
+                      onChange={(e) => handleFieldChange('conversationFlow', { ...config.conversationFlow, maxQuestions: parseInt(e.target.value) })}
                     />
                     <p className="text-xs text-gray-500 mt-1">מומלץ: 5-8 שאלות</p>
                   </div>
@@ -787,10 +797,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                     </label>
                     <Select
                       value={config.conversationFlow.conversationType}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        conversationFlow: { ...config.conversationFlow, conversationType: e.target.value as any }
-                      })}
+                      onChange={(e) => handleFieldChange('conversationFlow', { ...config.conversationFlow, conversationType: e.target.value as any })}
                       options={CONVERSATION_TYPES}
                     />
                   </div>
@@ -802,10 +809,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                   </label>
                   <textarea
                     value={config.conversationFlow.greetingMessage}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      conversationFlow: { ...config.conversationFlow, greetingMessage: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('conversationFlow', { ...config.conversationFlow, greetingMessage: e.target.value })}
                     rows={3}
                     className="w-full rounded-md border border-gray-300 p-2"
                   />
@@ -817,10 +821,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                   </label>
                   <textarea
                     value={config.conversationFlow.completionMessage}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      conversationFlow: { ...config.conversationFlow, completionMessage: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('conversationFlow', { ...config.conversationFlow, completionMessage: e.target.value })}
                     rows={3}
                     className="w-full rounded-md border border-gray-300 p-2"
                   />
@@ -854,10 +855,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                       min="0"
                       max="100"
                       value={config.leadScoring.qualifiedThreshold}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        leadScoring: { ...config.leadScoring, qualifiedThreshold: parseInt(e.target.value) }
-                      })}
+                      onChange={(e) => handleFieldChange('leadScoring', { ...config.leadScoring, qualifiedThreshold: parseInt(e.target.value) })}
                     />
                     <p className="text-xs text-gray-500 mt-1">מתחת לסף = unqualified</p>
                   </div>
@@ -867,10 +865,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={config.leadScoring.usePredictiveAnalytics}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          leadScoring: { ...config.leadScoring, usePredictiveAnalytics: e.target.checked }
-                        })}
+                        onChange={(e) => handleFieldChange('leadScoring', { ...config.leadScoring, usePredictiveAnalytics: e.target.checked })}
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium text-gray-700">
@@ -887,16 +882,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={config.leadScoring.additionalFactors?.websiteBehavior || false}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          leadScoring: {
-                            ...config.leadScoring,
-                            additionalFactors: {
-                              ...config.leadScoring.additionalFactors,
-                              websiteBehavior: e.target.checked
-                            }
-                          }
-                        })}
+                        onChange={(e) => handleNestedFieldChange('leadScoring', 'additionalFactors.websiteBehavior', e.target.checked)}
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm text-gray-700">התנהגות באתר (Website Behavior)</span>
@@ -906,16 +892,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={config.leadScoring.additionalFactors?.emailEngagement || false}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          leadScoring: {
-                            ...config.leadScoring,
-                            additionalFactors: {
-                              ...config.leadScoring.additionalFactors,
-                              emailEngagement: e.target.checked
-                            }
-                          }
-                        })}
+                        onChange={(e) => handleNestedFieldChange('leadScoring', 'additionalFactors.emailEngagement', e.target.checked)}
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm text-gray-700">מעורבות באימיילים (Email Engagement)</span>
@@ -925,16 +902,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={config.leadScoring.additionalFactors?.contentDownloads || false}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          leadScoring: {
-                            ...config.leadScoring,
-                            additionalFactors: {
-                              ...config.leadScoring.additionalFactors,
-                              contentDownloads: e.target.checked
-                            }
-                          }
-                        })}
+                        onChange={(e) => handleNestedFieldChange('leadScoring', 'additionalFactors.contentDownloads', e.target.checked)}
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm text-gray-700">הורדות תוכן (Content Downloads)</span>
@@ -965,10 +933,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                     <input
                       type="checkbox"
                       checked={config.followUp.autoThankYouEmail}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        followUp: { ...config.followUp, autoThankYouEmail: e.target.checked }
-                      })}
+                      onChange={(e) => handleFieldChange('followUp', { ...config.followUp, autoThankYouEmail: e.target.checked })}
                       className="rounded border-gray-300"
                     />
                     <span className="text-sm font-medium text-gray-700">
@@ -985,10 +950,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                       min="1"
                       max="10"
                       value={config.followUp.maxFollowUpAttempts}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        followUp: { ...config.followUp, maxFollowUpAttempts: parseInt(e.target.value) }
-                      })}
+                      onChange={(e) => handleFieldChange('followUp', { ...config.followUp, maxFollowUpAttempts: parseInt(e.target.value) })}
                     />
                   </div>
                 </div>
@@ -999,10 +961,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                   </label>
                   <textarea
                     value={config.followUp.qualifiedEmailTemplate || ''}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      followUp: { ...config.followUp, qualifiedEmailTemplate: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('followUp', { ...config.followUp, qualifiedEmailTemplate: e.target.value })}
                     rows={4}
                     className="w-full rounded-md border border-gray-300 p-2"
                     placeholder="תודה רבה! המידע שלך מעיד על התאמה מצוינת..."
@@ -1015,10 +974,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                   </label>
                   <textarea
                     value={config.followUp.unqualifiedEmailTemplate || ''}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      followUp: { ...config.followUp, unqualifiedEmailTemplate: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('followUp', { ...config.followUp, unqualifiedEmailTemplate: e.target.value })}
                     rows={4}
                     className="w-full rounded-md border border-gray-300 p-2"
                     placeholder="תודה על התעניינותך! כרגע נראה שהפתרון שלנו לא מתאים..."
@@ -1052,10 +1008,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                       type="number"
                       min="1"
                       value={config.performance.dailyLeadVolume}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        performance: { ...config.performance, dailyLeadVolume: parseInt(e.target.value) }
-                      })}
+                      onChange={(e) => handleFieldChange('performance', { ...config.performance, dailyLeadVolume: parseInt(e.target.value) })}
                     />
                   </div>
 
@@ -1068,10 +1021,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                       min="0"
                       max="100"
                       value={config.performance.qualificationRateTarget}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        performance: { ...config.performance, qualificationRateTarget: parseInt(e.target.value) }
-                      })}
+                      onChange={(e) => handleFieldChange('performance', { ...config.performance, qualificationRateTarget: parseInt(e.target.value) })}
                     />
                     <p className="text-xs text-gray-500 mt-1">כמה % מהלידים יהיו מוסמכים</p>
                   </div>
@@ -1085,10 +1035,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                       min="0"
                       max="100"
                       value={config.performance.completionRateTarget}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        performance: { ...config.performance, completionRateTarget: parseInt(e.target.value) }
-                      })}
+                      onChange={(e) => handleFieldChange('performance', { ...config.performance, completionRateTarget: parseInt(e.target.value) })}
                     />
                     <p className="text-xs text-gray-500 mt-1">כמה % מהלידים ישלימו את השאלון</p>
                   </div>
@@ -1105,7 +1052,7 @@ export const AILeadQualifierSpec: React.FC = () => {
                           onChange={(e) => {
                             const updated = [...config.channels];
                             updated[idx] = { ...updated[idx], enabled: e.target.checked };
-                            setConfig({ ...config, channels: updated });
+                            handleFieldChange('channels', updated);
                           }}
                           className="rounded border-gray-300"
                         />

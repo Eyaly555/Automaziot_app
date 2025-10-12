@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useSmartField } from '../../../../hooks/useSmartField';
@@ -14,28 +14,28 @@ export function AutoEmailTemplatesSpec() {
   // Smart fields with auto-population
   const emailProvider = useSmartField<string>({
     fieldId: 'email_provider',
-    localPath: 'emailProvider',
+    localPath: 'emailServiceAccess.provider',
     serviceId: 'auto-email-templates',
     autoSave: false
   });
 
   const crmSystem = useSmartField<string>({
     fieldId: 'crm_system',
-    localPath: 'crmSystem',
+    localPath: 'crmAccess.system',
     serviceId: 'auto-email-templates',
     autoSave: false
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
-    localPath: 'alertEmail',
+    localPath: 'n8nWorkflow.errorHandling.alertEmail',
     serviceId: 'auto-email-templates',
     autoSave: false
   });
 
   const n8nInstanceUrl = useSmartField<string>({
     fieldId: 'n8n_instance_url',
-    localPath: 'n8nInstanceUrl',
+    localPath: 'n8nWorkflow.instanceUrl',
     serviceId: 'auto-email-templates',
     autoSave: false
   });
@@ -85,6 +85,10 @@ export function AutoEmailTemplatesSpec() {
 
   const [activeTab, setActiveTab] = useState<'service' | 'domain' | 'template' | 'crm' | 'workflow' | 'design' | 'testing'>('service');
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-email-templates',
@@ -95,36 +99,56 @@ export function AutoEmailTemplatesSpec() {
     const automations = currentMeeting?.implementationSpec?.automations || [];
     const existing = automations.find((item: any) => item.serviceId === 'auto-email-templates');
     if (existing?.requirements) {
-      setConfig(existing.requirements);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements as AutoEmailTemplatesRequirements);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.automations]);
 
   // Auto-save when config or smart field values change
-  useEffect(() => {
-    if (config.emailServiceAccess?.provider) { // Only save if we have basic data
-      // Build complete config with smart field values
-      const completeConfig = {
-        ...config,
-        emailServiceAccess: {
-          ...config.emailServiceAccess,
-          provider: emailProvider.value
-        },
-        crmAccess: {
-          ...config.crmAccess,
-          system: crmSystem.value
-        },
-        n8nWorkflow: {
-          ...config.n8nWorkflow,
-          instanceUrl: n8nInstanceUrl.value,
-          errorHandling: {
-            ...config.n8nWorkflow.errorHandling,
-            alertEmail: alertEmail.value
-          }
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // Auto-save is now handled by handleFieldChange callback
+
+  const handleFieldChange = useCallback((field: string, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            emailServiceAccess: {
+              ...updated.emailServiceAccess,
+              provider: emailProvider.value || updated.emailServiceAccess.provider
+            },
+            crmAccess: {
+              ...updated.crmAccess,
+              system: crmSystem.value || updated.crmAccess.system
+            },
+            n8nWorkflow: {
+              ...updated.n8nWorkflow,
+              instanceUrl: n8nInstanceUrl.value || updated.n8nWorkflow.instanceUrl,
+              errorHandling: {
+                ...updated.n8nWorkflow.errorHandling,
+                alertEmail: alertEmail.value || updated.n8nWorkflow.errorHandling.alertEmail
+              }
+            }
+          };
+          saveData(completeConfig);
         }
-      };
-      saveData(completeConfig);
-    }
-  }, [config, emailProvider.value, crmSystem.value, n8nInstanceUrl.value, alertEmail.value, saveData]);
+      }, 0);
+      return updated;
+    });
+  }, [saveData, emailProvider.value, crmSystem.value, n8nInstanceUrl.value, alertEmail.value]);
 
   // Manual save handler (kept for compatibility, but auto-save is primary)
   const handleManualSave = async () => {
@@ -133,18 +157,18 @@ export function AutoEmailTemplatesSpec() {
       ...config,
       emailServiceAccess: {
         ...config.emailServiceAccess,
-        provider: emailProvider.value
+        provider: emailProvider.value || config.emailServiceAccess?.provider
       },
       crmAccess: {
         ...config.crmAccess,
-        system: crmSystem.value
+        system: crmSystem.value || config.crmAccess?.system
       },
       n8nWorkflow: {
         ...config.n8nWorkflow,
-        instanceUrl: n8nInstanceUrl.value,
+        instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow?.instanceUrl,
         errorHandling: {
           ...config.n8nWorkflow.errorHandling,
-          alertEmail: alertEmail.value
+          alertEmail: alertEmail.value || config.n8nWorkflow.errorHandling?.alertEmail
         }
       }
     };
@@ -152,12 +176,12 @@ export function AutoEmailTemplatesSpec() {
   };
 
   const addCrmField = () => {
-    setConfig({
-      ...config,
+    setConfig(prev => ({
+      ...prev,
       crmAccess: {
-        ...config.crmAccess,
+        ...prev.crmAccess,
         fieldsAvailable: [
-          ...config.crmAccess.fieldsAvailable,
+          ...prev.crmAccess.fieldsAvailable,
           {
             apiName: '',
             label: '',
@@ -165,36 +189,36 @@ export function AutoEmailTemplatesSpec() {
           }
         ]
       }
-    });
+    }));
   };
 
   const removeCrmField = (index: number) => {
-    setConfig({
-      ...config,
+    setConfig(prev => ({
+      ...prev,
       crmAccess: {
-        ...config.crmAccess,
-        fieldsAvailable: config.crmAccess.fieldsAvailable.filter((_, i) => i !== index)
+        ...prev.crmAccess,
+        fieldsAvailable: prev.crmAccess.fieldsAvailable.filter((_, i) => i !== index)
       }
-    });
+    }));
   };
 
   const addDesignTemplate = () => {
     if (!config.designTools) {
-      setConfig({
-        ...config,
+      setConfig(prev => ({
+        ...prev,
         designTools: {
           tool: 'stripo',
           templates: []
         }
-      });
+      }));
     }
 
-    setConfig({
-      ...config,
+    setConfig(prev => ({
+      ...prev,
       designTools: {
-        ...config.designTools!,
+        ...prev.designTools!,
         templates: [
-          ...(config.designTools?.templates || []),
+          ...(prev.designTools?.templates || []),
           {
             id: generateId(),
             name: '',
@@ -202,19 +226,19 @@ export function AutoEmailTemplatesSpec() {
           }
         ]
       }
-    });
+    }));
   };
 
   const removeDesignTemplate = (index: number) => {
     if (!config.designTools) return;
 
-    setConfig({
-      ...config,
+    setConfig(prev => ({
+      ...prev,
       designTools: {
-        ...config.designTools,
-        templates: config.designTools.templates?.filter((_, i) => i !== index)
+        ...prev.designTools,
+        templates: prev.designTools.templates?.filter((_, i) => i !== index)
       }
-    });
+    }));
   };
 
   return (
@@ -363,19 +387,7 @@ export function AutoEmailTemplatesSpec() {
                           <input
                             type="password"
                             value={config.emailServiceAccess.sendgridCredentials?.apiKey || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              emailServiceAccess: {
-                                ...config.emailServiceAccess,
-                                sendgridCredentials: {
-                                  apiKey: e.target.value,
-                                  rateLimits: config.emailServiceAccess.sendgridCredentials?.rateLimits || {
-                                    free: { daily: 100 },
-                                    paid: { daily: 40000 }
-                                  }
-                                }
-                              }
-                            })}
+                            onChange={(e) => handleFieldChange('emailServiceAccess.sendgridCredentials.apiKey', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="SG.xxxxxxxxxxxxx"
                           />
@@ -400,19 +412,7 @@ export function AutoEmailTemplatesSpec() {
                             <input
                               type="number"
                               value={config.emailServiceAccess.sendgridCredentials?.rateLimits.paid.daily || 40000}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                emailServiceAccess: {
-                                  ...config.emailServiceAccess,
-                                  sendgridCredentials: {
-                                    ...config.emailServiceAccess.sendgridCredentials!,
-                                    rateLimits: {
-                                      ...config.emailServiceAccess.sendgridCredentials!.rateLimits,
-                                      paid: { daily: parseInt(e.target.value) || 40000 }
-                                    }
-                                  }
-                                }
-                              })}
+                              onChange={(e) => handleFieldChange('emailServiceAccess.sendgridCredentials.rateLimits.paid.daily', parseInt(e.target.value) || 40000)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             />
                           </div>
@@ -431,22 +431,7 @@ export function AutoEmailTemplatesSpec() {
                           <input
                             type="password"
                             value={config.emailServiceAccess.mailgunCredentials?.apiKey || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              emailServiceAccess: {
-                                ...config.emailServiceAccess,
-                                mailgunCredentials: {
-                                  ...config.emailServiceAccess.mailgunCredentials!,
-                                  apiKey: e.target.value,
-                                  domain: config.emailServiceAccess.mailgunCredentials?.domain || '',
-                                  region: config.emailServiceAccess.mailgunCredentials?.region || 'us',
-                                  rateLimits: config.emailServiceAccess.mailgunCredentials?.rateLimits || {
-                                    free: { monthly: 5000 },
-                                    paid: { monthly: 50000 }
-                                  }
-                                }
-                              }
-                            })}
+                            onChange={(e) => handleFieldChange('emailServiceAccess.mailgunCredentials.apiKey', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           />
                         </div>
@@ -457,16 +442,7 @@ export function AutoEmailTemplatesSpec() {
                           <input
                             type="text"
                             value={config.emailServiceAccess.mailgunCredentials?.domain || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              emailServiceAccess: {
-                                ...config.emailServiceAccess,
-                                mailgunCredentials: {
-                                  ...config.emailServiceAccess.mailgunCredentials!,
-                                  domain: e.target.value
-                                }
-                              }
-                            })}
+                            onChange={(e) => handleFieldChange('emailServiceAccess.mailgunCredentials.domain', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="mg.example.com"
                           />
@@ -477,16 +453,7 @@ export function AutoEmailTemplatesSpec() {
                           </label>
                           <select
                             value={config.emailServiceAccess.mailgunCredentials?.region || 'us'}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              emailServiceAccess: {
-                                ...config.emailServiceAccess,
-                                mailgunCredentials: {
-                                  ...config.emailServiceAccess.mailgunCredentials!,
-                                  region: e.target.value as 'us' | 'eu'
-                                }
-                              }
-                            })}
+                            onChange={(e) => handleFieldChange('emailServiceAccess.mailgunCredentials.region', e.target.value as 'us' | 'eu')}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           >
                             <option value="us">US</option>
@@ -512,19 +479,7 @@ export function AutoEmailTemplatesSpec() {
                             <input
                               type="number"
                               value={config.emailServiceAccess.mailgunCredentials?.rateLimits.paid.monthly || 50000}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                emailServiceAccess: {
-                                  ...config.emailServiceAccess,
-                                  mailgunCredentials: {
-                                    ...config.emailServiceAccess.mailgunCredentials!,
-                                    rateLimits: {
-                                      ...config.emailServiceAccess.mailgunCredentials!.rateLimits,
-                                      paid: { monthly: parseInt(e.target.value) || 50000 }
-                                    }
-                                  }
-                                }
-                              })}
+                              onChange={(e) => handleFieldChange('emailServiceAccess.mailgunCredentials.rateLimits.paid.monthly', parseInt(e.target.value) || 50000)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             />
                           </div>
@@ -544,20 +499,7 @@ export function AutoEmailTemplatesSpec() {
                             <input
                               type="text"
                               value={config.emailServiceAccess.smtpCredentials?.host || ''}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                emailServiceAccess: {
-                                  ...config.emailServiceAccess,
-                                  smtpCredentials: {
-                                    ...config.emailServiceAccess.smtpCredentials!,
-                                    host: e.target.value,
-                                    port: config.emailServiceAccess.smtpCredentials?.port || 587,
-                                    username: config.emailServiceAccess.smtpCredentials?.username || '',
-                                    password: config.emailServiceAccess.smtpCredentials?.password || '',
-                                    secure: config.emailServiceAccess.smtpCredentials?.secure || true
-                                  }
-                                }
-                              })}
+                              onChange={(e) => handleFieldChange('emailServiceAccess.smtpCredentials.host', e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                               placeholder="smtp.gmail.com"
                             />
@@ -569,16 +511,7 @@ export function AutoEmailTemplatesSpec() {
                             <input
                               type="number"
                               value={config.emailServiceAccess.smtpCredentials?.port || 587}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                emailServiceAccess: {
-                                  ...config.emailServiceAccess,
-                                  smtpCredentials: {
-                                    ...config.emailServiceAccess.smtpCredentials!,
-                                    port: parseInt(e.target.value) || 587
-                                  }
-                                }
-                              })}
+                              onChange={(e) => handleFieldChange('emailServiceAccess.smtpCredentials.port', parseInt(e.target.value) || 587)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             />
                           </div>
@@ -589,16 +522,7 @@ export function AutoEmailTemplatesSpec() {
                             <input
                               type="text"
                               value={config.emailServiceAccess.smtpCredentials?.username || ''}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                emailServiceAccess: {
-                                  ...config.emailServiceAccess,
-                                  smtpCredentials: {
-                                    ...config.emailServiceAccess.smtpCredentials!,
-                                    username: e.target.value
-                                  }
-                                }
-                              })}
+                              onChange={(e) => handleFieldChange('emailServiceAccess.smtpCredentials.username', e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             />
                           </div>
@@ -609,16 +533,7 @@ export function AutoEmailTemplatesSpec() {
                             <input
                               type="password"
                               value={config.emailServiceAccess.smtpCredentials?.password || ''}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                emailServiceAccess: {
-                                  ...config.emailServiceAccess,
-                                  smtpCredentials: {
-                                    ...config.emailServiceAccess.smtpCredentials!,
-                                    password: e.target.value
-                                  }
-                                }
-                              })}
+                              onChange={(e) => handleFieldChange('emailServiceAccess.smtpCredentials.password', e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             />
                           </div>
@@ -627,16 +542,7 @@ export function AutoEmailTemplatesSpec() {
                           <input
                             type="checkbox"
                             checked={config.emailServiceAccess.smtpCredentials?.secure || true}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              emailServiceAccess: {
-                                ...config.emailServiceAccess,
-                                smtpCredentials: {
-                                  ...config.emailServiceAccess.smtpCredentials!,
-                                  secure: e.target.checked
-                                }
-                              }
-                            })}
+                            onChange={(e) => handleFieldChange('emailServiceAccess.smtpCredentials.secure', e.target.checked)}
                             className="rounded border-gray-300"
                           />
                           <span className="text-sm">Secure (TLS/SSL)</span>
@@ -661,16 +567,7 @@ export function AutoEmailTemplatesSpec() {
                       <input
                         type="text"
                         value={config.emailServiceAccess.domainVerification.domain}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          emailServiceAccess: {
-                            ...config.emailServiceAccess,
-                            domainVerification: {
-                              ...config.emailServiceAccess.domainVerification,
-                              domain: e.target.value
-                            }
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('emailServiceAccess.domainVerification.domain', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="example.com"
                       />
@@ -682,16 +579,7 @@ export function AutoEmailTemplatesSpec() {
                       </label>
                       <textarea
                         value={config.emailServiceAccess.domainVerification.spfRecord}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          emailServiceAccess: {
-                            ...config.emailServiceAccess,
-                            domainVerification: {
-                              ...config.emailServiceAccess.domainVerification,
-                              spfRecord: e.target.value
-                            }
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('emailServiceAccess.domainVerification.spfRecord', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm"
                         rows={2}
                         placeholder="v=spf1 include:sendgrid.net ~all"
@@ -704,16 +592,7 @@ export function AutoEmailTemplatesSpec() {
                       </label>
                       <textarea
                         value={config.emailServiceAccess.domainVerification.dkimRecord}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          emailServiceAccess: {
-                            ...config.emailServiceAccess,
-                            domainVerification: {
-                              ...config.emailServiceAccess.domainVerification,
-                              dkimRecord: e.target.value
-                            }
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('emailServiceAccess.domainVerification.dkimRecord', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm"
                         rows={3}
                         placeholder="v=DKIM1; k=rsa; p=..."
@@ -726,16 +605,7 @@ export function AutoEmailTemplatesSpec() {
                       </label>
                       <textarea
                         value={config.emailServiceAccess.domainVerification.dmarcRecord}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          emailServiceAccess: {
-                            ...config.emailServiceAccess,
-                            domainVerification: {
-                              ...config.emailServiceAccess.domainVerification,
-                              dmarcRecord: e.target.value
-                            }
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('emailServiceAccess.domainVerification.dmarcRecord', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm"
                         rows={2}
                         placeholder="v=DMARC1; p=quarantine; rua=mailto:dmarc@example.com"
@@ -753,17 +623,7 @@ export function AutoEmailTemplatesSpec() {
                         <input
                           type="checkbox"
                           checked={config.emailServiceAccess.domainVerification.verified}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            emailServiceAccess: {
-                              ...config.emailServiceAccess,
-                              domainVerification: {
-                                ...config.emailServiceAccess.domainVerification,
-                                verified: e.target.checked,
-                                verificationDate: e.target.checked ? new Date() : undefined
-                              }
-                            }
-                          })}
+                          onChange={(e) => handleFieldChange('emailServiceAccess.domainVerification.verified', e.target.checked)}
                           className="rounded border-gray-300"
                         />
                         <span className="text-sm font-medium">מאומת</span>
@@ -809,13 +669,7 @@ export function AutoEmailTemplatesSpec() {
                       </label>
                       <select
                         value={config.templateEngine.engine}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          templateEngine: {
-                            ...config.templateEngine,
-                            engine: e.target.value as any
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('templateEngine.engine', e.target.value as any)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="handlebars">Handlebars ({"{{variable}}"})</option>
@@ -832,13 +686,7 @@ export function AutoEmailTemplatesSpec() {
                       <input
                         type="text"
                         value={config.templateEngine.version}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          templateEngine: {
-                            ...config.templateEngine,
-                            version: e.target.value
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('templateEngine.version', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="4.7.7"
                       />
@@ -851,16 +699,7 @@ export function AutoEmailTemplatesSpec() {
                           <input
                             type="checkbox"
                             checked={config.templateEngine.syntaxSupport.variables}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              templateEngine: {
-                                ...config.templateEngine,
-                                syntaxSupport: {
-                                  ...config.templateEngine.syntaxSupport,
-                                  variables: e.target.checked
-                                }
-                              }
-                            })}
+                            onChange={(e) => handleFieldChange('templateEngine.syntaxSupport.variables', e.target.checked)}
                             className="rounded border-gray-300"
                           />
                           <span className="text-sm">Variables ({"{{firstName}}"})</span>
@@ -870,16 +709,7 @@ export function AutoEmailTemplatesSpec() {
                           <input
                             type="checkbox"
                             checked={config.templateEngine.syntaxSupport.conditionals}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              templateEngine: {
-                                ...config.templateEngine,
-                                syntaxSupport: {
-                                  ...config.templateEngine.syntaxSupport,
-                                  conditionals: e.target.checked
-                                }
-                              }
-                            })}
+                            onChange={(e) => handleFieldChange('templateEngine.syntaxSupport.conditionals', e.target.checked)}
                             className="rounded border-gray-300"
                           />
                           <span className="text-sm">Conditionals ({"{{#if}}...{{/if}}"})</span>
@@ -889,16 +719,7 @@ export function AutoEmailTemplatesSpec() {
                           <input
                             type="checkbox"
                             checked={config.templateEngine.syntaxSupport.loops}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              templateEngine: {
-                                ...config.templateEngine,
-                                syntaxSupport: {
-                                  ...config.templateEngine.syntaxSupport,
-                                  loops: e.target.checked
-                                }
-                              }
-                            })}
+                            onChange={(e) => handleFieldChange('templateEngine.syntaxSupport.loops', e.target.checked)}
                             className="rounded border-gray-300"
                           />
                           <span className="text-sm">Loops ({"{{#each}}...{{/each}}"})</span>
@@ -908,16 +729,7 @@ export function AutoEmailTemplatesSpec() {
                           <input
                             type="checkbox"
                             checked={config.templateEngine.syntaxSupport.partials}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              templateEngine: {
-                                ...config.templateEngine,
-                                syntaxSupport: {
-                                  ...config.templateEngine.syntaxSupport,
-                                  partials: e.target.checked
-                                }
-                              }
-                            })}
+                            onChange={(e) => handleFieldChange('templateEngine.syntaxSupport.partials', e.target.checked)}
                             className="rounded border-gray-300"
                           />
                           <span className="text-sm">Partials ({"{{> header}}"})</span>
@@ -961,13 +773,7 @@ export function AutoEmailTemplatesSpec() {
                       </label>
                       <select
                         value={config.crmAccess.system}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          crmAccess: {
-                            ...config.crmAccess,
-                            system: e.target.value as any
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('crmAccess.system', e.target.value as any)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="zoho">Zoho CRM</option>
@@ -984,18 +790,13 @@ export function AutoEmailTemplatesSpec() {
                       </label>
                       <select
                         value={config.crmAccess.authMethod}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          crmAccess: {
-                            ...config.crmAccess,
-                            authMethod: e.target.value as any
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('crmAccess.authMethod', e.target.value as any)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="oauth">OAuth</option>
                         <option value="api_key">API Key</option>
                         <option value="basic_auth">Basic Auth</option>
+                        <option value="bearer_token">Bearer Token</option>
                       </select>
                     </div>
 
@@ -1009,16 +810,7 @@ export function AutoEmailTemplatesSpec() {
                           <input
                             type="text"
                             value={config.crmAccess.credentials.clientId || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              crmAccess: {
-                                ...config.crmAccess,
-                                credentials: {
-                                  ...config.crmAccess.credentials,
-                                  clientId: e.target.value
-                                }
-                              }
-                            })}
+                            onChange={(e) => handleFieldChange('crmAccess.credentials.clientId', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           />
                         </div>
@@ -1029,16 +821,7 @@ export function AutoEmailTemplatesSpec() {
                           <input
                             type="password"
                             value={config.crmAccess.credentials.clientSecret || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              crmAccess: {
-                                ...config.crmAccess,
-                                credentials: {
-                                  ...config.crmAccess.credentials,
-                                  clientSecret: e.target.value
-                                }
-                              }
-                            })}
+                            onChange={(e) => handleFieldChange('crmAccess.credentials.clientSecret', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           />
                         </div>
@@ -1049,16 +832,7 @@ export function AutoEmailTemplatesSpec() {
                           <input
                             type="password"
                             value={config.crmAccess.credentials.refreshToken || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              crmAccess: {
-                                ...config.crmAccess,
-                                credentials: {
-                                  ...config.crmAccess.credentials,
-                                  refreshToken: e.target.value
-                                }
-                              }
-                            })}
+                            onChange={(e) => handleFieldChange('crmAccess.credentials.refreshToken', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           />
                         </div>
@@ -1073,16 +847,7 @@ export function AutoEmailTemplatesSpec() {
                         <input
                           type="password"
                           value={config.crmAccess.credentials.apiKey || ''}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            crmAccess: {
-                              ...config.crmAccess,
-                              credentials: {
-                                ...config.crmAccess.credentials,
-                                apiKey: e.target.value
-                              }
-                            }
-                          })}
+                          onChange={(e) => handleFieldChange('crmAccess.credentials.apiKey', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         />
                       </div>
@@ -1123,13 +888,7 @@ export function AutoEmailTemplatesSpec() {
                               onChange={(e) => {
                                 const updated = [...config.crmAccess.fieldsAvailable];
                                 updated[index].apiName = e.target.value;
-                                setConfig({
-                                  ...config,
-                                  crmAccess: {
-                                    ...config.crmAccess,
-                                    fieldsAvailable: updated
-                                  }
-                                });
+                                handleFieldChange('crmAccess.fieldsAvailable', updated);
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
                               placeholder="API Name (First_Name)"
@@ -1140,13 +899,7 @@ export function AutoEmailTemplatesSpec() {
                               onChange={(e) => {
                                 const updated = [...config.crmAccess.fieldsAvailable];
                                 updated[index].label = e.target.value;
-                                setConfig({
-                                  ...config,
-                                  crmAccess: {
-                                    ...config.crmAccess,
-                                    fieldsAvailable: updated
-                                  }
-                                });
+                                handleFieldChange('crmAccess.fieldsAvailable', updated);
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
                               placeholder="תווית (שם פרטי)"
@@ -1157,13 +910,7 @@ export function AutoEmailTemplatesSpec() {
                               onChange={(e) => {
                                 const updated = [...config.crmAccess.fieldsAvailable];
                                 updated[index].type = e.target.value;
-                                setConfig({
-                                  ...config,
-                                  crmAccess: {
-                                    ...config.crmAccess,
-                                    fieldsAvailable: updated
-                                  }
-                                });
+                                handleFieldChange('crmAccess.fieldsAvailable', updated);
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
                               placeholder="Type (string)"
@@ -1196,13 +943,7 @@ export function AutoEmailTemplatesSpec() {
                       <input
                         type="url"
                         value={config.n8nWorkflow.instanceUrl}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          n8nWorkflow: {
-                            ...config.n8nWorkflow,
-                            instanceUrl: e.target.value
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('n8nWorkflow.instanceUrl', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="https://n8n.example.com"
                       />
@@ -1215,13 +956,7 @@ export function AutoEmailTemplatesSpec() {
                       <input
                         type="url"
                         value={config.n8nWorkflow.webhookEndpoint}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          n8nWorkflow: {
-                            ...config.n8nWorkflow,
-                            webhookEndpoint: e.target.value
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('n8nWorkflow.webhookEndpoint', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="https://n8n.example.com/webhook/email-templates"
                       />
@@ -1231,13 +966,7 @@ export function AutoEmailTemplatesSpec() {
                       <input
                         type="checkbox"
                         checked={config.n8nWorkflow.httpsEnabled}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          n8nWorkflow: {
-                            ...config.n8nWorkflow,
-                            httpsEnabled: e.target.checked
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('n8nWorkflow.httpsEnabled', e.target.checked)}
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium">HTTPS Enabled</span>
@@ -1255,16 +984,7 @@ export function AutoEmailTemplatesSpec() {
                       <input
                         type="text"
                         value={config.n8nWorkflow.templateRendering.engine}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          n8nWorkflow: {
-                            ...config.n8nWorkflow,
-                            templateRendering: {
-                              ...config.n8nWorkflow.templateRendering,
-                              engine: e.target.value
-                            }
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('n8nWorkflow.templateRendering.engine', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="handlebars"
                       />
@@ -1274,16 +994,7 @@ export function AutoEmailTemplatesSpec() {
                       <input
                         type="checkbox"
                         checked={config.n8nWorkflow.templateRendering.renderNode}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          n8nWorkflow: {
-                            ...config.n8nWorkflow,
-                            templateRendering: {
-                              ...config.n8nWorkflow.templateRendering,
-                              renderNode: e.target.checked
-                            }
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('n8nWorkflow.templateRendering.renderNode', e.target.checked)}
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium">Render ב-Node</span>
@@ -1301,16 +1012,7 @@ export function AutoEmailTemplatesSpec() {
                       <input
                         type="number"
                         value={config.n8nWorkflow.errorHandling.retryAttempts}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          n8nWorkflow: {
-                            ...config.n8nWorkflow,
-                            errorHandling: {
-                              ...config.n8nWorkflow.errorHandling,
-                              retryAttempts: parseInt(e.target.value) || 3
-                            }
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('n8nWorkflow.errorHandling.retryAttempts', parseInt(e.target.value) || 3)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         min="0"
                         max="10"
@@ -1324,16 +1026,7 @@ export function AutoEmailTemplatesSpec() {
                       <input
                         type="email"
                         value={config.n8nWorkflow.errorHandling.alertEmail}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          n8nWorkflow: {
-                            ...config.n8nWorkflow,
-                            errorHandling: {
-                              ...config.n8nWorkflow.errorHandling,
-                              alertEmail: e.target.value
-                            }
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('n8nWorkflow.errorHandling.alertEmail', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="admin@example.com"
                       />
@@ -1343,16 +1036,7 @@ export function AutoEmailTemplatesSpec() {
                       <input
                         type="checkbox"
                         checked={config.n8nWorkflow.errorHandling.logErrors}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          n8nWorkflow: {
-                            ...config.n8nWorkflow,
-                            errorHandling: {
-                              ...config.n8nWorkflow.errorHandling,
-                              logErrors: e.target.checked
-                            }
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('n8nWorkflow.errorHandling.logErrors', e.target.checked)}
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium">רשום שגיאות ב-Log</span>
@@ -1374,13 +1058,7 @@ export function AutoEmailTemplatesSpec() {
                       </label>
                       <select
                         value={config.designTools?.tool || 'stripo'}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          designTools: {
-                            tool: e.target.value as any,
-                            templates: config.designTools?.templates || []
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('designTools.tool', e.target.value as any)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="stripo">Stripo.email</option>
@@ -1393,19 +1071,13 @@ export function AutoEmailTemplatesSpec() {
                     {config.designTools && config.designTools.tool !== 'custom' && (
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          API Key
+                            API Key
                         </label>
                         <input
-                          type="password"
-                          value={config.designTools.apiKey || ''}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            designTools: {
-                              ...config.designTools!,
-                              apiKey: e.target.value
-                            }
-                          })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            type="password"
+                            value={config.designTools.apiKey || ''}
+                            onChange={(e) => handleFieldChange('designTools.apiKey', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         />
                       </div>
                     )}
@@ -1446,13 +1118,7 @@ export function AutoEmailTemplatesSpec() {
                               onChange={(e) => {
                                 const updated = [...config.designTools!.templates!];
                                 updated[index].id = e.target.value;
-                                setConfig({
-                                  ...config,
-                                  designTools: {
-                                    ...config.designTools!,
-                                    templates: updated
-                                  }
-                                });
+                                handleFieldChange('designTools.templates', updated);
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
                               placeholder="Template ID"
@@ -1463,13 +1129,7 @@ export function AutoEmailTemplatesSpec() {
                               onChange={(e) => {
                                 const updated = [...config.designTools!.templates!];
                                 updated[index].name = e.target.value;
-                                setConfig({
-                                  ...config,
-                                  designTools: {
-                                    ...config.designTools!,
-                                    templates: updated
-                                  }
-                                });
+                                handleFieldChange('designTools.templates', updated);
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
                               placeholder="שם תבנית"
@@ -1480,13 +1140,7 @@ export function AutoEmailTemplatesSpec() {
                               onChange={(e) => {
                                 const updated = [...config.designTools!.templates!];
                                 updated[index].category = e.target.value;
-                                setConfig({
-                                  ...config,
-                                  designTools: {
-                                    ...config.designTools!,
-                                    templates: updated
-                                  }
-                                });
+                                handleFieldChange('designTools.templates', updated);
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
                               placeholder="קטגוריה"
@@ -1518,12 +1172,7 @@ export function AutoEmailTemplatesSpec() {
                       </label>
                       <select
                         value={config.testingTools?.tool || 'litmus'}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          testingTools: {
-                            tool: e.target.value as any
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('testingTools.tool', e.target.value as any)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="litmus">Litmus</option>
@@ -1541,13 +1190,7 @@ export function AutoEmailTemplatesSpec() {
                           <input
                             type="password"
                             value={config.testingTools.apiKey || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              testingTools: {
-                                ...config.testingTools!,
-                                apiKey: e.target.value
-                              }
-                            })}
+                            onChange={(e) => handleFieldChange('testingTools.apiKey', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           />
                         </div>
@@ -1559,13 +1202,7 @@ export function AutoEmailTemplatesSpec() {
                           <input
                             type="email"
                             value={config.testingTools.testAccountEmail || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              testingTools: {
-                                ...config.testingTools!,
-                                testAccountEmail: e.target.value
-                              }
-                            })}
+                            onChange={(e) => handleFieldChange('testingTools.testAccountEmail', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="test@example.com"
                           />

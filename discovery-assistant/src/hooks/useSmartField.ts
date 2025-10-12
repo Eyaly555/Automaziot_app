@@ -23,15 +23,15 @@
  * ```
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useMeetingStore } from '../store/useMeetingStore';
-import { 
-  SmartFieldConfig, 
+import {
+  SmartFieldConfig,
   SmartFieldValue,
-  FieldConflict 
+  FieldConflict
 } from '../types/fieldRegistry';
-import { 
-  prePopulateField, 
+import {
+  prePopulateField,
   detectFieldConflicts,
   syncFieldValue,
   validateFieldValue
@@ -73,7 +73,72 @@ export function useSmartField<T = any>(
   const [populationSource, setPopulationSource] = useState<any>();
   const [conflict, setConflict] = useState<FieldConflict | undefined>();
 
+  // Track if this is the first initialization to prevent save loops
+  const isInitializedRef = useRef(false);
+  const lastValueRef = useRef<string>('');
+
   const field = getFieldById(config.fieldId);
+
+  /**
+   * Build the target path for storing the value in Phase 2
+   */
+  function buildTargetPath(cfg: SmartFieldConfig): string | null {
+    if (!cfg.serviceId) return null;
+
+    // For automation services
+    if (cfg.serviceId.startsWith('auto-')) {
+      const basePath = `implementationSpec.automations`;
+      const automations = currentMeeting?.implementationSpec?.automations || [];
+      const index = automations.findIndex((a: any) => a.serviceId === cfg.serviceId);
+
+      if (index >= 0) {
+        return `${basePath}[${index}].requirements.${cfg.localPath}`;
+      }
+
+      return null;
+    }
+
+    // For AI agent services
+    if (cfg.serviceId.startsWith('ai-')) {
+      const basePath = `implementationSpec.aiAgentServices`;
+      const services = currentMeeting?.implementationSpec?.aiAgentServices || [];
+      const index = services.findIndex((s: any) => s.serviceId === cfg.serviceId);
+
+      if (index >= 0) {
+        return `${basePath}[${index}].requirements.${cfg.localPath}`;
+      }
+
+      return null;
+    }
+
+    // For integration services
+    if (cfg.serviceId.startsWith('int-')) {
+      const basePath = `implementationSpec.integrationServices`;
+      const services = currentMeeting?.implementationSpec?.integrationServices || [];
+      const index = services.findIndex((s: any) => s.serviceId === cfg.serviceId);
+
+      if (index >= 0) {
+        return `${basePath}[${index}].requirements.${cfg.localPath}`;
+      }
+
+      return null;
+    }
+
+    // For system implementation services
+    if (cfg.serviceId.startsWith('impl-')) {
+      const basePath = `implementationSpec.systemImplementations`;
+      const services = currentMeeting?.implementationSpec?.systemImplementations || [];
+      const index = services.findIndex((s: any) => s.serviceId === cfg.serviceId);
+
+      if (index >= 0) {
+        return `${basePath}[${index}].requirements.${cfg.localPath}`;
+      }
+
+      return null;
+    }
+
+    return null;
+  }
 
   // Initialize field value
   useEffect(() => {
@@ -89,36 +154,44 @@ export function useSmartField<T = any>(
       const targetPath = buildTargetPath(config);
       const existingValue = targetPath ? get(currentMeeting, targetPath) : undefined;
 
-      if (existingValue !== undefined && existingValue !== null && existingValue !== '') {
-        // Value already exists in target location
-        setLocalValue(existingValue);
-        setIsAutoPopulated(false);
-        setIsLoading(false);
-        return;
+      // Use JSON.stringify for deep comparison
+      const existingValueJson = JSON.stringify(existingValue);
+
+      // Only update if value actually changed
+      if (existingValueJson !== lastValueRef.current) {
+        lastValueRef.current = existingValueJson;
+
+        if (existingValue !== undefined && existingValue !== null && existingValue !== '') {
+          // Value already exists in target location
+          setLocalValue(existingValue);
+          setIsAutoPopulated(false);
+          isInitializedRef.current = true;
+          setIsLoading(false);
+          return;
+        }
       }
 
-      // Try to pre-populate from Phase 1
-      const populationResult = prePopulateField(currentMeeting, config.fieldId);
+      // Only try to pre-populate on first initialization
+      if (!isInitializedRef.current) {
+        // Try to pre-populate from Phase 1
+        const populationResult = prePopulateField(currentMeeting, config.fieldId);
 
-      if (populationResult.populated && populationResult.value !== undefined) {
-        // Successfully pre-populated
-        setLocalValue(populationResult.value);
-        setIsAutoPopulated(true);
-        setPopulationSource(populationResult.source);
-        
-        // Auto-save if configured
-        if (config.autoSave && targetPath) {
-          const updated = set(
-            JSON.parse(JSON.stringify(currentMeeting)), 
-            targetPath, 
-            populationResult.value
-          );
-          updateMeeting(updated);
+        if (populationResult.populated && populationResult.value !== undefined) {
+          // Successfully pre-populated
+          setLocalValue(populationResult.value);
+          setIsAutoPopulated(true);
+          setPopulationSource(populationResult.source);
+          lastValueRef.current = JSON.stringify(populationResult.value);
+
+          // REMOVED: Auto-save on initialization to prevent loops
+          // Users should explicitly save after reviewing auto-populated values
+        } else {
+          // No pre-population available, use default value
+          setLocalValue(undefined);
+          setIsAutoPopulated(false);
         }
-      } else {
-        // No pre-population available, use default value
-        setLocalValue(undefined);
-        setIsAutoPopulated(false);
+
+        isInitializedRef.current = true;
       }
 
       // Check for conflicts
@@ -135,70 +208,7 @@ export function useSmartField<T = any>(
     } finally {
       setIsLoading(false);
     }
-  }, [currentMeeting, config.fieldId, config.serviceId, config.moduleId]);
-
-  /**
-   * Build the target path for storing the value in Phase 2
-   */
-  function buildTargetPath(cfg: SmartFieldConfig): string | null {
-    if (!cfg.serviceId) return null;
-
-    // For automation services
-    if (cfg.serviceId.startsWith('auto-')) {
-      const basePath = `implementationSpec.automations`;
-      // Find the automation entry by serviceId
-      const automations = currentMeeting?.implementationSpec?.automations || [];
-      const index = automations.findIndex((a: any) => a.serviceId === cfg.serviceId);
-      
-      if (index >= 0) {
-        return `${basePath}[${index}].requirements.${cfg.localPath}`;
-      }
-      
-      // If not found, we'll need to create it when setValue is called
-      return null;
-    }
-
-    // For AI agent services
-    if (cfg.serviceId.startsWith('ai-')) {
-      const basePath = `implementationSpec.aiAgentServices`;
-      const services = currentMeeting?.implementationSpec?.aiAgentServices || [];
-      const index = services.findIndex((s: any) => s.serviceId === cfg.serviceId);
-      
-      if (index >= 0) {
-        return `${basePath}[${index}].requirements.${cfg.localPath}`;
-      }
-      
-      return null;
-    }
-
-    // For integration services
-    if (cfg.serviceId.startsWith('int-')) {
-      const basePath = `implementationSpec.integrationServices`;
-      const services = currentMeeting?.implementationSpec?.integrationServices || [];
-      const index = services.findIndex((s: any) => s.serviceId === cfg.serviceId);
-      
-      if (index >= 0) {
-        return `${basePath}[${index}].requirements.${cfg.localPath}`;
-      }
-      
-      return null;
-    }
-
-    // For system implementation services
-    if (cfg.serviceId.startsWith('impl-')) {
-      const basePath = `implementationSpec.systemImplementations`;
-      const services = currentMeeting?.implementationSpec?.systemImplementations || [];
-      const index = services.findIndex((s: any) => s.serviceId === cfg.serviceId);
-      
-      if (index >= 0) {
-        return `${basePath}[${index}].requirements.${cfg.localPath}`;
-      }
-      
-      return null;
-    }
-
-    return null;
-  }
+  }, [currentMeeting?.implementationSpec, config.fieldId, config.serviceId, config.moduleId]);
 
   /**
    * Set value with validation and optional syncing

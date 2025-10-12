@@ -204,15 +204,16 @@ export const formatForZoho = (meeting: Meeting): any => {
   };
 
   // Map basic fields
-  formattedData[fieldMapping.clientName] = meeting.clientName;
+  // formattedData[fieldMapping.clientName] = meeting.clientName; // Removed as per user request
   formattedData[fieldMapping.progress] = `${calculateProgress()}%`;
   formattedData[fieldMapping.lastUpdate] = new Date().toISOString();
 
   // Add contact info if available
-  if (meeting.zohoIntegration?.contactInfo) {
-    formattedData[fieldMapping.email] = meeting.zohoIntegration.contactInfo.email;
-    formattedData[fieldMapping.phone] = meeting.zohoIntegration.contactInfo.phone;
-  }
+  // Removed as per user request to not update these fields
+  // if (meeting.zohoIntegration?.contactInfo) {
+  //   formattedData[fieldMapping.email] = meeting.zohoIntegration.contactInfo.email;
+  //   formattedData[fieldMapping.phone] = meeting.zohoIntegration.contactInfo.phone;
+  // }
 
   // Compress and store full meeting data
   formattedData[fieldMapping.data] = JSON.stringify(sanitizeZohoData(meeting));

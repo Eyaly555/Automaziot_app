@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Save,
@@ -175,6 +175,10 @@ export const AITriageSpec: React.FC = () => {
     testAccountAvailable: false
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'ai-triage',
@@ -202,17 +206,44 @@ export const AITriageSpec: React.FC = () => {
   }, [currentMeeting]);
 
   // Auto-save on changes
-  useEffect(() => {
-    if (config.aiProvider || config.aiModel) {
-      const completeConfig = {
-        ...config,
-        aiModel: aiModelPreference.value
-      };
-      saveData(completeConfig);
-    }
-  }, [config, aiModelPreference.value, saveData]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.aiProvider || config.aiModel) {
+  //     const completeConfig = {
+  //       ...config,
+  //       aiModel: aiModelPreference.value
+  //     };
+  //     saveData(completeConfig);
+  //   }
+  // }, [config, aiModelPreference.value, saveData]);
+
+  // ✅ handleFieldChange - לשדות שמשתנים
+  const handleFieldChange = useCallback((field: string, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+
+      // Save after state update
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            aiModel: aiModelPreference.value,
+            errorHandling: {
+              ...updated.errorHandling,
+              errorNotificationEmail: alertEmail.value
+            }
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+
+      return updated;
+    });
+  }, [saveData, aiModelPreference.value, alertEmail.value]);
 
   const handleSave = async () => {
+    if (isLoadingRef.current) return;
+
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
@@ -224,7 +255,7 @@ export const AITriageSpec: React.FC = () => {
     };
 
     // Save using auto-save (manual save trigger)
-    await saveData(completeConfig);
+    await saveData(completeConfig, 'manual');
 
     navigate('/phase2');
   };
@@ -429,11 +460,16 @@ export const AITriageSpec: React.FC = () => {
                     </label>
                     <Select
                       value={config.aiProvider}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        aiProvider: e.target.value as any,
-                        aiModel: AI_MODELS[e.target.value]?.[0]?.value || 'gpt-4o-mini'
-                      })}
+                      onChange={(e) => {
+                        const newProvider = e.target.value as any;
+                        handleFieldChange('aiProvider', newProvider);
+                        // Also update the model to first available for new provider
+                        setConfig(prev => ({
+                          ...prev,
+                          aiProvider: newProvider,
+                          aiModel: AI_MODELS[newProvider]?.[0]?.value || 'gpt-4o-mini'
+                        }));
+                      }}
                       options={AI_PROVIDERS}
                     />
                   </div>
@@ -471,7 +507,7 @@ export const AITriageSpec: React.FC = () => {
                     </label>
                     <Select
                       value={config.crmSystem || ''}
-                      onChange={(e) => setConfig({ ...config, crmSystem: e.target.value as any || undefined })}
+                      onChange={(e) => handleFieldChange('crmSystem', e.target.value as any || undefined)}
                       options={[
                         { value: '', label: 'ללא CRM' },
                         ...CRM_SYSTEMS
@@ -485,7 +521,7 @@ export const AITriageSpec: React.FC = () => {
                     </label>
                     <Select
                       value={config.ticketingSystem || ''}
-                      onChange={(e) => setConfig({ ...config, ticketingSystem: e.target.value as any || undefined })}
+                      onChange={(e) => handleFieldChange('ticketingSystem', e.target.value as any || undefined)}
                       options={[
                         { value: '', label: 'ללא Ticketing' },
                         ...TICKETING_SYSTEMS
@@ -535,10 +571,7 @@ export const AITriageSpec: React.FC = () => {
                         min="0"
                         max="2"
                         value={config.modelSettings.temperature}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          modelSettings: { ...config.modelSettings, temperature: parseFloat(e.target.value) }
-                        })}
+                        onChange={(e) => handleFieldChange('modelSettings.temperature', parseFloat(e.target.value))}
                       />
                       <p className="text-xs text-gray-500 mt-1">נמוך יותר = יותר דטרמיניסטי</p>
                     </div>
@@ -550,10 +583,7 @@ export const AITriageSpec: React.FC = () => {
                       <Input
                         type="number"
                         value={config.modelSettings.maxTokens}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          modelSettings: { ...config.modelSettings, maxTokens: parseInt(e.target.value) }
-                        })}
+                        onChange={(e) => handleFieldChange('modelSettings.maxTokens', parseInt(e.target.value))}
                       />
                     </div>
 
@@ -567,10 +597,7 @@ export const AITriageSpec: React.FC = () => {
                         min="0"
                         max="1"
                         value={config.modelSettings.confidenceThreshold}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          modelSettings: { ...config.modelSettings, confidenceThreshold: parseFloat(e.target.value) }
-                        })}
+                        onChange={(e) => handleFieldChange('modelSettings.confidenceThreshold', parseFloat(e.target.value))}
                       />
                       <p className="text-xs text-gray-500 mt-1">סף ביטחון לסיווג אוטומטי</p>
                     </div>

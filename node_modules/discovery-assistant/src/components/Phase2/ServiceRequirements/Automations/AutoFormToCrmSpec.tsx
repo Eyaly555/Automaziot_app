@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import { useSmartField } from '../../../../hooks/useSmartField';
@@ -54,6 +54,10 @@ export function AutoFormToCrmSpec() {
     autoAssignment: false,
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-form-to-crm',
@@ -73,25 +77,57 @@ export function AutoFormToCrmSpec() {
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
     const existing = automations.find((a: any) => a.serviceId === 'auto-form-to-crm');
+
     if (existing?.requirements) {
-      setConfig(existing.requirements);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements as Partial<AutoFormToCrmConfig>);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.automations]);
 
   // Auto-save on changes
-  useEffect(() => {
-    const completeConfig = {
-      ...config,
-      crmSystem: crmSystem.value,
-      formPlatform: formPlatform.value
-    };
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   const completeConfig = {
+  //     ...config,
+  //     crmSystem: crmSystem.value,
+  //     formPlatform: formPlatform.value
+  //   };
+  //   if (crmSystem.value || formPlatform.value) {
+  //     saveData(completeConfig);
+  //   }
+  // }, [config, crmSystem.value, formPlatform.value, saveData]);
 
-    if (crmSystem.value || formPlatform.value) {
-      saveData(completeConfig);
-    }
-  }, [config, crmSystem.value, formPlatform.value, saveData]);
+  const handleFieldChange = useCallback((field: keyof Partial<AutoFormToCrmConfig>, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            crmSystem: crmSystem.value,
+            formPlatform: formPlatform.value
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [crmSystem.value, formPlatform.value, saveData]);
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
+    if (isLoadingRef.current) return; // Don't save during loading
+
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
@@ -100,10 +136,10 @@ export function AutoFormToCrmSpec() {
     };
 
     // Save using auto-save (manual save trigger)
-    await saveData(completeConfig);
+    await saveData(completeConfig, 'manual');
 
     alert('✅ הגדרות נשמרו בהצלחה!');
-  };
+  }, [config, crmSystem.value, formPlatform.value, saveData]);
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -208,17 +244,17 @@ export function AutoFormToCrmSpec() {
           <div className="space-y-3">
             <label className="flex items-center">
               <input type="checkbox" checked={config.duplicateDetection}
-                onChange={(e) => setConfig({ ...config, duplicateDetection: e.target.checked })} className="mr-2" />
+                onChange={(e) => handleFieldChange('duplicateDetection', e.target.checked)} className="mr-2" />
               <span className="text-sm">זיהוי כפילויות</span>
             </label>
             <label className="flex items-center">
               <input type="checkbox" checked={config.dataValidation}
-                onChange={(e) => setConfig({ ...config, dataValidation: e.target.checked })} className="mr-2" />
+                onChange={(e) => handleFieldChange('dataValidation', e.target.checked)} className="mr-2" />
               <span className="text-sm">ולידציה של נתונים</span>
             </label>
             <label className="flex items-center">
               <input type="checkbox" checked={config.autoAssignment}
-                onChange={(e) => setConfig({ ...config, autoAssignment: e.target.checked })} className="mr-2" />
+                onChange={(e) => handleFieldChange('autoAssignment', e.target.checked)} className="mr-2" />
               <span className="text-sm">הקצאה אוטומטית</span>
             </label>
           </div>

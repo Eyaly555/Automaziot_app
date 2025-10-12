@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
@@ -31,6 +31,10 @@ export function AIMultiAgentSpec() {
     sharedKnowledge: true,
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'ai-multi-agent',
@@ -49,38 +53,67 @@ export function AIMultiAgentSpec() {
   useEffect(() => {
     const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
     const existing = aiAgentServices.find((a: AIAgentServiceEntry) => a.serviceId === 'ai-multi-agent');
+
     if (existing?.requirements) {
-      setConfig(existing.requirements);
-      // Set smart field value if existing
-      if (existing.requirements.aiModel) {
-        aiModelPreference.setValue(existing.requirements.aiModel);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements);
+
+        // Set smart field value if existing
+        if (existing.requirements.aiModel) {
+          aiModelPreference.setValue(existing.requirements.aiModel);
+        }
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
       }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.aiAgentServices]);
 
   // Auto-save on changes
-  useEffect(() => {
-    if (config.aiModel || config.agents?.length) {
-      const completeConfig = {
-        ...config,
-        aiModel: aiModelPreference.value
-      };
-      saveData(completeConfig);
-    }
-  }, [config, aiModelPreference.value, saveData]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.aiModel || config.agents?.length) {
+  //     const completeConfig = {
+  //       ...config,
+  //       aiModel: aiModelPreference.value
+  //     };
+  //     saveData(completeConfig);
+  //   }
+  // }, [config, aiModelPreference.value, saveData]);
 
-  const handleSave = async () => {
-    // Build complete config with smart field value
+  const handleFieldChange = useCallback((field: keyof typeof config, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            aiModel: aiModelPreference.value
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [aiModelPreference.value, saveData]);
+
+  const handleSave = useCallback(async () => {
+    if (isLoadingRef.current) return; // Don't save during loading
+
     const completeConfig = {
       ...config,
       aiModel: aiModelPreference.value || config.aiModel
     };
 
-    // Save using auto-save (manual save trigger)
-    await saveData(completeConfig);
-
-    alert('הגדרות נשמרו בהצלחה!');
-  };
+    await saveData(completeConfig, 'manual');
+  }, [config, aiModelPreference.value, saveData]);
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -142,7 +175,7 @@ export function AIMultiAgentSpec() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">סוג תיאום</label>
-            <select value={config.coordination} onChange={(e) => setConfig({ ...config, coordination: e.target.value })}
+            <select value={config.coordination} onChange={(e) => handleFieldChange('coordination', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md">
               <option value="centralized">מרכזי</option>
               <option value="distributed">מבוזר</option>
@@ -153,7 +186,7 @@ export function AIMultiAgentSpec() {
           <div className="space-y-3">
             <label className="flex items-center">
               <input type="checkbox" checked={config.sharedKnowledge}
-                onChange={(e) => setConfig({ ...config, sharedKnowledge: e.target.checked })} className="mr-2" />
+                onChange={(e) => handleFieldChange('sharedKnowledge', e.target.checked)} className="mr-2" />
               <span className="text-sm">ידע משותף</span>
             </label>
           </div>

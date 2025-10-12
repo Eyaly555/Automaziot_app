@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { IntegrationComplexRequirements, SystemConfig } from '../../../../types/integrationServices';
@@ -62,6 +62,10 @@ export function IntegrationComplexSpec() {
     }
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'integration-complex',
@@ -102,23 +106,61 @@ export function IntegrationComplexSpec() {
     autoSave: false
   });
 
+  // Load existing data ONCE on mount or when service data actually changes
   useEffect(() => {
     const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
-    const existing = integrationServices.find(i => i.serviceId === 'integration-complex');
+    const existing = integrationServices.find((i: any) => i.serviceId === 'integration-complex');
+
     if (existing?.requirements) {
-      setConfig(existing.requirements);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.integrationServices]);
 
   // Auto-save on changes
-  useEffect(() => {
-    if (config.systems?.length || config.syncConfig?.direction) {
-      saveData(config);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.systems?.length || config.syncConfig?.direction) {
+  //     saveData(config);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [config]);
 
-  const handleSave = async () => {
+  const handleFieldChange = useCallback((field: keyof Partial<IntegrationComplexRequirements>, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            syncConfig: {
+              ...updated.syncConfig,
+              frequency: syncFrequency.value === 'realtime' ? 'real-time' : syncFrequency.value
+            },
+            errorHandling: {
+              ...updated.errorHandling,
+              alertRecipients: alertEmail.value ? [alertEmail.value] : updated.errorHandling?.alertRecipients || []
+            }
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [syncFrequency.value, alertEmail.value, saveData]);
+
+  const handleSave = useCallback(async () => {
     const completeConfig = {
       ...config,
       syncConfig: {
@@ -135,23 +177,19 @@ export function IntegrationComplexSpec() {
     await saveData(completeConfig, 'manual');
 
     alert('הגדרות נשמרו בהצלחה!');
-  };
+  }, [config, syncFrequency.value, alertEmail.value, saveData]);
 
   const addSystem = () => {
     if (newSystem.name) {
-      setConfig({
-        ...config,
-        systems: [...(config.systems || []), newSystem as SystemConfig]
-      });
+      const updatedSystems = [...(config.systems || []), newSystem as SystemConfig];
+      handleFieldChange('systems', updatedSystems);
       setNewSystem({ name: '', authType: 'oauth2', credentials: {}, apiVersion: '', baseUrl: '' });
     }
   };
 
   const removeSystem = (index: number) => {
-    setConfig({
-      ...config,
-      systems: config.systems?.filter((_, i) => i !== index) || []
-    });
+    const updatedSystems = config.systems?.filter((_, i) => i !== index) || [];
+    handleFieldChange('systems', updatedSystems);
   };
 
   return (
@@ -233,10 +271,7 @@ export function IntegrationComplexSpec() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">אסטרטגיית פתרון קונפליקטים</label>
                 <select
                   value={config.syncConfig?.conflictResolution || 'last-write-wins'}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    syncConfig: { ...config.syncConfig!, conflictResolution: e.target.value as any }
-                  })}
+                  onChange={(e) => handleFieldChange('syncConfig.conflictResolution', e.target.value as any)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="last-write-wins">Last Write Wins</option>
@@ -250,10 +285,7 @@ export function IntegrationComplexSpec() {
                   <input
                     type="checkbox"
                     checked={config.syncConfig?.requiresWebhooks}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      syncConfig: { ...config.syncConfig!, requiresWebhooks: e.target.checked }
-                    })}
+                    onChange={(e) => handleFieldChange('syncConfig.requiresWebhooks', e.target.checked)}
                     className="rounded"
                   />
                   <span>דורש Webhooks</span>
@@ -270,10 +302,7 @@ export function IntegrationComplexSpec() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">סוג Database</label>
                 <select
                   value={config.database?.type || 'supabase'}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    database: { ...config.database!, type: e.target.value as any }
-                  })}
+                  onChange={(e) => handleFieldChange('database.type', e.target.value as any)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="supabase">Supabase</option>
@@ -287,13 +316,7 @@ export function IntegrationComplexSpec() {
                     <input
                       type="checkbox"
                       checked={config.database?.tables?.syncLog}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        database: {
-                          ...config.database!,
-                          tables: { ...config.database!.tables!, syncLog: e.target.checked }
-                        }
-                      })}
+                      onChange={(e) => handleFieldChange('database.tables.syncLog', e.target.checked)}
                       className="rounded"
                     />
                     <span>Sync Log</span>
@@ -302,13 +325,7 @@ export function IntegrationComplexSpec() {
                     <input
                       type="checkbox"
                       checked={config.database?.tables?.conflictQueue}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        database: {
-                          ...config.database!,
-                          tables: { ...config.database!.tables!, conflictQueue: e.target.checked }
-                        }
-                      })}
+                      onChange={(e) => handleFieldChange('database.tables.conflictQueue', e.target.checked)}
                       className="rounded"
                     />
                     <span>Conflict Queue</span>
@@ -317,13 +334,7 @@ export function IntegrationComplexSpec() {
                     <input
                       type="checkbox"
                       checked={config.database?.tables?.syncState}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        database: {
-                          ...config.database!,
-                          tables: { ...config.database!.tables!, syncState: e.target.checked }
-                        }
-                      })}
+                      onChange={(e) => handleFieldChange('database.tables.syncState', e.target.checked)}
                       className="rounded"
                     />
                     <span>Sync State</span>
@@ -341,13 +352,7 @@ export function IntegrationComplexSpec() {
                 <input
                   type="checkbox"
                   checked={config.circularUpdatePrevention?.enabled}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    circularUpdatePrevention: {
-                      ...config.circularUpdatePrevention!,
-                      enabled: e.target.checked
-                    }
-                  })}
+                  onChange={(e) => handleFieldChange('circularUpdatePrevention.enabled', e.target.checked)}
                   className="rounded"
                 />
                 <span>הפעל מניעת עדכונים מעגליים</span>
@@ -359,13 +364,7 @@ export function IntegrationComplexSpec() {
                     <input
                       type="text"
                       value={config.circularUpdatePrevention?.syncSourceIdField || ''}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        circularUpdatePrevention: {
-                          ...config.circularUpdatePrevention!,
-                          syncSourceIdField: e.target.value
-                        }
-                      })}
+                      onChange={(e) => handleFieldChange('circularUpdatePrevention.syncSourceIdField', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     />
                   </div>
@@ -374,13 +373,7 @@ export function IntegrationComplexSpec() {
                       <input
                         type="checkbox"
                         checked={config.circularUpdatePrevention?.conflictLogging}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          circularUpdatePrevention: {
-                            ...config.circularUpdatePrevention!,
-                            conflictLogging: e.target.checked
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('circularUpdatePrevention.conflictLogging', e.target.checked)}
                         className="rounded"
                       />
                       <span>רישום קונפליקטים</span>
@@ -400,10 +393,7 @@ export function IntegrationComplexSpec() {
                 <input
                   type="text"
                   value={config.n8nConfig?.mainWorkflow || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    n8nConfig: { ...config.n8nConfig!, mainWorkflow: e.target.value }
-                  })}
+                  onChange={(e) => handleFieldChange('n8nConfig.mainWorkflow', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="שם Workflow ראשי"
                 />
@@ -414,10 +404,7 @@ export function IntegrationComplexSpec() {
                   type="number"
                   min="10"
                   value={config.n8nConfig?.estimatedNodes || 15}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    n8nConfig: { ...config.n8nConfig!, estimatedNodes: parseInt(e.target.value) }
-                  })}
+                  onChange={(e) => handleFieldChange('n8nConfig.estimatedNodes', parseInt(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
@@ -433,10 +420,7 @@ export function IntegrationComplexSpec() {
                   <input
                     type="checkbox"
                     checked={config.monitoring?.enableLogging}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      monitoring: { ...config.monitoring!, enableLogging: e.target.checked }
-                    })}
+                    onChange={(e) => handleFieldChange('monitoring.enableLogging', e.target.checked)}
                     className="rounded"
                   />
                   <span>הפעל Logging</span>
@@ -445,10 +429,7 @@ export function IntegrationComplexSpec() {
                   <input
                     type="checkbox"
                     checked={config.monitoring?.enableMetrics}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      monitoring: { ...config.monitoring!, enableMetrics: e.target.checked }
-                    })}
+                    onChange={(e) => handleFieldChange('monitoring.enableMetrics', e.target.checked)}
                     className="rounded"
                   />
                   <span>הפעל Metrics</span>
@@ -459,10 +440,7 @@ export function IntegrationComplexSpec() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">רמת Log</label>
                   <select
                     value={config.monitoring?.logLevel || 'info'}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      monitoring: { ...config.monitoring!, logLevel: e.target.value as any }
-                    })}
+                    onChange={(e) => handleFieldChange('monitoring.logLevel', e.target.value as any)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   >
                     <option value="debug">Debug</option>
@@ -476,10 +454,7 @@ export function IntegrationComplexSpec() {
                   <input
                     type="url"
                     value={config.monitoring?.dashboardUrl || ''}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      monitoring: { ...config.monitoring!, dashboardUrl: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('monitoring.dashboardUrl', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -498,10 +473,7 @@ export function IntegrationComplexSpec() {
                     type="number"
                     min="0"
                     value={config.errorHandling?.retryAttempts || 3}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      errorHandling: { ...config.errorHandling!, retryAttempts: parseInt(e.target.value) }
-                    })}
+                    onChange={(e) => handleFieldChange('errorHandling.retryAttempts', parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -511,10 +483,7 @@ export function IntegrationComplexSpec() {
                   <input
                     type="checkbox"
                     checked={config.errorHandling?.tokenRefreshAutomation}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      errorHandling: { ...config.errorHandling!, tokenRefreshAutomation: e.target.checked }
-                    })}
+                    onChange={(e) => handleFieldChange('errorHandling.tokenRefreshAutomation', e.target.checked)}
                     className="rounded"
                   />
                   <span>רענון אוטומטי של Tokens</span>
@@ -523,10 +492,7 @@ export function IntegrationComplexSpec() {
                   <input
                     type="checkbox"
                     checked={config.errorHandling?.webhookRetryQueue}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      errorHandling: { ...config.errorHandling!, webhookRetryQueue: e.target.checked }
-                    })}
+                    onChange={(e) => handleFieldChange('errorHandling.webhookRetryQueue', e.target.checked)}
                     className="rounded"
                   />
                   <span>תור ניסיונות חוזרים ל-Webhooks</span>
@@ -545,10 +511,7 @@ export function IntegrationComplexSpec() {
                   type="number"
                   min="1"
                   value={config.metadata?.estimatedHours || 40}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    metadata: { ...config.metadata!, estimatedHours: parseInt(e.target.value) }
-                  })}
+                  onChange={(e) => handleFieldChange('metadata.estimatedHours', parseInt(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
@@ -558,10 +521,7 @@ export function IntegrationComplexSpec() {
                   type="number"
                   min="0"
                   value={config.metadata?.monthlyApiCalls || 10000}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    metadata: { ...config.metadata!, monthlyApiCalls: parseInt(e.target.value) }
-                  })}
+                  onChange={(e) => handleFieldChange('metadata.monthlyApiCalls', parseInt(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>

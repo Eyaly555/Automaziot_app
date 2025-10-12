@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useSmartField } from '../../../../hooks/useSmartField';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
@@ -32,6 +32,10 @@ export function AIActionAgentSpec() {
     requireApproval: true,
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'ai-action-agent',
@@ -51,20 +55,65 @@ export function AIActionAgentSpec() {
   useEffect(() => {
     const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
     const existing = aiAgentServices.find((a: AIAgentServiceEntry) => a.serviceId === 'ai-action-agent');
-    if (existing?.requirements) {
-      setConfig(existing.requirements);
-    }
-  }, [currentMeeting]);
 
-  const handleSave = async () => {
+    if (existing?.requirements) {
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
+    }
+  }, [currentMeeting?.implementationSpec?.aiAgentServices]);
+
+  // Auto-save on changes
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.aiModel) {
+  //     const completeConfig = {
+  //       ...config,
+  //       aiModel: aiModelPreference.value,
+  //       crmSystem: crmSystem.value
+  //     };
+  //     saveData(completeConfig);
+  //   }
+  // }, [config, aiModelPreference.value, crmSystem.value, saveData]);
+
+  const handleFieldChange = useCallback((field: keyof typeof config, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            aiModel: aiModelPreference.value,
+            crmSystem: crmSystem.value
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [aiModelPreference.value, crmSystem.value, saveData]);
+
+  const handleSave = useCallback(async () => {
+    if (isLoadingRef.current) return; // Don't save during loading
+
     const completeConfig = {
       ...config,
       aiModel: aiModelPreference.value,
       crmSystem: crmSystem.value
     };
 
-    await saveData(completeConfig);
-  };
+    await saveData(completeConfig, 'manual');
+  }, [config, aiModelPreference.value, crmSystem.value, saveData]);
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -164,11 +213,7 @@ export function AIActionAgentSpec() {
           <div className="space-y-3">
             <label className="flex items-center">
               <input type="checkbox" checked={config.requireApproval}
-                onChange={(e) => {
-                  const newConfig = { ...config, requireApproval: e.target.checked };
-                  setConfig(newConfig);
-                  saveData(newConfig);
-                }} className="mr-2" />
+                onChange={(e) => handleFieldChange('requireApproval', e.target.checked)} className="mr-2" />
               <span className="text-sm">דרוש אישור לפעולות</span>
             </label>
           </div>

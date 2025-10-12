@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import { useSmartField } from '../../../../hooks/useSmartField';
@@ -64,6 +64,10 @@ export function IntEcommerceSpec() {
     }
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'int-ecommerce',
@@ -90,35 +94,75 @@ export function IntEcommerceSpec() {
 
   const [newMapping, setNewMapping] = useState({ source: '', target: '', type: 'string' });
 
+  // Load existing data ONCE on mount or when service data actually changes
   useEffect(() => {
     const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
-    const existing = integrationServices.find(i => i.serviceId === 'int-ecommerce');
+    const existing = integrationServices.find((i: any) => i.serviceId === 'int-ecommerce');
+
     if (existing?.requirements) {
-      setConfig(existing.requirements);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.integrationServices]);
 
   // Auto-save on changes
-  useEffect(() => {
-    if (config.platform || config.crmSystem) {
-      const completeConfig = {
-        ...config,
-        crmSystem: crmSystem.value,
-        crmAuthMethod: apiAuthMethod.value,
-        syncConfig: {
-          ...config.syncConfig,
-          frequency: syncFrequency.value
-        },
-        errorHandling: {
-          ...config.errorHandling,
-          alertRecipients: alertEmail.value ? [alertEmail.value] : config.errorHandling?.alertRecipients || []
-        }
-      };
-      saveData(completeConfig);
-    }
-  }, [config, crmSystem.value, apiAuthMethod.value, syncFrequency.value, alertEmail.value, saveData]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.platform || config.crmSystem) {
+  //     const completeConfig = {
+  //       ...config,
+  //       crmSystem: crmSystem.value,
+  //       crmAuthMethod: apiAuthMethod.value,
+  //       syncConfig: {
+  //         ...config.syncConfig,
+  //         frequency: syncFrequency.value
+  //       },
+  //       errorHandling: {
+  //         ...config.errorHandling,
+  //         alertRecipients: alertEmail.value ? [alertEmail.value] : config.errorHandling?.alertRecipients || []
+  //       }
+  //     };
+  //     saveData(completeConfig);
+  //   }
+  // }, [config, crmSystem.value, apiAuthMethod.value, syncFrequency.value, alertEmail.value, saveData]);
 
-  const handleSave = async () => {
+  const handleFieldChange = useCallback((field: keyof typeof config, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            crmSystem: crmSystem.value,
+            crmAuthMethod: apiAuthMethod.value,
+            syncConfig: {
+              ...updated.syncConfig,
+              frequency: syncFrequency.value
+            },
+            errorHandling: {
+              ...updated.errorHandling,
+              alertRecipients: alertEmail.value ? [alertEmail.value] : updated.errorHandling?.alertRecipients || []
+            }
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [crmSystem.value, apiAuthMethod.value, syncFrequency.value, alertEmail.value, saveData]);
+
+  const handleSave = useCallback(async () => {
     let frequencyValue = syncFrequency.value;
     if (frequencyValue === 'realtime') frequencyValue = 'real-time';
 
@@ -140,14 +184,12 @@ export function IntEcommerceSpec() {
     await saveData(completeConfig);
 
     alert('הגדרות נשמרו בהצלחה!');
-  };
+  }, [config, crmSystem.value, apiAuthMethod.value, syncFrequency.value, alertEmail.value, saveData]);
 
-  const addMapping = () => {
-    if (newMapping.source && newMapping.target) {
-      setConfig({
-        ...config,
-        fieldMappings: [...config.fieldMappings, newMapping]
-      });
+  const addMapping = (source: string, target: string, type: string) => {
+    if (source && target) {
+      const updatedMappings = [...config.fieldMappings, { source, target, type }];
+      handleFieldChange('fieldMappings', updatedMappings);
       setNewMapping({ source: '', target: '', type: 'string' });
     }
   };
@@ -190,7 +232,7 @@ export function IntEcommerceSpec() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">פלטפורמה</label>
                 <select
                   value={config.platform || 'shopify'}
-                  onChange={(e) => setConfig({ ...config, platform: e.target.value })}
+                  onChange={(e) => handleFieldChange('platform', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="shopify">Shopify</option>
@@ -314,7 +356,7 @@ export function IntEcommerceSpec() {
                   <input
                     type="checkbox"
                     checked={config.orderSync || false}
-                    onChange={(e) => setConfig({ ...config, orderSync: e.target.checked })}
+                    onChange={(e) => handleFieldChange('orderSync', e.target.checked)}
                     className="rounded"
                   />
                   <span>סנכרון הזמנות</span>
@@ -323,7 +365,7 @@ export function IntEcommerceSpec() {
                   <input
                     type="checkbox"
                     checked={config.customerSync || false}
-                    onChange={(e) => setConfig({ ...config, customerSync: e.target.checked })}
+                    onChange={(e) => handleFieldChange('customerSync', e.target.checked)}
                     className="rounded"
                   />
                   <span>סנכרון לקוחות</span>
@@ -332,7 +374,7 @@ export function IntEcommerceSpec() {
                   <input
                     type="checkbox"
                     checked={config.productSync || false}
-                    onChange={(e) => setConfig({ ...config, productSync: e.target.checked })}
+                    onChange={(e) => handleFieldChange('productSync', e.target.checked)}
                     className="rounded"
                   />
                   <span>סנכרון מוצרים</span>
@@ -348,15 +390,12 @@ export function IntEcommerceSpec() {
                         checked={config.syncConfig?.entities?.includes(entity) || false}
                         onChange={(e) => {
                           const entities = config.syncConfig?.entities || [];
-                          setConfig({
-                            ...config,
-                            syncConfig: {
-                              ...config.syncConfig!,
-                              entities: e.target.checked
-                                ? [...entities, entity]
-                                : entities.filter(ent => ent !== entity)
-                            }
-                          });
+                          handleFieldChange(
+                            'syncConfig.entities',
+                            e.target.checked
+                              ? [...entities, entity]
+                              : entities.filter(ent => ent !== entity)
+                          );
                         }}
                         className="rounded"
                       />
@@ -394,10 +433,11 @@ export function IntEcommerceSpec() {
                 >
                   <option value="string">String</option>
                   <option value="number">Number</option>
+                  <option value="boolean">Boolean</option>
                 </select>
               </div>
               <button
-                onClick={addMapping}
+                onClick={() => addMapping(newMapping.source, newMapping.target, newMapping.type)}
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
               >
                 הוסף מיפוי
@@ -408,7 +448,7 @@ export function IntEcommerceSpec() {
                     <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
                       <span>{map.source} → {map.target} ({map.type})</span>
                       <button
-                        onClick={() => setConfig({ ...config, fieldMappings: config.fieldMappings.filter((_, i) => i !== index) })}
+                        onClick={() => handleFieldChange('fieldMappings', config.fieldMappings.filter((_, i) => i !== index))}
                         className="text-red-600"
                       >
                         הסר

@@ -5,7 +5,7 @@
  * Platform: HubSpot Marketing / ActiveCampaign / Mailchimp
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
 import type { ImplMarketingAutomationRequirements } from '../../../../types/systemImplementationServices';
@@ -52,6 +52,10 @@ export function ImplMarketingAutomationSpec() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'impl-marketing-automation',
@@ -62,9 +66,42 @@ export function ImplMarketingAutomationSpec() {
     const systemImplementations = currentMeeting?.implementationSpec?.systemImplementations || [];
     const existing = systemImplementations.find((s: any) => s.serviceId === 'impl-marketing-automation');
     if (existing?.requirements) {
-      setConfig(existing.requirements as ImplMarketingAutomationRequirements);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements as ImplMarketingAutomationRequirements);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.systemImplementations]);
+
+  // Auto-save on changes
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.platform) { // Only save if we have basic data
+  //     saveData(config);
+  //   }
+  // }, [config]);
+
+  const handleFieldChange = useCallback((field: string, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = { ...updated }; // No smart fields in this component
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [saveData]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -86,118 +123,101 @@ export function ImplMarketingAutomationSpec() {
   };
 
   const addWorkflow = () => {
-    setConfig({
-      ...config,
-      automationWorkflows: [
-        ...config.automationWorkflows,
-        {
-          workflowName: '',
-          trigger: 'form_submit',
-          actions: []
-        }
-      ]
-    });
+    const updatedWorkflows = [
+      ...config.automationWorkflows,
+      {
+        workflowName: '',
+        trigger: 'form_submit',
+        actions: []
+      }
+    ];
+    handleFieldChange('automationWorkflows', updatedWorkflows);
   };
 
   const removeWorkflow = (index: number) => {
-    setConfig({
-      ...config,
-      automationWorkflows: config.automationWorkflows.filter((_, i) => i !== index)
-    });
+    const updatedWorkflows = config.automationWorkflows.filter((_, i) => i !== index);
+    handleFieldChange('automationWorkflows', updatedWorkflows);
   };
 
   const addSegment = () => {
-    setConfig({
-      ...config,
-      segmentation: {
-        segments: [
-          ...config.segmentation.segments,
-          {
-            segmentName: '',
-            criteria: ''
-          }
-        ]
+    const updatedSegments = [
+      ...config.segmentation.segments,
+      {
+        segmentName: '',
+        criteria: ''
       }
-    });
+    ];
+    handleFieldChange('segmentation.segments', updatedSegments);
   };
 
   const removeSegment = (index: number) => {
-    setConfig({
-      ...config,
-      segmentation: {
-        segments: config.segmentation.segments.filter((_, i) => i !== index)
-      }
-    });
+    const updatedSegments = config.segmentation.segments.filter((_, i) => i !== index);
+    handleFieldChange('segmentation.segments', updatedSegments);
   };
 
   const addCustomField = () => {
-    setConfig({
-      ...config,
-      customFields: [
-        ...config.customFields,
-        {
-          fieldName: '',
-          fieldType: 'text',
-          purpose: '',
-          isRequired: false
-        }
-      ]
-    });
+    const updatedCustomFields = [
+      ...config.customFields,
+      {
+        fieldName: '',
+        fieldType: 'text',
+        purpose: '',
+        isRequired: false
+      }
+    ];
+    handleFieldChange('customFields', updatedCustomFields);
   };
 
   const removeCustomField = (index: number) => {
-    setConfig({
-      ...config,
-      customFields: config.customFields.filter((_, i) => i !== index)
-    });
+    const updatedCustomFields = config.customFields.filter((_, i) => i !== index);
+    handleFieldChange('customFields', updatedCustomFields);
   };
 
   const addTrackingDomain = () => {
-    setConfig({
-      ...config,
+    setConfig(prevConfig => ({
+      ...prevConfig,
       websiteTracking: {
-        ...config.websiteTracking,
-        trackingDomains: [...config.websiteTracking.trackingDomains, '']
+        ...prevConfig.websiteTracking,
+        trackingDomains: [...prevConfig.websiteTracking.trackingDomains, '']
       }
-    });
+    }));
   };
 
   const updateTrackingDomain = (index: number, value: string) => {
-    const updated = [...config.websiteTracking.trackingDomains];
-    updated[index] = value;
-    setConfig({
-      ...config,
-      websiteTracking: { ...config.websiteTracking, trackingDomains: updated }
+    setConfig(prevConfig => {
+      const updated = [...prevConfig.websiteTracking.trackingDomains];
+      updated[index] = value;
+      return {
+        ...prevConfig,
+        websiteTracking: { ...prevConfig.websiteTracking, trackingDomains: updated }
+      };
     });
   };
 
   const removeTrackingDomain = (index: number) => {
-    setConfig({
-      ...config,
+    setConfig(prevConfig => ({
+      ...prevConfig,
       websiteTracking: {
-        ...config.websiteTracking,
-        trackingDomains: config.websiteTracking.trackingDomains.filter((_, i) => i !== index)
+        ...prevConfig.websiteTracking,
+        trackingDomains: prevConfig.websiteTracking.trackingDomains.filter((_, i) => i !== index)
       }
-    });
+    }));
   };
 
-  // Auto-save when config changes
-  useEffect(() => {
-    if (config.platform) { // Only save if we have basic data
-      saveData(config);
-    }
-  }, [config]);
-
   // Manual save handler (kept for compatibility, but auto-save is primary)
-  const handleManualSave = async () => {
+  const handleSave = useCallback(async () => {
+    if (isLoadingRef.current) return; // Don't save during loading
+
     if (!validateForm()) {
       alert('נא למלא את כל השדות הנדרשים');
       return;
     }
 
+    const completeConfig = { ...config }; // No smart fields in this component
+
     // Force immediate save
-    await saveData(config);
-  };
+    await saveData(completeConfig, 'manual');
+  }, [config, saveData, validateForm]);
 
   return (
     <div className="space-y-6 p-8" dir="rtl">
@@ -216,7 +236,7 @@ export function ImplMarketingAutomationSpec() {
             </label>
             <select
               value={config.platform}
-              onChange={(e) => setConfig({ ...config, platform: e.target.value as any })}
+              onChange={(e) => handleFieldChange('platform', e.target.value as any)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             >
               <option value="hubspot_marketing">HubSpot Marketing</option>
@@ -231,7 +251,7 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="text"
               value={config.subscriptionTier}
-              onChange={(e) => setConfig({ ...config, subscriptionTier: e.target.value })}
+              onChange={(e) => handleFieldChange('subscriptionTier', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               placeholder="Starter, Professional, Plus..."
             />
@@ -250,10 +270,7 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="email"
               value={config.adminAccess.email}
-              onChange={(e) => setConfig({
-                ...config,
-                adminAccess: { ...config.adminAccess, email: e.target.value }
-              })}
+              onChange={(e) => handleFieldChange('adminAccess.email', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               placeholder="admin@company.com"
             />
@@ -264,10 +281,7 @@ export function ImplMarketingAutomationSpec() {
             <label className="block text-sm font-medium text-gray-700 mb-2">תפקיד</label>
             <select
               value={config.adminAccess.role}
-              onChange={(e) => setConfig({
-                ...config,
-                adminAccess: { ...config.adminAccess, role: e.target.value as any }
-              })}
+              onChange={(e) => handleFieldChange('adminAccess.role', e.target.value as any)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             >
               <option value="owner">Owner</option>
@@ -280,10 +294,7 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="checkbox"
               checked={config.adminAccess.hasApiAccess}
-              onChange={(e) => setConfig({
-                ...config,
-                adminAccess: { ...config.adminAccess, hasApiAccess: e.target.checked }
-              })}
+              onChange={(e) => handleFieldChange('adminAccess.hasApiAccess', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">יש גישה ל-API</span>
@@ -302,10 +313,7 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="text"
               value={config.domainAuthentication.domain}
-              onChange={(e) => setConfig({
-                ...config,
-                domainAuthentication: { ...config.domainAuthentication, domain: e.target.value }
-              })}
+              onChange={(e) => handleFieldChange('domainAuthentication.domain', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               placeholder="company.com"
             />
@@ -317,10 +325,7 @@ export function ImplMarketingAutomationSpec() {
               <input
                 type="checkbox"
                 checked={config.domainAuthentication.spfRecordConfigured}
-                onChange={(e) => setConfig({
-                  ...config,
-                  domainAuthentication: { ...config.domainAuthentication, spfRecordConfigured: e.target.checked }
-                })}
+                onChange={(e) => handleFieldChange('domainAuthentication.spfRecordConfigured', e.target.checked)}
                 className="rounded border-gray-300"
               />
               <span className="text-sm">SPF Record מוגדר</span>
@@ -330,10 +335,7 @@ export function ImplMarketingAutomationSpec() {
               <input
                 type="checkbox"
                 checked={config.domainAuthentication.dkimRecordConfigured}
-                onChange={(e) => setConfig({
-                  ...config,
-                  domainAuthentication: { ...config.domainAuthentication, dkimRecordConfigured: e.target.checked }
-                })}
+                onChange={(e) => handleFieldChange('domainAuthentication.dkimRecordConfigured', e.target.checked)}
                 className="rounded border-gray-300"
               />
               <span className="text-sm">DKIM Record מוגדר</span>
@@ -343,10 +345,7 @@ export function ImplMarketingAutomationSpec() {
               <input
                 type="checkbox"
                 checked={config.domainAuthentication.hasDnsAccess}
-                onChange={(e) => setConfig({
-                  ...config,
-                  domainAuthentication: { ...config.domainAuthentication, hasDnsAccess: e.target.checked }
-                })}
+                onChange={(e) => handleFieldChange('domainAuthentication.hasDnsAccess', e.target.checked)}
                 className="rounded border-gray-300"
               />
               <span className="text-sm">יש גישה ל-DNS</span>
@@ -356,10 +355,7 @@ export function ImplMarketingAutomationSpec() {
               <input
                 type="checkbox"
                 checked={config.domainAuthentication.hasPhysicalAddress}
-                onChange={(e) => setConfig({
-                  ...config,
-                  domainAuthentication: { ...config.domainAuthentication, hasPhysicalAddress: e.target.checked }
-                })}
+                onChange={(e) => handleFieldChange('domainAuthentication.hasPhysicalAddress', e.target.checked)}
                 className="rounded border-gray-300"
               />
               <span className="text-sm">יש כתובת פיזית (נדרש לפי CAN-SPAM)</span>
@@ -377,10 +373,7 @@ export function ImplMarketingAutomationSpec() {
               <input
                 type="checkbox"
                 checked={config.websiteTracking.hasWebsiteAccess}
-                onChange={(e) => setConfig({
-                  ...config,
-                  websiteTracking: { ...config.websiteTracking, hasWebsiteAccess: e.target.checked }
-                })}
+                onChange={(e) => handleFieldChange('websiteTracking.hasWebsiteAccess', e.target.checked)}
                 className="rounded border-gray-300"
               />
               <span className="text-sm">יש גישה לאתר</span>
@@ -390,10 +383,7 @@ export function ImplMarketingAutomationSpec() {
               <input
                 type="checkbox"
                 checked={config.websiteTracking.trackingCodeInstalled}
-                onChange={(e) => setConfig({
-                  ...config,
-                  websiteTracking: { ...config.websiteTracking, trackingCodeInstalled: e.target.checked }
-                })}
+                onChange={(e) => handleFieldChange('websiteTracking.trackingCodeInstalled', e.target.checked)}
                 className="rounded border-gray-300"
               />
               <span className="text-sm">קוד מעקב מותקן</span>
@@ -403,10 +393,7 @@ export function ImplMarketingAutomationSpec() {
               <input
                 type="checkbox"
                 checked={config.websiteTracking.useGoogleTagManager || false}
-                onChange={(e) => setConfig({
-                  ...config,
-                  websiteTracking: { ...config.websiteTracking, useGoogleTagManager: e.target.checked }
-                })}
+                onChange={(e) => handleFieldChange('websiteTracking.useGoogleTagManager', e.target.checked)}
                 className="rounded border-gray-300"
               />
               <span className="text-sm">שימוש ב-Google Tag Manager</span>
@@ -472,7 +459,7 @@ export function ImplMarketingAutomationSpec() {
                     onChange={(e) => {
                       const updated = [...config.automationWorkflows];
                       updated[index] = { ...updated[index], workflowName: e.target.value };
-                      setConfig({ ...config, automationWorkflows: updated });
+                      handleFieldChange('automationWorkflows', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                     placeholder="Welcome Series, Lead Nurture..."
@@ -485,7 +472,7 @@ export function ImplMarketingAutomationSpec() {
                     onChange={(e) => {
                       const updated = [...config.automationWorkflows];
                       updated[index] = { ...updated[index], trigger: e.target.value as any };
-                      setConfig({ ...config, automationWorkflows: updated });
+                      handleFieldChange('automationWorkflows', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   >
@@ -535,7 +522,7 @@ export function ImplMarketingAutomationSpec() {
                     onChange={(e) => {
                       const updated = [...config.segmentation.segments];
                       updated[index] = { ...updated[index], segmentName: e.target.value };
-                      setConfig({ ...config, segmentation: { segments: updated } });
+                      handleFieldChange('segmentation.segments', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                     placeholder="לקוחות פוטנציאליים, לקוחות פעילים..."
@@ -548,7 +535,7 @@ export function ImplMarketingAutomationSpec() {
                     onChange={(e) => {
                       const updated = [...config.segmentation.segments];
                       updated[index] = { ...updated[index], criteria: e.target.value };
-                      setConfig({ ...config, segmentation: { segments: updated } });
+                      handleFieldChange('segmentation.segments', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                     rows={2}
@@ -592,7 +579,7 @@ export function ImplMarketingAutomationSpec() {
                     onChange={(e) => {
                       const updated = [...config.customFields];
                       updated[index] = { ...updated[index], fieldName: e.target.value };
-                      setConfig({ ...config, customFields: updated });
+                      handleFieldChange('customFields', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                     placeholder="Company Size, Industry..."
@@ -605,7 +592,7 @@ export function ImplMarketingAutomationSpec() {
                     onChange={(e) => {
                       const updated = [...config.customFields];
                       updated[index] = { ...updated[index], fieldType: e.target.value as any };
-                      setConfig({ ...config, customFields: updated });
+                      handleFieldChange('customFields', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   >
@@ -625,7 +612,7 @@ export function ImplMarketingAutomationSpec() {
                   onChange={(e) => {
                     const updated = [...config.customFields];
                     updated[index] = { ...updated[index], purpose: e.target.value };
-                    setConfig({ ...config, customFields: updated });
+                    handleFieldChange('customFields', updated);
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   placeholder="סגמנטציה, התאמה אישית..."
@@ -638,7 +625,7 @@ export function ImplMarketingAutomationSpec() {
                   onChange={(e) => {
                     const updated = [...config.customFields];
                     updated[index] = { ...updated[index], isRequired: e.target.checked };
-                    setConfig({ ...config, customFields: updated });
+                    handleFieldChange('customFields', updated);
                   }}
                   className="rounded border-gray-300"
                 />
@@ -664,10 +651,7 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="checkbox"
               checked={config.compliance.gdprCompliant}
-              onChange={(e) => setConfig({
-                ...config,
-                compliance: { ...config.compliance, gdprCompliant: e.target.checked }
-              })}
+              onChange={(e) => handleFieldChange('compliance.gdprCompliant', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">עומד ב-GDPR</span>
@@ -677,10 +661,7 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="checkbox"
               checked={config.compliance.hasUnsubscribeLink}
-              onChange={(e) => setConfig({
-                ...config,
-                compliance: { ...config.compliance, hasUnsubscribeLink: e.target.checked }
-              })}
+              onChange={(e) => handleFieldChange('compliance.hasUnsubscribeLink', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">יש קישור הסרה מרשימה (חובה)</span>
@@ -690,10 +671,7 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="checkbox"
               checked={config.compliance.hasPhysicalAddress}
-              onChange={(e) => setConfig({
-                ...config,
-                compliance: { ...config.compliance, hasPhysicalAddress: e.target.checked }
-              })}
+              onChange={(e) => handleFieldChange('compliance.hasPhysicalAddress', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">יש כתובת פיזית (חובה לפי CAN-SPAM)</span>
@@ -703,10 +681,7 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="checkbox"
               checked={config.compliance.hasPrivacyPolicy}
-              onChange={(e) => setConfig({
-                ...config,
-                compliance: { ...config.compliance, hasPrivacyPolicy: e.target.checked }
-              })}
+              onChange={(e) => handleFieldChange('compliance.hasPrivacyPolicy', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">יש מדיניות פרטיות</span>
@@ -716,10 +691,7 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="checkbox"
               checked={config.compliance.cookieConsentBanner || false}
-              onChange={(e) => setConfig({
-                ...config,
-                compliance: { ...config.compliance, cookieConsentBanner: e.target.checked }
-              })}
+              onChange={(e) => handleFieldChange('compliance.cookieConsentBanner', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">באנר הסכמה לעוגיות</span>
@@ -735,7 +707,7 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="checkbox"
               checked={config.trainingRequired}
-              onChange={(e) => setConfig({ ...config, trainingRequired: e.target.checked })}
+              onChange={(e) => handleFieldChange('trainingRequired', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">נדרשת הדרכה</span>
@@ -746,7 +718,7 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="number"
               value={config.estimatedWeeks}
-              onChange={(e) => setConfig({ ...config, estimatedWeeks: parseInt(e.target.value) || 0 })}
+              onChange={(e) => handleFieldChange('estimatedWeeks', parseInt(e.target.value) || 0)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               min="1"
             />
@@ -776,7 +748,7 @@ export function ImplMarketingAutomationSpec() {
           )}
         </div>
         <button
-          onClick={handleManualSave}
+          onClick={handleSave}
           disabled={isSaving}
           className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
         >

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useSmartField } from '../../../../hooks/useSmartField';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
@@ -123,6 +123,10 @@ export function AutoAppointmentRemindersSpec() {
     }
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-appointment-reminders',
@@ -162,18 +166,76 @@ export function AutoAppointmentRemindersSpec() {
   });
 
   useEffect(() => {
-    if (currentMeeting?.implementationSpec?.automations) {
-      const existing = currentMeeting.implementationSpec.automations.find(
-        (a: any) => a.serviceId === 'auto-appointment-reminders'
-      );
-      if (existing) {
-        setConfig(existing.requirements);
+    const automations = currentMeeting?.implementationSpec?.automations || [];
+    const existing = automations.find((a: any) => a.serviceId === 'auto-appointment-reminders');
+
+    if (existing?.requirements) {
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements as AutoAppointmentRemindersRequirements);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
       }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.automations]);
 
   // Auto-save on config changes
-  useEffect(() => {
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // Auto-save is now handled by handleFieldChange callback
+
+  // ✅ handleFieldChange - שמירה חכמה כשמשתמש משנה שדות
+  const handleFieldChange = useCallback((field: string, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+
+      // Save after state update (only if not loading)
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            appointmentSources: {
+              ...updated.appointmentSources,
+              calendarSystem: calendarSystem.value || updated.appointmentSources.calendarSystem
+            },
+            schedulingRules: {
+              ...updated.schedulingRules,
+              businessHours: {
+                ...updated.schedulingRules.businessHours,
+                start: businessHoursStart.value || updated.schedulingRules.businessHours.start,
+                end: businessHoursEnd.value || updated.schedulingRules.businessHours.end
+              }
+            },
+            emailServiceAccess: {
+              ...updated.emailServiceAccess,
+              provider: emailProvider.value || updated.emailServiceAccess.provider
+            },
+            n8nWorkflow: {
+              ...updated.n8nWorkflow,
+              instanceUrl: n8nInstanceUrl.value || updated.n8nWorkflow.instanceUrl,
+              errorHandling: {
+                ...updated.n8nWorkflow.errorHandling,
+                alertEmail: alertEmail.value || updated.n8nWorkflow.errorHandling.alertEmail
+              }
+            }
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+
+      return updated;
+    });
+  }, [saveData, calendarSystem.value, businessHoursStart.value, businessHoursEnd.value, emailProvider.value, n8nInstanceUrl.value, alertEmail.value]);
+
+  const handleSave = async () => {
+    if (isLoadingRef.current) return;
+
     const completeConfig = {
       ...config,
       appointmentSources: {
@@ -201,39 +263,8 @@ export function AutoAppointmentRemindersSpec() {
         }
       }
     };
-    saveData(completeConfig);
-  }, [config, calendarSystem.value, businessHoursStart.value, businessHoursEnd.value, emailProvider.value, n8nInstanceUrl.value, alertEmail.value, saveData]);
 
-  const saveConfig = async () => {
-    const completeConfig = {
-      ...config,
-      appointmentSources: {
-        ...config.appointmentSources,
-        calendarSystem: calendarSystem.value || config.appointmentSources.calendarSystem
-      },
-      schedulingRules: {
-        ...config.schedulingRules,
-        businessHours: {
-          ...config.schedulingRules.businessHours,
-          start: businessHoursStart.value || config.schedulingRules.businessHours.start,
-          end: businessHoursEnd.value || config.schedulingRules.businessHours.end
-        }
-      },
-      emailServiceAccess: {
-        ...config.emailServiceAccess,
-        provider: emailProvider.value || config.emailServiceAccess.provider
-      },
-      n8nWorkflow: {
-        ...config.n8nWorkflow,
-        instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow.instanceUrl,
-        errorHandling: {
-          ...config.n8nWorkflow.errorHandling,
-          alertEmail: alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail
-        }
-      }
-    };
-
-    await saveData(completeConfig);
+    await saveData(completeConfig, 'manual');
   };
 
   return (
@@ -293,10 +324,7 @@ export function AutoAppointmentRemindersSpec() {
               <input
                 type="number"
                 value={config.reminderSettings.leadTime}
-                onChange={(e) => setConfig(prev => ({
-                  ...prev,
-                  reminderSettings: { ...prev.reminderSettings, leadTime: parseInt(e.target.value) || 24 }
-                }))}
+                onChange={(e) => handleFieldChange('reminderSettings.leadTime', parseInt(e.target.value) || 24)}
                 className="w-full p-2 border rounded-lg"
                 min="1"
                 max="168"
@@ -308,10 +336,7 @@ export function AutoAppointmentRemindersSpec() {
               <input
                 type="number"
                 value={config.reminderSettings.maxReminders}
-                onChange={(e) => setConfig(prev => ({
-                  ...prev,
-                  reminderSettings: { ...prev.reminderSettings, maxReminders: parseInt(e.target.value) || 3 }
-                }))}
+                onChange={(e) => handleFieldChange('reminderSettings.maxReminders', parseInt(e.target.value) || 3)}
                 className="w-full p-2 border rounded-lg"
                 min="1"
                 max="10"
@@ -386,10 +411,7 @@ export function AutoAppointmentRemindersSpec() {
                       const types = e.target.checked
                         ? [...config.reminderSettings.reminderTypes, channel as any]
                         : config.reminderSettings.reminderTypes.filter(t => t !== channel);
-                      setConfig(prev => ({
-                        ...prev,
-                        reminderSettings: { ...prev.reminderSettings, reminderTypes: types }
-                      }));
+                      handleFieldChange('reminderSettings.reminderTypes', types);
                     }}
                   />
                   <span className="capitalize">{channel === 'email' ? 'אימייל' : channel === 'sms' ? 'SMS' : 'וואטסאפ'}</span>
@@ -461,10 +483,7 @@ export function AutoAppointmentRemindersSpec() {
                 <input
                   type="url"
                   value={config.n8nWorkflow.webhookEndpoint || ''}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    n8nWorkflow: { ...prev.n8nWorkflow, webhookEndpoint: e.target.value }
-                  }))}
+                  onChange={(e) => handleFieldChange('n8nWorkflow.webhookEndpoint', e.target.value)}
                   className="w-full p-2 border rounded-lg"
                   placeholder="https://n8n.example.com/webhook/..."
                 />
@@ -476,16 +495,7 @@ export function AutoAppointmentRemindersSpec() {
                   <input
                     type="number"
                     value={config.n8nWorkflow.errorHandling.retryAttempts || 3}
-                    onChange={(e) => setConfig(prev => ({
-                      ...prev,
-                      n8nWorkflow: {
-                        ...prev.n8nWorkflow,
-                        errorHandling: {
-                          ...prev.n8nWorkflow.errorHandling,
-                          retryAttempts: parseInt(e.target.value) || 3
-                        }
-                      }
-                    }))}
+                    onChange={(e) => handleFieldChange('n8nWorkflow.errorHandling.retryAttempts', parseInt(e.target.value) || 3)}
                     className="w-full p-2 border rounded-lg"
                     min="0"
                     max="10"
@@ -523,10 +533,7 @@ export function AutoAppointmentRemindersSpec() {
                 <input
                   type="checkbox"
                   checked={config.n8nWorkflow.httpsEnabled || true}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    n8nWorkflow: { ...prev.n8nWorkflow, httpsEnabled: e.target.checked }
-                  }))}
+                  onChange={(e) => handleFieldChange('n8nWorkflow.httpsEnabled', e.target.checked)}
                   className="rounded border-gray-300"
                 />
                 <span className="text-sm">HTTPS מופעל</span>
@@ -544,16 +551,7 @@ export function AutoAppointmentRemindersSpec() {
                   <input
                     type="text"
                     value={config.notificationContent.templates.email.subject}
-                    onChange={(e) => setConfig(prev => ({
-                      ...prev,
-                      notificationContent: {
-                        ...prev.notificationContent,
-                        templates: {
-                          ...prev.notificationContent.templates,
-                          email: { ...prev.notificationContent.templates.email, subject: e.target.value }
-                        }
-                      }
-                    }))}
+                    onChange={(e) => handleFieldChange('notificationContent.templates.email.subject', e.target.value)}
                     className="w-full p-2 border rounded-lg"
                     placeholder="תזכורת פגישה - {clientName}"
                   />
@@ -562,16 +560,7 @@ export function AutoAppointmentRemindersSpec() {
                   <label className="block text-sm font-medium mb-1">תוכן אימייל</label>
                   <textarea
                     value={config.notificationContent.templates.email.body}
-                    onChange={(e) => setConfig(prev => ({
-                      ...prev,
-                      notificationContent: {
-                        ...prev.notificationContent,
-                        templates: {
-                          ...prev.notificationContent.templates,
-                          email: { ...prev.notificationContent.templates.email, body: e.target.value }
-                        }
-                      }
-                    }))}
+                    onChange={(e) => handleFieldChange('notificationContent.templates.email.body', e.target.value)}
                     rows={4}
                     className="w-full p-2 border rounded-lg"
                     placeholder="שלום {clientName}, זוהי תזכורת לפגישה..."
@@ -586,16 +575,7 @@ export function AutoAppointmentRemindersSpec() {
                   <label className="block text-sm font-medium mb-1">תוכן SMS</label>
                   <textarea
                     value={config.notificationContent.templates.sms.message}
-                    onChange={(e) => setConfig(prev => ({
-                      ...prev,
-                      notificationContent: {
-                        ...prev.notificationContent,
-                        templates: {
-                          ...prev.notificationContent.templates,
-                          sms: { message: e.target.value }
-                        }
-                      }
-                    }))}
+                    onChange={(e) => handleFieldChange('notificationContent.templates.sms.message', e.target.value)}
                     rows={2}
                     className="w-full p-2 border rounded-lg"
                     placeholder="תזכורת: פגישה עם {clientName} ב-{appointmentTime}"

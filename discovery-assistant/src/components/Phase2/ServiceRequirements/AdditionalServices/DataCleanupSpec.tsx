@@ -8,7 +8,7 @@
  * @category AdditionalServices
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
@@ -56,6 +56,10 @@ export function DataCleanupSpec() {
     }
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'data-cleanup',
@@ -64,7 +68,10 @@ export function DataCleanupSpec() {
 
   useBeforeUnload(() => {
     // Force save all data when leaving
-    saveData(config);
+    const completeConfig = {
+      ...config,
+    };
+    saveData(completeConfig);
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -77,9 +84,31 @@ export function DataCleanupSpec() {
       : undefined;
 
     if (existing?.requirements) {
-      setConfig(existing.requirements as DataCleanupRequirements);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements as DataCleanupRequirements);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.additionalServices]);
+
+  // Auto-save on config changes
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   // Only save if we have basic data
+  //   if (config.platform.choice) {
+  //     saveData(config);
+  //   }
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [config, databaseType.value, alertEmail.value, saveData]);
 
   // Validation
   const validateForm = (): boolean => {
@@ -97,22 +126,67 @@ export function DataCleanupSpec() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleFieldChange = useCallback(<T extends keyof DataCleanupRequirements>(
+    field: T,
+    value: DataCleanupRequirements[T]
+  ) => {
+    setConfig(prevConfig => {
+      const updatedConfig = { ...prevConfig, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = { ...updatedConfig }; // No smart fields in this component
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updatedConfig;
+    });
+  }, [saveData]);
+
+  const handleNestedFieldChange = useCallback((
+    parentField: keyof DataCleanupRequirements,
+    nestedPath: string,
+    value: any
+  ) => {
+    setConfig(prevConfig => {
+      const updatedConfig = { ...prevConfig };
+      let current = updatedConfig[parentField];
+      const pathParts = nestedPath.split('.');
+      for (let i = 0; i < pathParts.length - 1; i++) {
+        current = current[pathParts[i]];
+      }
+      current[pathParts[pathParts.length - 1]] = value;
+
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = { ...updatedConfig }; // No smart fields in this component
+          saveData(completeConfig);
+        }
+      }, 0);
+
+      return updatedConfig;
+    });
+  }, [saveData]);
+
   // Save handler
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
+    if (isLoadingRef.current) return; // Don't save during loading
+
     if (!validateForm()) {
       alert('נא למלא את כל השדות הנדרשים');
       return;
     }
 
-    await saveData(config);
-  };
+    const completeConfig = { ...config }; // No smart fields in this component
+
+    await saveData(completeConfig, 'manual');
+  }, [config, saveData, validateForm]);
 
   // Add data source
   const addDataSource = () => {
-    setConfig({
-      ...config,
+    setConfig(prevConfig => ({
+      ...prevConfig,
       dataSources: [
-        ...config.dataSources,
+        ...prevConfig.dataSources,
         {
           systemName: '',
           accessType: 'api',
@@ -120,48 +194,48 @@ export function DataCleanupSpec() {
           hasBackup: false
         }
       ]
-    });
+    }));
   };
 
   // Remove data source
   const removeDataSource = (index: number) => {
-    setConfig({
-      ...config,
-      dataSources: config.dataSources.filter((_, i) => i !== index)
-    });
+    setConfig(prevConfig => ({
+      ...prevConfig,
+      dataSources: prevConfig.dataSources.filter((_, i) => i !== index)
+    }));
   };
 
   // Add match field
   const addMatchField = () => {
     const field = prompt('הזן שם שדה להתאמה (לדוגמה: email, phone, name):');
     if (field && field.trim()) {
-      setConfig({
-        ...config,
+      setConfig(prevConfig => ({
+        ...prevConfig,
         deduplicationRules: {
-          ...config.deduplicationRules,
-          matchFields: [...config.deduplicationRules.matchFields, field.trim()]
+          ...prevConfig.deduplicationRules,
+          matchFields: [...prevConfig.deduplicationRules.matchFields, field.trim()]
         }
-      });
+      }));
     }
   };
 
   // Remove match field
   const removeMatchField = (index: number) => {
-    setConfig({
-      ...config,
+    setConfig(prevConfig => ({
+      ...prevConfig,
       deduplicationRules: {
-        ...config.deduplicationRules,
-        matchFields: config.deduplicationRules.matchFields.filter((_, i) => i !== index)
+        ...prevConfig.deduplicationRules,
+        matchFields: prevConfig.deduplicationRules.matchFields.filter((_, i) => i !== index)
       }
-    });
+    }));
   };
 
   // Add data quality rule
   const addDataQualityRule = () => {
-    setConfig({
-      ...config,
+    setConfig(prevConfig => ({
+      ...prevConfig,
       dataQualityRules: [
-        ...(config.dataQualityRules || []),
+        ...(prevConfig.dataQualityRules || []),
         {
           ruleName: '',
           fieldName: '',
@@ -169,15 +243,15 @@ export function DataCleanupSpec() {
           action: 'flag'
         }
       ]
-    });
+    }));
   };
 
   // Remove data quality rule
   const removeDataQualityRule = (index: number) => {
-    setConfig({
-      ...config,
-      dataQualityRules: (config.dataQualityRules || []).filter((_, i) => i !== index)
-    });
+    setConfig(prevConfig => ({
+      ...prevConfig,
+      dataQualityRules: (prevConfig.dataQualityRules || []).filter((_, i) => i !== index)
+    }));
   };
 
   return (
@@ -223,7 +297,7 @@ export function DataCleanupSpec() {
                   onChange={(e) => {
                     const updated = [...config.dataSources];
                     updated[index].systemName = e.target.value;
-                    setConfig({ ...config, dataSources: updated });
+                    handleFieldChange('dataSources', updated);
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="Zoho CRM, MySQL Database, Excel Files"
@@ -237,7 +311,7 @@ export function DataCleanupSpec() {
                   onChange={(e) => {
                     const updated = [...config.dataSources];
                     updated[index].accessType = e.target.value as 'api' | 'export' | 'direct_db' | 'spreadsheet';
-                    setConfig({ ...config, dataSources: updated });
+                    handleFieldChange('dataSources', updated);
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
@@ -256,7 +330,7 @@ export function DataCleanupSpec() {
                   onChange={(e) => {
                     const updated = [...config.dataSources];
                     updated[index].recordCount = parseInt(e.target.value) || 0;
-                    setConfig({ ...config, dataSources: updated });
+                    handleFieldChange('dataSources', updated);
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   min="0"
@@ -270,7 +344,7 @@ export function DataCleanupSpec() {
                   onChange={(e) => {
                     const updated = [...config.dataSources];
                     updated[index].hasBackup = e.target.checked;
-                    setConfig({ ...config, dataSources: updated });
+                    handleFieldChange('dataSources', updated);
                   }}
                   className="rounded border-gray-300"
                 />
@@ -289,10 +363,7 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.cleanupScope.removeDuplicates}
-              onChange={(e) => setConfig({
-                ...config,
-                cleanupScope: { ...config.cleanupScope, removeDuplicates: e.target.checked }
-              })}
+              onChange={(e) => handleNestedFieldChange('cleanupScope', 'removeDuplicates', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">הסרת כפילויות</span>
@@ -302,10 +373,7 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.cleanupScope.fixDataQualityIssues}
-              onChange={(e) => setConfig({
-                ...config,
-                cleanupScope: { ...config.cleanupScope, fixDataQualityIssues: e.target.checked }
-              })}
+              onChange={(e) => handleNestedFieldChange('cleanupScope', 'fixDataQualityIssues', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">תיקון בעיות איכות נתונים</span>
@@ -315,10 +383,7 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.cleanupScope.standardizeFormats}
-              onChange={(e) => setConfig({
-                ...config,
-                cleanupScope: { ...config.cleanupScope, standardizeFormats: e.target.checked }
-              })}
+              onChange={(e) => handleNestedFieldChange('cleanupScope', 'standardizeFormats', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">סטנדרטיזציה של פורמטים (טלפונים, מיילים, כתובות)</span>
@@ -328,10 +393,7 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.cleanupScope.enrichData || false}
-              onChange={(e) => setConfig({
-                ...config,
-                cleanupScope: { ...config.cleanupScope, enrichData: e.target.checked }
-              })}
+              onChange={(e) => handleNestedFieldChange('cleanupScope', 'enrichData', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">העשרת נתונים (השלמת מידע חסר)</span>
@@ -341,10 +403,7 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.cleanupScope.mergeAccounts || false}
-              onChange={(e) => setConfig({
-                ...config,
-                cleanupScope: { ...config.cleanupScope, mergeAccounts: e.target.checked }
-              })}
+              onChange={(e) => handleNestedFieldChange('cleanupScope', 'mergeAccounts', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">איחוד חשבונות קשורים</span>
@@ -393,13 +452,7 @@ export function DataCleanupSpec() {
             <label className="block text-sm font-medium text-gray-700 mb-2">אלגוריתם התאמה</label>
             <select
               value={config.deduplicationRules.matchingAlgorithm}
-              onChange={(e) => setConfig({
-                ...config,
-                deduplicationRules: {
-                  ...config.deduplicationRules,
-                  matchingAlgorithm: e.target.value as 'exact' | 'fuzzy' | 'ml_based'
-                }
-              })}
+              onChange={(e) => handleNestedFieldChange('deduplicationRules', 'matchingAlgorithm', e.target.value as 'exact' | 'fuzzy' | 'ml_based')}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="exact">התאמה מדויקת</option>
@@ -418,13 +471,7 @@ export function DataCleanupSpec() {
                 min="0"
                 max="100"
                 value={config.deduplicationRules.fuzzyThreshold || 80}
-                onChange={(e) => setConfig({
-                  ...config,
-                  deduplicationRules: {
-                    ...config.deduplicationRules,
-                    fuzzyThreshold: parseInt(e.target.value)
-                  }
-                })}
+                onChange={(e) => handleNestedFieldChange('deduplicationRules', 'fuzzyThreshold', parseInt(e.target.value))}
                 className="w-full"
               />
             </div>
@@ -434,13 +481,7 @@ export function DataCleanupSpec() {
             <label className="block text-sm font-medium text-gray-700 mb-2">אסטרטגיית איחוד</label>
             <select
               value={config.deduplicationRules.mergeStrategy}
-              onChange={(e) => setConfig({
-                ...config,
-                deduplicationRules: {
-                  ...config.deduplicationRules,
-                  mergeStrategy: e.target.value as 'keep_first' | 'keep_last' | 'keep_most_complete' | 'manual_review'
-                }
-              })}
+              onChange={(e) => handleNestedFieldChange('deduplicationRules', 'mergeStrategy', e.target.value as 'keep_first' | 'keep_last' | 'keep_most_complete' | 'manual_review')}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="keep_first">שמור ראשון</option>
@@ -488,7 +529,7 @@ export function DataCleanupSpec() {
                     onChange={(e) => {
                       const updated = [...(config.dataQualityRules || [])];
                       updated[index].ruleName = e.target.value;
-                      setConfig({ ...config, dataQualityRules: updated });
+                      handleFieldChange('dataQualityRules', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     placeholder="Valid Email Format"
@@ -503,7 +544,7 @@ export function DataCleanupSpec() {
                     onChange={(e) => {
                       const updated = [...(config.dataQualityRules || [])];
                       updated[index].fieldName = e.target.value;
-                      setConfig({ ...config, dataQualityRules: updated });
+                      handleFieldChange('dataQualityRules', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     placeholder="email"
@@ -519,7 +560,7 @@ export function DataCleanupSpec() {
                   onChange={(e) => {
                     const updated = [...(config.dataQualityRules || [])];
                     updated[index].validation = e.target.value;
-                    setConfig({ ...config, dataQualityRules: updated });
+                    handleFieldChange('dataQualityRules', updated);
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="valid email format, phone 10 digits, required field"
@@ -533,7 +574,7 @@ export function DataCleanupSpec() {
                   onChange={(e) => {
                     const updated = [...(config.dataQualityRules || [])];
                     updated[index].action = e.target.value as 'flag' | 'fix' | 'remove';
-                    setConfig({ ...config, dataQualityRules: updated });
+                    handleFieldChange('dataQualityRules', updated);
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
@@ -555,7 +596,7 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.backupRequired}
-              onChange={(e) => setConfig({ ...config, backupRequired: e.target.checked })}
+              onChange={(e) => handleNestedFieldChange('backupRequired', '', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">נדרש גיבוי לפני הניקוי</span>
@@ -565,7 +606,7 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.dryRunFirst}
-              onChange={(e) => setConfig({ ...config, dryRunFirst: e.target.checked })}
+              onChange={(e) => handleNestedFieldChange('dryRunFirst', '', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">הרצת ניסוי ללא שינויים (Dry Run)</span>
@@ -575,7 +616,7 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.requiresApproval}
-              onChange={(e) => setConfig({ ...config, requiresApproval: e.target.checked })}
+              onChange={(e) => handleNestedFieldChange('requiresApproval', '', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">דרוש אישור ידני לפני ביצוע שינויים</span>
@@ -585,7 +626,7 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.stagingEnvironment || false}
-              onChange={(e) => setConfig({ ...config, stagingEnvironment: e.target.checked })}
+              onChange={(e) => handleNestedFieldChange('stagingEnvironment', '', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">ביצוע בסביבת Staging תחילה</span>
@@ -601,10 +642,7 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.deliverables.beforeAfterReport}
-              onChange={(e) => setConfig({
-                ...config,
-                deliverables: { ...config.deliverables, beforeAfterReport: e.target.checked }
-              })}
+              onChange={(e) => handleNestedFieldChange('deliverables', 'beforeAfterReport', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">דוח השוואה לפני/אחרי</span>
@@ -614,10 +652,7 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.deliverables.duplicatesList}
-              onChange={(e) => setConfig({
-                ...config,
-                deliverables: { ...config.deliverables, duplicatesList: e.target.checked }
-              })}
+              onChange={(e) => handleNestedFieldChange('deliverables', 'duplicatesList', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">רשימת כפילויות שזוהו (Excel)</span>
@@ -627,10 +662,7 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.deliverables.cleanedData}
-              onChange={(e) => setConfig({
-                ...config,
-                deliverables: { ...config.deliverables, cleanedData: e.target.checked }
-              })}
+              onChange={(e) => handleNestedFieldChange('deliverables', 'cleanedData', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">נתונים מנוקים חזרה למערכת</span>
@@ -640,10 +672,7 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.deliverables.validationReport || false}
-              onChange={(e) => setConfig({
-                ...config,
-                deliverables: { ...config.deliverables, validationReport: e.target.checked }
-              })}
+              onChange={(e) => handleNestedFieldChange('deliverables', 'validationReport', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">דוח וולידציה לאחר הניקוי</span>
@@ -653,10 +682,7 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.deliverables.documentedRules || false}
-              onChange={(e) => setConfig({
-                ...config,
-                deliverables: { ...config.deliverables, documentedRules: e.target.checked }
-              })}
+              onChange={(e) => handleNestedFieldChange('deliverables', 'documentedRules', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">תיעוד הכללים שהוחלו</span>
@@ -673,7 +699,7 @@ export function DataCleanupSpec() {
             <input
               type="number"
               value={config.estimatedDays}
-              onChange={(e) => setConfig({ ...config, estimatedDays: parseInt(e.target.value) || 5 })}
+              onChange={(e) => handleFieldChange('estimatedDays', parseInt(e.target.value) || 5)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               min="1"
             />
@@ -683,10 +709,7 @@ export function DataCleanupSpec() {
             <label className="block text-sm font-medium text-gray-700 mb-2">קטגוריית נפח רשומות</label>
             <select
               value={config.recordVolumeCategory}
-              onChange={(e) => setConfig({
-                ...config,
-                recordVolumeCategory: e.target.value as 'small' | 'medium' | 'large'
-              })}
+              onChange={(e) => handleFieldChange('recordVolumeCategory', e.target.value as 'small' | 'medium' | 'large')}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="small">קטן (&lt;100K רשומות)</option>
@@ -704,13 +727,7 @@ export function DataCleanupSpec() {
               min="0"
               max="100"
               value={config.successMetrics?.targetDuplicateReduction || 95}
-              onChange={(e) => setConfig({
-                ...config,
-                successMetrics: {
-                  ...config.successMetrics,
-                  targetDuplicateReduction: parseInt(e.target.value)
-                } as any
-              })}
+              onChange={(e) => handleNestedFieldChange('successMetrics', 'targetDuplicateReduction', parseInt(e.target.value))}
               className="w-full"
             />
           </div>
@@ -724,13 +741,7 @@ export function DataCleanupSpec() {
               min="0"
               max="100"
               value={config.successMetrics?.targetDataQualityScore || 90}
-              onChange={(e) => setConfig({
-                ...config,
-                successMetrics: {
-                  ...config.successMetrics,
-                  targetDataQualityScore: parseInt(e.target.value)
-                } as any
-              })}
+              onChange={(e) => handleNestedFieldChange('successMetrics', 'targetDataQualityScore', parseInt(e.target.value))}
               className="w-full"
             />
           </div>
@@ -744,13 +755,7 @@ export function DataCleanupSpec() {
               min="0"
               max="100"
               value={config.successMetrics?.targetEmptyFieldReduction || 80}
-              onChange={(e) => setConfig({
-                ...config,
-                successMetrics: {
-                  ...config.successMetrics,
-                  targetEmptyFieldReduction: parseInt(e.target.value)
-                } as any
-              })}
+              onChange={(e) => handleNestedFieldChange('successMetrics', 'targetEmptyFieldReduction', parseInt(e.target.value))}
               className="w-full"
             />
           </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
@@ -39,6 +39,10 @@ export function AIFullIntegrationSpec() {
     continuousLearning: true,
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'ai-full-integration',
@@ -59,26 +63,59 @@ export function AIFullIntegrationSpec() {
   useEffect(() => {
     const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
     const existing = aiAgentServices.find((a: AIAgentServiceEntry) => a.serviceId === 'ai-full-integration');
+
     if (existing?.requirements) {
-      setConfig(existing.requirements);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.aiAgentServices]);
 
   // Auto-save on changes
-  useEffect(() => {
-    if (config.systems?.length || config.aiModel || config.orchestration) {
-      const completeConfig = {
-        ...config,
-        aiModel: aiModelPreference.value,
-        crmSystem: crmSystem.value,
-        whatsappApiProvider: whatsappApiProvider.value
-      };
-      saveData(completeConfig);
-    }
-  }, [config, aiModelPreference.value, crmSystem.value, whatsappApiProvider.value, saveData]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.systems?.length || config.aiModel || config.orchestration) {
+  //     const completeConfig = {
+  //       ...config,
+  //       aiModel: aiModelPreference.value,
+  //       crmSystem: crmSystem.value,
+  //       whatsappApiProvider: whatsappApiProvider.value
+  //     };
+  //     saveData(completeConfig);
+  //   }
+  // }, [config, aiModelPreference.value, crmSystem.value, whatsappApiProvider.value, saveData]);
 
-  const handleSave = async () => {
-    // Build complete config with smart field values
+  const handleFieldChange = useCallback((field: keyof typeof config, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            aiModel: aiModelPreference.value,
+            crmSystem: crmSystem.value,
+            whatsappApiProvider: whatsappApiProvider.value
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [aiModelPreference.value, crmSystem.value, whatsappApiProvider.value, saveData]);
+
+  const handleSave = useCallback(async () => {
+    if (isLoadingRef.current) return; // Don't save during loading
+
     const completeConfig = {
       ...config,
       aiModel: aiModelPreference.value,
@@ -86,11 +123,8 @@ export function AIFullIntegrationSpec() {
       whatsappApiProvider: whatsappApiProvider.value
     };
 
-    // Save using auto-save (manual save trigger)
-    await saveData(completeConfig);
-
-    alert('הגדרות נשמרו בהצלחה!');
-  };
+    await saveData(completeConfig, 'manual');
+  }, [config, aiModelPreference.value, crmSystem.value, whatsappApiProvider.value, saveData]);
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -221,7 +255,7 @@ export function AIFullIntegrationSpec() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">פלטפורמת תזמור</label>
-            <select value={config.orchestration} onChange={(e) => setConfig({ ...config, orchestration: e.target.value })}
+            <select value={config.orchestration} onChange={(e) => handleFieldChange('orchestration', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md">
               <option value="n8n">n8n</option>
               <option value="zapier">Zapier</option>
@@ -231,7 +265,7 @@ export function AIFullIntegrationSpec() {
           <div className="space-y-3">
             <label className="flex items-center">
               <input type="checkbox" checked={config.continuousLearning}
-                onChange={(e) => setConfig({ ...config, continuousLearning: e.target.checked })} className="mr-2" />
+                onChange={(e) => handleFieldChange('continuousLearning', e.target.checked)} className="mr-2" />
               <span className="text-sm">למידה מתמשכת</span>
             </label>
           </div>

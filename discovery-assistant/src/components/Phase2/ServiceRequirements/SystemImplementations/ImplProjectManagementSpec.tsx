@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { Card } from '../../../Common/Card';
@@ -8,6 +8,10 @@ export function ImplProjectManagementSpec() {
   const [config, setConfig] = useState<any>({
     ...{ platform: 'monday', estimatedWeeks: 4 }
   });
+
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
 
   // Auto-save hook for immediate saving
   const { saveData, isSaving, saveError } = useAutoSave({
@@ -19,28 +23,82 @@ export function ImplProjectManagementSpec() {
     const systemImplementations = currentMeeting?.implementationSpec?.systemImplementations || [];
     const existing = systemImplementations.find((s: any) => s.serviceId === 'impl-project-management');
     if (existing?.requirements) {
-      setConfig(existing.requirements);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.systemImplementations]);
 
   // Auto-save whenever config changes
-  useEffect(() => {
-    if (config.platform) { // Only save if we have basic data
-      saveData(config);
-    }
-  }, [config]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.platform) { // Only save if we have basic data
+  //     saveData(config);
+  //   }
+  // }, [config]);
+
+  const handleFieldChange = useCallback((field: keyof typeof config, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = { ...updated }; // No smart fields in this component
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [saveData]);
 
   // Manual save handler (kept for compatibility, but auto-save is primary)
-  const handleManualSave = async () => {
+  const handleSave = useCallback(async () => {
+    if (isLoadingRef.current) return; // Don't save during loading
+
+    const completeConfig = { ...config }; // No smart fields in this component
+
     // Force immediate save
-    await saveData(config);
-  };
+    await saveData(completeConfig, 'manual');
+  }, [config, saveData]);
 
   return (
     <div className="space-y-6" dir="rtl">
       <Card title="שירות #43: הטמעת ניהול פרויקטים">
         <div className="space-y-4">
-          <div><select className="w-full px-3 py-2 border border-gray-300 rounded-md"><option>Monday.com</option><option>Asana</option><option>Jira</option><option>ClickUp</option></select></div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">פלטפורמת ניהול פרויקטים</label>
+            <select
+              value={config.platform || 'monday'}
+              onChange={(e) => handleFieldChange('platform', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            >
+              <option value="monday">Monday.com</option>
+              <option value="asana">Asana</option>
+              <option value="jira">Jira</option>
+              <option value="clickup">ClickUp</option>
+            </select>
+          </div>
+
+          {config.platform === 'monday' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">שבועות משוערים להטמעה</label>
+              <input
+                type="number"
+                value={config.estimatedWeeks || 4}
+                onChange={(e) => handleFieldChange('estimatedWeeks', parseInt(e.target.value))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              />
+            </div>
+          )}
           {/* Auto-Save Status and Manual Save */}
           <div className="flex justify-between items-center gap-4 pt-4 border-t">
             <div className="flex items-center gap-2">
@@ -63,7 +121,7 @@ export function ImplProjectManagementSpec() {
               )}
             </div>
             <button
-              onClick={handleManualSave}
+              onClick={handleSave}
               disabled={isSaving}
               className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
             >

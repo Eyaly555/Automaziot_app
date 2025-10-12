@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useSmartField } from '../../../../hooks/useSmartField';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
@@ -107,6 +107,10 @@ export function AutoApprovalWorkflowSpec() {
     }
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-approval-workflow',
@@ -129,27 +133,55 @@ export function AutoApprovalWorkflowSpec() {
 
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
-    const existing = automations.find(a => a.serviceId === 'auto-approval-workflow');
+    const existing = automations.find((a: any) => a.serviceId === 'auto-approval-workflow');
+
     if (existing?.requirements) {
-      setConfig(existing.requirements);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements as AutoApprovalWorkflowRequirements);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.automations]);
 
   // Auto-save on changes
-  useEffect(() => {
-    if (config.stateManagement?.storageType) {
-      const completeConfig = {
-        ...config,
-        emailProvider: emailProvider.value,
-        crmSystem: crmSystem.value,
-        authMethod: authMethod.value,
-        alertEmail: alertEmail.value
-      };
-      saveData(completeConfig);
-    }
-  }, [config, emailProvider.value, crmSystem.value, authMethod.value, alertEmail.value, saveData]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // Auto-save is now handled by handleFieldChange callback
+
+  // ✅ handleFieldChange - שמירה חכמה כשמשתמש משנה שדות
+  const handleFieldChange = useCallback((field: string, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+
+      // Save after state update (only if not loading)
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            emailProvider: emailProvider.value,
+            crmSystem: crmSystem.value,
+            authMethod: authMethod.value,
+            alertEmail: alertEmail.value
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+
+      return updated;
+    });
+  }, [saveData, emailProvider.value, crmSystem.value, authMethod.value, alertEmail.value]);
 
   const handleSave = async () => {
+    if (isLoadingRef.current) return;
+
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
@@ -160,7 +192,7 @@ export function AutoApprovalWorkflowSpec() {
     };
 
     // Save using auto-save (manual save trigger)
-    await saveData(completeConfig);
+    await saveData(completeConfig, 'manual');
 
     alert('הגדרות נשמרו בהצלחה!');
   };
@@ -367,13 +399,7 @@ export function AutoApprovalWorkflowSpec() {
                       </label>
                       <select
                         value={config.stateManagement.storageType}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          stateManagement: {
-                            ...config.stateManagement,
-                            storageType: e.target.value as any
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('stateManagement.storageType', e.target.value as any)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="database">Database</option>
@@ -392,16 +418,7 @@ export function AutoApprovalWorkflowSpec() {
                           <input
                             type="text"
                             value={config.stateManagement.databaseConfig?.connectionString || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              stateManagement: {
-                                ...config.stateManagement,
-                                databaseConfig: {
-                                  ...config.stateManagement.databaseConfig!,
-                                  connectionString: e.target.value
-                                }
-                              }
-                            })}
+                            onChange={(e) => handleFieldChange('stateManagement.databaseConfig.connectionString', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="postgresql://..."
                           />
@@ -413,16 +430,7 @@ export function AutoApprovalWorkflowSpec() {
                           <input
                             type="text"
                             value={config.stateManagement.databaseConfig?.tableName || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              stateManagement: {
-                                ...config.stateManagement,
-                                databaseConfig: {
-                                  ...config.stateManagement.databaseConfig!,
-                                  tableName: e.target.value
-                                }
-                              }
-                            })}
+                            onChange={(e) => handleFieldChange('stateManagement.databaseConfig.tableName', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="approvals"
                           />
@@ -441,16 +449,7 @@ export function AutoApprovalWorkflowSpec() {
                             <input
                               type="text"
                               value={config.stateManagement.crmConfig?.system || ''}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                stateManagement: {
-                                  ...config.stateManagement,
-                                  crmConfig: {
-                                    ...config.stateManagement.crmConfig!,
-                                    system: e.target.value
-                                  }
-                                }
-                              })}
+                              onChange={(e) => handleFieldChange('stateManagement.crmConfig.system', e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                               placeholder="Zoho CRM"
                             />
@@ -462,16 +461,7 @@ export function AutoApprovalWorkflowSpec() {
                             <input
                               type="text"
                               value={config.stateManagement.crmConfig?.module || ''}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                stateManagement: {
-                                  ...config.stateManagement,
-                                  crmConfig: {
-                                    ...config.stateManagement.crmConfig!,
-                                    module: e.target.value
-                                  }
-                                }
-                              })}
+                              onChange={(e) => handleFieldChange('stateManagement.crmConfig.module', e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                               placeholder="Approvals"
                             />
@@ -543,13 +533,7 @@ export function AutoApprovalWorkflowSpec() {
                     <input
                       type="url"
                       value={config.sourceSystem.webhookEndpoint || ''}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        sourceSystem: {
-                          ...config.sourceSystem,
-                          webhookEndpoint: e.target.value
-                        }
-                      })}
+                      onChange={(e) => handleFieldChange('sourceSystem.webhookEndpoint', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       placeholder="https://n8n.example.com/webhook/approvals"
                     />
@@ -563,13 +547,7 @@ export function AutoApprovalWorkflowSpec() {
                       <input
                         type="checkbox"
                         checked={config.multiLevelConfig.enabled}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          multiLevelConfig: {
-                            ...config.multiLevelConfig,
-                            enabled: e.target.checked
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('multiLevelConfig.enabled', e.target.checked)}
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium text-gray-700">
@@ -584,13 +562,7 @@ export function AutoApprovalWorkflowSpec() {
                         <input
                           type="number"
                           value={config.multiLevelConfig.maxLevels}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            multiLevelConfig: {
-                              ...config.multiLevelConfig,
-                              maxLevels: parseInt(e.target.value) || 1
-                            }
-                          })}
+                          onChange={(e) => handleFieldChange('multiLevelConfig.maxLevels', parseInt(e.target.value) || 1)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           min="1"
                           max="10"
@@ -639,13 +611,7 @@ export function AutoApprovalWorkflowSpec() {
                           onChange={(e) => {
                             const updatedLevels = [...config.approvalHierarchy.levels];
                             updatedLevels[levelIndex].name = e.target.value;
-                            setConfig({
-                              ...config,
-                              approvalHierarchy: {
-                                ...config.approvalHierarchy,
-                                levels: updatedLevels
-                              }
-                            });
+                            handleFieldChange('approvalHierarchy.levels', updatedLevels);
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           placeholder="Manager Approval"
@@ -761,13 +727,7 @@ export function AutoApprovalWorkflowSpec() {
                       <input
                         type="checkbox"
                         checked={config.approvalHierarchy.requireAllApprovers}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          approvalHierarchy: {
-                            ...config.approvalHierarchy,
-                            requireAllApprovers: e.target.checked
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('approvalHierarchy.requireAllApprovers', e.target.checked)}
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm">דרוש אישור מכל המאשרים</span>
@@ -776,13 +736,7 @@ export function AutoApprovalWorkflowSpec() {
                       <input
                         type="checkbox"
                         checked={config.approvalHierarchy.parallelApproval}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          approvalHierarchy: {
-                            ...config.approvalHierarchy,
-                            parallelApproval: e.target.checked
-                          }
-                        })}
+                        onChange={(e) => handleFieldChange('approvalHierarchy.parallelApproval', e.target.checked)}
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm">אישורים במקביל (לא סדרתי)</span>

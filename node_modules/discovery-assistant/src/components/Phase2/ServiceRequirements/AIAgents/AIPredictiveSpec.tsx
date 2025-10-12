@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
@@ -48,6 +48,10 @@ export function AIPredictiveSpec() {
     alertingEnabled: true,
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'ai-predictive',
@@ -67,43 +71,73 @@ export function AIPredictiveSpec() {
   useEffect(() => {
     const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
     const existing = aiAgentServices.find((a: AIAgentServiceEntry) => a.serviceId === 'ai-predictive');
+
     if (existing?.requirements) {
-      setConfig(existing.requirements);
-      // Set smart field values if existing
-      if (existing.requirements.aiModel) {
-        aiModelPreference.setValue(existing.requirements.aiModel);
-      }
-      if (existing.requirements.dataSource) {
-        crmSystem.setValue(existing.requirements.dataSource);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements);
+
+        // Set smart field values if existing
+        if (existing.requirements.aiModel) {
+          aiModelPreference.setValue(existing.requirements.aiModel);
+        }
+        if (existing.requirements.dataSource) {
+          crmSystem.setValue(existing.requirements.dataSource);
+        }
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
       }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.aiAgentServices]);
 
   // Auto-save on changes
-  useEffect(() => {
-    if (config.aiModel || config.dataSource) {
-      const completeConfig = {
-        ...config,
-        aiModel: aiModelPreference.value,
-        dataSource: crmSystem.value
-      };
-      saveData(completeConfig);
-    }
-  }, [config, aiModelPreference.value, crmSystem.value, saveData]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.aiModel || config.dataSource) {
+  //     const completeConfig = {
+  //       ...config,
+  //       aiModel: aiModelPreference.value,
+  //       dataSource: crmSystem.value
+  //     };
+  //     saveData(completeConfig);
+  //   }
+  // }, [config, aiModelPreference.value, crmSystem.value, saveData]);
 
-  const handleSave = async () => {
-    // Build complete config with smart field values
+  const handleFieldChange = useCallback((field: keyof typeof config, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            aiModel: aiModelPreference.value,
+            dataSource: crmSystem.value
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [aiModelPreference.value, crmSystem.value, saveData]);
+
+  const handleSave = useCallback(async () => {
+    if (isLoadingRef.current) return; // Don't save during loading
+
     const completeConfig = {
       ...config,
       aiModel: aiModelPreference.value || config.aiModel,
       dataSource: crmSystem.value || config.dataSource
     };
 
-    // Save using auto-save (manual save trigger)
-    await saveData(completeConfig);
-
-    alert('הגדרות נשמרו בהצלחה!');
-  };
+    await saveData(completeConfig, 'manual');
+  }, [config, aiModelPreference.value, crmSystem.value, saveData]);
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -193,7 +227,7 @@ export function AIPredictiveSpec() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">סוג חיזוי</label>
-              <select value={config.predictionType} onChange={(e) => setConfig({ ...config, predictionType: e.target.value })}
+              <select value={config.predictionType} onChange={(e) => handleFieldChange('predictionType', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md">
                 <option value="sales">מכירות</option>
                 <option value="churn">נטישה</option>
@@ -202,7 +236,7 @@ export function AIPredictiveSpec() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">תדירות עדכון</label>
-              <select value={config.updateFrequency} onChange={(e) => setConfig({ ...config, updateFrequency: e.target.value })}
+              <select value={config.updateFrequency} onChange={(e) => handleFieldChange('updateFrequency', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md">
                 <option value="realtime">זמן אמת</option>
                 <option value="hourly">שעתי</option>
@@ -214,7 +248,7 @@ export function AIPredictiveSpec() {
           <div className="space-y-3">
             <label className="flex items-center">
               <input type="checkbox" checked={config.alertingEnabled}
-                onChange={(e) => setConfig({ ...config, alertingEnabled: e.target.checked })} className="mr-2" />
+                onChange={(e) => handleFieldChange('alertingEnabled', e.target.checked)} className="mr-2" />
               <span className="text-sm">התראות מופעלות</span>
             </label>
           </div>

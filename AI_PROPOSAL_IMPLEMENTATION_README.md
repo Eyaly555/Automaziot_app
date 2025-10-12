@@ -316,3 +316,29 @@ For issues or questions regarding this implementation:
 3. Verify all environment variables are correctly set
 4. Test the OpenAI connection using the test endpoint
 5. Ensure the server proxy is running and accessible
+
+## Zoho CRM Integration - Field Update Summary
+
+Based on the analysis of `discovery-assistant/src/services/zohoAPI.ts` and `discovery-assistant/src/utils/zohoHelpers.ts`, the following fields are updated in Zoho CRM:
+
+### Fields updated via `syncMeetingWithZoho` and `syncFullMeetingToZoho` (mapped through `formatForZoho`):
+
+*   `Company_s_Name` (from `meeting.clientName`)
+*   `Email` (from `meeting.zohoIntegration.contactInfo.email`)
+*   `Phone` (from `meeting.zohoIntegration.contactInfo.phone`)
+*   `Budget_Range` (from `meeting.budget`)
+*   `Requested_Services` (from `meeting.services`)
+*   `Additional_Notes` (from `meeting.notes`)
+*   `Discovery_Completion` (calculated from `meeting.phase` as a percentage, e.g., "25%")
+*   `Discovery_Last_Update` (timestamp of the last update)
+*   `Discovery_Progress` (the full, sanitized `Meeting` object, serialized to JSON)
+
+### Fields updated via `updateZohoPotentialPhase`:
+
+*   `phase` (of the Potential)
+*   `status` (of the Potential)
+*   `notes` (specific notes for the phase update)
+
+### Fields updated via `updateZohoDeal` and `createZohoDeal`:
+
+The specific fields updated by `updateZohoDeal` and `createZohoDeal` cannot be determined from the current frontend codebase alone, as these functions accept a generic `data: any` object and their usage is not directly exposed or mapped within the analyzed frontend files. It is likely that the specific field mappings for these functions are handled on the backend.

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useSmartField } from '../../../../hooks/useSmartField';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
@@ -88,6 +88,10 @@ export function AIFormAssistantSpec() {
     }
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'ai-form-assistant',
@@ -104,29 +108,69 @@ export function AIFormAssistantSpec() {
   });
 
   useEffect(() => {
-    if (currentMeeting?.implementationSpec?.aiAgents) {
-      const existing = currentMeeting.implementationSpec.aiAgents.find(
-        (a: any) => a.serviceId === 'ai-form-assistant'
-      );
-      if (existing) {
+    const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
+    const existing = aiAgentServices.find((a: any) => a.serviceId === 'ai-form-assistant');
+
+    if (existing?.requirements) {
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
         setConfig(existing.requirements);
+
         // Set smart field value if existing
         if (existing.requirements.aiModel) {
           aiModelPreference.setValue(existing.requirements.aiModel);
         }
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
       }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.aiAgentServices]);
 
-  // Save handler
-  const handleSave = async () => {
+  // Auto-save on changes
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.aiModel || config.formTypes.contactForms) {
+  //     const completeConfig = {
+  //       ...config,
+  //       aiModel: aiModelPreference.value
+  //     };
+  //     saveData(completeConfig);
+  //   }
+  // }, [config, aiModelPreference.value, saveData]);
+
+  const handleFieldChange = useCallback((field: keyof AIFormAssistantRequirements, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            aiModel: aiModelPreference.value
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [aiModelPreference.value, saveData]);
+
+  const handleSave = useCallback(async () => {
+    if (isLoadingRef.current) return; // Don't save during loading
+
     const completeConfig = {
       ...config,
       aiModel: aiModelPreference.value || config.aiModel
     };
 
-    await saveData(completeConfig);
-  };
+    await saveData(completeConfig, 'manual');
+  }, [config, aiModelPreference.value, saveData]);
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -198,10 +242,7 @@ export function AIFormAssistantSpec() {
                   <input
                     type="checkbox"
                     checked={enabled}
-                    onChange={(e) => setConfig(prev => ({
-                      ...prev,
-                      formTypes: { ...prev.formTypes, [formType]: e.target.checked }
-                    }))}
+                    onChange={(e) => handleFieldChange('formTypes', { ...config.formTypes, [formType]: e.target.checked })}
                   />
                   <span className="text-sm">
                     {formType === 'contactForms' && 'טפסי יצירת קשר'}
@@ -224,10 +265,7 @@ export function AIFormAssistantSpec() {
                   <input
                     type="checkbox"
                     checked={enabled}
-                    onChange={(e) => setConfig(prev => ({
-                      ...prev,
-                      assistanceLevel: { ...prev.assistanceLevel, [feature]: e.target.checked }
-                    }))}
+                    onChange={(e) => handleFieldChange('assistanceLevel', { ...config.assistanceLevel, [feature]: e.target.checked })}
                   />
                   <span className="text-sm">
                     {feature === 'fieldValidation' && 'ולידציה של שדות'}
@@ -259,10 +297,7 @@ export function AIFormAssistantSpec() {
                         acc[key] = key === style;
                         return acc;
                       }, {} as any);
-                      setConfig(prev => ({
-                        ...prev,
-                        interactionStyle: newStyle
-                      }));
+                      handleFieldChange('interactionStyle', newStyle);
                     }}
                   />
                   <span className="text-sm">
@@ -292,10 +327,7 @@ export function AIFormAssistantSpec() {
                         onChange={(e) => {
                           const newFields = [...config.helpContent.fieldDescriptions];
                           newFields[index] = { ...newFields[index], fieldName: e.target.value };
-                          setConfig(prev => ({
-                            ...prev,
-                            helpContent: { ...prev.helpContent, fieldDescriptions: newFields }
-                          }));
+                          handleFieldChange('helpContent.fieldDescriptions', newFields);
                         }}
                         className="w-full p-2 border rounded-lg"
                         placeholder="שם השדה (למשל: phone)"
@@ -310,10 +342,7 @@ export function AIFormAssistantSpec() {
                         onChange={(e) => {
                           const newFields = [...config.helpContent.fieldDescriptions];
                           newFields[index] = { ...newFields[index], description: e.target.value };
-                          setConfig(prev => ({
-                            ...prev,
-                            helpContent: { ...prev.helpContent, fieldDescriptions: newFields }
-                          }));
+                          handleFieldChange('helpContent.fieldDescriptions', newFields);
                         }}
                         className="w-full p-2 border rounded-lg"
                         placeholder="תיאור שיעזור למשתמש להבין מה להכניס..."
@@ -326,15 +355,12 @@ export function AIFormAssistantSpec() {
                     <textarea
                       value={field.examples.join('\n')}
                       onChange={(e) => {
-                        const newFields = [...config.helpContent.fieldDescriptions];
-                        newFields[index] = {
-                          ...newFields[index],
-                          examples: e.target.value.split('\n').filter(s => s.trim())
-                        };
-                        setConfig(prev => ({
-                          ...prev,
-                          helpContent: { ...prev.helpContent, fieldDescriptions: newFields }
-                        }));
+                          const newFields = [...config.helpContent.fieldDescriptions];
+                          newFields[index] = {
+                            ...newFields[index],
+                            examples: e.target.value.split('\n').filter(s => s.trim())
+                          };
+                          handleFieldChange('helpContent.fieldDescriptions', newFields);
                       }}
                       rows={2}
                       className="w-full p-2 border rounded-lg text-sm"
@@ -360,10 +386,7 @@ export function AIFormAssistantSpec() {
                       onChange={(e) => {
                         const newFaq = [...config.helpContent.faqItems];
                         newFaq[index] = { ...newFaq[index], question: e.target.value };
-                        setConfig(prev => ({
-                          ...prev,
-                          helpContent: { ...prev.helpContent, faqItems: newFaq }
-                        }));
+                        handleFieldChange('helpContent.faqItems', newFaq);
                       }}
                       className="w-full p-2 border rounded-lg"
                       placeholder="שאלה שמשתמשים שואלים לעתים קרובות..."
@@ -376,10 +399,7 @@ export function AIFormAssistantSpec() {
                       onChange={(e) => {
                         const newFaq = [...config.helpContent.faqItems];
                         newFaq[index] = { ...newFaq[index], answer: e.target.value };
-                        setConfig(prev => ({
-                          ...prev,
-                          helpContent: { ...prev.helpContent, faqItems: newFaq }
-                        }));
+                        handleFieldChange('helpContent.faqItems', newFaq);
                       }}
                       rows={3}
                       className="w-full p-2 border rounded-lg text-sm"
@@ -399,13 +419,7 @@ export function AIFormAssistantSpec() {
                 <label className="block text-sm font-medium mb-2">שדות חובה</label>
                 <textarea
                   value={config.validationRules.requiredFields.join('\n')}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    validationRules: {
-                      ...prev.validationRules,
-                      requiredFields: e.target.value.split('\n').filter(s => s.trim())
-                    }
-                  }))}
+                  onChange={(e) => handleFieldChange('validationRules.requiredFields', e.target.value.split('\n').filter(s => s.trim()))}
                   rows={2}
                   className="w-full p-2 border rounded-lg text-sm"
                   placeholder="כל שורה - שם שדה אחד..."
@@ -416,13 +430,7 @@ export function AIFormAssistantSpec() {
                 <label className="block text-sm font-medium mb-2">שדות אופציונליים</label>
                 <textarea
                   value={config.validationRules.optionalFields.join('\n')}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    validationRules: {
-                      ...prev.validationRules,
-                      optionalFields: e.target.value.split('\n').filter(s => s.trim())
-                    }
-                  }))}
+                  onChange={(e) => handleFieldChange('validationRules.optionalFields', e.target.value.split('\n').filter(s => s.trim()))}
                   rows={2}
                   className="w-full p-2 border rounded-lg text-sm"
                   placeholder="כל שורה - שם שדה אחד..."
@@ -443,10 +451,7 @@ export function AIFormAssistantSpec() {
                         conditionalRequired[field] = condition;
                       }
                     });
-                    setConfig(prev => ({
-                      ...prev,
-                      validationRules: { ...prev.validationRules, conditionalRequired }
-                    }));
+                    handleFieldChange('validationRules.conditionalRequired', conditionalRequired);
                   }}
                   rows={2}
                   className="w-full p-2 border rounded-lg text-sm"
@@ -464,10 +469,7 @@ export function AIFormAssistantSpec() {
                 <input
                   type="checkbox"
                   checked={config.integration.crmCapture}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    integration: { ...prev.integration, crmCapture: e.target.checked }
-                  }))}
+                  onChange={(e) => handleFieldChange('integration.crmCapture', e.target.checked)}
                 />
                 <span className="text-sm">שמירת לידים במערכת CRM</span>
               </label>
@@ -476,10 +478,7 @@ export function AIFormAssistantSpec() {
                 <input
                   type="checkbox"
                   checked={config.integration.leadScoring}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    integration: { ...prev.integration, leadScoring: e.target.checked }
-                  }))}
+                  onChange={(e) => handleFieldChange('integration.leadScoring', e.target.checked)}
                 />
                 <span className="text-sm">ניקוד איכות לידים</span>
               </label>
@@ -488,10 +487,7 @@ export function AIFormAssistantSpec() {
                 <input
                   type="checkbox"
                   checked={config.integration.followUpAutomation}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    integration: { ...prev.integration, followUpAutomation: e.target.checked }
-                  }))}
+                  onChange={(e) => handleFieldChange('integration.followUpAutomation', e.target.checked)}
                 />
                 <span className="text-sm">אוטומציה של מעקב</span>
               </label>
@@ -500,10 +496,7 @@ export function AIFormAssistantSpec() {
                 <input
                   type="checkbox"
                   checked={config.integration.analytics}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    integration: { ...prev.integration, analytics: e.target.checked }
-                  }))}
+                  onChange={(e) => handleFieldChange('integration.analytics', e.target.checked)}
                 />
                 <span className="text-sm">ניתוח נתוני טפסים</span>
               </label>

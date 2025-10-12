@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { IntegrationSimpleRequirements, SystemConfig, FieldMapping, ErrorHandlingConfig } from '../../../../types/integrationServices';
@@ -52,6 +52,10 @@ export function IntegrationSimpleSpec() {
     }
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'integration-simple',
@@ -78,6 +82,28 @@ export function IntegrationSimpleSpec() {
     required: false
   });
 
+  // Load existing data ONCE on mount or when service data actually changes
+  useEffect(() => {
+    const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
+    const existing = integrationServices.find((i: any) => i.serviceId === 'integration-simple');
+
+    if (existing?.requirements) {
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
+    }
+  }, [currentMeeting?.implementationSpec?.integrationServices]);
+
   const apiAuthMethod = useSmartField<string>({
     fieldId: 'api_auth_method',
     localPath: 'sourceSystem.authType',
@@ -99,34 +125,55 @@ export function IntegrationSimpleSpec() {
     autoSave: false
   });
 
-  useEffect(() => {
-    const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
-    const existing = integrationServices.find(i => i.serviceId === 'integration-simple');
-    if (existing?.requirements) {
-      setConfig(existing.requirements);
-    }
-  }, [currentMeeting]);
-
   // Auto-save on changes
-  useEffect(() => {
-    if (config.sourceSystem?.name || config.targetSystem?.name) {
-      const completeConfig = {
-        ...config,
-        sourceSystem: {
-          ...config.sourceSystem,
-          authType: apiAuthMethod.value
-        },
-        syncConfig: {
-          ...config.syncConfig,
-          frequency: syncFrequency.value
-        }
-      };
-      saveData(completeConfig);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config, apiAuthMethod.value, syncFrequency.value, saveData]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.sourceSystem?.name || config.targetSystem?.name) {
+  //     const completeConfig = {
+  //       ...config,
+  //       sourceSystem: {
+  //         ...config.sourceSystem,
+  //         authType: apiAuthMethod.value
+  //       },
+  //       syncConfig: {
+  //         ...config.syncConfig,
+  //         frequency: syncFrequency.value
+  //       }
+  //     };
+  //     saveData(completeConfig);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [config, apiAuthMethod.value, syncFrequency.value, saveData]);
 
-  const handleSave = async () => {
+  // Handle field changes with auto-save
+  const handleFieldChange = useCallback((field: keyof Partial<IntegrationSimpleRequirements>, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            sourceSystem: {
+              ...updated.sourceSystem,
+              authType: apiAuthMethod.value
+            },
+            syncConfig: {
+              ...updated.syncConfig,
+              frequency: syncFrequency.value
+            },
+            errorHandling: {
+              ...updated.errorHandling,
+              alertRecipients: alertEmail.value ? [alertEmail.value] : updated.errorHandling?.alertRecipients || []
+            }
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [apiAuthMethod.value, syncFrequency.value, alertEmail.value, saveData]);
+
+  const handleSave = useCallback(async () => {
     // Map frequency if needed
     let frequencyValue = syncFrequency.value;
     if (frequencyValue === 'realtime') frequencyValue = 'real-time';
@@ -151,23 +198,19 @@ export function IntegrationSimpleSpec() {
     await saveData(completeConfig);
 
     alert('הגדרות נשמרו בהצלחה!');
-  };
+  }, [config, apiAuthMethod.value, syncFrequency.value, alertEmail.value, saveData]);
 
   const addFieldMapping = () => {
     if (newField.sourceField && newField.targetField) {
-      setConfig({
-        ...config,
-        fieldMapping: [...(config.fieldMapping || []), newField as FieldMapping]
-      });
+      const updatedFieldMapping = [...(config.fieldMapping || []), newField as FieldMapping];
+      handleFieldChange('fieldMapping', updatedFieldMapping);
       setNewField({ sourceField: '', targetField: '', transformation: '', dataType: 'string', required: false });
     }
   };
 
   const removeFieldMapping = (index: number) => {
-    setConfig({
-      ...config,
-      fieldMapping: config.fieldMapping?.filter((_, i) => i !== index) || []
-    });
+    const updatedFieldMapping = config.fieldMapping?.filter((_, i) => i !== index) || [];
+    handleFieldChange('fieldMapping', updatedFieldMapping);
   };
 
   return (
@@ -209,10 +252,7 @@ export function IntegrationSimpleSpec() {
                 <input
                   type="text"
                   value={config.sourceSystem?.name || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    sourceSystem: { ...config.sourceSystem!, name: e.target.value }
-                  })}
+                  onChange={(e) => handleFieldChange('sourceSystem.name', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="לדוגמה: Zoho CRM, Google Forms"
                 />
@@ -254,10 +294,7 @@ export function IntegrationSimpleSpec() {
                   <input
                     type="text"
                     value={config.sourceSystem?.apiVersion || ''}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      sourceSystem: { ...config.sourceSystem!, apiVersion: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('sourceSystem.apiVersion', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     placeholder="v8, v3, וכו'"
                   />
@@ -268,10 +305,7 @@ export function IntegrationSimpleSpec() {
                 <input
                   type="url"
                   value={config.sourceSystem?.baseUrl || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    sourceSystem: { ...config.sourceSystem!, baseUrl: e.target.value }
-                  })}
+                  onChange={(e) => handleFieldChange('sourceSystem.baseUrl', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="https://api.example.com"
                 />
@@ -288,10 +322,7 @@ export function IntegrationSimpleSpec() {
                 <input
                   type="text"
                   value={config.targetSystem?.name || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    targetSystem: { ...config.targetSystem!, name: e.target.value }
-                  })}
+                  onChange={(e) => handleFieldChange('targetSystem.name', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="לדוגמה: Google Sheets, Slack"
                 />
@@ -301,10 +332,7 @@ export function IntegrationSimpleSpec() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">שיטת אימות</label>
                   <select
                     value={config.targetSystem?.authType || 'oauth2'}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      targetSystem: { ...config.targetSystem!, authType: e.target.value as any }
-                    })}
+                    onChange={(e) => handleFieldChange('targetSystem.authType', e.target.value as any)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   >
                     <option value="oauth2">OAuth 2.0</option>
@@ -318,10 +346,7 @@ export function IntegrationSimpleSpec() {
                   <input
                     type="text"
                     value={config.targetSystem?.apiVersion || ''}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      targetSystem: { ...config.targetSystem!, apiVersion: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('targetSystem.apiVersion', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     placeholder="v8, v3, וכו'"
                   />
@@ -332,10 +357,7 @@ export function IntegrationSimpleSpec() {
                 <input
                   type="url"
                   value={config.targetSystem?.baseUrl || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    targetSystem: { ...config.targetSystem!, baseUrl: e.target.value }
-                  })}
+                  onChange={(e) => handleFieldChange('targetSystem.baseUrl', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="https://api.example.com"
                 />
@@ -351,10 +373,7 @@ export function IntegrationSimpleSpec() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">כיוון סנכרון</label>
                 <select
                   value={config.syncConfig?.direction || 'one-way'}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    syncConfig: { ...config.syncConfig!, direction: e.target.value as any }
-                  })}
+                  onChange={(e) => handleFieldChange('syncConfig.direction', e.target.value as any)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="one-way">חד-כיווני</option>
@@ -400,10 +419,7 @@ export function IntegrationSimpleSpec() {
                     type="number"
                     min="5"
                     value={config.syncConfig?.pollingInterval || 5}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      syncConfig: { ...config.syncConfig!, pollingInterval: parseInt(e.target.value) }
-                    })}
+                    onChange={(e) => handleFieldChange('syncConfig.pollingInterval', parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -413,10 +429,7 @@ export function IntegrationSimpleSpec() {
                 <input
                   type="number"
                   value={config.syncConfig?.batchSize || 100}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    syncConfig: { ...config.syncConfig!, batchSize: parseInt(e.target.value) }
-                  })}
+                  onChange={(e) => handleFieldChange('syncConfig.batchSize', parseInt(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
@@ -503,10 +516,7 @@ export function IntegrationSimpleSpec() {
                 <input
                   type="url"
                   value={config.n8nConfig?.workflowEndpoint || ''}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    n8nConfig: { ...config.n8nConfig!, workflowEndpoint: e.target.value }
-                  })}
+                  onChange={(e) => handleFieldChange('n8nConfig.workflowEndpoint', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="https://n8n.example.com/webhook/..."
                 />
@@ -517,10 +527,7 @@ export function IntegrationSimpleSpec() {
                   <input
                     type="password"
                     value={config.n8nConfig?.apiKey || ''}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      n8nConfig: { ...config.n8nConfig!, apiKey: e.target.value }
-                    })}
+                    onChange={(e) => handleFieldChange('n8nConfig.apiKey', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -530,10 +537,7 @@ export function IntegrationSimpleSpec() {
                     type="number"
                     min="1"
                     value={config.n8nConfig?.estimatedNodes || 3}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      n8nConfig: { ...config.n8nConfig!, estimatedNodes: parseInt(e.target.value) }
-                    })}
+                    onChange={(e) => handleFieldChange('n8nConfig.estimatedNodes', parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -553,10 +557,7 @@ export function IntegrationSimpleSpec() {
                     min="0"
                     max="10"
                     value={config.errorHandling?.retryAttempts || 3}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      errorHandling: { ...config.errorHandling!, retryAttempts: parseInt(e.target.value) }
-                    })}
+                    onChange={(e) => handleFieldChange('errorHandling.retryAttempts', parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -565,10 +566,7 @@ export function IntegrationSimpleSpec() {
                     <input
                       type="checkbox"
                       checked={config.errorHandling?.deadLetterQueue || false}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        errorHandling: { ...config.errorHandling!, deadLetterQueue: e.target.checked }
-                      })}
+                      onChange={(e) => handleFieldChange('errorHandling.deadLetterQueue', e.target.checked)}
                       className="rounded"
                     />
                     <span className="text-sm">Dead Letter Queue</span>
@@ -584,15 +582,12 @@ export function IntegrationSimpleSpec() {
                       checked={config.errorHandling?.alertChannels?.includes('email')}
                       onChange={(e) => {
                         const channels = config.errorHandling?.alertChannels || [];
-                        setConfig({
-                          ...config,
-                          errorHandling: {
-                            ...config.errorHandling!,
-                            alertChannels: e.target.checked
-                              ? [...channels, 'email']
-                              : channels.filter(c => c !== 'email')
-                          }
-                        });
+                        handleFieldChange(
+                          'errorHandling.alertChannels',
+                          e.target.checked
+                            ? [...channels, 'email']
+                            : channels.filter(c => c !== 'email')
+                        );
                       }}
                       className="rounded"
                     />
@@ -604,15 +599,12 @@ export function IntegrationSimpleSpec() {
                       checked={config.errorHandling?.alertChannels?.includes('slack')}
                       onChange={(e) => {
                         const channels = config.errorHandling?.alertChannels || [];
-                        setConfig({
-                          ...config,
-                          errorHandling: {
-                            ...config.errorHandling!,
-                            alertChannels: e.target.checked
-                              ? [...channels, 'slack']
-                              : channels.filter(c => c !== 'slack')
-                          }
-                        });
+                        handleFieldChange(
+                          'errorHandling.alertChannels',
+                          e.target.checked
+                            ? [...channels, 'slack']
+                            : channels.filter(c => c !== 'slack')
+                        );
                       }}
                       className="rounded"
                     />
@@ -624,15 +616,12 @@ export function IntegrationSimpleSpec() {
                       checked={config.errorHandling?.alertChannels?.includes('sms')}
                       onChange={(e) => {
                         const channels = config.errorHandling?.alertChannels || [];
-                        setConfig({
-                          ...config,
-                          errorHandling: {
-                            ...config.errorHandling!,
-                            alertChannels: e.target.checked
-                              ? [...channels, 'sms']
-                              : channels.filter(c => c !== 'sms')
-                          }
-                        });
+                        handleFieldChange(
+                          'errorHandling.alertChannels',
+                          e.target.checked
+                            ? [...channels, 'sms']
+                            : channels.filter(c => c !== 'sms')
+                        );
                       }}
                       className="rounded"
                     />
@@ -680,10 +669,7 @@ export function IntegrationSimpleSpec() {
                   type="number"
                   min="1"
                   value={config.metadata?.estimatedHours || 8}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    metadata: { ...config.metadata!, estimatedHours: parseInt(e.target.value) }
-                  })}
+                  onChange={(e) => handleFieldChange('metadata.estimatedHours', parseInt(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
@@ -693,10 +679,7 @@ export function IntegrationSimpleSpec() {
                   type="number"
                   min="0"
                   value={config.metadata?.monthlyApiCalls || 1000}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    metadata: { ...config.metadata!, monthlyApiCalls: parseInt(e.target.value) }
-                  })}
+                  onChange={(e) => handleFieldChange('metadata.monthlyApiCalls', parseInt(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
@@ -707,10 +690,7 @@ export function IntegrationSimpleSpec() {
                   min="0"
                   step="0.01"
                   value={config.metadata?.monthlyCost || 0}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    metadata: { ...config.metadata!, monthlyCost: parseFloat(e.target.value) }
-                  })}
+                  onChange={(e) => handleFieldChange('metadata.monthlyCost', parseFloat(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>

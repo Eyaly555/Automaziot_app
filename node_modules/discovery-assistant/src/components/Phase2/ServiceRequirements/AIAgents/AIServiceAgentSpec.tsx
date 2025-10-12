@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
@@ -46,6 +46,10 @@ export function AIServiceAgentSpec() {
     sentimentAnalysis: true,
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'ai-service-agent',
@@ -65,43 +69,73 @@ export function AIServiceAgentSpec() {
   useEffect(() => {
     const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
     const existing = aiAgentServices.find((a: AIAgentServiceEntry) => a.serviceId === 'ai-service-agent');
+
     if (existing?.requirements) {
-      setConfig(existing.requirements);
-      // Set smart field values if existing
-      if (existing.requirements.aiModel) {
-        aiModelPreference.setValue(existing.requirements.aiModel);
-      }
-      if (existing.requirements.department) {
-        aiDepartment.setValue(existing.requirements.department);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements);
+
+        // Set smart field values if existing
+        if (existing.requirements.aiModel) {
+          aiModelPreference.setValue(existing.requirements.aiModel);
+        }
+        if (existing.requirements.department) {
+          aiDepartment.setValue(existing.requirements.department);
+        }
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
       }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.aiAgentServices]);
 
   // Auto-save on changes
-  useEffect(() => {
-    if (config.aiModel || config.department) {
-      const completeConfig = {
-        ...config,
-        aiModel: aiModelPreference.value,
-        department: aiDepartment.value
-      };
-      saveData(completeConfig);
-    }
-  }, [config, aiModelPreference.value, aiDepartment.value, saveData]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.aiModel || config.department) {
+  //     const completeConfig = {
+  //       ...config,
+  //       aiModel: aiModelPreference.value,
+  //       department: aiDepartment.value
+  //     };
+  //     saveData(completeConfig);
+  //   }
+  // }, [config, aiModelPreference.value, aiDepartment.value, saveData]);
 
-  const handleSave = async () => {
-    // Build complete config with smart field values
+  const handleFieldChange = useCallback((field: keyof typeof config, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            aiModel: aiModelPreference.value,
+            department: aiDepartment.value
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [aiModelPreference.value, aiDepartment.value, saveData]);
+
+  const handleSave = useCallback(async () => {
+    if (isLoadingRef.current) return; // Don't save during loading
+
     const completeConfig = {
       ...config,
       aiModel: aiModelPreference.value || config.aiModel,
       department: aiDepartment.value || config.department
     };
 
-    // Save using auto-save (manual save trigger)
-    await saveData(completeConfig);
-
-    alert('הגדרות נשמרו בהצלחה!');
-  };
+    await saveData(completeConfig, 'manual');
+  }, [config, aiModelPreference.value, aiDepartment.value, saveData]);
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -195,7 +229,7 @@ export function AIServiceAgentSpec() {
           {/* Existing fields */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">מערכת Helpdesk</label>
-            <select value={config.integrationHelpdesk} onChange={(e) => setConfig({ ...config, integrationHelpdesk: e.target.value })}
+            <select value={config.integrationHelpdesk} onChange={(e) => handleFieldChange('integrationHelpdesk', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md">
               <option value="zendesk">Zendesk</option>
               <option value="freshdesk">Freshdesk</option>
@@ -205,19 +239,19 @@ export function AIServiceAgentSpec() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">כתובת מאגר ידע</label>
-            <input type="url" value={config.knowledgeBaseUrl} onChange={(e) => setConfig({ ...config, knowledgeBaseUrl: e.target.value })}
+            <input type="url" value={config.knowledgeBaseUrl} onChange={(e) => handleFieldChange('knowledgeBaseUrl', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="https://docs.example.com" />
           </div>
 
           <div className="space-y-3">
             <label className="flex items-center">
               <input type="checkbox" checked={config.autoResponse}
-                onChange={(e) => setConfig({ ...config, autoResponse: e.target.checked })} className="mr-2" />
+                onChange={(e) => handleFieldChange('autoResponse', e.target.checked)} className="mr-2" />
               <span className="text-sm">מענה אוטומטי</span>
             </label>
             <label className="flex items-center">
               <input type="checkbox" checked={config.sentimentAnalysis}
-                onChange={(e) => setConfig({ ...config, sentimentAnalysis: e.target.checked })} className="mr-2" />
+                onChange={(e) => handleFieldChange('sentimentAnalysis', e.target.checked)} className="mr-2" />
               <span className="text-sm">ניתוח סנטימנט</span>
             </label>
           </div>

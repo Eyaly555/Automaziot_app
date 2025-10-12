@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
 import { useSmartField } from '../../../../hooks/useSmartField';
@@ -35,6 +35,10 @@ export function IntCrmSupportSpec() {
     ...{ crmSystem: 'zoho', helpdeskSystem: 'zendesk', ticketSync: true }
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'int-crm-support',
@@ -52,28 +56,61 @@ export function IntCrmSupportSpec() {
     saveData(completeConfig);
   });
 
+  // Load existing data ONCE on mount or when service data actually changes
   useEffect(() => {
     const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
-    const existing = integrationServices.find(i => i.serviceId === 'int-crm-support');
+    const existing = integrationServices.find((i: any) => i.serviceId === 'int-crm-support');
+
     if (existing?.requirements) {
-      setConfig(existing.requirements);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.integrationServices]);
 
   // Auto-save on changes
-  useEffect(() => {
-    if (config.crmSystem || config.helpdeskSystem) {
-      const completeConfig = {
-        ...config,
-        crmSystem: crmSystem.value,
-        crmAuthMethod: apiAuthMethod.value,
-        alertEmail: alertEmail.value
-      };
-      saveData(completeConfig);
-    }
-  }, [config, crmSystem.value, apiAuthMethod.value, alertEmail.value, saveData]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.crmSystem || config.helpdeskSystem) {
+  //     const completeConfig = {
+  //       ...config,
+  //       crmSystem: crmSystem.value,
+  //       crmAuthMethod: apiAuthMethod.value,
+  //       alertEmail: alertEmail.value
+  //     };
+  //     saveData(completeConfig);
+  //   }
+  // }, [config, crmSystem.value, apiAuthMethod.value, alertEmail.value, saveData]);
 
-  const handleSave = async () => {
+  const handleFieldChange = useCallback((field: keyof typeof config, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          const completeConfig = {
+            ...updated,
+            crmSystem: crmSystem.value,
+            crmAuthMethod: apiAuthMethod.value,
+            alertEmail: alertEmail.value
+          };
+          saveData(completeConfig);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [crmSystem.value, apiAuthMethod.value, alertEmail.value, saveData]);
+
+  const handleSave = useCallback(async () => {
     // Build complete config with smart field values
     const completeConfig = {
       ...config,
@@ -86,7 +123,7 @@ export function IntCrmSupportSpec() {
     await saveData(completeConfig, 'manual');
 
     alert('הגדרות נשמרו בהצלחה!');
-  };
+  }, [config, crmSystem.value, apiAuthMethod.value, alertEmail.value, saveData]);
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -197,7 +234,7 @@ export function IntCrmSupportSpec() {
               <label className="block text-sm font-medium text-gray-700 mb-2">מערכת Helpdesk</label>
               <select
                 value={config.helpdeskSystem || 'zendesk'}
-                onChange={(e) => setConfig({ ...config, helpdeskSystem: e.target.value })}
+                onChange={(e) => handleFieldChange('helpdeskSystem', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
                 <option value="zendesk">Zendesk</option>
@@ -250,7 +287,7 @@ export function IntCrmSupportSpec() {
                 <input
                   type="checkbox"
                   checked={config.ticketSync || false}
-                  onChange={(e) => setConfig({ ...config, ticketSync: e.target.checked })}
+                  onChange={(e) => handleFieldChange('ticketSync', e.target.checked)}
                   className="mr-2"
                 />
                 <span className="text-sm">סנכרון כרטיסי תמיכה</span>

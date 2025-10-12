@@ -44,7 +44,7 @@ export const useAutoSave = (options: AutoSaveOptions) => {
           console.warn('[useAutoSave] No moduleId provided for Phase 1 save');
           return;
         }
-        updateModule(moduleId, data);
+        updateModule(moduleId as any, data);
         console.log(`[useAutoSave] Saved Phase 1 module: ${moduleId}`);
         return;
       }

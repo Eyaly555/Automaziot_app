@@ -8,7 +8,7 @@
  * @category AdditionalServices
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import type { DataMigrationRequirements } from '../../../../types/additionalServices';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
@@ -73,6 +73,10 @@ export function DataMigrationSpec() {
     }
   });
 
+  // Track if we're currently loading data to prevent save loops
+  const isLoadingRef = useRef(false);
+  const lastLoadedConfigRef = useRef<string>('');
+
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'data-migration',
@@ -94,16 +98,29 @@ export function DataMigrationSpec() {
       : undefined;
 
     if (existing?.requirements) {
-      setConfig(existing.requirements as DataMigrationRequirements);
+      const existingConfigJson = JSON.stringify(existing.requirements);
+
+      // Only update if the data actually changed (deep comparison)
+      if (existingConfigJson !== lastLoadedConfigRef.current) {
+        isLoadingRef.current = true;
+        lastLoadedConfigRef.current = existingConfigJson;
+        setConfig(existing.requirements as DataMigrationRequirements);
+
+        // Reset loading flag after state update completes
+        setTimeout(() => {
+          isLoadingRef.current = false;
+        }, 0);
+      }
     }
-  }, [currentMeeting]);
+  }, [currentMeeting?.implementationSpec?.additionalServices]);
 
   // Auto-save on changes
-  useEffect(() => {
-    if (config.sourceSystems?.length || config.targetSystems?.length) {
-      saveData(config);
-    }
-  }, [config]);
+  // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
+  // useEffect(() => {
+  //   if (config.sourceSystems?.length || config.targetSystems?.length) {
+  //     saveData(config);
+  //   }
+  // }, [config]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
 
   // Validation
@@ -121,6 +138,18 @@ export function DataMigrationSpec() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  const handleFieldChange = useCallback((field: string, value: any) => {
+    setConfig(prev => {
+      const updated = { ...prev, [field]: value };
+      setTimeout(() => {
+        if (!isLoadingRef.current) {
+          saveData(updated);
+        }
+      }, 0);
+      return updated;
+    });
+  }, [saveData]);
 
   // Save handler
   const handleSave = async () => {
@@ -310,7 +339,7 @@ export function DataMigrationSpec() {
                     onChange={(e) => {
                       const updated = [...config.sourceSystems];
                       updated[index].systemName = e.target.value;
-                      setConfig({ ...config, sourceSystems: updated });
+                      handleFieldChange('sourceSystems', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     placeholder="Old Salesforce, Excel Files, Legacy Database"
@@ -325,7 +354,7 @@ export function DataMigrationSpec() {
                     onChange={(e) => {
                       const updated = [...config.sourceSystems];
                       updated[index].systemType = e.target.value;
-                      setConfig({ ...config, sourceSystems: updated });
+                      handleFieldChange('sourceSystems', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     placeholder="CRM, Database, Spreadsheet"
@@ -341,7 +370,7 @@ export function DataMigrationSpec() {
                     onChange={(e) => {
                       const updated = [...config.sourceSystems];
                       updated[index].accessMethod = e.target.value as 'api' | 'export' | 'direct_db' | 'ftp' | 'manual';
-                      setConfig({ ...config, sourceSystems: updated });
+                      handleFieldChange('sourceSystems', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   >
@@ -360,7 +389,7 @@ export function DataMigrationSpec() {
                     onChange={(e) => {
                       const updated = [...config.sourceSystems];
                       updated[index].exportFormat = e.target.value as 'csv' | 'excel' | 'json' | 'sql' | 'xml';
-                      setConfig({ ...config, sourceSystems: updated });
+                      handleFieldChange('sourceSystems', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   >
@@ -382,7 +411,7 @@ export function DataMigrationSpec() {
                     onChange={(e) => {
                       const updated = [...config.sourceSystems];
                       updated[index].recordCount = parseInt(e.target.value) || 0;
-                      setConfig({ ...config, sourceSystems: updated });
+                      handleFieldChange('sourceSystems', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     min="0"
@@ -401,7 +430,7 @@ export function DataMigrationSpec() {
                     onChange={(e) => {
                       const updated = [...config.sourceSystems];
                       updated[index].dataQualityScore = parseInt(e.target.value);
-                      setConfig({ ...config, sourceSystems: updated });
+                      handleFieldChange('sourceSystems', updated);
                     }}
                     className="w-full"
                   />
@@ -449,7 +478,7 @@ export function DataMigrationSpec() {
                     onChange={(e) => {
                       const updated = [...config.targetSystems];
                       updated[index].systemName = e.target.value;
-                      setConfig({ ...config, targetSystems: updated });
+                      handleFieldChange('targetSystems', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     placeholder="Zoho CRM, New Database, Data Warehouse"
@@ -464,7 +493,7 @@ export function DataMigrationSpec() {
                     onChange={(e) => {
                       const updated = [...config.targetSystems];
                       updated[index].systemType = e.target.value;
-                      setConfig({ ...config, targetSystems: updated });
+                      handleFieldChange('targetSystems', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     placeholder="CRM, Database"
@@ -479,7 +508,7 @@ export function DataMigrationSpec() {
                   onChange={(e) => {
                     const updated = [...config.targetSystems];
                     updated[index].importMethod = e.target.value as 'api' | 'bulk_import' | 'direct_db' | 'etl_tool';
-                    setConfig({ ...config, targetSystems: updated });
+                    handleFieldChange('targetSystems', updated);
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
@@ -498,7 +527,7 @@ export function DataMigrationSpec() {
                     onChange={(e) => {
                       const updated = [...config.targetSystems];
                       updated[index].hasAdminAccess = e.target.checked;
-                      setConfig({ ...config, targetSystems: updated });
+                      handleFieldChange('targetSystems', updated);
                     }}
                     className="rounded border-gray-300"
                   />
@@ -512,7 +541,7 @@ export function DataMigrationSpec() {
                     onChange={(e) => {
                       const updated = [...config.targetSystems];
                       updated[index].requiresFieldMapping = e.target.checked;
-                      setConfig({ ...config, targetSystems: updated });
+                      handleFieldChange('targetSystems', updated);
                     }}
                     className="rounded border-gray-300"
                   />
@@ -532,13 +561,10 @@ export function DataMigrationSpec() {
             <label className="block text-sm font-medium text-gray-700 mb-2">גישה</label>
             <select
               value={config.migrationStrategy.approach}
-              onChange={(e) => setConfig({
-                ...config,
-                migrationStrategy: {
-                  ...config.migrationStrategy,
-                  approach: e.target.value as 'big_bang' | 'phased' | 'parallel' | 'pilot_first'
-                }
-              })}
+              onChange={(e) => handleFieldChange(
+                'migrationStrategy.approach',
+                e.target.value as 'big_bang' | 'phased' | 'parallel' | 'pilot_first'
+              )}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="big_bang">Big Bang (העברה אחת גדולה)</option>
@@ -583,13 +609,10 @@ export function DataMigrationSpec() {
               <input
                 type="number"
                 value={config.migrationStrategy.pilotRecordCount || 100}
-                onChange={(e) => setConfig({
-                  ...config,
-                  migrationStrategy: {
-                    ...config.migrationStrategy,
-                    pilotRecordCount: parseInt(e.target.value) || 100
-                  }
-                })}
+                onChange={(e) => handleFieldChange(
+                  'migrationStrategy.pilotRecordCount',
+                  parseInt(e.target.value) || 100
+                )}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 min="1"
               />
@@ -600,13 +623,7 @@ export function DataMigrationSpec() {
             <input
               type="checkbox"
               checked={config.migrationStrategy.freezeSourceDuringMigration}
-              onChange={(e) => setConfig({
-                ...config,
-                migrationStrategy: {
-                  ...config.migrationStrategy,
-                  freezeSourceDuringMigration: e.target.checked
-                }
-              })}
+              onChange={(e) => handleFieldChange('migrationStrategy.freezeSourceDuringMigration', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">הקפאת מערכת מקור במהלך ההעברה</span>
@@ -622,10 +639,7 @@ export function DataMigrationSpec() {
             <input
               type="checkbox"
               checked={config.fieldMapping.hasMappingDocument}
-              onChange={(e) => setConfig({
-                ...config,
-                fieldMapping: { ...config.fieldMapping, hasMappingDocument: e.target.checked }
-              })}
+              onChange={(e) => handleFieldChange('fieldMapping.hasMappingDocument', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">קיים מסמך מיפוי</span>
@@ -635,13 +649,10 @@ export function DataMigrationSpec() {
             <label className="block text-sm font-medium text-gray-700 mb-2">מורכבות מיפוי</label>
             <select
               value={config.fieldMapping.mappingComplexity}
-              onChange={(e) => setConfig({
-                ...config,
-                fieldMapping: {
-                  ...config.fieldMapping,
-                  mappingComplexity: e.target.value as 'simple' | 'medium' | 'complex'
-                }
-              })}
+              onChange={(e) => handleFieldChange(
+                'fieldMapping.mappingComplexity',
+                e.target.value as 'simple' | 'medium' | 'complex'
+              )}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="simple">פשוט (1-to-1)</option>
@@ -654,10 +665,7 @@ export function DataMigrationSpec() {
             <input
               type="checkbox"
               checked={config.fieldMapping.requiresDataTransformation}
-              onChange={(e) => setConfig({
-                ...config,
-                fieldMapping: { ...config.fieldMapping, requiresDataTransformation: e.target.checked }
-              })}
+              onChange={(e) => handleFieldChange('fieldMapping.requiresDataTransformation', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">דורש טרנספורמציית נתונים</span>
@@ -694,10 +702,7 @@ export function DataMigrationSpec() {
                   onChange={(e) => {
                     const updated = [...(config.fieldMapping.customCalculations || [])];
                     updated[index].targetField = e.target.value;
-                    setConfig({
-                      ...config,
-                      fieldMapping: { ...config.fieldMapping, customCalculations: updated }
-                    });
+                    handleFieldChange('fieldMapping.customCalculations', updated);
                   }}
                   className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                   placeholder="שדה יעד"
@@ -709,10 +714,7 @@ export function DataMigrationSpec() {
                   onChange={(e) => {
                     const updated = [...(config.fieldMapping.customCalculations || [])];
                     updated[index].formula = e.target.value;
-                    setConfig({
-                      ...config,
-                      fieldMapping: { ...config.fieldMapping, customCalculations: updated }
-                    });
+                    handleFieldChange('fieldMapping.customCalculations', updated);
                   }}
                   className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                   placeholder="נוסחה (לדוגמה: firstName + ' ' + lastName)"
@@ -731,10 +733,7 @@ export function DataMigrationSpec() {
             <input
               type="checkbox"
               checked={config.testingApproach.pocMigration}
-              onChange={(e) => setConfig({
-                ...config,
-                testingApproach: { ...config.testingApproach, pocMigration: e.target.checked }
-              })}
+              onChange={(e) => handleFieldChange('testingApproach.pocMigration', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">POC Migration (הוכחת יכולת)</span>
@@ -746,13 +745,10 @@ export function DataMigrationSpec() {
               <input
                 type="number"
                 value={config.testingApproach.pocRecordCount || 100}
-                onChange={(e) => setConfig({
-                  ...config,
-                  testingApproach: {
-                    ...config.testingApproach,
-                    pocRecordCount: parseInt(e.target.value) || 100
-                  }
-                })}
+                onChange={(e) => handleFieldChange(
+                  'testingApproach.pocRecordCount',
+                  parseInt(e.target.value) || 100
+                )}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 min="1"
               />
@@ -793,10 +789,7 @@ export function DataMigrationSpec() {
             <input
               type="checkbox"
               checked={config.testingApproach.userAcceptanceTesting}
-              onChange={(e) => setConfig({
-                ...config,
-                testingApproach: { ...config.testingApproach, userAcceptanceTesting: e.target.checked }
-              })}
+              onChange={(e) => handleFieldChange('testingApproach.userAcceptanceTesting', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">בדיקות קבלה משתמש (UAT)</span>
@@ -806,10 +799,7 @@ export function DataMigrationSpec() {
             <input
               type="checkbox"
               checked={config.testingApproach.rollbackPlan}
-              onChange={(e) => setConfig({
-                ...config,
-                testingApproach: { ...config.testingApproach, rollbackPlan: e.target.checked }
-              })}
+              onChange={(e) => handleFieldChange('testingApproach.rollbackPlan', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">תוכנית Rollback</span>
@@ -827,10 +817,7 @@ export function DataMigrationSpec() {
               <input
                 type="checkbox"
                 checked={config.dataPreparation.cleanupRequired}
-                onChange={(e) => setConfig({
-                  ...config,
-                  dataPreparation: { ...config.dataPreparation, cleanupRequired: e.target.checked }
-                })}
+                onChange={(e) => handleFieldChange('dataPreparation.cleanupRequired', e.target.checked)}
                 className="rounded border-gray-300"
               />
               <span className="text-sm">נדרש ניקוי</span>
@@ -840,10 +827,7 @@ export function DataMigrationSpec() {
               <input
                 type="checkbox"
                 checked={config.dataPreparation.deduplicationNeeded}
-                onChange={(e) => setConfig({
-                  ...config,
-                  dataPreparation: { ...config.dataPreparation, deduplicationNeeded: e.target.checked }
-                })}
+                onChange={(e) => handleFieldChange('dataPreparation.deduplicationNeeded', e.target.checked)}
                 className="rounded border-gray-300"
               />
               <span className="text-sm">נדרש הסרת כפילויות</span>
@@ -853,10 +837,7 @@ export function DataMigrationSpec() {
               <input
                 type="checkbox"
                 checked={config.dataPreparation.dataValidationNeeded}
-                onChange={(e) => setConfig({
-                  ...config,
-                  dataPreparation: { ...config.dataPreparation, dataValidationNeeded: e.target.checked }
-                })}
+                onChange={(e) => handleFieldChange('dataPreparation.dataValidationNeeded', e.target.checked)}
                 className="rounded border-gray-300"
               />
               <span className="text-sm">נדרש אימות נתונים</span>
@@ -869,10 +850,7 @@ export function DataMigrationSpec() {
               <input
                 type="checkbox"
                 checked={config.rollbackPlan.hasBackup}
-                onChange={(e) => setConfig({
-                  ...config,
-                  rollbackPlan: { ...config.rollbackPlan, hasBackup: e.target.checked }
-                })}
+                onChange={(e) => handleFieldChange('rollbackPlan.hasBackup', e.target.checked)}
                 className="rounded border-gray-300"
               />
               <span className="text-sm">קיים גיבוי</span>
@@ -883,10 +861,7 @@ export function DataMigrationSpec() {
               <input
                 type="text"
                 value={config.rollbackPlan.backupLocation || ''}
-                onChange={(e) => setConfig({
-                  ...config,
-                  rollbackPlan: { ...config.rollbackPlan, backupLocation: e.target.value }
-                })}
+                onChange={(e) => handleFieldChange('rollbackPlan.backupLocation', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 placeholder="\\server\backups, AWS S3 bucket"
               />
@@ -896,10 +871,7 @@ export function DataMigrationSpec() {
               <label className="block text-sm font-medium text-gray-700 mb-2">תהליך Rollback</label>
               <textarea
                 value={config.rollbackPlan.rollbackProcedure}
-                onChange={(e) => setConfig({
-                  ...config,
-                  rollbackPlan: { ...config.rollbackPlan, rollbackProcedure: e.target.value }
-                })}
+                onChange={(e) => handleFieldChange('rollbackPlan.rollbackProcedure', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 rows={3}
                 placeholder="תיאור השלבים לביצוע Rollback"
@@ -910,10 +882,7 @@ export function DataMigrationSpec() {
               <input
                 type="checkbox"
                 checked={config.rollbackPlan.snapshotBeforeMigration}
-                onChange={(e) => setConfig({
-                  ...config,
-                  rollbackPlan: { ...config.rollbackPlan, snapshotBeforeMigration: e.target.checked }
-                })}
+                onChange={(e) => handleFieldChange('rollbackPlan.snapshotBeforeMigration', e.target.checked)}
                 className="rounded border-gray-300"
               />
               <span className="text-sm">Snapshot לפני ההעברה</span>
@@ -932,10 +901,7 @@ export function DataMigrationSpec() {
               <input
                 type="number"
                 value={config.timeline.pocDays}
-                onChange={(e) => setConfig({
-                  ...config,
-                  timeline: { ...config.timeline, pocDays: parseInt(e.target.value) || 2 }
-                })}
+                onChange={(e) => handleFieldChange('timeline.pocDays', parseInt(e.target.value) || 2)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 min="1"
               />
@@ -946,10 +912,7 @@ export function DataMigrationSpec() {
               <input
                 type="number"
                 value={config.timeline.fullMigrationDays}
-                onChange={(e) => setConfig({
-                  ...config,
-                  timeline: { ...config.timeline, fullMigrationDays: parseInt(e.target.value) || 7 }
-                })}
+                onChange={(e) => handleFieldChange('timeline.fullMigrationDays', parseInt(e.target.value) || 7)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 min="1"
               />
@@ -960,10 +923,7 @@ export function DataMigrationSpec() {
               <input
                 type="number"
                 value={config.timeline.postMigrationValidationDays}
-                onChange={(e) => setConfig({
-                  ...config,
-                  timeline: { ...config.timeline, postMigrationValidationDays: parseInt(e.target.value) || 2 }
-                })}
+                onChange={(e) => handleFieldChange('timeline.postMigrationValidationDays', parseInt(e.target.value) || 2)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 min="1"
               />
@@ -979,13 +939,7 @@ export function DataMigrationSpec() {
               min="0"
               max="100"
               value={config.successCriteria.targetCompletionRate}
-              onChange={(e) => setConfig({
-                ...config,
-                successCriteria: {
-                  ...config.successCriteria,
-                  targetCompletionRate: parseInt(e.target.value)
-                }
-              })}
+              onChange={(e) => handleFieldChange('successCriteria.targetCompletionRate', parseInt(e.target.value))}
               className="w-full"
             />
           </div>
@@ -1000,13 +954,7 @@ export function DataMigrationSpec() {
               max="10"
               step="0.1"
               value={config.successCriteria.maxErrorRate}
-              onChange={(e) => setConfig({
-                ...config,
-                successCriteria: {
-                  ...config.successCriteria,
-                  maxErrorRate: parseFloat(e.target.value)
-                }
-              })}
+              onChange={(e) => handleFieldChange('successCriteria.maxErrorRate', parseFloat(e.target.value))}
               className="w-full"
             />
           </div>
@@ -1015,13 +963,7 @@ export function DataMigrationSpec() {
             <input
               type="checkbox"
               checked={config.successCriteria.referentialIntegrityCheck}
-              onChange={(e) => setConfig({
-                ...config,
-                successCriteria: {
-                  ...config.successCriteria,
-                  referentialIntegrityCheck: e.target.checked
-                }
-              })}
+              onChange={(e) => handleFieldChange('successCriteria.referentialIntegrityCheck', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">בדיקת שלמות התייחסותית</span>
@@ -1031,13 +973,7 @@ export function DataMigrationSpec() {
             <input
               type="checkbox"
               checked={config.successCriteria.userAcceptanceRequired}
-              onChange={(e) => setConfig({
-                ...config,
-                successCriteria: {
-                  ...config.successCriteria,
-                  userAcceptanceRequired: e.target.checked
-                }
-              })}
+              onChange={(e) => handleFieldChange('successCriteria.userAcceptanceRequired', e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm">נדרש אישור משתמש</span>
