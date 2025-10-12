@@ -10,6 +10,7 @@ import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Input, Select } from '../../Base';
 import { generateProposal } from '../../../utils/proposalEngine';
 import { ProposedService, SelectedService, ProposalData } from '../../../types/proposal';
+import { Modules } from '../../../types';
 import {
   SERVICE_CATEGORIES,
   getCategoryById,
@@ -17,10 +18,7 @@ import {
   ServiceCategoryId
 } from '../../../config/servicesDatabase';
 import { getSmartRecommendations } from '../../../utils/smartRecommendationsEngine';
-import { generateProposalPDF } from '../../../utils/exportProposalPDF';
-import { downloadProposalPDF } from '../../../utils/downloadProposalPDF';
-import { sendProposalViaWhatsApp } from '../../../services/whatsappService';
-import { openGmailCompose } from '../../../services/emailService';
+import { printProposalPDF } from '../../../utils/printProposalPDF';
 import { ContactCompletionModal, ClientContact } from './ContactCompletionModal';
 import { AddServicesModal } from './AddServicesModal';
 import { markProposalAsSent } from '../../../services/discoveryStatusService';
@@ -373,13 +371,13 @@ export const ProposalModule: React.FC = () => {
     await sendProposalToClient(contact);
   };
 
-  // NEW: Send proposal to client (WhatsApp + Email)
+  // NEW: Send proposal to client using browser print dialog
   const sendProposalToClient = async (contact: ClientContact) => {
     try {
       setIsGeneratingPDF(true);
 
-      // Generate PDF
-      const pdfBlob = await generateProposalPDF({
+      // Open browser print dialog (user can "Save as PDF")
+      printProposalPDF({
         clientName: contact.name,
         clientCompany: contact.company,
         services: selectedServices.filter(s => s.selected),
@@ -390,6 +388,7 @@ export const ProposalModule: React.FC = () => {
           proposedServices,
           selectedServices,
           totalPrice: calculateTotals().totalPrice,
+          totalPriceWithVat: calculateTotals().totalPrice * 1.17,
           totalDays: calculateTotals().totalDays,
           expectedROIMonths: Math.ceil(calculateTotals().totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
           monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
@@ -399,60 +398,33 @@ export const ProposalModule: React.FC = () => {
 
       setIsGeneratingPDF(false);
 
-      // ✅ NEW: Mark proposal as sent
+      // ✅ Mark proposal as sent
       if (currentMeeting) {
-        await markProposalAsSent(currentMeeting.meetingId, updateModule as (moduleName: keyof Modules, data: any) => void);
+        await markProposalAsSent(currentMeeting.meetingId, updateModule as (moduleName: string, data: any) => void);
         console.log('[ProposalModule] Proposal marked as sent (via Send button)');
       }
 
       // Close modal if open
       setShowContactModal(false);
 
-      // Send via WhatsApp (only include ROI if data exists)
-      const includeROI = (proposalSummary?.potentialMonthlySavings || 0) > 0;
-      sendProposalViaWhatsApp(contact.phone, contact.name, pdfBlob, includeROI);
-
-      // Small delay to avoid blocking
-      setTimeout(() => {
-        // Open Gmail compose
-        openGmailCompose({
-          clientEmail: contact.email,
-          clientName: contact.name,
-          clientCompany: contact.company,
-          proposalData: {
-            meetingId: currentMeeting?.meetingId || '',
-            generatedAt: new Date(),
-            summary: proposalSummary,
-            proposedServices,
-            selectedServices,
-            totalPrice: calculateTotals().totalPrice,
-            totalDays: calculateTotals().totalDays,
-            expectedROIMonths: Math.ceil(calculateTotals().totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
-            monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
-          },
-          pdfBlob,
-        });
-      }, 1000);
-
-      // Show success message
-      alert('✅ הצעת המחיר נשלחה בהצלחה!\n\n📱 WhatsApp נפתח\n📧 Gmail נפתח\n📄 קובץ PDF ירד למחשב');
+      alert('✅ תיבת ההדפסה נפתחה!\n\n💡 שמור כ-PDF ושלח ללקוח דרך WhatsApp או Email\n\n📱 לקוח: ' + contact.name + '\n📞 טלפון: ' + contact.phone + '\n📧 אימייל: ' + contact.email);
 
     } catch (error) {
-      console.error('Error sending proposal:', error);
-      alert('❌ שגיאה בשליחת ההצעה. אנא נסה שוב.');
+      console.error('Error opening print dialog:', error);
+      alert('❌ שגיאה בפתיחת תיבת ההדפסה. אנא נסה שוב.');
       setIsGeneratingPDF(false);
     }
   };
 
-  // NEW: Download PDF directly (no WhatsApp/Email)
+  // NEW: Download PDF directly using browser print dialog
   const handleDownloadPDF = async () => {
     try {
       setIsGeneratingPDF(true);
 
       const contact = getClientContact();
 
-      // Download PDF directly
-      await downloadProposalPDF({
+      // Open browser print dialog (user can "Save as PDF")
+      printProposalPDF({
         clientName: contact.name || 'לקוח',
         clientCompany: contact.company,
         services: selectedServices.filter(s => s.selected),
@@ -463,6 +435,7 @@ export const ProposalModule: React.FC = () => {
           proposedServices,
           selectedServices,
           totalPrice: calculateTotals().totalPrice,
+          totalPriceWithVat: calculateTotals().totalPrice * 1.17,
           totalDays: calculateTotals().totalDays,
           expectedROIMonths: Math.ceil(calculateTotals().totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
           monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
@@ -472,17 +445,17 @@ export const ProposalModule: React.FC = () => {
 
       setIsGeneratingPDF(false);
 
-      // ✅ NEW: Mark proposal as sent
+      // ✅ Mark proposal as sent
       if (currentMeeting) {
-        await markProposalAsSent(currentMeeting.meetingId, updateModule as (moduleName: keyof Modules, data: any) => void);
+        await markProposalAsSent(currentMeeting.meetingId, updateModule as (moduleName: string, data: any) => void);
         console.log('[ProposalModule] Proposal marked as sent (via Download button)');
       }
 
-      alert('✅ קובץ PDF הורד בהצלחה!');
+      alert('✅ תיבת ההדפסה נפתחה! בחר "שמור כ-PDF" כדי לשמור את הקובץ');
 
     } catch (error) {
-      console.error('Error downloading PDF:', error);
-      alert('❌ שגיאה בהורדת הקובץ. אנא נסה שוב.');
+      console.error('Error opening print dialog:', error);
+      alert('❌ שגיאה בפתיחת תיבת ההדפסה. אנא נסה שוב.');
       setIsGeneratingPDF(false);
     }
   };
@@ -528,6 +501,7 @@ export const ProposalModule: React.FC = () => {
       proposedServices,
       selectedServices,
       totalPrice: totals.totalPrice,
+      totalPriceWithVat: totals.totalPrice * 1.17,
       totalDays: totals.totalDays,
       expectedROIMonths: Math.ceil(totals.totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
       monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
@@ -572,6 +546,7 @@ export const ProposalModule: React.FC = () => {
           proposedServices,
           selectedServices: cartServices, // Use cartServices as selectedServices
           totalPrice: calculateTotals().totalPrice,
+          totalPriceWithVat: calculateTotals().totalPrice * 1.17,
           totalDays: calculateTotals().totalDays,
           expectedROIMonths: Math.ceil(calculateTotals().totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
           monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
