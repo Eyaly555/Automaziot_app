@@ -128,12 +128,10 @@ function transformToZohoFormat(meeting) {
   const lastSyncTimestamp = now.toISOString().substring(0, 19) + '+00:00';
 
   // Build Zoho record
+  // ✅ FIX: Only sync Discovery data back to Zoho
+  // Do NOT update Name, Email, Phone, Company_s_Name - these are read-only from Zoho
   const zohoRecord = {
-    // Basic fields
-    Name: meeting.clientName || meeting.zohoIntegration?.dealName || 'Unnamed Client',
-    Company_s_Name: meeting.modules?.overview?.companyName || '',
-    Email: meeting.modules?.overview?.email || '',
-    Phone: meeting.modules?.overview?.phone || '',
+    // Date fields
     Discovery_Date: discoveryDate,
 
     // Phase and status

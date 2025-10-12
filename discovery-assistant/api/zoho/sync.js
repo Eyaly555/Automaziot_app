@@ -68,10 +68,10 @@ export default async function handler(req, res) {
     const progressPercentage = calculateProgress(meeting);
 
     // Prepare Zoho-compatible data from meeting - matching beacon-sync.js structure
+    // ✅ FIX: Only sync Discovery data back to Zoho
+    // Do NOT update Name - it should remain as set in Zoho
     const now = new Date();
     const zohoData = {
-      Name: meeting.clientName || meeting.companyName || 'Discovery Meeting',
-      Stage: 'Qualification',
       // Custom fields for Discovery data - this is what we save to Zoho
       Discovery_Progress: JSON.stringify(meeting), // Full meeting data as JSON
       Discovery_Last_Update: now.toISOString().split('.')[0] + '+00:00', // Zoho datetime format (no milliseconds)
