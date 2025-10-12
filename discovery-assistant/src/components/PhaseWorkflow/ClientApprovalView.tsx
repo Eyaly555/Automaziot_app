@@ -12,7 +12,8 @@ import {
   Trash2,
   Edit3,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Percent
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { Card } from '../Common/Card';
@@ -128,6 +129,7 @@ export const ClientApprovalView: React.FC = () => {
   const [showRejectionModal, setShowRejectionModal] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [validationError, setValidationError] = useState('');
+  const [discountPercentage, setDiscountPercentage] = useState<number>(0);
 
   // Get proposal data
   const proposalData = currentMeeting?.modules?.proposal as ProposalData | undefined;
@@ -285,15 +287,6 @@ export const ClientApprovalView: React.FC = () => {
 
   // מחיר סופי עם מע"מ לאחר הנחה נוספת
   const finalPriceWithVat = discountedPrice * (1 + VAT_RATE);
-
-  // שדה אחוזי הנחה
-  const [discountPercentage, setDiscountPercentage] = useState<number>(0);
-
-  // מחיר לאחר הנחה משתנה (ללא מע"מ)
-  const variableDiscountedPrice = baseTotalPrice * (1 - (discountPercentage / 100));
-
-  // מחיר סופי משתנה עם מע"מ לאחר הנחה משתנה
-  const variableFinalPriceWithVat = variableDiscountedPrice * (1 + VAT_RATE);
 
   // Group ALL PROPOSED services by category (for display)
   const servicesByCategory = selectedServices.reduce((acc, service) => {

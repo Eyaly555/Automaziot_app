@@ -435,7 +435,7 @@ export const printProposalPDF = (options: ProposalPDFOptions): void => {
 
   <!-- PAGE 4: FINANCIAL SUMMARY -->
   <div class="page">
-    <h1 style="text-align: center; margin-bottom: 30px;">סיכום כספי ו-ROI</h1>
+    <h1 style="text-align: center; margin-bottom: 30px;">סיכום כספי</h1>
 
     <div class="summary-box">
       <div class="summary-grid">
@@ -541,9 +541,6 @@ export const printProposalPDF = (options: ProposalPDFOptions): void => {
     </div>
 
     <div class="signature-section">
-      <div style="text-align: left;">
-        <p style="color: #666;">${formatHebrewDate(today)}</p>
-      </div>
       <div style="text-align: right;">
         ${
           COMPANY_BRANDING.signaturePath
@@ -551,7 +548,14 @@ export const printProposalPDF = (options: ProposalPDFOptions): void => {
             : ''
         }
         <p style="font-weight: 600; margin-bottom: 4px;">${COMPANY_BRANDING.signerName}</p>
-        <p style="font-size: 10pt; color: #666;">${COMPANY_BRANDING.signerTitle}, ${COMPANY_BRANDING.companyNameHe}</p>
+        <p style="font-size: 10pt; color: #666; margin-bottom: 8px;">${COMPANY_BRANDING.signerTitle}, ${COMPANY_BRANDING.companyNameHe}</p>
+        <p style="color: #666; font-size: 10pt;">תאריך: ${formatHebrewDate(today)}</p>
+      </div>
+      <div style="text-align: left;">
+        <div style="border-bottom: 2px solid #000; width: 180px; margin-bottom: 8px; padding-bottom: 30px;"></div>
+        <p style="font-weight: 600; margin-bottom: 4px;">חתימת הלקוח</p>
+        <p style="font-size: 10pt; color: #666; margin-bottom: 6px;">שם: ___________________</p>
+        <p style="font-size: 10pt; color: #666;">תאריך: ${formatHebrewDate(today)}</p>
       </div>
     </div>
   </div>
