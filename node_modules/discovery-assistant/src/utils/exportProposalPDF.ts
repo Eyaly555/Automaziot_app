@@ -24,32 +24,17 @@ const formatHebrewDate = (date: Date): string => {
 import html2pdf from 'html2pdf.js';
 
 /**
- * Generate Professional PDF using html2pdf.js
- * Returns Blob for WhatsApp/Email sending
+ * Builds the HTML content string for the proposal PDF.
+ * This function is shared between PDF generation for sending and direct downloading.
  */
-export const generateProposalPDF = async (options: ProposalPDFOptions): Promise<Blob> => {
+const buildProposalHtmlContent = (options: ProposalPDFOptions): string => {
   const { clientName, clientCompany, services, proposalData, aiProposal } = options;
 
   const today = new Date();
   const validUntil = new Date(today);
   validUntil.setDate(validUntil.getDate() + COMPANY_BRANDING.proposalValidity);
 
-  // Create a temporary div to hold the HTML content
-  const tempDiv = document.createElement('div');
-  tempDiv.id = 'proposal-content';
-  tempDiv.style.position = 'absolute';
-  tempDiv.style.left = '-9999px';
-  tempDiv.style.width = '210mm';
-  tempDiv.style.direction = 'rtl';
-  tempDiv.style.fontFamily = "'Rubik', sans-serif";
-
-  // Load Rubik font first
-  const fontLink = document.createElement('link');
-  fontLink.href = 'https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap';
-  fontLink.rel = 'stylesheet';
-  document.head.appendChild(fontLink);
-
-  const htmlContent = `
+  return `
   <style>
     * {
       box-sizing: border-box;
@@ -563,7 +548,28 @@ export const generateProposalPDF = async (options: ProposalPDFOptions): Promise<
 </body>
 </html>
   `;
+};
+/**
+ * Generate Professional PDF using html2pdf.js
+ * Returns Blob for WhatsApp/Email sending
+ */
+export const generateProposalPDF = async (options: ProposalPDFOptions): Promise<Blob> => {
+  // Create a temporary div to hold the HTML content
+  const tempDiv = document.createElement('div');
+  tempDiv.id = 'proposal-content';
+  tempDiv.style.position = 'absolute';
+  tempDiv.style.left = '-9999px';
+  tempDiv.style.width = '210mm';
+  tempDiv.style.direction = 'rtl';
+  tempDiv.style.fontFamily = "'Rubik', sans-serif";
 
+  // Load Rubik font first
+  const fontLink = document.createElement('link');
+  fontLink.href = 'https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap';
+  fontLink.rel = 'stylesheet';
+  document.head.appendChild(fontLink);
+
+  const htmlContent = buildProposalHtmlContent(options); // Use the new shared function
   tempDiv.innerHTML = htmlContent;
   document.body.appendChild(tempDiv);
 
@@ -583,7 +589,7 @@ export const generateProposalPDF = async (options: ProposalPDFOptions): Promise<
       windowHeight: 1123 // A4 height in pixels at 96 DPI
     },
     jsPDF: { unit: 'in' as const, format: 'a4' as const, orientation: 'portrait' as const },
-    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    pagebreak: { mode: ['avoid-all' as const, 'css' as const, 'legacy' as const] }
   };
 
   try {
