@@ -1,15 +1,5 @@
-import { generateProposalPDF } from './exportProposalPDF'; // IMPORT THE GOOD FUNCTION
-import { SelectedService, ProposalData } from '../types/proposal';
-import { AiProposalDoc } from '../schemas/aiProposal.schema';
+import { generateProposalPDF, ProposalPDFOptions } from './exportProposalPDF'; // Import the good function and the shared interface
 import { formatHebrewDate } from './exportProposalPDF'; // Import helper function
-
-interface ProposalPDFOptions {
-  clientName: string;
-  clientCompany?: string;
-  services: SelectedService[];
-  proposalData: ProposalData;
-  aiProposal?: AiProposalDoc; // Optional AI-generated content
-}
 
 /**
  * Download Professional PDF directly using the shared generateProposalPDF logic.

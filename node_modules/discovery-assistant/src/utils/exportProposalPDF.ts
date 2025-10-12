@@ -2,7 +2,7 @@ import { SelectedService, ProposalData } from '../types/proposal';
 import { COMPANY_BRANDING } from '../config/companyBranding';
 import { AiProposalDoc } from '../schemas/aiProposal.schema';
 
-interface ProposalPDFOptions {
+export interface ProposalPDFOptions {
   clientName: string;
   clientCompany?: string;
   services: SelectedService[];
