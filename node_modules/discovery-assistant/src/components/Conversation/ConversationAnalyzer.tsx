@@ -11,7 +11,8 @@ import {
   validateAudioFile,
   createAudioFile,
   formatFileSize,
-  formatDuration
+  formatDuration,
+  isConversionRequired,
 } from '../../utils/audioUtils';
 import {
   mergeExtractedFields,
@@ -19,11 +20,9 @@ import {
   formatMergeResults
 } from '../../utils/fieldMergeUtils';
 import {
-  convertToLightweightMP3,
-  shouldConvertFile,
-  getConversionMessage,
   convertAudio,
   shouldConvertForSize,
+  getConversionMessage,
 } from '../../utils/audioConverter';
 import { analyzeAudioConversation } from '../../services/conversationService';
 import { Card, Button } from '../Base';
@@ -124,7 +123,7 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
 
       // Check if file needs conversion (>4MB or unsupported format)
       const needsConversion =
-        shouldConvertForSize(audioFile.file) || shouldConvertFile(audioFile.file);
+        shouldConvertForSize(audioFile.file) || isConversionRequired(audioFile.file);
 
       if (needsConversion) {
         setProcessingStatus('converting');
