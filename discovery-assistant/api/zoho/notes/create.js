@@ -57,10 +57,13 @@ export default async function handler(req, res) {
       method: 'POST',
       body: JSON.stringify({
         data: [{
-          Note_Title: title,
           Note_Content: content,
-          Parent_Id: recordId,
-          se_module: module
+          Parent_Id: {
+            module: {
+              api_name: module
+            },
+            id: recordId
+          }
         }]
       })
     });
