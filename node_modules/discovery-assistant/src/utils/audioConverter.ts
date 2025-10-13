@@ -14,82 +14,67 @@ async function getFFmpeg(): Promise<FFmpeg> {
   }
 
   if (!isFFmpegLoaded) {
-    // Load FFmpeg from local files (not CDN)
-    // Files are in public/ffmpeg-core/ directory
-    const baseURL = '/ffmpeg-core';
-
-    await ffmpegInstance.load({
-      coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-      wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-    });
-
-    isFFmpegLoaded = true;
+    try {
+      const baseURL = '/ffmpeg-core';
+      await ffmpegInstance.load({
+        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+      });
+      isFFmpegLoaded = true;
+    } catch (error) {
+      console.error("Failed to load FFmpeg:", error);
+      // Reset for next attempt
+      ffmpegInstance = null;
+      isFFmpegLoaded = false;
+      throw new Error("Failed to initialize audio converter.");
+    }
   }
 
   return ffmpegInstance;
 }
 
 /**
- * Estimates the output file size after conversion
- */
-export function estimateConvertedSize(durationSeconds: number, bitrateKbps: number = 64): number {
-  // Formula: (bitrate in kbps * duration in seconds) / 8 = size in KB
-  const sizeKB = (bitrateKbps * durationSeconds) / 8;
-  return sizeKB * 1024; // Convert to bytes
-}
-
-/**
- * Converts an audio file to lightweight MP3 format
- * This reduces file size significantly for large audio files
+ * Converts an audio file to lightweight MP3 if necessary (due to size or format).
  *
  * @param file - The original audio file
  * @param onProgress - Progress callback (0-100)
  * @returns Converted MP3 file
  */
-export async function convertToLightweightMP3(
+export async function convertAudio(
   file: File,
   onProgress?: (progress: number) => void
 ): Promise<File> {
   try {
     const ffmpeg = await getFFmpeg();
 
-    // Set up progress listener
+    // Detach old listeners to prevent multiple triggers
+    ffmpeg.off('progress');
+
     if (onProgress) {
       ffmpeg.on('progress', ({ progress }) => {
-        // FFmpeg reports progress as 0-1, convert to 0-100
         onProgress(Math.round(progress * 100));
       });
     }
 
-    // Write input file to FFmpeg virtual file system
-    const inputFileName = 'input.' + getFileExtension(file.name);
+    const inputFileName = `input.${getFileExtension(file.name) || 'bin'}`;
     await ffmpeg.writeFile(inputFileName, await fetchFile(file));
 
-    onProgress?.(10);
+    const outputFileName = 'output.mp3';
 
-    // Convert to lightweight MP3
-    // -b:a 64k = audio bitrate 64kbps (very light)
-    // -ar 16000 = sample rate 16kHz (sufficient for speech)
-    // -ac 1 = mono (speech doesn't need stereo)
-    await ffmpeg.exec([
+    // Lightweight MP3 settings
+    const ffmpegArgs = [
       '-i', inputFileName,
-      '-b:a', '64k',
-      '-ar', '16000',
-      '-ac', '1',
-      '-f', 'mp3',
-      'output.mp3'
-    ]);
+      '-b:a', '64k',    // Audio bitrate 64kbps
+      '-ar', '16000',   // Sample rate 16kHz
+      '-ac', '1',       // Mono audio
+      '-f', 'mp3',      // Output format MP3
+      outputFileName
+    ];
 
-    onProgress?.(90);
+    await ffmpeg.exec(ffmpegArgs);
 
-    // Read the converted file
-    const data = await ffmpeg.readFile('output.mp3');
+    const data = await ffmpeg.readFile(outputFileName);
 
-    // Clean up virtual file system
-    await ffmpeg.deleteFile(inputFileName);
-    await ffmpeg.deleteFile('output.mp3');
-
-    // Create new File object
     const convertedFile = new File(
       [data],
       file.name.replace(/\.[^/.]+$/, '') + '_converted.mp3',
@@ -106,10 +91,9 @@ export async function convertToLightweightMP3(
 }
 
 /**
- * Checks if a file needs conversion
- * Returns true if file is too large and would benefit from conversion
+ * Checks if a file needs conversion due to size.
  */
-export function shouldConvertFile(file: File): boolean {
+export function shouldConvertForSize(file: File): boolean {
   const MAX_SIZE_WITHOUT_CONVERSION = 4 * 1024 * 1024; // 4MB
   return file.size > MAX_SIZE_WITHOUT_CONVERSION;
 }
@@ -117,9 +101,9 @@ export function shouldConvertFile(file: File): boolean {
 /**
  * Gets file extension from filename
  */
-function getFileExtension(filename: string): string {
+function getFileExtension(filename: string): string | null {
   const parts = filename.split('.');
-  return parts.length > 1 ? parts[parts.length - 1] : 'mp3';
+  return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : null;
 }
 
 /**

@@ -15,7 +15,9 @@ export const SUPPORTED_AUDIO_FORMATS: SupportedAudioFormat[] = [
   'mpga',
   'm4a',
   'wav',
-  'webm'
+  'webm',
+  'ogg',
+  'flac'
 ];
 
 // MIME types mapping
@@ -28,6 +30,8 @@ export const AUDIO_MIME_TYPES: Record<string, SupportedAudioFormat> = {
   'audio/wav': 'wav',
   'audio/wave': 'wav',
   'audio/webm': 'webm',
+  'audio/ogg': 'ogg',
+  'audio/flac': 'flac',
   'video/mp4': 'mp4', // MP4 can contain audio
   'video/webm': 'webm', // WebM can contain audio
 };
@@ -84,6 +88,25 @@ export function validateAudioFile(file: File): AudioValidationResult {
     isValid: true,
     warnings: warnings.length > 0 ? warnings : undefined
   };
+}
+
+/**
+ * Checks if an audio file requires conversion due to its format.
+ * Conversion is required if the format is not one of the directly supported ones.
+ * This is a placeholder for a more robust check, as currently all supported formats are listed.
+ * We might add formats here that we can convert FROM but are not directly supported by the API.
+ * For now, we assume any validly recognized format is supported.
+ * The primary trigger for conversion will be file size.
+ * @param file The file to check.
+ * @returns boolean indicating if conversion is required.
+ */
+export function isConversionRequired(file: File): boolean {
+  const extension = getFileExtension(file.name);
+  if (!extension) return true; // Convert if no extension
+
+  // If the extension is not in our list of supported formats, it needs conversion.
+  // This helps catch formats that are valid audio but not on our list.
+  return !SUPPORTED_AUDIO_FORMATS.includes(extension as SupportedAudioFormat);
 }
 
 /**

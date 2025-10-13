@@ -21,7 +21,9 @@ import {
 import {
   convertToLightweightMP3,
   shouldConvertFile,
-  getConversionMessage
+  getConversionMessage,
+  convertAudio,
+  shouldConvertForSize,
 } from '../../utils/audioConverter';
 import { analyzeAudioConversation } from '../../services/conversationService';
 import { Card, Button } from '../Base';
@@ -120,15 +122,22 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
       // Prepare the file for processing
       let fileToProcess = audioFile;
 
-      // Check if file needs conversion (>4MB)
-      if (shouldConvertFile(audioFile.file)) {
+      // Check if file needs conversion (>4MB or unsupported format)
+      const needsConversion =
+        shouldConvertForSize(audioFile.file) || shouldConvertFile(audioFile.file);
+
+      if (needsConversion) {
         setProcessingStatus('converting');
         setStatusMessage('מכין את הקובץ להמרה...');
 
-        console.log(`File size: ${(audioFile.fileSize / (1024 * 1024)).toFixed(2)}MB - Converting to lightweight MP3...`);
+        console.log(
+          `File size: ${(audioFile.fileSize / (1024 * 1024)).toFixed(
+            2
+          )}MB - Converting to lightweight MP3...`
+        );
 
         // Convert file to lightweight MP3
-        const convertedFile = await convertToLightweightMP3(
+        const convertedFile = await convertAudio(
           audioFile.file,
           (conversionProgress) => {
             setProgress(conversionProgress / 3); // 0-33% for conversion
@@ -162,16 +171,16 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
           if (stage === 'transcribing') {
             setProcessingStatus('transcribing');
             // If we converted: 33-66%, if not: 0-50%
-            const baseProgress = shouldConvertFile(audioFile.file) ? 33 : 0;
-            const progressRange = shouldConvertFile(audioFile.file) ? 33 : 50;
-            setProgress(baseProgress + (stageProgress * progressRange / 100));
+            const baseProgress = needsConversion ? 33 : 0;
+            const progressRange = needsConversion ? 33 : 50;
+            setProgress(baseProgress + (stageProgress * progressRange) / 100);
             setStatusMessage('מתמלל את הקובץ...');
           } else if (stage === 'analyzing') {
             setProcessingStatus('analyzing');
             // If we converted: 66-100%, if not: 50-100%
-            const baseProgress = shouldConvertFile(audioFile.file) ? 66 : 50;
-            const progressRange = shouldConvertFile(audioFile.file) ? 34 : 50;
-            setProgress(baseProgress + (stageProgress * progressRange / 100));
+            const baseProgress = needsConversion ? 66 : 50;
+            const progressRange = needsConversion ? 34 : 50;
+            setProgress(baseProgress + (stageProgress * progressRange) / 100);
             setStatusMessage('מנתח את השיחה...');
           }
         }
@@ -284,7 +293,7 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
                 גרור קובץ אודיו לכאן או לחץ לבחירה
               </p>
               <p className="text-sm text-gray-500 mb-4">
-                פורמטים נתמכים: MP3, MP4, WAV, WebM, M4A (עד 25MB)
+                פורמטים נתמכים: MP3, MP4, WAV, WebM, M4A, OGG, FLAC (עד 25MB)
               </p>
               <input
                 type="file"
