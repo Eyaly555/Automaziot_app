@@ -25,6 +25,7 @@ import {
   getConversionMessage,
 } from '../../utils/audioConverter';
 import { analyzeAudioConversation } from '../../services/conversationService';
+import { createZohoNote } from '../../services/zohoAPI';
 import { Card, Button } from '../Base';
 
 interface ConversationAnalyzerProps {
@@ -205,22 +206,62 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
   }, [audioFile, currentMeeting]);
 
   // Save the extracted fields
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     if (!analysisResult || !currentMeeting) return;
 
     try {
       setProcessingStatus('saving');
       setStatusMessage('שומר נתונים...');
 
-      // Merge extracted fields into current modules
+      // Step 1: Merge extracted fields into current modules
       const { updatedModules } = mergeExtractedFields(
         currentMeeting.modules,
         analysisResult.analysis.extractedFields
       );
 
-      // Update each modified module
+      // Step 2: Update each modified module
       for (const [moduleName, moduleData] of Object.entries(updatedModules)) {
         updateModule(moduleName as any, moduleData);
+      }
+
+      // Step 3: Save summary as Zoho Note (if Zoho integration is enabled)
+      if (currentMeeting.zohoIntegration?.recordId) {
+        try {
+          setStatusMessage('שומר סיכום ב-Zoho CRM...');
+          
+          // Format the note content (Option 3: Full transcript + summary)
+          const noteTitle = `תמלול וסיכום שיחת גילוי - ${new Date().toLocaleDateString('he-IL', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          })}`;
+          
+          const noteContent = [
+            '=== סיכום השיחה ===',
+            analysisResult.analysis.summary,
+            '',
+            '=== תמלול מלא ===',
+            analysisResult.transcription.text,
+            '',
+            `--- נוצר אוטומטית על ידי Discovery Assistant | ${new Date().toLocaleString('he-IL')}`
+          ].join('\n');
+
+          await createZohoNote(
+            currentMeeting.zohoIntegration.recordId,
+            noteTitle,
+            noteContent,
+            currentMeeting.zohoIntegration.module || 'Potentials1'
+          );
+
+          console.log('[ConversationAnalyzer] ✓ Zoho note created successfully');
+        } catch (noteError) {
+          // Don't fail the entire save if note creation fails
+          console.error('[ConversationAnalyzer] ⚠️ Failed to create Zoho note:', noteError);
+          // Note creation failure is not critical - data is still saved locally
+          // User will see the success message for data save
+        }
       }
 
       setProcessingStatus('complete');

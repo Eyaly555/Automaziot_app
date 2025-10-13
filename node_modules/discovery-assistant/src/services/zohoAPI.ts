@@ -234,3 +234,56 @@ export async function searchZohoPotentials(query: string): Promise<any> {
     throw error;
   }
 }
+
+/**
+ * NEW: Create a note in Zoho CRM
+ * Attaches a note to a specific record (e.g., Potential, Contact, Lead)
+ * 
+ * @param recordId - The parent record ID to attach the note to
+ * @param title - Note title
+ * @param content - Note content (supports plain text and HTML)
+ * @param module - The module name (default: 'Potentials1')
+ * @returns Promise with note creation result
+ * 
+ * @example
+ * ```typescript
+ * await createZohoNote(
+ *   '4876876000000623001',
+ *   'סיכום שיחת גילוי',
+ *   'תוכן הסיכום...',
+ *   'Potentials1'
+ * );
+ * ```
+ */
+export async function createZohoNote(
+  recordId: string,
+  title: string,
+  content: string,
+  module: string = 'Potentials1'
+): Promise<any> {
+  try {
+    const response = await fetch(`${API_BASE}/notes/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        recordId,
+        title,
+        content,
+        module
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Failed to create note: ${response.statusText}`);
+    }
+    
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Failed to create Zoho note:', error);
+    throw error;
+  }
+}
