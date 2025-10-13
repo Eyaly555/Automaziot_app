@@ -7,6 +7,9 @@ import {
   exportImplementationSpecPDF,
   exportDevelopmentPDF
 } from '../../utils/exportTechnicalSpec';
+import { SendNoteButton } from '../Common/SendNoteButton';
+import { ZohoNoteComposer } from '../Common/ZohoNoteComposer';
+import { useZohoNote } from '../../hooks/useZohoNote';
 
 /**
  * Quick Actions Component
@@ -18,6 +21,16 @@ export const QuickActions: React.FC = () => {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'synced'>('idle');
   const [exportStatus, setExportStatus] = useState<'idle' | 'exporting'>('idle');
+
+  // Zoho Note functionality
+  const { 
+    isOpen: isNoteComposerOpen, 
+    suggestedTitle, 
+    suggestedContent, 
+    openComposer, 
+    closeComposer,
+    handleSuccess 
+  } = useZohoNote('dashboard');
 
   const isEnglish = currentMeeting?.phase === 'development';
 
@@ -131,7 +144,28 @@ export const QuickActions: React.FC = () => {
         >
           {isEnglish ? 'Export' : 'ייצא'}
         </Button>
+
+        {/* Vertical divider */}
+        <div className="h-6 w-px bg-gray-300" />
+
+        {/* Send Note Button */}
+        <SendNoteButton
+          onClick={openComposer}
+          variant="ghost"
+          size="sm"
+          showIcon={true}
+          label={isEnglish ? 'Send Note' : 'שלח Note'}
+        />
       </div>
+
+      {/* Zoho Note Composer Modal */}
+      <ZohoNoteComposer
+        isOpen={isNoteComposerOpen}
+        onClose={closeComposer}
+        suggestedTitle={suggestedTitle}
+        suggestedContent={suggestedContent}
+        onSuccess={handleSuccess}
+      />
     </div>
   );
 };
