@@ -36,6 +36,11 @@ export async function transcribeAudio(
   });
 
   if (!response.ok) {
+    // Special handling for 413 (Content Too Large)
+    if (response.status === 413) {
+      throw new Error('הקובץ גדול מדי לעיבוד בשרת. אנא השתמש בקובץ קטן מ-4MB או דחוס את הקובץ לפורמט MP3 באיכות נמוכה יותר.');
+    }
+
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.error || `Transcription failed: ${response.statusText}`);
   }

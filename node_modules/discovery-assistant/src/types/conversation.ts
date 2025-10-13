@@ -119,6 +119,7 @@ export interface MergeSummary {
  */
 export type ProcessingStatus =
   | 'idle'
+  | 'converting'
   | 'uploading'
   | 'transcribing'
   | 'analyzing'

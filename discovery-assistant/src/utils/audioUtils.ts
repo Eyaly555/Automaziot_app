@@ -68,10 +68,16 @@ export function validateAudioFile(file: File): AudioValidationResult {
     warnings.push(`סוג MIME ${file.type} לא מוכר, אך הסיומת ${extension} נתמכת`);
   }
 
+  // Info: File will be automatically converted if needed (>4MB)
+  if (file.size > 4 * 1024 * 1024 && file.size <= 20 * 1024 * 1024) {
+    const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+    warnings.push(`ℹ️ הקובץ גדול (${sizeMB}MB) - המערכת תמיר אותו אוטומטית לפורמט קל לפני העלאה (זמן המרה משוער: ~30-60 שניות).`);
+  }
+
   // Warn if file is very large (>20MB)
   if (file.size > 20 * 1024 * 1024) {
     const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-    warnings.push(`הקובץ גדול (${sizeMB}MB) - התמלול עשוי לקחת זמן רב`);
+    warnings.push(`⚠️ הקובץ גדול מאוד (${sizeMB}MB) - ההמרה והתמלול עשויים לקחת מספר דקות.`);
   }
 
   return {

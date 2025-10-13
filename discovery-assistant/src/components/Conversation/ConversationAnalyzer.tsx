@@ -18,6 +18,11 @@ import {
   getMergeDescription,
   formatMergeResults
 } from '../../utils/fieldMergeUtils';
+import {
+  convertToLightweightMP3,
+  shouldConvertFile,
+  getConversionMessage
+} from '../../utils/audioConverter';
 import { analyzeAudioConversation } from '../../services/conversationService';
 import { Card, Button } from '../Base';
 
@@ -53,9 +58,20 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
       return;
     }
 
-    // Show warnings if any
+    // Show warnings if any (combine them into error for user to see)
     if (validation.warnings && validation.warnings.length > 0) {
       console.warn('Audio file warnings:', validation.warnings);
+      // Show warning as informational error
+      const warningMessage = validation.warnings.join('\n');
+      setError(warningMessage);
+
+      // Still allow file to be selected
+      const audio = createAudioFile(file);
+      setAudioFile(audio);
+      setProcessingStatus('idle');
+      setAnalysisResult(null);
+      setMergeSummary(null);
+      return;
     }
 
     // Create audio file object
@@ -99,22 +115,63 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
 
     try {
       setError(null);
-      setProcessingStatus('transcribing');
       setProgress(0);
+
+      // Prepare the file for processing
+      let fileToProcess = audioFile;
+
+      // Check if file needs conversion (>4MB)
+      if (shouldConvertFile(audioFile.file)) {
+        setProcessingStatus('converting');
+        setStatusMessage('מכין את הקובץ להמרה...');
+
+        console.log(`File size: ${(audioFile.fileSize / (1024 * 1024)).toFixed(2)}MB - Converting to lightweight MP3...`);
+
+        // Convert file to lightweight MP3
+        const convertedFile = await convertToLightweightMP3(
+          audioFile.file,
+          (conversionProgress) => {
+            setProgress(conversionProgress / 3); // 0-33% for conversion
+            setStatusMessage(getConversionMessage(conversionProgress));
+          }
+        );
+
+        console.log(`Converted size: ${(convertedFile.size / (1024 * 1024)).toFixed(2)}MB`);
+
+        // Update the audio file with converted version
+        fileToProcess = {
+          ...audioFile,
+          file: convertedFile,
+          fileName: convertedFile.name,
+          fileSize: convertedFile.size,
+          mimeType: convertedFile.type
+        };
+
+        setProgress(33);
+        setStatusMessage('המרה הושלמה בהצלחה');
+      }
+
+      // Transcribe and analyze
+      setProcessingStatus('transcribing');
       setStatusMessage('מתמלל את הקובץ...');
 
-      // Analyze the audio
       const result = await analyzeAudioConversation(
-        audioFile,
+        fileToProcess,
         { language: 'he' }, // Default to Hebrew
         (stage, stageProgress) => {
           if (stage === 'transcribing') {
             setProcessingStatus('transcribing');
-            setProgress(stageProgress / 2); // First 50%
+            // If we converted: 33-66%, if not: 0-50%
+            const baseProgress = shouldConvertFile(audioFile.file) ? 33 : 0;
+            const progressRange = shouldConvertFile(audioFile.file) ? 33 : 50;
+            setProgress(baseProgress + (stageProgress * progressRange / 100));
             setStatusMessage('מתמלל את הקובץ...');
           } else if (stage === 'analyzing') {
             setProcessingStatus('analyzing');
-            setProgress(50 + (stageProgress / 2)); // Next 50%
+            // If we converted: 66-100%, if not: 50-100%
+            const baseProgress = shouldConvertFile(audioFile.file) ? 66 : 50;
+            const progressRange = shouldConvertFile(audioFile.file) ? 34 : 50;
+            setProgress(baseProgress + (stageProgress * progressRange / 100));
             setStatusMessage('מנתח את השיחה...');
           }
         }
@@ -236,11 +293,11 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
                 className="hidden"
                 id="audio-file-input"
               />
-              <label htmlFor="audio-file-input">
-                <Button variant="primary" size="md" as="span">
-                  <Upload className="w-4 h-4 ml-2" />
+              <label htmlFor="audio-file-input" className="inline-block cursor-pointer">
+                <span className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm">
+                  <Upload className="w-4 h-4" />
                   בחר קובץ
-                </Button>
+                </span>
               </label>
             </div>
           )}
@@ -273,7 +330,7 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
           )}
 
           {/* Processing Status */}
-          {(processingStatus === 'transcribing' || processingStatus === 'analyzing') && (
+          {(processingStatus === 'converting' || processingStatus === 'transcribing' || processingStatus === 'analyzing') && (
             <Card title="מעבד...">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
@@ -286,6 +343,11 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
                     style={{ width: `${progress}%` }}
                   />
                 </div>
+                <p className="text-xs text-gray-500 text-center">
+                  {processingStatus === 'converting' && 'ממיר את הקובץ לפורמט קל...'}
+                  {processingStatus === 'transcribing' && 'מתמלל את הקובץ...'}
+                  {processingStatus === 'analyzing' && 'מנתח את השיחה...'}
+                </p>
               </div>
             </Card>
           )}
