@@ -25,7 +25,6 @@ export const AUDIO_MIME_TYPES: Record<string, SupportedAudioFormat> = {
   'audio/mpeg': 'mp3',
   'audio/mp3': 'mp3',
   'audio/mp4': 'mp4',
-  'audio/mpeg': 'mpeg',
   'audio/x-m4a': 'm4a',
   'audio/wav': 'wav',
   'audio/wave': 'wav',
