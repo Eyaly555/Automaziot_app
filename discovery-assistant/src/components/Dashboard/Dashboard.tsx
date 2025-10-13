@@ -20,7 +20,8 @@ import {
   Lock,
   Info,
   RotateCcw,
-  Database
+  Database,
+  Mic
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { formatTime, formatCurrency, formatDate } from '../../utils/formatters';
@@ -35,6 +36,7 @@ import { ClientProgressSummary } from './ClientProgressSummary';
 import { calculateClientProgressSummary } from '../../utils/dashboardHelpers';
 import { ResetMeetingModal } from '../Common/Modals/ResetMeetingModal';
 import { RestoreBackupMenu } from '../Common/Modals/RestoreBackupMenu';
+import { ConversationAnalyzer } from '../Conversation/ConversationAnalyzer';
 
 interface ModuleConfig {
   id: string;
@@ -78,6 +80,7 @@ export const Dashboard: React.FC = () => {
   const [showConfetti, setShowConfetti] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
   const [showRestoreBackupMenu, setShowRestoreBackupMenu] = useState(false);
+  const [showConversationAnalyzer, setShowConversationAnalyzer] = useState(false);
 
   const moduleProgress = getModuleProgress();
   const overallProgress = getOverallProgress();
@@ -262,6 +265,17 @@ export const Dashboard: React.FC = () => {
             <div className="flex items-center gap-3">
               {currentMeeting && (
                 <>
+                  {/* Conversation Analyzer Button */}
+                  <Button
+                    onClick={() => setShowConversationAnalyzer(true)}
+                    variant="ghost"
+                    icon={<Mic className="w-4 h-4" />}
+                    className="bg-green-100 hover:bg-green-200 text-green-700"
+                    title="ניתוח שיחה מוקלטת"
+                  >
+                    ניתוח שיחה
+                  </Button>
+
                   {/* Summary Button */}
                   <Button
                     onClick={() => navigate('/summary')}
@@ -773,6 +787,17 @@ export const Dashboard: React.FC = () => {
           // Optionally refresh or update state
         }}
       />
+
+      {/* Conversation Analyzer Modal */}
+      {showConversationAnalyzer && (
+        <ConversationAnalyzer
+          onClose={() => setShowConversationAnalyzer(false)}
+          onComplete={() => {
+            setShowConversationAnalyzer(false);
+            // Optionally show success message or refresh
+          }}
+        />
+      )}
     </div>
   );
 };
