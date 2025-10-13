@@ -234,7 +234,7 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
         try {
           setStatusMessage('שומר סיכום ב-Zoho CRM...');
           
-          // Format the note content (Option 3: Full transcript + summary)
+          // Format the note content - include ALL information shown to user
           const noteTitle = `תמלול וסיכום שיחת גילוי - ${new Date().toLocaleDateString('he-IL', {
             day: '2-digit',
             month: '2-digit',
@@ -243,15 +243,59 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
             minute: '2-digit'
           })}`;
           
-          const noteContent = [
+          // Build comprehensive note content
+          const contentParts = [
             '=== סיכום השיחה ===',
             analysisResult.analysis.summary,
-            '',
-            '=== תמלול מלא ===',
-            analysisResult.transcription.text,
-            '',
-            `--- נוצר אוטומטית על ידי Discovery Assistant | ${new Date().toLocaleString('he-IL')}`
-          ].join('\n');
+            ''
+          ];
+
+          // Add confidence level
+          const confidenceText = analysisResult.analysis.confidence === 'high' 
+            ? 'גבוהה' 
+            : analysisResult.analysis.confidence === 'medium' 
+            ? 'בינונית' 
+            : 'נמוכה';
+          contentParts.push(`רמת ביטחון: ${confidenceText}`);
+          contentParts.push('');
+
+          // Add fields filled summary if available
+          if (mergeSummary && mergeSummary.totalFieldsFilled > 0) {
+            contentParts.push('=== שדות שהתמלאו ===');
+            contentParts.push(`סה"כ שדות שהתמלאו: ${mergeSummary.totalFieldsFilled}`);
+            
+            // Add details per module
+            mergeSummary.moduleResults.forEach(result => {
+              if (result.fieldsFilled.length > 0) {
+                const moduleNameHebrew = 
+                  result.moduleName === 'overview' ? 'סקירה כללית' :
+                  result.moduleName === 'leadsAndSales' ? 'לידים ומכירות' :
+                  result.moduleName === 'customerService' ? 'שירות לקוחות' :
+                  result.moduleName === 'aiAgents' ? 'סוכני AI' :
+                  result.moduleName === 'roi' ? 'ROI' : result.moduleName;
+                
+                contentParts.push(`  • ${moduleNameHebrew}: ${result.fieldsFilled.length} שדות`);
+              }
+            });
+            contentParts.push('');
+          }
+
+          // Add next steps if available
+          if (analysisResult.analysis.nextSteps && analysisResult.analysis.nextSteps.length > 0) {
+            contentParts.push('=== צעדים הבאים מומלצים ===');
+            analysisResult.analysis.nextSteps.forEach((step, index) => {
+              contentParts.push(`${index + 1}. ${step}`);
+            });
+            contentParts.push('');
+          }
+
+          // Add full transcript
+          contentParts.push('=== תמלול מלא ===');
+          contentParts.push(analysisResult.transcription.text);
+          contentParts.push('');
+          contentParts.push(`--- נוצר אוטומטית על ידי Discovery Assistant | ${new Date().toLocaleString('he-IL')}`);
+
+          const noteContent = contentParts.join('\n');
 
           await createZohoNote(
             currentMeeting.zohoIntegration.recordId,
