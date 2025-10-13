@@ -37,6 +37,7 @@ import { calculateClientProgressSummary } from '../../utils/dashboardHelpers';
 import { ResetMeetingModal } from '../Common/Modals/ResetMeetingModal';
 import { RestoreBackupMenu } from '../Common/Modals/RestoreBackupMenu';
 import { ConversationAnalyzer } from '../Conversation/ConversationAnalyzer';
+import { ConversationSummaryViewer } from '../Conversation/ConversationSummaryViewer';
 
 interface ModuleConfig {
   id: string;
@@ -81,6 +82,7 @@ export const Dashboard: React.FC = () => {
   const [showResetModal, setShowResetModal] = useState(false);
   const [showRestoreBackupMenu, setShowRestoreBackupMenu] = useState(false);
   const [showConversationAnalyzer, setShowConversationAnalyzer] = useState(false);
+  const [showConversationSummary, setShowConversationSummary] = useState(false);
 
   const moduleProgress = getModuleProgress();
   const overallProgress = getOverallProgress();
@@ -275,6 +277,19 @@ export const Dashboard: React.FC = () => {
                   >
                     ניתוח שיחה
                   </Button>
+
+                  {/* View Conversation Summary Button - Show only if analysis exists */}
+                  {currentMeeting.conversationAnalysis && (
+                    <Button
+                      onClick={() => setShowConversationSummary(true)}
+                      variant="ghost"
+                      icon={<ClipboardList className="w-4 h-4" />}
+                      className="bg-blue-100 hover:bg-blue-200 text-blue-700"
+                      title="צפייה בסיכום ניתוח שיחה"
+                    >
+                      צפה בסיכום
+                    </Button>
+                  )}
 
                   {/* Summary Button */}
                   <Button
@@ -796,6 +811,14 @@ export const Dashboard: React.FC = () => {
             setShowConversationAnalyzer(false);
             // Optionally show success message or refresh
           }}
+        />
+      )}
+
+      {/* Conversation Summary Viewer Modal */}
+      {showConversationSummary && currentMeeting?.conversationAnalysis && (
+        <ConversationSummaryViewer
+          analysis={currentMeeting.conversationAnalysis}
+          onClose={() => setShowConversationSummary(false)}
         />
       )}
     </div>

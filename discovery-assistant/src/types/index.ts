@@ -32,6 +32,9 @@ export * from './serviceRequirements';
 // Re-export backup types
 export * from './backup';
 
+// Re-export conversation types
+export * from './conversation';
+
 // ============================================================================
 // PHASE 2 SERVICE TYPES (Services 1-59)
 // ============================================================================
@@ -157,6 +160,9 @@ export interface Meeting {
   discoveryData?: any; // Phase 1 data is the 'modules' field above
   implementationSpec?: ImplementationSpecData; // Defined in phase2.ts
   developmentTracking?: DevelopmentTrackingData; // Defined in phase3.ts
+
+  // NEW: Conversation analysis results (from audio transcription)
+  conversationAnalysis?: ConversationAnalysisResult; // Defined in conversation.ts
 
   // Database sync metadata
   supabaseId?: string; // Supabase record ID

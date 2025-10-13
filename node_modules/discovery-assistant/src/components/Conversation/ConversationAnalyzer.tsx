@@ -213,18 +213,23 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
       setProcessingStatus('saving');
       setStatusMessage('שומר נתונים...');
 
-      // Step 1: Merge extracted fields into current modules
+      // Step 1: Save the complete analysis result to the meeting
+      useMeetingStore.getState().updateMeeting({
+        conversationAnalysis: analysisResult
+      });
+
+      // Step 2: Merge extracted fields into current modules
       const { updatedModules } = mergeExtractedFields(
         currentMeeting.modules,
         analysisResult.analysis.extractedFields
       );
 
-      // Step 2: Update each modified module
+      // Step 3: Update each modified module
       for (const [moduleName, moduleData] of Object.entries(updatedModules)) {
         updateModule(moduleName as any, moduleData);
       }
 
-      // Step 3: Save summary as Zoho Note (if Zoho integration is enabled)
+      // Step 4: Save summary as Zoho Note (if Zoho integration is enabled)
       if (currentMeeting.zohoIntegration?.recordId) {
         try {
           setStatusMessage('שומר סיכום ב-Zoho CRM...');
