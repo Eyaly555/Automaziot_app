@@ -14,8 +14,9 @@ async function getFFmpeg(): Promise<FFmpeg> {
   }
 
   if (!isFFmpegLoaded) {
-    // Load FFmpeg with progress tracking
-    const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+    // Load FFmpeg from local files (not CDN)
+    // Files are in public/ffmpeg-core/ directory
+    const baseURL = '/ffmpeg-core';
 
     await ffmpegInstance.load({
       coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
