@@ -121,7 +121,7 @@ export const ZohoNoteComposer: React.FC<ZohoNoteComposerProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto"
       dir={isEnglish ? 'ltr' : 'rtl'}
       onClick={(e) => {
         if (e.target === e.currentTarget && status !== 'sending') {
@@ -129,7 +129,8 @@ export const ZohoNoteComposer: React.FC<ZohoNoteComposerProps> = ({
         }
       }}
     >
-      <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-blue-50 to-purple-50">
           <div className="flex items-center gap-3">
@@ -156,7 +157,7 @@ export const ZohoNoteComposer: React.FC<ZohoNoteComposerProps> = ({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div className="flex-1 overflow-y-auto p-6 space-y-4" style={{ maxHeight: 'calc(85vh - 200px)' }}>
           {/* Error Message */}
           {status === 'error' && errorMessage && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
@@ -205,7 +206,7 @@ export const ZohoNoteComposer: React.FC<ZohoNoteComposerProps> = ({
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder={isEnglish ? 'Note content...' : 'תוכן ההערה...'}
-              rows={12}
+              rows={10}
               disabled={status === 'sending' || status === 'success'}
               className="w-full font-mono text-sm"
             />
@@ -248,6 +249,7 @@ export const ZohoNoteComposer: React.FC<ZohoNoteComposerProps> = ({
               ? (isEnglish ? 'Sent!' : 'נשלח!')
               : (isEnglish ? 'Send to Zoho' : 'שלח ל-Zoho')}
           </Button>
+        </div>
         </div>
       </div>
     </div>
