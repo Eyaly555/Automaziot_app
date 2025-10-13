@@ -1,36 +1,31 @@
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 
-// Singleton instance of FFmpeg
-let ffmpegInstance: FFmpeg | null = null;
-let isFFmpegLoaded = false;
+// Singleton instance of FFmpeg, managed via a promise to prevent race conditions
+let ffmpegLoadPromise: Promise<FFmpeg> | null = null;
 
 /**
- * Gets or creates the FFmpeg instance
+ * Gets or creates the FFmpeg instance in a race-condition-safe way.
  */
 async function getFFmpeg(): Promise<FFmpeg> {
-  if (!ffmpegInstance) {
-    ffmpegInstance = new FFmpeg();
+  if (!ffmpegLoadPromise) {
+    ffmpegLoadPromise = new Promise(async (resolve, reject) => {
+      const ffmpeg = new FFmpeg();
+      try {
+        const baseURL = '/ffmpeg-core';
+        await ffmpeg.load({
+          coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+          wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+        });
+        resolve(ffmpeg);
+      } catch (error) {
+        console.error("Failed to load FFmpeg:", error);
+        ffmpegLoadPromise = null; // Reset for a potential retry
+        reject(new Error("Failed to initialize audio converter."));
+      }
+    });
   }
-
-  if (!isFFmpegLoaded) {
-    try {
-      const baseURL = '/ffmpeg-core';
-      await ffmpegInstance.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-      });
-      isFFmpegLoaded = true;
-    } catch (error) {
-      console.error("Failed to load FFmpeg:", error);
-      // Reset for next attempt
-      ffmpegInstance = null;
-      isFFmpegLoaded = false;
-      throw new Error("Failed to initialize audio converter.");
-    }
-  }
-
-  return ffmpegInstance;
+  return ffmpegLoadPromise;
 }
 
 /**

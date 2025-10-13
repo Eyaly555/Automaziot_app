@@ -18,10 +18,12 @@
     "test:api": "node test-api-compatibility.mjs",
     "validate:api": "node validate-api-structure.mjs",
     "validate:prefill": "node scripts/validate-prefill.js",
-    "validate:prefill:fix": "node scripts/validate-prefill.js --fix"
+    "validate:prefill:fix": "node scripts/validate-prefill.js --fix",
+    "postinstall": "node ./scripts/copy-ffmpeg-assets.cjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
+    "@ffmpeg/core": "^0.12.10",
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
     "@heroicons/react": "^2.2.0",
