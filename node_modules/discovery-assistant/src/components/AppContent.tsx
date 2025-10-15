@@ -103,7 +103,8 @@ export const AppContent = () => {
   const showPhaseNavigator = currentMeeting &&
     !location.pathname.includes('/login') &&
     !location.pathname.includes('/clients') &&
-    !location.pathname.includes('/mobile/');
+    !location.pathname.includes('/mobile/') &&
+    !isMobile;
 
   // Determine language for phase navigator (English for Phase 3, Hebrew otherwise)
   const phaseNavigatorLanguage = currentMeeting?.phase === 'development' ? 'en' : 'he';

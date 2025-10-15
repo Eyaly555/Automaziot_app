@@ -48,6 +48,42 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
     4: 'grid-cols-4'
   }[columns];
 
+  // Check if we're in mobile context by looking for mobile classes or mobile route
+  const isMobile = className.includes('mobile-') || window.location.pathname.includes('/mobile/');
+  
+  if (isMobile) {
+    return (
+      <div className={`mobile-checkbox-group ${className}`} dir="rtl">
+        {label && (
+          <label className="mobile-question">
+            {label}
+          </label>
+        )}
+        <div className={`grid ${gridCols} gap-3`}>
+          {options.map(option => (
+            <label
+              key={option.value}
+              className={`mobile-checkbox-option ${selectedValues.includes(option.value) ? 'selected' : ''}
+                ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <input
+                type="checkbox"
+                checked={selectedValues.includes(option.value)}
+                onChange={() => !disabled && handleToggle(option.value)}
+                disabled={disabled}
+                className="mobile-checkbox-option input"
+              />
+              <span className="mobile-checkbox-option label">{option.label}</span>
+            </label>
+          ))}
+        </div>
+        {helperText && (
+          <p className="mobile-helper-text">{helperText}</p>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className={`space-y-2 ${className}`} dir="rtl">
       {label && (
