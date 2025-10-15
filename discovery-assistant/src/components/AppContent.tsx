@@ -36,6 +36,7 @@ import { PhaseNavigator } from './PhaseWorkflow/PhaseNavigator';
 import { RequirementsFlow } from './PhaseWorkflow/RequirementsFlow';
 import { ClientApprovalView } from './PhaseWorkflow/ClientApprovalView';
 import { ServiceRequirementsRouter } from './Phase2/ServiceRequirementsRouter';
+import { MobileQuickForm } from './Mobile/MobileQuickForm';
 import { useAccessibility, useSkipToContent } from '../hooks/useAccessibility';
 import { usePhaseGuard } from '../hooks/usePhaseGuard';
 import { useMeetingStore } from '../store/useMeetingStore';
@@ -126,6 +127,9 @@ export const AppContent = () => {
         <Route path="/module/roi" element={<ROIModule />} />
         <Route path="/module/proposal" element={<ProposalModule />} />
         <Route path="/module/planning" element={<ProposalModule />} /> {/* Keep for backward compatibility */}
+
+        {/* Mobile Quick Form - גרסת מובייל מיני */}
+        <Route path="/mobile/quick" element={<MobileQuickForm />} />
 
         {/* Requirements Flow - Protected: Discovery phase, complete status */}
         <Route

@@ -5,8 +5,7 @@ import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import type { AIBrandedRequirements } from '../../../../types/aiAgentServices';
 import { Card } from '../../../Common/Card';
-import { Save, Bot, MessageSquare } from 'lucide-react';
-import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
+import { Save, Bot, MessageSquare, CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 const AI_MODELS = [
   { value: 'gpt-4o', label: 'GPT-4o' },

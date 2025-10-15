@@ -5,8 +5,7 @@ import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import type { AutoSmsWhatsappRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
-import { Plus, Trash2, Save, AlertCircle } from 'lucide-react';
-import { CheckCircle, Info as InfoIcon } from 'lucide-react';
+import { Plus, Trash2, Save, AlertCircle, CheckCircle, Info as InfoIcon } from 'lucide-react';
 
 export function AutoSmsWhatsappSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();

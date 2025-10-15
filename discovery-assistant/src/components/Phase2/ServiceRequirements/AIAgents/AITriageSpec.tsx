@@ -27,7 +27,6 @@ import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
 import { useSmartField } from '../../../../hooks/useSmartField';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
-import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 

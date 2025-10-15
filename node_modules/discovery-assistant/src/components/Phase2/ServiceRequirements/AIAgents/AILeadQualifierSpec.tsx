@@ -12,7 +12,8 @@ import {
   Settings,
   Award,
   Plus,
-  Trash2
+  Trash2,
+  CheckCircle
 } from 'lucide-react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import type { AILeadQualifierRequirements, AIProvider, CRMSystem } from '../../../../types/aiAgentServices';
@@ -21,7 +22,6 @@ import { Button, Input, Select } from '../../../Base';
 import { useSmartField } from '../../../../hooks/useSmartField';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
-import { CheckCircle, AlertCircle, Info as InfoIcon } from 'lucide-react';
 
 const AI_PROVIDERS = [
   { value: 'openai', label: 'OpenAI' },

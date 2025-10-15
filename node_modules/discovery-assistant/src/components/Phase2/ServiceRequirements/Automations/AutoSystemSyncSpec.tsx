@@ -5,8 +5,7 @@ import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import type { AutoSystemSyncRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
-import { Plus, Trash2, Save } from 'lucide-react';
-import { CheckCircle, AlertCircle, Info } from 'lucide-react';
+import { Plus, Trash2, Save, CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 const generateId = () => Math.random().toString(36).substring(2, 11);
 

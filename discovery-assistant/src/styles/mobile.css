@@ -1,0 +1,344 @@
+/* discovery-assistant/src/styles/mobile.css */
+
+/* ===================================
+   MOBILE QUICK FORM
+   =================================== */
+
+.mobile-quick-form {
+  padding-bottom: 100px; /* space for fixed navigation */
+}
+
+/* ===================================
+   HEADER & PROGRESS
+   =================================== */
+
+.mobile-header {
+  position: sticky;
+  top: 0;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.mobile-progress {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.mobile-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  transition: width 0.3s ease-in-out;
+}
+
+.mobile-progress-text {
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+/* ===================================
+   SECTIONS
+   =================================== */
+
+.mobile-section-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+}
+
+.mobile-section-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.mobile-section-subtitle {
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+.mobile-field-group {
+  margin-bottom: 2.5rem;
+}
+
+.mobile-question {
+  display: block;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.mobile-helper-text {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+/* ===================================
+   CARDS
+   =================================== */
+
+.mobile-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* ===================================
+   FORM INPUTS
+   =================================== */
+
+.mobile-input {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  transition: all 0.2s;
+  min-height: 48px;
+}
+
+.mobile-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.mobile-textarea {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.mobile-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ===================================
+   CHECKBOX GROUP
+   =================================== */
+
+.mobile-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.mobile-checkbox-option {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 56px;
+}
+
+.mobile-checkbox-option:active {
+  transform: scale(0.98);
+}
+
+.mobile-checkbox-option.selected {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.mobile-checkbox-option input[type="checkbox"] {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: #3b82f6;
+}
+
+.mobile-checkbox-option label {
+  flex: 1;
+  font-size: 1rem;
+  color: #111827;
+  cursor: pointer;
+}
+
+/* ===================================
+   RADIO GROUP
+   =================================== */
+
+.mobile-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.mobile-radio-option {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 56px;
+}
+
+.mobile-radio-option:active {
+  transform: scale(0.98);
+}
+
+.mobile-radio-option.selected {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.mobile-radio-option input[type="radio"] {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: #3b82f6;
+}
+
+.mobile-radio-option label {
+  flex: 1;
+  font-size: 1rem;
+  color: #111827;
+  cursor: pointer;
+}
+
+/* ===================================
+   NAVIGATION
+   =================================== */
+
+.mobile-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  z-index: 50;
+}
+
+.mobile-nav-buttons {
+  display: flex;
+  gap: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.mobile-nav-button {
+  flex: 1;
+  min-height: 56px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.mobile-nav-button:active {
+  transform: scale(0.98);
+}
+
+.mobile-nav-button-primary {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  border: none;
+}
+
+.mobile-nav-button-primary:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.mobile-nav-button-secondary {
+  background: white;
+  color: #374151;
+  border: 2px solid #e5e7eb;
+}
+
+.mobile-nav-button-secondary:hover {
+  background: #f9fafb;
+}
+
+/* ===================================
+   VALIDATION
+   =================================== */
+
+.mobile-validation-error {
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-top: 1.5rem;
+}
+
+.mobile-validation-error-text {
+  color: #92400e;
+  font-size: 0.875rem;
+}
+
+/* ===================================
+   RESPONSIVE
+   =================================== */
+
+@media (min-width: 640px) {
+  .mobile-quick-form {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .mobile-checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .mobile-card {
+    padding: 2.5rem 2rem;
+  }
+  
+  .mobile-section-icon {
+    font-size: 4rem;
+  }
+  
+  .mobile-section-title {
+    font-size: 2rem;
+  }
+}
+
+/* ===================================
+   iOS SPECIFIC FIXES
+   =================================== */
+
+/* למנוע auto-zoom על iOS */
+input,
+select,
+textarea {
+  font-size: 16px !important;
+}
+
+/* למנוע bounce scroll */
+body {
+  overscroll-behavior-y: contain;
+}
+

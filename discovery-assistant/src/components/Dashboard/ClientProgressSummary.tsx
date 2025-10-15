@@ -1,11 +1,11 @@
 import React from 'react';
 import { CheckCircle, Clock, AlertTriangle, ShoppingCart, ArrowRight } from 'lucide-react';
 import { Card } from '../Base';
-import { RemainingTask, PurchasedService, NextAction, ClientProgressSummary } from '../../utils/dashboardHelpers';
+import { RemainingTask, PurchasedService, NextAction, ClientProgressSummary as ClientProgressSummaryType } from '../../utils/dashboardHelpers';
 import { formatCurrency } from '../../utils/formatters';
 
 interface ClientProgressSummaryProps {
-  progress: ClientProgressSummary;
+  progress: ClientProgressSummaryType;
   onActionClick?: (action: NextAction) => void;
 }
 
