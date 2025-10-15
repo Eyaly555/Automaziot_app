@@ -9,7 +9,7 @@ import { zohoClientsService } from './zohoClientsService';
 class AutoSyncService {
   private syncInterval: number | null = null;
   private retryInterval: number | null = null;
-  private lastSyncTime: Date | null = null;
+  private lastSyncTime: Date | string | null = null;
   private isRunning = false;
   private syncIntervalMs = 5 * 60 * 1000; // 5 minutes
   private retryIntervalMs = 30 * 1000; // 30 seconds
@@ -137,16 +137,30 @@ class AutoSyncService {
   }
 
   /**
+   * Safely get lastSyncTime as number (handles both Date and string from localStorage)
+   */
+  private getLastSyncTimeAsNumber(): number {
+    if (!this.lastSyncTime) return 0;
+    
+    // Handle both Date objects and string dates from localStorage
+    if (typeof this.lastSyncTime === 'string') {
+      return new Date(this.lastSyncTime).getTime();
+    }
+    
+    return this.lastSyncTime.getTime();
+  }
+
+  /**
    * Get sync status
    */
   getStatus(): {
     isRunning: boolean;
-    lastSyncTime: Date | null;
+    lastSyncTime: Date | string | null;
     nextSyncIn: number | null;
     queueStatus: { pending: number; failed: number };
   } {
     const nextSyncIn = this.lastSyncTime && this.isRunning
-      ? this.syncIntervalMs - (Date.now() - this.lastSyncTime.getTime())
+      ? this.syncIntervalMs - (Date.now() - this.getLastSyncTimeAsNumber())
       : null;
 
     return {

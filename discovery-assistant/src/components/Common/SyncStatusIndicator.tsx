@@ -27,11 +27,13 @@ export const SyncStatusIndicator: React.FC = () => {
     return null;
   }
 
-  const formatRelativeTime = (date: Date | null) => {
+  const formatRelativeTime = (date: Date | string | null) => {
     if (!date) return '';
 
     const now = new Date();
-    const diff = now.getTime() - new Date(date).getTime();
+    // Handle both Date objects and string dates from localStorage
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    const diff = now.getTime() - dateObj.getTime();
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);

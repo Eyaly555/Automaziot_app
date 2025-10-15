@@ -74,7 +74,7 @@ interface MeetingStore {
 
   // Supabase sync
   isSyncing: boolean;
-  lastSyncTime: Date | null;
+  lastSyncTime: Date | string | null;
   syncError: string | null;
   syncEnabled: boolean;
 
@@ -1262,7 +1262,7 @@ export const useMeetingStore = create<MeetingStore>()(
 
           if (result.success) {
             set({
-              lastSyncTime: new Date(),
+              lastSyncTime: new Date().toISOString(),
               isSyncing: false
             });
           } else {
@@ -1297,7 +1297,7 @@ export const useMeetingStore = create<MeetingStore>()(
 
           if (result.success) {
             set({
-              lastSyncTime: new Date(),
+              lastSyncTime: new Date().toISOString(),
               isSyncing: false
             });
           } else {
@@ -1372,7 +1372,7 @@ export const useMeetingStore = create<MeetingStore>()(
 
             set({
               meetings: mergedMeetings,
-              lastSyncTime: new Date(),
+              lastSyncTime: new Date().toISOString(),
               isSyncing: false
             });
           } else {
@@ -2236,7 +2236,7 @@ export const useMeetingStore = create<MeetingStore>()(
             set({
               currentMeeting: updatedMeeting,
               isSyncing: false,
-              lastSyncTime: new Date()
+              lastSyncTime: new Date().toISOString()
             });
 
             console.log('[ZohoSync] Sync successful');

@@ -54,9 +54,11 @@ export const AutoSaveIndicator: React.FC = () => {
   }, [saveStatus]);
 
   // Format last save time
-  const formatLastSaveTime = (date: Date): string => {
+  const formatLastSaveTime = (date: Date | string): string => {
     const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    // Handle both Date objects and string dates from localStorage
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    const diffInSeconds = Math.floor((now.getTime() - dateObj.getTime()) / 1000);
 
     if (diffInSeconds < 60) {
       return isEnglish ? 'Just now' : 'כעת';

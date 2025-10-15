@@ -265,9 +265,9 @@ export class SyncService {
 
   // Detect conflicts
   private async detectConflict(local: Meeting, remote: any): Promise<boolean> {
-    // Compare timestamps
-    const localTime = new Date(local.updatedAt || 0).getTime();
-    const remoteTime = new Date(remote.updated_at).getTime();
+    // Compare timestamps - handle both Date and string types
+    const localTime = local.updatedAt ? new Date(local.updatedAt).getTime() : 0;
+    const remoteTime = remote.updated_at ? new Date(remote.updated_at).getTime() : 0;
 
     // If remote is newer and versions differ, we have a conflict
     return remoteTime > localTime && remote.version !== local.version;
