@@ -88,7 +88,7 @@ export const AppContent = () => {
   }, [currentMeeting?.zohoIntegration?.syncEnabled, currentMeeting?.meetingId]);
 
   // Mobile redirect logic
-  React.useEffect(() => {
+  useEffect(() => {
     // אם משתמש מובייל ולא נמצא כבר במובייל
     if (isMobile && 
         currentMeeting && 
