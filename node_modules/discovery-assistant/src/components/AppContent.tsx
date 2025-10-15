@@ -41,8 +41,9 @@ import { useAccessibility, useSkipToContent } from '../hooks/useAccessibility';
 import { usePhaseGuard } from '../hooks/usePhaseGuard';
 import { useMeetingStore } from '../store/useMeetingStore';
 import { autoSyncService } from '../services/autoSyncService';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { logger } from '../utils/consoleLogger';
+import { useIsMobile } from '../hooks/useMobileDetection';
 
 // Layer 6: Integration - New UX System Components
 import { AppLayout } from './Layout/AppLayout';
@@ -56,6 +57,8 @@ import { FeedbackViewer } from './Feedback/FeedbackViewer';
 export const AppContent = () => {
   const { currentMeeting } = useMeetingStore();
   const location = useLocation();
+  const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   // Enable accessibility features - now inside Router context
   useAccessibility();
@@ -84,10 +87,23 @@ export const AppContent = () => {
     };
   }, [currentMeeting?.zohoIntegration?.syncEnabled, currentMeeting?.meetingId]);
 
+  // Mobile redirect logic
+  React.useEffect(() => {
+    // אם משתמש מובייל ולא נמצא כבר במובייל
+    if (isMobile && 
+        currentMeeting && 
+        !location.pathname.includes('/mobile/') &&
+        !location.pathname.includes('/login')) {
+      logger.info('Mobile user detected, redirecting to mobile quick form');
+      navigate('/mobile/quick');
+    }
+  }, [isMobile, currentMeeting, location.pathname, navigate]);
+
   // Determine if we should show the phase navigator
   const showPhaseNavigator = currentMeeting &&
     !location.pathname.includes('/login') &&
-    !location.pathname.includes('/clients');
+    !location.pathname.includes('/clients') &&
+    !location.pathname.includes('/mobile/');
 
   // Determine language for phase navigator (English for Phase 3, Hebrew otherwise)
   const phaseNavigatorLanguage = currentMeeting?.phase === 'development' ? 'en' : 'he';

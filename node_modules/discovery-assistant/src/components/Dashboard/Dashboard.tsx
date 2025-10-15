@@ -21,12 +21,14 @@ import {
   Info,
   RotateCcw,
   Database,
-  Mic
+  Mic,
+  Smartphone
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { formatTime, formatCurrency, formatDate } from '../../utils/formatters';
 import { calculateROI } from '../../utils/roiCalculator';
 import { Button, Card, Badge, ProgressBar } from '../Base';
+import { useIsMobile } from '../../hooks/useMobileDetection';
 import { ModuleProgressCard } from '../Modules/ModuleProgressCard';
 import jsPDF from 'jspdf';
 import { getSmartRecommendations } from '../../utils/smartRecommendationsEngine';
@@ -62,6 +64,7 @@ const modules: ModuleConfig[] = [
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const {
     currentMeeting,
     meetings,
@@ -267,6 +270,18 @@ export const Dashboard: React.FC = () => {
             <div className="flex items-center gap-3">
               {currentMeeting && (
                 <>
+                  {/* Mobile Quick Form Button */}
+                  <Button
+                    onClick={() => navigate('/mobile/quick')}
+                    variant="ghost"
+                    size="sm"
+                    icon={<Smartphone className="w-4 h-4" />}
+                    className="bg-blue-100 hover:bg-blue-200 text-blue-700"
+                    title="גרסת מובייל מהירה - 15 שאלות בלבד"
+                  >
+                    גרסת מובייל
+                  </Button>
+                  
                   {/* Conversation Analyzer Button */}
                   <Button
                     onClick={() => setShowConversationAnalyzer(true)}
