@@ -12,7 +12,11 @@ async function testExternalTranscriptionWebhook() {
     כרגע אנחנו שומרים הכל באקסל וזה מבולגן. אנחנו רוצים לשפר את תהליך המכירות שלנו ולהגדיל את שיעור ההמרה.
     התקציב שלנו הוא כ-50,000 שקל לפרויקט הזה.`,
     clientId: 'test-client-123',
-    language: 'he'
+    language: 'he',
+    zohoIntegration: {
+      recordId: 'test-zoho-record-123',
+      module: 'Potentials1'
+    }
   };
 
   try {
@@ -27,15 +31,23 @@ async function testExternalTranscriptionWebhook() {
     const result = await response.json();
     
     if (response.ok) {
-      console.log('✅ Transcription analysis successful!');
+      console.log('✅ Complete automated processing successful!');
       console.log('📊 Summary:', result.summary);
       console.log('🎯 Confidence:', result.confidence);
       console.log('📋 Extracted Fields:', JSON.stringify(result.extractedFields, null, 2));
       console.log('🚀 Next Steps:', result.nextSteps);
+      console.log('🔄 Fields Processing:');
+      console.log('   - Total Fields Filled:', result.totalFieldsFilled);
+      console.log('   - Modules Affected:', result.modulesAffected);
+      console.log('📝 Zoho Note Created:', result.zohoNoteCreated ? '✅ Yes' : '❌ No');
+      if (result.zohoError) {
+        console.log('⚠️ Zoho Error:', result.zohoError);
+      }
       console.log('🔗 External Webhook Sent:', result.externalWebhookSent ? '✅ Yes' : '❌ No');
       if (result.externalWebhookError) {
         console.log('⚠️ External Webhook Error:', result.externalWebhookError);
       }
+      console.log('✨ Processing Complete:', result.processingComplete ? '✅ Yes' : '❌ No');
       
       // Return the data for the next test
       return result;

@@ -4,9 +4,9 @@ This directory contains webhook endpoints that allow external systems to send tr
 
 ## Endpoints
 
-### 1. `/api/webhook/external-transcription`
+### 1. `/api/webhook/external-transcription` ⭐ **COMPLETE AUTOMATED FLOW**
 
-**Purpose**: Analyzes external transcription using Claude AI and extracts business information.
+**Purpose**: Analyzes external transcription, automatically processes fields for the client, creates Zoho notes, and sends summary to external webhook - ALL IN ONE STEP!
 
 **Method**: POST
 
@@ -15,7 +15,11 @@ This directory contains webhook endpoints that allow external systems to send tr
 {
   "transcript": "הטקסט של התמלול...",
   "clientId": "unique-client-identifier",
-  "language": "he" // optional, defaults to Hebrew
+  "language": "he", // optional, defaults to Hebrew
+  "zohoIntegration": { // optional - for automatic Zoho note creation
+    "recordId": "zoho-record-id",
+    "module": "Potentials1"
+  }
 }
 ```
 
@@ -23,7 +27,7 @@ This directory contains webhook endpoints that allow external systems to send tr
 ```json
 {
   "success": true,
-  "message": "Transcript analyzed successfully",
+  "message": "Transcript analyzed and processed successfully",
   "data": {
     "clientId": "unique-client-identifier",
     "transcript": "הטקסט של התמלול...",
@@ -40,13 +44,33 @@ This directory contains webhook endpoints that allow external systems to send tr
       "nextSteps": ["צעד 1", "צעד 2"],
       "rawAnalysis": "..."
     },
+    "fieldProcessingResult": {
+      "updatedModules": { ... },
+      "mergeSummary": {
+        "totalFieldsFilled": 5,
+        "totalFieldsSkipped": 2,
+        "moduleResults": [...]
+      },
+      "totalFieldsFilled": 5,
+      "modulesAffected": 2
+    },
     "timestamp": "2024-01-01T00:00:00.000Z",
     "source": "external-webhook"
   },
   "extractedFields": { ... },
   "summary": "סיכום השיחה",
   "confidence": "high|medium|low",
-  "nextSteps": ["צעד 1", "צעד 2"]
+  "nextSteps": ["צעד 1", "צעד 2"],
+  "fieldProcessingResult": { ... },
+  "totalFieldsFilled": 5,
+  "modulesAffected": 2,
+  "zohoNoteCreated": true,
+  "zohoError": null,
+  "externalWebhookSent": true,
+  "externalWebhookError": null,
+  "processingComplete": true,
+  "fieldsProcessed": true,
+  "zohoIntegrationAttempted": true
 }
 ```
 
@@ -121,9 +145,36 @@ This directory contains webhook endpoints that allow external systems to send tr
 
 ## Usage Flow
 
-### Option 1: Two-Step Process
+### ⭐ **RECOMMENDED: Complete Automated Process**
 
-1. **Send transcription for analysis**:
+**Single API call does EVERYTHING** - analysis, field processing, Zoho notes, and external webhook:
+
+```bash
+curl -X POST https://automaziot-app.vercel.app/api/webhook/external-transcription \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transcript": "שיחה עם הלקוח על הצרכים שלו...",
+    "clientId": "client-123",
+    "zohoIntegration": {
+      "recordId": "zoho-record-id",
+      "module": "Potentials1"
+    }
+  }'
+```
+
+**This single call will**:
+1. ✅ Analyze the transcript with Claude AI
+2. ✅ Extract business fields automatically
+3. ✅ Merge fields into client modules (only empty fields)
+4. ✅ Create Zoho note (if recordId provided)
+5. ✅ Send complete summary to your n8n webhook
+6. ✅ Return detailed results
+
+### Option 2: Two-Step Process (Legacy)
+
+If you prefer the old two-step process:
+
+1. **Send transcription for analysis only**:
    ```bash
    curl -X POST https://your-domain.com/api/webhook/external-transcription \
      -H "Content-Type: application/json" \
@@ -133,7 +184,7 @@ This directory contains webhook endpoints that allow external systems to send tr
      }'
    ```
 
-2. **Process the extracted fields**:
+2. **Process the extracted fields separately**:
    ```bash
    curl -X POST https://your-domain.com/api/webhook/process-client-fields \
      -H "Content-Type: application/json" \
@@ -145,10 +196,6 @@ This directory contains webhook endpoints that allow external systems to send tr
        "nextSteps": [...]
      }'
    ```
-
-### Option 2: Single-Step Process (Recommended)
-
-Use the external-transcription endpoint and then immediately call process-client-fields with the response data.
 
 ## Integration with n8n or External Systems
 
