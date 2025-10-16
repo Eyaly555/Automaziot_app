@@ -13,14 +13,14 @@ interface AutomationSectionProps {
 export const AutomationSection: React.FC<AutomationSectionProps> = ({ data, onChange }) => {
   return (
     <div className="space-y-8">
-      {/* Icon & Title */}
+      {/* Icon & Title - Mobile optimized with responsive icon sizing */}
       <div className="text-center">
         <div className="mobile-section-icon">⚡</div>
         <h2 className="mobile-section-title">אוטומציות עסקיות</h2>
         <p className="mobile-section-subtitle">חסכו זמן ומאמץ</p>
       </div>
 
-      {/* Q1: Processes */}
+      {/* Q1: Processes - Mobile optimized checkbox group with proper spacing */}
       <div className="mobile-field-group">
         <label className="mobile-question">
           אילו תהליכים תרצה לאוטמט? <span className="text-red-500">*</span>
@@ -44,7 +44,7 @@ export const AutomationSection: React.FC<AutomationSectionProps> = ({ data, onCh
         />
       </div>
 
-      {/* Q2: Time Wasted */}
+      {/* Q2: Time Wasted - Mobile optimized radio group with vertical orientation */}
       <div className="mobile-field-group">
         <label className="mobile-question">
           כמה זמן מבזבזים על תהליכים חוזרים ביום? <span className="text-red-500">*</span>
@@ -62,7 +62,7 @@ export const AutomationSection: React.FC<AutomationSectionProps> = ({ data, onCh
         />
       </div>
 
-      {/* Q3: Biggest Pain */}
+      {/* Q3: Biggest Pain - Mobile optimized with smooth conditional field transition */}
       <div className="mobile-field-group">
         <label className="mobile-question">
           מה הבעיה הכי מעצבנת בתהליכים הנוכחיים? <span className="text-red-500">*</span>
@@ -79,30 +79,52 @@ export const AutomationSection: React.FC<AutomationSectionProps> = ({ data, onCh
           ]}
           orientation="vertical"
         />
-        
-        {data.biggest_pain === 'other' && (
+
+        {/* Mobile optimized: Smooth transition for conditional field with fade-in animation */}
+        <div
+          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+            data.biggest_pain === 'other'
+              ? 'max-h-32 opacity-100 mt-3'
+              : 'max-h-0 opacity-0'
+          }`}
+          style={{
+            // Prevent touch actions during animation for better performance
+            touchAction: data.biggest_pain === 'other' ? 'manipulation' : 'none',
+            // Use will-change for smoother animations on mobile
+            willChange: 'max-height, opacity'
+          }}
+        >
+          {/* Mobile optimized: Using mobile-input class for consistency, with proper touch target size */}
           <input
             type="text"
             value={data.biggest_pain_other || ''}
             onChange={(e) => onChange({ biggest_pain_other: e.target.value })}
             placeholder="תאר בקצרה..."
-            className="mobile-input mt-3 w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-base
-                     focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            dir="rtl"
+            className="mobile-input w-full"
+            style={{
+              // Prevent iOS auto-zoom by ensuring font size is 16px minimum
+              fontSize: '16px',
+              // Optimize for mobile touch interaction
+              touchAction: 'manipulation'
+            }}
+            aria-label="תיאור הבעיה האחרת"
           />
-        )}
+        </div>
       </div>
 
-      {/* Q4: Most Important Process */}
+      {/* Q4: Most Important Process - Mobile optimized textarea with proper keyboard handling */}
       <div className="mobile-field-group">
         <label className="mobile-question">
           איזה תהליך אחד אם היית מאוטמת היום - היה משנה הכי הרבה?
         </label>
         <TextArea
           value={data.most_important_process}
-          onChange={(e) => onChange({ most_important_process: e.target.value })}
+          onChange={(value) => onChange({ most_important_process: value })}
           rows={3}
           className="mobile-textarea"
           placeholder="תאר בקצרה את התהליך הכי חשוב..."
+          dir="rtl"
         />
       </div>
     </div>

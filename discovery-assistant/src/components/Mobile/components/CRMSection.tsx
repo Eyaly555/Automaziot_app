@@ -1,7 +1,7 @@
 // discovery-assistant/src/components/Mobile/components/CRMSection.tsx
 
 import React from 'react';
-import { RadioGroup, CheckboxGroup, SelectField } from '../../Common/FormFields';
+import { RadioGroup, CheckboxGroup } from '../../Common/FormFields';
 import { TextArea } from '../../Base';
 import type { CRMData } from '../../../types/mobile';
 
@@ -39,39 +39,70 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
 
       {/* Q2: Which System (conditional) */}
       {data.exists === 'yes' && (
-        <div className="mobile-field-group">
+        <div
+          className="mobile-field-group animate-fadeIn"
+          style={{
+            animation: 'fadeIn 0.3s ease-in-out'
+          }}
+        >
           <label className="mobile-question">איזו מערכת?</label>
-          <SelectField
-            value={data.system || ''}
-            onChange={(value) => onChange({ system: value as any })}
-            options={[
-              { value: 'zoho', label: 'Zoho CRM' },
-              { value: 'salesforce', label: 'Salesforce' },
-              { value: 'hubspot', label: 'HubSpot' },
-              { value: 'monday', label: 'Monday.com' },
-              { value: 'pipedrive', label: 'Pipedrive' },
-              { value: 'other', label: 'אחר' }
-            ]}
-            placeholder="בחר מערכת..."
-            className="w-full"
-          />
-          
+
+          {/* Mobile-optimized select with enhanced touch target */}
+          <div className="relative">
+            <select
+              value={data.system || ''}
+              onChange={(e) => onChange({ system: e.target.value as any })}
+              className="mobile-input w-full px-4 py-3 pr-10 border-2 border-gray-300 rounded-lg text-base
+                       bg-white appearance-none cursor-pointer
+                       focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100
+                       active:bg-gray-50 transition-all"
+              style={{ minHeight: '48px' }}
+            >
+              <option value="">בחר מערכת...</option>
+              <option value="zoho">Zoho CRM</option>
+              <option value="salesforce">Salesforce</option>
+              <option value="hubspot">HubSpot</option>
+              <option value="monday">Monday.com</option>
+              <option value="pipedrive">Pipedrive</option>
+              <option value="other">אחר</option>
+            </select>
+            {/* Custom chevron icon for better visibility */}
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Conditional "Other" input with smooth transition */}
           {data.system === 'other' && (
-            <input
-              type="text"
-              value={data.other_system || ''}
-              onChange={(e) => onChange({ other_system: e.target.value })}
-              placeholder="שם המערכת (Priority, SAP...)"
-              className="mobile-input mt-3 w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-base
-                       focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            />
+            <div
+              className="mt-3 animate-slideDown"
+              style={{
+                animation: 'slideDown 0.2s ease-out'
+              }}
+            >
+              <input
+                type="text"
+                value={data.other_system || ''}
+                onChange={(e) => onChange({ other_system: e.target.value })}
+                placeholder="שם המערכת (Priority, SAP...)"
+                className="mobile-input w-full"
+                autoFocus
+              />
+            </div>
           )}
         </div>
       )}
 
       {/* Q3: Integrations (conditional) */}
       {data.exists === 'yes' && (
-        <div className="mobile-field-group">
+        <div
+          className="mobile-field-group animate-fadeIn"
+          style={{
+            animation: 'fadeIn 0.3s ease-in-out 0.1s backwards'
+          }}
+        >
           <label className="mobile-question">מה צריך להתחבר ל-CRM?</label>
           <p className="mobile-helper-text mb-3">בחר את כל המקורות</p>
           <CheckboxGroup
@@ -110,11 +141,17 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
         />
       </div>
 
-      {/* Q5: Users (conditional) */}
+      {/* Q5: Users (conditional) - Responsive grid with enhanced touch targets */}
       {data.exists === 'yes' && (
-        <div className="mobile-field-group">
+        <div
+          className="mobile-field-group animate-fadeIn"
+          style={{
+            animation: 'fadeIn 0.3s ease-in-out 0.15s backwards'
+          }}
+        >
           <label className="mobile-question">כמה אנשים עובדים עם המערכת?</label>
-          <div className="grid grid-cols-2 gap-3">
+          {/* Responsive: single column on very small screens, 2 columns on 375px+ */}
+          <div className="grid grid-cols-1 xs:grid-cols-2 gap-3">
             {[
               { value: '1-3', label: '1-3' },
               { value: '4-10', label: '4-10' },
@@ -125,10 +162,15 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
                 key={option.value}
                 type="button"
                 onClick={() => onChange({ users: option.value as any })}
-                className={`px-4 py-3 border-2 rounded-lg font-medium transition-all
+                className={`min-h-[48px] px-4 py-3 border-2 rounded-lg font-medium
+                  transition-all duration-200 cursor-pointer touch-manipulation
                   ${data.users === option.value
-                    ? 'border-blue-500 bg-blue-50 text-blue-700'
-                    : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'}`}
+                    ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm'
+                    : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 active:scale-98'}
+                  active:transform active:scale-[0.98]`}
+                style={{
+                  WebkitTapHighlightColor: 'rgba(59, 130, 246, 0.1)'
+                }}
               >
                 {option.label}
               </button>
@@ -155,16 +197,24 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
           ]}
           orientation="vertical"
         />
-        
+
+        {/* Conditional "Other" input with smooth transition */}
         {data.biggest_gap === 'other' && (
-          <input
-            type="text"
-            value={data.biggest_gap_other || ''}
-            onChange={(e) => onChange({ biggest_gap_other: e.target.value })}
-            placeholder="תאר בקצרה..."
-            className="mobile-input mt-3 w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-base
-                     focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          />
+          <div
+            className="mt-3 animate-slideDown"
+            style={{
+              animation: 'slideDown 0.2s ease-out'
+            }}
+          >
+            <input
+              type="text"
+              value={data.biggest_gap_other || ''}
+              onChange={(e) => onChange({ biggest_gap_other: e.target.value })}
+              placeholder="תאר בקצרה..."
+              className="mobile-input w-full"
+              autoFocus
+            />
+          </div>
         )}
       </div>
 
@@ -176,12 +226,57 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
         <p className="mobile-helper-text mb-3">אופציונלי</p>
         <TextArea
           value={data.missing_report || ''}
-          onChange={(e) => onChange({ missing_report: e.target.value })}
+          onChange={(value) => onChange({ missing_report: value })}
           rows={3}
           className="mobile-textarea"
           placeholder="לדוגמה: מעקב אחר לידים שלא טופלו, ניתוח מקורות לידים, דוח המרות..."
         />
       </div>
+
+      {/* Add animation keyframes via inline style tag */}
+      <style>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            max-height: 0;
+            transform: translateY(-5px);
+          }
+          to {
+            opacity: 1;
+            max-height: 100px;
+            transform: translateY(0);
+          }
+        }
+
+        /* Extra small breakpoint for single column on very small screens */
+        @media (max-width: 374px) {
+          .xs\\:grid-cols-2 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+          }
+        }
+
+        @media (min-width: 375px) {
+          .xs\\:grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
+        /* Enhanced active state for better touch feedback */
+        .active\\:scale-98:active {
+          transform: scale(0.98);
+        }
+      `}</style>
     </div>
   );
 };
