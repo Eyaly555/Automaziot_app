@@ -226,6 +226,53 @@ export default async function handler(req, res) {
       }
     }
 
+    // Send summary to external webhook
+    let externalWebhookSent = false;
+    let externalWebhookError = null;
+    
+    try {
+      const externalWebhookUrl = 'https://eyaly555.app.n8n.cloud/webhook/8ae16e96-0ef0-4a7c-b46c-3d0978898b6a';
+      
+      const webhookPayload = {
+        clientId,
+        transcript,
+        summary,
+        confidence,
+        nextSteps,
+        extractedFields,
+        mergeSummary,
+        fieldsSummary: {
+          overview: extractedFields.overview ? Object.keys(extractedFields.overview).length : 0,
+          leadsAndSales: extractedFields.leadsAndSales ? Object.keys(extractedFields.leadsAndSales).length : 0,
+          customerService: extractedFields.customerService ? Object.keys(extractedFields.customerService).length : 0,
+          aiAgents: extractedFields.aiAgents ? Object.keys(extractedFields.aiAgents).length : 0,
+          roi: extractedFields.roi ? Object.keys(extractedFields.roi).length : 0,
+        },
+        processedAt: new Date().toISOString(),
+        zohoNoteCreated,
+        zohoError
+      };
+
+      const webhookResponse = await fetch(externalWebhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(webhookPayload)
+      });
+
+      if (webhookResponse.ok) {
+        externalWebhookSent = true;
+        console.log('[Webhook] ✓ External webhook sent successfully');
+      } else {
+        externalWebhookError = `HTTP ${webhookResponse.status}: ${webhookResponse.statusText}`;
+        console.error('[Webhook] ⚠️ External webhook failed:', externalWebhookError);
+      }
+    } catch (webhookError) {
+      externalWebhookError = webhookError.message;
+      console.error('[Webhook] ⚠️ Failed to send to external webhook:', webhookError);
+    }
+
     const result = {
       clientId,
       extractedFields,
@@ -236,7 +283,9 @@ export default async function handler(req, res) {
       updatedModules,
       processedAt: new Date().toISOString(),
       zohoNoteCreated,
-      zohoError
+      zohoError,
+      externalWebhookSent,
+      externalWebhookError
     };
 
     res.json({
@@ -255,7 +304,9 @@ export default async function handler(req, res) {
         totalFieldsFilled: mergeSummary.totalFieldsFilled,
         totalFieldsSkipped: mergeSummary.totalFieldsSkipped,
         modulesAffected: mergeSummary.moduleResults.filter(m => m.fieldsFilled.length > 0).length
-      }
+      },
+      externalWebhookSent,
+      externalWebhookError
     });
 
   } catch (error) {

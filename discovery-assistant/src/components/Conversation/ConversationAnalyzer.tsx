@@ -354,6 +354,50 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
         }
       }
 
+      // Send summary to external webhook
+      try {
+        setStatusMessage('שולח סיכום למערכת חיצונית...');
+        
+        const externalWebhookUrl = 'https://eyaly555.app.n8n.cloud/webhook/8ae16e96-0ef0-4a7c-b46c-3d0978898b6a';
+        
+        const webhookPayload = {
+          clientId: currentMeeting.id || 'unknown-client',
+          transcript: analysisResult.transcription.text,
+          summary: analysisResult.analysis.summary,
+          confidence: analysisResult.analysis.confidence,
+          nextSteps: analysisResult.analysis.nextSteps,
+          extractedFields: analysisResult.analysis.extractedFields,
+          mergeSummary,
+          fieldsSummary: {
+            overview: extractedFields.overview ? Object.keys(extractedFields.overview).length : 0,
+            leadsAndSales: extractedFields.leadsAndSales ? Object.keys(extractedFields.leadsAndSales).length : 0,
+            customerService: extractedFields.customerService ? Object.keys(extractedFields.customerService).length : 0,
+            aiAgents: extractedFields.aiAgents ? Object.keys(extractedFields.aiAgents).length : 0,
+            roi: extractedFields.roi ? Object.keys(extractedFields.roi).length : 0,
+          },
+          processedAt: new Date().toISOString(),
+          source: 'internal-conversation-analyzer',
+          zohoNoteCreated: currentMeeting.zohoIntegration?.recordId ? true : false
+        };
+
+        const webhookResponse = await fetch(externalWebhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(webhookPayload)
+        });
+
+        if (webhookResponse.ok) {
+          console.log('[ConversationAnalyzer] ✓ External webhook sent successfully');
+        } else {
+          console.error('[ConversationAnalyzer] ⚠️ External webhook failed:', webhookResponse.status, webhookResponse.statusText);
+        }
+      } catch (webhookError) {
+        // Don't fail the entire save if webhook fails
+        console.error('[ConversationAnalyzer] ⚠️ Failed to send to external webhook:', webhookError);
+      }
+
       setProcessingStatus('complete');
       setStatusMessage('הנתונים נשמרו בהצלחה');
 

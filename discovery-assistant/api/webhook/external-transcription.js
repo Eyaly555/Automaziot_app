@@ -148,6 +148,45 @@ IMPORTANT RULES:
       source: 'external-webhook'
     };
 
+    // Send summary to external webhook
+    let externalWebhookSent = false;
+    let externalWebhookError = null;
+    
+    try {
+      const externalWebhookUrl = 'https://eyaly555.app.n8n.cloud/webhook/8ae16e96-0ef0-4a7c-b46c-3d0978898b6a';
+      
+      const webhookPayload = {
+        clientId,
+        transcript,
+        summary: analysisResult.summary,
+        confidence: analysisResult.confidence,
+        nextSteps: analysisResult.nextSteps,
+        extractedFields: analysisResult.extractedFields,
+        timestamp: new Date().toISOString(),
+        source: 'external-transcription-webhook',
+        analysisComplete: true
+      };
+
+      const webhookResponse = await fetch(externalWebhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(webhookPayload)
+      });
+
+      if (webhookResponse.ok) {
+        externalWebhookSent = true;
+        console.log('[External Transcription] ✓ External webhook sent successfully');
+      } else {
+        externalWebhookError = `HTTP ${webhookResponse.status}: ${webhookResponse.statusText}`;
+        console.error('[External Transcription] ⚠️ External webhook failed:', externalWebhookError);
+      }
+    } catch (webhookError) {
+      externalWebhookError = webhookError.message;
+      console.error('[External Transcription] ⚠️ Failed to send to external webhook:', webhookError);
+    }
+
     // Return the analysis result
     res.json({
       success: true,
@@ -157,7 +196,9 @@ IMPORTANT RULES:
       extractedFields: analysisResult.extractedFields,
       summary: analysisResult.summary,
       confidence: analysisResult.confidence,
-      nextSteps: analysisResult.nextSteps
+      nextSteps: analysisResult.nextSteps,
+      externalWebhookSent,
+      externalWebhookError
     });
 
   } catch (error) {

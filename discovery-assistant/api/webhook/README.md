@@ -200,10 +200,67 @@ Error responses include details:
 }
 ```
 
+## Automatic External Webhook Integration
+
+**NEW FEATURE**: All transcription analysis (both internal and external) automatically sends a summary to your external n8n webhook at:
+`https://eyaly555.app.n8n.cloud/webhook/8ae16e96-0ef0-4a7c-b46c-3d0978898b6a`
+
+### What gets sent automatically:
+
+1. **Internal Conversation Analyzer**: When users upload audio files through the UI
+2. **External Transcription Webhook**: When external systems send transcripts
+3. **Process Client Fields**: When field processing is completed
+
+### Webhook payload structure:
+
+```json
+{
+  "clientId": "unique-client-identifier",
+  "transcript": "Full transcript text",
+  "summary": "Conversation summary in Hebrew",
+  "confidence": "high|medium|low",
+  "nextSteps": ["Recommended next steps"],
+  "extractedFields": {
+    "overview": { ... },
+    "leadsAndSales": { ... },
+    "customerService": { ... },
+    "aiAgents": { ... },
+    "roi": { ... }
+  },
+  "mergeSummary": {
+    "totalFieldsFilled": 5,
+    "totalFieldsSkipped": 2,
+    "moduleResults": [...]
+  },
+  "fieldsSummary": {
+    "overview": 3,
+    "leadsAndSales": 2,
+    "customerService": 0,
+    "aiAgents": 0,
+    "roi": 0
+  },
+  "processedAt": "2024-01-01T00:00:00.000Z",
+  "source": "internal-conversation-analyzer|external-transcription-webhook|process-client-fields",
+  "zohoNoteCreated": true
+}
+```
+
+### Response includes webhook status:
+
+All API responses now include:
+```json
+{
+  "externalWebhookSent": true,
+  "externalWebhookError": null
+}
+```
+
 ## Notes
 
 - The webhook endpoints use the same analysis logic as the internal conversation analyzer
 - Field merging only fills empty fields, preserving existing data
 - Zoho integration is optional and requires the `zohoIntegration` object in the request
+- **All transcription analysis automatically triggers your external webhook**
+- External webhook failures don't affect the main processing (non-blocking)
 - All timestamps are in ISO format
 - Text content is primarily in Hebrew as per the system's language preference
