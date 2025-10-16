@@ -62,7 +62,17 @@
       "Bash(Select-String \"ImplementationSpecDashboard\" -Context 3)",
       "Bash(del fix-implementation-spec.cjs)",
       "Bash(tree:*)",
-      "Bash(dir /s /b \"c:\\Users\\eyaly\\Desktop\\Businesses\\eym-group_n8n\\internal_app\\discovery-assistant\\src\\types\")"
+      "Bash(dir /s /b \"c:\\Users\\eyaly\\Desktop\\Businesses\\eym-group_n8n\\internal_app\\discovery-assistant\\src\\types\")",
+      "mcp__playwright__browser_resize",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_console_messages",
+      "mcp__chrome-devtools__take_screenshot",
+      "mcp__chrome-devtools__list_console_messages",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_click",
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__take_snapshot",
+      "mcp__chrome-devtools__click"
     ],
     "deny": [],
     "ask": []

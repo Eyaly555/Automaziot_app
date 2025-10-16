@@ -292,7 +292,7 @@ export const MobileQuickForm: React.FC = () => {
       {/* Main Content with proper landmark */}
       <main
         ref={contentRef}
-        className="container mx-auto px-4 py-6 pb-24 max-w-2xl"
+        className="px-4 py-6 pb-24"
         role="main"
         aria-label="תוכן שאלון"
       >
