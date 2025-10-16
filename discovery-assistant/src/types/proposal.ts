@@ -3,6 +3,8 @@ import { AiProposalDoc } from '../schemas/aiProposal.schema';
 
 export type ServicePriority = 'primary' | 'secondary' | 'optional';
 
+export type ContractVersion = 'standard' | 'trial';
+
 export type ServiceCategoryId =
   | 'automations'
   | 'ai_agents'
@@ -58,8 +60,8 @@ export interface ProposalSummary {
   totalAIAgents: number;
   totalIntegrations: number;
   identifiedProcesses: number;
-  potentialMonthlySavings: number;
-  potentialWeeklySavingsHours: number;
+  potentialMonthlySavings?: number;
+  potentialWeeklySavingsHours?: number;
   totalPrice: number;
   totalDays: number;
 }
@@ -74,10 +76,11 @@ export interface ProposalData {
   totalPrice: number; // מחיר כולל ללא מע"מ
   totalPriceWithVat: number; // מחיר כולל עם מע"מ
   totalDays: number;
-  expectedROIMonths: number;
-  monthlySavings: number;
+  expectedROIMonths?: number;
+  monthlySavings?: number;
   customNotes?: string;
   pmNote?: string; // הערת מנהל פרויקט
+  contractVersion?: ContractVersion; // Contract version selection
 
   // AI-generated proposal fields
   aiProposal?: {

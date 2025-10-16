@@ -26,3 +26,20 @@ export const COMPANY_BRANDING: CompanyBranding = {
   primaryColor: '#00D4D4', // Cyan from logo
   secondaryColor: '#1E3A5F', // Dark blue from logo
 };
+
+/**
+ * Trial Contract Terms - Exact text as specified
+ * These terms replace the standard payment and validity terms for trial contracts
+ */
+export const TRIAL_CONTRACT_TERMS = {
+  title: 'תנאי תשלום וניסוי:',
+  terms: [
+    'הלקוח אינו משלם כל סכום בשלב זה.',
+    'המוצר יימסר ללקוח לתקופת ניסיון של חמישה ימי עסקים, כאשר המוצר מאוחסן ומופעל במערכות של חברת אוטומציות AI בלבד.',
+    'בתום תקופת הניסיון, הלקוח יוכל לבחור אחת מהאפשרויות הבאות:',
+    'לשלם את מלוא הסכום (100%) — ולאחר מכן חברת אוטומציות AI תבצע את ההטמעה וההפעלה של המוצר במערכות הלקוח.',
+    'לוותר על ההמשך — ובמקרה זה המוצר לא יוטמע במערכות הלקוח והניסיון יסתיים ללא חיוב.',
+    'התשלום מתבצע אך ורק לאחר סיום תקופת הניסיון בת חמישה ימי עסקים ממועד ההפעלה הראשונית של המוצר (ולא ממועד חתימת ההסכם).'
+  ],
+  highlightedText: 'חמישה ימי עסקים ממועד ההפעלה הראשונית של המוצר'
+};

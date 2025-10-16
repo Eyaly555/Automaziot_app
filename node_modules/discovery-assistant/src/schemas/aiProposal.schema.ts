@@ -12,8 +12,8 @@ export interface AiProposalDocWithROI {
   financialSummary: {
     totalPrice: number;
     totalDays: number;
-    monthlySavings: number;
-    expectedROIMonths: number;
+    monthlySavings?: number;
+    expectedROIMonths?: number;
   };
   terms: string[];
   nextSteps: string[];
@@ -30,6 +30,8 @@ export interface AiProposalDocWithoutROI {
   financialSummary: {
     totalPrice: number;
     totalDays: number;
+    monthlySavings?: number;
+    expectedROIMonths?: number;
   };
   terms: string[];
   nextSteps: string[];

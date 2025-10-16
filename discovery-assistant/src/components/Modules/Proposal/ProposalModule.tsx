@@ -9,7 +9,7 @@ import {
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Input, Select } from '../../Base';
 import { generateProposal } from '../../../utils/proposalEngine';
-import { ProposedService, SelectedService, ProposalData } from '../../../types/proposal';
+import { ProposedService, SelectedService, ProposalData, ContractVersion } from '../../../types/proposal';
 import { Modules } from '../../../types';
 import {
   SERVICE_CATEGORIES,
@@ -113,6 +113,18 @@ export const ProposalModule: React.FC = () => {
   const [additionalInstructions, setAdditionalInstructions] = useState('');
   const [isRegenerating, setIsRegenerating] = useState(false);
 
+  // NEW: Contract version selection with persistence
+  const [contractVersion, setContractVersion] = useState<ContractVersion>(() => {
+    const saved = localStorage.getItem('proposalContractVersion');
+    return (saved as ContractVersion) || 'standard';
+  });
+
+  // Save contract version to localStorage when changed
+  const handleContractVersionChange = (version: ContractVersion) => {
+    setContractVersion(version);
+    localStorage.setItem('proposalContractVersion', version);
+  };
+
   // UI state
   const [activeTab, setActiveTab] = useState<ServiceCategoryId | 'all'>('all');
   const [filters, setFilters] = useState<Filters>({
@@ -154,6 +166,12 @@ export const ProposalModule: React.FC = () => {
       setProposalSummary(existingProposal.summary);
       setProposedServices(existingProposal.proposedServices);
       setSelectedServices(existingProposal.selectedServices);
+      
+      // Load contract version from saved data
+      if (existingProposal.contractVersion) {
+        setContractVersion(existingProposal.contractVersion);
+        localStorage.setItem('proposalContractVersion', existingProposal.contractVersion);
+      }
     } else {
       console.log('[ProposalModule] Generating new proposal...');
       try {
@@ -392,8 +410,10 @@ export const ProposalModule: React.FC = () => {
           totalDays: calculateTotals().totalDays,
           expectedROIMonths: Math.ceil(calculateTotals().totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
           monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
+          contractVersion: contractVersion,
         },
         aiProposal: aiProposal || undefined,
+        contractVersion: contractVersion,
       });
 
       setIsGeneratingPDF(false);
@@ -439,8 +459,10 @@ export const ProposalModule: React.FC = () => {
           totalDays: calculateTotals().totalDays,
           expectedROIMonths: Math.ceil(calculateTotals().totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
           monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
+          contractVersion: contractVersion,
         },
         aiProposal: aiProposal || undefined,
+        contractVersion: contractVersion,
       });
 
       setIsGeneratingPDF(false);
@@ -506,6 +528,7 @@ export const ProposalModule: React.FC = () => {
       expectedROIMonths: Math.ceil(totals.totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
       monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
       pmNote: pmNote || undefined,
+      contractVersion: contractVersion,
       aiProposal: aiProposal ? {
         createdAt: new Date().toISOString(),
         model: 'gpt-5',
@@ -551,6 +574,7 @@ export const ProposalModule: React.FC = () => {
           expectedROIMonths: Math.ceil(calculateTotals().totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
           monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
           pmNote: pmNote || undefined,
+          contractVersion: contractVersion,
           aiProposal: {
             createdAt: new Date().toISOString(),
             model: 'gpt-5',
@@ -1747,6 +1771,41 @@ export const ProposalModule: React.FC = () => {
                       </>
                     )}
                   </button>
+                </div>
+              </div>
+
+              {/* Contract Version Selection */}
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h3 className="text-lg font-semibold mb-3 text-gray-800">בחר סוג חוזה</h3>
+                <div className="flex gap-4">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="contractVersion"
+                      value="standard"
+                      checked={contractVersion === 'standard'}
+                      onChange={(e) => handleContractVersionChange(e.target.value as ContractVersion)}
+                      className="mr-2"
+                    />
+                    <div className="flex flex-col">
+                      <span className="font-medium text-gray-800">חוזה סטנדרטי</span>
+                      <span className="text-sm text-gray-600">תשלום מקדמה + תשלום עם השלמה</span>
+                    </div>
+                  </label>
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="contractVersion"
+                      value="trial"
+                      checked={contractVersion === 'trial'}
+                      onChange={(e) => handleContractVersionChange(e.target.value as ContractVersion)}
+                      className="mr-2"
+                    />
+                    <div className="flex flex-col">
+                      <span className="font-medium text-gray-800">חוזה ניסיון</span>
+                      <span className="text-sm text-gray-600">5 ימי ניסיון ללא תשלום</span>
+                    </div>
+                  </label>
                 </div>
               </div>
 

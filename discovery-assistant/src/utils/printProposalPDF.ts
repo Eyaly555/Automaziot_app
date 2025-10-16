@@ -1,5 +1,5 @@
-import { SelectedService, ProposalData } from '../types/proposal';
-import { COMPANY_BRANDING } from '../config/companyBranding';
+import { SelectedService, ProposalData, ContractVersion } from '../types/proposal';
+import { COMPANY_BRANDING, TRIAL_CONTRACT_TERMS } from '../config/companyBranding';
 import { AiProposalDoc } from '../schemas/aiProposal.schema';
 
 export interface ProposalPDFOptions {
@@ -8,6 +8,7 @@ export interface ProposalPDFOptions {
   services: SelectedService[];
   proposalData: ProposalData;
   aiProposal?: AiProposalDoc;
+  contractVersion?: ContractVersion;
 }
 
 const formatPrice = (price: number): string => {
@@ -22,12 +23,76 @@ export const formatHebrewDate = (date: Date): string => {
 };
 
 /**
+ * Generate terms section based on contract version
+ */
+const generateTermsSection = (
+  aiProposal: AiProposalDoc | undefined,
+  proposalData: ProposalData,
+  contractVersion: ContractVersion = 'standard'
+): string => {
+  // For trial contracts, ALWAYS use trial terms (completely ignore AI-generated terms)
+  if (contractVersion === 'trial') {
+    return `
+      <h3>💳 ${TRIAL_CONTRACT_TERMS.title}</h3>
+      <div style="padding-right: 15px; margin-bottom: 20px;">
+        ${TRIAL_CONTRACT_TERMS.terms.map(term => {
+          // Highlight the specific text as requested
+          const highlightedTerm = term.replace(
+            TRIAL_CONTRACT_TERMS.highlightedText,
+            `<strong style="background-color: #ffff00; padding: 2px 4px; border-radius: 3px; border: 2px solid #ff6b00; font-weight: bold; color: #000;">${TRIAL_CONTRACT_TERMS.highlightedText}</strong>`
+          );
+          return `<p style="margin-bottom: 8px;">• ${highlightedTerm}</p>`;
+        }).join('')}
+      </div>
+      
+      <!-- Trial contracts do NOT include validity terms or additional conditions -->
+      <!-- This ensures no AI-generated terms are accidentally included -->
+    `;
+  }
+
+  // For standard contracts, use AI-generated terms if available, otherwise fallback
+  if (aiProposal?.terms && contractVersion === 'standard') {
+    return `
+      <div>
+        ${aiProposal.terms.map(term => `<p style="padding-right: 15px; margin-bottom: 8px;">• ${term}</p>`).join('')}
+      </div>
+    `;
+  }
+
+  // Fallback for standard contracts
+  return `
+    <h3>💳 תנאי תשלום:</h3>
+    <p style="padding-right: 15px; margin-bottom: 20px;">• ${COMPANY_BRANDING.paymentTermsHe}</p>
+
+    <h3>⏱️ לוח זמנים משוער:</h3>
+    <ul style="padding-right: 30px; margin-bottom: 20px;">
+      <li>משך הפרויקט: ${Math.ceil(proposalData.totalDays / 5)} שבועות (${proposalData.totalDays} ימי עבודה)</li>
+      <li>עדכוני סטטוס שבועיים</li>
+      <li>מעקב צמוד ושקיפות מלאה</li>
+    </ul>
+
+    <h3>📞 תמיכה:</h3>
+    <ul style="padding-right: 30px; margin-bottom: 20px;">
+      <li>זמינה בשעות העבודה</li>
+      <li>תגובה תוך 24 שעות</li>
+    </ul>
+
+    <h3>📋 תנאים נוספים:</h3>
+    <ul style="padding-right: 30px; font-size: 10pt; color: #666;">
+      <li>ההצעה תקפה ל-${COMPANY_BRANDING.proposalValidity} ימים מתאריך שליחה</li>
+      <li>זכויות יוצרים על הקוד והפתרונות שפותחו שייכים ללקוח</li>
+      <li>ביטול ההזמנה לאחר תחילת העבודה כרוך בחיוב יחסי</li>
+    </ul>
+  `;
+};
+
+/**
  * Print Proposal PDF using browser's native print dialog
  * This method opens a new window with the proposal content and triggers the print dialog
  * User can save as PDF using the browser's built-in "Save as PDF" option
  */
 export const printProposalPDF = (options: ProposalPDFOptions): void => {
-  const { clientName, clientCompany, services, proposalData, aiProposal } = options;
+  const { clientName, clientCompany, services, proposalData, aiProposal, contractVersion = 'standard' } = options;
 
   const today = new Date();
   const validUntil = new Date(today);
@@ -333,8 +398,8 @@ export const printProposalPDF = (options: ProposalPDFOptions): void => {
       <p style="font-size: 11pt;">
         לאחר ניתוח מעמיק של תהליכי העבודה שלכם, זיהינו ${proposalData.summary.totalServices} פתרונות
         אוטומציה ו-AI. ההשקעה הכוללת: ${formatPrice(proposalData.totalPrice)}${
-          proposalData.monthlySavings > 0
-            ? `, שיחסכו לכם ${formatPrice(proposalData.monthlySavings)} בחודש עם החזר השקעה תוך ${proposalData.expectedROIMonths} חודשים`
+          (proposalData.monthlySavings || 0) > 0
+            ? `, שיחסכו לכם ${formatPrice(proposalData.monthlySavings || 0)} בחודש עם החזר השקעה תוך ${proposalData.expectedROIMonths || 0} חודשים`
             : ''
         }.
       </p>
@@ -455,14 +520,14 @@ export const printProposalPDF = (options: ProposalPDFOptions): void => {
     </div>
 
     ${
-      (aiProposal?.financialSummary?.monthlySavings || proposalData.monthlySavings) > 0
+      (aiProposal?.financialSummary?.monthlySavings || (proposalData.monthlySavings || 0)) > 0
         ? `
     <div class="roi-highlight">
       <h3>🎯 תשואה שנתית צפויה</h3>
-      <div class="value">${formatPrice((aiProposal?.financialSummary?.monthlySavings || proposalData.monthlySavings) * 12)}</div>
+      <div class="value">${formatPrice((aiProposal?.financialSummary?.monthlySavings || (proposalData.monthlySavings || 0)) * 12)}</div>
       <p style="margin-top: 12px; font-size: 12pt;">
-        חיסכון חודשי: ${formatPrice(aiProposal?.financialSummary?.monthlySavings || proposalData.monthlySavings)} |
-        החזר השקעה: ${aiProposal?.financialSummary?.expectedROIMonths || proposalData.expectedROIMonths} חודשים
+        חיסכון חודשי: ${formatPrice(aiProposal?.financialSummary?.monthlySavings || (proposalData.monthlySavings || 0))} |
+        החזר השקעה: ${aiProposal?.financialSummary?.expectedROIMonths || (proposalData.expectedROIMonths || 0)} חודשים
       </p>
     </div>
     `
@@ -482,35 +547,7 @@ export const printProposalPDF = (options: ProposalPDFOptions): void => {
   <!-- PAGE 5: TERMS -->
   <div class="page">
     <h2>תנאים ולוח זמנים</h2>
-
-    ${aiProposal?.terms ? `
-      <div>
-        ${aiProposal.terms.map(term => `<p style="padding-right: 15px; margin-bottom: 8px;">• ${term}</p>`).join('')}
-      </div>
-    ` : `
-      <h3>💳 תנאי תשלום:</h3>
-      <p style="padding-right: 15px; margin-bottom: 20px;">• ${COMPANY_BRANDING.paymentTermsHe}</p>
-
-      <h3>⏱️ לוח זמנים משוער:</h3>
-      <ul style="padding-right: 30px; margin-bottom: 20px;">
-        <li>משך הפרויקט: ${Math.ceil(proposalData.totalDays / 5)} שבועות (${proposalData.totalDays} ימי עבודה)</li>
-        <li>עדכוני סטטוס שבועיים</li>
-        <li>מעקב צמוד ושקיפות מלאה</li>
-      </ul>
-
-      <h3>📞 תמיכה:</h3>
-      <ul style="padding-right: 30px; margin-bottom: 20px;">
-        <li>זמינה בשעות העבודה</li>
-        <li>תגובה תוך 24 שעות</li>
-      </ul>
-
-      <h3>📋 תנאים נוספים:</h3>
-      <ul style="padding-right: 30px; font-size: 10pt; color: #666;">
-        <li>ההצעה תקפה ל-${COMPANY_BRANDING.proposalValidity} ימים מתאריך שליחה</li>
-        <li>זכויות יוצרים על הקוד והפתרונות שפותחו שייכים ללקוח</li>
-        <li>ביטול ההזמנה לאחר תחילת העבודה כרוך בחיוב יחסי</li>
-      </ul>
-    `}
+    ${generateTermsSection(aiProposal, proposalData, contractVersion)}
   </div>
 
   <!-- PAGE 6: NEXT STEPS -->
