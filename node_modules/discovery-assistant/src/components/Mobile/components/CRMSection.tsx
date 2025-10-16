@@ -12,7 +12,7 @@ interface CRMSectionProps {
 
 export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-6">
       {/* Icon & Title */}
       <div className="text-center">
         <div className="mobile-section-icon">💼</div>

@@ -53,7 +53,7 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
   
   if (isMobile) {
     return (
-      <div className={`mobile-checkbox-group ${className}`} dir="rtl">
+      <div className="mobile-checkbox-group" dir="rtl">
         {label && (
           <label className="mobile-question">
             {label}
@@ -70,9 +70,8 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
               checked={selectedValues.includes(option.value)}
               onChange={() => !disabled && handleToggle(option.value)}
               disabled={disabled}
-              className="mobile-checkbox-option input"
             />
-            <span className="mobile-checkbox-option label">{option.label}</span>
+            <span>{option.label}</span>
           </label>
         ))}
         {helperText && (

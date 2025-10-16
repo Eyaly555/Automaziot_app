@@ -12,7 +12,7 @@ interface AutomationSectionProps {
 
 export const AutomationSection: React.FC<AutomationSectionProps> = ({ data, onChange }) => {
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-6">
       {/* Icon & Title - Mobile optimized with responsive icon sizing */}
       <div className="text-center">
         <div className="mobile-section-icon">⚡</div>

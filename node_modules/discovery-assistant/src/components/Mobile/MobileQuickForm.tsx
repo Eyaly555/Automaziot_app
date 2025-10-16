@@ -275,7 +275,6 @@ export const MobileQuickForm: React.FC = () => {
             aria-valuenow={progress}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-live="polite"
           >
             <div
               className="mobile-progress-fill"
@@ -283,7 +282,7 @@ export const MobileQuickForm: React.FC = () => {
             />
           </div>
 
-          <p className="mobile-progress-text mt-2" aria-live="polite">
+          <p className="mobile-progress-text mt-2">
             חלק {currentSectionInfo.step}/3 - {currentSectionInfo.name}
           </p>
         </div>
@@ -323,7 +322,7 @@ export const MobileQuickForm: React.FC = () => {
           {errors.length > 0 && (
             <div
               ref={errorRef}
-              className="mobile-validation-error mt-6 scroll-mt-24"
+              className="mobile-validation-error mt-6 mx-6 scroll-mt-24"
               role="alert"
               aria-live="assertive"
               aria-atomic="true"
@@ -351,9 +350,8 @@ export const MobileQuickForm: React.FC = () => {
           {/* Loading State Overlay */}
           {isSubmitting && (
             <div
-              className="mt-6 p-6 bg-blue-50 border-2 border-blue-200 rounded-lg text-center"
+              className="mt-6 mx-6 p-6 bg-blue-50 border-2 border-blue-200 rounded-lg text-center"
               role="status"
-              aria-live="polite"
               aria-atomic="true"
             >
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent mb-3" />

@@ -102,9 +102,13 @@ export const Card: React.FC<CardProps> = ({
       )}
 
       {/* Main content */}
-      <div className={(!header && !autoHeader && !footer) ? paddingStyles[padding] : padding === 'none' ? '' : 'p-4'}>
-        {children}
-      </div>
+      {padding === 'none' && !header && !autoHeader && !footer ? (
+        children
+      ) : (
+        <div className={(!header && !autoHeader && !footer) ? paddingStyles[padding] : padding === 'none' ? '' : 'p-4'}>
+          {children}
+        </div>
+      )}
 
       {/* Footer */}
       {footer && (
