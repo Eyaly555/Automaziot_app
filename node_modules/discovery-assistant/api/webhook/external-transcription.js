@@ -1,85 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
-
-// Helper function to check if a field value is considered empty
-function isFieldEmpty(value) {
-  if (value === null || value === undefined) return true;
-  if (typeof value === 'string' && value.trim() === '') return true;
-  if (Array.isArray(value) && value.length === 0) return true;
-  if (typeof value === 'object' && Object.keys(value).length === 0) return true;
-  return false;
-}
-
-// Helper function to merge module fields
-function mergeModuleFields(existingData, extractedData, moduleName) {
-  const fieldsFilled = [];
-  const fieldsSkipped = [];
-  const merged = { ...existingData };
-
-  for (const [key, value] of Object.entries(extractedData)) {
-    if (value === undefined) continue;
-
-    const existingValue = existingData[key];
-
-    if (isFieldEmpty(existingValue)) {
-      // Field is empty, fill it
-      merged[key] = value;
-      fieldsFilled.push(key);
-    } else {
-      // Field already has data, skip it
-      fieldsSkipped.push(key);
-    }
-  }
-
-  return { merged, fieldsFilled, fieldsSkipped };
-}
-
-// Helper function to merge all extracted fields
-function mergeExtractedFields(currentModules, extractedFields) {
-  const moduleResults = [];
-  const updatedModules = {};
-
-  // Merge each module
-  for (const [moduleName, extractedData] of Object.entries(extractedFields)) {
-    if (!extractedData || Object.keys(extractedData).length === 0) continue;
-
-    const existing = currentModules[moduleName] || {};
-    const { merged, fieldsFilled, fieldsSkipped } = mergeModuleFields(
-      existing,
-      extractedData,
-      moduleName
-    );
-
-    if (fieldsFilled.length > 0) {
-      updatedModules[moduleName] = merged;
-    }
-
-    moduleResults.push({
-      moduleName,
-      fieldsFilled,
-      fieldsSkipped,
-      totalFields: fieldsFilled.length + fieldsSkipped.length,
-    });
-  }
-
-  // Calculate summary
-  const totalFieldsFilled = moduleResults.reduce(
-    (sum, m) => sum + m.fieldsFilled.length,
-    0
-  );
-  const totalFieldsSkipped = moduleResults.reduce(
-    (sum, m) => sum + m.fieldsSkipped.length,
-    0
-  );
-
-  const summary = {
-    totalFieldsFilled,
-    totalFieldsSkipped,
-    moduleResults,
-    timestamp: new Date().toISOString(),
-  };
-
-  return { updatedModules, summary };
-}
+import { useMeetingStore } from '../../store/useMeetingStore';
+import { mergeExtractedFields } from '../../utils/fieldMergeUtils';
 
 export default async function handler(req, res) {
   // Only allow POST requests
@@ -374,20 +295,37 @@ Before returning your JSON, verify:
     let zohoError = null;
     
     try {
-      // Load client's current modules (in a real implementation, this would come from your database)
-      const currentModules = {
-        overview: {},
-        leadsAndSales: {},
-        customerService: {},
-        aiAgents: {},
-        roi: {}
-      };
+      const meetingStore = useMeetingStore.getState();
 
-      // Apply field merging logic (same as in process-client-fields.js)
+      // Create/load meeting automatically (same as regular transcription)
+      let currentMeeting = meetingStore.loadMeetingByZohoId(clientId);
+      if (!currentMeeting) {
+        await meetingStore.createOrLoadMeeting({
+          clientName: `Client ${clientId}`,
+          zohoIntegration: {
+            recordId: clientId,
+            module: 'Potentials1',
+            enabled: true
+          }
+        });
+        currentMeeting = meetingStore.currentMeeting;
+      }
+
+      // Save the analysis result to the meeting (same as regular transcription)
+      meetingStore.updateMeeting({
+        conversationAnalysis: analysisResult,
+      });
+
+      // Apply field merging logic and update modules (same as regular transcription)
       const { updatedModules, summary: mergeSummary } = mergeExtractedFields(
-        currentModules,
-        analysisResult.extractedFields
+        currentMeeting.modules,
+        analysisResult.analysis.extractedFields
       );
+
+      // Update each modified module (this automatically saves to Supabase like regular transcription)
+      for (const [moduleName, moduleData] of Object.entries(updatedModules)) {
+        meetingStore.updateModule(moduleName as any, moduleData);
+      }
 
       fieldProcessingResult = {
         updatedModules,
@@ -406,10 +344,11 @@ Before returning your JSON, verify:
       fieldProcessingResult = { error: fieldError.message };
     }
 
-    // Create Zoho note if zohoIntegration is provided in the request
-    const { zohoIntegration } = req.body;
-    if (zohoIntegration && zohoIntegration.recordId) {
-      try {
+    // Create Zoho note (always, since we always create meeting with Zoho integration)
+    const recordId = clientId; // Always use clientId as recordId
+    const moduleName = 'Potentials1'; // Always use Potentials1
+
+    try {
         // Format the note content - include ALL information
         const noteTitle = `תמלול וסיכום שיחת גילוי - ${new Date().toLocaleDateString(
           'he-IL',
@@ -488,10 +427,10 @@ Before returning your JSON, verify:
 
         // TODO: Call your Zoho API to create the note
         // await createZohoNote(
-        //   zohoIntegration.recordId,
+        //   recordId,
         //   noteTitle,
         //   noteContent,
-        //   zohoIntegration.module || 'Potentials1'
+        //   moduleName
         // );
 
         zohoNoteCreated = true;
@@ -572,7 +511,7 @@ Before returning your JSON, verify:
       // Processing status
       processingComplete: true,
       fieldsProcessed: true,
-      zohoIntegrationAttempted: !!zohoIntegration?.recordId
+      zohoIntegrationAttempted: true // Always attempted since we always create with Zoho integration
     });
 
   } catch (error) {

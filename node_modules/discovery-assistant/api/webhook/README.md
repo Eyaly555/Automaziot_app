@@ -15,11 +15,7 @@ This directory contains webhook endpoints that allow external systems to send tr
 {
   "transcript": "הטקסט של התמלול...",
   "clientId": "unique-client-identifier",
-  "language": "he", // optional, defaults to Hebrew
-  "zohoIntegration": { // optional - for automatic Zoho note creation
-    "recordId": "zoho-record-id",
-    "module": "Potentials1"
-  }
+  "language": "he" // optional, defaults to Hebrew
 }
 ```
 
