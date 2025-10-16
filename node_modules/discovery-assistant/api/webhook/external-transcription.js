@@ -1,6 +1,104 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { useMeetingStore } from '../../store/useMeetingStore';
-import { mergeExtractedFields } from '../../utils/fieldMergeUtils';
+import { createClient } from '@supabase/supabase-js';
+
+// Supabase client for API
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
+
+// Helper function to check if a field value is considered empty
+function isFieldEmpty(value) {
+  if (value === null || value === undefined) return true;
+  if (typeof value === 'string' && value.trim() === '') return true;
+  if (Array.isArray(value) && value.length === 0) return true;
+  if (typeof value === 'object' && Object.keys(value).length === 0) return true;
+  return false;
+}
+
+// Helper function to merge module fields
+function mergeModuleFields(existingData, extractedData, moduleName) {
+  const fieldsFilled = [];
+  const fieldsSkipped = [];
+  const merged = { ...existingData };
+
+  for (const [key, value] of Object.entries(extractedData)) {
+    if (value === undefined) continue;
+
+    const existingValue = existingData[key];
+
+    if (isFieldEmpty(existingValue)) {
+      // Field is empty, fill it
+      merged[key] = value;
+      fieldsFilled.push(key);
+    } else {
+      // Field already has data, skip it
+      fieldsSkipped.push(key);
+    }
+  }
+
+  return { merged, fieldsFilled, fieldsSkipped };
+}
+
+// Helper function to merge all extracted fields
+function mergeExtractedFields(currentModules, extractedFields) {
+  const moduleResults = [];
+  const updatedModules = {};
+
+  // Merge each module
+  for (const [moduleName, extractedData] of Object.entries(extractedFields)) {
+    if (!extractedData || Object.keys(extractedData).length === 0) continue;
+
+    const existing = currentModules[moduleName] || {};
+    const { merged, fieldsFilled, fieldsSkipped } = mergeModuleFields(
+      existing,
+      extractedData,
+      moduleName
+    );
+
+    if (fieldsFilled.length > 0) {
+      updatedModules[moduleName] = merged;
+    }
+
+    moduleResults.push({
+      moduleName,
+      fieldsFilled,
+      fieldsSkipped,
+      totalFields: fieldsFilled.length + fieldsSkipped.length,
+    });
+  }
+
+  // Calculate summary
+  const totalFieldsFilled = moduleResults.reduce(
+    (sum, m) => sum + m.fieldsFilled.length,
+    0
+  );
+  const totalFieldsSkipped = moduleResults.reduce(
+    (sum, m) => sum + m.fieldsSkipped.length,
+    0
+  );
+
+  const summary = {
+    totalFieldsFilled,
+    totalFieldsSkipped,
+    moduleResults,
+    timestamp: new Date().toISOString(),
+  };
+
+  return { updatedModules, summary };
+}
+
+// Generate ID function (from useMeetingStore.ts)
+const generateId = () => Math.random().toString(36).substr(2, 9);
+
+// Normalize phase function (from useMeetingStore.ts)
+const normalizePhase = (phase) => {
+  if (!phase) return 'discovery';
+  const normalized = phase.toLowerCase();
+  if (['discovery', 'implementation_spec', 'development', 'completed'].includes(normalized)) {
+    return normalized;
+  }
+  return 'discovery';
+};
 
 export default async function handler(req, res) {
   // Only allow POST requests
@@ -289,42 +387,97 @@ Before returning your JSON, verify:
       source: 'external-webhook'
     };
 
-    // Automatically process the extracted fields for the client
+    // Load or create meeting (like createOrLoadMeeting in store)
+    let currentMeeting = null;
+    let meetingCreated = false;
     let fieldProcessingResult = null;
     let zohoNoteCreated = false;
     let zohoError = null;
-    
-    try {
-      const meetingStore = useMeetingStore.getState();
 
-      // Create/load meeting automatically (same as regular transcription)
-      let currentMeeting = meetingStore.loadMeetingByZohoId(clientId);
+    try {
+      // Try to load existing meeting from Supabase
+      if (supabase) {
+        const { data, error } = await supabase
+          .schema('automaziot')
+          .from('meetings')
+          .select('meeting_json')
+          .eq('zoho_record_id', clientId)
+          .single();
+
+        if (!error && data) {
+          currentMeeting = data.meeting_json;
+          console.log('[External Transcription] ✓ Loaded existing meeting');
+        }
+      }
+
+      // If no meeting exists, create new one (like createMeeting in store)
       if (!currentMeeting) {
-        await meetingStore.createOrLoadMeeting({
+        console.log('[External Transcription] Creating new meeting for client:', clientId);
+
+        currentMeeting = {
+          meetingId: clientId,
+          id: clientId,
           clientName: `Client ${clientId}`,
+          date: new Date(),
+          timer: 0,
+          dataVersion: 5, // CURRENT_DATA_VERSION
+          modules: {
+            overview: {},
+            leadsAndSales: {},
+            customerService: {},
+            operations: {},
+            reporting: {},
+            aiAgents: {},
+            systems: {},
+            roi: {},
+            planning: {},
+          },
+          painPoints: [],
+          notes: '',
+          phase: 'discovery',
+          status: 'discovery_in_progress',
+          phaseHistory: [{
+            fromPhase: null,
+            toPhase: 'discovery',
+            timestamp: new Date(),
+            transitionedBy: 'system'
+          }],
           zohoIntegration: {
             recordId: clientId,
             module: 'Potentials1',
-            enabled: true
+            syncEnabled: true
           }
-        });
-        currentMeeting = meetingStore.currentMeeting;
+        };
+
+        meetingCreated = true;
+        console.log('[External Transcription] ✓ Created new meeting');
       }
 
-      // Save the analysis result to the meeting (same as regular transcription)
-      meetingStore.updateMeeting({
-        conversationAnalysis: analysisResult,
-      });
+      // Save conversation analysis to meeting (like ConversationAnalyzer)
+      currentMeeting.conversationAnalysis = completeResult;
 
-      // Apply field merging logic and update modules (same as regular transcription)
+      // Apply field merging logic (like ConversationAnalyzer)
       const { updatedModules, summary: mergeSummary } = mergeExtractedFields(
         currentMeeting.modules,
-        analysisResult.analysis.extractedFields
+        analysisResult.extractedFields
       );
 
-      // Update each modified module (this automatically saves to Supabase like regular transcription)
-      for (const [moduleName, moduleData] of Object.entries(updatedModules)) {
-        meetingStore.updateModule(moduleName as any, moduleData);
+      // Update modules
+      currentMeeting.modules = { ...currentMeeting.modules, ...updatedModules };
+
+      // Save to Supabase (like supabaseService.saveMeeting)
+      if (supabase) {
+        await supabase
+          .schema('automaziot')
+          .from('meetings')
+          .upsert({
+            zoho_record_id: clientId,
+            meeting_json: currentMeeting
+          }, {
+            onConflict: 'zoho_record_id'
+          });
+
+        console.log('[External Transcription] ✓ Saved to Supabase');
       }
 
       fieldProcessingResult = {
@@ -332,22 +485,16 @@ Before returning your JSON, verify:
         mergeSummary,
         totalFieldsFilled: mergeSummary.totalFieldsFilled,
         totalFieldsSkipped: mergeSummary.totalFieldsSkipped,
-        modulesAffected: mergeSummary.moduleResults.filter(m => m.fieldsFilled.length > 0).length
+        modulesAffected: mergeSummary.moduleResults.filter(m => m.fieldsFilled.length > 0).length,
+        meetingCreated
       };
 
-      // TODO: Save the updated modules to your database/storage
-      // This is where you would persist the changes for the specific client
-      console.log('[External Transcription] ✓ Field processing completed');
-
     } catch (fieldError) {
-      console.error('[External Transcription] ⚠️ Field processing failed:', fieldError);
+      console.error('[External Transcription] ⚠️ Meeting/field processing failed:', fieldError);
       fieldProcessingResult = { error: fieldError.message };
     }
 
-    // Create Zoho note (always, since we always create meeting with Zoho integration)
-    const recordId = clientId; // Always use clientId as recordId
-    const moduleName = 'Potentials1'; // Always use Potentials1
-
+    // Always create Zoho note (recordId = clientId, module = 'Potentials1')
     try {
         // Format the note content - include ALL information
         const noteTitle = `תמלול וסיכום שיחת גילוי - ${new Date().toLocaleDateString(
@@ -425,16 +572,24 @@ Before returning your JSON, verify:
 
         const noteContent = contentParts.join('\n');
 
-        // TODO: Call your Zoho API to create the note
-        // await createZohoNote(
-        //   recordId,
-        //   noteTitle,
-        //   noteContent,
-        //   moduleName
-        // );
+        // Call Zoho API endpoint directly (like createZohoNote does)
+        const zohoResponse = await fetch('/api/zoho/notes/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            recordId: clientId,
+            title: noteTitle,
+            content: noteContent,
+            module: 'Potentials1'
+          })
+        });
 
-        zohoNoteCreated = true;
-        console.log('[External Transcription] ✓ Zoho note would be created successfully');
+        if (zohoResponse.ok) {
+          zohoNoteCreated = true;
+          console.log('[External Transcription] ✓ Zoho note created successfully');
+        } else {
+          throw new Error(`Zoho API failed: ${zohoResponse.status}`);
+        }
       } catch (noteError) {
         zohoError = noteError.message;
         console.error('[External Transcription] ⚠️ Failed to create Zoho note:', noteError);
@@ -511,7 +666,7 @@ Before returning your JSON, verify:
       // Processing status
       processingComplete: true,
       fieldsProcessed: true,
-      zohoIntegrationAttempted: true // Always attempted since we always create with Zoho integration
+      zohoIntegrationAttempted: true
     });
 
   } catch (error) {
