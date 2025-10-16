@@ -20,8 +20,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   const isEnglish = currentMeeting?.phase === 'development';
 
-  // Routes where we hide the sidebar (login, clients list)
-  const hideSidebarRoutes = ['/login', '/clients'];
+  // Routes where we hide the sidebar (login, clients list, mobile)
+  const hideSidebarRoutes = ['/login', '/clients', '/mobile'];
   const shouldHideSidebar = hideSidebarRoutes.some(route =>
     location.pathname === route || location.pathname.startsWith(route + '/')
   );
