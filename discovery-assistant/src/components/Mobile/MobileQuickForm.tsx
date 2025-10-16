@@ -296,7 +296,7 @@ export const MobileQuickForm: React.FC = () => {
         role="main"
         aria-label="תוכן שאלון"
       >
-        <Card className="mobile-card">
+        <Card className="mobile-card" padding="none">
           {/* Section Content */}
           {currentSection === 'ai' && (
             <AISection
