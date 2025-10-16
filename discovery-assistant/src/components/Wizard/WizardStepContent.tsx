@@ -15,7 +15,7 @@ export const WizardStepContent: React.FC<WizardStepContentProps> = ({
   values,
   errors,
   onChange,
-  meeting
+  meeting,
 }) => {
   // Get field value from nested object structure
   const getFieldValue = (fieldName: string) => {
@@ -52,7 +52,7 @@ export const WizardStepContent: React.FC<WizardStepContentProps> = ({
       ...field.props,
       value: fieldValue,
       onChange: (value: any) => onChange(field.name, value),
-      error: fieldError
+      error: fieldError,
     };
 
     // Special handling for components that need custom entries support
@@ -82,9 +82,7 @@ export const WizardStepContent: React.FC<WizardStepContentProps> = ({
     <div>
       {/* Step Header */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">
-          {step.sectionName}
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-900">{step.sectionName}</h2>
         {step.isOptional && (
           <p className="mt-1 text-sm text-gray-500">
             שלב זה הוא אופציונלי - ניתן לדלג עליו אם לא רלוונטי
@@ -93,9 +91,7 @@ export const WizardStepContent: React.FC<WizardStepContentProps> = ({
       </div>
 
       {/* Fields */}
-      <div className="space-y-6">
-        {step.fields.map(renderField)}
-      </div>
+      <div className="space-y-6">{step.fields.map(renderField)}</div>
 
       {/* Module Context Info */}
       {step.moduleId === 'overview' && step.id === 'overview-basics' && (

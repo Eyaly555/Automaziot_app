@@ -12,13 +12,16 @@ interface SystemsDetailsSectionProps {
 export const SystemsDetailsSection: React.FC<SystemsDetailsSectionProps> = ({
   data = {},
   onChange,
-  crmName
+  crmName,
 }) => {
   const [newLimitation, setNewLimitation] = useState('');
   const [newFeature, setNewFeature] = useState('');
   const [newIntegration, setNewIntegration] = useState('');
 
-  const updateField = <K extends keyof typeof data>(field: K, value: typeof data[K]) => {
+  const updateField = <K extends keyof typeof data>(
+    field: K,
+    value: (typeof data)[K]
+  ) => {
     onChange({ [field]: value });
   };
 
@@ -30,7 +33,9 @@ export const SystemsDetailsSection: React.FC<SystemsDetailsSectionProps> = ({
   };
 
   const removeLimitation = (index: number) => {
-    const limitations = (data.crmLimitations || []).filter((_, i) => i !== index);
+    const limitations = (data.crmLimitations || []).filter(
+      (_, i) => i !== index
+    );
     onChange({ crmLimitations: limitations });
   };
 
@@ -54,7 +59,9 @@ export const SystemsDetailsSection: React.FC<SystemsDetailsSectionProps> = ({
   };
 
   const removeIntegration = (index: number) => {
-    const integrations = (data.integrationNeeds || []).filter((_, i) => i !== index);
+    const integrations = (data.integrationNeeds || []).filter(
+      (_, i) => i !== index
+    );
     onChange({ integrationNeeds: integrations });
   };
 
@@ -94,7 +101,10 @@ export const SystemsDetailsSection: React.FC<SystemsDetailsSectionProps> = ({
           {(data.crmLimitations || []).length > 0 && (
             <div className="space-y-2 mb-3">
               {(data.crmLimitations || []).map((limitation, index) => (
-                <div key={index} className="flex items-center justify-between bg-red-50 border border-red-200 rounded-lg p-2">
+                <div
+                  key={index}
+                  className="flex items-center justify-between bg-red-50 border border-red-200 rounded-lg p-2"
+                >
                   <span className="text-sm">{limitation}</span>
                   <button
                     onClick={() => removeLimitation(index)}
@@ -134,7 +144,10 @@ export const SystemsDetailsSection: React.FC<SystemsDetailsSectionProps> = ({
           {(data.desiredFeatures || []).length > 0 && (
             <div className="space-y-2 mb-3">
               {(data.desiredFeatures || []).map((feature, index) => (
-                <div key={index} className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-2">
+                <div
+                  key={index}
+                  className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-2"
+                >
                   <span className="text-sm">{feature}</span>
                   <button
                     onClick={() => removeFeature(index)}
@@ -174,7 +187,10 @@ export const SystemsDetailsSection: React.FC<SystemsDetailsSectionProps> = ({
           {(data.integrationNeeds || []).length > 0 && (
             <div className="flex flex-wrap gap-2 mb-3">
               {(data.integrationNeeds || []).map((integration, index) => (
-                <div key={index} className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                <div
+                  key={index}
+                  className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                >
                   <span>{integration}</span>
                   <button
                     onClick={() => removeIntegration(index)}
@@ -210,7 +226,9 @@ export const SystemsDetailsSection: React.FC<SystemsDetailsSectionProps> = ({
           label="כמה משתמשים יעבדו במערכת?"
           type="number"
           value={data.userCount?.toString() || ''}
-          onChange={(val) => updateField('userCount', val ? parseInt(val) : undefined)}
+          onChange={(val) =>
+            updateField('userCount', val ? parseInt(val) : undefined)
+          }
           placeholder="0"
           dir="rtl"
         />

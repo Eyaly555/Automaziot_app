@@ -16,7 +16,12 @@ export interface SmartRecommendation {
   title: string;
   titleHebrew: string;
   description: string;
-  type?: 'automation' | 'integration' | 'optimization' | 'training' | 'ai_implementation'; // Used by Dashboard component
+  type?:
+    | 'automation'
+    | 'integration'
+    | 'optimization'
+    | 'training'
+    | 'ai_implementation'; // Used by Dashboard component
   category: 'integration' | 'automation' | 'ai_agent' | 'process_improvement';
   impactScore: number; // 1-10
   effortScore: number; // 1-10
@@ -63,8 +68,14 @@ export interface PatternAnalysisResult {
 }
 
 export interface DetectedPattern {
-  type: 'missing_integration' | 'manual_data_entry' | 'high_volume_task' |
-        'low_satisfaction' | 'unused_api' | 'after_hours_gap' | 'repetitive_process';
+  type:
+    | 'missing_integration'
+    | 'manual_data_entry'
+    | 'high_volume_task'
+    | 'low_satisfaction'
+    | 'unused_api'
+    | 'after_hours_gap'
+    | 'repetitive_process';
   description: string;
   affectedModules: string[];
   severity: 'low' | 'medium' | 'high' | 'critical';
@@ -117,18 +128,26 @@ export class SmartRecommendationsEngine {
     const systems = this.meeting.modules.systems?.detailedSystems || [];
 
     // Check for CRM + WhatsApp without integration
-    const hasCRM = systems.some(s => s.category === 'crm');
+    const hasCRM = systems.some((s) => s.category === 'crm');
     const leadsChannels = this.meeting.modules.leadsAndSales?.leadSources || [];
-    const serviceChannels = this.meeting.modules.customerService?.channels || [];
+    const serviceChannels =
+      this.meeting.modules.customerService?.channels || [];
     const hasWhatsApp = [
-      ...(Array.isArray(leadsChannels) ? leadsChannels.map(c => c.channel) : []),
-      ...(Array.isArray(serviceChannels) ? serviceChannels.map(c => c.type) : [])
-    ].some(channel => channel?.toLowerCase().includes('whatsapp'));
+      ...(Array.isArray(leadsChannels)
+        ? leadsChannels.map((c) => c.channel)
+        : []),
+      ...(Array.isArray(serviceChannels)
+        ? serviceChannels.map((c) => c.type)
+        : []),
+    ].some((channel) => channel?.toLowerCase().includes('whatsapp'));
 
     if (hasCRM && hasWhatsApp) {
-      const hasIntegration = systems.some(s =>
-        s.category === 'crm' &&
-        s.integrationNeeds?.some(i => i.targetSystemName?.toLowerCase().includes('whatsapp'))
+      const hasIntegration = systems.some(
+        (s) =>
+          s.category === 'crm' &&
+          s.integrationNeeds?.some((i) =>
+            i.targetSystemName?.toLowerCase().includes('whatsapp')
+          )
       );
 
       if (!hasIntegration) {
@@ -137,24 +156,26 @@ export class SmartRecommendationsEngine {
           description: 'CRM and WhatsApp not integrated - leads may be lost',
           affectedModules: ['leadsAndSales', 'customerService', 'systems'],
           severity: 'high',
-          estimatedImpact: 8500
+          estimatedImpact: 8500,
         });
       }
     }
 
     // Check for systems with "missing" integration status
-    systems.forEach(system => {
-      const missingIntegrations = system.integrationNeeds?.filter(
-        i => i.currentStatus === 'missing' && i.criticalityLevel === 'critical'
-      ) || [];
+    systems.forEach((system) => {
+      const missingIntegrations =
+        system.integrationNeeds?.filter(
+          (i) =>
+            i.currentStatus === 'missing' && i.criticalityLevel === 'critical'
+        ) || [];
 
-      missingIntegrations.forEach(integration => {
+      missingIntegrations.forEach((integration) => {
         this.patterns.push({
           type: 'missing_integration',
           description: `Missing critical integration: ${system.specificSystem} → ${integration.targetSystemName}`,
           affectedModules: ['systems'],
           severity: 'critical',
-          estimatedImpact: 10000
+          estimatedImpact: 10000,
         });
       });
     });
@@ -165,7 +186,6 @@ export class SmartRecommendationsEngine {
     // Old code checked ops?.systemSync?.dataTransferMethod for manual data transfer
     // This detection logic has been removed as the property no longer exists
     // Future: Could analyze workProcesses.automationReadiness instead
-
     // DEPRECATED: financialProcesses.invoicing property removed in OperationsModule v2
     // Old code checked invoicing volume and time
     // This detection logic has been removed as the property no longer exists
@@ -174,8 +194,11 @@ export class SmartRecommendationsEngine {
 
   private detectHighVolumeTasks(): void {
     // Check FAQ volume
-    const faqs = this.meeting.modules.customerService?.autoResponse?.topQuestions || [];
-    const totalFAQs = Array.isArray(faqs) ? faqs.reduce((sum, q) => sum + (q.frequencyPerDay || 0), 0) : 0;
+    const faqs =
+      this.meeting.modules.customerService?.autoResponse?.topQuestions || [];
+    const totalFAQs = Array.isArray(faqs)
+      ? faqs.reduce((sum, q) => sum + (q.frequencyPerDay || 0), 0)
+      : 0;
 
     if (totalFAQs > 50) {
       this.patterns.push({
@@ -183,21 +206,27 @@ export class SmartRecommendationsEngine {
         description: `${totalFAQs} repetitive FAQ responses per day`,
         affectedModules: ['customerService'],
         severity: totalFAQs > 100 ? 'critical' : 'high',
-        estimatedImpact: totalFAQs * 5 * 22 // 5 min per FAQ, 22 working days
+        estimatedImpact: totalFAQs * 5 * 22, // 5 min per FAQ, 22 working days
       });
     }
 
     // Check lead volume
     const leadSources = this.meeting.modules.leadsAndSales?.leadSources || [];
-    const totalLeads = Array.isArray(leadSources) ? leadSources.reduce((sum, s) => sum + (s.volumePerMonth || 0), 0) : 0;
+    const totalLeads = Array.isArray(leadSources)
+      ? leadSources.reduce((sum, s) => sum + (s.volumePerMonth || 0), 0)
+      : 0;
 
-    if (totalLeads > 200 && this.meeting.modules.leadsAndSales?.speedToLead?.duringBusinessHours === 'manual') {
+    if (
+      totalLeads > 200 &&
+      this.meeting.modules.leadsAndSales?.speedToLead?.duringBusinessHours ===
+        'manual'
+    ) {
       this.patterns.push({
         type: 'high_volume_task',
         description: `${totalLeads} leads/month processed manually`,
         affectedModules: ['leadsAndSales'],
         severity: 'high',
-        estimatedImpact: totalLeads * 10 // 10 NIS per lead
+        estimatedImpact: totalLeads * 10, // 10 NIS per lead
       });
     }
   }
@@ -205,14 +234,14 @@ export class SmartRecommendationsEngine {
   private detectLowSatisfactionSystems(): void {
     const systems = this.meeting.modules.systems?.detailedSystems || [];
 
-    systems.forEach(system => {
+    systems.forEach((system) => {
       if (system.satisfactionScore <= 2) {
         this.patterns.push({
           type: 'low_satisfaction',
           description: `Low satisfaction with ${system.specificSystem} (${system.satisfactionScore}/5)`,
           affectedModules: ['systems'],
           severity: system.satisfactionScore === 1 ? 'critical' : 'high',
-          estimatedImpact: 5000
+          estimatedImpact: 5000,
         });
       }
     });
@@ -221,11 +250,12 @@ export class SmartRecommendationsEngine {
   private detectUnusedAPIs(): void {
     const systems = this.meeting.modules.systems?.detailedSystems || [];
 
-    systems.forEach(system => {
+    systems.forEach((system) => {
       if (system.apiAccess === 'full' || system.apiAccess === 'limited') {
-        const hasIntegrations = system.integrationNeeds && system.integrationNeeds.length > 0;
+        const hasIntegrations =
+          system.integrationNeeds && system.integrationNeeds.length > 0;
         const usingIntegrations = system.integrationNeeds?.some(
-          i => i.currentStatus === 'working' && i.integrationType === 'api'
+          (i) => i.currentStatus === 'working' && i.integrationType === 'api'
         );
 
         if (hasIntegrations && !usingIntegrations) {
@@ -234,7 +264,7 @@ export class SmartRecommendationsEngine {
             description: `${system.specificSystem} has API access but no API integrations`,
             affectedModules: ['systems'],
             severity: 'medium',
-            estimatedImpact: 3000
+            estimatedImpact: 3000,
           });
         }
       }
@@ -244,7 +274,10 @@ export class SmartRecommendationsEngine {
   private detectAfterHoursGaps(): void {
     const speedToLead = this.meeting.modules.leadsAndSales?.speedToLead;
 
-    if (speedToLead?.afterHours === 'no_response' || speedToLead?.weekends === 'no_response') {
+    if (
+      speedToLead?.afterHours === 'no_response' ||
+      speedToLead?.weekends === 'no_response'
+    ) {
       const unanswered = speedToLead.unansweredPercentage || 0;
 
       this.patterns.push({
@@ -252,7 +285,7 @@ export class SmartRecommendationsEngine {
         description: `No after-hours response (${unanswered}% leads unanswered)`,
         affectedModules: ['leadsAndSales', 'customerService'],
         severity: unanswered > 30 ? 'critical' : 'high',
-        estimatedImpact: unanswered * 200 // Lost opportunity cost
+        estimatedImpact: unanswered * 200, // Lost opportunity cost
       });
     }
   }
@@ -265,7 +298,7 @@ export class SmartRecommendationsEngine {
     this.recommendations = [];
 
     // Generate recommendations based on detected patterns
-    this.patterns.forEach(pattern => {
+    this.patterns.forEach((pattern) => {
       switch (pattern.type) {
         case 'missing_integration':
           this.generateIntegrationRecommendation(pattern);
@@ -312,10 +345,10 @@ export class SmartRecommendationsEngine {
         'הגדרת API credentials',
         'בניית workflow באמצעות n8n',
         'בדיקות ו-validation',
-        'הפעלה ב-production'
+        'הפעלה ב-production',
       ],
       priority: 0,
-      n8nWorkflowTemplate: this.getCRMWhatsAppIntegrationTemplate()
+      n8nWorkflowTemplate: this.getCRMWhatsAppIntegrationTemplate(),
     });
   }
 
@@ -339,9 +372,9 @@ export class SmartRecommendationsEngine {
         'זיהוי נקודות לאוטומציה',
         'בניית workflow אוטומטי',
         'הוספת error handling',
-        'הטמעה והכשרת משתמשים'
+        'הטמעה והכשרת משתמשים',
       ],
-      priority: 0
+      priority: 0,
     });
   }
 
@@ -365,10 +398,10 @@ export class SmartRecommendationsEngine {
         'בחירת מודל AI מתאים',
         'הטמעת chatbot/agent',
         'אימון ובדיקות',
-        'השקה הדרגתית עם fallback אנושי'
+        'השקה הדרגתית עם fallback אנושי',
       ],
       priority: 0,
-      n8nWorkflowTemplate: this.getAIChatbotTemplate()
+      n8nWorkflowTemplate: this.getAIChatbotTemplate(),
     });
   }
 
@@ -392,14 +425,16 @@ export class SmartRecommendationsEngine {
         'חיבור ל-WhatsApp Business API',
         'הגדרת scheduling ב-n8n',
         'יצירת notification למשמרת הבוקר',
-        'בדיקות end-to-end'
+        'בדיקות end-to-end',
       ],
       priority: 0,
-      n8nWorkflowTemplate: this.getAfterHoursResponseTemplate()
+      n8nWorkflowTemplate: this.getAfterHoursResponseTemplate(),
     });
   }
 
-  private generateSystemImprovementRecommendation(pattern: DetectedPattern): void {
+  private generateSystemImprovementRecommendation(
+    pattern: DetectedPattern
+  ): void {
     const id = `improvement-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     this.recommendations.push({
@@ -419,9 +454,9 @@ export class SmartRecommendationsEngine {
         'סקר שביעות רצון מעמיק',
         'בחינת אלטרנטיבות',
         'תכנית שיפור/מיגרציה',
-        'הטמעה והכשרה'
+        'הטמעה והכשרה',
       ],
-      priority: 0
+      priority: 0,
     });
   }
 
@@ -445,17 +480,20 @@ export class SmartRecommendationsEngine {
         'תיעוד endpoints זמינים',
         'בניית integrations בסיסיות',
         'הרחבה לתרחישים נוספים',
-        'ניטור ושיפור מתמיד'
+        'ניטור ושיפור מתמיד',
       ],
-      priority: 0
+      priority: 0,
     });
   }
 
   private addTemplateRecommendations(): void {
     // Only add templates that are relevant to detected patterns
-    const hasCRM = this.meeting.modules.systems?.detailedSystems?.some(s => s.category === 'crm');
-    const hasReporting = this.meeting.modules.reporting?.scheduledReports &&
-                         this.meeting.modules.reporting.scheduledReports.length > 0;
+    const hasCRM = this.meeting.modules.systems?.detailedSystems?.some(
+      (s) => s.category === 'crm'
+    );
+    const hasReporting =
+      this.meeting.modules.reporting?.scheduledReports &&
+      this.meeting.modules.reporting.scheduledReports.length > 0;
 
     if (hasCRM && hasReporting) {
       this.recommendations.push(this.getDailySummaryReportRecommendation());
@@ -503,7 +541,9 @@ export class SmartRecommendationsEngine {
     });
   }
 
-  public prioritizeRecommendationsArray(recommendations: SmartRecommendation[]): SmartRecommendation[] {
+  public prioritizeRecommendationsArray(
+    recommendations: SmartRecommendation[]
+  ): SmartRecommendation[] {
     const sorted = [...recommendations].sort((a, b) => {
       if (a.quickWin && !b.quickWin) return -1;
       if (!a.quickWin && b.quickWin) return 1;
@@ -526,7 +566,9 @@ export class SmartRecommendationsEngine {
   }
 
   // Static method that doesn't require meeting data
-  public static sortRecommendations(recommendations: SmartRecommendation[]): SmartRecommendation[] {
+  public static sortRecommendations(
+    recommendations: SmartRecommendation[]
+  ): SmartRecommendation[] {
     const sorted = [...recommendations].sort((a, b) => {
       if (a.quickWin && !b.quickWin) return -1;
       if (!a.quickWin && b.quickWin) return 1;
@@ -555,7 +597,8 @@ export class SmartRecommendationsEngine {
   private getCRMWhatsAppIntegrationTemplate(): N8nWorkflowTemplate {
     return {
       name: 'CRM to WhatsApp Integration',
-      description: 'Automatically send WhatsApp messages when new leads are created in CRM',
+      description:
+        'Automatically send WhatsApp messages when new leads are created in CRM',
       estimatedSetupTime: 30,
       nodes: [
         {
@@ -565,8 +608,8 @@ export class SmartRecommendationsEngine {
           position: [250, 300],
           parameters: {
             httpMethod: 'POST',
-            path: 'crm-lead'
-          }
+            path: 'crm-lead',
+          },
         },
         {
           id: 'extract',
@@ -581,8 +624,8 @@ export class SmartRecommendationsEngine {
                 source: items[0].json.lead_source
               };
               return [{ json: leadData }];
-            `
-          }
+            `,
+          },
         },
         {
           id: 'whatsapp',
@@ -592,8 +635,8 @@ export class SmartRecommendationsEngine {
           parameters: {
             operation: 'sendMessage',
             to: '={{$json.phone}}',
-            message: 'שלום {{$json.name}}, תודה על פנייתך. נחזור אליך בהקדם.'
-          }
+            message: 'שלום {{$json.name}}, תודה על פנייתך. נחזור אליך בהקדם.',
+          },
         },
         {
           id: 'crm-update',
@@ -607,24 +650,25 @@ export class SmartRecommendationsEngine {
             options: {
               body: {
                 whatsapp_sent: true,
-                last_contact: '={{new Date().toISOString()}}'
-              }
-            }
-          }
-        }
+                last_contact: '={{new Date().toISOString()}}',
+              },
+            },
+          },
+        },
       ],
       connections: [
         { from: 'trigger', to: 'extract' },
         { from: 'extract', to: 'whatsapp' },
-        { from: 'whatsapp', to: 'crm-update' }
-      ]
+        { from: 'whatsapp', to: 'crm-update' },
+      ],
     };
   }
 
   private getAIChatbotTemplate(): N8nWorkflowTemplate {
     return {
       name: 'AI Customer Service Chatbot',
-      description: 'Handle customer inquiries using AI with fallback to human agents',
+      description:
+        'Handle customer inquiries using AI with fallback to human agents',
       estimatedSetupTime: 60,
       nodes: [
         {
@@ -634,8 +678,8 @@ export class SmartRecommendationsEngine {
           position: [250, 300],
           parameters: {
             httpMethod: 'POST',
-            path: 'customer-chat'
-          }
+            path: 'customer-chat',
+          },
         },
         {
           id: 'openai',
@@ -647,12 +691,12 @@ export class SmartRecommendationsEngine {
             model: 'gpt-4',
             messages: {
               messageType: 'conversational',
-              message: '={{$json.message}}'
+              message: '={{$json.message}}',
             },
             options: {
-              systemMessage: 'אתה נציג שירות לקוחות מועיל ומקצועי. ענה בעברית.'
-            }
-          }
+              systemMessage: 'אתה נציג שירות לקוחות מועיל ומקצועי. ענה בעברית.',
+            },
+          },
         },
         {
           id: 'confidence-check',
@@ -665,11 +709,11 @@ export class SmartRecommendationsEngine {
                 {
                   value1: '={{$json.confidence}}',
                   operation: 'larger',
-                  value2: 0.7
-                }
-              ]
-            }
-          }
+                  value2: 0.7,
+                },
+              ],
+            },
+          },
         },
         {
           id: 'send-response',
@@ -681,9 +725,9 @@ export class SmartRecommendationsEngine {
             url: 'https://api.whatsapp.com/send',
             body: {
               to: '={{$json.customer_phone}}',
-              message: '={{$json.ai_response}}'
-            }
-          }
+              message: '={{$json.ai_response}}',
+            },
+          },
         },
         {
           id: 'human-handoff',
@@ -692,16 +736,16 @@ export class SmartRecommendationsEngine {
           position: [850, 400],
           parameters: {
             channel: '#customer-service',
-            text: 'לקוח זקוק לעזרה אנושית: {{$json.message}}'
-          }
-        }
+            text: 'לקוח זקוק לעזרה אנושית: {{$json.message}}',
+          },
+        },
       ],
       connections: [
         { from: 'webhook', to: 'openai' },
         { from: 'openai', to: 'confidence-check' },
         { from: 'confidence-check', to: 'send-response', fromPort: 0 },
-        { from: 'confidence-check', to: 'human-handoff', fromPort: 1 }
-      ]
+        { from: 'confidence-check', to: 'human-handoff', fromPort: 1 },
+      ],
     };
   }
 
@@ -718,8 +762,8 @@ export class SmartRecommendationsEngine {
           position: [250, 300],
           parameters: {
             httpMethod: 'POST',
-            path: 'new-lead'
-          }
+            path: 'new-lead',
+          },
         },
         {
           id: 'time-check',
@@ -733,11 +777,11 @@ export class SmartRecommendationsEngine {
                   value1: '={{new Date().getHours()}}',
                   operation: 'between',
                   value2: 9,
-                  value3: 18
-                }
-              ]
-            }
-          }
+                  value3: 18,
+                },
+              ],
+            },
+          },
         },
         {
           id: 'business-hours',
@@ -745,8 +789,8 @@ export class SmartRecommendationsEngine {
           name: 'Immediate Response',
           position: [650, 200],
           parameters: {
-            message: 'שלום! נציג יחזור אליך בתוך דקות.'
-          }
+            message: 'שלום! נציג יחזור אליך בתוך דקות.',
+          },
         },
         {
           id: 'after-hours',
@@ -754,8 +798,8 @@ export class SmartRecommendationsEngine {
           name: 'After Hours Message',
           position: [650, 400],
           parameters: {
-            message: 'שלום! קיבלנו את פנייתך. נחזור אליך מחר בשעות 9:00-18:00.'
-          }
+            message: 'שלום! קיבלנו את פנייתך. נחזור אליך מחר בשעות 9:00-18:00.',
+          },
         },
         {
           id: 'crm-save',
@@ -768,18 +812,18 @@ export class SmartRecommendationsEngine {
             body: {
               source: 'after_hours',
               priority: 'high',
-              data: '={{$json}}'
-            }
-          }
-        }
+              data: '={{$json}}',
+            },
+          },
+        },
       ],
       connections: [
         { from: 'trigger', to: 'time-check' },
         { from: 'time-check', to: 'business-hours', fromPort: 0 },
         { from: 'time-check', to: 'after-hours', fromPort: 1 },
         { from: 'business-hours', to: 'crm-save' },
-        { from: 'after-hours', to: 'crm-save' }
-      ]
+        { from: 'after-hours', to: 'crm-save' },
+      ],
     };
   }
 
@@ -796,9 +840,9 @@ export class SmartRecommendationsEngine {
           position: [250, 300],
           parameters: {
             rule: {
-              interval: [{ field: 'cronExpression', expression: '0 8 * * *' }]
-            }
-          }
+              interval: [{ field: 'cronExpression', expression: '0 8 * * *' }],
+            },
+          },
         },
         {
           id: 'crm-data',
@@ -806,8 +850,8 @@ export class SmartRecommendationsEngine {
           name: 'Get CRM Metrics',
           position: [450, 250],
           parameters: {
-            url: 'https://api.crm.com/metrics/daily'
-          }
+            url: 'https://api.crm.com/metrics/daily',
+          },
         },
         {
           id: 'service-data',
@@ -815,8 +859,8 @@ export class SmartRecommendationsEngine {
           name: 'Get Service Metrics',
           position: [450, 350],
           parameters: {
-            url: 'https://api.helpdesk.com/tickets/summary'
-          }
+            url: 'https://api.helpdesk.com/tickets/summary',
+          },
         },
         {
           id: 'merge',
@@ -824,8 +868,8 @@ export class SmartRecommendationsEngine {
           name: 'Merge Data',
           position: [650, 300],
           parameters: {
-            mode: 'mergeByIndex'
-          }
+            mode: 'mergeByIndex',
+          },
         },
         {
           id: 'format',
@@ -848,8 +892,8 @@ export class SmartRecommendationsEngine {
 - זמן תגובה ממוצע: \${items[1].json.avg_response_time} דקות
               \`;
               return [{ json: { report } }];
-            `
-          }
+            `,
+          },
         },
         {
           id: 'email',
@@ -859,9 +903,9 @@ export class SmartRecommendationsEngine {
           parameters: {
             to: 'management@company.com',
             subject: 'דו"ח יומי - {{new Date().toLocaleDateString()}}',
-            text: '={{$json.report}}'
-          }
-        }
+            text: '={{$json.report}}',
+          },
+        },
       ],
       connections: [
         { from: 'schedule', to: 'crm-data' },
@@ -869,8 +913,8 @@ export class SmartRecommendationsEngine {
         { from: 'crm-data', to: 'merge' },
         { from: 'service-data', to: 'merge' },
         { from: 'merge', to: 'format' },
-        { from: 'format', to: 'email' }
-      ]
+        { from: 'format', to: 'email' },
+      ],
     };
   }
 
@@ -885,7 +929,7 @@ export class SmartRecommendationsEngine {
           type: 'webhook',
           name: 'New Lead',
           position: [250, 300],
-          parameters: { path: 'lead-routing' }
+          parameters: { path: 'lead-routing' },
         },
         {
           id: 'score',
@@ -899,8 +943,8 @@ export class SmartRecommendationsEngine {
               if (items[0].json.budget > 50000) score += 40;
               if (items[0].json.urgency === 'high') score += 30;
               return [{ json: { ...items[0].json, score } }];
-            `
-          }
+            `,
+          },
         },
         {
           id: 'route',
@@ -910,11 +954,21 @@ export class SmartRecommendationsEngine {
           parameters: {
             rules: {
               number: [
-                { value1: '={{$json.score}}', operation: 'largerEqual', value2: 70, output: 0 },
-                { value1: '={{$json.score}}', operation: 'largerEqual', value2: 40, output: 1 }
-              ]
-            }
-          }
+                {
+                  value1: '={{$json.score}}',
+                  operation: 'largerEqual',
+                  value2: 70,
+                  output: 0,
+                },
+                {
+                  value1: '={{$json.score}}',
+                  operation: 'largerEqual',
+                  value2: 40,
+                  output: 1,
+                },
+              ],
+            },
+          },
         },
         {
           id: 'senior',
@@ -923,8 +977,8 @@ export class SmartRecommendationsEngine {
           position: [850, 200],
           parameters: {
             url: 'https://api.crm.com/assign',
-            body: { lead_id: '={{$json.id}}', rep: 'senior_team' }
-          }
+            body: { lead_id: '={{$json.id}}', rep: 'senior_team' },
+          },
         },
         {
           id: 'regular',
@@ -933,8 +987,8 @@ export class SmartRecommendationsEngine {
           position: [850, 300],
           parameters: {
             url: 'https://api.crm.com/assign',
-            body: { lead_id: '={{$json.id}}', rep: 'regular_team' }
-          }
+            body: { lead_id: '={{$json.id}}', rep: 'regular_team' },
+          },
         },
         {
           id: 'junior',
@@ -943,17 +997,17 @@ export class SmartRecommendationsEngine {
           position: [850, 400],
           parameters: {
             url: 'https://api.crm.com/assign',
-            body: { lead_id: '={{$json.id}}', rep: 'junior_team' }
-          }
-        }
+            body: { lead_id: '={{$json.id}}', rep: 'junior_team' },
+          },
+        },
       ],
       connections: [
         { from: 'webhook', to: 'score' },
         { from: 'score', to: 'route' },
         { from: 'route', to: 'senior', fromPort: 0 },
         { from: 'route', to: 'regular', fromPort: 1 },
-        { from: 'route', to: 'junior', fromPort: 2 }
-      ]
+        { from: 'route', to: 'junior', fromPort: 2 },
+      ],
     };
   }
 
@@ -968,7 +1022,7 @@ export class SmartRecommendationsEngine {
           type: 'webhook',
           name: 'New Customer',
           position: [250, 300],
-          parameters: { path: 'new-customer' }
+          parameters: { path: 'new-customer' },
         },
         {
           id: 'welcome',
@@ -977,15 +1031,15 @@ export class SmartRecommendationsEngine {
           position: [450, 300],
           parameters: {
             subject: 'ברוכים הבאים!',
-            text: 'שלום {{$json.name}}, תודה שבחרת בנו!'
-          }
+            text: 'שלום {{$json.name}}, תודה שבחרת בנו!',
+          },
         },
         {
           id: 'wait-1',
           type: 'wait',
           name: 'Wait 1 Day',
           position: [650, 300],
-          parameters: { amount: 1, unit: 'days' }
+          parameters: { amount: 1, unit: 'days' },
         },
         {
           id: 'tutorial',
@@ -994,15 +1048,15 @@ export class SmartRecommendationsEngine {
           position: [850, 300],
           parameters: {
             subject: 'איך להתחיל',
-            text: 'הנה מדריך מהיר לשימוש במערכת...'
-          }
+            text: 'הנה מדריך מהיר לשימוש במערכת...',
+          },
         },
         {
           id: 'wait-2',
           type: 'wait',
           name: 'Wait 3 Days',
           position: [1050, 300],
-          parameters: { amount: 3, unit: 'days' }
+          parameters: { amount: 3, unit: 'days' },
         },
         {
           id: 'check-in',
@@ -1011,17 +1065,17 @@ export class SmartRecommendationsEngine {
           position: [1250, 300],
           parameters: {
             subject: 'איך הולך?',
-            text: 'נשמח לשמוע איך המערכת עובדת עבורך'
-          }
-        }
+            text: 'נשמח לשמוע איך המערכת עובדת עבורך',
+          },
+        },
       ],
       connections: [
         { from: 'trigger', to: 'welcome' },
         { from: 'welcome', to: 'wait-1' },
         { from: 'wait-1', to: 'tutorial' },
         { from: 'tutorial', to: 'wait-2' },
-        { from: 'wait-2', to: 'check-in' }
-      ]
+        { from: 'wait-2', to: 'check-in' },
+      ],
     };
   }
 
@@ -1122,10 +1176,10 @@ export class SmartRecommendationsEngine {
         'הגדרת מדדי KPI לדו"ח',
         'בניית workflow ב-n8n',
         'עיצוב תבנית דו"ח',
-        'תזמון שליחה יומית'
+        'תזמון שליחה יומית',
       ],
       priority: 0,
-      n8nWorkflowTemplate: this.getDailySummaryReportTemplate()
+      n8nWorkflowTemplate: this.getDailySummaryReportTemplate(),
     };
   }
 
@@ -1134,7 +1188,8 @@ export class SmartRecommendationsEngine {
       id: `lead-routing-${Date.now()}`,
       title: 'Smart Lead Routing',
       titleHebrew: 'ניתוב חכם של לידים',
-      description: 'Automatically route leads to the right sales rep based on criteria',
+      description:
+        'Automatically route leads to the right sales rep based on criteria',
       category: 'automation',
       impactScore: 8,
       effortScore: 2,
@@ -1147,10 +1202,10 @@ export class SmartRecommendationsEngine {
         'מיפוי נציגי מכירות',
         'בניית לוגיקת ניקוד',
         'יצירת workflow ב-n8n',
-        'בדיקות ומעקב'
+        'בדיקות ומעקב',
       ],
       priority: 0,
-      n8nWorkflowTemplate: this.getLeadRoutingTemplate()
+      n8nWorkflowTemplate: this.getLeadRoutingTemplate(),
     };
   }
 
@@ -1172,10 +1227,10 @@ export class SmartRecommendationsEngine {
         'הגדרת נקודות מגע',
         'כתיבת תוכן לכל שלב',
         'בניית workflow ב-n8n',
-        'מדידת הצלחה'
+        'מדידת הצלחה',
       ],
       priority: 0,
-      n8nWorkflowTemplate: this.getCustomerOnboardingTemplate()
+      n8nWorkflowTemplate: this.getCustomerOnboardingTemplate(),
     };
   }
 
@@ -1215,9 +1270,12 @@ export class SmartRecommendationsEngine {
     const systems: string[] = [];
 
     if (pattern.description.toLowerCase().includes('crm')) systems.push('CRM');
-    if (pattern.description.toLowerCase().includes('whatsapp')) systems.push('WhatsApp');
-    if (pattern.description.toLowerCase().includes('email')) systems.push('Email');
-    if (pattern.description.toLowerCase().includes('invoic')) systems.push('Accounting');
+    if (pattern.description.toLowerCase().includes('whatsapp'))
+      systems.push('WhatsApp');
+    if (pattern.description.toLowerCase().includes('email'))
+      systems.push('Email');
+    if (pattern.description.toLowerCase().includes('invoic'))
+      systems.push('Accounting');
 
     return systems;
   }
@@ -1231,11 +1289,13 @@ export class SmartRecommendationsEngine {
   }
 
   public getQuickWins(): SmartRecommendation[] {
-    return this.recommendations.filter(r => r.quickWin);
+    return this.recommendations.filter((r) => r.quickWin);
   }
 
-  public getByCategory(category: SmartRecommendation['category']): SmartRecommendation[] {
-    return this.recommendations.filter(r => r.category === category);
+  public getByCategory(
+    category: SmartRecommendation['category']
+  ): SmartRecommendation[] {
+    return this.recommendations.filter((r) => r.category === category);
   }
 
   public getPatternAnalysis(): PatternAnalysisResult {
@@ -1249,11 +1309,11 @@ export class SmartRecommendationsEngine {
       automationOpportunities: this.patterns.length,
       totalPotentialSavings,
       criticalIssues: this.patterns
-        .filter(p => p.severity === 'critical')
-        .map(p => p.description),
+        .filter((p) => p.severity === 'critical')
+        .map((p) => p.description),
       quickWins: this.recommendations
-        .filter(r => r.quickWin)
-        .map(r => r.titleHebrew)
+        .filter((r) => r.quickWin)
+        .map((r) => r.titleHebrew),
     };
   }
 
@@ -1298,7 +1358,9 @@ export function getQuickWins(meeting: Meeting): SmartRecommendation[] {
 /**
  * Get all recommendations for a meeting
  */
-export function getSmartRecommendations(meeting: Meeting): SmartRecommendation[] {
+export function getSmartRecommendations(
+  meeting: Meeting
+): SmartRecommendation[] {
   const engine = new SmartRecommendationsEngine(meeting);
   return engine.getRecommendations();
 }

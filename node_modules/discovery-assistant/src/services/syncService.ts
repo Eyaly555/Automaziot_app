@@ -23,7 +23,8 @@ export class SyncService {
   private syncQueue: SyncQueueItem[] = [];
   private isSyncing = false;
   private syncInterval: NodeJS.Timeout | null = null;
-  private conflictResolutionStrategy: 'local' | 'remote' | 'merge' | 'ask' = 'merge';
+  private conflictResolutionStrategy: 'local' | 'remote' | 'merge' | 'ask' =
+    'merge';
   private offlineChanges: Map<string, any> = new Map();
 
   private constructor() {
@@ -60,12 +61,14 @@ export class SyncService {
   }
 
   // Add item to sync queue
-  private addToQueue(item: Omit<SyncQueueItem, 'id' | 'timestamp' | 'retries'>): void {
+  private addToQueue(
+    item: Omit<SyncQueueItem, 'id' | 'timestamp' | 'retries'>
+  ): void {
     const queueItem: SyncQueueItem = {
       ...item,
       id: crypto.randomUUID(),
       timestamp: Date.now(),
-      retries: 0
+      retries: 0,
     };
 
     this.syncQueue.push(queueItem);
@@ -106,7 +109,9 @@ export class SyncService {
     }
 
     // Remove processed items
-    this.syncQueue = this.syncQueue.filter(item => !processed.includes(item.id));
+    this.syncQueue = this.syncQueue.filter(
+      (item) => !processed.includes(item.id)
+    );
     this.saveQueueToStorage();
     this.isSyncing = false;
   }
@@ -151,7 +156,9 @@ export class SyncService {
   // Handle failed sync items
   private handleFailedSync(item: SyncQueueItem): void {
     try {
-      const deadLetterQueue = JSON.parse(localStorage.getItem('deadLetterQueue') || '[]');
+      const deadLetterQueue = JSON.parse(
+        localStorage.getItem('deadLetterQueue') || '[]'
+      );
       deadLetterQueue.push({ ...item, failedAt: Date.now() });
       localStorage.setItem('deadLetterQueue', JSON.stringify(deadLetterQueue));
     } catch (error) {
@@ -191,7 +198,7 @@ export class SyncService {
         wizard_state: meeting.wizardState as any,
         ai_insights: meeting.aiInsights as any,
         updated_at: new Date().toISOString(),
-        last_modified_by: userId
+        last_modified_by: userId,
       };
 
       if (existingMeeting) {
@@ -203,7 +210,7 @@ export class SyncService {
             return {
               success: false,
               error: 'Conflict detected',
-              conflicts: [existingMeeting]
+              conflicts: [existingMeeting],
             };
           }
         }
@@ -217,7 +224,11 @@ export class SyncService {
           .eq('id', meeting.id);
 
         if (error) {
-          this.addToQueue({ type: 'update', table: 'meetings', data: dbMeeting });
+          this.addToQueue({
+            type: 'update',
+            table: 'meetings',
+            data: dbMeeting,
+          });
           return { success: false, error: error.message };
         }
 
@@ -226,19 +237,20 @@ export class SyncService {
           meeting_id: meeting.id,
           user_id: userId,
           action: 'update',
-          metadata: { version: dbMeeting.version }
+          metadata: { version: dbMeeting.version },
         });
-
       } else {
         // Create new meeting
         dbMeeting.version = 1;
 
-        const { error } = await supabase
-          .from('meetings')
-          .insert(dbMeeting);
+        const { error } = await supabase.from('meetings').insert(dbMeeting);
 
         if (error) {
-          this.addToQueue({ type: 'create', table: 'meetings', data: dbMeeting });
+          this.addToQueue({
+            type: 'create',
+            table: 'meetings',
+            data: dbMeeting,
+          });
           return { success: false, error: error.message };
         }
 
@@ -246,18 +258,17 @@ export class SyncService {
         await this.logActivity({
           meeting_id: meeting.id,
           user_id: userId,
-          action: 'create'
+          action: 'create',
         });
       }
 
       return { success: true, synced: 1 };
-
     } catch (error) {
       console.error('Sync error:', error);
       this.addToQueue({
         type: existingMeeting ? 'update' : 'create',
         table: 'meetings',
-        data: meeting
+        data: meeting,
       });
       return { success: false, error: 'Sync failed' };
     }
@@ -267,7 +278,9 @@ export class SyncService {
   private async detectConflict(local: Meeting, remote: any): Promise<boolean> {
     // Compare timestamps - handle both Date and string types
     const localTime = local.updatedAt ? new Date(local.updatedAt).getTime() : 0;
-    const remoteTime = remote.updated_at ? new Date(remote.updated_at).getTime() : 0;
+    const remoteTime = remote.updated_at
+      ? new Date(remote.updated_at).getTime()
+      : 0;
 
     // If remote is newer and versions differ, we have a conflict
     return remoteTime > localTime && remote.version !== local.version;
@@ -305,7 +318,7 @@ export class SyncService {
       const merged = {
         ...remote,
         ...local,
-        version: remote.version + 1
+        version: remote.version + 1,
       };
 
       // Store merged version
@@ -318,7 +331,10 @@ export class SyncService {
   }
 
   // Sync all meetings
-  async syncAllMeetings(meetings: Meeting[], userId: string): Promise<SyncResult> {
+  async syncAllMeetings(
+    meetings: Meeting[],
+    userId: string
+  ): Promise<SyncResult> {
     if (!isSupabaseConfigured()) {
       return { success: true };
     }
@@ -345,12 +361,14 @@ export class SyncService {
       success: synced === meetings.length,
       synced,
       conflicts: conflicts.length > 0 ? conflicts : undefined,
-      error: errors.length > 0 ? errors.join(', ') : undefined
+      error: errors.length > 0 ? errors.join(', ') : undefined,
     };
   }
 
   // Pull meetings from Supabase
-  async pullMeetings(userId: string): Promise<{ meetings: Meeting[]; error?: string }> {
+  async pullMeetings(
+    userId: string
+  ): Promise<{ meetings: Meeting[]; error?: string }> {
     if (!isSupabaseConfigured()) {
       return { meetings: [] };
     }
@@ -359,10 +377,12 @@ export class SyncService {
       // Get meetings where user is owner or collaborator
       const { data: meetings, error } = await supabase
         .from('meetings')
-        .select(`
+        .select(
+          `
           *,
           meeting_collaborators!inner(user_id, role)
-        `)
+        `
+        )
         .or(`owner_id.eq.${userId},meeting_collaborators.user_id.eq.${userId}`);
 
       if (error) {
@@ -386,11 +406,10 @@ export class SyncService {
         aiInsights: dbMeeting.ai_insights,
         createdAt: dbMeeting.created_at,
         updatedAt: dbMeeting.updated_at,
-        version: dbMeeting.version
+        version: dbMeeting.version,
       }));
 
       return { meetings: appMeetings };
-
     } catch (error) {
       console.error('Pull error:', error);
       return { meetings: [], error: 'Failed to pull meetings' };
@@ -404,9 +423,7 @@ export class SyncService {
     }
 
     try {
-      await supabase
-        .from('meeting_activities')
-        .insert(activity);
+      await supabase.from('meeting_activities').insert(activity);
     } catch (error) {
       console.error('Error logging activity:', error);
     }
@@ -445,7 +462,9 @@ export class SyncService {
 
     for (const [id, meeting] of this.offlineChanges) {
       // Get user from auth
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
         const result = await this.syncMeeting(meeting, user.id);
         if (result.success) {
@@ -481,7 +500,7 @@ export class SyncService {
       isSyncing: this.isSyncing,
       offlineChanges: this.offlineChanges.size,
       isOnline: navigator.onLine,
-      isConfigured: isSupabaseConfigured()
+      isConfigured: isSupabaseConfigured(),
     };
   }
 
@@ -492,7 +511,7 @@ export class SyncService {
 
     return {
       success: this.syncQueue.length === 0 && this.offlineChanges.size === 0,
-      synced: this.syncQueue.length
+      synced: this.syncQueue.length,
     };
   }
 
@@ -532,7 +551,7 @@ export class SyncService {
 
     return {
       success: true,
-      synced: retried
+      synced: retried,
     };
   }
 }

@@ -3,22 +3,32 @@ import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useSmartField } from '../../../../hooks/useSmartField';
 import { SmartFieldWidget } from '../../../Common/FormFields/SmartFieldWidget';
-import type { AutoCRMUpdateRequirements, AutomationServiceEntry } from '../../../../types/automationServices';
+import type {
+  AutoCRMUpdateRequirements,
+  AutomationServiceEntry,
+} from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
-import { Plus, Trash2, Save, Info, AlertCircle, CheckCircle } from 'lucide-react';
+import {
+  Plus,
+  Trash2,
+  Save,
+  Info,
+  AlertCircle,
+  CheckCircle,
+} from 'lucide-react';
 
 const CRM_SYSTEMS = [
   { value: 'zoho', label: 'Zoho CRM' },
   { value: 'salesforce', label: 'Salesforce' },
   { value: 'hubspot', label: 'HubSpot' },
   { value: 'pipedrive', label: 'Pipedrive' },
-  { value: 'other', label: 'אחר' }
+  { value: 'other', label: 'אחר' },
 ];
 
 const AUTH_METHODS = [
   { value: 'oauth', label: 'OAuth 2.0' },
   { value: 'api_key', label: 'API Key' },
-  { value: 'basic_auth', label: 'Basic Auth' }
+  { value: 'basic_auth', label: 'Basic Auth' },
 ];
 
 const FORM_PLATFORMS = [
@@ -28,7 +38,7 @@ const FORM_PLATFORMS = [
   { value: 'google_forms', label: 'Google Forms' },
   { value: 'typeform', label: 'Typeform' },
   { value: 'jotform', label: 'JotForm' },
-  { value: 'custom', label: 'Custom / Other' }
+  { value: 'custom', label: 'Custom / Other' },
 ];
 
 const FIELD_TYPES = [
@@ -39,20 +49,20 @@ const FIELD_TYPES = [
   { value: 'date', label: 'Date' },
   { value: 'dropdown', label: 'Dropdown' },
   { value: 'checkbox', label: 'Checkbox' },
-  { value: 'textarea', label: 'Textarea' }
+  { value: 'textarea', label: 'Textarea' },
 ];
 
 const API_INTEGRATION_METHODS = [
   { value: 'rest_api', label: 'REST API' },
   { value: 'webhook', label: 'Webhook' },
-  { value: 'polling', label: 'Polling' }
+  { value: 'polling', label: 'Polling' },
 ];
 
 const DUPLICATE_STRATEGIES = [
   { value: 'update_existing', label: 'עדכן רשומה קיימת' },
   { value: 'skip', label: 'דלג על כפילות' },
   { value: 'create_new', label: 'צור רשומה חדשה בכל מקרה' },
-  { value: 'alert', label: 'התרעה בלבד' }
+  { value: 'alert', label: 'התרעה בלבד' },
 ];
 
 export function AutoCRMUpdateSpec() {
@@ -63,35 +73,35 @@ export function AutoCRMUpdateSpec() {
     fieldId: 'crm_system',
     localPath: 'crmAccess.system',
     serviceId: 'auto-crm-update',
-    autoSave: false
+    autoSave: false,
   });
 
   const crmAuthMethod = useSmartField<string>({
     fieldId: 'crm_auth_method',
     localPath: 'crmAccess.authMethod',
     serviceId: 'auto-crm-update',
-    autoSave: false
+    autoSave: false,
   });
 
   const n8nInstanceUrl = useSmartField<string>({
     fieldId: 'n8n_instance_url',
     localPath: 'n8nWorkflow.instanceUrl',
     serviceId: 'auto-crm-update',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'n8nWorkflow.errorHandling.alertEmail',
     serviceId: 'auto-crm-update',
-    autoSave: false
+    autoSave: false,
   });
 
   const retryAttempts = useSmartField<number>({
     fieldId: 'retry_attempts',
     localPath: 'n8nWorkflow.errorHandling.retryAttempts',
     serviceId: 'auto-crm-update',
-    autoSave: false
+    autoSave: false,
   });
 
   const [config, setConfig] = useState<AutoCRMUpdateRequirements>({
@@ -100,16 +110,16 @@ export function AutoCRMUpdateSpec() {
       authMethod: crmAuthMethod.value || 'oauth',
       rateLimits: {
         daily: 0,
-        batchSupported: false
+        batchSupported: false,
       },
       targetModule: '',
       customFieldsAvailable: false,
-      customFields: []
+      customFields: [],
     },
     formPlatformAccess: {
       platform: '',
       webhookSupport: false,
-      formFields: []
+      formFields: [],
     },
     n8nWorkflow: {
       instanceUrl: n8nInstanceUrl.value || '',
@@ -119,65 +129,79 @@ export function AutoCRMUpdateSpec() {
         retryAttempts: retryAttempts.value || 3,
         retryDelay: 1000,
         alertEmail: alertEmail.value || '',
-        logErrors: true
-      }
+        logErrors: true,
+      },
     },
     fieldMappingDocument: {
       mappings: [],
-      lastUpdated: new Date()
+      lastUpdated: new Date(),
     },
     duplicateDetection: {
       enabled: false,
       strategy: '',
-      checkFields: []
-    }
+      checkFields: [],
+    },
   });
 
-  const [activeTab, setActiveTab] = useState<'crm' | 'form' | 'mapping' | 'workflow' | 'duplicates'>('crm');
+  const [activeTab, setActiveTab] = useState<
+    'crm' | 'form' | 'mapping' | 'workflow' | 'duplicates'
+  >('crm');
 
   // Auto-save hook for immediate saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-crm-update',
-    category: 'automations'
+    category: 'automations',
   });
 
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
-    const existing = automations.find((a: AutomationServiceEntry) => a.serviceId === 'auto-crm-update');
+    const existing = automations.find(
+      (a: AutomationServiceEntry) => a.serviceId === 'auto-crm-update'
+    );
     if (existing?.requirements) {
       setConfig(existing.requirements);
     }
 
     // Sync smart field values with config
-    setConfig(prev => ({
+    setConfig((prev) => ({
       ...prev,
       crmAccess: {
         ...prev.crmAccess,
         system: crmSystem.value || prev.crmAccess.system,
-        authMethod: crmAuthMethod.value || prev.crmAccess.authMethod
+        authMethod: crmAuthMethod.value || prev.crmAccess.authMethod,
       },
       n8nWorkflow: {
         ...prev.n8nWorkflow,
         instanceUrl: n8nInstanceUrl.value || prev.n8nWorkflow.instanceUrl,
         errorHandling: {
           ...prev.n8nWorkflow.errorHandling,
-          alertEmail: alertEmail.value || prev.n8nWorkflow.errorHandling.alertEmail,
-          retryAttempts: retryAttempts.value || prev.n8nWorkflow.errorHandling.retryAttempts
-        }
-      }
+          alertEmail:
+            alertEmail.value || prev.n8nWorkflow.errorHandling.alertEmail,
+          retryAttempts:
+            retryAttempts.value || prev.n8nWorkflow.errorHandling.retryAttempts,
+        },
+      },
     }));
-  }, [currentMeeting, crmSystem.value, crmAuthMethod.value, n8nInstanceUrl.value, alertEmail.value, retryAttempts.value]);
+  }, [
+    currentMeeting,
+    crmSystem.value,
+    crmAuthMethod.value,
+    n8nInstanceUrl.value,
+    alertEmail.value,
+    retryAttempts.value,
+  ]);
 
   // Auto-save when config or smart field values change
   useEffect(() => {
-    if (config.crmAccess?.system) { // Only save if we have basic data
+    if (config.crmAccess?.system) {
+      // Only save if we have basic data
       // Build complete config with smart field values
       const completeConfig = {
         ...config,
         crmAccess: {
           ...config.crmAccess,
           system: crmSystem.value,
-          authMethod: crmAuthMethod.value
+          authMethod: crmAuthMethod.value,
         },
         n8nWorkflow: {
           ...config.n8nWorkflow,
@@ -185,13 +209,21 @@ export function AutoCRMUpdateSpec() {
           errorHandling: {
             ...config.n8nWorkflow.errorHandling,
             alertEmail: alertEmail.value,
-            retryAttempts: retryAttempts.value
-          }
-        }
+            retryAttempts: retryAttempts.value,
+          },
+        },
       };
       saveData(completeConfig);
     }
-  }, [config, crmSystem.value, crmAuthMethod.value, n8nInstanceUrl.value, alertEmail.value, retryAttempts.value, saveData]);
+  }, [
+    config,
+    crmSystem.value,
+    crmAuthMethod.value,
+    n8nInstanceUrl.value,
+    alertEmail.value,
+    retryAttempts.value,
+    saveData,
+  ]);
 
   // Manual save handler (kept for compatibility, but auto-save is primary)
   const handleManualSave = async () => {
@@ -201,7 +233,7 @@ export function AutoCRMUpdateSpec() {
       crmAccess: {
         ...config.crmAccess,
         system: crmSystem.value,
-        authMethod: crmAuthMethod.value
+        authMethod: crmAuthMethod.value,
       },
       n8nWorkflow: {
         ...config.n8nWorkflow,
@@ -209,9 +241,9 @@ export function AutoCRMUpdateSpec() {
         errorHandling: {
           ...config.n8nWorkflow.errorHandling,
           alertEmail: alertEmail.value,
-          retryAttempts: retryAttempts.value
-        }
-      }
+          retryAttempts: retryAttempts.value,
+        },
+      },
     };
     await saveData(completeConfig);
   };
@@ -227,10 +259,10 @@ export function AutoCRMUpdateSpec() {
             apiName: '',
             label: '',
             type: '',
-            required: false
-          }
-        ]
-      }
+            required: false,
+          },
+        ],
+      },
     });
   };
 
@@ -239,8 +271,10 @@ export function AutoCRMUpdateSpec() {
       ...config,
       crmAccess: {
         ...config.crmAccess,
-        customFields: config.crmAccess.customFields.filter((_, i) => i !== index)
-      }
+        customFields: config.crmAccess.customFields.filter(
+          (_, i) => i !== index
+        ),
+      },
     });
   };
 
@@ -255,10 +289,10 @@ export function AutoCRMUpdateSpec() {
             fieldName: '',
             fieldLabel: '',
             fieldType: '',
-            required: false
-          }
-        ]
-      }
+            required: false,
+          },
+        ],
+      },
     });
   };
 
@@ -267,8 +301,10 @@ export function AutoCRMUpdateSpec() {
       ...config,
       formPlatformAccess: {
         ...config.formPlatformAccess,
-        formFields: config.formPlatformAccess.formFields.filter((_, i) => i !== index)
-      }
+        formFields: config.formPlatformAccess.formFields.filter(
+          (_, i) => i !== index
+        ),
+      },
     });
   };
 
@@ -282,11 +318,11 @@ export function AutoCRMUpdateSpec() {
             formField: '',
             crmField: '',
             transformation: '',
-            notes: ''
-          }
+            notes: '',
+          },
         ],
-        lastUpdated: new Date()
-      }
+        lastUpdated: new Date(),
+      },
     });
   };
 
@@ -294,9 +330,11 @@ export function AutoCRMUpdateSpec() {
     setConfig({
       ...config,
       fieldMappingDocument: {
-        mappings: (config.fieldMappingDocument?.mappings || []).filter((_, i) => i !== index),
-        lastUpdated: new Date()
-      }
+        mappings: (config.fieldMappingDocument?.mappings || []).filter(
+          (_, i) => i !== index
+        ),
+        lastUpdated: new Date(),
+      },
     });
   };
 
@@ -306,8 +344,8 @@ export function AutoCRMUpdateSpec() {
       duplicateDetection: {
         enabled: config.duplicateDetection?.enabled || false,
         strategy: config.duplicateDetection?.strategy || '',
-        checkFields: [...(config.duplicateDetection?.checkFields || []), '']
-      }
+        checkFields: [...(config.duplicateDetection?.checkFields || []), ''],
+      },
     });
   };
 
@@ -317,8 +355,10 @@ export function AutoCRMUpdateSpec() {
       duplicateDetection: {
         enabled: config.duplicateDetection?.enabled || false,
         strategy: config.duplicateDetection?.strategy || '',
-        checkFields: (config.duplicateDetection?.checkFields || []).filter((_, i) => i !== index)
-      }
+        checkFields: (config.duplicateDetection?.checkFields || []).filter(
+          (_, i) => i !== index
+        ),
+      },
     });
   };
 
@@ -332,9 +372,7 @@ export function AutoCRMUpdateSpec() {
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 עדכון אוטומטי ל-CRM
               </h1>
-              <p className="text-gray-600">
-                Auto CRM Update - Service #3
-              </p>
+              <p className="text-gray-600">Auto CRM Update - Service #3</p>
             </div>
             <div className="flex items-center gap-2">
               {isSaving && (
@@ -381,7 +419,8 @@ export function AutoCRMUpdateSpec() {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">
-                {currentMeeting?.modules?.leadsAndSales?.leadVolume?.monthly || 'לא צוין'}
+                {currentMeeting?.modules?.leadsAndSales?.leadVolume?.monthly ||
+                  'לא צוין'}
               </div>
               <div className="text-sm text-gray-600">לידים לחודש</div>
             </div>
@@ -401,14 +440,20 @@ export function AutoCRMUpdateSpec() {
         </div>
 
         {/* Smart Fields Info Banner */}
-        {(crmSystem.isAutoPopulated || crmAuthMethod.isAutoPopulated || n8nInstanceUrl.isAutoPopulated || alertEmail.isAutoPopulated || retryAttempts.isAutoPopulated) && (
+        {(crmSystem.isAutoPopulated ||
+          crmAuthMethod.isAutoPopulated ||
+          n8nInstanceUrl.isAutoPopulated ||
+          alertEmail.isAutoPopulated ||
+          retryAttempts.isAutoPopulated) && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3 mb-6">
             <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+              <h4 className="font-semibold text-blue-900 mb-1">
+                נתונים מולאו אוטומטית משלב 1
+              </h4>
               <p className="text-sm text-blue-800">
-                חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-                תוכל לערוך אותם במידת הצורך.
+                חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל
+                לערוך אותם במידת הצורך.
               </p>
               <div className="mt-2 flex flex-wrap gap-1">
                 {crmSystem.isAutoPopulated && (
@@ -447,11 +492,17 @@ export function AutoCRMUpdateSpec() {
         )}
 
         {/* Conflict Warnings */}
-        {(crmSystem.hasConflict || crmAuthMethod.hasConflict || n8nInstanceUrl.hasConflict || alertEmail.hasConflict || retryAttempts.hasConflict) && (
+        {(crmSystem.hasConflict ||
+          crmAuthMethod.hasConflict ||
+          n8nInstanceUrl.hasConflict ||
+          alertEmail.hasConflict ||
+          retryAttempts.hasConflict) && (
           <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3 mb-6">
             <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h4 className="font-semibold text-orange-900 mb-1">אזהרות נתונים</h4>
+              <h4 className="font-semibold text-orange-900 mb-1">
+                אזהרות נתונים
+              </h4>
               <p className="text-sm text-orange-800 mb-2">
                 זוהו התנגשויות בנתונים. בדוק את השדות המסומנים בכתום.
               </p>
@@ -463,12 +514,14 @@ export function AutoCRMUpdateSpec() {
                 )}
                 {crmAuthMethod.hasConflict && (
                   <div className="text-sm text-orange-800">
-                    <strong>שיטת אימות:</strong> {crmAuthMethod.conflict?.message}
+                    <strong>שיטת אימות:</strong>{' '}
+                    {crmAuthMethod.conflict?.message}
                   </div>
                 )}
                 {n8nInstanceUrl.hasConflict && (
                   <div className="text-sm text-orange-800">
-                    <strong>n8n Instance:</strong> {n8nInstanceUrl.conflict?.message}
+                    <strong>n8n Instance:</strong>{' '}
+                    {n8nInstanceUrl.conflict?.message}
                   </div>
                 )}
                 {alertEmail.hasConflict && (
@@ -478,7 +531,8 @@ export function AutoCRMUpdateSpec() {
                 )}
                 {retryAttempts.hasConflict && (
                   <div className="text-sm text-orange-800">
-                    <strong>ניסיונות חזרה:</strong> {retryAttempts.conflict?.message}
+                    <strong>ניסיונות חזרה:</strong>{' '}
+                    {retryAttempts.conflict?.message}
                   </div>
                 )}
               </div>
@@ -495,8 +549,8 @@ export function AutoCRMUpdateSpec() {
                 { id: 'form', label: 'פלטפורמת טופס' },
                 { id: 'mapping', label: 'מיפוי שדות' },
                 { id: 'workflow', label: 'n8n Workflow' },
-                { id: 'duplicates', label: 'מניעת כפילויות' }
-              ].map(tab => (
+                { id: 'duplicates', label: 'מניעת כפילויות' },
+              ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
@@ -527,7 +581,7 @@ export function AutoCRMUpdateSpec() {
                         { value: 'salesforce', label: 'Salesforce' },
                         { value: 'hubspot', label: 'HubSpot' },
                         { value: 'pipedrive', label: 'Pipedrive' },
-                        { value: 'other', label: 'אחר' }
+                        { value: 'other', label: 'אחר' },
                       ]}
                     />
 
@@ -537,7 +591,7 @@ export function AutoCRMUpdateSpec() {
                       options={[
                         { value: 'oauth', label: 'OAuth 2.0' },
                         { value: 'api_key', label: 'API Key' },
-                        { value: 'basic_auth', label: 'Basic Auth' }
+                        { value: 'basic_auth', label: 'Basic Auth' },
                       ]}
                     />
                   </div>
@@ -546,7 +600,9 @@ export function AutoCRMUpdateSpec() {
                 {/* Zoho Credentials */}
                 {crmSystem.value === 'zoho' && (
                   <Card className="p-6">
-                    <h3 className="text-lg font-semibold mb-4">Zoho OAuth Credentials</h3>
+                    <h3 className="text-lg font-semibold mb-4">
+                      Zoho OAuth Credentials
+                    </h3>
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -555,21 +611,33 @@ export function AutoCRMUpdateSpec() {
                           </label>
                           <input
                             type="text"
-                            value={config.crmAccess.zohoCredentials?.clientId || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              crmAccess: {
-                                ...config.crmAccess,
-                                zohoCredentials: {
-                                  ...config.crmAccess.zohoCredentials!,
-                                  clientId: e.target.value,
-                                  clientSecret: config.crmAccess.zohoCredentials?.clientSecret || '',
-                                  refreshToken: config.crmAccess.zohoCredentials?.refreshToken || '',
-                                  apiDomain: config.crmAccess.zohoCredentials?.apiDomain || '',
-                                  tokenExpiry: config.crmAccess.zohoCredentials?.tokenExpiry || ''
-                                }
-                              }
-                            })}
+                            value={
+                              config.crmAccess.zohoCredentials?.clientId || ''
+                            }
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                crmAccess: {
+                                  ...config.crmAccess,
+                                  zohoCredentials: {
+                                    ...config.crmAccess.zohoCredentials!,
+                                    clientId: e.target.value,
+                                    clientSecret:
+                                      config.crmAccess.zohoCredentials
+                                        ?.clientSecret || '',
+                                    refreshToken:
+                                      config.crmAccess.zohoCredentials
+                                        ?.refreshToken || '',
+                                    apiDomain:
+                                      config.crmAccess.zohoCredentials
+                                        ?.apiDomain || '',
+                                    tokenExpiry:
+                                      config.crmAccess.zohoCredentials
+                                        ?.tokenExpiry || '',
+                                  },
+                                },
+                              })
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="1000.XXXXXXXXX"
                           />
@@ -581,21 +649,34 @@ export function AutoCRMUpdateSpec() {
                           </label>
                           <input
                             type="password"
-                            value={config.crmAccess.zohoCredentials?.clientSecret || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              crmAccess: {
-                                ...config.crmAccess,
-                                zohoCredentials: {
-                                  ...config.crmAccess.zohoCredentials!,
-                                  clientId: config.crmAccess.zohoCredentials?.clientId || '',
-                                  clientSecret: e.target.value,
-                                  refreshToken: config.crmAccess.zohoCredentials?.refreshToken || '',
-                                  apiDomain: config.crmAccess.zohoCredentials?.apiDomain || '',
-                                  tokenExpiry: config.crmAccess.zohoCredentials?.tokenExpiry || ''
-                                }
-                              }
-                            })}
+                            value={
+                              config.crmAccess.zohoCredentials?.clientSecret ||
+                              ''
+                            }
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                crmAccess: {
+                                  ...config.crmAccess,
+                                  zohoCredentials: {
+                                    ...config.crmAccess.zohoCredentials!,
+                                    clientId:
+                                      config.crmAccess.zohoCredentials
+                                        ?.clientId || '',
+                                    clientSecret: e.target.value,
+                                    refreshToken:
+                                      config.crmAccess.zohoCredentials
+                                        ?.refreshToken || '',
+                                    apiDomain:
+                                      config.crmAccess.zohoCredentials
+                                        ?.apiDomain || '',
+                                    tokenExpiry:
+                                      config.crmAccess.zohoCredentials
+                                        ?.tokenExpiry || '',
+                                  },
+                                },
+                              })
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           />
                         </div>
@@ -606,21 +687,34 @@ export function AutoCRMUpdateSpec() {
                           </label>
                           <input
                             type="password"
-                            value={config.crmAccess.zohoCredentials?.refreshToken || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              crmAccess: {
-                                ...config.crmAccess,
-                                zohoCredentials: {
-                                  ...config.crmAccess.zohoCredentials!,
-                                  clientId: config.crmAccess.zohoCredentials?.clientId || '',
-                                  clientSecret: config.crmAccess.zohoCredentials?.clientSecret || '',
-                                  refreshToken: e.target.value,
-                                  apiDomain: config.crmAccess.zohoCredentials?.apiDomain || '',
-                                  tokenExpiry: config.crmAccess.zohoCredentials?.tokenExpiry || ''
-                                }
-                              }
-                            })}
+                            value={
+                              config.crmAccess.zohoCredentials?.refreshToken ||
+                              ''
+                            }
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                crmAccess: {
+                                  ...config.crmAccess,
+                                  zohoCredentials: {
+                                    ...config.crmAccess.zohoCredentials!,
+                                    clientId:
+                                      config.crmAccess.zohoCredentials
+                                        ?.clientId || '',
+                                    clientSecret:
+                                      config.crmAccess.zohoCredentials
+                                        ?.clientSecret || '',
+                                    refreshToken: e.target.value,
+                                    apiDomain:
+                                      config.crmAccess.zohoCredentials
+                                        ?.apiDomain || '',
+                                    tokenExpiry:
+                                      config.crmAccess.zohoCredentials
+                                        ?.tokenExpiry || '',
+                                  },
+                                },
+                              })
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           />
                         </div>
@@ -631,21 +725,33 @@ export function AutoCRMUpdateSpec() {
                           </label>
                           <input
                             type="text"
-                            value={config.crmAccess.zohoCredentials?.apiDomain || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              crmAccess: {
-                                ...config.crmAccess,
-                                zohoCredentials: {
-                                  ...config.crmAccess.zohoCredentials!,
-                                  clientId: config.crmAccess.zohoCredentials?.clientId || '',
-                                  clientSecret: config.crmAccess.zohoCredentials?.clientSecret || '',
-                                  refreshToken: config.crmAccess.zohoCredentials?.refreshToken || '',
-                                  apiDomain: e.target.value,
-                                  tokenExpiry: config.crmAccess.zohoCredentials?.tokenExpiry || ''
-                                }
-                              }
-                            })}
+                            value={
+                              config.crmAccess.zohoCredentials?.apiDomain || ''
+                            }
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                crmAccess: {
+                                  ...config.crmAccess,
+                                  zohoCredentials: {
+                                    ...config.crmAccess.zohoCredentials!,
+                                    clientId:
+                                      config.crmAccess.zohoCredentials
+                                        ?.clientId || '',
+                                    clientSecret:
+                                      config.crmAccess.zohoCredentials
+                                        ?.clientSecret || '',
+                                    refreshToken:
+                                      config.crmAccess.zohoCredentials
+                                        ?.refreshToken || '',
+                                    apiDomain: e.target.value,
+                                    tokenExpiry:
+                                      config.crmAccess.zohoCredentials
+                                        ?.tokenExpiry || '',
+                                  },
+                                },
+                              })
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="https://www.zohoapis.com"
                           />
@@ -657,26 +763,40 @@ export function AutoCRMUpdateSpec() {
                           Token Expiry
                         </label>
                         <select
-                          value={config.crmAccess.zohoCredentials?.tokenExpiry || ''}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            crmAccess: {
-                              ...config.crmAccess,
-                              zohoCredentials: {
-                                ...config.crmAccess.zohoCredentials!,
-                                clientId: config.crmAccess.zohoCredentials?.clientId || '',
-                                clientSecret: config.crmAccess.zohoCredentials?.clientSecret || '',
-                                refreshToken: config.crmAccess.zohoCredentials?.refreshToken || '',
-                                apiDomain: config.crmAccess.zohoCredentials?.apiDomain || '',
-                                tokenExpiry: e.target.value
-                              }
-                            }
-                          })}
+                          value={
+                            config.crmAccess.zohoCredentials?.tokenExpiry || ''
+                          }
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              crmAccess: {
+                                ...config.crmAccess,
+                                zohoCredentials: {
+                                  ...config.crmAccess.zohoCredentials!,
+                                  clientId:
+                                    config.crmAccess.zohoCredentials
+                                      ?.clientId || '',
+                                  clientSecret:
+                                    config.crmAccess.zohoCredentials
+                                      ?.clientSecret || '',
+                                  refreshToken:
+                                    config.crmAccess.zohoCredentials
+                                      ?.refreshToken || '',
+                                  apiDomain:
+                                    config.crmAccess.zohoCredentials
+                                      ?.apiDomain || '',
+                                  tokenExpiry: e.target.value,
+                                },
+                              },
+                            })
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         >
                           <option value="">בחר...</option>
                           <option value="3 months">3 חודשים</option>
-                          <option value="permanent (Self Client)">Permanent (Self Client)</option>
+                          <option value="permanent (Self Client)">
+                            Permanent (Self Client)
+                          </option>
                         </select>
                       </div>
 
@@ -684,10 +804,13 @@ export function AutoCRMUpdateSpec() {
                         <div className="flex items-start gap-3">
                           <Info className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
                           <div>
-                            <h4 className="font-medium text-yellow-900 mb-1">שימו לב - Zoho CRM</h4>
+                            <h4 className="font-medium text-yellow-900 mb-1">
+                              שימו לב - Zoho CRM
+                            </h4>
                             <p className="text-sm text-yellow-700">
-                              Refresh Token נדרש לחידוש כל 3 חודשים (אלא אם כן משתמשים ב-Self Client).
-                              יש לוודא שיש תהליך לחידוש אוטומטי או תזכורת ידנית.
+                              Refresh Token נדרש לחידוש כל 3 חודשים (אלא אם כן
+                              משתמשים ב-Self Client). יש לוודא שיש תהליך לחידוש
+                              אוטומטי או תזכורת ידנית.
                             </p>
                           </div>
                         </div>
@@ -699,7 +822,9 @@ export function AutoCRMUpdateSpec() {
                 {/* Salesforce Credentials */}
                 {crmSystem.value === 'salesforce' && (
                   <Card className="p-6">
-                    <h3 className="text-lg font-semibold mb-4">Salesforce Credentials</h3>
+                    <h3 className="text-lg font-semibold mb-4">
+                      Salesforce Credentials
+                    </h3>
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -708,21 +833,34 @@ export function AutoCRMUpdateSpec() {
                           </label>
                           <input
                             type="text"
-                            value={config.crmAccess.salesforceCredentials?.consumerKey || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              crmAccess: {
-                                ...config.crmAccess,
-                                salesforceCredentials: {
-                                  ...config.crmAccess.salesforceCredentials!,
-                                  consumerKey: e.target.value,
-                                  consumerSecret: config.crmAccess.salesforceCredentials?.consumerSecret || '',
-                                  username: config.crmAccess.salesforceCredentials?.username || '',
-                                  password: config.crmAccess.salesforceCredentials?.password || '',
-                                  securityToken: config.crmAccess.salesforceCredentials?.securityToken || ''
-                                }
-                              }
-                            })}
+                            value={
+                              config.crmAccess.salesforceCredentials
+                                ?.consumerKey || ''
+                            }
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                crmAccess: {
+                                  ...config.crmAccess,
+                                  salesforceCredentials: {
+                                    ...config.crmAccess.salesforceCredentials!,
+                                    consumerKey: e.target.value,
+                                    consumerSecret:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.consumerSecret || '',
+                                    username:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.username || '',
+                                    password:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.password || '',
+                                    securityToken:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.securityToken || '',
+                                  },
+                                },
+                              })
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           />
                         </div>
@@ -733,21 +871,34 @@ export function AutoCRMUpdateSpec() {
                           </label>
                           <input
                             type="password"
-                            value={config.crmAccess.salesforceCredentials?.consumerSecret || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              crmAccess: {
-                                ...config.crmAccess,
-                                salesforceCredentials: {
-                                  ...config.crmAccess.salesforceCredentials!,
-                                  consumerKey: config.crmAccess.salesforceCredentials?.consumerKey || '',
-                                  consumerSecret: e.target.value,
-                                  username: config.crmAccess.salesforceCredentials?.username || '',
-                                  password: config.crmAccess.salesforceCredentials?.password || '',
-                                  securityToken: config.crmAccess.salesforceCredentials?.securityToken || ''
-                                }
-                              }
-                            })}
+                            value={
+                              config.crmAccess.salesforceCredentials
+                                ?.consumerSecret || ''
+                            }
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                crmAccess: {
+                                  ...config.crmAccess,
+                                  salesforceCredentials: {
+                                    ...config.crmAccess.salesforceCredentials!,
+                                    consumerKey:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.consumerKey || '',
+                                    consumerSecret: e.target.value,
+                                    username:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.username || '',
+                                    password:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.password || '',
+                                    securityToken:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.securityToken || '',
+                                  },
+                                },
+                              })
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           />
                         </div>
@@ -758,21 +909,34 @@ export function AutoCRMUpdateSpec() {
                           </label>
                           <input
                             type="text"
-                            value={config.crmAccess.salesforceCredentials?.username || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              crmAccess: {
-                                ...config.crmAccess,
-                                salesforceCredentials: {
-                                  ...config.crmAccess.salesforceCredentials!,
-                                  consumerKey: config.crmAccess.salesforceCredentials?.consumerKey || '',
-                                  consumerSecret: config.crmAccess.salesforceCredentials?.consumerSecret || '',
-                                  username: e.target.value,
-                                  password: config.crmAccess.salesforceCredentials?.password || '',
-                                  securityToken: config.crmAccess.salesforceCredentials?.securityToken || ''
-                                }
-                              }
-                            })}
+                            value={
+                              config.crmAccess.salesforceCredentials
+                                ?.username || ''
+                            }
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                crmAccess: {
+                                  ...config.crmAccess,
+                                  salesforceCredentials: {
+                                    ...config.crmAccess.salesforceCredentials!,
+                                    consumerKey:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.consumerKey || '',
+                                    consumerSecret:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.consumerSecret || '',
+                                    username: e.target.value,
+                                    password:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.password || '',
+                                    securityToken:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.securityToken || '',
+                                  },
+                                },
+                              })
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           />
                         </div>
@@ -783,21 +947,34 @@ export function AutoCRMUpdateSpec() {
                           </label>
                           <input
                             type="password"
-                            value={config.crmAccess.salesforceCredentials?.password || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              crmAccess: {
-                                ...config.crmAccess,
-                                salesforceCredentials: {
-                                  ...config.crmAccess.salesforceCredentials!,
-                                  consumerKey: config.crmAccess.salesforceCredentials?.consumerKey || '',
-                                  consumerSecret: config.crmAccess.salesforceCredentials?.consumerSecret || '',
-                                  username: config.crmAccess.salesforceCredentials?.username || '',
-                                  password: e.target.value,
-                                  securityToken: config.crmAccess.salesforceCredentials?.securityToken || ''
-                                }
-                              }
-                            })}
+                            value={
+                              config.crmAccess.salesforceCredentials
+                                ?.password || ''
+                            }
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                crmAccess: {
+                                  ...config.crmAccess,
+                                  salesforceCredentials: {
+                                    ...config.crmAccess.salesforceCredentials!,
+                                    consumerKey:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.consumerKey || '',
+                                    consumerSecret:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.consumerSecret || '',
+                                    username:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.username || '',
+                                    password: e.target.value,
+                                    securityToken:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.securityToken || '',
+                                  },
+                                },
+                              })
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           />
                         </div>
@@ -808,21 +985,34 @@ export function AutoCRMUpdateSpec() {
                           </label>
                           <input
                             type="password"
-                            value={config.crmAccess.salesforceCredentials?.securityToken || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              crmAccess: {
-                                ...config.crmAccess,
-                                salesforceCredentials: {
-                                  ...config.crmAccess.salesforceCredentials!,
-                                  consumerKey: config.crmAccess.salesforceCredentials?.consumerKey || '',
-                                  consumerSecret: config.crmAccess.salesforceCredentials?.consumerSecret || '',
-                                  username: config.crmAccess.salesforceCredentials?.username || '',
-                                  password: config.crmAccess.salesforceCredentials?.password || '',
-                                  securityToken: e.target.value
-                                }
-                              }
-                            })}
+                            value={
+                              config.crmAccess.salesforceCredentials
+                                ?.securityToken || ''
+                            }
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                crmAccess: {
+                                  ...config.crmAccess,
+                                  salesforceCredentials: {
+                                    ...config.crmAccess.salesforceCredentials!,
+                                    consumerKey:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.consumerKey || '',
+                                    consumerSecret:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.consumerSecret || '',
+                                    username:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.username || '',
+                                    password:
+                                      config.crmAccess.salesforceCredentials
+                                        ?.password || '',
+                                    securityToken: e.target.value,
+                                  },
+                                },
+                              })
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           />
                         </div>
@@ -832,10 +1022,13 @@ export function AutoCRMUpdateSpec() {
                         <div className="flex items-start gap-3">
                           <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                           <div>
-                            <h4 className="font-medium text-blue-900 mb-1">שימו לב - Salesforce</h4>
+                            <h4 className="font-medium text-blue-900 mb-1">
+                              שימו לב - Salesforce
+                            </h4>
                             <p className="text-sm text-blue-700">
-                              Salesforce מגביל API calls בהתאם לגרסה (15,000-100,000 ליום).
-                              במקרה של טפסים רבים, מומלץ להפעיל Batch Updates.
+                              Salesforce מגביל API calls בהתאם לגרסה
+                              (15,000-100,000 ליום). במקרה של טפסים רבים, מומלץ
+                              להפעיל Batch Updates.
                             </p>
                           </div>
                         </div>
@@ -847,7 +1040,9 @@ export function AutoCRMUpdateSpec() {
                 {/* HubSpot Credentials */}
                 {crmSystem.value === 'hubspot' && (
                   <Card className="p-6">
-                    <h3 className="text-lg font-semibold mb-4">HubSpot Credentials</h3>
+                    <h3 className="text-lg font-semibold mb-4">
+                      HubSpot Credentials
+                    </h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -855,17 +1050,21 @@ export function AutoCRMUpdateSpec() {
                         </label>
                         <input
                           type="password"
-                          value={config.crmAccess.hubspotCredentials?.apiKey || ''}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            crmAccess: {
-                              ...config.crmAccess,
-                              hubspotCredentials: {
-                                ...config.crmAccess.hubspotCredentials,
-                                apiKey: e.target.value
-                              }
-                            }
-                          })}
+                          value={
+                            config.crmAccess.hubspotCredentials?.apiKey || ''
+                          }
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              crmAccess: {
+                                ...config.crmAccess,
+                                hubspotCredentials: {
+                                  ...config.crmAccess.hubspotCredentials,
+                                  apiKey: e.target.value,
+                                },
+                              },
+                            })
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         />
                       </div>
@@ -876,23 +1075,29 @@ export function AutoCRMUpdateSpec() {
                         </label>
                         <input
                           type="password"
-                          value={config.crmAccess.hubspotCredentials?.privateAppToken || ''}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            crmAccess: {
-                              ...config.crmAccess,
-                              hubspotCredentials: {
-                                ...config.crmAccess.hubspotCredentials,
-                                privateAppToken: e.target.value
-                              }
-                            }
-                          })}
+                          value={
+                            config.crmAccess.hubspotCredentials
+                              ?.privateAppToken || ''
+                          }
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              crmAccess: {
+                                ...config.crmAccess,
+                                hubspotCredentials: {
+                                  ...config.crmAccess.hubspotCredentials,
+                                  privateAppToken: e.target.value,
+                                },
+                              },
+                            })
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         />
                       </div>
 
                       <p className="text-sm text-gray-600">
-                        * ניתן להשתמש ב-API Key או ב-Private App Token (לא חובה שניהם)
+                        * ניתן להשתמש ב-API Key או ב-Private App Token (לא חובה
+                        שניהם)
                       </p>
                     </div>
                   </Card>
@@ -909,16 +1114,18 @@ export function AutoCRMUpdateSpec() {
                       <input
                         type="number"
                         value={config.crmAccess.rateLimits.daily}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          crmAccess: {
-                            ...config.crmAccess,
-                            rateLimits: {
-                              ...config.crmAccess.rateLimits,
-                              daily: parseInt(e.target.value) || 0
-                            }
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            crmAccess: {
+                              ...config.crmAccess,
+                              rateLimits: {
+                                ...config.crmAccess.rateLimits,
+                                daily: parseInt(e.target.value) || 0,
+                              },
+                            },
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="5000"
                       />
@@ -931,16 +1138,19 @@ export function AutoCRMUpdateSpec() {
                       <input
                         type="number"
                         value={config.crmAccess.rateLimits.concurrent || ''}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          crmAccess: {
-                            ...config.crmAccess,
-                            rateLimits: {
-                              ...config.crmAccess.rateLimits,
-                              concurrent: parseInt(e.target.value) || undefined
-                            }
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            crmAccess: {
+                              ...config.crmAccess,
+                              rateLimits: {
+                                ...config.crmAccess.rateLimits,
+                                concurrent:
+                                  parseInt(e.target.value) || undefined,
+                              },
+                            },
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="10"
                       />
@@ -951,16 +1161,18 @@ export function AutoCRMUpdateSpec() {
                         <input
                           type="checkbox"
                           checked={config.crmAccess.rateLimits.batchSupported}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            crmAccess: {
-                              ...config.crmAccess,
-                              rateLimits: {
-                                ...config.crmAccess.rateLimits,
-                                batchSupported: e.target.checked
-                              }
-                            }
-                          })}
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              crmAccess: {
+                                ...config.crmAccess,
+                                rateLimits: {
+                                  ...config.crmAccess.rateLimits,
+                                  batchSupported: e.target.checked,
+                                },
+                              },
+                            })
+                          }
                           className="rounded border-gray-300"
                         />
                         <span className="text-sm font-medium text-gray-700">
@@ -973,7 +1185,9 @@ export function AutoCRMUpdateSpec() {
 
                 {/* Target Module & Custom Fields */}
                 <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">Module & Custom Fields</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Module & Custom Fields
+                  </h3>
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -982,13 +1196,15 @@ export function AutoCRMUpdateSpec() {
                       <input
                         type="text"
                         value={config.crmAccess.targetModule}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          crmAccess: {
-                            ...config.crmAccess,
-                            targetModule: e.target.value
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            crmAccess: {
+                              ...config.crmAccess,
+                              targetModule: e.target.value,
+                            },
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="Leads / Contacts / Deals"
                       />
@@ -998,13 +1214,15 @@ export function AutoCRMUpdateSpec() {
                       <input
                         type="checkbox"
                         checked={config.crmAccess.customFieldsAvailable}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          crmAccess: {
-                            ...config.crmAccess,
-                            customFieldsAvailable: e.target.checked
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            crmAccess: {
+                              ...config.crmAccess,
+                              customFieldsAvailable: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium text-gray-700">
@@ -1026,20 +1244,25 @@ export function AutoCRMUpdateSpec() {
                         </div>
 
                         {config.crmAccess.customFields.map((field, index) => (
-                          <div key={index} className="bg-gray-50 p-3 rounded-lg mb-2">
+                          <div
+                            key={index}
+                            className="bg-gray-50 p-3 rounded-lg mb-2"
+                          >
                             <div className="grid grid-cols-4 gap-3 mb-2">
                               <input
                                 type="text"
                                 value={field.apiName}
                                 onChange={(e) => {
-                                  const updated = [...config.crmAccess.customFields];
+                                  const updated = [
+                                    ...config.crmAccess.customFields,
+                                  ];
                                   updated[index].apiName = e.target.value;
                                   setConfig({
                                     ...config,
                                     crmAccess: {
                                       ...config.crmAccess,
-                                      customFields: updated
-                                    }
+                                      customFields: updated,
+                                    },
                                   });
                                 }}
                                 className="px-2 py-1 border border-gray-300 rounded text-sm"
@@ -1049,14 +1272,16 @@ export function AutoCRMUpdateSpec() {
                                 type="text"
                                 value={field.label}
                                 onChange={(e) => {
-                                  const updated = [...config.crmAccess.customFields];
+                                  const updated = [
+                                    ...config.crmAccess.customFields,
+                                  ];
                                   updated[index].label = e.target.value;
                                   setConfig({
                                     ...config,
                                     crmAccess: {
                                       ...config.crmAccess,
-                                      customFields: updated
-                                    }
+                                      customFields: updated,
+                                    },
                                   });
                                 }}
                                 className="px-2 py-1 border border-gray-300 rounded text-sm"
@@ -1066,14 +1291,16 @@ export function AutoCRMUpdateSpec() {
                                 type="text"
                                 value={field.type}
                                 onChange={(e) => {
-                                  const updated = [...config.crmAccess.customFields];
+                                  const updated = [
+                                    ...config.crmAccess.customFields,
+                                  ];
                                   updated[index].type = e.target.value;
                                   setConfig({
                                     ...config,
                                     crmAccess: {
                                       ...config.crmAccess,
-                                      customFields: updated
-                                    }
+                                      customFields: updated,
+                                    },
                                   });
                                 }}
                                 className="px-2 py-1 border border-gray-300 rounded text-sm"
@@ -1084,14 +1311,16 @@ export function AutoCRMUpdateSpec() {
                                   type="checkbox"
                                   checked={field.required}
                                   onChange={(e) => {
-                                    const updated = [...config.crmAccess.customFields];
+                                    const updated = [
+                                      ...config.crmAccess.customFields,
+                                    ];
                                     updated[index].required = e.target.checked;
                                     setConfig({
                                       ...config,
                                       crmAccess: {
                                         ...config.crmAccess,
-                                        customFields: updated
-                                      }
+                                        customFields: updated,
+                                      },
                                     });
                                   }}
                                   className="rounded border-gray-300"
@@ -1126,18 +1355,22 @@ export function AutoCRMUpdateSpec() {
                       </label>
                       <select
                         value={config.formPlatformAccess.platform}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          formPlatformAccess: {
-                            ...config.formPlatformAccess,
-                            platform: e.target.value
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            formPlatformAccess: {
+                              ...config.formPlatformAccess,
+                              platform: e.target.value,
+                            },
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="">בחר פלטפורמה...</option>
-                        {FORM_PLATFORMS.map(platform => (
-                          <option key={platform.value} value={platform.value}>{platform.label}</option>
+                        {FORM_PLATFORMS.map((platform) => (
+                          <option key={platform.value} value={platform.value}>
+                            {platform.label}
+                          </option>
                         ))}
                       </select>
                     </div>
@@ -1146,13 +1379,15 @@ export function AutoCRMUpdateSpec() {
                       <input
                         type="checkbox"
                         checked={config.formPlatformAccess.webhookSupport}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          formPlatformAccess: {
-                            ...config.formPlatformAccess,
-                            webhookSupport: e.target.checked
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            formPlatformAccess: {
+                              ...config.formPlatformAccess,
+                              webhookSupport: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium text-gray-700">
@@ -1168,13 +1403,15 @@ export function AutoCRMUpdateSpec() {
                         <input
                           type="url"
                           value={config.formPlatformAccess.webhookUrl || ''}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            formPlatformAccess: {
-                              ...config.formPlatformAccess,
-                              webhookUrl: e.target.value
-                            }
-                          })}
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              formPlatformAccess: {
+                                ...config.formPlatformAccess,
+                                webhookUrl: e.target.value,
+                              },
+                            })
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           placeholder="https://..."
                         />
@@ -1184,29 +1421,37 @@ export function AutoCRMUpdateSpec() {
                 </Card>
 
                 <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">API Integration (אופציונלי)</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    API Integration (אופציונלי)
+                  </h3>
                   <div className="grid grid-cols-3 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Method
                       </label>
                       <select
-                        value={config.formPlatformAccess.apiIntegration?.method || ''}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          formPlatformAccess: {
-                            ...config.formPlatformAccess,
-                            apiIntegration: {
-                              ...config.formPlatformAccess.apiIntegration!,
-                              method: e.target.value as any
-                            }
-                          }
-                        })}
+                        value={
+                          config.formPlatformAccess.apiIntegration?.method || ''
+                        }
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            formPlatformAccess: {
+                              ...config.formPlatformAccess,
+                              apiIntegration: {
+                                ...config.formPlatformAccess.apiIntegration!,
+                                method: e.target.value as any,
+                              },
+                            },
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="">בחר...</option>
-                        {API_INTEGRATION_METHODS.map(method => (
-                          <option key={method.value} value={method.value}>{method.label}</option>
+                        {API_INTEGRATION_METHODS.map((method) => (
+                          <option key={method.value} value={method.value}>
+                            {method.label}
+                          </option>
                         ))}
                       </select>
                     </div>
@@ -1217,17 +1462,21 @@ export function AutoCRMUpdateSpec() {
                       </label>
                       <input
                         type="password"
-                        value={config.formPlatformAccess.apiIntegration?.apiKey || ''}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          formPlatformAccess: {
-                            ...config.formPlatformAccess,
-                            apiIntegration: {
-                              ...config.formPlatformAccess.apiIntegration!,
-                              apiKey: e.target.value
-                            }
-                          }
-                        })}
+                        value={
+                          config.formPlatformAccess.apiIntegration?.apiKey || ''
+                        }
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            formPlatformAccess: {
+                              ...config.formPlatformAccess,
+                              apiIntegration: {
+                                ...config.formPlatformAccess.apiIntegration!,
+                                apiKey: e.target.value,
+                              },
+                            },
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       />
                     </div>
@@ -1238,17 +1487,22 @@ export function AutoCRMUpdateSpec() {
                       </label>
                       <input
                         type="url"
-                        value={config.formPlatformAccess.apiIntegration?.endpoint || ''}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          formPlatformAccess: {
-                            ...config.formPlatformAccess,
-                            apiIntegration: {
-                              ...config.formPlatformAccess.apiIntegration!,
-                              endpoint: e.target.value
-                            }
-                          }
-                        })}
+                        value={
+                          config.formPlatformAccess.apiIntegration?.endpoint ||
+                          ''
+                        }
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            formPlatformAccess: {
+                              ...config.formPlatformAccess,
+                              apiIntegration: {
+                                ...config.formPlatformAccess.apiIntegration!,
+                                endpoint: e.target.value,
+                              },
+                            },
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="https://..."
                       />
@@ -1275,14 +1529,16 @@ export function AutoCRMUpdateSpec() {
                           type="text"
                           value={field.fieldName}
                           onChange={(e) => {
-                            const updated = [...config.formPlatformAccess.formFields];
+                            const updated = [
+                              ...config.formPlatformAccess.formFields,
+                            ];
                             updated[index].fieldName = e.target.value;
                             setConfig({
                               ...config,
                               formPlatformAccess: {
                                 ...config.formPlatformAccess,
-                                formFields: updated
-                              }
+                                formFields: updated,
+                              },
                             });
                           }}
                           className="px-2 py-1 border border-gray-300 rounded text-sm"
@@ -1292,14 +1548,16 @@ export function AutoCRMUpdateSpec() {
                           type="text"
                           value={field.fieldLabel}
                           onChange={(e) => {
-                            const updated = [...config.formPlatformAccess.formFields];
+                            const updated = [
+                              ...config.formPlatformAccess.formFields,
+                            ];
                             updated[index].fieldLabel = e.target.value;
                             setConfig({
                               ...config,
                               formPlatformAccess: {
                                 ...config.formPlatformAccess,
-                                formFields: updated
-                              }
+                                formFields: updated,
+                              },
                             });
                           }}
                           className="px-2 py-1 border border-gray-300 rounded text-sm"
@@ -1308,21 +1566,25 @@ export function AutoCRMUpdateSpec() {
                         <select
                           value={field.fieldType}
                           onChange={(e) => {
-                            const updated = [...config.formPlatformAccess.formFields];
+                            const updated = [
+                              ...config.formPlatformAccess.formFields,
+                            ];
                             updated[index].fieldType = e.target.value;
                             setConfig({
                               ...config,
                               formPlatformAccess: {
                                 ...config.formPlatformAccess,
-                                formFields: updated
-                              }
+                                formFields: updated,
+                              },
                             });
                           }}
                           className="px-2 py-1 border border-gray-300 rounded text-sm"
                         >
                           <option value="">Type...</option>
-                          {FIELD_TYPES.map(type => (
-                            <option key={type.value} value={type.value}>{type.label}</option>
+                          {FIELD_TYPES.map((type) => (
+                            <option key={type.value} value={type.value}>
+                              {type.label}
+                            </option>
                           ))}
                         </select>
                         <label className="flex items-center gap-2">
@@ -1330,14 +1592,16 @@ export function AutoCRMUpdateSpec() {
                             type="checkbox"
                             checked={field.required}
                             onChange={(e) => {
-                              const updated = [...config.formPlatformAccess.formFields];
+                              const updated = [
+                                ...config.formPlatformAccess.formFields,
+                              ];
                               updated[index].required = e.target.checked;
                               setConfig({
                                 ...config,
                                 formPlatformAccess: {
                                   ...config.formPlatformAccess,
-                                  formFields: updated
-                                }
+                                  formFields: updated,
+                                },
                               });
                             }}
                             className="rounded border-gray-300"
@@ -1372,127 +1636,152 @@ export function AutoCRMUpdateSpec() {
                     </button>
                   </div>
 
-                  {(config.fieldMappingDocument?.mappings || []).map((mapping, index) => (
-                    <div key={index} className="bg-gray-50 p-4 rounded-lg mb-3">
-                      <div className="grid grid-cols-2 gap-3 mb-3">
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
-                            שדה בטופס
-                          </label>
-                          <input
-                            type="text"
-                            value={mapping.formField}
-                            onChange={(e) => {
-                              const updated = [...(config.fieldMappingDocument?.mappings || [])];
-                              updated[index].formField = e.target.value;
-                              setConfig({
-                                ...config,
-                                fieldMappingDocument: {
-                                  mappings: updated,
-                                  lastUpdated: new Date()
-                                }
-                              });
-                            }}
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                            placeholder="email"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
-                            שדה ב-CRM
-                          </label>
-                          <input
-                            type="text"
-                            value={mapping.crmField}
-                            onChange={(e) => {
-                              const updated = [...(config.fieldMappingDocument?.mappings || [])];
-                              updated[index].crmField = e.target.value;
-                              setConfig({
-                                ...config,
-                                fieldMappingDocument: {
-                                  mappings: updated,
-                                  lastUpdated: new Date()
-                                }
-                              });
-                            }}
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                            placeholder="Email"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3 mb-2">
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Transformation (אופציונלי)
-                          </label>
-                          <input
-                            type="text"
-                            value={mapping.transformation || ''}
-                            onChange={(e) => {
-                              const updated = [...(config.fieldMappingDocument?.mappings || [])];
-                              updated[index].transformation = e.target.value;
-                              setConfig({
-                                ...config,
-                                fieldMappingDocument: {
-                                  mappings: updated,
-                                  lastUpdated: new Date()
-                                }
-                              });
-                            }}
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                            placeholder="uppercase, trim, etc."
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
-                            הערות (אופציונלי)
-                          </label>
-                          <input
-                            type="text"
-                            value={mapping.notes || ''}
-                            onChange={(e) => {
-                              const updated = [...(config.fieldMappingDocument?.mappings || [])];
-                              updated[index].notes = e.target.value;
-                              setConfig({
-                                ...config,
-                                fieldMappingDocument: {
-                                  mappings: updated,
-                                  lastUpdated: new Date()
-                                }
-                              });
-                            }}
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                            placeholder="הערות..."
-                          />
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() => removeFieldMapping(index)}
-                        className="text-red-600 text-xs hover:text-red-700"
+                  {(config.fieldMappingDocument?.mappings || []).map(
+                    (mapping, index) => (
+                      <div
+                        key={index}
+                        className="bg-gray-50 p-4 rounded-lg mb-3"
                       >
-                        הסר מיפוי
-                      </button>
-                    </div>
-                  ))}
+                        <div className="grid grid-cols-2 gap-3 mb-3">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              שדה בטופס
+                            </label>
+                            <input
+                              type="text"
+                              value={mapping.formField}
+                              onChange={(e) => {
+                                const updated = [
+                                  ...(config.fieldMappingDocument?.mappings ||
+                                    []),
+                                ];
+                                updated[index].formField = e.target.value;
+                                setConfig({
+                                  ...config,
+                                  fieldMappingDocument: {
+                                    mappings: updated,
+                                    lastUpdated: new Date(),
+                                  },
+                                });
+                              }}
+                              className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                              placeholder="email"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              שדה ב-CRM
+                            </label>
+                            <input
+                              type="text"
+                              value={mapping.crmField}
+                              onChange={(e) => {
+                                const updated = [
+                                  ...(config.fieldMappingDocument?.mappings ||
+                                    []),
+                                ];
+                                updated[index].crmField = e.target.value;
+                                setConfig({
+                                  ...config,
+                                  fieldMappingDocument: {
+                                    mappings: updated,
+                                    lastUpdated: new Date(),
+                                  },
+                                });
+                              }}
+                              className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                              placeholder="Email"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 mb-2">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Transformation (אופציונלי)
+                            </label>
+                            <input
+                              type="text"
+                              value={mapping.transformation || ''}
+                              onChange={(e) => {
+                                const updated = [
+                                  ...(config.fieldMappingDocument?.mappings ||
+                                    []),
+                                ];
+                                updated[index].transformation = e.target.value;
+                                setConfig({
+                                  ...config,
+                                  fieldMappingDocument: {
+                                    mappings: updated,
+                                    lastUpdated: new Date(),
+                                  },
+                                });
+                              }}
+                              className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                              placeholder="uppercase, trim, etc."
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              הערות (אופציונלי)
+                            </label>
+                            <input
+                              type="text"
+                              value={mapping.notes || ''}
+                              onChange={(e) => {
+                                const updated = [
+                                  ...(config.fieldMappingDocument?.mappings ||
+                                    []),
+                                ];
+                                updated[index].notes = e.target.value;
+                                setConfig({
+                                  ...config,
+                                  fieldMappingDocument: {
+                                    mappings: updated,
+                                    lastUpdated: new Date(),
+                                  },
+                                });
+                              }}
+                              className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                              placeholder="הערות..."
+                            />
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => removeFieldMapping(index)}
+                          className="text-red-600 text-xs hover:text-red-700"
+                        >
+                          הסר מיפוי
+                        </button>
+                      </div>
+                    )
+                  )}
 
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
                     <div className="flex items-start gap-3">
                       <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                       <div>
-                        <h4 className="font-medium text-blue-900 mb-1">טיפ חשוב</h4>
+                        <h4 className="font-medium text-blue-900 mb-1">
+                          טיפ חשוב
+                        </h4>
                         <p className="text-sm text-blue-700">
-                          וודא שכל השדות ב-CRM כבר קיימים ונגישים ב-API. שדה לא תקין יכול לגרום לכל ה-sync ליפול.
+                          וודא שכל השדות ב-CRM כבר קיימים ונגישים ב-API. שדה לא
+                          תקין יכול לגרום לכל ה-sync ליפול.
                         </p>
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-4 text-xs text-gray-500">
-                    עודכן לאחרונה: {config.fieldMappingDocument?.lastUpdated ? new Date(config.fieldMappingDocument.lastUpdated).toLocaleString('he-IL') : 'לא עודכן'}
+                    עודכן לאחרונה:{' '}
+                    {config.fieldMappingDocument?.lastUpdated
+                      ? new Date(
+                          config.fieldMappingDocument.lastUpdated
+                        ).toLocaleString('he-IL')
+                      : 'לא עודכן'}
                   </div>
                 </Card>
               </div>
@@ -1519,13 +1808,15 @@ export function AutoCRMUpdateSpec() {
                       <input
                         type="url"
                         value={config.n8nWorkflow.webhookEndpoint}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          n8nWorkflow: {
-                            ...config.n8nWorkflow,
-                            webhookEndpoint: e.target.value
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            n8nWorkflow: {
+                              ...config.n8nWorkflow,
+                              webhookEndpoint: e.target.value,
+                            },
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="https://n8n.example.com/webhook/crm-update"
                       />
@@ -1535,13 +1826,15 @@ export function AutoCRMUpdateSpec() {
                       <input
                         type="checkbox"
                         checked={config.n8nWorkflow.httpsEnabled}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          n8nWorkflow: {
-                            ...config.n8nWorkflow,
-                            httpsEnabled: e.target.checked
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            n8nWorkflow: {
+                              ...config.n8nWorkflow,
+                              httpsEnabled: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium text-gray-700">
@@ -1569,16 +1862,18 @@ export function AutoCRMUpdateSpec() {
                         <input
                           type="number"
                           value={config.n8nWorkflow.errorHandling.retryDelay}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            n8nWorkflow: {
-                              ...config.n8nWorkflow,
-                              errorHandling: {
-                                ...config.n8nWorkflow.errorHandling,
-                                retryDelay: parseInt(e.target.value) || 1000
-                              }
-                            }
-                          })}
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              n8nWorkflow: {
+                                ...config.n8nWorkflow,
+                                errorHandling: {
+                                  ...config.n8nWorkflow.errorHandling,
+                                  retryDelay: parseInt(e.target.value) || 1000,
+                                },
+                              },
+                            })
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           min="100"
                           step="100"
@@ -1598,16 +1893,18 @@ export function AutoCRMUpdateSpec() {
                       <input
                         type="checkbox"
                         checked={config.n8nWorkflow.errorHandling.logErrors}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          n8nWorkflow: {
-                            ...config.n8nWorkflow,
-                            errorHandling: {
-                              ...config.n8nWorkflow.errorHandling,
-                              logErrors: e.target.checked
-                            }
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            n8nWorkflow: {
+                              ...config.n8nWorkflow,
+                              errorHandling: {
+                                ...config.n8nWorkflow.errorHandling,
+                                logErrors: e.target.checked,
+                              },
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium text-gray-700">
@@ -1621,11 +1918,20 @@ export function AutoCRMUpdateSpec() {
                   <div className="flex items-start gap-3">
                     <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
                     <div>
-                      <h4 className="font-medium text-yellow-900 mb-1">דברים חשובים לזכור</h4>
+                      <h4 className="font-medium text-yellow-900 mb-1">
+                        דברים חשובים לזכור
+                      </h4>
                       <ul className="text-sm text-yellow-700 space-y-1 list-disc mr-5">
-                        <li>מה קורה אם ה-CRM down? (צריך fallback mechanism)</li>
-                        <li>מה קורה אם הגענו ל-API rate limit? (צריך queuing או batch)</li>
-                        <li>איך אפשר לדעת אם טופס נכשל? (צריך monitoring ו-alerts)</li>
+                        <li>
+                          מה קורה אם ה-CRM down? (צריך fallback mechanism)
+                        </li>
+                        <li>
+                          מה קורה אם הגענו ל-API rate limit? (צריך queuing או
+                          batch)
+                        </li>
+                        <li>
+                          איך אפשר לדעת אם טופס נכשל? (צריך monitoring ו-alerts)
+                        </li>
                       </ul>
                     </div>
                   </div>
@@ -1643,17 +1949,23 @@ export function AutoCRMUpdateSpec() {
                       <input
                         type="checkbox"
                         checked={config.duplicateDetection?.enabled || false}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          duplicateDetection: {
-                            enabled: e.target.checked,
-                            strategy: config.duplicateDetection?.strategy || '',
-                            checkFields: config.duplicateDetection?.checkFields || []
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            duplicateDetection: {
+                              enabled: e.target.checked,
+                              strategy:
+                                config.duplicateDetection?.strategy || '',
+                              checkFields:
+                                config.duplicateDetection?.checkFields || [],
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
-                      <span className="text-sm font-medium">הפעל זיהוי כפילויות</span>
+                      <span className="text-sm font-medium">
+                        הפעל זיהוי כפילויות
+                      </span>
                     </label>
                   </div>
 
@@ -1665,19 +1977,25 @@ export function AutoCRMUpdateSpec() {
                         </label>
                         <select
                           value={config.duplicateDetection.strategy}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            duplicateDetection: {
-                              enabled: config.duplicateDetection?.enabled || false,
-                              strategy: e.target.value,
-                              checkFields: config.duplicateDetection?.checkFields || []
-                            }
-                          })}
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              duplicateDetection: {
+                                enabled:
+                                  config.duplicateDetection?.enabled || false,
+                                strategy: e.target.value,
+                                checkFields:
+                                  config.duplicateDetection?.checkFields || [],
+                              },
+                            })
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         >
                           <option value="">בחר אסטרטגיה...</option>
-                          {DUPLICATE_STRATEGIES.map(strategy => (
-                            <option key={strategy.value} value={strategy.value}>{strategy.label}</option>
+                          {DUPLICATE_STRATEGIES.map((strategy) => (
+                            <option key={strategy.value} value={strategy.value}>
+                              {strategy.label}
+                            </option>
                           ))}
                         </select>
                       </div>
@@ -1696,34 +2014,43 @@ export function AutoCRMUpdateSpec() {
                           </button>
                         </div>
 
-                        {(config.duplicateDetection.checkFields || []).map((field, index) => (
-                          <div key={index} className="flex gap-2 mb-2">
-                            <input
-                              type="text"
-                              value={field}
-                              onChange={(e) => {
-                                const updated = [...(config.duplicateDetection?.checkFields || [])];
-                                updated[index] = e.target.value;
-                                setConfig({
-                                  ...config,
-                                  duplicateDetection: {
-                                    enabled: config.duplicateDetection?.enabled || false,
-                                    strategy: config.duplicateDetection?.strategy || '',
-                                    checkFields: updated
-                                  }
-                                });
-                              }}
-                              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                              placeholder="email, phone, etc."
-                            />
-                            <button
-                              onClick={() => removeCheckField(index)}
-                              className="px-3 py-2 text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
+                        {(config.duplicateDetection.checkFields || []).map(
+                          (field, index) => (
+                            <div key={index} className="flex gap-2 mb-2">
+                              <input
+                                type="text"
+                                value={field}
+                                onChange={(e) => {
+                                  const updated = [
+                                    ...(config.duplicateDetection
+                                      ?.checkFields || []),
+                                  ];
+                                  updated[index] = e.target.value;
+                                  setConfig({
+                                    ...config,
+                                    duplicateDetection: {
+                                      enabled:
+                                        config.duplicateDetection?.enabled ||
+                                        false,
+                                      strategy:
+                                        config.duplicateDetection?.strategy ||
+                                        '',
+                                      checkFields: updated,
+                                    },
+                                  });
+                                }}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                placeholder="email, phone, etc."
+                              />
+                              <button
+                                onClick={() => removeCheckField(index)}
+                                className="px-3 py-2 text-red-600 hover:text-red-700"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )
+                        )}
                       </div>
                     </div>
                   )}
@@ -1732,10 +2059,13 @@ export function AutoCRMUpdateSpec() {
                     <div className="flex items-start gap-3">
                       <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
                       <div>
-                        <h4 className="font-medium text-red-900 mb-1">אזהרה קריטית</h4>
+                        <h4 className="font-medium text-red-900 mb-1">
+                          אזהרה קריטית
+                        </h4>
                         <p className="text-sm text-red-700">
-                          Data validation הוא קריטי! שדה לא תקין יכול לגרום לכל ה-sync ליפול.
-                          וודא שכל השדות תואמים בדיוק לשדות ב-CRM (שם API, לא label).
+                          Data validation הוא קריטי! שדה לא תקין יכול לגרום לכל
+                          ה-sync ליפול. וודא שכל השדות תואמים בדיוק לשדות ב-CRM
+                          (שם API, לא label).
                         </p>
                       </div>
                     </div>

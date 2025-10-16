@@ -9,7 +9,7 @@ export const Skeleton = ({
   variant = 'text',
   width,
   height,
-  className = ''
+  className = '',
 }: SkeletonProps) => {
   const getStyles = () => {
     switch (variant) {
@@ -43,7 +43,7 @@ export const Skeleton = ({
       `}
       style={{
         width: getWidth(),
-        height: getHeight()
+        height: getHeight(),
       }}
       role="status"
       aria-label="טוען..."
@@ -57,7 +57,11 @@ export const Skeleton = ({
  */
 export const ModuleSkeleton = () => {
   return (
-    <div className="space-y-4 p-6" role="status" aria-label="טוען תוכן מודול...">
+    <div
+      className="space-y-4 p-6"
+      role="status"
+      aria-label="טוען תוכן מודול..."
+    >
       {/* Header */}
       <Skeleton variant="text" width="30%" height={32} />
       <Skeleton variant="text" width="50%" height={16} />
@@ -134,7 +138,10 @@ export const DashboardSkeleton = () => {
  */
 export const CardSkeleton = () => {
   return (
-    <div className="border border-gray-200 rounded-lg p-4 space-y-3" role="status">
+    <div
+      className="border border-gray-200 rounded-lg p-4 space-y-3"
+      role="status"
+    >
       <div className="flex items-start gap-3">
         <Skeleton variant="circular" width={48} height={48} />
         <div className="flex-1 space-y-2">
@@ -184,7 +191,10 @@ export const ListSkeleton = ({ items = 5 }: { items?: number }) => {
   return (
     <div className="space-y-3" role="status" aria-label="טוען רשימה...">
       {Array.from({ length: items }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg">
+        <div
+          key={i}
+          className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg"
+        >
           <Skeleton variant="circular" width={40} height={40} />
           <div className="flex-1 space-y-2">
             <Skeleton variant="text" width="70%" height={16} />

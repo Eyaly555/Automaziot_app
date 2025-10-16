@@ -39,7 +39,9 @@ const CRITICALITY_COLORS = {
   'nice-to-have': '#9CA3AF', // gray
 };
 
-export const IntegrationVisualizer: React.FC<IntegrationVisualizerProps> = ({ systems }) => {
+export const IntegrationVisualizer: React.FC<IntegrationVisualizerProps> = ({
+  systems,
+}) => {
   const [autoLayoutKey, setAutoLayoutKey] = useState(0);
 
   // Generate ReactFlow nodes from systems
@@ -107,11 +109,12 @@ export const IntegrationVisualizer: React.FC<IntegrationVisualizerProps> = ({ sy
 
         // Determine edge style based on status
         const isRealtime = integration.frequency === 'realtime';
-        const strokeStyle = integration.currentStatus === 'working'
-          ? 'solid'
-          : integration.currentStatus === 'problematic'
-          ? [5, 5]
-          : [2, 4];
+        const strokeStyle =
+          integration.currentStatus === 'working'
+            ? 'solid'
+            : integration.currentStatus === 'problematic'
+              ? [5, 5]
+              : [2, 4];
 
         edges.push({
           id: edgeId,
@@ -129,9 +132,14 @@ export const IntegrationVisualizer: React.FC<IntegrationVisualizerProps> = ({ sy
             color: CRITICALITY_COLORS[integration.criticalityLevel],
           },
           label: (
-            <div className="text-xs bg-white px-2 py-1 rounded shadow-sm" dir="rtl">
+            <div
+              className="text-xs bg-white px-2 py-1 rounded shadow-sm"
+              dir="rtl"
+            >
               <div>{getIntegrationTypeLabel(integration.integrationType)}</div>
-              <div className="text-gray-600">{getFrequencyLabel(integration.frequency)}</div>
+              <div className="text-gray-600">
+                {getFrequencyLabel(integration.frequency)}
+              </div>
             </div>
           ),
           labelStyle: {
@@ -154,7 +162,9 @@ export const IntegrationVisualizer: React.FC<IntegrationVisualizerProps> = ({ sy
 
   // Export as PNG
   const handleExportPNG = useCallback(() => {
-    const viewport = document.querySelector('.react-flow__viewport') as HTMLElement;
+    const viewport = document.querySelector(
+      '.react-flow__viewport'
+    ) as HTMLElement;
     if (!viewport) return;
 
     import('html2canvas').then(({ default: html2canvas }) => {
@@ -172,7 +182,7 @@ export const IntegrationVisualizer: React.FC<IntegrationVisualizerProps> = ({ sy
 
   // Auto-layout
   const handleAutoLayout = useCallback(() => {
-    setAutoLayoutKey(prev => prev + 1);
+    setAutoLayoutKey((prev) => prev + 1);
   }, []);
 
   if (!systems || systems.length === 0) {
@@ -184,7 +194,10 @@ export const IntegrationVisualizer: React.FC<IntegrationVisualizerProps> = ({ sy
   }
 
   return (
-    <div className="w-full h-[600px] border border-gray-300 rounded-lg bg-white" dir="ltr">
+    <div
+      className="w-full h-[600px] border border-gray-300 rounded-lg bg-white"
+      dir="ltr"
+    >
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -197,14 +210,18 @@ export const IntegrationVisualizer: React.FC<IntegrationVisualizerProps> = ({ sy
         <Controls />
         <MiniMap
           nodeColor={(node) => {
-            const system = systems.find(s => s.id === node.id);
+            const system = systems.find((s) => s.id === node.id);
             return CATEGORY_COLORS[system?.category || 'other'];
           }}
           maskColor="rgba(0, 0, 0, 0.1)"
         />
 
         {/* Control Panel */}
-        <Panel position="top-right" className="bg-white p-2 rounded shadow-md space-y-2" dir="rtl">
+        <Panel
+          position="top-right"
+          className="bg-white p-2 rounded shadow-md space-y-2"
+          dir="rtl"
+        >
           <button
             onClick={handleExportPNG}
             className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors w-full text-sm"
@@ -225,7 +242,11 @@ export const IntegrationVisualizer: React.FC<IntegrationVisualizerProps> = ({ sy
         </Panel>
 
         {/* Legend */}
-        <Panel position="bottom-right" className="bg-white p-3 rounded shadow-md space-y-2 text-xs" dir="rtl">
+        <Panel
+          position="bottom-right"
+          className="bg-white p-3 rounded shadow-md space-y-2 text-xs"
+          dir="rtl"
+        >
           <div className="font-semibold text-sm mb-2">מקרא</div>
 
           <div className="space-y-1">
@@ -235,11 +256,17 @@ export const IntegrationVisualizer: React.FC<IntegrationVisualizerProps> = ({ sy
               <span>עובד</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-0.5 bg-orange-500" style={{ borderTop: '2px dashed' }}></div>
+              <div
+                className="w-8 h-0.5 bg-orange-500"
+                style={{ borderTop: '2px dashed' }}
+              ></div>
               <span>בעייתי</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-0.5 bg-red-500" style={{ borderTop: '2px dotted' }}></div>
+              <div
+                className="w-8 h-0.5 bg-red-500"
+                style={{ borderTop: '2px dotted' }}
+              ></div>
               <span>חסר</span>
             </div>
           </div>

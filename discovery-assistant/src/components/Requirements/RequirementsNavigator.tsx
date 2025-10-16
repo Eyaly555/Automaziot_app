@@ -16,7 +16,7 @@ export const RequirementsNavigator: React.FC<RequirementsNavigatorProps> = ({
   meeting,
   onComplete,
   onBack,
-  language
+  language,
 }) => {
   // Get purchased services from proposal (client-approved services only)
   // Fall back to selectedServices for backward compatibility
@@ -24,25 +24,38 @@ export const RequirementsNavigator: React.FC<RequirementsNavigatorProps> = ({
   const selectedServices = meeting.modules?.proposal?.selectedServices || [];
 
   // Extract service IDs - prioritize purchasedServices, fallback to selectedServices
-  const selectedServiceIds = purchasedServices.length > 0
-    ? purchasedServices.map(s => s.id)
-    : selectedServices.map(s => s.id);
+  const selectedServiceIds =
+    purchasedServices.length > 0
+      ? purchasedServices.map((s) => s.id)
+      : selectedServices.map((s) => s.id);
 
   // Debug logging for data flow validation
-  console.log('[RequirementsNavigator] Purchased services:', purchasedServices.length);
-  console.log('[RequirementsNavigator] Selected services (fallback):', selectedServices.length);
+  console.log(
+    '[RequirementsNavigator] Purchased services:',
+    purchasedServices.length
+  );
+  console.log(
+    '[RequirementsNavigator] Selected services (fallback):',
+    selectedServices.length
+  );
   console.log('[RequirementsNavigator] Using service IDs:', selectedServiceIds);
   if (purchasedServices.length === 0 && selectedServices.length > 0) {
-    console.warn('[RequirementsNavigator] No purchased services found, falling back to selected services. Check meeting.modules.proposal.purchasedServices');
+    console.warn(
+      '[RequirementsNavigator] No purchased services found, falling back to selected services. Check meeting.modules.proposal.purchasedServices'
+    );
   }
 
   // Filter only services that have requirement templates
-  const servicesWithRequirements = selectedServiceIds.filter((serviceId: string) => {
-    return getRequirementsTemplate(serviceId) !== null;
-  });
+  const servicesWithRequirements = selectedServiceIds.filter(
+    (serviceId: string) => {
+      return getRequirementsTemplate(serviceId) !== null;
+    }
+  );
 
   const [currentServiceIndex, setCurrentServiceIndex] = useState(0);
-  const [collectedRequirements, setCollectedRequirements] = useState<CollectedRequirements[]>([]);
+  const [collectedRequirements, setCollectedRequirements] = useState<
+    CollectedRequirements[]
+  >([]);
 
   // Get the current service ID from the array
   const currentServiceId = servicesWithRequirements[currentServiceIndex];
@@ -79,8 +92,10 @@ export const RequirementsNavigator: React.FC<RequirementsNavigatorProps> = ({
     );
   }
 
-  const isLastService = currentServiceIndex === servicesWithRequirements.length - 1;
-  const overallProgress = ((currentServiceIndex) / servicesWithRequirements.length) * 100;
+  const isLastService =
+    currentServiceIndex === servicesWithRequirements.length - 1;
+  const overallProgress =
+    (currentServiceIndex / servicesWithRequirements.length) * 100;
 
   const handleServiceComplete = (requirements: CollectedRequirements) => {
     const updatedRequirements = [...collectedRequirements, requirements];
@@ -106,7 +121,10 @@ export const RequirementsNavigator: React.FC<RequirementsNavigatorProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8" dir={language === 'he' ? 'rtl' : 'ltr'}>
+    <div
+      className="min-h-screen bg-gray-50 py-8"
+      dir={language === 'he' ? 'rtl' : 'ltr'}
+    >
       {/* Overall Header */}
       <div className="max-w-4xl mx-auto px-4 mb-8">
         <div className="bg-white rounded-lg shadow-md p-6">
@@ -149,8 +167,8 @@ export const RequirementsNavigator: React.FC<RequirementsNavigatorProps> = ({
                   isCompleted
                     ? 'bg-green-100 text-green-800'
                     : isCurrent
-                    ? 'bg-blue-100 text-blue-800 border-2 border-blue-500'
-                    : 'bg-gray-100 text-gray-600'
+                      ? 'bg-blue-100 text-blue-800 border-2 border-blue-500'
+                      : 'bg-gray-100 text-gray-600'
                 }`}
               >
                 {language === 'he' ? service?.nameHe : service?.name}

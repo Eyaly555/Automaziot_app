@@ -1,11 +1,18 @@
 import React, { useState, useCallback } from 'react';
-import { Upload, FileAudio, X, AlertCircle, CheckCircle, Loader } from 'lucide-react';
+import {
+  Upload,
+  FileAudio,
+  X,
+  AlertCircle,
+  CheckCircle,
+  Loader,
+} from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import type {
   AudioFile,
   ProcessingStatus,
   ConversationAnalysisResult,
-  MergeSummary
+  MergeSummary,
 } from '../../types/conversation';
 import {
   validateAudioFile,
@@ -17,7 +24,7 @@ import {
 import {
   mergeExtractedFields,
   getMergeDescription,
-  formatMergeResults
+  formatMergeResults,
 } from '../../utils/fieldMergeUtils';
 import {
   convertAudio,
@@ -35,17 +42,19 @@ interface ConversationAnalyzerProps {
 
 export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
   onClose,
-  onComplete
+  onComplete,
 }) => {
   const { currentMeeting, updateModule } = useMeetingStore();
 
   // State
   const [audioFile, setAudioFile] = useState<AudioFile | null>(null);
-  const [processingStatus, setProcessingStatus] = useState<ProcessingStatus>('idle');
+  const [processingStatus, setProcessingStatus] =
+    useState<ProcessingStatus>('idle');
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [analysisResult, setAnalysisResult] = useState<ConversationAnalysisResult | null>(null);
+  const [analysisResult, setAnalysisResult] =
+    useState<ConversationAnalysisResult | null>(null);
   const [mergeSummary, setMergeSummary] = useState<MergeSummary | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -84,15 +93,18 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
     setMergeSummary(null);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
+  const handleDrop = useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      setIsDragging(false);
 
-    const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
-      handleFileSelect(files[0]);
-    }
-  }, [handleFileSelect]);
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length > 0) {
+        handleFileSelect(files[0]);
+      }
+    },
+    [handleFileSelect]
+  );
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -104,12 +116,15 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
     setIsDragging(false);
   }, []);
 
-  const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      handleFileSelect(files[0]);
-    }
-  }, [handleFileSelect]);
+  const handleFileInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files;
+      if (files && files.length > 0) {
+        handleFileSelect(files[0]);
+      }
+    },
+    [handleFileSelect]
+  );
 
   // Process the audio file
   const handleProcess = useCallback(async () => {
@@ -124,7 +139,8 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
 
       // Check if file needs conversion (>4MB or unsupported format)
       const needsConversion =
-        shouldConvertForSize(audioFile.file) || isConversionRequired(audioFile.file);
+        shouldConvertForSize(audioFile.file) ||
+        isConversionRequired(audioFile.file);
 
       if (needsConversion) {
         setProcessingStatus('converting');
@@ -145,7 +161,9 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
           }
         );
 
-        console.log(`Converted size: ${(convertedFile.size / (1024 * 1024)).toFixed(2)}MB`);
+        console.log(
+          `Converted size: ${(convertedFile.size / (1024 * 1024)).toFixed(2)}MB`
+        );
 
         // Update the audio file with converted version
         fileToProcess = {
@@ -153,7 +171,7 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
           file: convertedFile,
           fileName: convertedFile.name,
           fileSize: convertedFile.size,
-          mimeType: convertedFile.type
+          mimeType: convertedFile.type,
         };
 
         setProgress(33);
@@ -197,7 +215,6 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
         result.analysis.extractedFields
       );
       setMergeSummary(summary);
-
     } catch (err) {
       console.error('Analysis error:', err);
       setError(err instanceof Error ? err.message : 'שגיאה בעיבוד הקובץ');
@@ -215,7 +232,7 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
 
       // Step 1: Save the complete analysis result to the meeting
       useMeetingStore.getState().updateMeeting({
-        conversationAnalysis: analysisResult
+        conversationAnalysis: analysisResult,
       });
 
       // Step 2: Merge extracted fields into current modules
@@ -233,55 +250,72 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
       if (currentMeeting.zohoIntegration?.recordId) {
         try {
           setStatusMessage('שומר סיכום ב-Zoho CRM...');
-          
+
           // Format the note content - include ALL information shown to user
-          const noteTitle = `תמלול וסיכום שיחת גילוי - ${new Date().toLocaleDateString('he-IL', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-          })}`;
-          
+          const noteTitle = `תמלול וסיכום שיחת גילוי - ${new Date().toLocaleDateString(
+            'he-IL',
+            {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            }
+          )}`;
+
           // Build comprehensive note content
           const contentParts = [
             '=== סיכום השיחה ===',
             analysisResult.analysis.summary,
-            ''
+            '',
           ];
 
           // Add confidence level
-          const confidenceText = analysisResult.analysis.confidence === 'high' 
-            ? 'גבוהה' 
-            : analysisResult.analysis.confidence === 'medium' 
-            ? 'בינונית' 
-            : 'נמוכה';
+          const confidenceText =
+            analysisResult.analysis.confidence === 'high'
+              ? 'גבוהה'
+              : analysisResult.analysis.confidence === 'medium'
+                ? 'בינונית'
+                : 'נמוכה';
           contentParts.push(`רמת ביטחון: ${confidenceText}`);
           contentParts.push('');
 
           // Add fields filled summary if available
           if (mergeSummary && mergeSummary.totalFieldsFilled > 0) {
             contentParts.push('=== שדות שהתמלאו ===');
-            contentParts.push(`סה"כ שדות שהתמלאו: ${mergeSummary.totalFieldsFilled}`);
-            
+            contentParts.push(
+              `סה"כ שדות שהתמלאו: ${mergeSummary.totalFieldsFilled}`
+            );
+
             // Add details per module
-            mergeSummary.moduleResults.forEach(result => {
+            mergeSummary.moduleResults.forEach((result) => {
               if (result.fieldsFilled.length > 0) {
-                const moduleNameHebrew = 
-                  result.moduleName === 'overview' ? 'סקירה כללית' :
-                  result.moduleName === 'leadsAndSales' ? 'לידים ומכירות' :
-                  result.moduleName === 'customerService' ? 'שירות לקוחות' :
-                  result.moduleName === 'aiAgents' ? 'סוכני AI' :
-                  result.moduleName === 'roi' ? 'ROI' : result.moduleName;
-                
-                contentParts.push(`  • ${moduleNameHebrew}: ${result.fieldsFilled.length} שדות`);
+                const moduleNameHebrew =
+                  result.moduleName === 'overview'
+                    ? 'סקירה כללית'
+                    : result.moduleName === 'leadsAndSales'
+                      ? 'לידים ומכירות'
+                      : result.moduleName === 'customerService'
+                        ? 'שירות לקוחות'
+                        : result.moduleName === 'aiAgents'
+                          ? 'סוכני AI'
+                          : result.moduleName === 'roi'
+                            ? 'ROI'
+                            : result.moduleName;
+
+                contentParts.push(
+                  `  • ${moduleNameHebrew}: ${result.fieldsFilled.length} שדות`
+                );
               }
             });
             contentParts.push('');
           }
 
           // Add next steps if available
-          if (analysisResult.analysis.nextSteps && analysisResult.analysis.nextSteps.length > 0) {
+          if (
+            analysisResult.analysis.nextSteps &&
+            analysisResult.analysis.nextSteps.length > 0
+          ) {
             contentParts.push('=== צעדים הבאים מומלצים ===');
             analysisResult.analysis.nextSteps.forEach((step, index) => {
               contentParts.push(`${index + 1}. ${step}`);
@@ -293,7 +327,9 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
           contentParts.push('=== תמלול מלא ===');
           contentParts.push(analysisResult.transcription.text);
           contentParts.push('');
-          contentParts.push(`--- נוצר אוטומטית על ידי Discovery Assistant | ${new Date().toLocaleString('he-IL')}`);
+          contentParts.push(
+            `--- נוצר אוטומטית על ידי Discovery Assistant | ${new Date().toLocaleString('he-IL')}`
+          );
 
           const noteContent = contentParts.join('\n');
 
@@ -304,10 +340,15 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
             currentMeeting.zohoIntegration.module || 'Potentials1'
           );
 
-          console.log('[ConversationAnalyzer] ✓ Zoho note created successfully');
+          console.log(
+            '[ConversationAnalyzer] ✓ Zoho note created successfully'
+          );
         } catch (noteError) {
           // Don't fail the entire save if note creation fails
-          console.error('[ConversationAnalyzer] ⚠️ Failed to create Zoho note:', noteError);
+          console.error(
+            '[ConversationAnalyzer] ⚠️ Failed to create Zoho note:',
+            noteError
+          );
           // Note creation failure is not critical - data is still saved locally
           // User will see the success message for data save
         }
@@ -320,7 +361,6 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
       setTimeout(() => {
         onComplete?.();
       }, 1500);
-
     } catch (err) {
       console.error('Save error:', err);
       setError(err instanceof Error ? err.message : 'שגיאה בשמירת הנתונים');
@@ -340,7 +380,10 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" dir="rtl">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      dir="rtl"
+    >
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
@@ -391,7 +434,10 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
                 className="hidden"
                 id="audio-file-input"
               />
-              <label htmlFor="audio-file-input" className="inline-block cursor-pointer">
+              <label
+                htmlFor="audio-file-input"
+                className="inline-block cursor-pointer"
+              >
                 <span className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm">
                   <Upload className="w-4 h-4" />
                   בחר קובץ
@@ -406,8 +452,12 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
               <div className="flex items-start gap-4">
                 <FileAudio className="w-8 h-8 text-blue-600 flex-shrink-0" />
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900">{audioFile.fileName}</p>
-                  <p className="text-sm text-gray-600">{formatFileSize(audioFile.fileSize)}</p>
+                  <p className="font-medium text-gray-900">
+                    {audioFile.fileName}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {formatFileSize(audioFile.fileSize)}
+                  </p>
                 </div>
                 <button
                   onClick={handleReset}
@@ -417,7 +467,12 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
                 </button>
               </div>
               <div className="mt-4 flex gap-3">
-                <Button onClick={handleProcess} variant="primary" size="md" className="flex-1">
+                <Button
+                  onClick={handleProcess}
+                  variant="primary"
+                  size="md"
+                  className="flex-1"
+                >
                   התחל ניתוח
                 </Button>
                 <Button onClick={handleReset} variant="outline" size="md">
@@ -428,7 +483,9 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
           )}
 
           {/* Processing Status */}
-          {(processingStatus === 'converting' || processingStatus === 'transcribing' || processingStatus === 'analyzing') && (
+          {(processingStatus === 'converting' ||
+            processingStatus === 'transcribing' ||
+            processingStatus === 'analyzing') && (
             <Card title="מעבד...">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
@@ -442,7 +499,8 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
                   />
                 </div>
                 <p className="text-xs text-gray-500 text-center">
-                  {processingStatus === 'converting' && 'ממיר את הקובץ לפורמט קל...'}
+                  {processingStatus === 'converting' &&
+                    'ממיר את הקובץ לפורמט קל...'}
                   {processingStatus === 'transcribing' && 'מתמלל את הקובץ...'}
                   {processingStatus === 'analyzing' && 'מנתח את השיחה...'}
                 </p>
@@ -457,8 +515,12 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
                 <div className="space-y-4">
                   {/* Summary */}
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">סיכום השיחה:</h4>
-                    <p className="text-sm text-gray-700">{analysisResult.analysis.summary}</p>
+                    <h4 className="font-medium text-gray-900 mb-2">
+                      סיכום השיחה:
+                    </h4>
+                    <p className="text-sm text-gray-700">
+                      {analysisResult.analysis.summary}
+                    </p>
                   </div>
 
                   {/* Confidence */}
@@ -469,29 +531,33 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
                         analysisResult.analysis.confidence === 'high'
                           ? 'bg-green-100 text-green-800'
                           : analysisResult.analysis.confidence === 'medium'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-red-100 text-red-800'
                       }`}
                     >
                       {analysisResult.analysis.confidence === 'high'
                         ? 'גבוהה'
                         : analysisResult.analysis.confidence === 'medium'
-                        ? 'בינונית'
-                        : 'נמוכה'}
+                          ? 'בינונית'
+                          : 'נמוכה'}
                     </span>
                   </div>
 
                   {/* Merge Summary */}
                   {mergeSummary && (
                     <div className="border-t pt-4">
-                      <h4 className="font-medium text-gray-900 mb-2">מה ימולא?</h4>
+                      <h4 className="font-medium text-gray-900 mb-2">
+                        מה ימולא?
+                      </h4>
                       <p className="text-sm text-gray-700 mb-3">
                         {getMergeDescription(mergeSummary)}
                       </p>
                       {mergeSummary.totalFieldsFilled > 0 && (
                         <div className="text-sm text-gray-600">
                           {formatMergeResults(mergeSummary).map((line, i) => (
-                            <p key={i} className="mb-1">{line}</p>
+                            <p key={i} className="mb-1">
+                              {line}
+                            </p>
                           ))}
                         </div>
                       )}
@@ -501,7 +567,9 @@ export const ConversationAnalyzer: React.FC<ConversationAnalyzerProps> = ({
                   {/* Next Steps */}
                   {analysisResult.analysis.nextSteps.length > 0 && (
                     <div className="border-t pt-4">
-                      <h4 className="font-medium text-gray-900 mb-2">צעדים הבאים מומלצים:</h4>
+                      <h4 className="font-medium text-gray-900 mb-2">
+                        צעדים הבאים מומלצים:
+                      </h4>
                       <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
                         {analysisResult.analysis.nextSteps.map((step, i) => (
                           <li key={i}>{step}</li>

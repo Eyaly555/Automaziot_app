@@ -24,14 +24,14 @@ describe('AIProposalGenerator', () => {
       overview: {
         companyName: 'Test Company',
         budget: 'medium',
-        mainChallenge: 'test challenge'
+        mainChallenge: 'test challenge',
       },
       leadsAndSales: {
         speedToLead: 30,
-        followUp: { manual: true }
-      }
+        followUp: { manual: true },
+      },
     },
-    painPoints: []
+    painPoints: [],
   };
 
   const mockSelectedServices = [
@@ -49,39 +49,41 @@ describe('AIProposalGenerator', () => {
       reasonSuggestedHe: 'פתרון מהיר לניהול לידים',
       relevanceScore: 8,
       dataSource: ['leadsAndSales'],
-      selected: true
-    }
+      selected: true,
+    },
   ];
 
   const mockValidAIResponse: AiProposalDoc = {
     executiveSummary: [
       'בהתבסס על הניתוח המעמיק של תהליכי העבודה שלכם, זיהינו הזדמנויות משמעותיות לשיפור היעילות.',
-      'הפתרונות המוצעים יספקו חיסכון משמעותי בזמן ובעלויות תוך שיפור השירות ללקוחות.'
+      'הפתרונות המוצעים יספקו חיסכון משמעותי בזמן ובעלויות תוך שיפור השירות ללקוחות.',
     ],
     services: [
       {
         serviceId: 'auto-lead-response',
         titleHe: 'מענה אוטומטי ללידים',
-        whyRelevantHe: 'זמן התגובה הממוצע ללידים הוא 30 דקות, מה שפוגע בסיכויי ההמרה.',
-        whatIncludedHe: 'הטמעת מערכת תגובה אוטומטית עם תבניות מותאמות אישית וחלוקת לידים חכמה.'
-      }
+        whyRelevantHe:
+          'זמן התגובה הממוצע ללידים הוא 30 דקות, מה שפוגע בסיכויי ההמרה.',
+        whatIncludedHe:
+          'הטמעת מערכת תגובה אוטומטית עם תבניות מותאמות אישית וחלוקת לידים חכמה.',
+      },
     ],
     financialSummary: {
       totalPrice: 5000,
       totalDays: 7,
       monthlySavings: 2500,
-      expectedROIMonths: 2
+      expectedROIMonths: 2,
     },
     terms: [
       'ההצעה תקפה ל-30 ימים מתאריך השליחה',
       'תשלום 50% מקדמה, 50% בסיום הפרויקט',
-      'אחריות לשלושה חודשים לאחר ההשקה'
+      'אחריות לשלושה חודשים לאחר ההשקה',
     ],
     nextSteps: [
       'סקירת ההצעה ושאלות הבהרה',
       'חתימה על הסכם עבודה',
-      'תשלום מקדמה והתחלת הפרויקט'
-    ]
+      'תשלום מקדמה והתחלת הפרויקט',
+    ],
   };
 
   describe('generateProposal', () => {
@@ -92,15 +94,15 @@ describe('AIProposalGenerator', () => {
         usage: {
           promptTokens: 150,
           completionTokens: 300,
-          totalTokens: 450
+          totalTokens: 450,
         },
-        model: 'gpt-5'
+        model: 'gpt-5',
       });
 
       const result = await generator.generateProposal({
         meeting: mockMeeting,
         selectedServices: mockSelectedServices,
-        pmNote: 'Test PM note'
+        pmNote: 'Test PM note',
       });
 
       expect(result.success).toBe(true);
@@ -108,7 +110,7 @@ describe('AIProposalGenerator', () => {
       expect(result.usage).toEqual({
         promptTokens: 150,
         completionTokens: 300,
-        totalTokens: 450
+        totalTokens: 450,
       });
       expect(result.model).toBe('gpt-5');
     });
@@ -116,12 +118,12 @@ describe('AIProposalGenerator', () => {
     it('should handle AI service unavailable', async () => {
       // Mock AI service as unavailable
       const mockAIService = {
-        isAvailable: () => false
+        isAvailable: () => false,
       };
 
       const result = await generator.generateProposal({
         meeting: mockMeeting,
-        selectedServices: mockSelectedServices
+        selectedServices: mockSelectedServices,
       });
 
       expect(result.success).toBe(false);
@@ -137,12 +139,12 @@ describe('AIProposalGenerator', () => {
           success: true,
           data: JSON.stringify(mockValidAIResponse),
           usage: { promptTokens: 100, completionTokens: 200, totalTokens: 300 },
-          model: 'gpt-5'
+          model: 'gpt-5',
         });
 
       const result = await generator.generateProposal({
         meeting: mockMeeting,
-        selectedServices: mockSelectedServices
+        selectedServices: mockSelectedServices,
       });
 
       expect(result.success).toBe(true);
@@ -155,19 +157,19 @@ describe('AIProposalGenerator', () => {
         services: [],
         financialSummary: { totalPrice: -100 },
         terms: [],
-        nextSteps: []
+        nextSteps: [],
       };
 
       mockCallOpenAI.mockResolvedValue({
         success: true,
         data: JSON.stringify(invalidResponse),
         usage: { promptTokens: 100, completionTokens: 200, totalTokens: 300 },
-        model: 'gpt-5'
+        model: 'gpt-5',
       });
 
       const result = await generator.generateProposal({
         meeting: mockMeeting,
-        selectedServices: mockSelectedServices
+        selectedServices: mockSelectedServices,
       });
 
       expect(result.success).toBe(false);
@@ -177,13 +179,19 @@ describe('AIProposalGenerator', () => {
 
     it('should handle OpenAI API errors with retry', async () => {
       mockCallOpenAI
-        .mockRejectedValueOnce(new Error('OpenAI API error: 429 Too Many Requests'))
-        .mockRejectedValueOnce(new Error('OpenAI API error: 500 Internal Server Error'))
-        .mockRejectedValueOnce(new Error('OpenAI API error: 429 Too Many Requests'));
+        .mockRejectedValueOnce(
+          new Error('OpenAI API error: 429 Too Many Requests')
+        )
+        .mockRejectedValueOnce(
+          new Error('OpenAI API error: 500 Internal Server Error')
+        )
+        .mockRejectedValueOnce(
+          new Error('OpenAI API error: 429 Too Many Requests')
+        );
 
       const result = await generator.generateProposal({
         meeting: mockMeeting,
-        selectedServices: mockSelectedServices
+        selectedServices: mockSelectedServices,
       });
 
       expect(result.success).toBe(false);
@@ -198,13 +206,13 @@ describe('AIProposalGenerator', () => {
         success: true,
         data: JSON.stringify(mockValidAIResponse),
         usage: { promptTokens: 100, completionTokens: 200, totalTokens: 300 },
-        model: 'gpt-5'
+        model: 'gpt-5',
       });
 
       await generator.generateProposal({
         meeting: mockMeeting,
         selectedServices: mockSelectedServices,
-        pmNote
+        pmNote,
       });
 
       // Verify that the OpenAI call was made (we can't easily inspect the payload in this test)
@@ -212,20 +220,24 @@ describe('AIProposalGenerator', () => {
     });
 
     it('should handle regeneration with additional instructions', async () => {
-      const additionalInstructions = 'Make the tone more formal and emphasize technical details';
+      const additionalInstructions =
+        'Make the tone more formal and emphasize technical details';
 
       mockCallOpenAI.mockResolvedValue({
         success: true,
         data: JSON.stringify(mockValidAIResponse),
         usage: { promptTokens: 100, completionTokens: 200, totalTokens: 300 },
-        model: 'gpt-5'
+        model: 'gpt-5',
       });
 
-      const result = await generator.regenerateProposal({
-        meeting: mockMeeting,
-        selectedServices: mockSelectedServices,
-        pmNote: 'Original PM note'
-      }, additionalInstructions);
+      const result = await generator.regenerateProposal(
+        {
+          meeting: mockMeeting,
+          selectedServices: mockSelectedServices,
+          pmNote: 'Original PM note',
+        },
+        additionalInstructions
+      );
 
       expect(result.success).toBe(true);
       expect(mockCallOpenAI).toHaveBeenCalled();
@@ -247,10 +259,12 @@ describe('AIProposalGenerator', () => {
         services: mockValidAIResponse.services,
         financialSummary: mockValidAIResponse.financialSummary,
         terms: mockValidAIResponse.terms,
-        nextSteps: mockValidAIResponse.nextSteps
+        nextSteps: mockValidAIResponse.nextSteps,
       };
 
-      const result = (generator as any).parseAndValidateResponse(JSON.stringify(invalidResponse));
+      const result = (generator as any).parseAndValidateResponse(
+        JSON.stringify(invalidResponse)
+      );
 
       expect(result).toBeNull();
     });
@@ -260,11 +274,13 @@ describe('AIProposalGenerator', () => {
         ...mockValidAIResponse,
         financialSummary: {
           totalPrice: -1000, // Invalid negative price
-          totalDays: 5
-        }
+          totalDays: 5,
+        },
       };
 
-      const result = (generator as any).parseAndValidateResponse(JSON.stringify(invalidResponse));
+      const result = (generator as any).parseAndValidateResponse(
+        JSON.stringify(invalidResponse)
+      );
 
       expect(result).toBeNull();
     });
@@ -272,10 +288,12 @@ describe('AIProposalGenerator', () => {
     it('should reject response with empty services array', () => {
       const invalidResponse = {
         ...mockValidAIResponse,
-        services: []
+        services: [],
       };
 
-      const result = (generator as any).parseAndValidateResponse(JSON.stringify(invalidResponse));
+      const result = (generator as any).parseAndValidateResponse(
+        JSON.stringify(invalidResponse)
+      );
 
       expect(result).toBeNull();
     });
@@ -283,7 +301,9 @@ describe('AIProposalGenerator', () => {
     it('should handle markdown-wrapped JSON', () => {
       const markdownResponse = `\`\`\`json\n${JSON.stringify(mockValidAIResponse)}\n\`\`\``;
 
-      const result = (generator as any).parseAndValidateResponse(markdownResponse);
+      const result = (generator as any).parseAndValidateResponse(
+        markdownResponse
+      );
 
       expect(result).toEqual(mockValidAIResponse);
     });
@@ -299,7 +319,11 @@ describe('AIProposalGenerator', () => {
 
   describe('buildUserPayload', () => {
     it('should create proper payload structure', () => {
-      const result = (generator as any).buildUserPayload(mockMeeting, mockSelectedServices, 'Test PM note');
+      const result = (generator as any).buildUserPayload(
+        mockMeeting,
+        mockSelectedServices,
+        'Test PM note'
+      );
 
       const payload = JSON.parse(result);
 
@@ -316,10 +340,13 @@ describe('AIProposalGenerator', () => {
     it('should calculate correct totals', () => {
       const servicesWithCustomPrices = [
         { ...mockSelectedServices[0], customPrice: 6000 },
-        { ...mockSelectedServices[0], id: 'test-service-2', customPrice: 4000 }
+        { ...mockSelectedServices[0], id: 'test-service-2', customPrice: 4000 },
       ];
 
-      const result = (generator as any).buildUserPayload(mockMeeting, servicesWithCustomPrices);
+      const result = (generator as any).buildUserPayload(
+        mockMeeting,
+        servicesWithCustomPrices
+      );
 
       const payload = JSON.parse(result);
       expect(payload.totals.totalPrice).toBe(10000);
@@ -337,12 +364,12 @@ describe('AIProposalGenerator', () => {
           success: true,
           data: JSON.stringify(mockValidAIResponse),
           usage: { promptTokens: 100, completionTokens: 200, totalTokens: 300 },
-          model: 'gpt-5'
+          model: 'gpt-5',
         });
 
       await generator.generateProposal({
         meeting: mockMeeting,
-        selectedServices: mockSelectedServices
+        selectedServices: mockSelectedServices,
       });
 
       // Should have called sleep twice (between retry attempts)
@@ -357,19 +384,19 @@ describe('AIProposalGenerator', () => {
         services: [],
         financialSummary: {},
         terms: [],
-        nextSteps: []
+        nextSteps: [],
       };
 
       mockCallOpenAI.mockResolvedValue({
         success: true,
         data: JSON.stringify(invalidResponse),
         usage: { promptTokens: 100, completionTokens: 200, totalTokens: 300 },
-        model: 'gpt-5'
+        model: 'gpt-5',
       });
 
       await generator.generateProposal({
         meeting: mockMeeting,
-        selectedServices: mockSelectedServices
+        selectedServices: mockSelectedServices,
       });
 
       // Should only call once (no retries for validation errors)

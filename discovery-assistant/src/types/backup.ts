@@ -1,6 +1,6 @@
 /**
  * Backup Types for Meeting Data Recovery
- * 
+ *
  * Provides type-safe backup and restore functionality for meeting data.
  * Backups are stored in localStorage with expiration dates.
  */
@@ -9,7 +9,7 @@ import { Meeting } from './index';
 
 /**
  * Backup entry stored in localStorage
- * 
+ *
  * @property id - Unique backup identifier (timestamp-based)
  * @property meetingId - ID of the meeting being backed up
  * @property timestamp - When the backup was created
@@ -57,4 +57,3 @@ export interface RestoreResult {
   meeting?: Meeting;
   error?: string;
 }
-

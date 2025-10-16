@@ -3,7 +3,8 @@ import { RefreshCw, CheckCircle, AlertCircle, X } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 
 export const SyncStatusIndicator: React.FC = () => {
-  const { currentMeeting, isSyncing, syncError, lastSyncTime } = useMeetingStore();
+  const { currentMeeting, isSyncing, syncError, lastSyncTime } =
+    useMeetingStore();
   const [showToast, setShowToast] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
 
@@ -83,7 +84,9 @@ export const SyncStatusIndicator: React.FC = () => {
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h4 className="font-semibold text-red-800 mb-1">שגיאת סנכרון עם Zoho</h4>
+                <h4 className="font-semibold text-red-800 mb-1">
+                  שגיאת סנכרון עם Zoho
+                </h4>
                 <p className="text-sm text-red-700">{syncError}</p>
                 <p className="text-xs text-red-600 mt-2">
                   השינויים נשמרו מקומית ויסתנכרנו אוטומטית מאוחר יותר

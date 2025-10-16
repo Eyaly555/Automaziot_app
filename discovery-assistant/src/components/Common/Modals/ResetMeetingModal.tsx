@@ -1,10 +1,10 @@
 /**
  * Reset Meeting Modal
- * 
+ *
  * Two-step confirmation modal for resetting meeting data:
  * Step 1: Confirm with explanation of what will be reset/preserved
  * Step 2: Type client name to verify intention
- * 
+ *
  * Features:
  * - Double confirmation to prevent accidental data loss
  * - Name verification for extra safety
@@ -13,7 +13,14 @@
  */
 
 import React, { useState } from 'react';
-import { X, AlertTriangle, RotateCcw, Shield, Trash2, CheckCircle } from 'lucide-react';
+import {
+  X,
+  AlertTriangle,
+  RotateCcw,
+  Shield,
+  Trash2,
+  CheckCircle,
+} from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import toast from 'react-hot-toast';
 
@@ -26,11 +33,11 @@ interface ResetMeetingModalProps {
 export const ResetMeetingModal: React.FC<ResetMeetingModalProps> = ({
   isOpen,
   onClose,
-  onSuccess
+  onSuccess,
 }) => {
   const currentMeeting = useMeetingStore((state) => state.currentMeeting);
   const resetMeetingData = useMeetingStore((state) => state.resetMeetingData);
-  
+
   const [step, setStep] = useState<1 | 2>(1);
   const [confirmationInput, setConfirmationInput] = useState('');
   const [createBackup, setCreateBackup] = useState(true);
@@ -64,13 +71,13 @@ export const ResetMeetingModal: React.FC<ResetMeetingModalProps> = ({
 
       if (success) {
         toast.success(
-          createBackup 
+          createBackup
             ? 'המידע אופס בהצלחה. גיבוי נשמר ל-24 שעות'
             : 'המידע אופס בהצלחה',
           {
             icon: '✅',
             duration: 5000,
-            position: 'top-center'
+            position: 'top-center',
           }
         );
         handleClose();
@@ -79,7 +86,7 @@ export const ResetMeetingModal: React.FC<ResetMeetingModalProps> = ({
         toast.error('שגיאה באיפוס המידע. נסה שוב', {
           icon: '❌',
           duration: 5000,
-          position: 'top-center'
+          position: 'top-center',
         });
       }
     } catch (error) {
@@ -87,14 +94,16 @@ export const ResetMeetingModal: React.FC<ResetMeetingModalProps> = ({
       toast.error('שגיאה באיפוס המידע', {
         icon: '❌',
         duration: 5000,
-        position: 'top-center'
+        position: 'top-center',
       });
     } finally {
       setIsResetting(false);
     }
   };
 
-  const isNameMatch = confirmationInput.trim().toLowerCase() === currentMeeting.clientName.trim().toLowerCase();
+  const isNameMatch =
+    confirmationInput.trim().toLowerCase() ===
+    currentMeeting.clientName.trim().toLowerCase();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
@@ -106,7 +115,9 @@ export const ResetMeetingModal: React.FC<ResetMeetingModalProps> = ({
               <AlertTriangle className="w-6 h-6 text-red-600" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">איפוס מידע פגישה</h2>
+              <h2 className="text-2xl font-bold text-gray-900">
+                איפוס מידע פגישה
+              </h2>
               <p className="text-sm text-gray-500 mt-1">שלב {step} מתוך 2</p>
             </div>
           </div>
@@ -129,9 +140,12 @@ export const ResetMeetingModal: React.FC<ResetMeetingModalProps> = ({
                 <div className="flex items-start gap-3">
                   <Trash2 className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
                   <div>
-                    <h3 className="font-bold text-red-900 mb-2">אזהרה: פעולה זו תמחק את כל המידע שהוזן בפגישה</h3>
+                    <h3 className="font-bold text-red-900 mb-2">
+                      אזהרה: פעולה זו תמחק את כל המידע שהוזן בפגישה
+                    </h3>
                     <p className="text-sm text-red-700">
-                      כל הנתונים שמילאת במהלך הפגישה יימחקו ולא יהיה ניתן לשחזרם (אלא אם תבחר ליצור גיבוי).
+                      כל הנתונים שמילאת במהלך הפגישה יימחקו ולא יהיה ניתן לשחזרם
+                      (אלא אם תבחר ליצור גיבוי).
                     </p>
                   </div>
                 </div>
@@ -147,7 +161,10 @@ export const ResetMeetingModal: React.FC<ResetMeetingModalProps> = ({
                   <ul className="space-y-2 text-sm text-gray-700">
                     <li className="flex items-start gap-2">
                       <span className="text-orange-600">•</span>
-                      <span>כל 9 המודולים (סקירה כללית, לידים ומכירות, שירות לקוחות, וכו')</span>
+                      <span>
+                        כל 9 המודולים (סקירה כללית, לידים ומכירות, שירות לקוחות,
+                        וכו')
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-orange-600">•</span>
@@ -179,7 +196,9 @@ export const ResetMeetingModal: React.FC<ResetMeetingModalProps> = ({
                   <ul className="space-y-2 text-sm text-gray-700">
                     <li className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                      <span>שם הלקוח: <strong>{currentMeeting.clientName}</strong></span>
+                      <span>
+                        שם הלקוח: <strong>{currentMeeting.clientName}</strong>
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
@@ -215,8 +234,8 @@ export const ResetMeetingModal: React.FC<ResetMeetingModalProps> = ({
                       שמור גיבוי לשחזור (מומלץ)
                     </span>
                     <span className="text-sm text-blue-700">
-                      הגיבוי יישמר למשך 24 שעות ויאפשר לך לשחזר את המידע במידת הצורך.
-                      ניתן לשחזר דרך תפריט ההגדרות.
+                      הגיבוי יישמר למשך 24 שעות ויאפשר לך לשחזר את המידע במידת
+                      הצורך. ניתן לשחזר דרך תפריט ההגדרות.
                     </span>
                   </div>
                 </label>
@@ -248,7 +267,8 @@ export const ResetMeetingModal: React.FC<ResetMeetingModalProps> = ({
                   <div>
                     <h3 className="font-bold text-red-900 mb-2">אישור סופי</h3>
                     <p className="text-sm text-red-700">
-                      זהו שלב האישור האחרון. המידע יימחק לאחר לחיצה על "אפס מידע".
+                      זהו שלב האישור האחרון. המידע יימחק לאחר לחיצה על "אפס
+                      מידע".
                     </p>
                   </div>
                 </div>
@@ -328,4 +348,3 @@ export const ResetMeetingModal: React.FC<ResetMeetingModalProps> = ({
     </div>
   );
 };
-

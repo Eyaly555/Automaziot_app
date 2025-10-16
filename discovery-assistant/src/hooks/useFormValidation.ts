@@ -17,7 +17,12 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { validate, validateAll, ValidationConfig, sanitizeInput } from '../utils/validation';
+import {
+  validate,
+  validateAll,
+  ValidationConfig,
+  sanitizeInput,
+} from '../utils/validation';
 
 // ============================================================================
 // TYPES
@@ -135,14 +140,20 @@ export const useFormValidation = <T extends Record<string, any>>(
     validateOnBlur = true,
     debounceDelay = 300,
     onSubmit,
-    onValidationChange
+    onValidationChange,
   } = options;
 
   // State
   const [values, setValuesState] = useState<T>(initialValues);
-  const [errors, setErrorsState] = useState<Partial<Record<keyof T, string>>>({});
-  const [touched, setTouchedState] = useState<Partial<Record<keyof T, boolean>>>({});
-  const [dirty, setDirtyState] = useState<Partial<Record<keyof T, boolean>>>({});
+  const [errors, setErrorsState] = useState<Partial<Record<keyof T, string>>>(
+    {}
+  );
+  const [touched, setTouchedState] = useState<
+    Partial<Record<keyof T, boolean>>
+  >({});
+  const [dirty, setDirtyState] = useState<Partial<Record<keyof T, boolean>>>(
+    {}
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Refs for debouncing
@@ -193,10 +204,10 @@ export const useFormValidation = <T extends Record<string, any>>(
       }
 
       // Update values
-      setValuesState(prev => ({ ...prev, [name]: processedValue }));
+      setValuesState((prev) => ({ ...prev, [name]: processedValue }));
 
       // Mark as dirty
-      setDirtyState(prev => ({ ...prev, [name]: true }));
+      setDirtyState((prev) => ({ ...prev, [name]: true }));
 
       // Validate on change if field was touched and option enabled
       if (validateOnChange && touched[name]) {
@@ -209,7 +220,7 @@ export const useFormValidation = <T extends Record<string, any>>(
         debounceTimeouts.current[name] = setTimeout(() => {
           const error = validateSingleField(name, processedValue);
 
-          setErrorsState(prev => {
+          setErrorsState((prev) => {
             const newErrors = { ...prev };
             if (error) {
               newErrors[name] = error;
@@ -221,7 +232,13 @@ export const useFormValidation = <T extends Record<string, any>>(
         }, debounceDelay);
       }
     },
-    [autoSanitize, validateOnChange, touched, debounceDelay, validateSingleField]
+    [
+      autoSanitize,
+      validateOnChange,
+      touched,
+      debounceDelay,
+      validateSingleField,
+    ]
   );
 
   /**
@@ -230,13 +247,13 @@ export const useFormValidation = <T extends Record<string, any>>(
   const handleBlur = useCallback(
     (name: keyof T) => {
       // Mark as touched
-      setTouchedState(prev => ({ ...prev, [name]: true }));
+      setTouchedState((prev) => ({ ...prev, [name]: true }));
 
       // Validate on blur if option enabled
       if (validateOnBlur) {
         const error = validateSingleField(name, values[name]);
 
-        setErrorsState(prev => {
+        setErrorsState((prev) => {
           const newErrors = { ...prev };
           if (error) {
             newErrors[name] = error;
@@ -261,7 +278,7 @@ export const useFormValidation = <T extends Record<string, any>>(
     setIsSubmitting(false);
 
     // Clear all debounce timeouts
-    Object.values(debounceTimeouts.current).forEach(timeout => {
+    Object.values(debounceTimeouts.current).forEach((timeout) => {
       if (timeout) clearTimeout(timeout);
     });
     debounceTimeouts.current = {};
@@ -282,28 +299,31 @@ export const useFormValidation = <T extends Record<string, any>>(
    * Set a single value programmatically
    */
   const setValue = useCallback((name: keyof T, value: any) => {
-    setValuesState(prev => ({ ...prev, [name]: value }));
+    setValuesState((prev) => ({ ...prev, [name]: value }));
   }, []);
 
   /**
    * Set errors manually
    */
-  const setErrors = useCallback((newErrors: Partial<Record<keyof T, string>>) => {
-    setErrorsState(newErrors);
-  }, []);
+  const setErrors = useCallback(
+    (newErrors: Partial<Record<keyof T, string>>) => {
+      setErrorsState(newErrors);
+    },
+    []
+  );
 
   /**
    * Set a single error manually
    */
   const setError = useCallback((name: keyof T, error: string) => {
-    setErrorsState(prev => ({ ...prev, [name]: error }));
+    setErrorsState((prev) => ({ ...prev, [name]: error }));
   }, []);
 
   /**
    * Clear a specific error
    */
   const clearError = useCallback((name: keyof T) => {
-    setErrorsState(prev => {
+    setErrorsState((prev) => {
       const newErrors = { ...prev };
       delete newErrors[name];
       return newErrors;
@@ -321,7 +341,7 @@ export const useFormValidation = <T extends Record<string, any>>(
    * Mark field as touched
    */
   const setTouched = useCallback((name: keyof T, isTouched = true) => {
-    setTouchedState(prev => ({ ...prev, [name]: isTouched }));
+    setTouchedState((prev) => ({ ...prev, [name]: isTouched }));
   }, []);
 
   /**
@@ -329,7 +349,7 @@ export const useFormValidation = <T extends Record<string, any>>(
    */
   const setAllTouched = useCallback(() => {
     const allTouched: Partial<Record<keyof T, boolean>> = {};
-    Object.keys(validationRules).forEach(key => {
+    Object.keys(validationRules).forEach((key) => {
       allTouched[key as keyof T] = true;
     });
     setTouchedState(allTouched);
@@ -379,7 +399,7 @@ export const useFormValidation = <T extends Record<string, any>>(
       onChange: (value: any) => handleChange(name, value),
       onBlur: () => handleBlur(name),
       error: !!errors[name],
-      helperText: errors[name]
+      helperText: errors[name],
     }),
     [values, errors, handleChange, handleBlur]
   );
@@ -387,7 +407,7 @@ export const useFormValidation = <T extends Record<string, any>>(
   // Cleanup debounce timeouts on unmount
   useEffect(() => {
     return () => {
-      Object.values(debounceTimeouts.current).forEach(timeout => {
+      Object.values(debounceTimeouts.current).forEach((timeout) => {
         if (timeout) clearTimeout(timeout);
       });
     };
@@ -414,7 +434,7 @@ export const useFormValidation = <T extends Record<string, any>>(
     setTouched,
     setAllTouched,
     handleSubmit,
-    getFieldProps
+    getFieldProps,
   };
 };
 

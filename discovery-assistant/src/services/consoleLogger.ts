@@ -28,14 +28,19 @@ class ConsoleLogger {
    * Wraps native console methods to capture output
    */
   private interceptConsole() {
-    const levels: Array<'log' | 'warn' | 'error' | 'info'> = ['log', 'warn', 'error', 'info'];
+    const levels: Array<'log' | 'warn' | 'error' | 'info'> = [
+      'log',
+      'warn',
+      'error',
+      'info',
+    ];
     const originalConsole = { ...console };
 
-    levels.forEach(level => {
+    levels.forEach((level) => {
       console[level] = (...args: any[]) => {
         // Format message from arguments
         const message = args
-          .map(arg => {
+          .map((arg) => {
             if (typeof arg === 'object') {
               try {
                 return JSON.stringify(arg, null, 2);
@@ -52,7 +57,7 @@ class ConsoleLogger {
           level,
           message,
           timestamp: new Date().toISOString(),
-          stack: level === 'error' ? new Error().stack : undefined
+          stack: level === 'error' ? new Error().stack : undefined,
         });
 
         // Call original console method
@@ -90,9 +95,7 @@ class ConsoleLogger {
    * @returns Array of recent console errors
    */
   getErrors(count: number = 20): ConsoleLogEntry[] {
-    return this.logs
-      .filter(log => log.level === 'error')
-      .slice(-count);
+    return this.logs.filter((log) => log.level === 'error').slice(-count);
   }
 
   /**
@@ -122,7 +125,7 @@ class ConsoleLogger {
    * Get errors count
    */
   getErrorsCount(): number {
-    return this.logs.filter(log => log.level === 'error').length;
+    return this.logs.filter((log) => log.level === 'error').length;
   }
 }
 

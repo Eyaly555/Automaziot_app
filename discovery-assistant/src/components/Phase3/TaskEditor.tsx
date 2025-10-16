@@ -28,15 +28,15 @@ const translations = {
       critical: 'קריטי',
       high: 'גבוה',
       medium: 'בינוני',
-      low: 'נמוך'
+      low: 'נמוך',
     },
     statusOptions: {
       todo: 'לביצוע',
       in_progress: 'בתהליך',
       in_review: 'בבדיקה',
       blocked: 'חסום',
-      done: 'הושלם'
-    }
+      done: 'הושלם',
+    },
   },
   en: {
     title: 'Edit Task',
@@ -52,16 +52,16 @@ const translations = {
       critical: 'Critical',
       high: 'High',
       medium: 'Medium',
-      low: 'Low'
+      low: 'Low',
     },
     statusOptions: {
       todo: 'To Do',
       in_progress: 'In Progress',
       in_review: 'In Review',
       blocked: 'Blocked',
-      done: 'Done'
-    }
-  }
+      done: 'Done',
+    },
+  },
 };
 
 export const TaskEditor: React.FC<TaskEditorProps> = ({
@@ -69,7 +69,7 @@ export const TaskEditor: React.FC<TaskEditorProps> = ({
   isOpen,
   onClose,
   onSave,
-  language
+  language,
 }) => {
   const [formData, setFormData] = useState<Partial<DevelopmentTask>>({});
   const t = translations[language];
@@ -88,7 +88,7 @@ export const TaskEditor: React.FC<TaskEditorProps> = ({
         actualHours: task.actualHours,
         priority: task.priority,
         status: task.status,
-        technicalNotes: task.technicalNotes
+        technicalNotes: task.technicalNotes,
       });
     }
   }, [task]);
@@ -98,9 +98,9 @@ export const TaskEditor: React.FC<TaskEditorProps> = ({
   };
 
   const handleInputChange = (field: keyof DevelopmentTask, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -142,7 +142,9 @@ export const TaskEditor: React.FC<TaskEditorProps> = ({
               <Input
                 type="number"
                 value={String(formData.estimatedHours || 0)}
-                onChange={(value) => handleInputChange('estimatedHours', parseInt(value) || 0)}
+                onChange={(value) =>
+                  handleInputChange('estimatedHours', parseInt(value) || 0)
+                }
               />
             </div>
 
@@ -153,7 +155,9 @@ export const TaskEditor: React.FC<TaskEditorProps> = ({
               <Input
                 type="number"
                 value={String(formData.actualHours || 0)}
-                onChange={(value) => handleInputChange('actualHours', parseInt(value) || 0)}
+                onChange={(value) =>
+                  handleInputChange('actualHours', parseInt(value) || 0)
+                }
               />
             </div>
           </div>
@@ -171,7 +175,7 @@ export const TaskEditor: React.FC<TaskEditorProps> = ({
                   { value: 'critical', label: t.priorityOptions.critical },
                   { value: 'high', label: t.priorityOptions.high },
                   { value: 'medium', label: t.priorityOptions.medium },
-                  { value: 'low', label: t.priorityOptions.low }
+                  { value: 'low', label: t.priorityOptions.low },
                 ]}
               />
             </div>
@@ -188,7 +192,7 @@ export const TaskEditor: React.FC<TaskEditorProps> = ({
                   { value: 'in_progress', label: t.statusOptions.in_progress },
                   { value: 'in_review', label: t.statusOptions.in_review },
                   { value: 'blocked', label: t.statusOptions.blocked },
-                  { value: 'done', label: t.statusOptions.done }
+                  { value: 'done', label: t.statusOptions.done },
                 ]}
               />
             </div>
@@ -226,10 +230,7 @@ export const TaskEditor: React.FC<TaskEditorProps> = ({
 
         {/* Action Buttons */}
         <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-200">
-          <Button
-            variant="secondary"
-            onClick={onClose}
-          >
+          <Button variant="secondary" onClick={onClose}>
             {t.cancel}
           </Button>
           <Button

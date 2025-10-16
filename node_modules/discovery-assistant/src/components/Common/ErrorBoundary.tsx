@@ -66,7 +66,10 @@ export class ErrorBoundary extends Component<Props, State> {
 
       // Default error UI
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4" dir="rtl">
+        <div
+          className="min-h-screen bg-gray-50 flex items-center justify-center p-4"
+          dir="rtl"
+        >
           <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <AlertTriangle className="w-8 h-8 text-red-600" />
@@ -77,7 +80,8 @@ export class ErrorBoundary extends Component<Props, State> {
             </h2>
 
             <p className="text-gray-600 mb-6">
-              אירעה שגיאה בלתי צפויה באפליקציה. אנא נסה לרענן את הדף או לחזור לדף הבית.
+              אירעה שגיאה בלתי צפויה באפליקציה. אנא נסה לרענן את הדף או לחזור
+              לדף הבית.
             </p>
 
             {/* Error details for development */}

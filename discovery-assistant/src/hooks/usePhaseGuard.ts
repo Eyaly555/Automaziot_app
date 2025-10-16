@@ -25,8 +25,8 @@ const ROUTE_GUARD_RULES: RouteGuardRule[] = [
     allowedStatuses: ['discovery_complete', 'awaiting_client_decision'],
     errorMessage: {
       he: 'יש להשלים את שלב הגילוי לפני איסוף דרישות',
-      en: 'Complete discovery phase before requirements collection'
-    }
+      en: 'Complete discovery phase before requirements collection',
+    },
   },
   {
     pattern: /^\/approval/,
@@ -34,25 +34,25 @@ const ROUTE_GUARD_RULES: RouteGuardRule[] = [
     allowedStatuses: ['awaiting_client_decision', 'client_approved'],
     errorMessage: {
       he: 'דף אישור לקוח זמין רק לאחר השלמת הגילוי',
-      en: 'Client approval page available only after discovery completion'
-    }
+      en: 'Client approval page available only after discovery completion',
+    },
   },
   {
     pattern: /^\/phase2/,
     requiredPhase: 'implementation_spec',
     errorMessage: {
       he: 'יש לקבל אישור לקוח ולעבור לשלב מפרט היישום',
-      en: 'Client approval required to access implementation spec phase'
-    }
+      en: 'Client approval required to access implementation spec phase',
+    },
   },
   {
     pattern: /^\/phase3/,
     requiredPhase: 'development',
     errorMessage: {
       he: 'יש להשלים את מפרט היישום לפני גישה לשלב הפיתוח',
-      en: 'Implementation spec must be complete to access development phase'
-    }
-  }
+      en: 'Implementation spec must be complete to access development phase',
+    },
+  },
 ];
 
 /**
@@ -80,7 +80,9 @@ export const usePhaseGuard = (language: 'he' | 'en' = 'he') => {
         location.pathname !== '/' &&
         location.pathname !== '/dashboard'
       ) {
-        console.warn('[PhaseGuard] No meeting loaded, redirecting to dashboard');
+        console.warn(
+          '[PhaseGuard] No meeting loaded, redirecting to dashboard'
+        );
         navigate('/');
       }
       return;
@@ -95,14 +97,23 @@ export const usePhaseGuard = (language: 'he' | 'en' = 'he') => {
         // Check phase requirement
         if (currentPhase !== rule.requiredPhase) {
           // Special case: Allow access to Phase 2 if client has approved
-          if (rule.requiredPhase === 'implementation_spec' &&
-              currentPhase === 'discovery' &&
-              currentStatus === 'client_approved') {
-            console.log('[PhaseGuard] Allowing Phase 2 access with client_approved status');
+          if (
+            rule.requiredPhase === 'implementation_spec' &&
+            currentPhase === 'discovery' &&
+            currentStatus === 'client_approved'
+          ) {
+            console.log(
+              '[PhaseGuard] Allowing Phase 2 access with client_approved status'
+            );
             // Continue to allow access - auto-transition will happen in ImplementationSpecDashboard
           } else {
             // If trying to access a future phase, check if transition is allowed
-            const phaseOrder: MeetingPhase[] = ['discovery', 'implementation_spec', 'development', 'completed'];
+            const phaseOrder: MeetingPhase[] = [
+              'discovery',
+              'implementation_spec',
+              'development',
+              'completed',
+            ];
             const currentIndex = phaseOrder.indexOf(currentPhase);
             const requiredIndex = phaseOrder.indexOf(rule.requiredPhase);
 
@@ -111,14 +122,14 @@ export const usePhaseGuard = (language: 'he' | 'en' = 'he') => {
               if (!canTransitionTo(rule.requiredPhase)) {
                 console.warn(
                   `[PhaseGuard] Blocked access to ${location.pathname}: ` +
-                  `Phase "${rule.requiredPhase}" required, current phase is "${currentPhase}"`
+                    `Phase "${rule.requiredPhase}" required, current phase is "${currentPhase}"`
                 );
 
                 // Show error toast
                 toast.error(rule.errorMessage[language], {
                   duration: 4000,
                   icon: '🔒',
-                  position: 'top-center'
+                  position: 'top-center',
                 });
 
                 // Redirect to appropriate phase dashboard
@@ -127,22 +138,27 @@ export const usePhaseGuard = (language: 'he' | 'en' = 'he') => {
               }
             } else {
               // Trying to access previous phase (allowed for viewing)
-              console.log(`[PhaseGuard] Allowing access to previous phase route: ${location.pathname}`);
+              console.log(
+                `[PhaseGuard] Allowing access to previous phase route: ${location.pathname}`
+              );
             }
           }
         }
 
         // Check status requirement (if specified)
-        if (rule.allowedStatuses && !rule.allowedStatuses.includes(currentStatus)) {
+        if (
+          rule.allowedStatuses &&
+          !rule.allowedStatuses.includes(currentStatus)
+        ) {
           console.warn(
             `[PhaseGuard] Blocked access to ${location.pathname}: ` +
-            `Status must be one of [${rule.allowedStatuses.join(', ')}], current status is "${currentStatus}"`
+              `Status must be one of [${rule.allowedStatuses.join(', ')}], current status is "${currentStatus}"`
           );
 
           toast.error(rule.errorMessage[language], {
             duration: 4000,
             icon: '🔒',
-            position: 'top-center'
+            position: 'top-center',
           });
 
           navigate(getDefaultRouteForPhase(currentPhase));
@@ -190,9 +206,7 @@ export const getPhaseTransitionRequirements = (
     case 'implementation_spec':
       if (currentMeeting.status !== 'client_approved') {
         reasons.push(
-          language === 'he'
-            ? 'יש לקבל אישור לקוח'
-            : 'Client approval required'
+          language === 'he' ? 'יש לקבל אישור לקוח' : 'Client approval required'
         );
       }
       const discoveryProgress = getOverallProgress();
@@ -213,7 +227,8 @@ export const getPhaseTransitionRequirements = (
             : 'Implementation spec must be created'
         );
       } else {
-        const specProgress = currentMeeting.implementationSpec.completionPercentage || 0;
+        const specProgress =
+          currentMeeting.implementationSpec.completionPercentage || 0;
         if (specProgress < 90) {
           reasons.push(
             language === 'he'
@@ -253,15 +268,11 @@ export const getPhaseTransitionRequirements = (
       break;
 
     default:
-      reasons.push(
-        language === 'he'
-          ? 'שלב לא ידוע'
-          : 'Unknown phase'
-      );
+      reasons.push(language === 'he' ? 'שלב לא ידוע' : 'Unknown phase');
   }
 
   return {
     canTransition: reasons.length === 0,
-    reasons
+    reasons,
   };
 };

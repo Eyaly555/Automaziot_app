@@ -13,7 +13,7 @@ import {
   DetailedConversationFlow,
   AIAgentIntegrations,
   AIAgentTraining,
-  AIModelSelection
+  AIModelSelection,
 } from '../types/phase2';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -31,7 +31,7 @@ export const expandAIAgents = (meeting: Meeting): DetailedAIAgentSpec[] => {
 
   // Expand sales agents
   if (aiModule.sales?.useCases && aiModule.sales.useCases.length > 0) {
-    aiModule.sales.useCases.forEach(useCase => {
+    aiModule.sales.useCases.forEach((useCase) => {
       detailedAgents.push(
         createDetailedSpec(useCase, 'sales', aiModule.sales!, meeting)
       );
@@ -40,7 +40,7 @@ export const expandAIAgents = (meeting: Meeting): DetailedAIAgentSpec[] => {
 
   // Expand service agents
   if (aiModule.service?.useCases && aiModule.service.useCases.length > 0) {
-    aiModule.service.useCases.forEach(useCase => {
+    aiModule.service.useCases.forEach((useCase) => {
       detailedAgents.push(
         createDetailedSpec(useCase, 'service', aiModule.service!, meeting)
       );
@@ -48,8 +48,11 @@ export const expandAIAgents = (meeting: Meeting): DetailedAIAgentSpec[] => {
   }
 
   // Expand operations agents
-  if (aiModule.operations?.useCases && aiModule.operations.useCases.length > 0) {
-    aiModule.operations.useCases.forEach(useCase => {
+  if (
+    aiModule.operations?.useCases &&
+    aiModule.operations.useCases.length > 0
+  ) {
+    aiModule.operations.useCases.forEach((useCase) => {
       detailedAgents.push(
         createDetailedSpec(useCase, 'operations', aiModule.operations!, meeting)
       );
@@ -87,7 +90,7 @@ const createDetailedSpec = (
     training: prefillTraining(department, meeting),
 
     // Suggest model based on use case complexity and readiness
-    model: suggestModel(useCase, capability)
+    model: suggestModel(useCase, capability),
   };
 };
 
@@ -112,7 +115,7 @@ const suggestKnowledgeSources = (
       requiresAuth: false,
       documentCount: 0,
       syncEnabled: true,
-      includeInTraining: true
+      includeInTraining: true,
     });
   }
 
@@ -130,14 +133,14 @@ const suggestKnowledgeSources = (
         requiresAuth: false,
         documentCount: topQuestions.length,
         syncEnabled: false,
-        includeInTraining: true
+        includeInTraining: true,
       });
     }
   }
 
   // Check for CRM system
   const systems = meeting.modules?.systems?.detailedSystems || [];
-  const crmSystem = systems.find(s => s.category === 'crm');
+  const crmSystem = systems.find((s) => s.category === 'crm');
   if (crmSystem && (department === 'sales' || department === 'service')) {
     sources.push({
       id: generateId(),
@@ -148,7 +151,7 @@ const suggestKnowledgeSources = (
       requiresAuth: true,
       documentCount: crmSystem.recordCount || 0,
       syncEnabled: true,
-      includeInTraining: true
+      includeInTraining: true,
     });
   }
 
@@ -164,7 +167,7 @@ const suggestKnowledgeSources = (
       requiresAuth: false,
       documentCount: 1,
       syncEnabled: false,
-      includeInTraining: true
+      includeInTraining: true,
     });
   }
 
@@ -174,7 +177,7 @@ const suggestKnowledgeSources = (
     totalDocuments: sources.length,
     totalTokensEstimated: estimateTokens(sources),
     vectorDatabaseUsed: sources.length > 0,
-    embeddingModel: 'text-embedding-ada-002'
+    embeddingModel: 'text-embedding-ada-002',
   };
 };
 
@@ -184,7 +187,7 @@ const suggestKnowledgeSources = (
 const estimateTokens = (sources: KnowledgeSource[]): number => {
   let total = 0;
 
-  sources.forEach(source => {
+  sources.forEach((source) => {
     switch (source.type) {
       case 'website':
         total += 50000; // Estimate ~50k tokens per website
@@ -216,23 +219,27 @@ const createBasicConversationFlow = (
 ): DetailedConversationFlow => {
   // Map department to greeting
   const departmentGreetings = {
-    sales: 'שלום! אני כאן לעזור לך עם שאלות אודות המוצרים והשירותים שלנו. במה אוכל לסייע?',
-    service: 'שלום! אני סוכן שירות אוטומטי. אשמח לעזור לך. מה הבעיה או השאלה שלך?',
-    operations: 'שלום! אני כאן לסייע בתהליכים תפעוליים. במה אוכל לעזור?'
+    sales:
+      'שלום! אני כאן לעזור לך עם שאלות אודות המוצרים והשירותים שלנו. במה אוכל לסייע?',
+    service:
+      'שלום! אני סוכן שירות אוטומטי. אשמח לעזור לך. מה הבעיה או השאלה שלך?',
+    operations: 'שלום! אני כאן לסייע בתהליכים תפעוליים. במה אוכל לעזור?',
   };
 
   return {
-    greeting: departmentGreetings[department as keyof typeof departmentGreetings],
+    greeting:
+      departmentGreetings[department as keyof typeof departmentGreetings],
     intents: createBasicIntents(useCase, department),
-    fallbackResponse: 'סליחה, לא הבנתי את שאלתך. האם תוכל לנסח אותה אחרת? או לחילופין, אוכל להעבירך לנציג אנושי.',
+    fallbackResponse:
+      'סליחה, לא הבנתי את שאלתך. האם תוכל לנסח אותה אחרת? או לחילופין, אוכל להעבירך לנציג אנושי.',
     escalationTriggers: [
       'המשתמש ביקש לדבר עם נציג אנושי',
       'לא הצלחתי לענות על 3 שאלות ברצף',
       'המשתמש כועס או משתמש במילים שליליות',
-      'השאלה דורשת החלטה מורכבת או מידע לא זמין'
+      'השאלה דורשת החלטה מורכבת או מידע לא זמין',
     ],
     maxTurns: 10,
-    contextWindow: 5
+    contextWindow: 5,
   };
 };
 
@@ -247,14 +254,15 @@ const createBasicIntents = (_useCase: string, department: string): any[] => {
       {
         name: 'בקשת מחיר',
         examples: ['כמה עולה?', 'מה המחיר?', 'תן לי הצעת מחיר'],
-        response: 'אשמח לתת לך הצעת מחיר. אוכל לקבל עוד כמה פרטים על הצורך שלך?',
-        requiresData: true
+        response:
+          'אשמח לתת לך הצעת מחיר. אוכל לקבל עוד כמה פרטים על הצורך שלך?',
+        requiresData: true,
       },
       {
         name: 'מידע על מוצר',
         examples: ['ספר לי על המוצר', 'מה כולל?', 'תיאור המוצר'],
         response: '',
-        requiresData: true
+        requiresData: true,
       }
     );
   } else if (department === 'service') {
@@ -262,14 +270,15 @@ const createBasicIntents = (_useCase: string, department: string): any[] => {
       {
         name: 'דיווח על בעיה',
         examples: ['יש לי בעיה', 'המערכת לא עובדת', 'נתקלתי בתקלה'],
-        response: 'מצטער לשמוע. בוא נבדוק ביחד מה קרה. תוכל לתאר את הבעיה בפירוט?',
-        requiresData: true
+        response:
+          'מצטער לשמוע. בוא נבדוק ביחד מה קרה. תוכל לתאר את הבעיה בפירוט?',
+        requiresData: true,
       },
       {
         name: 'שאלה טכנית',
         examples: ['איך עושים...', 'מה התהליך ל...', 'הסבר לי איך'],
         response: '',
-        requiresData: true
+        requiresData: true,
       }
     );
   } else if (department === 'operations') {
@@ -278,13 +287,13 @@ const createBasicIntents = (_useCase: string, department: string): any[] => {
         name: 'עדכון סטטוס',
         examples: ['מה הסטטוס?', 'איפה ההזמנה שלי?', 'מתי זה יגיע?'],
         response: '',
-        requiresData: true
+        requiresData: true,
       },
       {
         name: 'בקשת שינוי',
         examples: ['אני רוצה לשנות', 'לעדכן את', 'לבטל את'],
         response: 'בוודאי. מה ברצונך לשנות?',
-        requiresData: true
+        requiresData: true,
       }
     );
   }
@@ -302,32 +311,39 @@ const suggestIntegrations = (
   const systems = meeting.modules?.systems?.detailedSystems || [];
 
   // Check for CRM
-  const hasCRM = systems.some(s => s.category === 'crm');
+  const hasCRM = systems.some((s) => s.category === 'crm');
 
   // Check for email system
-  const hasEmail = systems.some(s =>
-    s.specificSystem.toLowerCase().includes('gmail') ||
-    s.specificSystem.toLowerCase().includes('outlook') ||
-    s.specificSystem.toLowerCase().includes('office 365')
+  const hasEmail = systems.some(
+    (s) =>
+      s.specificSystem.toLowerCase().includes('gmail') ||
+      s.specificSystem.toLowerCase().includes('outlook') ||
+      s.specificSystem.toLowerCase().includes('office 365')
   );
 
   // Check for calendar system
-  const hasCalendar = systems.some(s =>
-    s.specificSystem.toLowerCase().includes('calendar') ||
-    s.specificSystem.toLowerCase().includes('google calendar') ||
-    s.specificSystem.toLowerCase().includes('outlook calendar')
+  const hasCalendar = systems.some(
+    (s) =>
+      s.specificSystem.toLowerCase().includes('calendar') ||
+      s.specificSystem.toLowerCase().includes('google calendar') ||
+      s.specificSystem.toLowerCase().includes('outlook calendar')
   );
 
   return {
     crmEnabled: hasCRM,
-    crmSystem: hasCRM ? systems.find(s => s.category === 'crm')?.specificSystem || '' : '',
+    crmSystem: hasCRM
+      ? systems.find((s) => s.category === 'crm')?.specificSystem || ''
+      : '',
     emailEnabled: hasEmail,
-    emailProvider: hasEmail ? systems.find(s =>
-      s.specificSystem.toLowerCase().includes('gmail') ||
-      s.specificSystem.toLowerCase().includes('outlook')
-    )?.specificSystem || '' : '',
+    emailProvider: hasEmail
+      ? systems.find(
+          (s) =>
+            s.specificSystem.toLowerCase().includes('gmail') ||
+            s.specificSystem.toLowerCase().includes('outlook')
+        )?.specificSystem || ''
+      : '',
     calendarEnabled: hasCalendar && department === 'sales',
-    customWebhooks: []
+    customWebhooks: [],
   };
 };
 
@@ -347,7 +363,7 @@ const prefillTraining = (
       faqPairs.push({
         question: q,
         answer: '', // To be filled in Phase 2
-        category: 'שירות לקוחות'
+        category: 'שירות לקוחות',
       });
     });
   }
@@ -357,17 +373,14 @@ const prefillTraining = (
     faqPairs,
     prohibitedTopics: [],
     tone: 'professional',
-    language: 'he'
+    language: 'he',
   };
 };
 
 /**
  * Suggest AI model based on use case and capability
  */
-const suggestModel = (
-  useCase: string,
-  capability: any
-): AIModelSelection => {
+const suggestModel = (useCase: string, capability: any): AIModelSelection => {
   const isComplex = useCase.length > 50 || capability.potential === 'high';
 
   // For complex use cases or high potential, suggest GPT-4
@@ -378,7 +391,7 @@ const suggestModel = (
       temperature: 0.7,
       maxTokens: 2000,
       topP: 1.0,
-      reasonForSelection: 'use case מורכב או פוטנציאל גבוה - דורש מודל מתקדם'
+      reasonForSelection: 'use case מורכב או פוטנציאל גבוה - דורש מודל מתקדם',
     };
   }
 
@@ -389,7 +402,7 @@ const suggestModel = (
     temperature: 0.7,
     maxTokens: 1500,
     topP: 1.0,
-    reasonForSelection: 'use case פשוט - מודל חסכוני מספיק'
+    reasonForSelection: 'use case פשוט - מודל חסכוני מספיק',
   };
 };
 
@@ -399,13 +412,23 @@ const suggestModel = (
 export const getAIAgentStats = (agents: DetailedAIAgentSpec[]) => {
   return {
     total: agents.length,
-    sales: agents.filter(a => a.department === 'sales').length,
-    service: agents.filter(a => a.department === 'service').length,
-    operations: agents.filter(a => a.department === 'operations').length,
-    totalKnowledgeSources: agents.reduce((acc, a) => acc + a.knowledgeBase.sources.length, 0),
-    totalEstimatedTokens: agents.reduce((acc, a) => acc + a.knowledgeBase.totalTokensEstimated, 0),
-    totalIntents: agents.reduce((acc, a) => acc + a.conversationFlow.intents.length, 0),
-    crmIntegrationsCount: agents.filter(a => a.integrations.crmEnabled).length
+    sales: agents.filter((a) => a.department === 'sales').length,
+    service: agents.filter((a) => a.department === 'service').length,
+    operations: agents.filter((a) => a.department === 'operations').length,
+    totalKnowledgeSources: agents.reduce(
+      (acc, a) => acc + a.knowledgeBase.sources.length,
+      0
+    ),
+    totalEstimatedTokens: agents.reduce(
+      (acc, a) => acc + a.knowledgeBase.totalTokensEstimated,
+      0
+    ),
+    totalIntents: agents.reduce(
+      (acc, a) => acc + a.conversationFlow.intents.length,
+      0
+    ),
+    crmIntegrationsCount: agents.filter((a) => a.integrations.crmEnabled)
+      .length,
   };
 };
 

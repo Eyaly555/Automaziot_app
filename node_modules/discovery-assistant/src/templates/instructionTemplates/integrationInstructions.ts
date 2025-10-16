@@ -1,6 +1,6 @@
 /**
  * Integration Instructions Template Library
- * 
+ *
  * Generates detailed integration setup instructions
  */
 
@@ -15,7 +15,9 @@ export interface IntegrationInstructionParams {
   bidirectional: boolean;
 }
 
-export function generateIntegrationInstructions(params: IntegrationInstructionParams): string {
+export function generateIntegrationInstructions(
+  params: IntegrationInstructionParams
+): string {
   const {
     integrationName,
     sourceSystem,
@@ -24,7 +26,7 @@ export function generateIntegrationInstructions(params: IntegrationInstructionPa
     frequency,
     dataMapping,
     errorHandling,
-    bidirectional
+    bidirectional,
   } = params;
 
   return `
@@ -63,9 +65,9 @@ ${generateSourceSystemSetup(sourceSystem, trigger)}
 5. **Error Handler Node:** Handle failures
 
 **Field Mapping:**
-${Object.entries(dataMapping).map(([source, target]) => 
-  `- \`${source}\` → \`${target}\``
-).join('\n')}
+${Object.entries(dataMapping)
+  .map(([source, target]) => `- \`${source}\` → \`${target}\``)
+  .join('\n')}
 
 #### 3. Error Handling
 
@@ -87,7 +89,9 @@ ${generateErrorHandlingInstructions(errorHandling)}
 - [ ] Error handling works (retry logic, alerts)
 - [ ] Logs capture all executions
 
-${bidirectional ? `
+${
+  bidirectional
+    ? `
 #### 5. Reverse Flow (${targetSystem} → ${sourceSystem})
 
 **Note:** This is a bidirectional integration. Set up reverse flow with same quality standards.
@@ -96,7 +100,9 @@ ${bidirectional ? `
 - Prevent infinite loops (A → B → A → B...)
 - Add sync timestamps to avoid re-processing
 - Consider conflict resolution if same record updated in both systems
-` : ''}
+`
+    : ''
+}
 
 ### Monitoring & Maintenance
 
@@ -123,7 +129,7 @@ function generateSourceSystemSetup(system: string, trigger: string): string {
 - Copy webhook secret for signature validation
 - Test webhook delivery
       `;
-    
+
     case 'schedule':
     case 'polling':
       return `
@@ -133,7 +139,7 @@ function generateSourceSystemSetup(system: string, trigger: string): string {
 - Filter: Records modified since last sync
 - Store last sync timestamp
       `;
-    
+
     default:
       return `
 **Configuration:**
@@ -161,7 +167,8 @@ function getTriggerNodeType(trigger: string): string {
 
 function generateErrorHandlingInstructions(errorHandling: any): string {
   const onError = errorHandling?.onError || 'retry';
-  const retryCount = errorHandling?.retryCount || errorHandling?.retryAttempts || 3;
+  const retryCount =
+    errorHandling?.retryCount || errorHandling?.retryAttempts || 3;
   const retryDelay = errorHandling?.retryDelay || 60;
   const alertRecipients = errorHandling?.alertRecipients || [];
 
@@ -202,4 +209,3 @@ function generateErrorHandlingInstructions(errorHandling: any): string {
 - Track error patterns for optimization
   `.trim();
 }
-

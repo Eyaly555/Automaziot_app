@@ -22,19 +22,19 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   variant = 'default',
   size = 'md',
   animated = false,
-  className = ''
+  className = '',
 }) => {
   const variants = {
     default: 'bg-blue-600',
     success: 'bg-green-600',
     warning: 'bg-yellow-600',
-    error: 'bg-red-600'
+    error: 'bg-red-600',
   };
 
   const sizes = {
     sm: 'h-1',
     md: 'h-2',
-    lg: 'h-3'
+    lg: 'h-3',
   };
 
   // Clamp value between 0 and 100
@@ -45,13 +45,19 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
       {/* Label and percentage */}
       {(label || showPercentage) && (
         <div className="flex items-center justify-between mb-1">
-          {label && <span className="text-sm font-medium text-gray-700">{label}</span>}
-          {showPercentage && <span className="text-sm text-gray-600">{clampedValue}%</span>}
+          {label && (
+            <span className="text-sm font-medium text-gray-700">{label}</span>
+          )}
+          {showPercentage && (
+            <span className="text-sm text-gray-600">{clampedValue}%</span>
+          )}
         </div>
       )}
 
       {/* Progress bar */}
-      <div className={`w-full bg-gray-200 rounded-full overflow-hidden ${sizes[size]}`}>
+      <div
+        className={`w-full bg-gray-200 rounded-full overflow-hidden ${sizes[size]}`}
+      >
         <div
           className={`
             ${variants[variant]}

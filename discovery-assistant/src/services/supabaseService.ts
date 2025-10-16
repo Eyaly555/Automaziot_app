@@ -35,7 +35,9 @@ export const supabaseService = {
    * Save complete meeting to Supabase
    * Uses upsert to create or update
    */
-  async saveMeeting(meeting: Meeting): Promise<{ success: boolean; error?: string }> {
+  async saveMeeting(
+    meeting: Meeting
+  ): Promise<{ success: boolean; error?: string }> {
     if (!supabase) {
       return { success: false, error: 'Supabase not configured' };
     }
@@ -50,18 +52,21 @@ export const supabaseService = {
       console.log('[Supabase] Saving meeting:', {
         zohoRecordId,
         clientName: meeting.clientName,
-        phase: meeting.phase
+        phase: meeting.phase,
       });
 
       const { error } = await supabase
         .schema('automaziot')
         .from('meetings')
-        .upsert({
-          zoho_record_id: zohoRecordId,
-          meeting_json: meeting as any, // Supabase handles JSON serialization
-        }, {
-          onConflict: 'zoho_record_id' // Update if exists, insert if not
-        })
+        .upsert(
+          {
+            zoho_record_id: zohoRecordId,
+            meeting_json: meeting as any, // Supabase handles JSON serialization
+          },
+          {
+            onConflict: 'zoho_record_id', // Update if exists, insert if not
+          }
+        )
         .select();
 
       if (error) {
@@ -75,7 +80,7 @@ export const supabaseService = {
       console.error('[Supabase] Save error:', error);
       return {
         success: false,
-        error: error.message || 'Unknown error'
+        error: error.message || 'Unknown error',
       };
     }
   },
@@ -116,7 +121,7 @@ export const supabaseService = {
 
       console.log('[Supabase] Load successful:', {
         clientName: data.meeting_json.clientName,
-        phase: data.meeting_json.phase
+        phase: data.meeting_json.phase,
       });
 
       // Return the meeting JSON directly
@@ -130,7 +135,9 @@ export const supabaseService = {
   /**
    * Delete meeting from Supabase
    */
-  async deleteMeeting(zohoRecordId: string): Promise<{ success: boolean; error?: string }> {
+  async deleteMeeting(
+    zohoRecordId: string
+  ): Promise<{ success: boolean; error?: string }> {
     if (!supabase) {
       return { success: false, error: 'Supabase not configured' };
     }
@@ -155,7 +162,7 @@ export const supabaseService = {
       console.error('[Supabase] Delete error:', error);
       return {
         success: false,
-        error: error.message || 'Unknown error'
+        error: error.message || 'Unknown error',
       };
     }
   },
@@ -185,7 +192,7 @@ export const supabaseService = {
 
       console.log('[Supabase] Search results:', data?.length || 0);
 
-      return data?.map(row => row.meeting_json as Meeting) || [];
+      return data?.map((row) => row.meeting_json as Meeting) || [];
     } catch (error: any) {
       console.error('[Supabase] Search error:', error);
       return [];
@@ -217,7 +224,7 @@ export const supabaseService = {
 
       console.log('[Supabase] Retrieved meetings:', data?.length || 0);
 
-      return data?.map(row => row.meeting_json as Meeting) || [];
+      return data?.map((row) => row.meeting_json as Meeting) || [];
     } catch (error: any) {
       console.error('[Supabase] Get all error:', error);
       return [];
@@ -249,12 +256,12 @@ export const supabaseService = {
 
       console.log('[Supabase] Retrieved meetings:', data?.length || 0);
 
-      return data?.map(row => row.meeting_json as Meeting) || [];
+      return data?.map((row) => row.meeting_json as Meeting) || [];
     } catch (error: any) {
       console.error('[Supabase] Get by phase error:', error);
       return [];
     }
-  }
+  },
 };
 
 // Export the client for advanced usage

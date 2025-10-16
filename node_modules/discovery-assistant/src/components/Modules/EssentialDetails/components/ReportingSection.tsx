@@ -10,12 +10,15 @@ interface ReportingSectionProps {
 
 export const ReportingSection: React.FC<ReportingSectionProps> = ({
   data = {},
-  onChange
+  onChange,
 }) => {
   const [newReport, setNewReport] = useState('');
   const [newGap, setNewGap] = useState('');
 
-  const updateField = <K extends keyof typeof data>(field: K, value: typeof data[K]) => {
+  const updateField = <K extends keyof typeof data>(
+    field: K,
+    value: (typeof data)[K]
+  ) => {
     onChange({ [field]: value });
   };
 
@@ -54,7 +57,10 @@ export const ReportingSection: React.FC<ReportingSectionProps> = ({
           {(data.criticalReports || []).length > 0 && (
             <div className="space-y-2 mb-3">
               {(data.criticalReports || []).map((report, index) => (
-                <div key={index} className="flex items-center justify-between bg-teal-50 border border-teal-200 rounded-lg p-2">
+                <div
+                  key={index}
+                  className="flex items-center justify-between bg-teal-50 border border-teal-200 rounded-lg p-2"
+                >
                   <span className="text-sm">{report}</span>
                   <button
                     onClick={() => removeReport(index)}
@@ -102,7 +108,10 @@ export const ReportingSection: React.FC<ReportingSectionProps> = ({
           {(data.dataGaps || []).length > 0 && (
             <div className="space-y-2 mb-3">
               {(data.dataGaps || []).map((gap, index) => (
-                <div key={index} className="flex items-center justify-between bg-yellow-50 border border-yellow-200 rounded-lg p-2">
+                <div
+                  key={index}
+                  className="flex items-center justify-between bg-yellow-50 border border-yellow-200 rounded-lg p-2"
+                >
                   <span className="text-sm">{gap}</span>
                   <button
                     onClick={() => removeGap(index)}

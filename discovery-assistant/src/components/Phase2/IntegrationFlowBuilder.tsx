@@ -15,10 +15,13 @@ import {
   Lightbulb,
   CheckSquare,
   Sparkles,
-  Loader
+  Loader,
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
-import { suggestIntegrationFlows, hasIntegrationFlowSuggestions } from '../../utils/integrationFlowSuggester';
+import {
+  suggestIntegrationFlows,
+  hasIntegrationFlowSuggestions,
+} from '../../utils/integrationFlowSuggester';
 import { getRequiredSystemsForServices } from '../../config/serviceToSystemMapping';
 import {
   IntegrationFlow,
@@ -26,12 +29,15 @@ import {
   TestCase,
   AcceptanceCriteria,
   FunctionalRequirement,
-  PerformanceRequirement
+  PerformanceRequirement,
 } from '../../types/phase2';
 import { SelectedService, DetailedSystemInfo } from '../../types';
 import { IntegrationFlowToolbar } from './IntegrationFlowToolbar';
 import { Button, Input, Select } from '../Base';
-import { generateAcceptanceCriteria, getIntegrationCriteria } from '../../utils/acceptanceCriteriaGenerator';
+import {
+  generateAcceptanceCriteria,
+  getIntegrationCriteria,
+} from '../../utils/acceptanceCriteriaGenerator';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -39,7 +45,7 @@ const TRIGGER_TYPES = [
   { value: 'webhook', label: 'Webhook', icon: Zap },
   { value: 'schedule', label: 'מתוזמן', icon: Clock },
   { value: 'manual', label: 'ידני', icon: Settings },
-  { value: 'event', label: 'אירוע במערכת', icon: AlertCircle }
+  { value: 'event', label: 'אירוע במערכת', icon: AlertCircle },
 ] as const;
 
 const FREQUENCY_OPTIONS = [
@@ -48,7 +54,7 @@ const FREQUENCY_OPTIONS = [
   { value: 'hourly', label: 'שעתי' },
   { value: 'daily', label: 'יומי' },
   { value: 'weekly', label: 'שבועי' },
-  { value: 'manual', label: 'ידני' }
+  { value: 'manual', label: 'ידני' },
 ] as const;
 
 const STEP_TYPES = [
@@ -56,7 +62,7 @@ const STEP_TYPES = [
   { value: 'transform', label: 'עיבוד נתונים', icon: Settings },
   { value: 'conditional', label: 'תנאי', icon: GitBranch },
   { value: 'create', label: 'יצירה', icon: Plus },
-  { value: 'update', label: 'עדכון', icon: CheckCircle }
+  { value: 'update', label: 'עדכון', icon: CheckCircle },
 ] as const;
 
 export const IntegrationFlowBuilder: React.FC = () => {
@@ -65,41 +71,49 @@ export const IntegrationFlowBuilder: React.FC = () => {
   const { currentMeeting, updateMeeting } = useMeetingStore();
 
   const existingFlow = flowId
-    ? currentMeeting?.implementationSpec?.integrations.find(f => f.id === flowId)
+    ? currentMeeting?.implementationSpec?.integrations.find(
+        (f) => f.id === flowId
+      )
     : null;
 
   // Get available systems for source/target selection
-  const availableSystems = currentMeeting?.implementationSpec?.systems.map(s => ({
-    id: s.systemId,
-    name: s.systemName
-  })) || [];
+  const availableSystems =
+    currentMeeting?.implementationSpec?.systems.map((s) => ({
+      id: s.systemId,
+      name: s.systemName,
+    })) || [];
 
-  const [flow, setFlow] = useState<IntegrationFlow>(existingFlow || {
-    id: generateId(),
-    name: '',
-    sourceSystem: '',
-    targetSystem: '',
-    trigger: {
-      type: 'webhook',
-      schedule: '',
-      eventName: ''
-    },
-    steps: [],
-    frequency: 'realtime',
-    errorHandling: {
-      retryCount: 3,
-      retryDelay: 5,
-      fallbackAction: 'log',
-      notifyOnFailure: true,
-      failureEmail: ''
-    },
-    testCases: []
-  });
+  const [flow, setFlow] = useState<IntegrationFlow>(
+    existingFlow || {
+      id: generateId(),
+      name: '',
+      sourceSystem: '',
+      targetSystem: '',
+      trigger: {
+        type: 'webhook',
+        schedule: '',
+        eventName: '',
+      },
+      steps: [],
+      frequency: 'realtime',
+      errorHandling: {
+        retryCount: 3,
+        retryDelay: 5,
+        fallbackAction: 'log',
+        notifyOnFailure: true,
+        failureEmail: '',
+      },
+      testCases: [],
+    }
+  );
 
-  const [activeTab, setActiveTab] = useState<'basic' | 'steps' | 'errors' | 'tests' | 'acceptance'>('basic');
+  const [activeTab, setActiveTab] = useState<
+    'basic' | 'steps' | 'errors' | 'tests' | 'acceptance'
+  >('basic');
   const [suggestedFromPhase1, setSuggestedFromPhase1] = useState(false);
   const [isGeneratingCriteria, setIsGeneratingCriteria] = useState(false);
-  const [integrationCriteria, setIntegrationCriteria] = useState<AcceptanceCriteria | null>(null);
+  const [integrationCriteria, setIntegrationCriteria] =
+    useState<AcceptanceCriteria | null>(null);
 
   // Undo/redo state
   const [history, setHistory] = useState<IntegrationFlow[]>([]);
@@ -119,35 +133,56 @@ export const IntegrationFlowBuilder: React.FC = () => {
 
     // Early exit if no purchased services
     if (purchasedServices.length === 0) {
-      console.warn('[IntegrationFlowBuilder] No purchased services found - skipping auto-suggestion');
+      console.warn(
+        '[IntegrationFlowBuilder] No purchased services found - skipping auto-suggestion'
+      );
       return;
     }
 
     // Extract service IDs
-    const purchasedServiceIds = purchasedServices.map((service: SelectedService) => service.id);
-    console.log('[IntegrationFlowBuilder] Purchased services:', purchasedServiceIds);
+    const purchasedServiceIds = purchasedServices.map(
+      (service: SelectedService) => service.id
+    );
+    console.log(
+      '[IntegrationFlowBuilder] Purchased services:',
+      purchasedServiceIds
+    );
 
     // === FILTER: Get required system categories for purchased services ===
-    const requiredSystemCategories = getRequiredSystemsForServices(purchasedServiceIds);
-    console.log('[IntegrationFlowBuilder] Required system categories:', requiredSystemCategories);
+    const requiredSystemCategories =
+      getRequiredSystemsForServices(purchasedServiceIds);
+    console.log(
+      '[IntegrationFlowBuilder] Required system categories:',
+      requiredSystemCategories
+    );
 
     // Early exit if no systems needed
     if (requiredSystemCategories.length === 0) {
-      console.warn('[IntegrationFlowBuilder] No systems required for purchased services - skipping auto-suggestion');
+      console.warn(
+        '[IntegrationFlowBuilder] No systems required for purchased services - skipping auto-suggestion'
+      );
       return;
     }
 
     // === FILTER: Only include Phase 1 systems that match required categories ===
-    const allPhase1Systems = currentMeeting.modules?.systems?.detailedSystems || [];
-    const relevantSystems = allPhase1Systems.filter((system: DetailedSystemInfo) =>
-      requiredSystemCategories.includes(system.category)
+    const allPhase1Systems =
+      currentMeeting.modules?.systems?.detailedSystems || [];
+    const relevantSystems = allPhase1Systems.filter(
+      (system: DetailedSystemInfo) =>
+        requiredSystemCategories.includes(system.category)
     );
 
-    console.log(`[IntegrationFlowBuilder] Filtered systems: ${relevantSystems.length}/${allPhase1Systems.length} (only showing systems for purchased services)`);
+    console.log(
+      `[IntegrationFlowBuilder] Filtered systems: ${relevantSystems.length}/${allPhase1Systems.length} (only showing systems for purchased services)`
+    );
 
     // Early exit if only 0-1 systems (need at least 2 systems for integrations)
     if (relevantSystems.length < 2) {
-      console.warn('[IntegrationFlowBuilder] Not enough systems for integrations (need 2+, have ' + relevantSystems.length + ') - skipping auto-suggestion');
+      console.warn(
+        '[IntegrationFlowBuilder] Not enough systems for integrations (need 2+, have ' +
+          relevantSystems.length +
+          ') - skipping auto-suggestion'
+      );
       return;
     }
 
@@ -164,23 +199,27 @@ export const IntegrationFlowBuilder: React.FC = () => {
           ...currentMeeting.modules,
           systems: {
             ...currentMeeting.modules.systems,
-            detailedSystems: relevantSystems
-          }
-        }
+            detailedSystems: relevantSystems,
+          },
+        },
       };
 
       // Check if filtered meeting has integration needs
       const hasNeeds = hasIntegrationFlowSuggestions(filteredMeeting);
 
       if (!hasNeeds) {
-        console.warn('[IntegrationFlowBuilder] No integration needs found in filtered systems');
+        console.warn(
+          '[IntegrationFlowBuilder] No integration needs found in filtered systems'
+        );
         return;
       }
 
       // === SUGGEST INTEGRATIONS (filtered by purchased services) ===
       const suggestedFlows = suggestIntegrationFlows(filteredMeeting);
 
-      console.log(`[IntegrationFlowBuilder] Generated ${suggestedFlows.length} integration suggestions from purchased services`);
+      console.log(
+        `[IntegrationFlowBuilder] Generated ${suggestedFlows.length} integration suggestions from purchased services`
+      );
 
       if (suggestedFlows.length > 0) {
         // Save suggested flows to meeting
@@ -189,8 +228,8 @@ export const IntegrationFlowBuilder: React.FC = () => {
             ...currentMeeting.implementationSpec!,
             integrations: suggestedFlows,
             lastUpdated: new Date(),
-            updatedBy: 'system'
-          }
+            updatedBy: 'system',
+          },
         });
 
         setSuggestedFromPhase1(true);
@@ -240,8 +279,8 @@ export const IntegrationFlowBuilder: React.FC = () => {
           ...currentMeeting.implementationSpec!,
           acceptanceCriteria: fullCriteria,
           lastUpdated: new Date(),
-          updatedBy: 'user'
-        }
+          updatedBy: 'user',
+        },
       });
     } catch (error) {
       console.error('Failed to generate acceptance criteria:', error);
@@ -251,23 +290,32 @@ export const IntegrationFlowBuilder: React.FC = () => {
     }
   };
 
-  const updateCriterion = (type: 'functional' | 'performance', id: string, updates: Partial<FunctionalRequirement> | Partial<PerformanceRequirement>) => {
-    if (!currentMeeting?.implementationSpec?.acceptanceCriteria || !integrationCriteria) return;
+  const updateCriterion = (
+    type: 'functional' | 'performance',
+    id: string,
+    updates: Partial<FunctionalRequirement> | Partial<PerformanceRequirement>
+  ) => {
+    if (
+      !currentMeeting?.implementationSpec?.acceptanceCriteria ||
+      !integrationCriteria
+    )
+      return;
 
     const fullCriteria = currentMeeting.implementationSpec.acceptanceCriteria;
     const updatedCriteria = {
       ...fullCriteria,
-      [type]: fullCriteria[type].map((item: FunctionalRequirement | PerformanceRequirement) =>
-        item.id === id ? { ...item, ...updates } : item
-      )
+      [type]: fullCriteria[type].map(
+        (item: FunctionalRequirement | PerformanceRequirement) =>
+          item.id === id ? { ...item, ...updates } : item
+      ),
     };
 
     updateMeeting({
       implementationSpec: {
         ...currentMeeting.implementationSpec,
         acceptanceCriteria: updatedCriteria,
-        lastUpdated: new Date()
-      }
+        lastUpdated: new Date(),
+      },
     });
 
     // Update local state
@@ -303,16 +351,16 @@ export const IntegrationFlowBuilder: React.FC = () => {
     const updatedSpec = {
       ...currentMeeting.implementationSpec!,
       integrations: existingFlow
-        ? currentMeeting.implementationSpec!.integrations.map((f: IntegrationFlow) =>
-            f.id === flowId ? flow : f
+        ? currentMeeting.implementationSpec!.integrations.map(
+            (f: IntegrationFlow) => (f.id === flowId ? flow : f)
           )
         : [...(currentMeeting.implementationSpec!.integrations || []), flow],
       lastUpdated: new Date(),
-      updatedBy: 'user'
+      updatedBy: 'user',
     };
 
     updateMeeting({
-      implementationSpec: updatedSpec
+      implementationSpec: updatedSpec,
     });
 
     navigate('/phase2');
@@ -325,7 +373,7 @@ export const IntegrationFlowBuilder: React.FC = () => {
       description: '',
       endpoint: '',
       dataMapping: {},
-      condition: ''
+      condition: '',
     };
     setFlow({ ...flow, steps: [...flow.steps, newStep] });
   };
@@ -341,7 +389,7 @@ export const IntegrationFlowBuilder: React.FC = () => {
     // Renumber steps
     const renumberedSteps = updatedSteps.map((step: FlowStep, i: number) => ({
       ...step,
-      stepNumber: i + 1
+      stepNumber: i + 1,
     }));
     setFlow({ ...flow, steps: renumberedSteps });
   };
@@ -353,7 +401,7 @@ export const IntegrationFlowBuilder: React.FC = () => {
       input: {},
       expectedOutput: {},
       actualOutput: {},
-      status: 'pending'
+      status: 'pending',
     };
     setFlow({ ...flow, testCases: [...flow.testCases, newTest] });
   };
@@ -367,7 +415,7 @@ export const IntegrationFlowBuilder: React.FC = () => {
   const deleteTestCase = (index: number) => {
     setFlow({
       ...flow,
-      testCases: flow.testCases.filter((_, i) => i !== index)
+      testCases: flow.testCases.filter((_, i) => i !== index),
     });
   };
 
@@ -381,14 +429,16 @@ export const IntegrationFlowBuilder: React.FC = () => {
               <h1 className="text-2xl font-bold text-gray-900">
                 {existingFlow ? 'עריכת אינטגרציה' : 'אינטגרציה חדשה'}
               </h1>
-              {existingFlow?.id && currentMeeting?.implementationSpec?.integrations?.find(
-                f => f.id === existingFlow.id
-              )?.id && suggestedFromPhase1 && (
-                <span className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-                  <Lightbulb className="w-4 h-4" />
-                  הוצע מ-Phase 1
-                </span>
-              )}
+              {existingFlow?.id &&
+                currentMeeting?.implementationSpec?.integrations?.find(
+                  (f) => f.id === existingFlow.id
+                )?.id &&
+                suggestedFromPhase1 && (
+                  <span className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                    <Lightbulb className="w-4 h-4" />
+                    הוצע מ-Phase 1
+                  </span>
+                )}
             </div>
             <button
               onClick={() => navigate('/phase2')}
@@ -400,17 +450,49 @@ export const IntegrationFlowBuilder: React.FC = () => {
 
           {/* Progress indicator */}
           <div className="flex items-center space-x-2 space-x-reverse text-sm text-gray-600">
-            <CheckCircle className={`w-4 h-4 ${activeTab === 'basic' ? 'text-blue-600' : 'text-gray-400'}`} />
-            <span className={activeTab === 'basic' ? 'text-blue-600 font-medium' : ''}>פרטים בסיסיים</span>
+            <CheckCircle
+              className={`w-4 h-4 ${activeTab === 'basic' ? 'text-blue-600' : 'text-gray-400'}`}
+            />
+            <span
+              className={
+                activeTab === 'basic' ? 'text-blue-600 font-medium' : ''
+              }
+            >
+              פרטים בסיסיים
+            </span>
             <ArrowRight className="w-4 h-4" />
-            <CheckCircle className={`w-4 h-4 ${activeTab === 'steps' ? 'text-blue-600' : 'text-gray-400'}`} />
-            <span className={activeTab === 'steps' ? 'text-blue-600 font-medium' : ''}>צעדים</span>
+            <CheckCircle
+              className={`w-4 h-4 ${activeTab === 'steps' ? 'text-blue-600' : 'text-gray-400'}`}
+            />
+            <span
+              className={
+                activeTab === 'steps' ? 'text-blue-600 font-medium' : ''
+              }
+            >
+              צעדים
+            </span>
             <ArrowRight className="w-4 h-4" />
-            <CheckCircle className={`w-4 h-4 ${activeTab === 'errors' ? 'text-blue-600' : 'text-gray-400'}`} />
-            <span className={activeTab === 'errors' ? 'text-blue-600 font-medium' : ''}>טיפול בשגיאות</span>
+            <CheckCircle
+              className={`w-4 h-4 ${activeTab === 'errors' ? 'text-blue-600' : 'text-gray-400'}`}
+            />
+            <span
+              className={
+                activeTab === 'errors' ? 'text-blue-600 font-medium' : ''
+              }
+            >
+              טיפול בשגיאות
+            </span>
             <ArrowRight className="w-4 h-4" />
-            <CheckCircle className={`w-4 h-4 ${activeTab === 'tests' ? 'text-blue-600' : 'text-gray-400'}`} />
-            <span className={activeTab === 'tests' ? 'text-blue-600 font-medium' : ''}>בדיקות</span>
+            <CheckCircle
+              className={`w-4 h-4 ${activeTab === 'tests' ? 'text-blue-600' : 'text-gray-400'}`}
+            />
+            <span
+              className={
+                activeTab === 'tests' ? 'text-blue-600 font-medium' : ''
+              }
+            >
+              בדיקות
+            </span>
           </div>
         </div>
 
@@ -422,16 +504,14 @@ export const IntegrationFlowBuilder: React.FC = () => {
           canUndo={historyIndex > 0}
           canRedo={historyIndex < history.length - 1}
           stepCount={flow.steps.length}
-          completionPercentage={
-            Math.round(
-              ((flow.name ? 1 : 0) +
-                (flow.sourceSystem && flow.targetSystem ? 1 : 0) +
-                (flow.steps.length > 0 ? 1 : 0) +
-                (flow.testCases.length > 0 ? 1 : 0)) /
-                4 *
-                100
-            )
-          }
+          completionPercentage={Math.round(
+            (((flow.name ? 1 : 0) +
+              (flow.sourceSystem && flow.targetSystem ? 1 : 0) +
+              (flow.steps.length > 0 ? 1 : 0) +
+              (flow.testCases.length > 0 ? 1 : 0)) /
+              4) *
+              100
+          )}
         />
 
         {/* Tab Navigation */}
@@ -442,8 +522,8 @@ export const IntegrationFlowBuilder: React.FC = () => {
               { key: 'steps', label: `צעדים (${flow.steps.length})` },
               { key: 'errors', label: 'טיפול בשגיאות' },
               { key: 'tests', label: `בדיקות (${flow.testCases.length})` },
-              { key: 'acceptance', label: 'קריטריוני קבלה' }
-            ].map(tab => (
+              { key: 'acceptance', label: 'קריטריוני קבלה' },
+            ].map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as typeof activeTab)}
@@ -486,9 +566,13 @@ export const IntegrationFlowBuilder: React.FC = () => {
                     required
                   >
                     <option value="">בחר מערכת</option>
-                    {availableSystems.map((sys: { id: string; name: string }) => (
-                      <option key={sys.id} value={sys.id}>{sys.name}</option>
-                    ))}
+                    {availableSystems.map(
+                      (sys: { id: string; name: string }) => (
+                        <option key={sys.id} value={sys.id}>
+                          {sys.name}
+                        </option>
+                      )
+                    )}
                   </Select>
 
                   <Select
@@ -502,9 +586,13 @@ export const IntegrationFlowBuilder: React.FC = () => {
                     required
                   >
                     <option value="">בחר מערכת</option>
-                    {availableSystems.map((sys: { id: string; name: string }) => (
-                      <option key={sys.id} value={sys.id}>{sys.name}</option>
-                    ))}
+                    {availableSystems.map(
+                      (sys: { id: string; name: string }) => (
+                        <option key={sys.id} value={sys.id}>
+                          {sys.name}
+                        </option>
+                      )
+                    )}
                   </Select>
                 </div>
 
@@ -516,10 +604,12 @@ export const IntegrationFlowBuilder: React.FC = () => {
                     {TRIGGER_TYPES.map(({ value, label, icon: Icon }) => (
                       <button
                         key={value}
-                        onClick={() => setFlow({
-                          ...flow,
-                          trigger: { ...flow.trigger, type: value }
-                        })}
+                        onClick={() =>
+                          setFlow({
+                            ...flow,
+                            trigger: { ...flow.trigger, type: value },
+                          })
+                        }
                         className={`flex items-center space-x-3 space-x-reverse p-4 rounded-lg border-2 transition-all ${
                           flow.trigger.type === value
                             ? 'border-blue-600 bg-blue-50'
@@ -540,7 +630,7 @@ export const IntegrationFlowBuilder: React.FC = () => {
                     onChange={(e) => {
                       const newFlow = {
                         ...flow,
-                        trigger: { ...flow.trigger, schedule: e.target.value }
+                        trigger: { ...flow.trigger, schedule: e.target.value },
                       };
                       setFlow(newFlow);
                       saveToHistory(newFlow);
@@ -556,7 +646,7 @@ export const IntegrationFlowBuilder: React.FC = () => {
                     onChange={(e) => {
                       const newFlow = {
                         ...flow,
-                        trigger: { ...flow.trigger, eventName: e.target.value }
+                        trigger: { ...flow.trigger, eventName: e.target.value },
                       };
                       setFlow(newFlow);
                       saveToHistory(newFlow);
@@ -569,13 +659,18 @@ export const IntegrationFlowBuilder: React.FC = () => {
                   label="תדירות ריצה"
                   value={flow.frequency}
                   onChange={(e) => {
-                    const newFlow = { ...flow, frequency: e.target.value as IntegrationFlow['frequency'] };
+                    const newFlow = {
+                      ...flow,
+                      frequency: e.target.value as IntegrationFlow['frequency'],
+                    };
                     setFlow(newFlow);
                     saveToHistory(newFlow);
                   }}
                 >
                   {FREQUENCY_OPTIONS.map(({ value, label }) => (
-                    <option key={value} value={value}>{label}</option>
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
                   ))}
                 </Select>
               </div>
@@ -587,7 +682,9 @@ export const IntegrationFlowBuilder: React.FC = () => {
                 {flow.steps.length === 0 ? (
                   <div className="text-center py-12">
                     <Database className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 mb-4">עדיין לא הוספת צעדים לאינטגרציה</p>
+                    <p className="text-gray-600 mb-4">
+                      עדיין לא הוספת צעדים לאינטגרציה
+                    </p>
                     <button
                       onClick={addStep}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -599,7 +696,10 @@ export const IntegrationFlowBuilder: React.FC = () => {
                 ) : (
                   <>
                     {flow.steps.map((step: FlowStep, index: number) => (
-                      <div key={index} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
+                      <div
+                        key={index}
+                        className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200"
+                      >
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex items-center space-x-3 space-x-reverse">
                             <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
@@ -607,11 +707,17 @@ export const IntegrationFlowBuilder: React.FC = () => {
                             </div>
                             <select
                               value={step.type}
-                              onChange={(e) => updateStep(index, { type: e.target.value as FlowStep['type'] })}
+                              onChange={(e) =>
+                                updateStep(index, {
+                                  type: e.target.value as FlowStep['type'],
+                                })
+                              }
                               className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
                             >
                               {STEP_TYPES.map(({ value, label }) => (
-                                <option key={value} value={value}>{label}</option>
+                                <option key={value} value={value}>
+                                  {label}
+                                </option>
                               ))}
                             </select>
                           </div>
@@ -631,13 +737,19 @@ export const IntegrationFlowBuilder: React.FC = () => {
                             <input
                               type="text"
                               value={step.description}
-                              onChange={(e) => updateStep(index, { description: e.target.value })}
+                              onChange={(e) =>
+                                updateStep(index, {
+                                  description: e.target.value,
+                                })
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                               placeholder="מה קורה בצעד זה?"
                             />
                           </div>
 
-                          {(step.type === 'fetch' || step.type === 'create' || step.type === 'update') && (
+                          {(step.type === 'fetch' ||
+                            step.type === 'create' ||
+                            step.type === 'update') && (
                             <div>
                               <label className="block text-xs font-medium text-gray-600 mb-1">
                                 API Endpoint
@@ -645,7 +757,11 @@ export const IntegrationFlowBuilder: React.FC = () => {
                               <input
                                 type="text"
                                 value={step.endpoint || ''}
-                                onChange={(e) => updateStep(index, { endpoint: e.target.value })}
+                                onChange={(e) =>
+                                  updateStep(index, {
+                                    endpoint: e.target.value,
+                                  })
+                                }
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
                                 placeholder="/api/v1/..."
                               />
@@ -660,7 +776,11 @@ export const IntegrationFlowBuilder: React.FC = () => {
                               <input
                                 type="text"
                                 value={step.condition || ''}
-                                onChange={(e) => updateStep(index, { condition: e.target.value })}
+                                onChange={(e) =>
+                                  updateStep(index, {
+                                    condition: e.target.value,
+                                  })
+                                }
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
                                 placeholder="לדוגמה: status === 'active'"
                               />
@@ -693,13 +813,15 @@ export const IntegrationFlowBuilder: React.FC = () => {
                     <input
                       type="number"
                       value={flow.errorHandling.retryCount}
-                      onChange={(e) => setFlow({
-                        ...flow,
-                        errorHandling: {
-                          ...flow.errorHandling,
-                          retryCount: parseInt(e.target.value)
-                        }
-                      })}
+                      onChange={(e) =>
+                        setFlow({
+                          ...flow,
+                          errorHandling: {
+                            ...flow.errorHandling,
+                            retryCount: parseInt(e.target.value),
+                          },
+                        })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                       min="0"
                       max="10"
@@ -713,13 +835,15 @@ export const IntegrationFlowBuilder: React.FC = () => {
                     <input
                       type="number"
                       value={flow.errorHandling.retryDelay}
-                      onChange={(e) => setFlow({
-                        ...flow,
-                        errorHandling: {
-                          ...flow.errorHandling,
-                          retryDelay: parseInt(e.target.value)
-                        }
-                      })}
+                      onChange={(e) =>
+                        setFlow({
+                          ...flow,
+                          errorHandling: {
+                            ...flow.errorHandling,
+                            retryDelay: parseInt(e.target.value),
+                          },
+                        })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                       min="1"
                     />
@@ -732,13 +856,15 @@ export const IntegrationFlowBuilder: React.FC = () => {
                   </label>
                   <select
                     value={flow.errorHandling.fallbackAction}
-                    onChange={(e) => setFlow({
-                      ...flow,
-                      errorHandling: {
-                        ...flow.errorHandling,
-                        fallbackAction: e.target.value
-                      }
-                    })}
+                    onChange={(e) =>
+                      setFlow({
+                        ...flow,
+                        errorHandling: {
+                          ...flow.errorHandling,
+                          fallbackAction: e.target.value,
+                        },
+                      })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                   >
                     <option value="log">רישום ללוג בלבד</option>
@@ -753,13 +879,15 @@ export const IntegrationFlowBuilder: React.FC = () => {
                     <input
                       type="checkbox"
                       checked={flow.errorHandling.notifyOnFailure}
-                      onChange={(e) => setFlow({
-                        ...flow,
-                        errorHandling: {
-                          ...flow.errorHandling,
-                          notifyOnFailure: e.target.checked
-                        }
-                      })}
+                      onChange={(e) =>
+                        setFlow({
+                          ...flow,
+                          errorHandling: {
+                            ...flow.errorHandling,
+                            notifyOnFailure: e.target.checked,
+                          },
+                        })
+                      }
                       className="rounded"
                     />
                     <span className="text-sm font-medium text-gray-700">
@@ -776,13 +904,15 @@ export const IntegrationFlowBuilder: React.FC = () => {
                     <input
                       type="email"
                       value={flow.errorHandling.failureEmail || ''}
-                      onChange={(e) => setFlow({
-                        ...flow,
-                        errorHandling: {
-                          ...flow.errorHandling,
-                          failureEmail: e.target.value
-                        }
-                      })}
+                      onChange={(e) =>
+                        setFlow({
+                          ...flow,
+                          errorHandling: {
+                            ...flow.errorHandling,
+                            failureEmail: e.target.value,
+                          },
+                        })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                       placeholder="developer@example.com"
                     />
@@ -797,7 +927,9 @@ export const IntegrationFlowBuilder: React.FC = () => {
                 {flow.testCases.length === 0 ? (
                   <div className="text-center py-12">
                     <CheckCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 mb-4">עדיין לא הוספת תרחישי בדיקה</p>
+                    <p className="text-gray-600 mb-4">
+                      עדיין לא הוספת תרחישי בדיקה
+                    </p>
                     <button
                       onClick={addTestCase}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -809,9 +941,14 @@ export const IntegrationFlowBuilder: React.FC = () => {
                 ) : (
                   <>
                     {flow.testCases.map((test: TestCase, index: number) => (
-                      <div key={test.id} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
+                      <div
+                        key={test.id}
+                        className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200"
+                      >
                         <div className="flex items-start justify-between mb-3">
-                          <h4 className="font-medium text-gray-900">תרחיש #{index + 1}</h4>
+                          <h4 className="font-medium text-gray-900">
+                            תרחיש #{index + 1}
+                          </h4>
                           <button
                             onClick={() => deleteTestCase(index)}
                             className="text-red-600 hover:text-red-700"
@@ -828,7 +965,11 @@ export const IntegrationFlowBuilder: React.FC = () => {
                             <input
                               type="text"
                               value={test.scenario}
-                              onChange={(e) => updateTestCase(index, { scenario: e.target.value })}
+                              onChange={(e) =>
+                                updateTestCase(index, {
+                                  scenario: e.target.value,
+                                })
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                               placeholder="מה בודקים בתרחיש זה?"
                             />
@@ -840,7 +981,11 @@ export const IntegrationFlowBuilder: React.FC = () => {
                             </label>
                             <select
                               value={test.status}
-                              onChange={(e) => updateTestCase(index, { status: e.target.value as TestCase['status'] })}
+                              onChange={(e) =>
+                                updateTestCase(index, {
+                                  status: e.target.value as TestCase['status'],
+                                })
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                             >
                               <option value="pending">ממתין</option>
@@ -869,7 +1014,9 @@ export const IntegrationFlowBuilder: React.FC = () => {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">קריטריוני קבלה לאינטגרציה</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      קריטריוני קבלה לאינטגרציה
+                    </h3>
                     <p className="text-sm text-gray-600 mt-1">
                       דרישות פונקציונליות וביצועים לאינטגרציה זו
                     </p>
@@ -893,10 +1040,14 @@ export const IntegrationFlowBuilder: React.FC = () => {
                   </button>
                 </div>
 
-                {!integrationCriteria || (integrationCriteria.functional.length === 0 && integrationCriteria.performance.length === 0) ? (
+                {!integrationCriteria ||
+                (integrationCriteria.functional.length === 0 &&
+                  integrationCriteria.performance.length === 0) ? (
                   <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                     <CheckSquare className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 mb-4">עדיין לא נוצרו קריטריוני קבלה</p>
+                    <p className="text-gray-600 mb-4">
+                      עדיין לא נוצרו קריטריוני קבלה
+                    </p>
                     <button
                       onClick={handleGenerateCriteria}
                       disabled={isGeneratingCriteria}
@@ -911,22 +1062,34 @@ export const IntegrationFlowBuilder: React.FC = () => {
                     {integrationCriteria.functional.length > 0 && (
                       <div>
                         <h4 className="font-semibold text-gray-900 mb-3">
-                          דרישות פונקציונליות ({integrationCriteria.functional.length})
+                          דרישות פונקציונליות (
+                          {integrationCriteria.functional.length})
                         </h4>
                         <div className="space-y-2">
-                          {integrationCriteria.functional.map((req: FunctionalRequirement) => (
-                            <div key={req.id} className="bg-white border border-gray-200 rounded-lg p-3">
-                              <div className="flex items-start justify-between">
-                                <input
-                                  type="text"
-                                  value={req.description}
-                                  onChange={(e) => updateCriterion('functional', req.id, { description: e.target.value })}
-                                  className="flex-1 font-medium text-gray-900 bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2"
-                                />
+                          {integrationCriteria.functional.map(
+                            (req: FunctionalRequirement) => (
+                              <div
+                                key={req.id}
+                                className="bg-white border border-gray-200 rounded-lg p-3"
+                              >
+                                <div className="flex items-start justify-between">
+                                  <input
+                                    type="text"
+                                    value={req.description}
+                                    onChange={(e) =>
+                                      updateCriterion('functional', req.id, {
+                                        description: e.target.value,
+                                      })
+                                    }
+                                    className="flex-1 font-medium text-gray-900 bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2"
+                                  />
+                                </div>
+                                <p className="text-sm text-gray-600 mt-1 px-2">
+                                  {req.acceptanceCriteria}
+                                </p>
                               </div>
-                              <p className="text-sm text-gray-600 mt-1 px-2">{req.acceptanceCriteria}</p>
-                            </div>
-                          ))}
+                            )
+                          )}
                         </div>
                       </div>
                     )}
@@ -934,22 +1097,34 @@ export const IntegrationFlowBuilder: React.FC = () => {
                     {integrationCriteria.performance.length > 0 && (
                       <div>
                         <h4 className="font-semibold text-gray-900 mb-3">
-                          דרישות ביצועים ({integrationCriteria.performance.length})
+                          דרישות ביצועים (
+                          {integrationCriteria.performance.length})
                         </h4>
                         <div className="space-y-2">
-                          {integrationCriteria.performance.map((req: PerformanceRequirement) => (
-                            <div key={req.id} className="bg-green-50 border border-green-200 rounded-lg p-3">
-                              <div className="flex items-center justify-between">
-                                <span className="font-medium text-gray-900">{req.metric}</span>
-                                <input
-                                  type="text"
-                                  value={req.target}
-                                  onChange={(e) => updateCriterion('performance', req.id, { target: e.target.value })}
-                                  className="text-sm px-2 py-1 bg-white border border-green-300 rounded"
-                                />
+                          {integrationCriteria.performance.map(
+                            (req: PerformanceRequirement) => (
+                              <div
+                                key={req.id}
+                                className="bg-green-50 border border-green-200 rounded-lg p-3"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <span className="font-medium text-gray-900">
+                                    {req.metric}
+                                  </span>
+                                  <input
+                                    type="text"
+                                    value={req.target}
+                                    onChange={(e) =>
+                                      updateCriterion('performance', req.id, {
+                                        target: e.target.value,
+                                      })
+                                    }
+                                    className="text-sm px-2 py-1 bg-white border border-green-300 rounded"
+                                  />
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            )
+                          )}
                         </div>
                       </div>
                     )}
@@ -962,10 +1137,7 @@ export const IntegrationFlowBuilder: React.FC = () => {
 
         {/* Actions */}
         <div className="flex justify-between">
-          <Button
-            variant="secondary"
-            onClick={() => navigate('/phase2')}
-          >
+          <Button variant="secondary" onClick={() => navigate('/phase2')}>
             ביטול
           </Button>
           <Button

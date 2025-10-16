@@ -28,19 +28,23 @@ export const supabase = (() => {
     return window.__SUPABASE_CLIENT__;
   }
 
-  const client = createClient<Database>(finalSupabaseUrl, finalSupabaseAnonKey, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-      flowType: 'pkce'
-    },
-    realtime: {
-      params: {
-        eventsPerSecond: 10
-      }
+  const client = createClient<Database>(
+    finalSupabaseUrl,
+    finalSupabaseAnonKey,
+    {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        flowType: 'pkce',
+      },
+      realtime: {
+        params: {
+          eventsPerSecond: 10,
+        },
+      },
     }
-  });
+  );
 
   if (typeof window !== 'undefined') {
     window.__SUPABASE_CLIENT__ = client;
@@ -99,12 +103,12 @@ export const createRealtimeChannel = (channelName: string) => {
     config: {
       broadcast: {
         self: false,
-        ack: false
+        ack: false,
       },
       presence: {
-        key: ''
-      }
-    }
+        key: '',
+      },
+    },
   });
 };
 
@@ -122,7 +126,7 @@ export const uploadFile = async (
     .from(bucket)
     .upload(path, file, {
       cacheControl: '3600',
-      upsert: true
+      upsert: true,
     });
 
   if (error) {
@@ -144,9 +148,7 @@ export const deleteFile = async (
     return { success: false, error: 'Supabase is not configured' };
   }
 
-  const { error } = await supabase.storage
-    .from(bucket)
-    .remove([path]);
+  const { error } = await supabase.storage.from(bucket).remove([path]);
 
   if (error) {
     return { success: false, error: handleSupabaseError(error) };
@@ -173,10 +175,7 @@ export const optimisticUpdate = async <T>(
   localUpdate();
 
   try {
-    const { error } = await supabase
-      .from(table)
-      .update(updates)
-      .eq('id', id);
+    const { error } = await supabase.from(table).update(updates).eq('id', id);
 
     if (error) {
       // Rollback on error
@@ -201,9 +200,7 @@ export const batchInsert = async <T>(
     return { success: false, error: 'Supabase is not configured' };
   }
 
-  const { error } = await supabase
-    .from(table)
-    .insert(items);
+  const { error } = await supabase.from(table).insert(items);
 
   if (error) {
     return { success: false, error: handleSupabaseError(error) };
@@ -228,7 +225,7 @@ export const signIn = async (
 
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
-    password
+    password,
   });
 
   if (error) {
@@ -251,8 +248,8 @@ export const signUp = async (
     email,
     password,
     options: {
-      data: metadata
-    }
+      data: metadata,
+    },
   });
 
   if (error) {
@@ -262,7 +259,10 @@ export const signUp = async (
   return { success: true, user: data.user };
 };
 
-export const signOut = async (): Promise<{ success: boolean; error?: string }> => {
+export const signOut = async (): Promise<{
+  success: boolean;
+  error?: string;
+}> => {
   if (!isSupabaseConfigured()) {
     return { success: true };
   }
@@ -284,7 +284,7 @@ export const resetPassword = async (
   }
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/reset-password`
+    redirectTo: `${window.location.origin}/reset-password`,
   });
 
   if (error) {
@@ -314,7 +314,9 @@ export const getUser = async () => {
 };
 
 // Subscribe to auth changes
-export const onAuthStateChange = (callback: (event: string, session: any) => void) => {
+export const onAuthStateChange = (
+  callback: (event: string, session: any) => void
+) => {
   if (!isSupabaseConfigured()) {
     return { unsubscribe: () => {} };
   }

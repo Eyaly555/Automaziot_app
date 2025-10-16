@@ -23,7 +23,7 @@ export const parseZohoParams = (search: string): ZohoParams | null => {
     phone: urlParams.get('phone') || undefined,
     budgetRange: urlParams.get('budgetRange') || undefined,
     requestedServices: urlParams.get('requestedServices') || undefined,
-    additionalNotes: urlParams.get('additionalNotes') || undefined
+    additionalNotes: urlParams.get('additionalNotes') || undefined,
   };
 };
 
@@ -36,14 +36,14 @@ export const mapZohoToMeeting = (params: ZohoParams): Partial<Meeting> => {
       module: 'Potentials1',
       contactInfo: {
         email: params.email,
-        phone: params.phone
-      }
+        phone: params.phone,
+      },
     },
     modules: {
       overview: {
         businessType: params.companyName,
         budget: params.budgetRange,
-        mainGoals: params.requestedServices?.split(',').map(s => s.trim())
+        mainGoals: params.requestedServices?.split(',').map((s) => s.trim()),
       },
       leadsAndSales: {},
       customerService: {},
@@ -52,7 +52,7 @@ export const mapZohoToMeeting = (params: ZohoParams): Partial<Meeting> => {
       aiAgents: {},
       systems: {},
       roi: {},
-      planning: {}
-    }
+      planning: {},
+    },
   };
 };

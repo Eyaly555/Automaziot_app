@@ -30,5 +30,5 @@ export {
   CardSkeleton,
   TableSkeleton,
   ListSkeleton,
-  FormSkeleton
+  FormSkeleton,
 } from './LoadingSkeleton';

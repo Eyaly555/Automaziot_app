@@ -1,17 +1,30 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useMeetingStore } from '../store/useMeetingStore';
-import { parseZohoParams, mapZohoToMeeting } from '../integrations/zoho/paramParser';
+import {
+  parseZohoParams,
+  mapZohoToMeeting,
+} from '../integrations/zoho/paramParser';
 import { zohoSyncService } from '../services/zohoSyncService';
-import { getZohoStorageKey, validateZohoParams, isTestMode } from '../utils/zohoHelpers';
-import { isTestZohoMode, getTestZohoParams, testZohoSync } from '../utils/testZohoMode';
+import {
+  getZohoStorageKey,
+  validateZohoParams,
+  isTestMode,
+} from '../utils/zohoHelpers';
+import {
+  isTestZohoMode,
+  getTestZohoParams,
+  testZohoSync,
+} from '../utils/testZohoMode';
 import { zohoRetryQueue } from '../services/zohoRetryQueue';
 import { getDiscoveryFromZoho } from '../services/zohoAPI';
 
 export const useZohoIntegration = () => {
   const store = useMeetingStore();
   const [isZohoMode, setIsZohoMode] = useState(false);
-  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'error'>('idle');
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'error'>(
+    'idle'
+  );
   const [searchParams] = useSearchParams();
   const search = searchParams.toString();
 
@@ -48,7 +61,10 @@ export const useZohoIntegration = () => {
 
   const loadFromZoho = async (params: any) => {
     try {
-      console.log('Loading Discovery data from Zoho for record:', params.zohoRecordId);
+      console.log(
+        'Loading Discovery data from Zoho for record:',
+        params.zohoRecordId
+      );
 
       // First, try to fetch existing data from Zoho
       const zohoResult = await getDiscoveryFromZoho(params.zohoRecordId);
@@ -64,10 +80,10 @@ export const useZohoIntegration = () => {
           module: 'Potentials1',
           contactInfo: {
             email: params.email,
-            phone: params.phone
+            phone: params.phone,
           },
           lastSync: zohoResult.discoveryData.lastUpdate,
-          syncEnabled: true
+          syncEnabled: true,
         };
 
         // Load the meeting from Zoho data
@@ -78,7 +94,10 @@ export const useZohoIntegration = () => {
         try {
           localStorage.setItem(localKey, JSON.stringify(meetingData));
         } catch (error) {
-          console.error('Failed to save to localStorage (quota exceeded?):', error);
+          console.error(
+            'Failed to save to localStorage (quota exceeded?):',
+            error
+          );
         }
       } else {
         // No existing data in Zoho, check localStorage as fallback
@@ -100,12 +119,18 @@ export const useZohoIntegration = () => {
           }
         } else {
           // No data anywhere - create new meeting
-          console.log('Creating new meeting for Zoho record:', params.zohoRecordId);
+          console.log(
+            'Creating new meeting for Zoho record:',
+            params.zohoRecordId
+          );
           await createNewMeeting(params);
         }
       }
     } catch (error) {
-      console.error('Failed to load from Zoho, falling back to localStorage:', error);
+      console.error(
+        'Failed to load from Zoho, falling back to localStorage:',
+        error
+      );
       // Fallback to localStorage if Zoho fetch fails
       const localKey = getZohoStorageKey(params.zohoRecordId);
       const existingData = localStorage.getItem(localKey);

@@ -31,7 +31,7 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
           options={[
             { value: 'yes', label: 'כן' },
             { value: 'no', label: 'לא' },
-            { value: 'not_sure', label: 'לא בטוח/ה' }
+            { value: 'not_sure', label: 'לא בטוח/ה' },
           ]}
           orientation="vertical"
         />
@@ -42,7 +42,7 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
         <div
           className="mobile-field-group animate-fadeIn"
           style={{
-            animation: 'fadeIn 0.3s ease-in-out'
+            animation: 'fadeIn 0.3s ease-in-out',
           }}
         >
           <label className="mobile-question">איזו מערכת?</label>
@@ -68,8 +68,18 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
             </select>
             {/* Custom chevron icon for better visibility */}
             <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              <svg
+                className="w-5 h-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
             </div>
           </div>
@@ -79,7 +89,7 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
             <div
               className="mt-3 animate-slideDown"
               style={{
-                animation: 'slideDown 0.2s ease-out'
+                animation: 'slideDown 0.2s ease-out',
               }}
             >
               <input
@@ -100,7 +110,7 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
         <div
           className="mobile-field-group animate-fadeIn"
           style={{
-            animation: 'fadeIn 0.3s ease-in-out 0.1s backwards'
+            animation: 'fadeIn 0.3s ease-in-out 0.1s backwards',
           }}
         >
           <label className="mobile-question">מה צריך להתחבר ל-CRM?</label>
@@ -115,7 +125,7 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
               { value: 'whatsapp', label: '💬 WhatsApp' },
               { value: 'email', label: '📧 אימייל' },
               { value: 'accounting', label: '💰 הנהלת חשבונות' },
-              { value: 'ecommerce', label: '🛒 חנות אונליין' }
+              { value: 'ecommerce', label: '🛒 חנות אונליין' },
             ]}
             columns={1}
             className="space-y-3"
@@ -126,7 +136,8 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
       {/* Q4: Data Quality */}
       <div className="mobile-field-group">
         <label className="mobile-question">
-          האם הנתונים ב-CRM מעודכנים ונקיים? <span className="text-red-500">*</span>
+          האם הנתונים ב-CRM מעודכנים ונקיים?{' '}
+          <span className="text-red-500">*</span>
         </label>
         <RadioGroup
           value={data.data_quality}
@@ -135,7 +146,7 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
             { value: 'clean', label: 'כן, הכל מסודר' },
             { value: 'ok', label: 'בערך, יש קצת בלאגן' },
             { value: 'messy', label: 'לא, יש הרבה כפילויות וחוסרים' },
-            { value: 'no_crm', label: 'אין לי CRM' }
+            { value: 'no_crm', label: 'אין לי CRM' },
           ]}
           orientation="vertical"
         />
@@ -146,7 +157,7 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
         <div
           className="mobile-field-group animate-fadeIn"
           style={{
-            animation: 'fadeIn 0.3s ease-in-out 0.15s backwards'
+            animation: 'fadeIn 0.3s ease-in-out 0.15s backwards',
           }}
         >
           <label className="mobile-question">כמה אנשים עובדים עם המערכת?</label>
@@ -156,20 +167,22 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
               { value: '1-3', label: '1-3' },
               { value: '4-10', label: '4-10' },
               { value: '11-20', label: '11-20' },
-              { value: '20+', label: 'מעל 20' }
-            ].map(option => (
+              { value: '20+', label: 'מעל 20' },
+            ].map((option) => (
               <button
                 key={option.value}
                 type="button"
                 onClick={() => onChange({ users: option.value as any })}
                 className={`min-h-[48px] px-4 py-3 border-2 rounded-lg font-medium
                   transition-all duration-200 cursor-pointer touch-manipulation
-                  ${data.users === option.value
-                    ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm'
-                    : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 active:scale-98'}
+                  ${
+                    data.users === option.value
+                      ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm'
+                      : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 active:scale-98'
+                  }
                   active:transform active:scale-[0.98]`}
                 style={{
-                  WebkitTapHighlightColor: 'rgba(59, 130, 246, 0.1)'
+                  WebkitTapHighlightColor: 'rgba(59, 130, 246, 0.1)',
                 }}
               >
                 {option.label}
@@ -182,7 +195,8 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
       {/* Q6: Biggest Gap */}
       <div className="mobile-field-group">
         <label className="mobile-question">
-          מה החסר הכי גדול במערכת הנוכחית? <span className="text-red-500">*</span>
+          מה החסר הכי גדול במערכת הנוכחית?{' '}
+          <span className="text-red-500">*</span>
         </label>
         <RadioGroup
           value={data.biggest_gap || 'no_system'}
@@ -193,7 +207,7 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
             { value: 'hard_to_use', label: 'קשה לעבוד איתה' },
             { value: 'no_reports', label: 'חסר מידע ודוחות' },
             { value: 'no_system', label: 'אין מערכת בכלל' },
-            { value: 'other', label: 'אחר' }
+            { value: 'other', label: 'אחר' },
           ]}
           orientation="vertical"
         />
@@ -203,7 +217,7 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
           <div
             className="mt-3 animate-slideDown"
             style={{
-              animation: 'slideDown 0.2s ease-out'
+              animation: 'slideDown 0.2s ease-out',
             }}
           >
             <input
@@ -280,4 +294,3 @@ export const CRMSection: React.FC<CRMSectionProps> = ({ data, onChange }) => {
     </div>
   );
 };
-

@@ -16,55 +16,61 @@ export function useMobileDetection(): {
     isMobile: false,
     isTablet: false,
     isDesktop: true,
-    deviceType: 'desktop' as 'mobile' | 'tablet' | 'desktop'
+    deviceType: 'desktop' as 'mobile' | 'tablet' | 'desktop',
   });
 
   useEffect(() => {
     const detectDevice = () => {
       // בדיקת user agent
       const userAgent = navigator.userAgent.toLowerCase();
-      
+
       // בדיקת viewport width
       const viewportWidth = window.innerWidth;
-      
+
       // בדיקת URL - אם אנחנו בדף מובייל, נחשב כמובייל
       const isMobileRoute = window.location.pathname.includes('/mobile/');
-      
+
       // זיהוי מובייל לפי user agent
-      const isMobileUA = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
-      
+      const isMobileUA =
+        /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+          userAgent
+        );
+
       // זיהוי לפי viewport
       const isMobileViewport = viewportWidth <= 768;
       const isTabletViewport = viewportWidth > 768 && viewportWidth <= 1024;
-      
+
       // החלטה סופית - אם אנחנו בדף מובייל או viewport קטן, נחשב כמובייל
-      const isMobile = isMobileRoute || (isMobileUA && isMobileViewport) || (isMobileViewport && viewportWidth <= 480);
+      const isMobile =
+        isMobileRoute ||
+        (isMobileUA && isMobileViewport) ||
+        (isMobileViewport && viewportWidth <= 480);
       const isTablet = isMobileUA && isTabletViewport && !isMobileRoute;
       const isDesktop = !isMobile && !isTablet;
-      
+
       let deviceType: 'mobile' | 'tablet' | 'desktop';
       if (isMobile) deviceType = 'mobile';
       else if (isTablet) deviceType = 'tablet';
       else deviceType = 'desktop';
-      
+
       setDeviceInfo({
         isMobile,
         isTablet,
         isDesktop,
-        deviceType
+        deviceType,
       });
     };
 
     // בדיקה ראשונית
     detectDevice();
-    
+
     // מאזין לשינויי viewport
     const handleResize = () => {
       detectDevice();
     };
-    
+
     window.addEventListener('resize', handleResize);
-    
+
     return () => {
       window.removeEventListener('resize', handleResize);
     };

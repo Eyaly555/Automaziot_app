@@ -22,21 +22,21 @@ export function AutoTeamAlertsSpec() {
     fieldId: 'notification_channels',
     localPath: 'communication.notificationChannels',
     serviceId: 'auto-team-alerts',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'n8nWorkflow.errorHandling.alertEmail',
     serviceId: 'auto-team-alerts',
-    autoSave: false
+    autoSave: false,
   });
 
   const n8nInstanceUrl = useSmartField<string>({
     fieldId: 'n8n_instance_url',
     localPath: 'n8nWorkflow.instanceUrl',
     serviceId: 'auto-team-alerts',
-    autoSave: false
+    autoSave: false,
   });
 
   const [config, setConfig] = useState<Partial<AutoTeamAlertsConfig>>({
@@ -50,27 +50,30 @@ export function AutoTeamAlertsSpec() {
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-team-alerts',
-    category: 'automations'
+    category: 'automations',
   });
 
   useBeforeUnload(() => {
     // Force save all data when leaving
     const completeConfig = {
       ...config,
-      notificationChannels: notificationChannels.value || config.notificationChannels,
+      notificationChannels:
+        notificationChannels.value || config.notificationChannels,
       n8nWorkflow: {
         instanceUrl: n8nInstanceUrl.value,
         errorHandling: {
-          alertEmail: alertEmail.value
-        }
-      }
+          alertEmail: alertEmail.value,
+        },
+      },
     };
     saveData(completeConfig);
   });
 
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
-    const existing = automations.find((a: any) => a.serviceId === 'auto-team-alerts');
+    const existing = automations.find(
+      (a: any) => a.serviceId === 'auto-team-alerts'
+    );
     if (existing?.requirements) {
       setConfig(existing.requirements);
     }
@@ -80,13 +83,14 @@ export function AutoTeamAlertsSpec() {
   const handleSave = async () => {
     const completeConfig = {
       ...config,
-      notificationChannels: notificationChannels.value || config.notificationChannels,
+      notificationChannels:
+        notificationChannels.value || config.notificationChannels,
       n8nWorkflow: {
         instanceUrl: n8nInstanceUrl.value,
         errorHandling: {
-          alertEmail: alertEmail.value
-        }
-      }
+          alertEmail: alertEmail.value,
+        },
+      },
     };
 
     await saveData(completeConfig);
@@ -97,25 +101,33 @@ export function AutoTeamAlertsSpec() {
       <Card title="שירות #4: התראות אוטומטיות לצוות">
         <div className="space-y-6">
           {/* Smart Fields Info Banner */}
-          {(notificationChannels.isAutoPopulated || alertEmail.isAutoPopulated || n8nInstanceUrl.isAutoPopulated) && (
+          {(notificationChannels.isAutoPopulated ||
+            alertEmail.isAutoPopulated ||
+            n8nInstanceUrl.isAutoPopulated) && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
               <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+                <h4 className="font-semibold text-blue-900 mb-1">
+                  נתונים מולאו אוטומטית משלב 1
+                </h4>
                 <p className="text-sm text-blue-800">
-                  חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-                  תוכל לערוך אותם במידת הצורך.
+                  חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל
+                  לערוך אותם במידת הצורך.
                 </p>
               </div>
             </div>
           )}
 
           {/* Conflict Warnings */}
-          {(notificationChannels.hasConflict || alertEmail.hasConflict || n8nInstanceUrl.hasConflict) && (
+          {(notificationChannels.hasConflict ||
+            alertEmail.hasConflict ||
+            n8nInstanceUrl.hasConflict) && (
             <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+                <h4 className="font-semibold text-orange-900 mb-1">
+                  זוהה אי-התאמה בנתונים
+                </h4>
                 <p className="text-sm text-orange-800">
                   נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
                 </p>
@@ -142,7 +154,9 @@ export function AutoTeamAlertsSpec() {
                 value={notificationChannels.value || 'email'}
                 onChange={(e) => notificationChannels.setValue(e.target.value)}
                 className={`w-full px-3 py-2 border rounded-md ${
-                  notificationChannels.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  notificationChannels.isAutoPopulated
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-300'
                 } ${notificationChannels.hasConflict ? 'border-orange-300' : ''}`}
               >
                 <option value="email">מייל</option>
@@ -151,11 +165,12 @@ export function AutoTeamAlertsSpec() {
                 <option value="slack">Slack</option>
                 <option value="teams">Microsoft Teams</option>
               </select>
-              {notificationChannels.isAutoPopulated && notificationChannels.source && (
-                <p className="text-xs text-gray-500 mt-1">
-                  מקור: {notificationChannels.source.description}
-                </p>
-              )}
+              {notificationChannels.isAutoPopulated &&
+                notificationChannels.source && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {notificationChannels.source.description}
+                  </p>
+                )}
             </div>
 
             {/* Smart n8n Instance URL Field */}
@@ -176,7 +191,9 @@ export function AutoTeamAlertsSpec() {
                 value={n8nInstanceUrl.value || ''}
                 onChange={(e) => n8nInstanceUrl.setValue(e.target.value)}
                 className={`w-full px-3 py-2 border rounded-md ${
-                  n8nInstanceUrl.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  n8nInstanceUrl.isAutoPopulated
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-300'
                 } ${n8nInstanceUrl.hasConflict ? 'border-orange-300' : ''}`}
                 placeholder="https://n8n.example.com"
               />
@@ -205,7 +222,9 @@ export function AutoTeamAlertsSpec() {
                 value={alertEmail.value || ''}
                 onChange={(e) => alertEmail.setValue(e.target.value)}
                 className={`w-full px-3 py-2 border rounded-md ${
-                  alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  alertEmail.isAutoPopulated
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-300'
                 } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
                 placeholder="admin@example.com"
               />
@@ -220,39 +239,75 @@ export function AutoTeamAlertsSpec() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">רמת הסלמה</label>
-                <select value={config.escalationLevels} onChange={(e) => setConfig({ ...config, escalationLevels: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  רמת הסלמה
+                </label>
+                <select
+                  value={config.escalationLevels}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      escalationLevels: parseInt(e.target.value),
+                    })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
                   <option value={1}>1 - התראה בלבד</option>
                   <option value={2}>2 - התראה + מנהל</option>
                   <option value={3}>3 - התראה + מנהל + הנהלה</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">ערוצי התראה</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ערוצי התראה
+                </label>
                 <div className="space-y-2">
                   <label className="flex items-center">
-                    <input type="checkbox" checked={config.notificationChannels?.includes('email')}
+                    <input
+                      type="checkbox"
+                      checked={config.notificationChannels?.includes('email')}
                       onChange={(e) => {
                         const channels = config.notificationChannels || [];
                         if (e.target.checked) {
-                          setConfig({ ...config, notificationChannels: [...channels, 'email'] });
+                          setConfig({
+                            ...config,
+                            notificationChannels: [...channels, 'email'],
+                          });
                         } else {
-                          setConfig({ ...config, notificationChannels: channels.filter(c => c !== 'email') });
+                          setConfig({
+                            ...config,
+                            notificationChannels: channels.filter(
+                              (c) => c !== 'email'
+                            ),
+                          });
                         }
-                      }} className="mr-2" />
+                      }}
+                      className="mr-2"
+                    />
                     <span className="text-sm">מייל</span>
                   </label>
                   <label className="flex items-center">
-                    <input type="checkbox" checked={config.notificationChannels?.includes('sms')}
+                    <input
+                      type="checkbox"
+                      checked={config.notificationChannels?.includes('sms')}
                       onChange={(e) => {
                         const channels = config.notificationChannels || [];
                         if (e.target.checked) {
-                          setConfig({ ...config, notificationChannels: [...channels, 'sms'] });
+                          setConfig({
+                            ...config,
+                            notificationChannels: [...channels, 'sms'],
+                          });
                         } else {
-                          setConfig({ ...config, notificationChannels: channels.filter(c => c !== 'sms') });
+                          setConfig({
+                            ...config,
+                            notificationChannels: channels.filter(
+                              (c) => c !== 'sms'
+                            ),
+                          });
                         }
-                      }} className="mr-2" />
+                      }}
+                      className="mr-2"
+                    />
                     <span className="text-sm">SMS</span>
                   </label>
                 </div>
@@ -260,13 +315,28 @@ export function AutoTeamAlertsSpec() {
             </div>
             <div className="space-y-3">
               <label className="flex items-center">
-                <input type="checkbox" checked={config.workingHoursOnly}
-                  onChange={(e) => setConfig({ ...config, workingHoursOnly: e.target.checked })} className="mr-2" />
+                <input
+                  type="checkbox"
+                  checked={config.workingHoursOnly}
+                  onChange={(e) =>
+                    setConfig({ ...config, workingHoursOnly: e.target.checked })
+                  }
+                  className="mr-2"
+                />
                 <span className="text-sm">שלח התראות רק בשעות עבודה</span>
               </label>
               <label className="flex items-center">
-                <input type="checkbox" checked={config.customMessageTemplates}
-                  onChange={(e) => setConfig({ ...config, customMessageTemplates: e.target.checked })} className="mr-2" />
+                <input
+                  type="checkbox"
+                  checked={config.customMessageTemplates}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      customMessageTemplates: e.target.checked,
+                    })
+                  }
+                  className="mr-2"
+                />
                 <span className="text-sm">תבניות הודעות מותאמות אישית</span>
               </label>
             </div>
@@ -283,12 +353,15 @@ export function AutoTeamAlertsSpec() {
                     <span className="text-sm">שגיאה בשמירה</span>
                   </div>
                 )}
-                {!isSaving && !saveError && config.alertTypes && config.alertTypes.length > 0 && (
-                  <div className="flex items-center gap-2 text-green-600">
-                    <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                    <span className="text-sm">נשמר אוטומטית</span>
-                  </div>
-                )}
+                {!isSaving &&
+                  !saveError &&
+                  config.alertTypes &&
+                  config.alertTypes.length > 0 && (
+                    <div className="flex items-center gap-2 text-green-600">
+                      <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                      <span className="text-sm">נשמר אוטומטית</span>
+                    </div>
+                  )}
               </div>
               <button
                 onClick={handleSave}

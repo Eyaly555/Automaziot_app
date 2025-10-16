@@ -20,14 +20,14 @@ export function AddCustomReportsSpec() {
     fieldId: 'database_type',
     localPath: 'databaseType',
     serviceId: 'add-custom-reports',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'alertEmail',
     serviceId: 'add-custom-reports',
-    autoSave: false
+    autoSave: false,
   });
 
   const [config, setConfig] = useState<AddCustomReportsRequirements>({
@@ -36,14 +36,14 @@ export function AddCustomReportsSpec() {
       dataSources: [],
       dataFields: [],
       dateRanges: true,
-      dynamicParameters: true
+      dynamicParameters: true,
     },
     breakdownsAndGrouping: {
       groupBy: [],
       sortBy: [],
       subtotals: true,
       grandTotals: true,
-      pivotTables: false
+      pivotTables: false,
     },
     calculations: [],
     visualizations: {
@@ -51,53 +51,53 @@ export function AddCustomReportsSpec() {
       chartTypes: ['bar', 'line'],
       includesTables: true,
       colorCoding: true,
-      sparklines: false
+      sparklines: false,
     },
     exportFormats: {
       primaryFormat: 'excel',
       additionalFormats: ['pdf', 'csv'],
-      templateDesign: true
+      templateDesign: true,
     },
     generation: {
       generationMethod: 'power_bi_builder',
       generationFrequency: 'on_demand',
       averageDataVolume: 'medium',
-      performanceTarget: 60
+      performanceTarget: 60,
     },
     sqlRequirements: {
       complexityLevel: 'medium',
       requiresStoredProcedures: false,
       requiresViews: false,
-      requiresWindowFunctions: false
+      requiresWindowFunctions: false,
     },
     deliverables: {
       sampleReport: true,
       reportTemplate: true,
       technicalDocumentation: true,
       executionInstructions: true,
-      sourceCode: false
+      sourceCode: false,
     },
     timeline: {
       complexity: 'medium',
       estimatedDays: 3,
-      includesDataModeling: false
+      includesDataModeling: false,
     },
     distribution: {
       recipients: [],
       deliveryMethod: 'email',
-      frequency: 'weekly'
+      frequency: 'weekly',
     },
     successCriteria: {
       dataAccuracy: true,
       stakeholderApproval: true,
-      performanceTarget: 'Generate in <5 minutes'
-    }
+      performanceTarget: 'Generate in <5 minutes',
+    },
   });
 
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'add-custom-reports',
-    category: 'additionalServices'
+    category: 'additionalServices',
   });
 
   useBeforeUnload(() => {
@@ -105,14 +105,15 @@ export function AddCustomReportsSpec() {
     const completeConfig = {
       ...config,
       databaseType: databaseType.value,
-      alertEmail: alertEmail.value
+      alertEmail: alertEmail.value,
     };
     saveData(completeConfig);
   });
 
   // Auto-save when config changes
   useEffect(() => {
-    if (config.platform) { // Only save if we have basic data
+    if (config.platform) {
+      // Only save if we have basic data
       saveData(config);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -132,9 +133,10 @@ export function AddCustomReportsSpec() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    const category = currentMeeting?.implementationSpec?.additionalServices || [];
+    const category =
+      currentMeeting?.implementationSpec?.additionalServices || [];
     const existing = Array.isArray(category)
-      ? category.find(item => item.serviceId === 'add-custom-reports')
+      ? category.find((item) => item.serviceId === 'add-custom-reports')
       : undefined;
 
     if (existing?.requirements) {
@@ -160,7 +162,7 @@ export function AddCustomReportsSpec() {
     const completeConfig = {
       ...config,
       databaseType: databaseType.value,
-      alertEmail: alertEmail.value
+      alertEmail: alertEmail.value,
     };
 
     await saveData(completeConfig);
@@ -176,16 +178,18 @@ export function AddCustomReportsSpec() {
           reportPurpose: '',
           reportType: 'summary',
           hasSampleReport: false,
-          hasMockup: false
-        }
-      ]
+          hasMockup: false,
+        },
+      ],
     });
   };
 
   const removeReport = (index: number) => {
     setConfig({
       ...config,
-      reportSpecifications: config.reportSpecifications.filter((_, i) => i !== index)
+      reportSpecifications: config.reportSpecifications.filter(
+        (_, i) => i !== index
+      ),
     });
   };
 
@@ -200,10 +204,10 @@ export function AddCustomReportsSpec() {
             fieldName: '',
             fieldSource: '',
             dataType: 'text',
-            requiresCalculation: ''
-          }
-        ]
-      }
+            requiresCalculation: '',
+          },
+        ],
+      },
     });
   };
 
@@ -212,8 +216,10 @@ export function AddCustomReportsSpec() {
       ...config,
       dataRequirements: {
         ...config.dataRequirements,
-        dataFields: config.dataRequirements.dataFields.filter((_, i) => i !== index)
-      }
+        dataFields: config.dataRequirements.dataFields.filter(
+          (_, i) => i !== index
+        ),
+      },
     });
   };
 
@@ -225,24 +231,28 @@ export function AddCustomReportsSpec() {
         {
           calculationName: '',
           formula: '',
-          displayFormat: ''
-        }
-      ]
+          displayFormat: '',
+        },
+      ],
     });
   };
 
   const removeCalculation = (index: number) => {
     setConfig({
       ...config,
-      calculations: (config.calculations || []).filter((_, i) => i !== index)
+      calculations: (config.calculations || []).filter((_, i) => i !== index),
     });
   };
 
   return (
     <div className="space-y-6 p-8" dir="rtl">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">שירות #53: דוחות מותאמים אישית</h2>
-        <p className="text-gray-600 mt-2">דוחות עם פירוטים, נתונים וחישובים ייחודיים לעסק</p>
+        <h2 className="text-2xl font-bold text-gray-900">
+          שירות #53: דוחות מותאמים אישית
+        </h2>
+        <p className="text-gray-600 mt-2">
+          דוחות עם פירוטים, נתונים וחישובים ייחודיים לעסק
+        </p>
       </div>
 
       {/* Smart Fields Info Banner */}
@@ -250,10 +260,12 @@ export function AddCustomReportsSpec() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
           <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <h4 className="font-semibold text-blue-900 mb-1">
+              נתונים מולאו אוטומטית משלב 1
+            </h4>
             <p className="text-sm text-blue-800">
-              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-              תוכל לערוך אותם במידת הצורך.
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל לערוך
+              אותם במידת הצורך.
             </p>
           </div>
         </div>
@@ -263,7 +275,9 @@ export function AddCustomReportsSpec() {
       <Card className="p-6">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">מפרט דוחות <span className="text-red-500">*</span></h3>
+            <h3 className="text-lg font-semibold">
+              מפרט דוחות <span className="text-red-500">*</span>
+            </h3>
             <button
               type="button"
               onClick={addReport}
@@ -272,10 +286,15 @@ export function AddCustomReportsSpec() {
               + הוסף דוח
             </button>
           </div>
-          {errors.reports && <p className="text-red-500 text-sm">{errors.reports}</p>}
+          {errors.reports && (
+            <p className="text-red-500 text-sm">{errors.reports}</p>
+          )}
 
           {config.reportSpecifications.map((report, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+            <div
+              key={index}
+              className="border border-gray-200 rounded-lg p-4 space-y-3"
+            >
               <div className="flex justify-between items-center">
                 <h4 className="font-medium">דוח #{index + 1}</h4>
                 <button
@@ -288,14 +307,19 @@ export function AddCustomReportsSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">שם הדוח</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  שם הדוח
+                </label>
                 <input
                   type="text"
                   value={report.reportName}
                   onChange={(e) => {
                     const updated = [...config.reportSpecifications];
                     updated[index].reportName = e.target.value;
-                    const newConfig = { ...config, reportSpecifications: updated };
+                    const newConfig = {
+                      ...config,
+                      reportSpecifications: updated,
+                    };
                     setConfig(newConfig);
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -304,13 +328,18 @@ export function AddCustomReportsSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">מטרת הדוח</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  מטרת הדוח
+                </label>
                 <textarea
                   value={report.reportPurpose}
                   onChange={(e) => {
                     const updated = [...config.reportSpecifications];
                     updated[index].reportPurpose = e.target.value;
-                    const newConfig = { ...config, reportSpecifications: updated };
+                    const newConfig = {
+                      ...config,
+                      reportSpecifications: updated,
+                    };
                     setConfig(newConfig);
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -320,13 +349,18 @@ export function AddCustomReportsSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">סוג דוח</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  סוג דוח
+                </label>
                 <select
                   value={report.reportType}
                   onChange={(e) => {
                     const updated = [...config.reportSpecifications];
                     updated[index].reportType = e.target.value as any;
-                    const newConfig = { ...config, reportSpecifications: updated };
+                    const newConfig = {
+                      ...config,
+                      reportSpecifications: updated,
+                    };
                     setConfig(newConfig);
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -347,7 +381,10 @@ export function AddCustomReportsSpec() {
                     onChange={(e) => {
                       const updated = [...config.reportSpecifications];
                       updated[index].hasSampleReport = e.target.checked;
-                      const newConfig = { ...config, reportSpecifications: updated };
+                      const newConfig = {
+                        ...config,
+                        reportSpecifications: updated,
+                      };
                       setConfig(newConfig);
                     }}
                     className="rounded border-gray-300"
@@ -362,7 +399,10 @@ export function AddCustomReportsSpec() {
                     onChange={(e) => {
                       const updated = [...config.reportSpecifications];
                       updated[index].hasMockup = e.target.checked;
-                      const newConfig = { ...config, reportSpecifications: updated };
+                      const newConfig = {
+                        ...config,
+                        reportSpecifications: updated,
+                      };
                       setConfig(newConfig);
                     }}
                     className="rounded border-gray-300"
@@ -390,7 +430,10 @@ export function AddCustomReportsSpec() {
           </div>
 
           {config.dataRequirements.dataFields.map((field, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+            <div
+              key={index}
+              className="border border-gray-200 rounded-lg p-4 space-y-3"
+            >
               <div className="flex justify-between items-center">
                 <h4 className="font-medium">שדה #{index + 1}</h4>
                 <button
@@ -404,7 +447,9 @@ export function AddCustomReportsSpec() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">שם השדה</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    שם השדה
+                  </label>
                   <input
                     type="text"
                     value={field.fieldName}
@@ -413,7 +458,10 @@ export function AddCustomReportsSpec() {
                       updated[index].fieldName = e.target.value;
                       const newConfig = {
                         ...config,
-                        dataRequirements: { ...config.dataRequirements, dataFields: updated }
+                        dataRequirements: {
+                          ...config.dataRequirements,
+                          dataFields: updated,
+                        },
                       };
                       setConfig(newConfig);
                     }}
@@ -422,7 +470,9 @@ export function AddCustomReportsSpec() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">מקור השדה</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    מקור השדה
+                  </label>
                   <input
                     type="text"
                     value={field.fieldSource}
@@ -431,7 +481,10 @@ export function AddCustomReportsSpec() {
                       updated[index].fieldSource = e.target.value;
                       const newConfig = {
                         ...config,
-                        dataRequirements: { ...config.dataRequirements, dataFields: updated }
+                        dataRequirements: {
+                          ...config.dataRequirements,
+                          dataFields: updated,
+                        },
                       };
                       setConfig(newConfig);
                     }}
@@ -442,7 +495,9 @@ export function AddCustomReportsSpec() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">סוג נתון</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    סוג נתון
+                  </label>
                   <select
                     value={field.dataType}
                     onChange={(e) => {
@@ -450,7 +505,10 @@ export function AddCustomReportsSpec() {
                       updated[index].dataType = e.target.value as any;
                       const newConfig = {
                         ...config,
-                        dataRequirements: { ...config.dataRequirements, dataFields: updated }
+                        dataRequirements: {
+                          ...config.dataRequirements,
+                          dataFields: updated,
+                        },
                       };
                       setConfig(newConfig);
                     }}
@@ -465,7 +523,9 @@ export function AddCustomReportsSpec() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">חישוב נדרש</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    חישוב נדרש
+                  </label>
                   <input
                     type="text"
                     value={field.requiresCalculation || ''}
@@ -474,7 +534,10 @@ export function AddCustomReportsSpec() {
                       updated[index].requiresCalculation = e.target.value;
                       const newConfig = {
                         ...config,
-                        dataRequirements: { ...config.dataRequirements, dataFields: updated }
+                        dataRequirements: {
+                          ...config.dataRequirements,
+                          dataFields: updated,
+                        },
                       };
                       setConfig(newConfig);
                     }}
@@ -496,10 +559,15 @@ export function AddCustomReportsSpec() {
             <input
               type="checkbox"
               checked={config.breakdownsAndGrouping.subtotals}
-              onChange={(e) => setConfig({
-                ...config,
-                breakdownsAndGrouping: { ...config.breakdownsAndGrouping, subtotals: e.target.checked }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  breakdownsAndGrouping: {
+                    ...config.breakdownsAndGrouping,
+                    subtotals: e.target.checked,
+                  },
+                })
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">סיכומי ביניים</span>
@@ -509,10 +577,15 @@ export function AddCustomReportsSpec() {
             <input
               type="checkbox"
               checked={config.breakdownsAndGrouping.grandTotals}
-              onChange={(e) => setConfig({
-                ...config,
-                breakdownsAndGrouping: { ...config.breakdownsAndGrouping, grandTotals: e.target.checked }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  breakdownsAndGrouping: {
+                    ...config.breakdownsAndGrouping,
+                    grandTotals: e.target.checked,
+                  },
+                })
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">סיכום כולל</span>
@@ -522,10 +595,15 @@ export function AddCustomReportsSpec() {
             <input
               type="checkbox"
               checked={config.breakdownsAndGrouping.pivotTables || false}
-              onChange={(e) => setConfig({
-                ...config,
-                breakdownsAndGrouping: { ...config.breakdownsAndGrouping, pivotTables: e.target.checked }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  breakdownsAndGrouping: {
+                    ...config.breakdownsAndGrouping,
+                    pivotTables: e.target.checked,
+                  },
+                })
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">טבלאות Pivot</span>
@@ -548,7 +626,10 @@ export function AddCustomReportsSpec() {
           </div>
 
           {(config.calculations || []).map((calc, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+            <div
+              key={index}
+              className="border border-gray-200 rounded-lg p-4 space-y-3"
+            >
               <div className="flex justify-between items-center">
                 <h4 className="font-medium">חישוב #{index + 1}</h4>
                 <button
@@ -561,7 +642,9 @@ export function AddCustomReportsSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">שם החישוב</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  שם החישוב
+                </label>
                 <input
                   type="text"
                   value={calc.calculationName}
@@ -577,7 +660,9 @@ export function AddCustomReportsSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">נוסחה</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  נוסחה
+                </label>
                 <input
                   type="text"
                   value={calc.formula}
@@ -593,7 +678,9 @@ export function AddCustomReportsSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">פורמט תצוגה</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  פורמט תצוגה
+                </label>
                 <input
                   type="text"
                   value={calc.displayFormat}
@@ -620,10 +707,15 @@ export function AddCustomReportsSpec() {
             <input
               type="checkbox"
               checked={config.visualizations.includesCharts}
-              onChange={(e) => setConfig({
-                ...config,
-                visualizations: { ...config.visualizations, includesCharts: e.target.checked }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  visualizations: {
+                    ...config.visualizations,
+                    includesCharts: e.target.checked,
+                  },
+                })
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">כולל תרשימים</span>
@@ -633,23 +725,35 @@ export function AddCustomReportsSpec() {
             <input
               type="checkbox"
               checked={config.visualizations.includesTables}
-              onChange={(e) => setConfig({
-                ...config,
-                visualizations: { ...config.visualizations, includesTables: e.target.checked }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  visualizations: {
+                    ...config.visualizations,
+                    includesTables: e.target.checked,
+                  },
+                })
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">כולל טבלאות</span>
           </label>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">פורמט יצוא ראשי</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              פורמט יצוא ראשי
+            </label>
             <select
               value={config.exportFormats.primaryFormat}
-              onChange={(e) => setConfig({
-                ...config,
-                exportFormats: { ...config.exportFormats, primaryFormat: e.target.value as any }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  exportFormats: {
+                    ...config.exportFormats,
+                    primaryFormat: e.target.value as any,
+                  },
+                })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="pdf">PDF</option>
@@ -661,13 +765,18 @@ export function AddCustomReportsSpec() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">שיטת יצירה</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              שיטת יצירה
+            </label>
             <select
               value={config.generation.generationMethod}
               onChange={(e) => {
                 const newConfig = {
                   ...config,
-                  generation: { ...config.generation, generationMethod: e.target.value as any }
+                  generation: {
+                    ...config.generation,
+                    generationMethod: e.target.value as any,
+                  },
                 };
                 setConfig(newConfig);
               }}
@@ -690,7 +799,8 @@ export function AddCustomReportsSpec() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium text-gray-700">
-                {databaseType.metadata.label.he} <span className="text-red-500">*</span>
+                {databaseType.metadata.label.he}{' '}
+                <span className="text-red-500">*</span>
               </label>
               {databaseType.isAutoPopulated && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
@@ -703,10 +813,14 @@ export function AddCustomReportsSpec() {
               value={databaseType.value || 'default'}
               onChange={(e) => databaseType.setValue(e.target.value)}
               className={`w-full px-3 py-2 border rounded-md ${
-                databaseType.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                databaseType.isAutoPopulated
+                  ? 'border-green-300 bg-green-50'
+                  : 'border-gray-300'
               } ${databaseType.hasConflict ? 'border-orange-300' : ''}`}
             >
-              <option value="default" disabled>בחר סוג מסד נתונים</option>
+              <option value="default" disabled>
+                בחר סוג מסד נתונים
+              </option>
               <option value="postgresql">PostgreSQL</option>
               <option value="mysql">MySQL</option>
               <option value="sql_server">SQL Server</option>
@@ -723,7 +837,8 @@ export function AddCustomReportsSpec() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium text-gray-700">
-                {alertEmail.metadata.label.he} <span className="text-red-500">*</span>
+                {alertEmail.metadata.label.he}{' '}
+                <span className="text-red-500">*</span>
               </label>
               {alertEmail.isAutoPopulated && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
@@ -737,7 +852,9 @@ export function AddCustomReportsSpec() {
               value={alertEmail.value || ''}
               onChange={(e) => alertEmail.setValue(e.target.value)}
               className={`w-full px-3 py-2 border rounded-md ${
-                alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                alertEmail.isAutoPopulated
+                  ? 'border-green-300 bg-green-50'
+                  : 'border-gray-300'
               } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
               placeholder="admin@company.com"
             />
@@ -756,13 +873,20 @@ export function AddCustomReportsSpec() {
         <h3 className="text-lg font-semibold mb-4">לוח זמנים</h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">מורכבות</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              מורכבות
+            </label>
             <select
               value={config.timeline.complexity}
-              onChange={(e) => setConfig({
-                ...config,
-                timeline: { ...config.timeline, complexity: e.target.value as any }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  timeline: {
+                    ...config.timeline,
+                    complexity: e.target.value as any,
+                  },
+                })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="simple">פשוט (1-2 ימים)</option>
@@ -772,14 +896,21 @@ export function AddCustomReportsSpec() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">זמן משוער (ימים)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              זמן משוער (ימים)
+            </label>
             <input
               type="number"
               value={config.timeline.estimatedDays}
-              onChange={(e) => setConfig({
-                ...config,
-                timeline: { ...config.timeline, estimatedDays: parseInt(e.target.value) || 3 }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  timeline: {
+                    ...config.timeline,
+                    estimatedDays: parseInt(e.target.value) || 3,
+                  },
+                })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               min="1"
             />
@@ -801,12 +932,14 @@ export function AddCustomReportsSpec() {
               <span className="text-sm">שגיאה בשמירה</span>
             </div>
           )}
-          {!isSaving && !saveError && config.reportSpecifications.length > 0 && (
-            <div className="flex items-center gap-2 text-green-600">
-              <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-              <span className="text-sm">נשמר אוטומטית</span>
-            </div>
-          )}
+          {!isSaving &&
+            !saveError &&
+            config.reportSpecifications.length > 0 && (
+              <div className="flex items-center gap-2 text-green-600">
+                <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                <span className="text-sm">נשמר אוטומטית</span>
+              </div>
+            )}
         </div>
         <button
           onClick={handleSave}

@@ -1,4 +1,8 @@
-import { ServiceCategory, ServiceCategoryId, ServiceItem } from '../types/proposal';
+import {
+  ServiceCategory,
+  ServiceCategoryId,
+  ServiceItem,
+} from '../types/proposal';
 
 // Re-export for convenience
 export type { ServiceCategoryId };
@@ -12,7 +16,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     priority: 'primary',
     icon: '⚡',
     description: 'Workflow automation using n8n',
-    descriptionHe: 'אוטומציות תהליכים באמצעות n8n'
+    descriptionHe: 'אוטומציות תהליכים באמצעות n8n',
   },
   {
     id: 'ai_agents',
@@ -21,7 +25,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     priority: 'primary',
     icon: '🤖',
     description: 'Intelligent AI agents for sales, service, and operations',
-    descriptionHe: 'סוכני AI חכמים למכירות, שירות ותפעול'
+    descriptionHe: 'סוכני AI חכמים למכירות, שירות ותפעול',
   },
   {
     id: 'integrations',
@@ -30,7 +34,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     priority: 'secondary',
     icon: '🔗',
     description: 'Connect systems and automate data flow',
-    descriptionHe: 'חיבור מערכות ואוטומציה של זרימת נתונים'
+    descriptionHe: 'חיבור מערכות ואוטומציה של זרימת נתונים',
   },
   {
     id: 'system_implementation',
@@ -39,7 +43,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     priority: 'secondary',
     icon: '💼',
     description: 'Setup and implementation of business systems',
-    descriptionHe: 'הקמה והטמעה של מערכות עסקיות'
+    descriptionHe: 'הקמה והטמעה של מערכות עסקיות',
   },
   {
     id: 'additional_services',
@@ -48,8 +52,8 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     priority: 'optional',
     icon: '💡',
     description: 'Data cleaning, reporting, training, and support',
-    descriptionHe: 'ניקוי נתונים, דוחות, הדרכה ותמיכה'
-  }
+    descriptionHe: 'ניקוי נתונים, דוחות, הדרכה ותמיכה',
+  },
 ];
 
 // Service Items Database
@@ -66,7 +70,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 700,
     estimatedDays: 1,
     complexity: 'simple',
-    tags: ['leads', 'forms', 'response', 'quick-win']
+    tags: ['leads', 'forms', 'response', 'quick-win'],
   },
   {
     id: 'auto-sms-whatsapp',
@@ -78,7 +82,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 1000,
     estimatedDays: 2,
     complexity: 'simple',
-    tags: ['leads', 'sms', 'whatsapp', 'communication', 'quick-win']
+    tags: ['leads', 'sms', 'whatsapp', 'communication', 'quick-win'],
   },
   {
     id: 'auto-crm-update',
@@ -90,7 +94,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 1200,
     estimatedDays: 2,
     complexity: 'simple',
-    tags: ['crm', 'forms', 'data-entry', 'quick-win']
+    tags: ['crm', 'forms', 'data-entry', 'quick-win'],
   },
   {
     id: 'auto-team-alerts',
@@ -102,7 +106,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 800,
     estimatedDays: 1,
     complexity: 'simple',
-    tags: ['alerts', 'notifications', 'leads', 'quick-win']
+    tags: ['alerts', 'notifications', 'leads', 'quick-win'],
   },
   {
     id: 'auto-appointment-reminders',
@@ -114,7 +118,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 900,
     estimatedDays: 2,
     complexity: 'simple',
-    tags: ['appointments', 'reminders', 'calendar', 'quick-win']
+    tags: ['appointments', 'reminders', 'calendar', 'quick-win'],
   },
   {
     id: 'auto-welcome-email',
@@ -126,7 +130,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 700,
     estimatedDays: 1,
     complexity: 'simple',
-    tags: ['email', 'welcome', 'onboarding', 'quick-win']
+    tags: ['email', 'welcome', 'onboarding', 'quick-win'],
   },
 
   // Medium Automations
@@ -140,19 +144,20 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 3500,
     estimatedDays: 5,
     complexity: 'medium',
-    tags: ['leads', 'workflow', 'crm', 'sales', 'distribution']
+    tags: ['leads', 'workflow', 'crm', 'sales', 'distribution'],
   },
   {
     id: 'auto-smart-followup',
     category: 'automations',
     name: 'Smart Follow-up Automation',
     nameHe: 'אוטומציית מעקבים חכמה',
-    description: 'Intelligent follow-up via WhatsApp/SMS/Email based on behavior',
+    description:
+      'Intelligent follow-up via WhatsApp/SMS/Email based on behavior',
     descriptionHe: 'מעקבים חכמים ב-WhatsApp/SMS/Email על בסיס התנהגות',
     basePrice: 2500,
     estimatedDays: 4,
     complexity: 'medium',
-    tags: ['followup', 'whatsapp', 'sms', 'email', 'leads']
+    tags: ['followup', 'whatsapp', 'sms', 'email', 'leads'],
   },
   {
     id: 'auto-system-sync',
@@ -164,7 +169,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 3000,
     estimatedDays: 5,
     complexity: 'medium',
-    tags: ['integration', 'sync', 'data', 'systems']
+    tags: ['integration', 'sync', 'data', 'systems'],
   },
   {
     id: 'auto-service-workflow',
@@ -176,7 +181,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2800,
     estimatedDays: 4,
     complexity: 'medium',
-    tags: ['service', 'tickets', 'routing', 'support']
+    tags: ['service', 'tickets', 'routing', 'support'],
   },
   {
     id: 'auto-reports',
@@ -188,7 +193,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2000,
     estimatedDays: 3,
     complexity: 'medium',
-    tags: ['reports', 'analytics', 'dashboard', 'kpi']
+    tags: ['reports', 'analytics', 'dashboard', 'kpi'],
   },
   {
     id: 'auto-document-mgmt',
@@ -200,7 +205,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2500,
     estimatedDays: 4,
     complexity: 'medium',
-    tags: ['documents', 'files', 'storage', 'processing']
+    tags: ['documents', 'files', 'storage', 'processing'],
   },
   {
     id: 'auto-approval-workflow',
@@ -212,7 +217,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2200,
     estimatedDays: 4,
     complexity: 'medium',
-    tags: ['approvals', 'workflow', 'routing', 'notifications']
+    tags: ['approvals', 'workflow', 'routing', 'notifications'],
   },
 
   // NEW: Additional automation services
@@ -226,7 +231,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2000,
     estimatedDays: 3,
     complexity: 'medium',
-    tags: ['whatsapp', 'api', 'messaging', 'setup']
+    tags: ['whatsapp', 'api', 'messaging', 'setup'],
   },
   {
     id: 'auto-email-templates',
@@ -238,7 +243,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 1200,
     estimatedDays: 2,
     complexity: 'simple',
-    tags: ['email', 'templates', 'automation', 'marketing']
+    tags: ['email', 'templates', 'automation', 'marketing'],
   },
   {
     id: 'auto-notifications',
@@ -250,7 +255,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 1500,
     estimatedDays: 3,
     complexity: 'medium',
-    tags: ['notifications', 'alerts', 'multichannel']
+    tags: ['notifications', 'alerts', 'multichannel'],
   },
   {
     id: 'auto-data-sync',
@@ -262,7 +267,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2500,
     estimatedDays: 4,
     complexity: 'medium',
-    tags: ['sync', 'data', 'bidirectional', 'realtime']
+    tags: ['sync', 'data', 'bidirectional', 'realtime'],
   },
   {
     id: 'auto-form-to-crm',
@@ -274,7 +279,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 1200,
     estimatedDays: 2,
     complexity: 'simple',
-    tags: ['forms', 'crm', 'automation', 'data-entry']
+    tags: ['forms', 'crm', 'automation', 'data-entry'],
   },
   {
     id: 'auto-document-generation',
@@ -286,7 +291,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2500,
     estimatedDays: 4,
     complexity: 'medium',
-    tags: ['documents', 'contracts', 'invoices', 'generation']
+    tags: ['documents', 'contracts', 'invoices', 'generation'],
   },
   {
     id: 'auto-meeting-scheduler',
@@ -298,7 +303,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 1800,
     estimatedDays: 3,
     complexity: 'medium',
-    tags: ['meetings', 'scheduling', 'calendar', 'automation']
+    tags: ['meetings', 'scheduling', 'calendar', 'automation'],
   },
   {
     id: 'reports-automated',
@@ -310,7 +315,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 3000,
     estimatedDays: 5,
     complexity: 'medium',
-    tags: ['reports', 'dashboards', 'analytics', 'automation']
+    tags: ['reports', 'dashboards', 'analytics', 'automation'],
   },
 
   // Advanced Automations
@@ -319,12 +324,13 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     category: 'automations',
     name: 'End-to-End Process Automation',
     nameHe: 'אוטומציה מקצה לקצה של תהליך שלם',
-    description: 'Complete automation of entire business process from start to finish',
+    description:
+      'Complete automation of entire business process from start to finish',
     descriptionHe: 'אוטומציה מלאה של תהליך עסקי שלם מתחילה ועד סוף',
     basePrice: 8000,
     estimatedDays: 10,
     complexity: 'complex',
-    tags: ['workflow', 'process', 'end-to-end', 'complex']
+    tags: ['workflow', 'process', 'end-to-end', 'complex'],
   },
   {
     id: 'auto-multi-system',
@@ -336,7 +342,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 7000,
     estimatedDays: 10,
     complexity: 'complex',
-    tags: ['integration', 'systems', 'complex', 'sync']
+    tags: ['integration', 'systems', 'complex', 'sync'],
   },
   {
     id: 'auto-complex-logic',
@@ -348,7 +354,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 6000,
     estimatedDays: 8,
     complexity: 'complex',
-    tags: ['logic', 'rules', 'complex', 'conditional']
+    tags: ['logic', 'rules', 'complex', 'conditional'],
   },
   {
     id: 'auto-sales-pipeline',
@@ -360,7 +366,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 9000,
     estimatedDays: 12,
     complexity: 'complex',
-    tags: ['sales', 'pipeline', 'dashboard', 'crm']
+    tags: ['sales', 'pipeline', 'dashboard', 'crm'],
   },
   {
     id: 'auto-cross-dept',
@@ -372,7 +378,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 7500,
     estimatedDays: 10,
     complexity: 'complex',
-    tags: ['departments', 'workflow', 'complex', 'handoffs']
+    tags: ['departments', 'workflow', 'complex', 'handoffs'],
   },
   {
     id: 'auto-financial',
@@ -384,7 +390,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 6500,
     estimatedDays: 9,
     complexity: 'complex',
-    tags: ['finance', 'invoicing', 'payments', 'accounting']
+    tags: ['finance', 'invoicing', 'payments', 'accounting'],
   },
   {
     id: 'auto-project-mgmt',
@@ -396,7 +402,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 5500,
     estimatedDays: 8,
     complexity: 'complex',
-    tags: ['projects', 'tasks', 'tracking', 'management']
+    tags: ['projects', 'tasks', 'tracking', 'management'],
   },
   {
     id: 'auto-sla-tracking',
@@ -408,7 +414,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2000,
     estimatedDays: 3,
     complexity: 'medium',
-    tags: ['sla', 'tracking', 'alerts', 'monitoring']
+    tags: ['sla', 'tracking', 'alerts', 'monitoring'],
   },
   {
     id: 'auto-custom',
@@ -420,7 +426,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 5000,
     estimatedDays: 7,
     complexity: 'complex',
-    tags: ['custom', 'automation', 'tailored', 'specific']
+    tags: ['custom', 'automation', 'tailored', 'specific'],
   },
 
   // ==================== AI AGENTS (PRIMARY) ====================
@@ -429,13 +435,13 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     id: 'ai-faq-bot',
     category: 'ai_agents',
     name: 'FAQ Chatbot',
-    nameHe: 'צ\'אטבוט למענה על שאלות נפוצות',
+    nameHe: "צ'אטבוט למענה על שאלות נפוצות",
     description: 'AI chatbot to answer frequently asked questions',
-    descriptionHe: 'צ\'אטבוט AI למענה על שאלות נפוצות',
+    descriptionHe: "צ'אטבוט AI למענה על שאלות נפוצות",
     basePrice: 2500,
     estimatedDays: 3,
     complexity: 'simple',
-    tags: ['ai', 'chatbot', 'faq', 'support']
+    tags: ['ai', 'chatbot', 'faq', 'support'],
   },
   {
     id: 'ai-lead-qualifier',
@@ -447,7 +453,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 3000,
     estimatedDays: 4,
     complexity: 'simple',
-    tags: ['ai', 'leads', 'qualification', 'intake']
+    tags: ['ai', 'leads', 'qualification', 'intake'],
   },
   {
     id: 'ai-form-assistant',
@@ -459,7 +465,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2800,
     estimatedDays: 4,
     complexity: 'simple',
-    tags: ['ai', 'forms', 'assistant', 'guidance']
+    tags: ['ai', 'forms', 'assistant', 'guidance'],
   },
   {
     id: 'ai-triage',
@@ -471,7 +477,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2500,
     estimatedDays: 3,
     complexity: 'simple',
-    tags: ['ai', 'triage', 'routing', 'categorization']
+    tags: ['ai', 'triage', 'routing', 'categorization'],
   },
 
   // Advanced AI
@@ -480,12 +486,13 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     category: 'ai_agents',
     name: 'Sales AI Agent',
     nameHe: 'סוכן AI למכירות',
-    description: 'Complete AI sales agent from intake to appointment scheduling',
+    description:
+      'Complete AI sales agent from intake to appointment scheduling',
     descriptionHe: 'סוכן מכירות AI מלא מקליטה ועד זימון פגישה',
     basePrice: 7000,
     estimatedDays: 7,
     complexity: 'medium',
-    tags: ['ai', 'sales', 'agent', 'appointments', 'crm']
+    tags: ['ai', 'sales', 'agent', 'appointments', 'crm'],
   },
   {
     id: 'ai-service-agent',
@@ -497,7 +504,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 8000,
     estimatedDays: 8,
     complexity: 'medium',
-    tags: ['ai', 'service', 'support', 'crm', 'integration']
+    tags: ['ai', 'service', 'support', 'crm', 'integration'],
   },
   {
     id: 'ai-complex-workflow',
@@ -509,7 +516,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 10000,
     estimatedDays: 10,
     complexity: 'complex',
-    tags: ['ai', 'workflows', 'complex', 'conditional']
+    tags: ['ai', 'workflows', 'complex', 'conditional'],
   },
   {
     id: 'ai-action-agent',
@@ -517,11 +524,11 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     name: 'AI Agent with Action Capabilities',
     nameHe: 'AI עם יכולות פעולה',
     description: 'AI that can take actions: update CRM, create tasks, etc.',
-    descriptionHe: 'AI שיכול לבצע פעולות: עדכון CRM, יצירת משימות וכו\'',
+    descriptionHe: "AI שיכול לבצע פעולות: עדכון CRM, יצירת משימות וכו'",
     basePrice: 9000,
     estimatedDays: 9,
     complexity: 'medium',
-    tags: ['ai', 'actions', 'automation', 'integration']
+    tags: ['ai', 'actions', 'automation', 'integration'],
   },
   {
     id: 'ai-learning',
@@ -533,7 +540,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 10000,
     estimatedDays: 10,
     complexity: 'medium',
-    tags: ['ai', 'learning', 'ml', 'improvement']
+    tags: ['ai', 'learning', 'ml', 'improvement'],
   },
 
   // Custom AI
@@ -547,7 +554,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 15000,
     estimatedDays: 15,
     complexity: 'complex',
-    tags: ['ai', 'multi-agent', 'complex', 'system']
+    tags: ['ai', 'multi-agent', 'complex', 'system'],
   },
   {
     id: 'ai-branded',
@@ -559,7 +566,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 12000,
     estimatedDays: 12,
     complexity: 'complex',
-    tags: ['ai', 'branding', 'personality', 'custom']
+    tags: ['ai', 'branding', 'personality', 'custom'],
   },
   {
     id: 'ai-full-integration',
@@ -571,7 +578,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 18000,
     estimatedDays: 18,
     complexity: 'complex',
-    tags: ['ai', 'integration', 'systems', 'complex']
+    tags: ['ai', 'integration', 'systems', 'complex'],
   },
   {
     id: 'ai-multimodal',
@@ -583,7 +590,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 20000,
     estimatedDays: 16,
     complexity: 'complex',
-    tags: ['ai', 'multimodal', 'documents', 'images', 'voice']
+    tags: ['ai', 'multimodal', 'documents', 'images', 'voice'],
   },
   {
     id: 'ai-predictive',
@@ -595,7 +602,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 22000,
     estimatedDays: 20,
     complexity: 'complex',
-    tags: ['ai', 'analytics', 'prediction', 'forecasting']
+    tags: ['ai', 'analytics', 'prediction', 'forecasting'],
   },
 
   // ==================== INTEGRATIONS (SECONDARY) ====================
@@ -609,7 +616,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 1000,
     estimatedDays: 2,
     complexity: 'simple',
-    tags: ['integration', 'sync', 'simple']
+    tags: ['integration', 'sync', 'simple'],
   },
   {
     id: 'int-webhook',
@@ -621,7 +628,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 800,
     estimatedDays: 1,
     complexity: 'simple',
-    tags: ['webhook', 'realtime', 'integration']
+    tags: ['webhook', 'realtime', 'integration'],
   },
   {
     id: 'integration-complex',
@@ -633,7 +640,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 3500,
     estimatedDays: 6,
     complexity: 'medium',
-    tags: ['integration', 'complex', 'sync', 'bidirectional']
+    tags: ['integration', 'complex', 'sync', 'bidirectional'],
   },
   {
     id: 'int-transform',
@@ -645,7 +652,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2500,
     estimatedDays: 4,
     complexity: 'medium',
-    tags: ['integration', 'transformation', 'mapping']
+    tags: ['integration', 'transformation', 'mapping'],
   },
   {
     id: 'int-custom-api',
@@ -657,7 +664,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 7000,
     estimatedDays: 8,
     complexity: 'complex',
-    tags: ['api', 'development', 'custom', 'integration']
+    tags: ['api', 'development', 'custom', 'integration'],
   },
   {
     id: 'int-legacy',
@@ -669,7 +676,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 5000,
     estimatedDays: 7,
     complexity: 'complex',
-    tags: ['legacy', 'old-systems', 'integration']
+    tags: ['legacy', 'old-systems', 'integration'],
   },
   {
     id: 'int-crm-marketing',
@@ -681,7 +688,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2500,
     estimatedDays: 4,
     complexity: 'medium',
-    tags: ['crm', 'marketing', 'integration', 'sync']
+    tags: ['crm', 'marketing', 'integration', 'sync'],
   },
   {
     id: 'int-crm-accounting',
@@ -693,7 +700,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 3000,
     estimatedDays: 5,
     complexity: 'medium',
-    tags: ['crm', 'accounting', 'integration', 'invoices']
+    tags: ['crm', 'accounting', 'integration', 'invoices'],
   },
   {
     id: 'int-crm-support',
@@ -705,7 +712,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2500,
     estimatedDays: 4,
     complexity: 'medium',
-    tags: ['crm', 'support', 'helpdesk', 'integration', 'tickets']
+    tags: ['crm', 'support', 'helpdesk', 'integration', 'tickets'],
   },
   {
     id: 'int-calendar',
@@ -717,19 +724,20 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 1500,
     estimatedDays: 3,
     complexity: 'simple',
-    tags: ['calendar', 'google', 'outlook', 'integration', 'appointments']
+    tags: ['calendar', 'google', 'outlook', 'integration', 'appointments'],
   },
   {
     id: 'int-ecommerce',
     category: 'integrations',
     name: 'E-commerce Platform Integration',
     nameHe: 'אינטגרציית פלטפורמת מסחר אלקטרוני',
-    description: 'Integrate with Shopify, WooCommerce, or other e-commerce platforms',
+    description:
+      'Integrate with Shopify, WooCommerce, or other e-commerce platforms',
     descriptionHe: 'אינטגרציה עם Shopify, WooCommerce או פלטפורמות מסחר אחרות',
     basePrice: 3000,
     estimatedDays: 5,
     complexity: 'medium',
-    tags: ['ecommerce', 'shopify', 'woocommerce', 'integration', 'orders']
+    tags: ['ecommerce', 'shopify', 'woocommerce', 'integration', 'orders'],
   },
 
   // ==================== SYSTEM IMPLEMENTATION (SECONDARY) ====================
@@ -743,7 +751,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 3000,
     estimatedDays: 5,
     complexity: 'medium',
-    tags: ['crm', 'implementation', 'setup']
+    tags: ['crm', 'implementation', 'setup'],
   },
   {
     id: 'impl-marketing',
@@ -755,7 +763,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 1500,
     estimatedDays: 3,
     complexity: 'simple',
-    tags: ['marketing', 'email', 'social', 'implementation']
+    tags: ['marketing', 'email', 'social', 'implementation'],
   },
   {
     id: 'impl-erp',
@@ -767,7 +775,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 6000,
     estimatedDays: 8,
     complexity: 'complex',
-    tags: ['erp', 'implementation', 'setup']
+    tags: ['erp', 'implementation', 'setup'],
   },
   {
     id: 'impl-project-management',
@@ -779,7 +787,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2000,
     estimatedDays: 4,
     complexity: 'medium',
-    tags: ['project-management', 'implementation', 'setup']
+    tags: ['project-management', 'implementation', 'setup'],
   },
   {
     id: 'impl-helpdesk',
@@ -791,31 +799,33 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2500,
     estimatedDays: 4,
     complexity: 'medium',
-    tags: ['helpdesk', 'support', 'tickets', 'implementation']
+    tags: ['helpdesk', 'support', 'tickets', 'implementation'],
   },
   {
     id: 'impl-ecommerce',
     category: 'system_implementation',
     name: 'E-commerce Platform Implementation',
     nameHe: 'הטמעת פלטפורמת מסחר אלקטרוני',
-    description: 'Setup and configure e-commerce platform (Shopify/WooCommerce)',
+    description:
+      'Setup and configure e-commerce platform (Shopify/WooCommerce)',
     descriptionHe: 'הקמה והגדרה של פלטפורמת מסחר אלקטרוני',
     basePrice: 4000,
     estimatedDays: 6,
     complexity: 'medium',
-    tags: ['ecommerce', 'shopify', 'woocommerce', 'implementation']
+    tags: ['ecommerce', 'shopify', 'woocommerce', 'implementation'],
   },
   {
     id: 'impl-workflow-platform',
     category: 'system_implementation',
     name: 'Workflow Platform Implementation',
     nameHe: 'הטמעת פלטפורמת תהליכי עבודה',
-    description: 'Setup and configure workflow automation platform (n8n/Zapier/Make)',
+    description:
+      'Setup and configure workflow automation platform (n8n/Zapier/Make)',
     descriptionHe: 'הקמה והגדרה של פלטפורמת אוטומציה',
     basePrice: 3000,
     estimatedDays: 5,
     complexity: 'medium',
-    tags: ['workflow', 'automation', 'platform', 'implementation']
+    tags: ['workflow', 'automation', 'platform', 'implementation'],
   },
   {
     id: 'impl-analytics',
@@ -827,7 +837,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 3500,
     estimatedDays: 5,
     complexity: 'medium',
-    tags: ['analytics', 'bi', 'reporting', 'implementation']
+    tags: ['analytics', 'bi', 'reporting', 'implementation'],
   },
   {
     id: 'impl-custom',
@@ -839,7 +849,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 5000,
     estimatedDays: 7,
     complexity: 'complex',
-    tags: ['custom', 'implementation', 'system']
+    tags: ['custom', 'implementation', 'system'],
   },
 
   // ==================== ADDITIONAL SERVICES (OPTIONAL) ====================
@@ -853,7 +863,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2500,
     estimatedDays: 5,
     complexity: 'medium',
-    tags: ['data', 'cleaning', 'deduplication']
+    tags: ['data', 'cleaning', 'deduplication'],
   },
   {
     id: 'add-dashboard',
@@ -865,7 +875,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2000,
     estimatedDays: 4,
     complexity: 'medium',
-    tags: ['dashboard', 'analytics', 'reporting']
+    tags: ['dashboard', 'analytics', 'reporting'],
   },
   {
     id: 'add-custom-reports',
@@ -877,7 +887,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 1500,
     estimatedDays: 3,
     complexity: 'medium',
-    tags: ['reports', 'custom', 'automation']
+    tags: ['reports', 'custom', 'automation'],
   },
   {
     id: 'training-workshops',
@@ -889,7 +899,7 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 1000,
     estimatedDays: 2,
     complexity: 'simple',
-    tags: ['training', 'documentation', 'workshops']
+    tags: ['training', 'documentation', 'workshops'],
   },
   {
     id: 'support-ongoing',
@@ -901,19 +911,20 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 1500,
     estimatedDays: 0, // ongoing
     complexity: 'simple',
-    tags: ['support', 'maintenance', 'ongoing']
+    tags: ['support', 'maintenance', 'ongoing'],
   },
   {
     id: 'data-migration',
     category: 'additional_services',
     name: 'Data Migration',
     nameHe: 'העברת נתונים בין מערכות',
-    description: 'Transfer data between systems with ETL, mapping, and validation',
+    description:
+      'Transfer data between systems with ETL, mapping, and validation',
     descriptionHe: 'העברת נתונים בין מערכות עם ETL, מיפוי ואימות',
     basePrice: 3000,
     estimatedDays: 5,
     complexity: 'medium',
-    tags: ['data', 'migration', 'etl', 'transfer']
+    tags: ['data', 'migration', 'etl', 'transfer'],
   },
   {
     id: 'training-ongoing',
@@ -925,19 +936,20 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2000,
     estimatedDays: 0, // ongoing
     complexity: 'simple',
-    tags: ['training', 'ongoing', 'support', 'learning']
+    tags: ['training', 'ongoing', 'support', 'learning'],
   },
   {
     id: 'consulting-strategy',
     category: 'additional_services',
     name: 'Strategy Consulting',
     nameHe: 'ייעוץ אסטרטגי',
-    description: 'Strategic consulting for automation and digital transformation',
+    description:
+      'Strategic consulting for automation and digital transformation',
     descriptionHe: 'ייעוץ אסטרטגי לאוטומציה וטרנספורמציה דיגיטלית',
     basePrice: 3000,
     estimatedDays: 0, // consulting
     complexity: 'medium',
-    tags: ['consulting', 'strategy', 'planning', 'advisory']
+    tags: ['consulting', 'strategy', 'planning', 'advisory'],
   },
   {
     id: 'consulting-process',
@@ -949,25 +961,29 @@ export const SERVICES_DATABASE: ServiceItem[] = [
     basePrice: 2500,
     estimatedDays: 0, // consulting
     complexity: 'medium',
-    tags: ['consulting', 'process', 'optimization', 'mapping']
-  }
+    tags: ['consulting', 'process', 'optimization', 'mapping'],
+  },
 ];
 
 // Helper functions
-export const getServicesByCategory = (categoryId: ServiceCategoryId): ServiceItem[] => {
-  return SERVICES_DATABASE.filter(service => service.category === categoryId);
+export const getServicesByCategory = (
+  categoryId: ServiceCategoryId
+): ServiceItem[] => {
+  return SERVICES_DATABASE.filter((service) => service.category === categoryId);
 };
 
 export const getServiceById = (serviceId: string): ServiceItem | undefined => {
-  return SERVICES_DATABASE.find(service => service.id === serviceId);
+  return SERVICES_DATABASE.find((service) => service.id === serviceId);
 };
 
 export const getServicesByTags = (tags: string[]): ServiceItem[] => {
-  return SERVICES_DATABASE.filter(service =>
-    tags.some(tag => service.tags.includes(tag))
+  return SERVICES_DATABASE.filter((service) =>
+    tags.some((tag) => service.tags.includes(tag))
   );
 };
 
-export const getCategoryById = (categoryId: ServiceCategoryId): ServiceCategory | undefined => {
-  return SERVICE_CATEGORIES.find(cat => cat.id === categoryId);
+export const getCategoryById = (
+  categoryId: ServiceCategoryId
+): ServiceCategory | undefined => {
+  return SERVICE_CATEGORIES.find((cat) => cat.id === categoryId);
 };

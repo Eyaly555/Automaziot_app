@@ -24,7 +24,11 @@ export type SyncFrequency = 'real-time' | 'polling' | 'batch';
 /**
  * Conflict resolution strategies for bi-directional sync
  */
-export type ConflictResolutionStrategy = 'last-write-wins' | 'manual-review' | 'timestamp-based' | 'field-level-merge';
+export type ConflictResolutionStrategy =
+  | 'last-write-wins'
+  | 'manual-review'
+  | 'timestamp-based'
+  | 'field-level-merge';
 
 /**
  * Base system configuration interface
@@ -350,7 +354,10 @@ export interface IntComplexRequirements {
       intervalDays: number; // e.g., 90 days
     };
     ipWhitelisting?: string[];
-    encryptedCredentialStorage: 'supabase-vault' | 'aws-secrets' | 'hashicorp-vault';
+    encryptedCredentialStorage:
+      | 'supabase-vault'
+      | 'aws-secrets'
+      | 'hashicorp-vault';
   };
 
   /** Data governance */
@@ -574,7 +581,13 @@ export interface IntCrmMarketingRequirements {
 
     /** Marketing → CRM */
     marketingToCrm: {
-      entities: ('email-opens' | 'clicks' | 'unsubscribes' | 'conversions' | 'campaign-responses')[];
+      entities: (
+        | 'email-opens'
+        | 'clicks'
+        | 'unsubscribes'
+        | 'conversions'
+        | 'campaign-responses'
+      )[];
       triggers: string[];
       leadScoring: {
         enabled: boolean;
@@ -928,7 +941,12 @@ export interface IntCrmSupportRequirements {
   /** Real-time sync configuration */
   realTimeSync: {
     enabled: boolean;
-    events: ('ticket-created' | 'ticket-updated' | 'status-changed' | 'agent-assigned')[];
+    events: (
+      | 'ticket-created'
+      | 'ticket-updated'
+      | 'status-changed'
+      | 'agent-assigned'
+    )[];
     webhooks: WebhookConfig[];
   };
 
@@ -1285,7 +1303,11 @@ export interface IntEcommerceRequirements {
 
       /** eCommerce → CRM */
       ecommerceToCrm: {
-        triggerEvents: ('order-placed' | 'payment-completed' | 'order-fulfilled')[];
+        triggerEvents: (
+          | 'order-placed'
+          | 'payment-completed'
+          | 'order-fulfilled'
+        )[];
         createSalesOrder: boolean;
         orderIdMapping: {
           ecommerceField: 'order_id';
@@ -1470,7 +1492,12 @@ export interface IntCustomRequirements {
   authentication: {
     userFacing?: {
       type: 'oauth2';
-      flows: ('authorization-code' | 'implicit' | 'client-credentials' | 'password')[];
+      flows: (
+        | 'authorization-code'
+        | 'implicit'
+        | 'client-credentials'
+        | 'password'
+      )[];
       tokenExpiry: {
         accessTokenMinutes: number; // Typical: 60 minutes
         refreshTokenDays: number; // Typical: 30-90 days
@@ -1494,7 +1521,11 @@ export interface IntCustomRequirements {
   /** API Gateway (optional) */
   apiGateway?: {
     enabled: boolean;
-    provider: 'kong' | 'aws-api-gateway' | 'azure-api-management' | 'google-apigee';
+    provider:
+      | 'kong'
+      | 'aws-api-gateway'
+      | 'azure-api-management'
+      | 'google-apigee';
     features: {
       rateLimiting: boolean;
       authentication: boolean;
@@ -1506,7 +1537,11 @@ export interface IntCustomRequirements {
   /** Rate limiting */
   rateLimiting: {
     enabled: boolean;
-    algorithm: 'token-bucket' | 'leaky-bucket' | 'fixed-window' | 'sliding-window';
+    algorithm:
+      | 'token-bucket'
+      | 'leaky-bucket'
+      | 'fixed-window'
+      | 'sliding-window';
     limits: {
       requestsPerMinute: number;
       requestsPerHour?: number;
@@ -1594,7 +1629,16 @@ export interface IntCustomRequirements {
     };
     filtering: {
       enabled: boolean;
-      supportedOperators: ('eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'like')[];
+      supportedOperators: (
+        | 'eq'
+        | 'ne'
+        | 'gt'
+        | 'gte'
+        | 'lt'
+        | 'lte'
+        | 'in'
+        | 'like'
+      )[];
       exampleQuery?: string; // "?status=active&created_after=2025-01-01"
     };
     sorting: {
@@ -1836,7 +1880,17 @@ export type IntegrationServiceConfig =
  */
 export interface IntegrationServiceEntry {
   /** Service identifier (31-40) */
-  serviceId: 'integration-simple' | 'integration-complex' | 'int-complex' | 'whatsapp-api-setup' | 'int-crm-marketing' | 'int-crm-accounting' | 'int-crm-support' | 'int-calendar' | 'int-ecommerce' | 'int-custom';
+  serviceId:
+    | 'integration-simple'
+    | 'integration-complex'
+    | 'int-complex'
+    | 'whatsapp-api-setup'
+    | 'int-crm-marketing'
+    | 'int-crm-accounting'
+    | 'int-crm-support'
+    | 'int-calendar'
+    | 'int-ecommerce'
+    | 'int-custom';
 
   /** Service display name */
   serviceName: string;

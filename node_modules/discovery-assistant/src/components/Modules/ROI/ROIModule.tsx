@@ -15,28 +15,54 @@ export const ROIModule: React.FC = () => {
   const moduleData = currentMeeting?.modules?.roi || {};
 
   // Current Costs
-  const [currentManualHours, setCurrentManualHours] = useState(moduleData.currentCosts?.manualHours || '');
-  const [averageHourlyCost, setAverageHourlyCost] = useState(moduleData.currentCosts?.hourlyCost || '');
-  const [currentToolsCost, setCurrentToolsCost] = useState(moduleData.currentCosts?.toolsCost || '');
-  const [errorCostPerMonth, setErrorCostPerMonth] = useState(moduleData.currentCosts?.errorCost || '');
-  const [lostOpportunities, setLostOpportunities] = useState(moduleData.currentCosts?.lostOpportunities || '');
+  const [currentManualHours, setCurrentManualHours] = useState(
+    moduleData.currentCosts?.manualHours || ''
+  );
+  const [averageHourlyCost, setAverageHourlyCost] = useState(
+    moduleData.currentCosts?.hourlyCost || ''
+  );
+  const [currentToolsCost, setCurrentToolsCost] = useState(
+    moduleData.currentCosts?.toolsCost || ''
+  );
+  const [errorCostPerMonth, setErrorCostPerMonth] = useState(
+    moduleData.currentCosts?.errorCost || ''
+  );
+  const [lostOpportunities, setLostOpportunities] = useState(
+    moduleData.currentCosts?.lostOpportunities || ''
+  );
 
   // Time Savings
-  const [estimatedHoursSaved, setEstimatedHoursSaved] = useState(moduleData.timeSavings?.estimatedHoursSaved || '');
-  const [processesToAutomate, setProcessesToAutomate] = useState<string[]>(moduleData.timeSavings?.processes || []);
-  const [immediateVsGradual, setImmediateVsGradual] = useState(moduleData.timeSavings?.implementation || '');
+  const [estimatedHoursSaved, setEstimatedHoursSaved] = useState(
+    moduleData.timeSavings?.estimatedHoursSaved || ''
+  );
+  const [processesToAutomate, setProcessesToAutomate] = useState<string[]>(
+    moduleData.timeSavings?.processes || []
+  );
+  const [immediateVsGradual, setImmediateVsGradual] = useState(
+    moduleData.timeSavings?.implementation || ''
+  );
 
   // Investment
-  const [investmentRange, setInvestmentRange] = useState(moduleData.investment?.range || '');
-  const [paybackExpectation, setPaybackExpectation] = useState(moduleData.investment?.paybackExpectation || '');
-  const [budgetAvailable, setBudgetAvailable] = useState(moduleData.investment?.budgetAvailable || '');
+  const [investmentRange, setInvestmentRange] = useState(
+    moduleData.investment?.range || ''
+  );
+  const [paybackExpectation, setPaybackExpectation] = useState(
+    moduleData.investment?.paybackExpectation || ''
+  );
+  const [budgetAvailable, setBudgetAvailable] = useState(
+    moduleData.investment?.budgetAvailable || ''
+  );
 
   // Success Metrics
-  const [successMetrics, setSuccessMetrics] = useState<string[]>(moduleData.successMetrics || []);
-  const [measurementFrequency, setMeasurementFrequency] = useState(moduleData.measurementFrequency || '');
+  const [successMetrics, setSuccessMetrics] = useState<string[]>(
+    moduleData.successMetrics || []
+  );
+  const [measurementFrequency, setMeasurementFrequency] = useState(
+    moduleData.measurementFrequency || ''
+  );
 
   // Calculate live ROI - recalculates when meeting data changes
-  const roiData = calculateROI(currentMeeting || {} as any);
+  const roiData = calculateROI(currentMeeting || ({} as any));
 
   const saveData = () => {
     updateModule('roi', {
@@ -46,17 +72,17 @@ export const ROIModule: React.FC = () => {
         hourlyCost: averageHourlyCost,
         toolsCost: currentToolsCost,
         errorCost: errorCostPerMonth,
-        lostOpportunities
+        lostOpportunities,
       },
       timeSavings: {
         estimatedHoursSaved,
         processes: processesToAutomate,
-        implementation: immediateVsGradual
+        implementation: immediateVsGradual,
       },
       investment: {
         range: investmentRange,
         paybackExpectation,
-        budgetAvailable
+        budgetAvailable,
       },
       successMetrics,
       measurementFrequency,
@@ -67,28 +93,28 @@ export const ROIModule: React.FC = () => {
         totalMonthlySaving: roiData.totalMonthlySavings,
         totalHoursSaved: roiData.hoursSavedMonthly,
         paybackPeriod: roiData.paybackPeriod,
-        implementationCost: roiData.implementationCosts
+        implementationCost: roiData.implementationCosts,
       },
 
       // Advanced metrics (Phase 4)
       implementationCosts: {
-        total: roiData.implementationCosts
+        total: roiData.implementationCosts,
       },
       ongoingCosts: {
-        total: roiData.ongoingMonthlyCosts
+        total: roiData.ongoingMonthlyCosts,
       },
       netSavings: {
         month12: roiData.netSavings12Month,
         month24: roiData.netSavings24Month,
-        month36: roiData.netSavings36Month
+        month36: roiData.netSavings36Month,
       },
       paybackPeriodMonths: roiData.paybackPeriod,
       roiPercentages: {
         roi12Month: roiData.roi12Month,
         roi24Month: roiData.roi24Month,
-        roi36Month: roiData.roi36Month
+        roi36Month: roiData.roi36Month,
       },
-      scenarios: roiData.scenarios
+      scenarios: roiData.scenarios,
     });
   };
 
@@ -99,16 +125,26 @@ export const ROIModule: React.FC = () => {
 
     return () => clearTimeout(timer);
   }, [
-    currentManualHours, averageHourlyCost, currentToolsCost, errorCostPerMonth,
-    lostOpportunities, estimatedHoursSaved, processesToAutomate, immediateVsGradual,
-    investmentRange, paybackExpectation, budgetAvailable, successMetrics, measurementFrequency,
+    currentManualHours,
+    averageHourlyCost,
+    currentToolsCost,
+    errorCostPerMonth,
+    lostOpportunities,
+    estimatedHoursSaved,
+    processesToAutomate,
+    immediateVsGradual,
+    investmentRange,
+    paybackExpectation,
+    budgetAvailable,
+    successMetrics,
+    measurementFrequency,
     // ✅ CRITICAL: Add roiData to dependencies so summary updates when calculations change
     roiData.totalMonthlySavings,
     roiData.hoursSavedMonthly,
     roiData.paybackPeriod,
     roiData.implementationCosts,
     roiData.ongoingMonthlyCosts,
-    updateModule
+    updateModule,
   ]);
 
   // Calculate current monthly cost
@@ -119,7 +155,7 @@ export const ROIModule: React.FC = () => {
     const errors = parseFloat(errorCostPerMonth) || 0;
     const lost = parseFloat(lostOpportunities) || 0;
 
-    return (hours * hourly * 4) + tools + errors + lost; // Hours * 4 for monthly
+    return hours * hourly * 4 + tools + errors + lost; // Hours * 4 for monthly
   };
 
   const currentMonthlyCost = calculateCurrentCost();
@@ -157,7 +193,9 @@ export const ROIModule: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white rounded-lg p-4 text-center">
               <Clock className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-blue-600">{roiData.hoursSavedMonthly}</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {roiData.hoursSavedMonthly}
+              </div>
               <div className="text-sm text-gray-600">שעות חסכון לחודש</div>
             </div>
             <div className="bg-white rounded-lg p-4 text-center">
@@ -186,8 +224,10 @@ export const ROIModule: React.FC = () => {
 
         <div className="space-y-6">
           {/* Current Costs Analysis */}
-          <Card title="8.1 ניתוח עלויות נוכחיות"
-            subtitle="כמה עולים התהליכים הידניים היום?">
+          <Card
+            title="8.1 ניתוח עלויות נוכחיות"
+            subtitle="כמה עולים התהליכים הידניים היום?"
+          >
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <Input
@@ -250,8 +290,10 @@ export const ROIModule: React.FC = () => {
           </Card>
 
           {/* Time Savings Potential */}
-          <Card title="8.2 פוטנציאל חיסכון בזמן"
-            subtitle="כמה זמן אפשר לחסוך עם אוטומציה?">
+          <Card
+            title="8.2 פוטנציאל חיסכון בזמן"
+            subtitle="כמה זמן אפשר לחסוך עם אוטומציה?"
+          >
             <div className="space-y-6">
               <Input
                 label="הערכה: כמה שעות עבודה בשבוע ניתן לחסוך באוטומציה?"
@@ -275,7 +317,7 @@ export const ROIModule: React.FC = () => {
                   { value: 'appointment_scheduling', label: 'תיאום פגישות' },
                   { value: 'document_processing', label: 'עיבוד מסמכים' },
                   { value: 'inventory_management', label: 'ניהול מלאי' },
-                  { value: 'hr_processes', label: 'תהליכי HR' }
+                  { value: 'hr_processes', label: 'תהליכי HR' },
                 ]}
                 values={processesToAutomate}
                 onChange={setProcessesToAutomate}
@@ -290,15 +332,17 @@ export const ROIModule: React.FC = () => {
                   { value: 'immediate', label: 'מיידי - תוך חודש' },
                   { value: 'quick', label: 'מהיר - תוך 3 חודשים' },
                   { value: 'moderate', label: 'מתון - תוך 6 חודשים' },
-                  { value: 'gradual', label: 'הדרגתי - תוך שנה' }
+                  { value: 'gradual', label: 'הדרגתי - תוך שנה' },
                 ]}
               />
             </div>
           </Card>
 
           {/* Investment & Payback */}
-          <Card title="8.3 השקעה והחזר"
-            subtitle="כמה מוכנים להשקיע ומה הציפיות?">
+          <Card
+            title="8.3 השקעה והחזר"
+            subtitle="כמה מוכנים להשקיע ומה הציפיות?"
+          >
             <div className="space-y-6">
               <RadioGroup
                 label="טווח השקעה מתוכנן"
@@ -309,7 +353,7 @@ export const ROIModule: React.FC = () => {
                   { value: '10k_50k', label: '10,000 - 50,000 ₪' },
                   { value: '50k_100k', label: '50,000 - 100,000 ₪' },
                   { value: '100k_250k', label: '100,000 - 250,000 ₪' },
-                  { value: 'over_250k', label: 'מעל 250,000 ₪' }
+                  { value: 'over_250k', label: 'מעל 250,000 ₪' },
                 ]}
               />
 
@@ -323,7 +367,7 @@ export const ROIModule: React.FC = () => {
                   { value: '12_months', label: 'עד שנה' },
                   { value: '18_months', label: 'עד שנה וחצי' },
                   { value: '24_months', label: 'עד שנתיים' },
-                  { value: 'over_24', label: 'מעל שנתיים' }
+                  { value: 'over_24', label: 'מעל שנתיים' },
                 ]}
               />
 
@@ -336,15 +380,14 @@ export const ROIModule: React.FC = () => {
                   { value: 'next_quarter', label: 'ברבעון הבא' },
                   { value: 'next_year', label: 'בשנה הבאה' },
                   { value: 'needs_approval', label: 'דורש אישור מיוחד' },
-                  { value: 'not_available', label: 'אין תקציב כרגע' }
+                  { value: 'not_available', label: 'אין תקציב כרגע' },
                 ]}
               />
             </div>
           </Card>
 
           {/* Success Metrics */}
-          <Card title="8.4 מדדי הצלחה"
-            subtitle="איך נמדוד את ההצלחה?">
+          <Card title="8.4 מדדי הצלחה" subtitle="איך נמדוד את ההצלחה?">
             <div className="space-y-6">
               <CheckboxGroup
                 label="מדדים לבחינת הצלחה"
@@ -352,13 +395,19 @@ export const ROIModule: React.FC = () => {
                   { value: 'time_saved', label: 'חיסכון בזמן' },
                   { value: 'cost_reduction', label: 'הפחתת עלויות' },
                   { value: 'revenue_increase', label: 'גידול בהכנסות' },
-                  { value: 'customer_satisfaction', label: 'שביעות רצון לקוחות' },
-                  { value: 'employee_satisfaction', label: 'שביעות רצון עובדים' },
+                  {
+                    value: 'customer_satisfaction',
+                    label: 'שביעות רצון לקוחות',
+                  },
+                  {
+                    value: 'employee_satisfaction',
+                    label: 'שביעות רצון עובדים',
+                  },
                   { value: 'error_reduction', label: 'הפחתת טעויות' },
                   { value: 'process_speed', label: 'מהירות תהליכים' },
                   { value: 'lead_conversion', label: 'המרת לידים' },
                   { value: 'response_time', label: 'זמן תגובה' },
-                  { value: 'data_quality', label: 'איכות נתונים' }
+                  { value: 'data_quality', label: 'איכות נתונים' },
                 ]}
                 values={successMetrics}
                 onChange={setSuccessMetrics}
@@ -374,7 +423,7 @@ export const ROIModule: React.FC = () => {
                   { value: 'weekly', label: 'שבועי' },
                   { value: 'monthly', label: 'חודשי' },
                   { value: 'quarterly', label: 'רבעוני' },
-                  { value: 'annually', label: 'שנתי' }
+                  { value: 'annually', label: 'שנתי' },
                 ]}
               />
 
@@ -384,7 +433,8 @@ export const ROIModule: React.FC = () => {
                     🎯 פוטנציאל ROI גבוה מאוד
                   </p>
                   <p className="text-sm text-green-700 mt-1">
-                    עם עלויות נוכחיות גבוהות, האוטומציה יכולה להחזיר את ההשקעה במהירות
+                    עם עלויות נוכחיות גבוהות, האוטומציה יכולה להחזיר את ההשקעה
+                    במהירות
                   </p>
                 </div>
               )}
@@ -394,7 +444,9 @@ export const ROIModule: React.FC = () => {
           {/* Advanced ROI Visualizations - Phase 4 */}
           {roiData.scenarios && (
             <div className="mt-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">📊 ניתוח ROI מתקדם</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                📊 ניתוח ROI מתקדם
+              </h2>
               <ROIVisualization
                 scenarios={roiData.scenarios}
                 implementationCosts={{
@@ -402,18 +454,18 @@ export const ROIModule: React.FC = () => {
                   toolsAndLicenses: roiData.implementationCosts * 0.1,
                   developerTime: roiData.implementationCosts * 0.5,
                   training: roiData.implementationCosts * 0.1,
-                  total: roiData.implementationCosts
+                  total: roiData.implementationCosts,
                 }}
                 ongoingCosts={{
                   monthlySubscriptions: roiData.ongoingMonthlyCosts * 0.5,
                   maintenanceHours: roiData.ongoingMonthlyCosts * 0.4,
                   supportCosts: roiData.ongoingMonthlyCosts * 0.1,
-                  total: roiData.ongoingMonthlyCosts
+                  total: roiData.ongoingMonthlyCosts,
                 }}
                 netSavings={{
                   month12: roiData.netSavings12Month,
                   month24: roiData.netSavings24Month,
-                  month36: roiData.netSavings36Month
+                  month36: roiData.netSavings36Month,
                 }}
               />
             </div>

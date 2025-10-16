@@ -15,7 +15,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useMeetingStore } from '../../store/useMeetingStore';
-import { SERVICE_COMPONENT_MAP, getServiceCategory } from '../../config/serviceComponentMapping';
+import {
+  SERVICE_COMPONENT_MAP,
+  getServiceCategory,
+} from '../../config/serviceComponentMapping';
 import { CheckCircle, Circle, AlertCircle, ChevronRight } from 'lucide-react';
 import type { SelectedService } from '../../types/proposal';
 
@@ -104,7 +107,10 @@ export const ServiceRequirementsRouter: React.FC = () => {
   // Empty state: No purchased services
   if (purchasedServices.length === 0) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50" dir="rtl">
+      <div
+        className="flex items-center justify-center h-screen bg-gray-50"
+        dir="rtl"
+      >
         <div className="text-center p-8 bg-white rounded-lg shadow-md max-w-md">
           <AlertCircle className="w-16 h-16 text-orange-500 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
@@ -124,7 +130,9 @@ export const ServiceRequirementsRouter: React.FC = () => {
   }
 
   // Get component for current service
-  const ServiceComponent = currentService ? SERVICE_COMPONENT_MAP[currentService.id] : null;
+  const ServiceComponent = currentService
+    ? SERVICE_COMPONENT_MAP[currentService.id]
+    : null;
 
   // Calculate progress
   const progressPercentage = Math.round(
@@ -147,12 +155,15 @@ export const ServiceRequirementsRouter: React.FC = () => {
               <div>
                 <h1 className="text-xl font-semibold">איסוף דרישות טכניות</h1>
                 <p className="text-sm text-gray-500">
-                  {completedServices.size} מתוך {purchasedServices.length} שירותים הושלמו
+                  {completedServices.size} מתוך {purchasedServices.length}{' '}
+                  שירותים הושלמו
                 </p>
               </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{progressPercentage}%</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {progressPercentage}%
+              </div>
               <div className="text-sm text-gray-600">השלמה</div>
             </div>
           </div>
@@ -200,20 +211,25 @@ export const ServiceRequirementsRouter: React.FC = () => {
                     }}
                     className={`
                       w-full text-right p-4 rounded-lg transition-all duration-200
-                      ${isCurrent
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : isCompleted
-                        ? 'bg-green-50 text-gray-900 hover:bg-green-100 border border-green-200'
-                        : 'bg-gray-50 text-gray-900 hover:bg-gray-100 border border-gray-200'
+                      ${
+                        isCurrent
+                          ? 'bg-blue-600 text-white shadow-md'
+                          : isCompleted
+                            ? 'bg-green-50 text-gray-900 hover:bg-green-100 border border-green-200'
+                            : 'bg-gray-50 text-gray-900 hover:bg-gray-100 border border-gray-200'
                       }
                     `}
                   >
                     <div className="flex items-center gap-3">
                       {/* Status Icon */}
                       {isCompleted ? (
-                        <CheckCircle className={`w-5 h-5 flex-shrink-0 ${isCurrent ? 'text-white' : 'text-green-600'}`} />
+                        <CheckCircle
+                          className={`w-5 h-5 flex-shrink-0 ${isCurrent ? 'text-white' : 'text-green-600'}`}
+                        />
                       ) : (
-                        <Circle className={`w-5 h-5 flex-shrink-0 ${isCurrent ? 'text-white' : 'text-gray-400'}`} />
+                        <Circle
+                          className={`w-5 h-5 flex-shrink-0 ${isCurrent ? 'text-white' : 'text-gray-400'}`}
+                        />
                       )}
 
                       {/* Service Info */}
@@ -227,9 +243,15 @@ export const ServiceRequirementsRouter: React.FC = () => {
                       </div>
 
                       {/* Progress Indicator */}
-                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                        isCompleted ? 'bg-green-500' : isCurrent ? 'bg-white' : 'bg-gray-300'
-                      }`} />
+                      <div
+                        className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                          isCompleted
+                            ? 'bg-green-500'
+                            : isCurrent
+                              ? 'bg-white'
+                              : 'bg-gray-300'
+                        }`}
+                      />
                     </div>
                   </button>
                 );
@@ -241,7 +263,9 @@ export const ServiceRequirementsRouter: React.FC = () => {
           <div className="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                {currentService ? (currentService.nameHe || currentService.name) : 'בחר שירות'}
+                {currentService
+                  ? currentService.nameHe || currentService.name
+                  : 'בחר שירות'}
               </h2>
               <p className="text-sm text-gray-600">
                 מלא את הדרישות הטכניות עבור השירות שנבחר
@@ -253,18 +277,31 @@ export const ServiceRequirementsRouter: React.FC = () => {
               {ServiceComponent ? (
                 <ServiceComponent />
               ) : (
-                <div className="flex items-center justify-center h-full p-8" dir="rtl">
+                <div
+                  className="flex items-center justify-center h-full p-8"
+                  dir="rtl"
+                >
                   <div className="text-center max-w-md">
                     <AlertCircle className="w-16 h-16 text-orange-500 mx-auto mb-4" />
                     <h2 className="text-xl font-semibold text-gray-900 mb-2">
                       טופס לא זמין עבור השירות הזה
                     </h2>
                     <p className="text-gray-600 mb-4">
-                      הקומפוננטה עבור השירות "{currentService?.nameHe || currentService?.name}" עדיין לא נוצרה.
+                      הקומפוננטה עבור השירות "
+                      {currentService?.nameHe || currentService?.name}" עדיין לא
+                      נוצרה.
                     </p>
-                    <div className="text-sm text-gray-500 bg-gray-50 rounded-lg p-4 text-left" dir="ltr">
-                      <p className="font-mono">Service ID: {currentService?.id}</p>
-                      <p className="font-mono">Category: {getServiceCategory(currentService?.id || 'N/A')}</p>
+                    <div
+                      className="text-sm text-gray-500 bg-gray-50 rounded-lg p-4 text-left"
+                      dir="ltr"
+                    >
+                      <p className="font-mono">
+                        Service ID: {currentService?.id}
+                      </p>
+                      <p className="font-mono">
+                        Category:{' '}
+                        {getServiceCategory(currentService?.id || 'N/A')}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -296,7 +333,9 @@ export const ServiceRequirementsRouter: React.FC = () => {
 
         {/* Category Breakdown */}
         <div className="mt-4 pt-4 border-t border-gray-200">
-          <div className="text-xs font-medium text-gray-600 mb-2">פירוט לפי קטגוריה:</div>
+          <div className="text-xs font-medium text-gray-600 mb-2">
+            פירוט לפי קטגוריה:
+          </div>
           {getCategoryBreakdown(purchasedServices, completedServices)}
         </div>
       </div>
@@ -310,12 +349,12 @@ export const ServiceRequirementsRouter: React.FC = () => {
 function getCategoryLabel(category: string | undefined): string {
   if (!category) return 'לא ידוע';
   const labels: Record<string, string> = {
-    'automations': 'אוטומציה',
-    'aiAgentServices': 'סוכן AI',
-    'integrationServices': 'אינטגרציה',
-    'systemImplementations': 'הטמעת מערכת',
-    'additionalServices': 'שירות נוסף',
-    'unknown': 'לא ידוע',
+    automations: 'אוטומציה',
+    aiAgentServices: 'סוכן AI',
+    integrationServices: 'אינטגרציה',
+    systemImplementations: 'הטמעת מערכת',
+    additionalServices: 'שירות נוסף',
+    unknown: 'לא ידוע',
   };
   return labels[category] || category;
 }
@@ -327,10 +366,13 @@ function getCategoryBreakdown(
   purchasedServices: SelectedService[],
   completedServices: Set<string>
 ): React.ReactNode {
-  const categories: Record<string, { total: number; completed: number; label: string }> = {};
+  const categories: Record<
+    string,
+    { total: number; completed: number; label: string }
+  > = {};
 
   // Count services by category
-  purchasedServices.forEach(service => {
+  purchasedServices.forEach((service) => {
     const category = getServiceCategory(service.id) || 'unknown';
     if (!categories[category]) {
       categories[category] = {

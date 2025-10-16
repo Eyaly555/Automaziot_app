@@ -25,14 +25,14 @@ export function AddDashboardSpec() {
     fieldId: 'database_type',
     localPath: 'databaseType',
     serviceId: 'add-dashboard',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'alertEmail',
     serviceId: 'add-dashboard',
-    autoSave: false
+    autoSave: false,
   });
 
   const [config, setConfig] = useState<AddDashboardRequirements>({
@@ -40,7 +40,7 @@ export function AddDashboardSpec() {
       choice: 'power_bi',
       reason: '',
       embeddedInExistingApp: false,
-      standaloneUrl: ''
+      standaloneUrl: '',
     },
     dataSources: [],
     kpisAndMetrics: [],
@@ -50,54 +50,54 @@ export function AddDashboardSpec() {
       layout: 'single_page',
       visualizationTypes: ['chart', 'table', 'card'],
       colorScheme: '',
-      branding: false
+      branding: false,
     },
     interactivity: {
       filters: true,
       drillDown: false,
       crossFiltering: false,
       exportCapabilities: ['pdf', 'excel'],
-      scheduling: false
+      scheduling: false,
     },
     accessControl: {
       authenticationMethod: 'username_password',
       roleBasedAccess: false,
-      userRoles: []
+      userRoles: [],
     },
     performance: {
       dataVolume: 'medium',
       useAggregatedViews: true,
       cacheEnabled: true,
-      targetLoadTime: 3
+      targetLoadTime: 3,
     },
     mobileSupport: {
       required: false,
       responsive: true,
-      nativeApp: false
+      nativeApp: false,
     },
     deliverables: {
       functionalDashboard: true,
       userGuide: true,
       accessCredentials: true,
       dataSourceDocumentation: true,
-      trainingSession: false
+      trainingSession: false,
     },
     timeline: {
       complexity: 'medium',
       estimatedDays: 5,
-      includesDataModeling: false
+      includesDataModeling: false,
     },
     targetAudience: {
       primaryUsers: [],
       usageFrequency: 'daily',
-      technicalLevel: 'manager'
-    }
+      technicalLevel: 'manager',
+    },
   });
 
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'add-dashboard',
-    category: 'additionalServices'
+    category: 'additionalServices',
   });
 
   useBeforeUnload(() => {
@@ -105,7 +105,7 @@ export function AddDashboardSpec() {
     const completeConfig = {
       ...config,
       databaseType: databaseType.value,
-      alertEmail: alertEmail.value
+      alertEmail: alertEmail.value,
     };
     saveData(completeConfig);
   });
@@ -114,9 +114,10 @@ export function AddDashboardSpec() {
 
   // Load existing data
   useEffect(() => {
-    const category = currentMeeting?.implementationSpec?.additionalServices || [];
+    const category =
+      currentMeeting?.implementationSpec?.additionalServices || [];
     const existing = Array.isArray(category)
-      ? category.find(item => item.serviceId === 'add-dashboard')
+      ? category.find((item) => item.serviceId === 'add-dashboard')
       : undefined;
 
     if (existing?.requirements) {
@@ -130,7 +131,6 @@ export function AddDashboardSpec() {
     if (config.platform.choice) {
       saveData(config);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config, databaseType.value, alertEmail.value, saveData]);
 
   // Validation
@@ -159,7 +159,7 @@ export function AddDashboardSpec() {
     const completeConfig = {
       ...config,
       databaseType: databaseType.value,
-      alertEmail: alertEmail.value
+      alertEmail: alertEmail.value,
     };
 
     await saveData(completeConfig);
@@ -176,9 +176,9 @@ export function AddDashboardSpec() {
           sourceType: 'database',
           connectionMethod: 'direct_db',
           refreshFrequency: '1hour',
-          requiresCredentials: true
-        }
-      ]
+          requiresCredentials: true,
+        },
+      ],
     });
   };
 
@@ -186,7 +186,7 @@ export function AddDashboardSpec() {
   const removeDataSource = (index: number) => {
     setConfig({
       ...config,
-      dataSources: config.dataSources.filter((_, i) => i !== index)
+      dataSources: config.dataSources.filter((_, i) => i !== index),
     });
   };
 
@@ -198,9 +198,9 @@ export function AddDashboardSpec() {
         ...config.kpisAndMetrics,
         {
           category: '',
-          metrics: []
-        }
-      ]
+          metrics: [],
+        },
+      ],
     });
   };
 
@@ -208,7 +208,7 @@ export function AddDashboardSpec() {
   const removeKpiCategory = (index: number) => {
     setConfig({
       ...config,
-      kpisAndMetrics: config.kpisAndMetrics.filter((_, i) => i !== index)
+      kpisAndMetrics: config.kpisAndMetrics.filter((_, i) => i !== index),
     });
   };
 
@@ -220,7 +220,7 @@ export function AddDashboardSpec() {
       metricType: 'number',
       dataSource: '',
       calculation: '',
-      targetValue: 0
+      targetValue: 0,
     });
     setConfig({ ...config, kpisAndMetrics: updated });
   };
@@ -228,7 +228,9 @@ export function AddDashboardSpec() {
   // Remove metric from category
   const removeMetric = (categoryIndex: number, metricIndex: number) => {
     const updated = [...config.kpisAndMetrics];
-    updated[categoryIndex].metrics = updated[categoryIndex].metrics.filter((_, i) => i !== metricIndex);
+    updated[categoryIndex].metrics = updated[categoryIndex].metrics.filter(
+      (_, i) => i !== metricIndex
+    );
     setConfig({ ...config, kpisAndMetrics: updated });
   };
 
@@ -242,10 +244,10 @@ export function AddDashboardSpec() {
           ...(config.accessControl.userRoles || []),
           {
             roleName: '',
-            permissions: []
-          }
-        ]
-      }
+            permissions: [],
+          },
+        ],
+      },
     });
   };
 
@@ -255,8 +257,10 @@ export function AddDashboardSpec() {
       ...config,
       accessControl: {
         ...config.accessControl,
-        userRoles: (config.accessControl.userRoles || []).filter((_, i) => i !== index)
-      }
+        userRoles: (config.accessControl.userRoles || []).filter(
+          (_, i) => i !== index
+        ),
+      },
     });
   };
 
@@ -268,8 +272,8 @@ export function AddDashboardSpec() {
         ...config,
         targetAudience: {
           ...config.targetAudience,
-          primaryUsers: [...config.targetAudience.primaryUsers, user.trim()]
-        }
+          primaryUsers: [...config.targetAudience.primaryUsers, user.trim()],
+        },
       });
     }
   };
@@ -280,16 +284,22 @@ export function AddDashboardSpec() {
       ...config,
       targetAudience: {
         ...config.targetAudience,
-        primaryUsers: config.targetAudience.primaryUsers.filter((_, i) => i !== index)
-      }
+        primaryUsers: config.targetAudience.primaryUsers.filter(
+          (_, i) => i !== index
+        ),
+      },
     });
   };
 
   return (
     <div className="space-y-6 p-8" dir="rtl">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">שירות #52: הוספת דשבורד real-time</h2>
-        <p className="text-gray-600 mt-2">בניית דשבורדים מותאמים אישית להצגת נתונים עסקיים, KPIs ומדדים</p>
+        <h2 className="text-2xl font-bold text-gray-900">
+          שירות #52: הוספת דשבורד real-time
+        </h2>
+        <p className="text-gray-600 mt-2">
+          בניית דשבורדים מותאמים אישית להצגת נתונים עסקיים, KPIs ומדדים
+        </p>
       </div>
 
       {/* Smart Fields Info Banner */}
@@ -297,10 +307,12 @@ export function AddDashboardSpec() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
           <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <h4 className="font-semibold text-blue-900 mb-1">
+              נתונים מולאו אוטומטית משלב 1
+            </h4>
             <p className="text-sm text-blue-800">
-              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-              תוכל לערוך אותם במידת הצורך.
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל לערוך
+              אותם במידת הצורך.
             </p>
           </div>
         </div>
@@ -311,16 +323,26 @@ export function AddDashboardSpec() {
         <h3 className="text-lg font-semibold mb-4">פלטפורמה</h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">בחירת פלטפורמה</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              בחירת פלטפורמה
+            </label>
             <select
               value={config.platform.choice}
-              onChange={(e) => setConfig({
-                ...config,
-                platform: {
-                  ...config.platform,
-                  choice: e.target.value as 'power_bi' | 'tableau' | 'looker' | 'qlik' | 'custom_react' | 'superset'
-                }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  platform: {
+                    ...config.platform,
+                    choice: e.target.value as
+                      | 'power_bi'
+                      | 'tableau'
+                      | 'looker'
+                      | 'qlik'
+                      | 'custom_react'
+                      | 'superset',
+                  },
+                })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="power_bi">Power BI</option>
@@ -333,13 +355,17 @@ export function AddDashboardSpec() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">סיבת הבחירה</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              סיבת הבחירה
+            </label>
             <textarea
               value={config.platform.reason || ''}
-              onChange={(e) => setConfig({
-                ...config,
-                platform: { ...config.platform, reason: e.target.value }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  platform: { ...config.platform, reason: e.target.value },
+                })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               rows={2}
               placeholder="למה בחרת בפלטפורמה הזו?"
@@ -350,10 +376,15 @@ export function AddDashboardSpec() {
             <input
               type="checkbox"
               checked={config.platform.embeddedInExistingApp}
-              onChange={(e) => setConfig({
-                ...config,
-                platform: { ...config.platform, embeddedInExistingApp: e.target.checked }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  platform: {
+                    ...config.platform,
+                    embeddedInExistingApp: e.target.checked,
+                  },
+                })
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">שיבוץ באפליקציה קיימת</span>
@@ -361,14 +392,21 @@ export function AddDashboardSpec() {
 
           {!config.platform.embeddedInExistingApp && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">URL עצמאי</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                URL עצמאי
+              </label>
               <input
                 type="text"
                 value={config.platform.standaloneUrl || ''}
-                onChange={(e) => setConfig({
-                  ...config,
-                  platform: { ...config.platform, standaloneUrl: e.target.value }
-                })}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    platform: {
+                      ...config.platform,
+                      standaloneUrl: e.target.value,
+                    },
+                  })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 placeholder="https://dashboard.company.com"
               />
@@ -381,7 +419,9 @@ export function AddDashboardSpec() {
       <Card className="p-6">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">מקורות נתונים <span className="text-red-500">*</span></h3>
+            <h3 className="text-lg font-semibold">
+              מקורות נתונים <span className="text-red-500">*</span>
+            </h3>
             <button
               type="button"
               onClick={addDataSource}
@@ -390,10 +430,15 @@ export function AddDashboardSpec() {
               + הוסף מקור נתונים
             </button>
           </div>
-          {errors.dataSources && <p className="text-red-500 text-sm">{errors.dataSources}</p>}
+          {errors.dataSources && (
+            <p className="text-red-500 text-sm">{errors.dataSources}</p>
+          )}
 
           {config.dataSources.map((source, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+            <div
+              key={index}
+              className="border border-gray-200 rounded-lg p-4 space-y-3"
+            >
               <div className="flex justify-between items-center">
                 <h4 className="font-medium">מקור נתונים #{index + 1}</h4>
                 <button
@@ -407,7 +452,9 @@ export function AddDashboardSpec() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">שם המקור</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    שם המקור
+                  </label>
                   <input
                     type="text"
                     value={source.sourceName}
@@ -422,12 +469,18 @@ export function AddDashboardSpec() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">סוג המקור</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    סוג המקור
+                  </label>
                   <select
                     value={source.sourceType}
                     onChange={(e) => {
                       const updated = [...config.dataSources];
-                      updated[index].sourceType = e.target.value as 'database' | 'api' | 'spreadsheet' | 'cloud_service';
+                      updated[index].sourceType = e.target.value as
+                        | 'database'
+                        | 'api'
+                        | 'spreadsheet'
+                        | 'cloud_service';
                       setConfig({ ...config, dataSources: updated });
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -442,12 +495,19 @@ export function AddDashboardSpec() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">שיטת חיבור</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    שיטת חיבור
+                  </label>
                   <select
                     value={source.connectionMethod}
                     onChange={(e) => {
                       const updated = [...config.dataSources];
-                      updated[index].connectionMethod = e.target.value as 'direct_db' | 'api' | 'odbc' | 'jdbc' | 'native_connector';
+                      updated[index].connectionMethod = e.target.value as
+                        | 'direct_db'
+                        | 'api'
+                        | 'odbc'
+                        | 'jdbc'
+                        | 'native_connector';
                       setConfig({ ...config, dataSources: updated });
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -461,12 +521,19 @@ export function AddDashboardSpec() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">תדירות רענון</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    תדירות רענון
+                  </label>
                   <select
                     value={source.refreshFrequency}
                     onChange={(e) => {
                       const updated = [...config.dataSources];
-                      updated[index].refreshFrequency = e.target.value as 'real_time' | '15min' | '1hour' | 'daily' | 'weekly';
+                      updated[index].refreshFrequency = e.target.value as
+                        | 'real_time'
+                        | '15min'
+                        | '1hour'
+                        | 'daily'
+                        | 'weekly';
                       setConfig({ ...config, dataSources: updated });
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -502,7 +569,9 @@ export function AddDashboardSpec() {
       <Card className="p-6">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">KPIs ומדדים <span className="text-red-500">*</span></h3>
+            <h3 className="text-lg font-semibold">
+              KPIs ומדדים <span className="text-red-500">*</span>
+            </h3>
             <button
               type="button"
               onClick={addKpiCategory}
@@ -511,10 +580,15 @@ export function AddDashboardSpec() {
               + הוסף קטגוריה
             </button>
           </div>
-          {errors.kpisAndMetrics && <p className="text-red-500 text-sm">{errors.kpisAndMetrics}</p>}
+          {errors.kpisAndMetrics && (
+            <p className="text-red-500 text-sm">{errors.kpisAndMetrics}</p>
+          )}
 
           {config.kpisAndMetrics.map((kpiCategory, catIndex) => (
-            <div key={catIndex} className="border border-gray-200 rounded-lg p-4 space-y-3">
+            <div
+              key={catIndex}
+              className="border border-gray-200 rounded-lg p-4 space-y-3"
+            >
               <div className="flex justify-between items-center">
                 <h4 className="font-medium">קטגוריה #{catIndex + 1}</h4>
                 <button
@@ -527,7 +601,9 @@ export function AddDashboardSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">שם הקטגוריה</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  שם הקטגוריה
+                </label>
                 <input
                   type="text"
                   value={kpiCategory.category}
@@ -543,7 +619,9 @@ export function AddDashboardSpec() {
 
               <div className="border-t pt-3">
                 <div className="flex justify-between items-center mb-2">
-                  <label className="text-sm font-medium text-gray-700">מדדים</label>
+                  <label className="text-sm font-medium text-gray-700">
+                    מדדים
+                  </label>
                   <button
                     type="button"
                     onClick={() => addMetric(catIndex)}
@@ -554,9 +632,14 @@ export function AddDashboardSpec() {
                 </div>
 
                 {kpiCategory.metrics.map((metric, metricIndex) => (
-                  <div key={metricIndex} className="bg-gray-50 p-3 rounded space-y-2 mb-2">
+                  <div
+                    key={metricIndex}
+                    className="bg-gray-50 p-3 rounded space-y-2 mb-2"
+                  >
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">מדד #{metricIndex + 1}</span>
+                      <span className="text-sm font-medium">
+                        מדד #{metricIndex + 1}
+                      </span>
                       <button
                         type="button"
                         onClick={() => removeMetric(catIndex, metricIndex)}
@@ -573,7 +656,8 @@ export function AddDashboardSpec() {
                           value={metric.metricName}
                           onChange={(e) => {
                             const updated = [...config.kpisAndMetrics];
-                            updated[catIndex].metrics[metricIndex].metricName = e.target.value;
+                            updated[catIndex].metrics[metricIndex].metricName =
+                              e.target.value;
                             setConfig({ ...config, kpisAndMetrics: updated });
                           }}
                           className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
@@ -586,7 +670,13 @@ export function AddDashboardSpec() {
                           value={metric.metricType}
                           onChange={(e) => {
                             const updated = [...config.kpisAndMetrics];
-                            updated[catIndex].metrics[metricIndex].metricType = e.target.value as 'number' | 'percentage' | 'currency' | 'trend' | 'comparison';
+                            updated[catIndex].metrics[metricIndex].metricType =
+                              e.target.value as
+                                | 'number'
+                                | 'percentage'
+                                | 'currency'
+                                | 'trend'
+                                | 'comparison';
                             setConfig({ ...config, kpisAndMetrics: updated });
                           }}
                           className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
@@ -605,7 +695,8 @@ export function AddDashboardSpec() {
                       value={metric.dataSource}
                       onChange={(e) => {
                         const updated = [...config.kpisAndMetrics];
-                        updated[catIndex].metrics[metricIndex].dataSource = e.target.value;
+                        updated[catIndex].metrics[metricIndex].dataSource =
+                          e.target.value;
                         setConfig({ ...config, kpisAndMetrics: updated });
                       }}
                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
@@ -617,7 +708,8 @@ export function AddDashboardSpec() {
                       value={metric.calculation || ''}
                       onChange={(e) => {
                         const updated = [...config.kpisAndMetrics];
-                        updated[catIndex].metrics[metricIndex].calculation = e.target.value;
+                        updated[catIndex].metrics[metricIndex].calculation =
+                          e.target.value;
                         setConfig({ ...config, kpisAndMetrics: updated });
                       }}
                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
@@ -640,10 +732,15 @@ export function AddDashboardSpec() {
               <input
                 type="checkbox"
                 checked={config.dashboardDesign.hasWireframes}
-                onChange={(e) => setConfig({
-                  ...config,
-                  dashboardDesign: { ...config.dashboardDesign, hasWireframes: e.target.checked }
-                })}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    dashboardDesign: {
+                      ...config.dashboardDesign,
+                      hasWireframes: e.target.checked,
+                    },
+                  })
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">יש Wireframes</span>
@@ -653,10 +750,15 @@ export function AddDashboardSpec() {
               <input
                 type="checkbox"
                 checked={config.dashboardDesign.hasExampleDashboards}
-                onChange={(e) => setConfig({
-                  ...config,
-                  dashboardDesign: { ...config.dashboardDesign, hasExampleDashboards: e.target.checked }
-                })}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    dashboardDesign: {
+                      ...config.dashboardDesign,
+                      hasExampleDashboards: e.target.checked,
+                    },
+                  })
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">יש דוגמאות</span>
@@ -664,16 +766,23 @@ export function AddDashboardSpec() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">פריסה</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              פריסה
+            </label>
             <select
               value={config.dashboardDesign.layout}
-              onChange={(e) => setConfig({
-                ...config,
-                dashboardDesign: {
-                  ...config.dashboardDesign,
-                  layout: e.target.value as 'single_page' | 'multi_page' | 'tabbed'
-                }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  dashboardDesign: {
+                    ...config.dashboardDesign,
+                    layout: e.target.value as
+                      | 'single_page'
+                      | 'multi_page'
+                      | 'tabbed',
+                  },
+                })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="single_page">עמוד יחיד</option>
@@ -683,14 +792,21 @@ export function AddDashboardSpec() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">ערכת צבעים</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              ערכת צבעים
+            </label>
             <input
               type="text"
               value={config.dashboardDesign.colorScheme || ''}
-              onChange={(e) => setConfig({
-                ...config,
-                dashboardDesign: { ...config.dashboardDesign, colorScheme: e.target.value }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  dashboardDesign: {
+                    ...config.dashboardDesign,
+                    colorScheme: e.target.value,
+                  },
+                })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               placeholder="כחול קורפורטיבי, Viridis, מותאם אישית"
             />
@@ -700,10 +816,15 @@ export function AddDashboardSpec() {
             <input
               type="checkbox"
               checked={config.dashboardDesign.branding || false}
-              onChange={(e) => setConfig({
-                ...config,
-                dashboardDesign: { ...config.dashboardDesign, branding: e.target.checked }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  dashboardDesign: {
+                    ...config.dashboardDesign,
+                    branding: e.target.checked,
+                  },
+                })
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">מיתוג (לוגו וצבעי החברה)</span>
@@ -719,10 +840,15 @@ export function AddDashboardSpec() {
             <input
               type="checkbox"
               checked={config.interactivity.filters}
-              onChange={(e) => setConfig({
-                ...config,
-                interactivity: { ...config.interactivity, filters: e.target.checked }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  interactivity: {
+                    ...config.interactivity,
+                    filters: e.target.checked,
+                  },
+                })
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">פילטרים (טווח תאריכים, אזור, מוצר)</span>
@@ -732,10 +858,15 @@ export function AddDashboardSpec() {
             <input
               type="checkbox"
               checked={config.interactivity.drillDown}
-              onChange={(e) => setConfig({
-                ...config,
-                interactivity: { ...config.interactivity, drillDown: e.target.checked }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  interactivity: {
+                    ...config.interactivity,
+                    drillDown: e.target.checked,
+                  },
+                })
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">Drill Down (לחיצה לפירוט)</span>
@@ -745,23 +876,35 @@ export function AddDashboardSpec() {
             <input
               type="checkbox"
               checked={config.interactivity.crossFiltering}
-              onChange={(e) => setConfig({
-                ...config,
-                interactivity: { ...config.interactivity, crossFiltering: e.target.checked }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  interactivity: {
+                    ...config.interactivity,
+                    crossFiltering: e.target.checked,
+                  },
+                })
+              }
               className="rounded border-gray-300"
             />
-            <span className="text-sm">פילטור צולב (השפעה על כמה ויזואליזציות)</span>
+            <span className="text-sm">
+              פילטור צולב (השפעה על כמה ויזואליזציות)
+            </span>
           </label>
 
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={config.interactivity.scheduling || false}
-              onChange={(e) => setConfig({
-                ...config,
-                interactivity: { ...config.interactivity, scheduling: e.target.checked }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  interactivity: {
+                    ...config.interactivity,
+                    scheduling: e.target.checked,
+                  },
+                })
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">רענון מתוזמן</span>
@@ -774,16 +917,20 @@ export function AddDashboardSpec() {
         <h3 className="text-lg font-semibold mb-4">ביצועים ומובייל</h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">נפח נתונים</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              נפח נתונים
+            </label>
             <select
               value={config.performance.dataVolume}
-              onChange={(e) => setConfig({
-                ...config,
-                performance: {
-                  ...config.performance,
-                  dataVolume: e.target.value as 'small' | 'medium' | 'large'
-                }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  performance: {
+                    ...config.performance,
+                    dataVolume: e.target.value as 'small' | 'medium' | 'large',
+                  },
+                })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="small">קטן (&lt;100K שורות)</option>
@@ -801,10 +948,15 @@ export function AddDashboardSpec() {
               min="1"
               max="10"
               value={config.performance.targetLoadTime}
-              onChange={(e) => setConfig({
-                ...config,
-                performance: { ...config.performance, targetLoadTime: parseInt(e.target.value) }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  performance: {
+                    ...config.performance,
+                    targetLoadTime: parseInt(e.target.value),
+                  },
+                })
+              }
               className="w-full"
             />
           </div>
@@ -816,10 +968,15 @@ export function AddDashboardSpec() {
                 <input
                   type="checkbox"
                   checked={config.mobileSupport.required}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    mobileSupport: { ...config.mobileSupport, required: e.target.checked }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      mobileSupport: {
+                        ...config.mobileSupport,
+                        required: e.target.checked,
+                      },
+                    })
+                  }
                   className="rounded border-gray-300"
                 />
                 <span className="text-sm">נדרש</span>
@@ -829,10 +986,15 @@ export function AddDashboardSpec() {
                 <input
                   type="checkbox"
                   checked={config.mobileSupport.responsive}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    mobileSupport: { ...config.mobileSupport, responsive: e.target.checked }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      mobileSupport: {
+                        ...config.mobileSupport,
+                        responsive: e.target.checked,
+                      },
+                    })
+                  }
                   className="rounded border-gray-300"
                 />
                 <span className="text-sm">רספונסיבי</span>
@@ -842,13 +1004,20 @@ export function AddDashboardSpec() {
                 <input
                   type="checkbox"
                   checked={config.mobileSupport.nativeApp || false}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    mobileSupport: { ...config.mobileSupport, nativeApp: e.target.checked }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      mobileSupport: {
+                        ...config.mobileSupport,
+                        nativeApp: e.target.checked,
+                      },
+                    })
+                  }
                   className="rounded border-gray-300"
                 />
-                <span className="text-sm">אפליקציה מקורית (Power BI Mobile, Tableau Mobile)</span>
+                <span className="text-sm">
+                  אפליקציה מקורית (Power BI Mobile, Tableau Mobile)
+                </span>
               </label>
             </div>
           </div>
@@ -861,7 +1030,9 @@ export function AddDashboardSpec() {
         <div className="space-y-4">
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label className="block text-sm font-medium text-gray-700">משתמשים ראשיים</label>
+              <label className="block text-sm font-medium text-gray-700">
+                משתמשים ראשיים
+              </label>
               <button
                 type="button"
                 onClick={addPrimaryUser}
@@ -891,16 +1062,24 @@ export function AddDashboardSpec() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">תדירות שימוש</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                תדירות שימוש
+              </label>
               <select
                 value={config.targetAudience.usageFrequency}
-                onChange={(e) => setConfig({
-                  ...config,
-                  targetAudience: {
-                    ...config.targetAudience,
-                    usageFrequency: e.target.value as 'daily' | 'weekly' | 'monthly' | 'ad_hoc'
-                  }
-                })}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    targetAudience: {
+                      ...config.targetAudience,
+                      usageFrequency: e.target.value as
+                        | 'daily'
+                        | 'weekly'
+                        | 'monthly'
+                        | 'ad_hoc',
+                    },
+                  })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
                 <option value="daily">יומי</option>
@@ -911,16 +1090,24 @@ export function AddDashboardSpec() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">רמה טכנית</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                רמה טכנית
+              </label>
               <select
                 value={config.targetAudience.technicalLevel}
-                onChange={(e) => setConfig({
-                  ...config,
-                  targetAudience: {
-                    ...config.targetAudience,
-                    technicalLevel: e.target.value as 'executive' | 'manager' | 'analyst' | 'technical'
-                  }
-                })}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    targetAudience: {
+                      ...config.targetAudience,
+                      technicalLevel: e.target.value as
+                        | 'executive'
+                        | 'manager'
+                        | 'analyst'
+                        | 'technical',
+                    },
+                  })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
                 <option value="executive">הנהלה</option>
@@ -940,7 +1127,8 @@ export function AddDashboardSpec() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium text-gray-700">
-                {databaseType.metadata.label.he} <span className="text-red-500">*</span>
+                {databaseType.metadata.label.he}{' '}
+                <span className="text-red-500">*</span>
               </label>
               {databaseType.isAutoPopulated && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
@@ -953,10 +1141,14 @@ export function AddDashboardSpec() {
               value={databaseType.value || 'default'}
               onChange={(e) => databaseType.setValue(e.target.value)}
               className={`w-full px-3 py-2 border rounded-md ${
-                databaseType.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                databaseType.isAutoPopulated
+                  ? 'border-green-300 bg-green-50'
+                  : 'border-gray-300'
               } ${databaseType.hasConflict ? 'border-orange-300' : ''}`}
             >
-              <option value="default" disabled>בחר סוג מסד נתונים</option>
+              <option value="default" disabled>
+                בחר סוג מסד נתונים
+              </option>
               <option value="postgresql">PostgreSQL</option>
               <option value="mysql">MySQL</option>
               <option value="sql_server">SQL Server</option>
@@ -973,7 +1165,8 @@ export function AddDashboardSpec() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium text-gray-700">
-                {alertEmail.metadata.label.he} <span className="text-red-500">*</span>
+                {alertEmail.metadata.label.he}{' '}
+                <span className="text-red-500">*</span>
               </label>
               {alertEmail.isAutoPopulated && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
@@ -987,7 +1180,9 @@ export function AddDashboardSpec() {
               value={alertEmail.value || ''}
               onChange={(e) => alertEmail.setValue(e.target.value)}
               className={`w-full px-3 py-2 border rounded-md ${
-                alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                alertEmail.isAutoPopulated
+                  ? 'border-green-300 bg-green-50'
+                  : 'border-gray-300'
               } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
               placeholder="admin@company.com"
             />
@@ -1006,16 +1201,23 @@ export function AddDashboardSpec() {
         <h3 className="text-lg font-semibold mb-4">לוח זמנים</h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">מורכבות</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              מורכבות
+            </label>
             <select
               value={config.timeline.complexity}
-              onChange={(e) => setConfig({
-                ...config,
-                timeline: {
-                  ...config.timeline,
-                  complexity: e.target.value as 'simple' | 'medium' | 'complex'
-                }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  timeline: {
+                    ...config.timeline,
+                    complexity: e.target.value as
+                      | 'simple'
+                      | 'medium'
+                      | 'complex',
+                  },
+                })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="simple">פשוט (3-5 ימים)</option>
@@ -1025,14 +1227,21 @@ export function AddDashboardSpec() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">ימים משוערים</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              ימים משוערים
+            </label>
             <input
               type="number"
               value={config.timeline.estimatedDays}
-              onChange={(e) => setConfig({
-                ...config,
-                timeline: { ...config.timeline, estimatedDays: parseInt(e.target.value) || 5 }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  timeline: {
+                    ...config.timeline,
+                    estimatedDays: parseInt(e.target.value) || 5,
+                  },
+                })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               min="1"
             />
@@ -1042,13 +1251,20 @@ export function AddDashboardSpec() {
             <input
               type="checkbox"
               checked={config.timeline.includesDataModeling}
-              onChange={(e) => setConfig({
-                ...config,
-                timeline: { ...config.timeline, includesDataModeling: e.target.checked }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  timeline: {
+                    ...config.timeline,
+                    includesDataModeling: e.target.checked,
+                  },
+                })
+              }
               className="rounded border-gray-300"
             />
-            <span className="text-sm">כולל מידול נתונים (זמן נוסף להכנת הנתונים)</span>
+            <span className="text-sm">
+              כולל מידול נתונים (זמן נוסף להכנת הנתונים)
+            </span>
           </label>
         </div>
       </Card>

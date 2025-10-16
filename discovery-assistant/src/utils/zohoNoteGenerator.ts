@@ -6,9 +6,9 @@ import { formatDate } from './formatters';
 /**
  * Context types for generating Zoho notes
  */
-export type NoteContextType = 
-  | 'dashboard' 
-  | 'module' 
+export type NoteContextType =
+  | 'dashboard'
+  | 'module'
   | 'summary'
   | 'proposal'
   | 'requirements'
@@ -46,55 +46,57 @@ export interface GeneratedNote {
 /**
  * Generate a Zoho note based on context
  */
-export function generateContextualNote(context: NoteGenerationContext): GeneratedNote {
+export function generateContextualNote(
+  context: NoteGenerationContext
+): GeneratedNote {
   const { contextType, meeting } = context;
 
   switch (contextType) {
     case 'dashboard':
       return generateDashboardNote(meeting);
-    
+
     case 'module':
       return generateModuleNote(meeting, context.moduleId!, context.moduleData);
-    
+
     case 'summary':
       return generateSummaryNote(meeting);
-    
+
     case 'proposal':
       return generateProposalNote(meeting);
-    
+
     case 'requirements':
       return generateRequirementsNote(meeting);
-    
+
     case 'approval':
       return generateApprovalNote(meeting);
-    
+
     case 'phase2_dashboard':
       return generatePhase2DashboardNote(meeting);
-    
+
     case 'phase2_system':
       return generatePhase2SystemNote(meeting, context.specificId!);
-    
+
     case 'phase2_integration':
       return generatePhase2IntegrationNote(meeting, context.specificId!);
-    
+
     case 'phase2_agent':
       return generatePhase2AgentNote(meeting, context.specificId!);
-    
+
     case 'phase2_service':
       return generatePhase2ServiceNote(meeting, context.specificId!);
-    
+
     case 'phase3_dashboard':
       return generatePhase3DashboardNote(meeting);
-    
+
     case 'phase3_sprint':
       return generatePhase3SprintNote(meeting);
-    
+
     case 'phase3_system':
       return generatePhase3SystemNote(meeting);
-    
+
     case 'phase3_blockers':
       return generatePhase3BlockersNote(meeting);
-    
+
     default:
       return generateGenericNote(meeting);
   }
@@ -124,10 +126,14 @@ function generateDashboardNote(meeting: Meeting): GeneratedNote {
     `זמן שיחה מצטבר: ${timerMinutes} דקות`,
     '',
     '=== נקודות כאב ===',
-    painPointsCount > 0 
-      ? meeting.painPoints!.map((pp, i) => `${i + 1}. ${pp.description} (חומרה: ${pp.severity})`).join('\n')
+    painPointsCount > 0
+      ? meeting
+          .painPoints!.map(
+            (pp, i) => `${i + 1}. ${pp.description} (חומרה: ${pp.severity})`
+          )
+          .join('\n')
       : 'לא זוהו נקודות כאב',
-    ''
+    '',
   ];
 
   // Add ROI if available
@@ -135,10 +141,14 @@ function generateDashboardNote(meeting: Meeting): GeneratedNote {
     const roi = meeting.modules.roi;
     contentParts.push('=== ROI משוער ===');
     if (roi.estimatedMonthlySavings) {
-      contentParts.push(`חיסכון חודשי משוער: ₪${roi.estimatedMonthlySavings.toLocaleString('he-IL')}`);
+      contentParts.push(
+        `חיסכון חודשי משוער: ₪${roi.estimatedMonthlySavings.toLocaleString('he-IL')}`
+      );
     }
     if (roi.estimatedImplementationCost) {
-      contentParts.push(`עלות יישום משוערת: ₪${roi.estimatedImplementationCost.toLocaleString('he-IL')}`);
+      contentParts.push(
+        `עלות יישום משוערת: ₪${roi.estimatedImplementationCost.toLocaleString('he-IL')}`
+      );
     }
     contentParts.push('');
   }
@@ -147,16 +157,20 @@ function generateDashboardNote(meeting: Meeting): GeneratedNote {
 
   return {
     title: `סיכום Dashboard - ${meeting.clientName}`,
-    content: contentParts.join('\n')
+    content: contentParts.join('\n'),
   };
 }
 
 /**
  * Generate module-specific note
  */
-function generateModuleNote(meeting: Meeting, moduleId: keyof Modules, moduleData: any): GeneratedNote {
+function generateModuleNote(
+  meeting: Meeting,
+  moduleId: keyof Modules,
+  moduleData: any
+): GeneratedNote {
   const moduleName = getModuleName(moduleId);
-  
+
   const contentParts = [
     `=== ${moduleName} ===`,
     `לקוח: ${meeting.clientName}`,
@@ -182,7 +196,7 @@ function generateModuleNote(meeting: Meeting, moduleId: keyof Modules, moduleDat
 
   return {
     title: `סיכום ${moduleName} - ${meeting.clientName}`,
-    content: contentParts.join('\n')
+    content: contentParts.join('\n'),
   };
 }
 
@@ -191,7 +205,7 @@ function generateModuleNote(meeting: Meeting, moduleId: keyof Modules, moduleDat
  */
 function generateSummaryNote(meeting: Meeting): GeneratedNote {
   const overallProgress = calculateOverallProgress(meeting);
-  
+
   const contentParts = [
     '=== סיכום מלא של שלב הגילוי ===',
     `לקוח: ${meeting.clientName}`,
@@ -226,7 +240,7 @@ function generateSummaryNote(meeting: Meeting): GeneratedNote {
 
   return {
     title: `סיכום שלב גילוי מלא - ${meeting.clientName}`,
-    content: contentParts.join('\n')
+    content: contentParts.join('\n'),
   };
 }
 
@@ -235,7 +249,7 @@ function generateSummaryNote(meeting: Meeting): GeneratedNote {
  */
 function generateProposalNote(meeting: Meeting): GeneratedNote {
   const proposal = meeting.modules?.planning;
-  
+
   const contentParts = [
     '=== הצעה מסחרית ===',
     `לקוח: ${meeting.clientName}`,
@@ -247,7 +261,9 @@ function generateProposalNote(meeting: Meeting): GeneratedNote {
     proposal.selectedServices.forEach((service: any, i: number) => {
       contentParts.push(`${i + 1}. ${service.name}`);
       if (service.estimatedPrice) {
-        contentParts.push(`   מחיר: ₪${service.estimatedPrice.toLocaleString('he-IL')}`);
+        contentParts.push(
+          `   מחיר: ₪${service.estimatedPrice.toLocaleString('he-IL')}`
+        );
       }
       if (service.estimatedHours) {
         contentParts.push(`   זמן ביצוע: ${service.estimatedHours} שעות`);
@@ -256,9 +272,15 @@ function generateProposalNote(meeting: Meeting): GeneratedNote {
     contentParts.push('');
 
     // Calculate totals
-    const totalPrice = proposal.selectedServices.reduce((sum: number, s: any) => sum + (s.estimatedPrice || 0), 0);
-    const totalHours = proposal.selectedServices.reduce((sum: number, s: any) => sum + (s.estimatedHours || 0), 0);
-    
+    const totalPrice = proposal.selectedServices.reduce(
+      (sum: number, s: any) => sum + (s.estimatedPrice || 0),
+      0
+    );
+    const totalHours = proposal.selectedServices.reduce(
+      (sum: number, s: any) => sum + (s.estimatedHours || 0),
+      0
+    );
+
     contentParts.push('=== סיכום ===');
     contentParts.push(`מחיר כולל: ₪${totalPrice.toLocaleString('he-IL')}`);
     contentParts.push(`זמן ביצוע כולל: ${totalHours} שעות`);
@@ -271,7 +293,7 @@ function generateProposalNote(meeting: Meeting): GeneratedNote {
 
   return {
     title: `הצעה מסחרית - ${meeting.clientName}`,
-    content: contentParts.join('\n')
+    content: contentParts.join('\n'),
   };
 }
 
@@ -287,8 +309,8 @@ function generateRequirementsNote(meeting: Meeting): GeneratedNote {
       '',
       'דרישות ושאלות משלימות שנאספו בשלב איסוף הדרישות.',
       '',
-      `--- נוצר ב-${new Date().toLocaleString('he-IL')}`
-    ].join('\n')
+      `--- נוצר ב-${new Date().toLocaleString('he-IL')}`,
+    ].join('\n'),
   };
 }
 
@@ -297,7 +319,7 @@ function generateRequirementsNote(meeting: Meeting): GeneratedNote {
  */
 function generateApprovalNote(meeting: Meeting): GeneratedNote {
   const status = meeting.status || 'not_started';
-  
+
   return {
     title: `סטטוס אישור לקוח - ${meeting.clientName}`,
     content: [
@@ -307,8 +329,8 @@ function generateApprovalNote(meeting: Meeting): GeneratedNote {
       '',
       'הערות ושינויים מבוקשים מהלקוח.',
       '',
-      `--- נוצר ב-${new Date().toLocaleString('he-IL')}`
-    ].join('\n')
+      `--- נוצר ב-${new Date().toLocaleString('he-IL')}`,
+    ].join('\n'),
   };
 }
 
@@ -321,7 +343,7 @@ function generateApprovalNote(meeting: Meeting): GeneratedNote {
  */
 function generatePhase2DashboardNote(meeting: Meeting): GeneratedNote {
   const spec = meeting.implementationSpec;
-  
+
   const contentParts = [
     '=== מפרט יישום - סיכום ===',
     `לקוח: ${meeting.clientName}`,
@@ -345,17 +367,20 @@ function generatePhase2DashboardNote(meeting: Meeting): GeneratedNote {
 
   return {
     title: `מפרט יישום - ${meeting.clientName}`,
-    content: contentParts.join('\n')
+    content: contentParts.join('\n'),
   };
 }
 
 /**
  * Generate Phase 2 system deep dive note
  */
-function generatePhase2SystemNote(meeting: Meeting, systemId: string): GeneratedNote {
+function generatePhase2SystemNote(
+  meeting: Meeting,
+  systemId: string
+): GeneratedNote {
   const spec = meeting.implementationSpec;
   const system = spec?.systems?.find((s: any) => s.id === systemId);
-  
+
   const contentParts = [
     '=== פירוט מערכת ===',
     `לקוח: ${meeting.clientName}`,
@@ -367,7 +392,7 @@ function generatePhase2SystemNote(meeting: Meeting, systemId: string): Generated
     contentParts.push(`תיאור: ${system.description || 'לא זמין'}`);
     contentParts.push(`שעות משוערות: ${system.estimatedHours || 0}`);
     contentParts.push('');
-    
+
     if (system.features && system.features.length > 0) {
       contentParts.push('=== תכונות ===');
       system.features.forEach((feature: any, i: number) => {
@@ -383,17 +408,22 @@ function generatePhase2SystemNote(meeting: Meeting, systemId: string): Generated
 
   return {
     title: `מערכת: ${system?.name || systemId} - ${meeting.clientName}`,
-    content: contentParts.join('\n')
+    content: contentParts.join('\n'),
   };
 }
 
 /**
  * Generate Phase 2 integration note
  */
-function generatePhase2IntegrationNote(meeting: Meeting, integrationId: string): GeneratedNote {
+function generatePhase2IntegrationNote(
+  meeting: Meeting,
+  integrationId: string
+): GeneratedNote {
   const spec = meeting.implementationSpec;
-  const integration = spec?.integrations?.find((i: any) => i.id === integrationId);
-  
+  const integration = spec?.integrations?.find(
+    (i: any) => i.id === integrationId
+  );
+
   const contentParts = [
     '=== פירוט אינטגרציה ===',
     `לקוח: ${meeting.clientName}`,
@@ -414,17 +444,20 @@ function generatePhase2IntegrationNote(meeting: Meeting, integrationId: string):
 
   return {
     title: `אינטגרציה: ${integration?.name || integrationId} - ${meeting.clientName}`,
-    content: contentParts.join('\n')
+    content: contentParts.join('\n'),
   };
 }
 
 /**
  * Generate Phase 2 AI agent note
  */
-function generatePhase2AgentNote(meeting: Meeting, agentId: string): GeneratedNote {
+function generatePhase2AgentNote(
+  meeting: Meeting,
+  agentId: string
+): GeneratedNote {
   const spec = meeting.implementationSpec;
   const agent = spec?.aiAgents?.find((a: any) => a.id === agentId);
-  
+
   const contentParts = [
     '=== פירוט סוכן AI ===',
     `לקוח: ${meeting.clientName}`,
@@ -436,7 +469,7 @@ function generatePhase2AgentNote(meeting: Meeting, agentId: string): GeneratedNo
     contentParts.push(`תיאור: ${agent.description || 'לא זמין'}`);
     contentParts.push(`מודל AI: ${agent.aiModel || 'לא זמין'}`);
     contentParts.push('');
-    
+
     if (agent.useCases && agent.useCases.length > 0) {
       contentParts.push('=== תרחישי שימוש ===');
       agent.useCases.forEach((useCase: string, i: number) => {
@@ -452,17 +485,20 @@ function generatePhase2AgentNote(meeting: Meeting, agentId: string): GeneratedNo
 
   return {
     title: `סוכן AI: ${agent?.name || agentId} - ${meeting.clientName}`,
-    content: contentParts.join('\n')
+    content: contentParts.join('\n'),
   };
 }
 
 /**
  * Generate Phase 2 service requirements note
  */
-function generatePhase2ServiceNote(meeting: Meeting, serviceId: string): GeneratedNote {
+function generatePhase2ServiceNote(
+  meeting: Meeting,
+  serviceId: string
+): GeneratedNote {
   const spec = meeting.implementationSpec;
   const service = spec?.collectedRequirements?.[serviceId];
-  
+
   const contentParts = [
     '=== דרישות שירות ===',
     `לקוח: ${meeting.clientName}`,
@@ -482,7 +518,7 @@ function generatePhase2ServiceNote(meeting: Meeting, serviceId: string): Generat
 
   return {
     title: `דרישות שירות: ${serviceId} - ${meeting.clientName}`,
-    content: contentParts.join('\n')
+    content: contentParts.join('\n'),
   };
 }
 
@@ -495,7 +531,7 @@ function generatePhase2ServiceNote(meeting: Meeting, serviceId: string): Generat
  */
 function generatePhase3DashboardNote(meeting: Meeting): GeneratedNote {
   const dev = meeting.developmentTracking;
-  
+
   const contentParts = [
     '=== Development Progress ===',
     `Client: ${meeting.clientName}`,
@@ -506,14 +542,18 @@ function generatePhase3DashboardNote(meeting: Meeting): GeneratedNote {
     contentParts.push('=== Statistics ===');
     contentParts.push(`Sprints: ${dev.sprints?.length || 0}`);
     contentParts.push(`Total Tasks: ${dev.tasks?.length || 0}`);
-    
-    const completedTasks = dev.tasks?.filter((t: any) => t.status === 'done').length || 0;
+
+    const completedTasks =
+      dev.tasks?.filter((t: any) => t.status === 'done').length || 0;
     contentParts.push(`Completed Tasks: ${completedTasks}`);
-    
-    const activeTasks = dev.tasks?.filter((t: any) => t.status === 'in_progress').length || 0;
+
+    const activeTasks =
+      dev.tasks?.filter((t: any) => t.status === 'in_progress').length || 0;
     contentParts.push(`Active Tasks: ${activeTasks}`);
-    
-    const blockers = dev.tasks?.filter((t: any) => t.blockers && t.blockers.length > 0).length || 0;
+
+    const blockers =
+      dev.tasks?.filter((t: any) => t.blockers && t.blockers.length > 0)
+        .length || 0;
     contentParts.push(`Blocked Tasks: ${blockers}`);
   } else {
     contentParts.push('Development tracking not started');
@@ -524,7 +564,7 @@ function generatePhase3DashboardNote(meeting: Meeting): GeneratedNote {
 
   return {
     title: `Development Progress - ${meeting.clientName}`,
-    content: contentParts.join('\n')
+    content: contentParts.join('\n'),
   };
 }
 
@@ -534,7 +574,7 @@ function generatePhase3DashboardNote(meeting: Meeting): GeneratedNote {
 function generatePhase3SprintNote(meeting: Meeting): GeneratedNote {
   const dev = meeting.developmentTracking;
   const currentSprint = dev?.sprints?.find((s: any) => s.status === 'active');
-  
+
   const contentParts = [
     '=== Sprint Details ===',
     `Client: ${meeting.clientName}`,
@@ -545,8 +585,9 @@ function generatePhase3SprintNote(meeting: Meeting): GeneratedNote {
     contentParts.push(`Sprint: ${currentSprint.name}`);
     contentParts.push(`Goal: ${currentSprint.goal || 'N/A'}`);
     contentParts.push(`Status: ${currentSprint.status}`);
-    
-    const sprintTasks = dev?.tasks?.filter((t: any) => t.sprintId === currentSprint.id) || [];
+
+    const sprintTasks =
+      dev?.tasks?.filter((t: any) => t.sprintId === currentSprint.id) || [];
     contentParts.push(`Tasks: ${sprintTasks.length}`);
   } else {
     contentParts.push('No active sprint');
@@ -557,7 +598,7 @@ function generatePhase3SprintNote(meeting: Meeting): GeneratedNote {
 
   return {
     title: `Sprint Progress - ${meeting.clientName}`,
-    content: contentParts.join('\n')
+    content: contentParts.join('\n'),
   };
 }
 
@@ -573,8 +614,8 @@ function generatePhase3SystemNote(meeting: Meeting): GeneratedNote {
       '',
       'Detailed system implementation status.',
       '',
-      `--- Created at ${new Date().toLocaleString('en-US')}`
-    ].join('\n')
+      `--- Created at ${new Date().toLocaleString('en-US')}`,
+    ].join('\n'),
   };
 }
 
@@ -583,8 +624,9 @@ function generatePhase3SystemNote(meeting: Meeting): GeneratedNote {
  */
 function generatePhase3BlockersNote(meeting: Meeting): GeneratedNote {
   const dev = meeting.developmentTracking;
-  const blockedTasks = dev?.tasks?.filter((t: any) => t.blockers && t.blockers.length > 0) || [];
-  
+  const blockedTasks =
+    dev?.tasks?.filter((t: any) => t.blockers && t.blockers.length > 0) || [];
+
   const contentParts = [
     '=== Active Blockers ===',
     `Client: ${meeting.clientName}`,
@@ -595,7 +637,7 @@ function generatePhase3BlockersNote(meeting: Meeting): GeneratedNote {
     contentParts.push(`Total Blocked Tasks: ${blockedTasks.length}`);
     contentParts.push('');
     contentParts.push('=== Blockers List ===');
-    
+
     blockedTasks.forEach((task: any, i: number) => {
       contentParts.push(`${i + 1}. Task: ${task.title}`);
       task.blockers.forEach((blocker: any) => {
@@ -611,7 +653,7 @@ function generatePhase3BlockersNote(meeting: Meeting): GeneratedNote {
 
   return {
     title: `Blockers Report - ${meeting.clientName}`,
-    content: contentParts.join('\n')
+    content: contentParts.join('\n'),
   };
 }
 
@@ -630,8 +672,8 @@ function generateGenericNote(meeting: Meeting): GeneratedNote {
       '',
       'הערה כללית.',
       '',
-      `--- נוצר ב-${new Date().toLocaleString('he-IL')}`
-    ].join('\n')
+      `--- נוצר ב-${new Date().toLocaleString('he-IL')}`,
+    ].join('\n'),
   };
 }
 
@@ -644,26 +686,32 @@ function generateGenericNote(meeting: Meeting): GeneratedNote {
  */
 function calculateOverallProgress(meeting: Meeting): number {
   if (!meeting.modules) return 0;
-  
+
   const modules = Object.values(meeting.modules);
   let totalFields = 0;
   let completedFields = 0;
 
-  modules.forEach(moduleData => {
+  modules.forEach((moduleData) => {
     if (moduleData && typeof moduleData === 'object') {
       const fields = Object.values(moduleData);
       totalFields += fields.length;
-      
-      fields.forEach(value => {
-        if (value !== null && value !== undefined && value !== '' && 
-            !(Array.isArray(value) && value.length === 0)) {
+
+      fields.forEach((value) => {
+        if (
+          value !== null &&
+          value !== undefined &&
+          value !== '' &&
+          !(Array.isArray(value) && value.length === 0)
+        ) {
           completedFields++;
         }
       });
     }
   });
 
-  return totalFields > 0 ? Math.round((completedFields / totalFields) * 100) : 0;
+  return totalFields > 0
+    ? Math.round((completedFields / totalFields) * 100)
+    : 0;
 }
 
 /**
@@ -671,13 +719,16 @@ function calculateOverallProgress(meeting: Meeting): number {
  */
 function calculateModuleCompletion(moduleData: any): number {
   if (!moduleData || typeof moduleData !== 'object') return 0;
-  
+
   const fields = Object.values(moduleData);
-  const completed = fields.filter(value => 
-    value !== null && value !== undefined && value !== '' && 
-    !(Array.isArray(value) && value.length === 0)
+  const completed = fields.filter(
+    (value) =>
+      value !== null &&
+      value !== undefined &&
+      value !== '' &&
+      !(Array.isArray(value) && value.length === 0)
   ).length;
-  
+
   return fields.length > 0 ? Math.round((completed / fields.length) * 100) : 0;
 }
 
@@ -695,7 +746,7 @@ function getModuleName(moduleId: keyof Modules): string {
     aiAgents: 'סוכני AI',
     systems: 'מערכות וטכנולוגיה',
     roi: 'ROI וכימות',
-    planning: 'סיכום ותכנון'
+    planning: 'סיכום ותכנון',
   };
   return names[moduleId] || moduleId;
 }
@@ -708,7 +759,7 @@ function getPhaseLabel(phase: MeetingPhase): string {
     discovery: 'גילוי',
     implementation_spec: 'מפרט טכני',
     development: 'Development',
-    completed: 'הושלם'
+    completed: 'הושלם',
   };
   return labels[phase] || phase;
 }
@@ -726,7 +777,7 @@ function getStatusLabel(status: string): string {
     spec_in_progress: 'מפרט בתהליך',
     spec_complete: 'מפרט הושלם',
     development_in_progress: 'פיתוח בתהליך',
-    completed: 'הושלם'
+    completed: 'הושלם',
   };
   return labels[status] || status;
 }
@@ -738,7 +789,7 @@ function formatFieldName(fieldName: string): string {
   // Convert camelCase to readable text
   return fieldName
     .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, str => str.toUpperCase())
+    .replace(/^./, (str) => str.toUpperCase())
     .trim();
 }
 
@@ -752,4 +803,3 @@ function formatFieldValue(value: any): string {
   if (typeof value === 'object') return JSON.stringify(value);
   return String(value);
 }
-

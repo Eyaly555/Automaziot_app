@@ -114,9 +114,24 @@ const calculateScenario = (
   ongoingMonthlyCosts: number
 ): ROIScenario => {
   const monthlySavings = Math.round(baseMonthlySavings * multiplier);
-  const netSavings12 = calculateNetSavings(monthlySavings, 12, implementationCosts, ongoingMonthlyCosts);
-  const netSavings24 = calculateNetSavings(monthlySavings, 24, implementationCosts, ongoingMonthlyCosts);
-  const netSavings36 = calculateNetSavings(monthlySavings, 36, implementationCosts, ongoingMonthlyCosts);
+  const netSavings12 = calculateNetSavings(
+    monthlySavings,
+    12,
+    implementationCosts,
+    ongoingMonthlyCosts
+  );
+  const netSavings24 = calculateNetSavings(
+    monthlySavings,
+    24,
+    implementationCosts,
+    ongoingMonthlyCosts
+  );
+  const netSavings36 = calculateNetSavings(
+    monthlySavings,
+    36,
+    implementationCosts,
+    ongoingMonthlyCosts
+  );
 
   return {
     name,
@@ -128,10 +143,14 @@ const calculateScenario = (
     netSavings12Month: netSavings12,
     netSavings24Month: netSavings24,
     netSavings36Month: netSavings36,
-    paybackPeriod: calculatePaybackPeriodMonths(implementationCosts, monthlySavings, ongoingMonthlyCosts),
+    paybackPeriod: calculatePaybackPeriodMonths(
+      implementationCosts,
+      monthlySavings,
+      ongoingMonthlyCosts
+    ),
     roi12Month: calculateROIPercentage(netSavings12, implementationCosts),
     roi24Month: calculateROIPercentage(netSavings24, implementationCosts),
-    roi36Month: calculateROIPercentage(netSavings36, implementationCosts)
+    roi36Month: calculateROIPercentage(netSavings36, implementationCosts),
   };
 };
 
@@ -156,7 +175,7 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
       paybackPeriod: 0,
       roi12Month: 0,
       roi24Month: 0,
-      roi36Month: 0
+      roi36Month: 0,
     };
 
     return {
@@ -177,8 +196,8 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
       scenarios: {
         conservative: defaultScenario,
         realistic: defaultScenario,
-        optimistic: defaultScenario
-      }
+        optimistic: defaultScenario,
+      },
     };
   }
 
@@ -186,11 +205,16 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
 
   // Calculate from Leads and Sales module
   if (modules?.leadsAndSales) {
-    const { speedToLead, followUp, appointments, leadSources } = modules.leadsAndSales;
+    const { speedToLead, followUp, appointments, leadSources } =
+      modules.leadsAndSales;
 
     // Lost leads from slow response
     if (speedToLead?.unansweredPercentage) {
-      const totalLeads = leadSources?.reduce((sum, source) => sum + (source.volumePerMonth || 0), 0) || 0;
+      const totalLeads =
+        leadSources?.reduce(
+          (sum, source) => sum + (source.volumePerMonth || 0),
+          0
+        ) || 0;
       const lostLeads = totalLeads * (speedToLead.unansweredPercentage / 100);
       lostLeadsValue = lostLeads * AVG_DEAL_VALUE * 0.1; // Assuming 10% conversion rate
     }
@@ -198,7 +222,7 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
     // Time saved on follow-ups
     if (followUp?.attempts && followUp?.dropOffRate) {
       const followUpTime = (followUp.attempts || 0) * 5; // 5 minutes per follow-up
-      hoursSavedMonthly += followUpTime * 20 / 60; // Assuming 20 leads per month
+      hoursSavedMonthly += (followUpTime * 20) / 60; // Assuming 20 leads per month
     }
 
     // Time saved on appointments
@@ -209,10 +233,14 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
 
   // Calculate from Customer Service module
   if (modules?.customerService) {
-    const { autoResponse, channels, proactiveCommunication } = modules.customerService;
+    const { autoResponse, channels, proactiveCommunication } =
+      modules.customerService;
 
     // FAQ automation potential
-    if (autoResponse?.topQuestions && Array.isArray(autoResponse.topQuestions)) {
+    if (
+      autoResponse?.topQuestions &&
+      Array.isArray(autoResponse.topQuestions)
+    ) {
       const totalFAQVolume = autoResponse.topQuestions.reduce(
         (sum, faq) => sum + (faq.frequencyPerDay || 0),
         0
@@ -222,9 +250,12 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
 
     // Service channel optimization
     if (channels && Array.isArray(channels)) {
-      const totalVolume = channels.reduce((sum, channel) => sum + (channel.volumePerDay || 0), 0);
+      const totalVolume = channels.reduce(
+        (sum, channel) => sum + (channel.volumePerDay || 0),
+        0
+      );
       if (totalVolume > 50) {
-        hoursSavedMonthly += totalVolume * 0.5 * 20 / 60; // 30 seconds saved per interaction
+        hoursSavedMonthly += (totalVolume * 0.5 * 20) / 60; // 30 seconds saved per interaction
       }
     }
 
@@ -248,7 +279,7 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
         (sum, flow) => sum + (flow.volumePerMonth || 0) * 5, // Estimate 5 minutes per flow
         0
       );
-      hoursSavedMonthly += docTime / 60 * 0.7; // 70% time saving
+      hoursSavedMonthly += (docTime / 60) * 0.7; // 70% time saving
     }
 
     // Project management inefficiencies - updated to use issues instead of bottlenecks
@@ -262,16 +293,18 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
     const { scheduledReports } = modules.reporting;
 
     if (scheduledReports && Array.isArray(scheduledReports)) {
-      const reportTime = scheduledReports.reduce(
-        (sum, report) => {
-          const freq = report.frequency === 'daily' ? 20 :
-                      report.frequency === 'weekly' ? 4 :
-                      report.frequency === 'monthly' ? 1 : 0;
-          return sum + ((report.timeToCreate || 0) * freq);
-        },
-        0
-      );
-      hoursSavedMonthly += reportTime / 60 * 0.8; // 80% time saving with automation
+      const reportTime = scheduledReports.reduce((sum, report) => {
+        const freq =
+          report.frequency === 'daily'
+            ? 20
+            : report.frequency === 'weekly'
+              ? 4
+              : report.frequency === 'monthly'
+                ? 1
+                : 0;
+        return sum + (report.timeToCreate || 0) * freq;
+      }, 0);
+      hoursSavedMonthly += (reportTime / 60) * 0.8; // 80% time saving with automation
     }
   }
 
@@ -279,7 +312,9 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
   if (customFieldValues) {
     // Process custom systems
     // Note: customFieldValues.systems is an object { [fieldName: string]: SelectOption[] }
-    const systemsValues = customFieldValues.systems ? Object.values(customFieldValues.systems).flat() : [];
+    const systemsValues = customFieldValues.systems
+      ? Object.values(customFieldValues.systems).flat()
+      : [];
     if (systemsValues.length > 0) {
       const systemImpact = CustomValuesService.processCustomForROI(
         systemsValues,
@@ -289,15 +324,14 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
 
       // Estimate automation potential for custom systems
       systemsValues.forEach((system: SelectOption) => {
-        CustomValuesService.estimateAutomationPotential(
-          system.label,
-          'system'
-        );
+        CustomValuesService.estimateAutomationPotential(system.label, 'system');
       });
     }
 
     // Process custom lead sources
-    const leadSourcesValues = customFieldValues.leadSources ? Object.values(customFieldValues.leadSources).flat() : [];
+    const leadSourcesValues = customFieldValues.leadSources
+      ? Object.values(customFieldValues.leadSources).flat()
+      : [];
     if (leadSourcesValues.length > 0) {
       const leadSourceImpact = CustomValuesService.processCustomForROI(
         leadSourcesValues,
@@ -307,7 +341,9 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
     }
 
     // Process custom service channels
-    const serviceChannelsValues = customFieldValues.serviceChannels ? Object.values(customFieldValues.serviceChannels).flat() : [];
+    const serviceChannelsValues = customFieldValues.serviceChannels
+      ? Object.values(customFieldValues.serviceChannels).flat()
+      : [];
     if (serviceChannelsValues.length > 0) {
       const channelImpact = CustomValuesService.processCustomForROI(
         serviceChannelsValues,
@@ -320,7 +356,9 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
     }
 
     // Process custom processes from operations
-    const processesValues = customFieldValues.processes ? Object.values(customFieldValues.processes).flat() : [];
+    const processesValues = customFieldValues.processes
+      ? Object.values(customFieldValues.processes).flat()
+      : [];
     if (processesValues.length > 0) {
       const processImpact = CustomValuesService.processCustomForROI(
         processesValues,
@@ -333,7 +371,9 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
     }
 
     // Process custom document types
-    const documentTypesValues = customFieldValues.documentTypes ? Object.values(customFieldValues.documentTypes).flat() : [];
+    const documentTypesValues = customFieldValues.documentTypes
+      ? Object.values(customFieldValues.documentTypes).flat()
+      : [];
     if (documentTypesValues.length > 0) {
       const docImpact = CustomValuesService.processCustomForROI(
         documentTypesValues,
@@ -343,7 +383,9 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
     }
 
     // Process custom report types
-    const reportTypesValues = customFieldValues.reportTypes ? Object.values(customFieldValues.reportTypes).flat() : [];
+    const reportTypesValues = customFieldValues.reportTypes
+      ? Object.values(customFieldValues.reportTypes).flat()
+      : [];
     if (reportTypesValues.length > 0) {
       const reportImpact = CustomValuesService.processCustomForROI(
         reportTypesValues,
@@ -354,7 +396,9 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
     }
 
     // Process custom AI use cases
-    const aiUseCasesValues = customFieldValues.aiUseCases ? Object.values(customFieldValues.aiUseCases).flat() : [];
+    const aiUseCasesValues = customFieldValues.aiUseCases
+      ? Object.values(customFieldValues.aiUseCases).flat()
+      : [];
     if (aiUseCasesValues.length > 0) {
       const aiImpact = CustomValuesService.processCustomForROI(
         aiUseCasesValues,
@@ -364,23 +408,21 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
 
       // AI use cases have high automation potential
       aiUseCasesValues.forEach((useCase: SelectOption) => {
-        CustomValuesService.estimateAutomationPotential(
-          useCase.label,
-          'ai'
-        );
+        CustomValuesService.estimateAutomationPotential(useCase.label, 'ai');
       });
     }
   }
 
   // Calculate money saved including custom value impact
-  moneySavedMonthly = hoursSavedMonthly * HOURLY_RATE + lostLeadsValue + customValueImpact;
+  moneySavedMonthly =
+    hoursSavedMonthly * HOURLY_RATE + lostLeadsValue + customValueImpact;
 
   const totalMonthlySavings = moneySavedMonthly;
   const breakdown: { [key: string]: number } = {
     'חיסכון בזמן עבודה': Math.round(hoursSavedMonthly * HOURLY_RATE),
     'מניעת אובדן לידים': Math.round(lostLeadsValue),
     'אוטומציה של תהליכים': Math.round(moneySavedMonthly * 0.3),
-    'שיפור יעילות': Math.round(moneySavedMonthly * 0.2)
+    'שיפור יעילות': Math.round(moneySavedMonthly * 0.2),
   };
 
   // Add custom value impact to breakdown if present
@@ -393,9 +435,24 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
   const ongoingMonthlyCosts = calculateOngoingCosts();
 
   // Calculate net savings for different periods
-  const netSavings12 = calculateNetSavings(moneySavedMonthly, 12, implementationCosts, ongoingMonthlyCosts);
-  const netSavings24 = calculateNetSavings(moneySavedMonthly, 24, implementationCosts, ongoingMonthlyCosts);
-  const netSavings36 = calculateNetSavings(moneySavedMonthly, 36, implementationCosts, ongoingMonthlyCosts);
+  const netSavings12 = calculateNetSavings(
+    moneySavedMonthly,
+    12,
+    implementationCosts,
+    ongoingMonthlyCosts
+  );
+  const netSavings24 = calculateNetSavings(
+    moneySavedMonthly,
+    24,
+    implementationCosts,
+    ongoingMonthlyCosts
+  );
+  const netSavings36 = calculateNetSavings(
+    moneySavedMonthly,
+    36,
+    implementationCosts,
+    ongoingMonthlyCosts
+  );
 
   // Calculate ROI percentages
   const roi12 = calculateROIPercentage(netSavings12, implementationCosts);
@@ -434,7 +491,7 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
       moneySavedMonthly,
       implementationCosts,
       ongoingMonthlyCosts
-    )
+    ),
   };
 
   return {
@@ -454,7 +511,7 @@ export const calculateROI = (meeting: Meeting): ROIMetrics => {
     roi12Month: roi12,
     roi24Month: roi24,
     roi36Month: roi36,
-    scenarios
+    scenarios,
   };
 };
 
@@ -464,12 +521,13 @@ export const calculatePainPointValue = (
   potentialSaving?: number,
   isCustom?: boolean
 ): number => {
-  const severityMultiplier = {
-    'low': 1,
-    'medium': 1.5,
-    'high': 2,
-    'critical': 3
-  }[severity] || 1;
+  const severityMultiplier =
+    {
+      low: 1,
+      medium: 1.5,
+      high: 2,
+      critical: 3,
+    }[severity] || 1;
 
   const baseValue = (hoursSaved || 0) * HOURLY_RATE + (potentialSaving || 0);
 

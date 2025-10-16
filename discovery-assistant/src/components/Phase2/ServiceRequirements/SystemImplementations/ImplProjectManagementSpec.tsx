@@ -6,7 +6,7 @@ import { Card } from '../../../Common/Card';
 export function ImplProjectManagementSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
   const [config, setConfig] = useState<any>({
-    ...{ platform: 'monday', estimatedWeeks: 4 }
+    ...{ platform: 'monday', estimatedWeeks: 4 },
   });
 
   // Track if we're currently loading data to prevent save loops
@@ -16,12 +16,15 @@ export function ImplProjectManagementSpec() {
   // Auto-save hook for immediate saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'impl-project-management',
-    category: 'systemImplementations'
+    category: 'systemImplementations',
   });
 
   useEffect(() => {
-    const systemImplementations = currentMeeting?.implementationSpec?.systemImplementations || [];
-    const existing = systemImplementations.find((s: any) => s.serviceId === 'impl-project-management');
+    const systemImplementations =
+      currentMeeting?.implementationSpec?.systemImplementations || [];
+    const existing = systemImplementations.find(
+      (s: any) => s.serviceId === 'impl-project-management'
+    );
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
 
@@ -47,18 +50,21 @@ export function ImplProjectManagementSpec() {
   //   }
   // }, [config]);
 
-  const handleFieldChange = useCallback((field: keyof typeof config, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = { ...updated }; // No smart fields in this component
-          saveData(completeConfig);
-        }
-      }, 0);
-      return updated;
-    });
-  }, [saveData]);
+  const handleFieldChange = useCallback(
+    (field: keyof typeof config, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = { ...updated }; // No smart fields in this component
+            saveData(completeConfig);
+          }
+        }, 0);
+        return updated;
+      });
+    },
+    [saveData]
+  );
 
   // Manual save handler (kept for compatibility, but auto-save is primary)
   const handleSave = useCallback(async () => {
@@ -75,7 +81,9 @@ export function ImplProjectManagementSpec() {
       <Card title="שירות #43: הטמעת ניהול פרויקטים">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">פלטפורמת ניהול פרויקטים</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              פלטפורמת ניהול פרויקטים
+            </label>
             <select
               value={config.platform || 'monday'}
               onChange={(e) => handleFieldChange('platform', e.target.value)}
@@ -90,11 +98,15 @@ export function ImplProjectManagementSpec() {
 
           {config.platform === 'monday' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">שבועות משוערים להטמעה</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                שבועות משוערים להטמעה
+              </label>
               <input
                 type="number"
                 value={config.estimatedWeeks || 4}
-                onChange={(e) => handleFieldChange('estimatedWeeks', parseInt(e.target.value))}
+                onChange={(e) =>
+                  handleFieldChange('estimatedWeeks', parseInt(e.target.value))
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               />
             </div>

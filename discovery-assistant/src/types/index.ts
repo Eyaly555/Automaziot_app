@@ -58,7 +58,11 @@ export * from './additionalServices';
 // PHASE TRACKING TYPES
 // ============================================================================
 
-export type MeetingPhase = 'discovery' | 'implementation_spec' | 'development' | 'completed';
+export type MeetingPhase =
+  | 'discovery'
+  | 'implementation_spec'
+  | 'development'
+  | 'completed';
 
 export type MeetingStatus =
   | 'discovery_in_progress'
@@ -84,8 +88,8 @@ export interface PhaseTransition {
 
 // Bilingual text support for Phase 3 (English UI)
 export interface BilingualText {
-  he: string;  // Hebrew
-  en: string;  // English
+  he: string; // Hebrew
+  en: string; // English
 }
 
 // ============================================================================
@@ -227,7 +231,11 @@ export interface EssentialDetailsModule {
 
   // Automation Opportunities (shown if focusAreas includes 'automation')
   automationOpportunities?: {
-    repetitiveProcesses?: { name: string; frequency: string; timePerExecution: number }[];
+    repetitiveProcesses?: {
+      name: string;
+      frequency: string;
+      timePerExecution: number;
+    }[];
     manualDataEntry?: string[];
     automationPriority?: string;
   };
@@ -327,13 +335,13 @@ export interface OverviewModule {
 
 // Focus areas that drive Essential Details module
 export type FocusArea =
-  | 'lead_capture'        // קליטת לידים וניהול ראשוני
-  | 'sales_process'       // ניהול תהליך המכירה
-  | 'customer_service'    // ניהול שירות לקוחות
-  | 'automation'          // אוטומציה של תהליכים
-  | 'crm_upgrade'         // שדרוג/החלפת CRM
-  | 'reporting'           // דיווח וניתוח נתונים
-  | 'ai_agents';          // אוטומציה מבוססת AI
+  | 'lead_capture' // קליטת לידים וניהול ראשוני
+  | 'sales_process' // ניהול תהליך המכירה
+  | 'customer_service' // ניהול שירות לקוחות
+  | 'automation' // אוטומציה של תהליכים
+  | 'crm_upgrade' // שדרוג/החלפת CRM
+  | 'reporting' // דיווח וניתוח נתונים
+  | 'ai_agents'; // אוטומציה מבוססת AI
 
 /**
  * Module 2 - Leads and Sales
@@ -579,7 +587,7 @@ export interface FAQ {
  */
 export interface ProactiveCommunication {
   updateTriggers?: string[];
-  updateChannelMapping?: {[key: string]: string};
+  updateChannelMapping?: { [key: string]: string };
   whatMattersToCustomers?: string;
   frequency?: string;
   type?: string[];
@@ -996,12 +1004,22 @@ export interface AICapability {
 export interface AIAgentUseCase {
   id: string;
   name: string;
-  trigger: 'new_lead' | 'customer_question' | 'after_hours' | 'appointment_booking' | 'follow_up' | 'custom';
+  trigger:
+    | 'new_lead'
+    | 'customer_question'
+    | 'after_hours'
+    | 'appointment_booking'
+    | 'follow_up'
+    | 'custom';
   customTrigger?: string;
   objective: string;
   conversationFlow: ConversationFlowStep[];
   knowledgeBaseRequirements: string[];
-  fallbackStrategy: 'human_handoff' | 'email_notification' | 'scheduled_callback' | 'faq_redirect';
+  fallbackStrategy:
+    | 'human_handoff'
+    | 'email_notification'
+    | 'scheduled_callback'
+    | 'faq_redirect';
   successCriteria: string[];
   expectedVolume: number;
   priority: 'high' | 'medium' | 'low';
@@ -1154,7 +1172,14 @@ export interface SystemIntegrationNeed {
   id: string;
   targetSystemId: string; // References another DetailedSystemInfo.id
   targetSystemName: string;
-  integrationType: 'native' | 'api' | 'zapier' | 'n8n' | 'make' | 'manual' | 'other';
+  integrationType:
+    | 'native'
+    | 'api'
+    | 'zapier'
+    | 'n8n'
+    | 'make'
+    | 'manual'
+    | 'other';
   frequency: 'realtime' | 'hourly' | 'daily' | 'weekly' | 'manual';
   dataFlow: 'bidirectional' | 'one-way-to' | 'one-way-from';
   criticalityLevel: 'critical' | 'important' | 'nice-to-have';

@@ -1,6 +1,6 @@
 /**
  * Requirements to Instructions Converter
- * 
+ *
  * Transforms raw collected requirements into detailed, actionable developer instructions.
  * This is the "smart" layer that converts field values into comprehensive implementation specs.
  */
@@ -55,7 +55,8 @@ Client is currently ${businessCtx.currentResponseTime || 'slow to respond'}, los
   const technicalSteps: TechnicalStep[] = [];
 
   // Step 1: Form Platform Integration
-  const formPlatform = requirements?.formPlatformAccess?.platform || 'Unknown Platform';
+  const formPlatform =
+    requirements?.formPlatformAccess?.platform || 'Unknown Platform';
   const webhookCapability = requirements?.formPlatformAccess?.webhookCapability;
   const apiKey = requirements?.formPlatformAccess?.apiKey;
 
@@ -68,19 +69,25 @@ Client is currently ${businessCtx.currentResponseTime || 'slow to respond'}, los
       webhookCapability
         ? '✓ Platform supports native webhooks (use webhook trigger)'
         : '⚠️ Platform does NOT support webhooks - will need to use polling or plugin',
-      apiKey ? `✓ API Key provided (${apiKey.substring(0, 10)}...)` : '❌ API Key NOT provided - collect before implementation',
+      apiKey
+        ? `✓ API Key provided (${apiKey.substring(0, 10)}...)`
+        : '❌ API Key NOT provided - collect before implementation',
       `Test webhook URL: ${requirements?.n8nWorkflow?.webhookEndpoint || 'Not configured'}`,
     ],
     warnings: !webhookCapability
-      ? ['Polling-based solutions introduce latency - response time will be slower than target']
+      ? [
+          'Polling-based solutions introduce latency - response time will be slower than target',
+        ]
       : undefined,
-    dependencies: ['n8n instance must be accessible via HTTPS']
+    dependencies: ['n8n instance must be accessible via HTTPS'],
   });
 
   // Step 2: Email Service Setup
-  const emailProvider = requirements?.emailServiceAccess?.provider || 'Unknown Provider';
+  const emailProvider =
+    requirements?.emailServiceAccess?.provider || 'Unknown Provider';
   const dailyLimit = requirements?.emailServiceAccess?.rateLimits?.daily || 0;
-  const monthlyLimit = requirements?.emailServiceAccess?.rateLimits?.monthly || 0;
+  const monthlyLimit =
+    requirements?.emailServiceAccess?.rateLimits?.monthly || 0;
   const domainVerified = requirements?.emailServiceAccess?.domainVerified;
 
   technicalSteps.push({
@@ -97,14 +104,18 @@ Client is currently ${businessCtx.currentResponseTime || 'slow to respond'}, los
       `Expected volume: ~${businessCtx.monthlyLeadVolume || 100}/month = ~${Math.ceil((businessCtx.monthlyLeadVolume || 100) / 30)}/day`,
     ],
     warnings: [
-      !domainVerified ? 'Unverified domain emails often go to spam - CRITICAL to verify' : '',
-      dailyLimit < ((businessCtx.monthlyLeadVolume || 100) / 30)
-        ? `Daily limit (${dailyLimit}) may be exceeded with current volume (${Math.ceil((businessCtx.monthlyLeadVolume || 100) / 30)}/day)` : ''
-    ].filter(Boolean)
+      !domainVerified
+        ? 'Unverified domain emails often go to spam - CRITICAL to verify'
+        : '',
+      dailyLimit < (businessCtx.monthlyLeadVolume || 100) / 30
+        ? `Daily limit (${dailyLimit}) may be exceeded with current volume (${Math.ceil((businessCtx.monthlyLeadVolume || 100) / 30)}/day)`
+        : '',
+    ].filter(Boolean),
   });
 
   // Step 3: CRM Integration
-  const crmSystem = requirements?.crmAccess?.system || businessCtx.crmSystem || 'Unknown CRM';
+  const crmSystem =
+    requirements?.crmAccess?.system || businessCtx.crmSystem || 'Unknown CRM';
   const crmModule = requirements?.crmAccess?.module || 'Leads';
   const crmAuthMethod = requirements?.crmAccess?.authMethod || 'oauth';
 
@@ -123,17 +134,24 @@ Client is currently ${businessCtx.currentResponseTime || 'slow to respond'}, los
       `  • Source → ${crmModule}.Lead_Source (set to "${formPlatform} Form")`,
       `  • Status → ${crmModule}.Lead_Status (set to "New - Uncontacted")`,
     ],
-    warnings: crmAuthMethod === 'oauth'
-      ? ['OAuth requires user consent - ensure client grants permission before go-live']
-      : undefined,
-    dependencies: [`${crmSystem} API credentials`, 'CRM field names verified']
+    warnings:
+      crmAuthMethod === 'oauth'
+        ? [
+            'OAuth requires user consent - ensure client grants permission before go-live',
+          ]
+        : undefined,
+    dependencies: [`${crmSystem} API credentials`, 'CRM field names verified'],
   });
 
   // Step 4: n8n Workflow Construction
-  const n8nInstance = requirements?.n8nWorkflow?.instanceUrl || 'Not configured';
-  const webhookEndpoint = requirements?.n8nWorkflow?.webhookEndpoint || 'Not configured';
-  const retryAttempts = requirements?.n8nWorkflow?.errorHandling?.retryAttempts || 3;
-  const alertEmail = requirements?.n8nWorkflow?.errorHandling?.alertEmail || 'Not configured';
+  const n8nInstance =
+    requirements?.n8nWorkflow?.instanceUrl || 'Not configured';
+  const webhookEndpoint =
+    requirements?.n8nWorkflow?.webhookEndpoint || 'Not configured';
+  const retryAttempts =
+    requirements?.n8nWorkflow?.errorHandling?.retryAttempts || 3;
+  const alertEmail =
+    requirements?.n8nWorkflow?.errorHandling?.alertEmail || 'Not configured';
   const httpsEnabled = requirements?.n8nWorkflow?.httpsEnabled !== false;
 
   technicalSteps.push({
@@ -155,8 +173,10 @@ Client is currently ${businessCtx.currentResponseTime || 'slow to respond'}, los
       `7. Log result to monitoring`,
     ],
     warnings: !httpsEnabled
-      ? ['CRITICAL: HTTPS is DISABLED - form data will be transmitted unencrypted. MUST enable before go-live.']
-      : undefined
+      ? [
+          'CRITICAL: HTTPS is DISABLED - form data will be transmitted unencrypted. MUST enable before go-live.',
+        ]
+      : undefined,
   });
 
   // Build acceptance criteria
@@ -167,7 +187,9 @@ Client is currently ${businessCtx.currentResponseTime || 'slow to respond'}, los
     'Duplicate emails are detected and handled (skip or update existing record)',
     `Error notifications sent to ${alertEmail} on failure`,
     'Workflow logs all executions for debugging',
-    domainVerified ? 'Emails delivered to inbox (not spam)' : 'Email domain verified before go-live',
+    domainVerified
+      ? 'Emails delivered to inbox (not spam)'
+      : 'Email domain verified before go-live',
   ];
 
   // Build testing checklist
@@ -189,11 +211,17 @@ Client is currently ${businessCtx.currentResponseTime || 'slow to respond'}, los
 
   // Build security notes
   const securityNotes = [
-    httpsEnabled ? 'HTTPS enabled for webhook (secure)' : '⚠️ CRITICAL: Enable HTTPS for webhook',
+    httpsEnabled
+      ? 'HTTPS enabled for webhook (secure)'
+      : '⚠️ CRITICAL: Enable HTTPS for webhook',
     'API keys stored as environment variables (not in code)',
     'Email authentication uses secure API key (not password)',
-    crmAuthMethod === 'oauth' ? 'OAuth tokens refreshed automatically' : `${crmSystem} credentials secure`,
-    domainVerified ? 'Email domain verified (SPF/DKIM configured)' : '⚠️ Verify email domain before production',
+    crmAuthMethod === 'oauth'
+      ? 'OAuth tokens refreshed automatically'
+      : `${crmSystem} credentials secure`,
+    domainVerified
+      ? 'Email domain verified (SPF/DKIM configured)'
+      : '⚠️ Verify email domain before production',
     'Webhook endpoint should use authentication (API key or signature)',
     'Personal data (name, email, phone) handled according to GDPR',
   ];
@@ -203,11 +231,15 @@ Client is currently ${businessCtx.currentResponseTime || 'slow to respond'}, los
     webhookSupport: webhookCapability ? 0 : 1, // Polling adds complexity
     domainVerified: domainVerified ? 0 : 1, // Domain verification adds work
     crmAuth: crmAuthMethod === 'oauth' ? 1 : 0, // OAuth is more complex
-    apiKeysMissing: (!requirements?.emailServiceAccess?.apiKey || !apiKey) ? 1 : 0,
+    apiKeysMissing:
+      !requirements?.emailServiceAccess?.apiKey || !apiKey ? 1 : 0,
   };
 
-  const totalComplexity = Object.values(complexityFactors).reduce((sum, val) => sum + val, 0);
-  
+  const totalComplexity = Object.values(complexityFactors).reduce(
+    (sum, val) => sum + val,
+    0
+  );
+
   let estimatedComplexity: 'simple' | 'medium' | 'complex';
   let estimatedHours: number;
 
@@ -229,14 +261,16 @@ Client is currently ${businessCtx.currentResponseTime || 'slow to respond'}, los
     testingChecklist,
     securityNotes,
     estimatedComplexity,
-    estimatedHours
+    estimatedHours,
   };
 }
 
 /**
  * Format instructions as markdown for task description
  */
-export function formatInstructionsAsMarkdown(instructions: DeveloperInstructions): string {
+export function formatInstructionsAsMarkdown(
+  instructions: DeveloperInstructions
+): string {
   let markdown = '';
 
   // Business Context
@@ -248,7 +282,7 @@ export function formatInstructionsAsMarkdown(instructions: DeveloperInstructions
   for (const step of instructions.technicalSteps) {
     markdown += `### ${step.stepNumber}. ${step.title}\n\n`;
     markdown += `${step.description}\n\n`;
-    
+
     for (const detail of step.details) {
       markdown += `- ${detail}\n`;
     }
@@ -329,7 +363,7 @@ BUSINESS CONTEXT:
         `Platform: ${formPlatform}`,
         'Configure webhook URL or API polling',
         'Test form submission triggers workflow',
-      ]
+      ],
     },
     {
       stepNumber: 2,
@@ -339,10 +373,14 @@ BUSINESS CONTEXT:
         `System: ${crmSystem}`,
         'Authenticate API access',
         'Map all form fields to CRM fields',
-        requirements?.duplicateDetection ? '✓ Enable duplicate detection by email' : 'No duplicate detection',
-        requirements?.dataValidation ? '✓ Enable data validation' : 'No validation',
-      ]
-    }
+        requirements?.duplicateDetection
+          ? '✓ Enable duplicate detection by email'
+          : 'No duplicate detection',
+        requirements?.dataValidation
+          ? '✓ Enable data validation'
+          : 'No validation',
+      ],
+    },
   ];
 
   return {
@@ -351,7 +389,9 @@ BUSINESS CONTEXT:
     acceptanceCriteria: [
       'Form submissions create CRM records',
       'All fields mapped correctly',
-      requirements?.duplicateDetection ? 'Duplicates detected and skipped' : 'All submissions create new records',
+      requirements?.duplicateDetection
+        ? 'Duplicates detected and skipped'
+        : 'All submissions create new records',
     ],
     testingChecklist: [
       '[ ] Submit test form',
@@ -363,7 +403,6 @@ BUSINESS CONTEXT:
       'HTTPS enabled for webhooks',
     ],
     estimatedComplexity: 'simple',
-    estimatedHours: 8
+    estimatedHours: 8,
   };
 }
-

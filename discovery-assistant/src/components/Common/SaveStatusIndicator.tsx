@@ -28,7 +28,9 @@ export const SaveStatusIndicator: React.FC = () => {
     return (
       <div className="flex items-center gap-2 text-green-600 text-sm">
         <Check className="w-4 h-4" />
-        <span>נשמר {formatDistanceToNow(lastSavedTime, { addSuffix: true })}</span>
+        <span>
+          נשמר {formatDistanceToNow(lastSavedTime, { addSuffix: true })}
+        </span>
       </div>
     );
   }

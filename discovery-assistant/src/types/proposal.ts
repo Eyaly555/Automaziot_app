@@ -89,12 +89,18 @@ export interface ProposalData {
     status: 'generating' | 'success' | 'failed';
     sections?: AiProposalDoc; // matches schema
     rawMarkdown?: string;
-    usage?: { promptTokens?: number; completionTokens?: number; totalTokens?: number };
+    usage?: {
+      promptTokens?: number;
+      completionTokens?: number;
+      totalTokens?: number;
+    };
     instructions?: string; // last additional instructions used
   };
 
   // Optional history for regeneration tracking
-  aiProposalHistory?: Array<Pick<ProposalData['aiProposal'], 'createdAt' | 'sections' | 'instructions'>>;
+  aiProposalHistory?: Array<
+    Pick<ProposalData['aiProposal'], 'createdAt' | 'sections' | 'instructions'>
+  >;
 
   // הנחות ומחירים מיוחדים
   discountPercentage?: number; // אחוז הנחה על המחיר הבסיסי

@@ -1,6 +1,6 @@
 /**
  * n8n Workflow Instructions Template Library
- * 
+ *
  * Generates detailed n8n workflow build instructions
  */
 
@@ -13,8 +13,17 @@ export interface WorkflowInstructionParams {
   priority: 'critical' | 'high' | 'medium' | 'low';
 }
 
-export function generateWorkflowInstructions(params: WorkflowInstructionParams): string {
-  const { workflowName, description, trigger, steps, expectedVolume, priority } = params;
+export function generateWorkflowInstructions(
+  params: WorkflowInstructionParams
+): string {
+  const {
+    workflowName,
+    description,
+    trigger,
+    steps,
+    expectedVolume,
+    priority,
+  } = params;
 
   return `
 ## n8n Workflow: ${workflowName}
@@ -95,12 +104,13 @@ ${generateNodeInstructions(steps)}
 }
 
 function generateNodeInstructions(steps: any[]): string {
-  return steps.map((step, index) => {
-    const stepNumber = index + 1;
-    const action = step.action || step.type || 'action';
-    const description = step.description || '';
+  return steps
+    .map((step, index) => {
+      const stepNumber = index + 1;
+      const action = step.action || step.type || 'action';
+      const description = step.description || '';
 
-    return `
+      return `
 #### Step ${stepNumber}: ${action}
 
 ${description}
@@ -110,30 +120,37 @@ ${description}
 ${generateNodeConfiguration(step)}
 
 ${step.endpoint ? `**API Endpoint:** \`${step.endpoint}\`` : ''}
-${step.dataMapping ? `**Data Mapping:**\n${Object.entries(step.dataMapping).map(([k, v]) => `- \`${k}\` → \`${v}\``).join('\n')}` : ''}
+${
+  step.dataMapping
+    ? `**Data Mapping:**\n${Object.entries(step.dataMapping)
+        .map(([k, v]) => `- \`${k}\` → \`${v}\``)
+        .join('\n')}`
+    : ''
+}
 ${step.condition ? `**Condition:** \`${step.condition}\`` : ''}
 
 **Expected Output:** ${step.expectedOutput || 'Processed data ready for next step'}
     `.trim();
-  }).join('\n\n');
+    })
+    .join('\n\n');
 }
 
 function getNodeType(action: string): string {
   const nodeMap: Record<string, string> = {
-    'get_data': 'HTTP Request (GET)',
-    'transform_data': 'Set / Function',
-    'create_record': 'HTTP Request (POST)',
-    'update_record': 'HTTP Request (PUT/PATCH)',
-    'delete_record': 'HTTP Request (DELETE)',
-    'send_email': 'Send Email',
-    'send_whatsapp': 'WhatsApp Business',
-    'send_sms': 'Twilio SMS',
-    'call_api': 'HTTP Request',
-    'conditional': 'If / Switch',
-    'loop': 'Loop Over Items',
-    'delay': 'Wait',
-    'log': 'Function (console.log)',
-    'error_handler': 'Error Trigger'
+    get_data: 'HTTP Request (GET)',
+    transform_data: 'Set / Function',
+    create_record: 'HTTP Request (POST)',
+    update_record: 'HTTP Request (PUT/PATCH)',
+    delete_record: 'HTTP Request (DELETE)',
+    send_email: 'Send Email',
+    send_whatsapp: 'WhatsApp Business',
+    send_sms: 'Twilio SMS',
+    call_api: 'HTTP Request',
+    conditional: 'If / Switch',
+    loop: 'Loop Over Items',
+    delay: 'Wait',
+    log: 'Function (console.log)',
+    error_handler: 'Error Trigger',
   };
 
   return nodeMap[action.toLowerCase()] || 'Custom Node';
@@ -147,11 +164,12 @@ function generateNodeConfiguration(step: any): string {
     return '- No specific configuration required';
   }
 
-  return entries.map(([key, value]) => {
-    if (typeof value === 'object') {
-      return `- ${key}: ${JSON.stringify(value)}`;
-    }
-    return `- ${key}: ${value}`;
-  }).join('\n');
+  return entries
+    .map(([key, value]) => {
+      if (typeof value === 'object') {
+        return `- ${key}: ${JSON.stringify(value)}`;
+      }
+      return `- ${key}: ${value}`;
+    })
+    .join('\n');
 }
-

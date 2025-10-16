@@ -5,7 +5,7 @@ import type {
   AIResponse,
   AIRecommendation,
   AIInsight,
-  AIAnalysisResult
+  AIAnalysisResult,
 } from '../types';
 import { Meeting, PainPoint } from '../types';
 
@@ -43,7 +43,13 @@ export class AIService {
     const provider = import.meta.env.VITE_AI_PROVIDER as AIProvider;
 
     // Validate provider
-    const validProviders: AIProvider[] = ['openai', 'anthropic', 'cohere', 'huggingface', 'local'];
+    const validProviders: AIProvider[] = [
+      'openai',
+      'anthropic',
+      'cohere',
+      'huggingface',
+      'local',
+    ];
     if (provider && validProviders.includes(provider)) {
       return provider;
     }
@@ -71,7 +77,7 @@ export class AIService {
       temperature: parseFloat(import.meta.env.VITE_AI_TEMPERATURE || '0.7'),
       enableCache: true,
       fallbackToLocal: true,
-      rateLimitPerMinute: 10
+      rateLimitPerMinute: 10,
     };
 
     this.isConfigured = true;
@@ -84,11 +90,16 @@ export class AIService {
     if (envModel) return envModel;
 
     switch (this.provider) {
-      case 'openai': return 'gpt-5-mini-2025-08-07';
-      case 'anthropic': return 'claude-3-opus-20240229';
-      case 'cohere': return 'command-r-plus';
-      case 'huggingface': return 'meta-llama/Llama-2-70b-chat-hf';
-      default: return 'local';
+      case 'openai':
+        return 'gpt-5-mini-2025-08-07';
+      case 'anthropic':
+        return 'claude-3-opus-20240229';
+      case 'cohere':
+        return 'command-r-plus';
+      case 'huggingface':
+        return 'meta-llama/Llama-2-70b-chat-hf';
+      default:
+        return 'local';
     }
   }
 
@@ -136,7 +147,6 @@ export class AIService {
 
       // Fallback to local if AI fails
       return this.generateLocalRecommendations(meeting, module);
-
     } catch (error) {
       console.error('AI recommendation generation failed:', error);
       return this.generateLocalRecommendations(meeting, module);
@@ -167,7 +177,6 @@ export class AIService {
       }
 
       return this.generateLocalInsights(meeting);
-
     } catch (error) {
       console.error('AI insights generation failed:', error);
       return this.generateLocalInsights(meeting);
@@ -180,7 +189,7 @@ export class AIService {
       return this.analyzeLocalPainPoints(painPoints);
     }
 
-    const cacheKey = `analysis:${painPoints.map(p => p.id).join(',')}`;
+    const cacheKey = `analysis:${painPoints.map((p) => p.id).join(',')}`;
     const cached = this.getFromCache(cacheKey);
     if (cached) {
       return cached;
@@ -197,7 +206,6 @@ export class AIService {
       }
 
       return this.analyzeLocalPainPoints(painPoints);
-
     } catch (error) {
       console.error('AI analysis failed:', error);
       return this.analyzeLocalPainPoints(painPoints);
@@ -229,7 +237,7 @@ export class AIService {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'AI call failed'
+        error: error instanceof Error ? error.message : 'AI call failed',
       };
     }
   }
@@ -240,23 +248,24 @@ export class AIService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.config!.apiKey}`
+        Authorization: `Bearer ${this.config!.apiKey}`,
       },
       body: JSON.stringify({
         model: this.config!.model,
         messages: [
           {
             role: 'system',
-            content: 'You are a business automation expert providing recommendations in Hebrew.'
+            content:
+              'You are a business automation expert providing recommendations in Hebrew.',
           },
           {
             role: 'user',
-            content: prompt
-          }
+            content: prompt,
+          },
         ],
         max_completion_tokens: this.config!.maxTokens,
-        temperature: this.config!.temperature
-      })
+        temperature: this.config!.temperature,
+      }),
     });
 
     if (!response.ok) {
@@ -270,8 +279,8 @@ export class AIService {
       usage: {
         promptTokens: data.usage.prompt_tokens,
         completionTokens: data.usage.completion_tokens,
-        totalTokens: data.usage.total_tokens
-      }
+        totalTokens: data.usage.total_tokens,
+      },
     };
   }
 
@@ -282,19 +291,19 @@ export class AIService {
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': this.config!.apiKey,
-        'anthropic-version': '2023-06-01'
+        'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
         model: this.config!.model,
         messages: [
           {
             role: 'user',
-            content: prompt
-          }
+            content: prompt,
+          },
         ],
         max_tokens: this.config!.maxTokens,
-        temperature: this.config!.temperature
-      })
+        temperature: this.config!.temperature,
+      }),
     });
 
     if (!response.ok) {
@@ -304,7 +313,7 @@ export class AIService {
     const data = await response.json();
     return {
       success: true,
-      data: data.content[0].text
+      data: data.content[0].text,
     };
   }
 
@@ -314,14 +323,14 @@ export class AIService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.config!.apiKey}`
+        Authorization: `Bearer ${this.config!.apiKey}`,
       },
       body: JSON.stringify({
         model: this.config!.model,
         prompt,
         max_tokens: this.config!.maxTokens,
-        temperature: this.config!.temperature
-      })
+        temperature: this.config!.temperature,
+      }),
     });
 
     if (!response.ok) {
@@ -331,7 +340,7 @@ export class AIService {
     const data = await response.json();
     return {
       success: true,
-      data: data.generations[0].text
+      data: data.generations[0].text,
     };
   }
 
@@ -343,15 +352,15 @@ export class AIService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.config!.apiKey}`
+          Authorization: `Bearer ${this.config!.apiKey}`,
         },
         body: JSON.stringify({
           inputs: prompt,
           parameters: {
             max_new_tokens: this.config!.maxTokens,
-            temperature: this.config!.temperature
-          }
-        })
+            temperature: this.config!.temperature,
+          },
+        }),
       }
     );
 
@@ -362,12 +371,15 @@ export class AIService {
     const data = await response.json();
     return {
       success: true,
-      data: data[0].generated_text
+      data: data[0].generated_text,
     };
   }
 
   // Build recommendations prompt
-  private buildRecommendationsPrompt(meeting: Meeting, module?: string): string {
+  private buildRecommendationsPrompt(
+    meeting: Meeting,
+    module?: string
+  ): string {
     const context = module
       ? `עבור המודול ${module}, על בסיס הנתונים: ${JSON.stringify(meeting.modules[module])}`
       : `עבור כל המפגש, על בסיס הנתונים: ${JSON.stringify(meeting.modules)}`;
@@ -481,7 +493,7 @@ export class AIService {
         rootCauses: [],
         solutions: [],
         priorities: [],
-        expectedImpact: {}
+        expectedImpact: {},
       };
     } catch (error) {
       console.error('Failed to parse analysis:', error);
@@ -490,14 +502,17 @@ export class AIService {
         rootCauses: [],
         solutions: [],
         priorities: [],
-        expectedImpact: {}
+        expectedImpact: {},
       };
     }
   }
 
   // Parse structured text response
-  private parseStructuredText(text: string, type: 'recommendation' | 'insight'): any[] {
-    const lines = text.split('\n').filter(line => line.trim());
+  private parseStructuredText(
+    text: string,
+    type: 'recommendation' | 'insight'
+  ): any[] {
+    const lines = text.split('\n').filter((line) => line.trim());
     const results: any[] = [];
     let current: any = {};
 
@@ -506,23 +521,24 @@ export class AIService {
         if (Object.keys(current).length > 0) {
           results.push(current);
         }
-        current = type === 'recommendation'
-          ? {
-              title: line.replace(/^\d+\./, '').trim(),
-              description: '',
-              priority: 'medium',
-              effort: 'medium',
-              estimatedValue: 0,
-              module: 'general'
-            }
-          : {
-              type: 'opportunity',
-              title: line.replace(/^\d+\./, '').trim(),
-              description: '',
-              impact: 'medium',
-              actionable: true,
-              relatedModules: []
-            };
+        current =
+          type === 'recommendation'
+            ? {
+                title: line.replace(/^\d+\./, '').trim(),
+                description: '',
+                priority: 'medium',
+                effort: 'medium',
+                estimatedValue: 0,
+                module: 'general',
+              }
+            : {
+                type: 'opportunity',
+                title: line.replace(/^\d+\./, '').trim(),
+                description: '',
+                impact: 'medium',
+                actionable: true,
+                relatedModules: [],
+              };
       } else if (current.title) {
         current.description += line + ' ';
       }
@@ -536,7 +552,10 @@ export class AIService {
   }
 
   // Generate local recommendations (fallback)
-  private generateLocalRecommendations(meeting: Meeting, _module?: string): AIRecommendation[] {
+  private generateLocalRecommendations(
+    meeting: Meeting,
+    _module?: string
+  ): AIRecommendation[] {
     const recommendations: AIRecommendation[] = [];
 
     // Analyze each module for potential recommendations
@@ -551,7 +570,7 @@ export class AIService {
           effort: 'medium',
           estimatedValue: 15000,
           module: 'leadsAndSales',
-          confidence: 0.85
+          confidence: 0.85,
         });
       }
 
@@ -563,7 +582,7 @@ export class AIService {
           effort: 'low',
           estimatedValue: 8000,
           module: 'leadsAndSales',
-          confidence: 0.9
+          confidence: 0.9,
         });
       }
     }
@@ -573,13 +592,13 @@ export class AIService {
 
       if (automationLevel === 'low' || !automationLevel) {
         recommendations.push({
-          title: 'הטמעת צ\'אטבוט לשירות לקוחות',
+          title: "הטמעת צ'אטבוט לשירות לקוחות",
           description: 'בוט חכם שיכול לטפל ב-60% מהפניות הנפוצות',
           priority: 'high',
           effort: 'medium',
           estimatedValue: 20000,
           module: 'customerService',
-          confidence: 0.8
+          confidence: 0.8,
         });
       }
     }
@@ -595,7 +614,7 @@ export class AIService {
           effort: 'high',
           estimatedValue: 30000,
           module: 'operations',
-          confidence: 0.75
+          confidence: 0.75,
         });
       }
     }
@@ -611,14 +630,16 @@ export class AIService {
           effort: 'medium',
           estimatedValue: 12000,
           module: 'reporting',
-          confidence: 0.85
+          confidence: 0.85,
         });
       }
     }
 
     // Add general recommendations based on pain points
     if (meeting.painPoints && meeting.painPoints.length > 0) {
-      const criticalPainPoints = meeting.painPoints.filter(p => p.severity === 'critical');
+      const criticalPainPoints = meeting.painPoints.filter(
+        (p) => p.severity === 'critical'
+      );
 
       if (criticalPainPoints.length > 0) {
         recommendations.push({
@@ -628,7 +649,7 @@ export class AIService {
           effort: 'high',
           estimatedValue: criticalPainPoints.length * 10000,
           module: 'general',
-          confidence: 0.95
+          confidence: 0.95,
         });
       }
     }
@@ -642,7 +663,8 @@ export class AIService {
 
     // Analyze overall digital maturity
     const modules = Object.keys(meeting.modules).filter(
-      key => meeting.modules[key] && Object.keys(meeting.modules[key]).length > 0
+      (key) =>
+        meeting.modules[key] && Object.keys(meeting.modules[key]).length > 0
     );
 
     insights.push({
@@ -653,14 +675,17 @@ export class AIService {
       actionable: true,
       relatedModules: modules,
       confidence: 0.9,
-      dataPoints: { completedModules: modules.length, totalModules: 9 }
+      dataPoints: { completedModules: modules.length, totalModules: 9 },
     });
 
     // Identify automation opportunities
     let automationOpportunities = 0;
-    if (meeting.modules.leadsAndSales?.followUp?.manual) automationOpportunities++;
-    if (meeting.modules.customerService?.automationLevel === 'low') automationOpportunities++;
-    if (meeting.modules.reporting?.dashboards?.manual) automationOpportunities++;
+    if (meeting.modules.leadsAndSales?.followUp?.manual)
+      automationOpportunities++;
+    if (meeting.modules.customerService?.automationLevel === 'low')
+      automationOpportunities++;
+    if (meeting.modules.reporting?.dashboards?.manual)
+      automationOpportunities++;
 
     if (automationOpportunities > 0) {
       insights.push({
@@ -670,12 +695,15 @@ export class AIService {
         impact: 'high',
         actionable: true,
         relatedModules: ['leadsAndSales', 'customerService', 'reporting'],
-        confidence: 0.85
+        confidence: 0.85,
       });
     }
 
     // Risk analysis
-    if (meeting.painPoints && meeting.painPoints.filter(p => p.severity === 'critical').length > 2) {
+    if (
+      meeting.painPoints &&
+      meeting.painPoints.filter((p) => p.severity === 'critical').length > 2
+    ) {
       insights.push({
         type: 'risk',
         title: 'ריבוי נקודות כאב קריטיות',
@@ -683,7 +711,7 @@ export class AIService {
         impact: 'high',
         actionable: true,
         relatedModules: [],
-        confidence: 0.95
+        confidence: 0.95,
       });
     }
 
@@ -710,9 +738,13 @@ export class AIService {
       priorities.push('שדרוג שירות לקוחות - עדיפות בינונית');
     }
 
-    const criticalCount = painPoints.filter(p => p.severity === 'critical').length;
+    const criticalCount = painPoints.filter(
+      (p) => p.severity === 'critical'
+    ).length;
     if (criticalCount > 0) {
-      priorities.unshift(`טיפול ב-${criticalCount} בעיות קריטיות - עדיפות מיידית`);
+      priorities.unshift(
+        `טיפול ב-${criticalCount} בעיות קריטיות - עדיפות מיידית`
+      );
     }
 
     return {
@@ -723,21 +755,26 @@ export class AIService {
       expectedImpact: {
         timeSaving: '20-30 שעות בחודש',
         costSaving: '15,000-25,000 ₪ בחודש',
-        efficiencyGain: '35-45%'
-      }
+        efficiencyGain: '35-45%',
+      },
     };
   }
 
   // Group pain points by module
-  private groupPainPointsByModule(painPoints: PainPoint[]): Record<string, PainPoint[]> {
-    return painPoints.reduce((acc, point) => {
-      const module = point.module || 'general';
-      if (!acc[module]) {
-        acc[module] = [];
-      }
-      acc[module].push(point);
-      return acc;
-    }, {} as Record<string, PainPoint[]>);
+  private groupPainPointsByModule(
+    painPoints: PainPoint[]
+  ): Record<string, PainPoint[]> {
+    return painPoints.reduce(
+      (acc, point) => {
+        const module = point.module || 'general';
+        if (!acc[module]) {
+          acc[module] = [];
+        }
+        acc[module].push(point);
+        return acc;
+      },
+      {} as Record<string, PainPoint[]>
+    );
   }
 
   // Cache management
@@ -760,7 +797,7 @@ export class AIService {
 
     this.cache.set(key, {
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     // Clean old cache entries
@@ -780,7 +817,9 @@ export class AIService {
     const oneMinuteAgo = now - 60000;
 
     // Remove old requests from queue
-    this.requestQueue = this.requestQueue.filter(r => r.timestamp > oneMinuteAgo);
+    this.requestQueue = this.requestQueue.filter(
+      (r) => r.timestamp > oneMinuteAgo
+    );
 
     // Check if we're at the limit
     if (this.requestQueue.length >= this.config.rateLimitPerMinute) {
@@ -788,7 +827,7 @@ export class AIService {
       const waitTime = 60000 - (now - oldestRequest.timestamp);
 
       if (waitTime > 0) {
-        await new Promise(resolve => setTimeout(resolve, waitTime));
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
       }
     }
 
@@ -797,7 +836,7 @@ export class AIService {
       id: Math.random().toString(36).substr(2, 9),
       timestamp: now,
       prompt: '',
-      provider: this.provider
+      provider: this.provider,
     });
   }
 
@@ -810,17 +849,21 @@ export class AIService {
   getCacheStats(): { size: number; entries: string[] } {
     return {
       size: this.cache.size,
-      entries: Array.from(this.cache.keys())
+      entries: Array.from(this.cache.keys()),
     };
   }
 
   // Test AI connection
-  async testConnection(): Promise<{ success: boolean; message: string; provider: string }> {
+  async testConnection(): Promise<{
+    success: boolean;
+    message: string;
+    provider: string;
+  }> {
     if (!this.isAvailable()) {
       return {
         success: false,
         message: 'AI service is not configured',
-        provider: this.provider
+        provider: this.provider,
       };
     }
 
@@ -828,14 +871,17 @@ export class AIService {
       const response = await this.callAI('Say "Hello" in Hebrew');
       return {
         success: response.success,
-        message: response.success ? 'Connection successful' : response.error || 'Connection failed',
-        provider: this.provider
+        message: response.success
+          ? 'Connection successful'
+          : response.error || 'Connection failed',
+        provider: this.provider,
       };
     } catch (error) {
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Connection test failed',
-        provider: this.provider
+        message:
+          error instanceof Error ? error.message : 'Connection test failed',
+        provider: this.provider,
       };
     }
   }

@@ -33,7 +33,7 @@ export const TextField: React.FC<TextFieldProps> = ({
   className = '',
   dir = 'rtl',
   onBlur,
-  onKeyPress
+  onKeyPress,
 }) => {
   const baseClasses = `w-full px-3 py-2 border rounded-lg shadow-sm transition-all duration-200
     focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none

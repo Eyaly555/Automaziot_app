@@ -7,7 +7,13 @@ import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 interface AutoFormToCrmConfig {
-  formPlatform: 'wix' | 'wordpress' | 'elementor' | 'google_forms' | 'typeform' | 'custom';
+  formPlatform:
+    | 'wix'
+    | 'wordpress'
+    | 'elementor'
+    | 'google_forms'
+    | 'typeform'
+    | 'custom';
   crmSystem: 'zoho' | 'salesforce' | 'hubspot' | 'pipedrive' | 'other';
   fieldMapping: Array<{
     formField: string;
@@ -21,7 +27,7 @@ interface AutoFormToCrmConfig {
 
 /**
  * Smart Auto Form to CRM Spec Component
- * 
+ *
  * NOW WITH INTELLIGENT FIELD PRE-POPULATION:
  * - Auto-fills CRM system from Phase 1 if already selected
  * - Auto-fills form platform from lead sources
@@ -30,20 +36,20 @@ interface AutoFormToCrmConfig {
  */
 export function AutoFormToCrmSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
-  
+
   // Smart fields with auto-population
   const crmSystem = useSmartField<string>({
     fieldId: 'crm_system',
     localPath: 'crmSystem',
     serviceId: 'auto-form-to-crm',
-    autoSave: false // We'll batch save
+    autoSave: false, // We'll batch save
   });
 
   const formPlatform = useSmartField<string>({
     fieldId: 'form_platform',
     localPath: 'formPlatform',
     serviceId: 'auto-form-to-crm',
-    autoSave: false
+    autoSave: false,
   });
 
   // Regular state for other fields (not in registry yet)
@@ -61,7 +67,7 @@ export function AutoFormToCrmSpec() {
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-form-to-crm',
-    category: 'automations'
+    category: 'automations',
   });
 
   useBeforeUnload(() => {
@@ -69,14 +75,16 @@ export function AutoFormToCrmSpec() {
     const completeConfig = {
       ...config,
       crmSystem: crmSystem.value,
-      formPlatform: formPlatform.value
+      formPlatform: formPlatform.value,
     };
     saveData(completeConfig);
   });
 
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
-    const existing = automations.find((a: any) => a.serviceId === 'auto-form-to-crm');
+    const existing = automations.find(
+      (a: any) => a.serviceId === 'auto-form-to-crm'
+    );
 
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
@@ -108,22 +116,25 @@ export function AutoFormToCrmSpec() {
   //   }
   // }, [config, crmSystem.value, formPlatform.value, saveData]);
 
-  const handleFieldChange = useCallback((field: keyof Partial<AutoFormToCrmConfig>, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = {
-            ...updated,
-            crmSystem: crmSystem.value,
-            formPlatform: formPlatform.value
-          };
-          saveData(completeConfig);
-        }
-      }, 0);
-      return updated;
-    });
-  }, [crmSystem.value, formPlatform.value, saveData]);
+  const handleFieldChange = useCallback(
+    (field: keyof Partial<AutoFormToCrmConfig>, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = {
+              ...updated,
+              crmSystem: crmSystem.value,
+              formPlatform: formPlatform.value,
+            };
+            saveData(completeConfig);
+          }
+        }, 0);
+        return updated;
+      });
+    },
+    [crmSystem.value, formPlatform.value, saveData]
+  );
 
   const handleSave = useCallback(async () => {
     if (isLoadingRef.current) return; // Don't save during loading
@@ -132,7 +143,7 @@ export function AutoFormToCrmSpec() {
     const completeConfig = {
       ...config,
       crmSystem: crmSystem.value,
-      formPlatform: formPlatform.value
+      formPlatform: formPlatform.value,
     };
 
     // Save using auto-save (manual save trigger)
@@ -151,10 +162,12 @@ export function AutoFormToCrmSpec() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
               <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+                <h4 className="font-semibold text-blue-900 mb-1">
+                  נתונים מולאו אוטומטית משלב 1
+                </h4>
                 <p className="text-sm text-blue-800">
-                  חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. 
-                  תוכל לערוך אותם במידת הצורך.
+                  חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל
+                  לערוך אותם במידת הצורך.
                 </p>
               </div>
             </div>
@@ -165,7 +178,9 @@ export function AutoFormToCrmSpec() {
             <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+                <h4 className="font-semibold text-orange-900 mb-1">
+                  זוהה אי-התאמה בנתונים
+                </h4>
                 <p className="text-sm text-orange-800">
                   נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
                 </p>
@@ -187,11 +202,13 @@ export function AutoFormToCrmSpec() {
                   </span>
                 )}
               </div>
-              <select 
-                value={formPlatform.value || 'wix'} 
+              <select
+                value={formPlatform.value || 'wix'}
                 onChange={(e) => formPlatform.setValue(e.target.value)}
                 className={`w-full px-3 py-2 border rounded-md ${
-                  formPlatform.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  formPlatform.isAutoPopulated
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-300'
                 } ${formPlatform.hasConflict ? 'border-orange-300' : ''}`}
               >
                 <option value="wix">Wix</option>
@@ -221,11 +238,13 @@ export function AutoFormToCrmSpec() {
                   </span>
                 )}
               </div>
-              <select 
-                value={crmSystem.value || 'zoho'} 
+              <select
+                value={crmSystem.value || 'zoho'}
                 onChange={(e) => crmSystem.setValue(e.target.value)}
                 className={`w-full px-3 py-2 border rounded-md ${
-                  crmSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  crmSystem.isAutoPopulated
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-300'
                 } ${crmSystem.hasConflict ? 'border-orange-300' : ''}`}
               >
                 <option value="zoho">Zoho CRM</option>
@@ -243,18 +262,36 @@ export function AutoFormToCrmSpec() {
           </div>
           <div className="space-y-3">
             <label className="flex items-center">
-              <input type="checkbox" checked={config.duplicateDetection}
-                onChange={(e) => handleFieldChange('duplicateDetection', e.target.checked)} className="mr-2" />
+              <input
+                type="checkbox"
+                checked={config.duplicateDetection}
+                onChange={(e) =>
+                  handleFieldChange('duplicateDetection', e.target.checked)
+                }
+                className="mr-2"
+              />
               <span className="text-sm">זיהוי כפילויות</span>
             </label>
             <label className="flex items-center">
-              <input type="checkbox" checked={config.dataValidation}
-                onChange={(e) => handleFieldChange('dataValidation', e.target.checked)} className="mr-2" />
+              <input
+                type="checkbox"
+                checked={config.dataValidation}
+                onChange={(e) =>
+                  handleFieldChange('dataValidation', e.target.checked)
+                }
+                className="mr-2"
+              />
               <span className="text-sm">ולידציה של נתונים</span>
             </label>
             <label className="flex items-center">
-              <input type="checkbox" checked={config.autoAssignment}
-                onChange={(e) => handleFieldChange('autoAssignment', e.target.checked)} className="mr-2" />
+              <input
+                type="checkbox"
+                checked={config.autoAssignment}
+                onChange={(e) =>
+                  handleFieldChange('autoAssignment', e.target.checked)
+                }
+                className="mr-2"
+              />
               <span className="text-sm">הקצאה אוטומטית</span>
             </label>
           </div>
@@ -272,12 +309,14 @@ export function AutoFormToCrmSpec() {
                   <span className="text-sm">שגיאה בשמירה</span>
                 </div>
               )}
-              {!isSaving && !saveError && (config.crmSystem || crmSystem.value) && (
-                <div className="flex items-center gap-2 text-green-600">
-                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                  <span className="text-sm">נשמר אוטומטית</span>
-                </div>
-              )}
+              {!isSaving &&
+                !saveError &&
+                (config.crmSystem || crmSystem.value) && (
+                  <div className="flex items-center gap-2 text-green-600">
+                    <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                    <span className="text-sm">נשמר אוטומטית</span>
+                  </div>
+                )}
             </div>
             <button
               onClick={handleSave}

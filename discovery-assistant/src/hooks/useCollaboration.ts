@@ -1,9 +1,17 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { RealtimeChannel } from '@supabase/supabase-js';
-import { supabase, isSupabaseConfigured, createRealtimeChannel } from '../lib/supabase';
+import {
+  supabase,
+  isSupabaseConfigured,
+  createRealtimeChannel,
+} from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useMeetingStore } from '../store/useMeetingStore';
-import type { MeetingCollaborator, MeetingActivity, MeetingComment } from '../types/database';
+import type {
+  MeetingCollaborator,
+  MeetingActivity,
+  MeetingComment,
+} from '../types/database';
 
 interface CollaboratorPresence {
   userId: string;
@@ -45,7 +53,7 @@ export const useCollaboration = (options: UseCollaborationOptions) => {
     activeEditors: new Map(),
     pendingChanges: new Map(),
     activities: [],
-    comments: []
+    comments: [],
   });
 
   const channelRef = useRef<RealtimeChannel | null>(null);
@@ -55,10 +63,20 @@ export const useCollaboration = (options: UseCollaborationOptions) => {
   // Generate a color for the user
   const getUserColor = useCallback((userId: string): string => {
     const colors = [
-      '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
-      '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1'
+      '#3B82F6',
+      '#10B981',
+      '#F59E0B',
+      '#EF4444',
+      '#8B5CF6',
+      '#EC4899',
+      '#06B6D4',
+      '#84CC16',
+      '#F97316',
+      '#6366F1',
     ];
-    const index = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const index = userId
+      .split('')
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return colors[index % colors.length];
   }, []);
 
@@ -79,9 +97,9 @@ export const useCollaboration = (options: UseCollaborationOptions) => {
           const newState = channel.presenceState();
           const collaborators: CollaboratorPresence[] = [];
 
-          Object.keys(newState).forEach(key => {
+          Object.keys(newState).forEach((key) => {
             const presences = newState[key] as any[];
-            presences.forEach(presence => {
+            presences.forEach((presence) => {
               if (presence.userId !== user.id) {
                 collaborators.push({
                   userId: presence.userId,
@@ -92,16 +110,16 @@ export const useCollaboration = (options: UseCollaborationOptions) => {
                   isTyping: presence.isTyping || false,
                   lastSeen: presence.lastSeen || new Date().toISOString(),
                   cursor: presence.cursor,
-                  color: presence.color || getUserColor(presence.userId)
+                  color: presence.color || getUserColor(presence.userId),
                 });
               }
             });
           });
 
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             collaborators,
-            isConnected: true
+            isConnected: true,
           }));
         })
         .on('presence', { event: 'join' }, ({ newPresences }) => {
@@ -126,13 +144,13 @@ export const useCollaboration = (options: UseCollaborationOptions) => {
 
           // Update local state if not our own update
           if (userId !== user.id) {
-            setState(prev => {
+            setState((prev) => {
               const newActiveEditors = new Map(prev.activeEditors);
               newActiveEditors.set(`${moduleId}.${field}`, userId);
 
               return {
                 ...prev,
-                activeEditors: newActiveEditors
+                activeEditors: newActiveEditors,
               };
             });
 
@@ -148,12 +166,12 @@ export const useCollaboration = (options: UseCollaborationOptions) => {
           const { field, userId, moduleId } = payload;
 
           if (userId !== user.id) {
-            setState(prev => {
+            setState((prev) => {
               const newActiveEditors = new Map(prev.activeEditors);
               newActiveEditors.set(`${moduleId}.${field}`, userId);
               return {
                 ...prev,
-                activeEditors: newActiveEditors
+                activeEditors: newActiveEditors,
               };
             });
           }
@@ -161,45 +179,53 @@ export const useCollaboration = (options: UseCollaborationOptions) => {
         .on('broadcast', { event: 'field-blur' }, ({ payload }) => {
           const { field, moduleId } = payload;
 
-          setState(prev => {
+          setState((prev) => {
             const newActiveEditors = new Map(prev.activeEditors);
             newActiveEditors.delete(`${moduleId}.${field}`);
             return {
               ...prev,
-              activeEditors: newActiveEditors
+              activeEditors: newActiveEditors,
             };
           });
         });
 
       // Subscribe to database changes for activities and comments
       channel
-        .on('postgres_changes', {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'meeting_activities',
-          filter: `meeting_id=eq.${options.meetingId}`
-        }, (payload) => {
-          setState(prev => ({
-            ...prev,
-            activities: [...prev.activities, payload.new as MeetingActivity]
-          }));
-        })
-        .on('postgres_changes', {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'meeting_comments',
-          filter: `meeting_id=eq.${options.meetingId}`
-        }, (payload) => {
-          const newComment = payload.new as MeetingComment;
-          setState(prev => ({
-            ...prev,
-            comments: [...prev.comments, newComment]
-          }));
-
-          if (options.onComment) {
-            options.onComment(newComment);
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'meeting_activities',
+            filter: `meeting_id=eq.${options.meetingId}`,
+          },
+          (payload) => {
+            setState((prev) => ({
+              ...prev,
+              activities: [...prev.activities, payload.new as MeetingActivity],
+            }));
           }
-        });
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'meeting_comments',
+            filter: `meeting_id=eq.${options.meetingId}`,
+          },
+          (payload) => {
+            const newComment = payload.new as MeetingComment;
+            setState((prev) => ({
+              ...prev,
+              comments: [...prev.comments, newComment],
+            }));
+
+            if (options.onComment) {
+              options.onComment(newComment);
+            }
+          }
+        );
 
       // Subscribe to cursor movements if enabled
       if (options.enableCursors) {
@@ -207,8 +233,8 @@ export const useCollaboration = (options: UseCollaborationOptions) => {
           const { userId, x, y } = payload;
 
           if (userId !== user.id) {
-            setState(prev => {
-              const collaborators = prev.collaborators.map(c => {
+            setState((prev) => {
+              const collaborators = prev.collaborators.map((c) => {
                 if (c.userId === userId) {
                   return { ...c, cursor: { x, y } };
                 }
@@ -229,7 +255,7 @@ export const useCollaboration = (options: UseCollaborationOptions) => {
         currentField: undefined,
         isTyping: false,
         lastSeen: new Date().toISOString(),
-        color: getUserColor(user.id)
+        color: getUserColor(user.id),
       };
 
       await channel.track(userPresence);
@@ -241,15 +267,14 @@ export const useCollaboration = (options: UseCollaborationOptions) => {
       heartbeatIntervalRef.current = setInterval(() => {
         channel.track({
           ...userPresence,
-          lastSeen: new Date().toISOString()
+          lastSeen: new Date().toISOString(),
         });
       }, 30000); // Every 30 seconds
 
-      setState(prev => ({ ...prev, isConnected: true }));
-
+      setState((prev) => ({ ...prev, isConnected: true }));
     } catch (error) {
       console.error('Error initializing collaboration:', error);
-      setState(prev => ({ ...prev, isConnected: false }));
+      setState((prev) => ({ ...prev, isConnected: false }));
 
       // Attempt reconnection if enabled
       if (options.autoReconnect !== false) {
@@ -283,7 +308,7 @@ export const useCollaboration = (options: UseCollaborationOptions) => {
       activeEditors: new Map(),
       pendingChanges: new Map(),
       activities: [],
-      comments: []
+      comments: [],
     });
   }, []);
 
@@ -294,171 +319,194 @@ export const useCollaboration = (options: UseCollaborationOptions) => {
   }, [initCollaboration, cleanup]);
 
   // Broadcast field update
-  const broadcastFieldUpdate = useCallback(async (
-    moduleId: string,
-    field: string,
-    value: any
-  ) => {
-    if (!channelRef.current || !user) return;
+  const broadcastFieldUpdate = useCallback(
+    async (moduleId: string, field: string, value: any) => {
+      if (!channelRef.current || !user) return;
 
-    await channelRef.current.send({
-      type: 'broadcast',
-      event: 'field-update',
-      payload: {
-        moduleId,
-        field,
-        value,
-        userId: user.id,
-        timestamp: new Date().toISOString()
-      }
-    });
-  }, [user]);
+      await channelRef.current.send({
+        type: 'broadcast',
+        event: 'field-update',
+        payload: {
+          moduleId,
+          field,
+          value,
+          userId: user.id,
+          timestamp: new Date().toISOString(),
+        },
+      });
+    },
+    [user]
+  );
 
   // Broadcast field focus
-  const broadcastFieldFocus = useCallback(async (
-    moduleId: string,
-    field: string
-  ) => {
-    if (!channelRef.current || !user) return;
+  const broadcastFieldFocus = useCallback(
+    async (moduleId: string, field: string) => {
+      if (!channelRef.current || !user) return;
 
-    await channelRef.current.send({
-      type: 'broadcast',
-      event: 'field-focus',
-      payload: {
-        moduleId,
-        field,
-        userId: user.id
-      }
-    });
-  }, [user]);
+      await channelRef.current.send({
+        type: 'broadcast',
+        event: 'field-focus',
+        payload: {
+          moduleId,
+          field,
+          userId: user.id,
+        },
+      });
+    },
+    [user]
+  );
 
   // Broadcast field blur
-  const broadcastFieldBlur = useCallback(async (
-    moduleId: string,
-    field: string
-  ) => {
-    if (!channelRef.current || !user) return;
+  const broadcastFieldBlur = useCallback(
+    async (moduleId: string, field: string) => {
+      if (!channelRef.current || !user) return;
 
-    await channelRef.current.send({
-      type: 'broadcast',
-      event: 'field-blur',
-      payload: {
-        moduleId,
-        field,
-        userId: user.id
-      }
-    });
-  }, [user]);
+      await channelRef.current.send({
+        type: 'broadcast',
+        event: 'field-blur',
+        payload: {
+          moduleId,
+          field,
+          userId: user.id,
+        },
+      });
+    },
+    [user]
+  );
 
   // Broadcast cursor position
-  const broadcastCursorPosition = useCallback(async (x: number, y: number) => {
-    if (!channelRef.current || !user || !options.enableCursors) return;
+  const broadcastCursorPosition = useCallback(
+    async (x: number, y: number) => {
+      if (!channelRef.current || !user || !options.enableCursors) return;
 
-    await channelRef.current.send({
-      type: 'broadcast',
-      event: 'cursor-move',
-      payload: {
-        userId: user.id,
-        x,
-        y
-      }
-    });
-  }, [user, options.enableCursors]);
+      await channelRef.current.send({
+        type: 'broadcast',
+        event: 'cursor-move',
+        payload: {
+          userId: user.id,
+          x,
+          y,
+        },
+      });
+    },
+    [user, options.enableCursors]
+  );
 
   // Update presence
-  const updatePresence = useCallback(async (updates: Partial<CollaboratorPresence>) => {
-    if (!channelRef.current || !user) return;
+  const updatePresence = useCallback(
+    async (updates: Partial<CollaboratorPresence>) => {
+      if (!channelRef.current || !user) return;
 
-    await channelRef.current.track({
-      userId: user.id,
-      ...updates,
-      lastSeen: new Date().toISOString()
-    });
-  }, [user]);
+      await channelRef.current.track({
+        userId: user.id,
+        ...updates,
+        lastSeen: new Date().toISOString(),
+      });
+    },
+    [user]
+  );
 
   // Add comment
-  const addComment = useCallback(async (
-    module: string | null,
-    field: string | null,
-    comment: string
-  ): Promise<{ success: boolean; error?: string }> => {
-    if (!isSupabaseConfigured() || !user) {
-      return { success: false, error: 'Not authenticated' };
-    }
+  const addComment = useCallback(
+    async (
+      module: string | null,
+      field: string | null,
+      comment: string
+    ): Promise<{ success: boolean; error?: string }> => {
+      if (!isSupabaseConfigured() || !user) {
+        return { success: false, error: 'Not authenticated' };
+      }
 
-    try {
-      const { error } = await supabase
-        .from('meeting_comments')
-        .insert({
+      try {
+        const { error } = await supabase.from('meeting_comments').insert({
           meeting_id: options.meetingId,
           user_id: user.id,
           module,
           field,
-          comment
+          comment,
         });
 
-      if (error) {
-        return { success: false, error: error.message };
-      }
+        if (error) {
+          return { success: false, error: error.message };
+        }
 
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: 'Failed to add comment' };
-    }
-  }, [user, options.meetingId]);
+        return { success: true };
+      } catch (error) {
+        return { success: false, error: 'Failed to add comment' };
+      }
+    },
+    [user, options.meetingId]
+  );
 
   // Resolve comment
-  const resolveComment = useCallback(async (
-    commentId: string
-  ): Promise<{ success: boolean; error?: string }> => {
-    if (!isSupabaseConfigured() || !user) {
-      return { success: false, error: 'Not authenticated' };
-    }
-
-    try {
-      const { error } = await supabase
-        .from('meeting_comments')
-        .update({
-          is_resolved: true,
-          resolved_by: user.id,
-          resolved_at: new Date().toISOString()
-        })
-        .eq('id', commentId);
-
-      if (error) {
-        return { success: false, error: error.message };
+  const resolveComment = useCallback(
+    async (
+      commentId: string
+    ): Promise<{ success: boolean; error?: string }> => {
+      if (!isSupabaseConfigured() || !user) {
+        return { success: false, error: 'Not authenticated' };
       }
 
-      setState(prev => ({
-        ...prev,
-        comments: prev.comments.map(c =>
-          c.id === commentId
-            ? { ...c, is_resolved: true, resolved_by: user.id, resolved_at: new Date().toISOString() }
-            : c
-        )
-      }));
+      try {
+        const { error } = await supabase
+          .from('meeting_comments')
+          .update({
+            is_resolved: true,
+            resolved_by: user.id,
+            resolved_at: new Date().toISOString(),
+          })
+          .eq('id', commentId);
 
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: 'Failed to resolve comment' };
-    }
-  }, [user]);
+        if (error) {
+          return { success: false, error: error.message };
+        }
+
+        setState((prev) => ({
+          ...prev,
+          comments: prev.comments.map((c) =>
+            c.id === commentId
+              ? {
+                  ...c,
+                  is_resolved: true,
+                  resolved_by: user.id,
+                  resolved_at: new Date().toISOString(),
+                }
+              : c
+          ),
+        }));
+
+        return { success: true };
+      } catch (error) {
+        return { success: false, error: 'Failed to resolve comment' };
+      }
+    },
+    [user]
+  );
 
   // Get field editor
-  const getFieldEditor = useCallback((moduleId: string, field: string): string | undefined => {
-    return state.activeEditors.get(`${moduleId}.${field}`);
-  }, [state.activeEditors]);
+  const getFieldEditor = useCallback(
+    (moduleId: string, field: string): string | undefined => {
+      return state.activeEditors.get(`${moduleId}.${field}`);
+    },
+    [state.activeEditors]
+  );
 
   // Check if field is being edited
-  const isFieldBeingEdited = useCallback((moduleId: string, field: string): boolean => {
-    const editorId = state.activeEditors.get(`${moduleId}.${field}`);
-    return editorId !== undefined && editorId !== user?.id;
-  }, [state.activeEditors, user]);
+  const isFieldBeingEdited = useCallback(
+    (moduleId: string, field: string): boolean => {
+      const editorId = state.activeEditors.get(`${moduleId}.${field}`);
+      return editorId !== undefined && editorId !== user?.id;
+    },
+    [state.activeEditors, user]
+  );
 
   // Get collaborator by ID
-  const getCollaborator = useCallback((userId: string): CollaboratorPresence | undefined => {
-    return state.collaborators.find(c => c.userId === userId);
-  }, [state.collaborators]);
+  const getCollaborator = useCallback(
+    (userId: string): CollaboratorPresence | undefined => {
+      return state.collaborators.find((c) => c.userId === userId);
+    },
+    [state.collaborators]
+  );
 
   return {
     // State
@@ -482,6 +530,6 @@ export const useCollaboration = (options: UseCollaborationOptions) => {
 
     // Utilities
     reconnect: initCollaboration,
-    disconnect: cleanup
+    disconnect: cleanup,
   };
 };

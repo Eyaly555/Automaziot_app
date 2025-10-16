@@ -13,7 +13,7 @@ describe('AiProposalJsonSchema', () => {
         'services',
         'financialSummary',
         'terms',
-        'nextSteps'
+        'nextSteps',
       ]);
     });
 
@@ -28,12 +28,12 @@ describe('AiProposalJsonSchema', () => {
         executiveSummary: [
           'בהתבסס על הניתוח המעמיק של תהליכי העבודה שלכם, זיהינו הזדמנויות משמעותיות לשיפור היעילות.',
           'הפתרונות המוצעים יספקו חיסכון משמעותי בזמן ובעלויות תוך שיפור השירות ללקוחות.',
-          'אנו ממליצים להתחיל עם הפתרונות בעדיפות הגבוהה ביותר לאפקט מיידי.'
+          'אנו ממליצים להתחיל עם הפתרונות בעדיפות הגבוהה ביותר לאפקט מיידי.',
         ],
         services: [],
         financialSummary: { totalPrice: 10000, totalDays: 14 },
         terms: [],
-        nextSteps: []
+        nextSteps: [],
       };
 
       // Schema validation would happen at runtime through the generator
@@ -48,7 +48,7 @@ describe('AiProposalJsonSchema', () => {
         services: [],
         financialSummary: { totalPrice: 10000, totalDays: 14 },
         terms: [],
-        nextSteps: []
+        nextSteps: [],
       };
 
       expect(Array.isArray(invalidDoc.executiveSummary)).toBe(false);
@@ -60,7 +60,7 @@ describe('AiProposalJsonSchema', () => {
         services: [],
         financialSummary: { totalPrice: 10000, totalDays: 14 },
         terms: [],
-        nextSteps: []
+        nextSteps: [],
       };
 
       expect(invalidDoc.executiveSummary[0].length).toBeLessThan(50);
@@ -75,19 +75,23 @@ describe('AiProposalJsonSchema', () => {
           {
             serviceId: 'auto-lead-response',
             titleHe: 'מענה אוטומטי ללידים',
-            whyRelevantHe: 'זמן התגובה הממוצע ללידים הוא 30 דקות, מה שפוגע בסיכויי ההמרה. הפתרון שלנו יבטיח תגובה מיידית ומותאמת אישית לכל ליד.',
-            whatIncludedHe: 'הטמעת מערכת תגובה אוטומטית עם תבניות מותאמות אישית, חלוקת לידים חכמה על בסיס זמינות הצוות, ודשבורד לניטור ביצועים.'
+            whyRelevantHe:
+              'זמן התגובה הממוצע ללידים הוא 30 דקות, מה שפוגע בסיכויי ההמרה. הפתרון שלנו יבטיח תגובה מיידית ומותאמת אישית לכל ליד.',
+            whatIncludedHe:
+              'הטמעת מערכת תגובה אוטומטית עם תבניות מותאמות אישית, חלוקת לידים חכמה על בסיס זמינות הצוות, ודשבורד לניטור ביצועים.',
           },
           {
             serviceId: 'crm-integration',
             titleHe: 'אינטגרציה עם מערכת CRM',
-            whyRelevantHe: 'הנתונים מתהליכי המכירה אינם מסונכרנים עם מערכת ה-CRM, מה שמקשה על המעקב והדיווח.',
-            whatIncludedHe: 'חיבור מלא למערכת ה-CRM הקיימת, סנכרון אוטומטי של נתוני לקוחות ולידים, ויצירת דוחות מתקדמים.'
-          }
+            whyRelevantHe:
+              'הנתונים מתהליכי המכירה אינם מסונכרנים עם מערכת ה-CRM, מה שמקשה על המעקב והדיווח.',
+            whatIncludedHe:
+              'חיבור מלא למערכת ה-CRM הקיימת, סנכרון אוטומטי של נתוני לקוחות ולידים, ויצירת דוחות מתקדמים.',
+          },
         ],
         financialSummary: { totalPrice: 15000, totalDays: 21 },
         terms: [],
-        nextSteps: []
+        nextSteps: [],
       };
 
       expect(validDoc.services).toHaveLength(2);
@@ -103,13 +107,13 @@ describe('AiProposalJsonSchema', () => {
         services: [
           {
             serviceId: 'test-service',
-            titleHe: 'Test Service'
+            titleHe: 'Test Service',
             // Missing whyRelevantHe and whatIncludedHe
-          }
+          },
         ],
         financialSummary: { totalPrice: 10000, totalDays: 14 },
         terms: [],
-        nextSteps: []
+        nextSteps: [],
       };
 
       expect(invalidDoc.services[0].whyRelevantHe).toBeUndefined();
@@ -122,7 +126,7 @@ describe('AiProposalJsonSchema', () => {
         services: [],
         financialSummary: { totalPrice: 10000, totalDays: 14 },
         terms: [],
-        nextSteps: []
+        nextSteps: [],
       };
 
       expect(invalidDoc.services).toHaveLength(0);
@@ -138,17 +142,17 @@ describe('AiProposalJsonSchema', () => {
             serviceId: 'test-service',
             titleHe: 'Test Service',
             whyRelevantHe: 'Detailed explanation of relevance',
-            whatIncludedHe: 'Detailed description of what is included'
-          }
+            whatIncludedHe: 'Detailed description of what is included',
+          },
         ],
         financialSummary: {
           totalPrice: 15000,
           totalDays: 21,
           monthlySavings: 3000,
-          expectedROIMonths: 5
+          expectedROIMonths: 5,
         },
         terms: [],
-        nextSteps: []
+        nextSteps: [],
       };
 
       expect(validDoc.financialSummary.totalPrice).toBe(15000);
@@ -160,19 +164,21 @@ describe('AiProposalJsonSchema', () => {
     it('should reject invalid financial data types', () => {
       const invalidDoc = {
         executiveSummary: ['Summary'],
-        services: [{
-          serviceId: 'test',
-          titleHe: 'Test',
-          whyRelevantHe: 'Why',
-          whatIncludedHe: 'What'
-        }],
+        services: [
+          {
+            serviceId: 'test',
+            titleHe: 'Test',
+            whyRelevantHe: 'Why',
+            whatIncludedHe: 'What',
+          },
+        ],
         financialSummary: {
           totalPrice: 'not-a-number',
           totalDays: -5,
-          monthlySavings: 'invalid'
+          monthlySavings: 'invalid',
         },
         terms: [],
-        nextSteps: []
+        nextSteps: [],
       };
 
       expect(typeof invalidDoc.financialSummary.totalPrice).toBe('string');
@@ -183,19 +189,21 @@ describe('AiProposalJsonSchema', () => {
     it('should accept financial summary without optional fields', () => {
       const validDoc: AiProposalDoc = {
         executiveSummary: ['Summary paragraph'],
-        services: [{
-          serviceId: 'test',
-          titleHe: 'Test',
-          whyRelevantHe: 'Why',
-          whatIncludedHe: 'What'
-        }],
+        services: [
+          {
+            serviceId: 'test',
+            titleHe: 'Test',
+            whyRelevantHe: 'Why',
+            whatIncludedHe: 'What',
+          },
+        ],
         financialSummary: {
           totalPrice: 10000,
-          totalDays: 14
+          totalDays: 14,
           // monthlySavings and expectedROIMonths are optional
         },
         terms: [],
-        nextSteps: []
+        nextSteps: [],
       };
 
       expect(validDoc.financialSummary.totalPrice).toBe(10000);
@@ -209,20 +217,22 @@ describe('AiProposalJsonSchema', () => {
     it('should accept valid terms array', () => {
       const validDoc: AiProposalDoc = {
         executiveSummary: ['Summary paragraph'],
-        services: [{
-          serviceId: 'test',
-          titleHe: 'Test',
-          whyRelevantHe: 'Why',
-          whatIncludedHe: 'What'
-        }],
+        services: [
+          {
+            serviceId: 'test',
+            titleHe: 'Test',
+            whyRelevantHe: 'Why',
+            whatIncludedHe: 'What',
+          },
+        ],
         financialSummary: { totalPrice: 10000, totalDays: 14 },
         terms: [
           'ההצעה תקפה ל-30 ימים מתאריך השליחה',
           'תשלום 50% מקדמה, 50% בסיום הפרויקט',
           'אחריות לשלושה חודשים לאחר ההשקה',
-          'כל השינויים יתואמו מראש עם הלקוח'
+          'כל השינויים יתואמו מראש עם הלקוח',
         ],
-        nextSteps: []
+        nextSteps: [],
       };
 
       expect(validDoc.terms).toHaveLength(4);
@@ -233,15 +243,17 @@ describe('AiProposalJsonSchema', () => {
     it('should reject empty terms array', () => {
       const invalidDoc = {
         executiveSummary: ['Summary'],
-        services: [{
-          serviceId: 'test',
-          titleHe: 'Test',
-          whyRelevantHe: 'Why',
-          whatIncludedHe: 'What'
-        }],
+        services: [
+          {
+            serviceId: 'test',
+            titleHe: 'Test',
+            whyRelevantHe: 'Why',
+            whatIncludedHe: 'What',
+          },
+        ],
         financialSummary: { totalPrice: 10000, totalDays: 14 },
         terms: [],
-        nextSteps: []
+        nextSteps: [],
       };
 
       expect(invalidDoc.terms).toHaveLength(0);
@@ -250,15 +262,17 @@ describe('AiProposalJsonSchema', () => {
     it('should reject terms that are too short', () => {
       const invalidDoc = {
         executiveSummary: ['Summary'],
-        services: [{
-          serviceId: 'test',
-          titleHe: 'Test',
-          whyRelevantHe: 'Why',
-          whatIncludedHe: 'What'
-        }],
+        services: [
+          {
+            serviceId: 'test',
+            titleHe: 'Test',
+            whyRelevantHe: 'Why',
+            whatIncludedHe: 'What',
+          },
+        ],
         financialSummary: { totalPrice: 10000, totalDays: 14 },
         terms: ['Too short'],
-        nextSteps: []
+        nextSteps: [],
       };
 
       expect(invalidDoc.terms[0].length).toBeLessThan(10);
@@ -269,20 +283,22 @@ describe('AiProposalJsonSchema', () => {
     it('should accept valid next steps array', () => {
       const validDoc: AiProposalDoc = {
         executiveSummary: ['Summary paragraph'],
-        services: [{
-          serviceId: 'test',
-          titleHe: 'Test',
-          whyRelevantHe: 'Why',
-          whatIncludedHe: 'What'
-        }],
+        services: [
+          {
+            serviceId: 'test',
+            titleHe: 'Test',
+            whyRelevantHe: 'Why',
+            whatIncludedHe: 'What',
+          },
+        ],
         financialSummary: { totalPrice: 10000, totalDays: 14 },
         terms: ['Terms'],
         nextSteps: [
           'סקירת ההצעה ושאלות הבהרה בטלפון או בזום',
           'תיאום פגישת קיק-אוף להגדרת הדרישות המדויקות',
           'חתימה על הסכם עבודה ותשלום מקדמה',
-          'התחלת הפרויקט והטמעת הפתרונות'
-        ]
+          'התחלת הפרויקט והטמעת הפתרונות',
+        ],
       };
 
       expect(validDoc.nextSteps).toHaveLength(4);
@@ -293,15 +309,17 @@ describe('AiProposalJsonSchema', () => {
     it('should reject empty next steps array', () => {
       const invalidDoc = {
         executiveSummary: ['Summary'],
-        services: [{
-          serviceId: 'test',
-          titleHe: 'Test',
-          whyRelevantHe: 'Why',
-          whatIncludedHe: 'What'
-        }],
+        services: [
+          {
+            serviceId: 'test',
+            titleHe: 'Test',
+            whyRelevantHe: 'Why',
+            whatIncludedHe: 'What',
+          },
+        ],
         financialSummary: { totalPrice: 10000, totalDays: 14 },
         terms: ['Terms'],
-        nextSteps: []
+        nextSteps: [],
       };
 
       expect(invalidDoc.nextSteps).toHaveLength(0);
@@ -314,42 +332,46 @@ describe('AiProposalJsonSchema', () => {
         executiveSummary: [
           'בהתבסס על הניתוח המעמיק של תהליכי העבודה שלכם, זיהינו הזדמנויות משמעותיות לשיפור היעילות והפחתת העלויות.',
           'הפתרונות המוצעים כוללים אוטומציה של תהליכים מרכזיים וייעול זרימת העבודה, מה שיביא לחיסכון משמעותי בזמן ובמשאבים.',
-          'אנו ממליצים להתחיל עם הפתרונות בעדיפות הגבוהה ביותר לאפקט מיידי על הביצועים העסקיים.'
+          'אנו ממליצים להתחיל עם הפתרונות בעדיפות הגבוהה ביותר לאפקט מיידי על הביצועים העסקיים.',
         ],
         services: [
           {
             serviceId: 'auto-lead-response',
             titleHe: 'מענה אוטומטי ללידים חדשים',
-            whyRelevantHe: 'זמן התגובה הממוצע ללידים חדשים הוא למעלה מ-30 דקות, מה שמקטין משמעותית את סיכויי ההמרה והכנסות מהלידים הללו.',
-            whatIncludedHe: 'הטמעת מערכת תגובה אוטומטית עם תבניות מותאמות אישית, חלוקת לידים חכמה על בסיס זמינות הצוות, דשבורד לניטור ביצועים ומעקב אחר שיעורי המרה.'
+            whyRelevantHe:
+              'זמן התגובה הממוצע ללידים חדשים הוא למעלה מ-30 דקות, מה שמקטין משמעותית את סיכויי ההמרה והכנסות מהלידים הללו.',
+            whatIncludedHe:
+              'הטמעת מערכת תגובה אוטומטית עם תבניות מותאמות אישית, חלוקת לידים חכמה על בסיס זמינות הצוות, דשבורד לניטור ביצועים ומעקב אחר שיעורי המרה.',
           },
           {
             serviceId: 'customer-service-bot',
-            titleHe: 'צ\'אטבוט לשירות לקוחות',
-            whyRelevantHe: 'נפח הפניות לשירות הלקוחות גדל משמעותית ועלול להכביד על הצוות, במיוחד בשעות השיא.',
-            whatIncludedHe: 'פיתוח ויישום של צ\'אטבוט חכם המסוגל לטפל ב-70% מהפניות הנפוצות, עם יכולת העברה לנציג אנושי במקרים מורכבים.'
-          }
+            titleHe: "צ'אטבוט לשירות לקוחות",
+            whyRelevantHe:
+              'נפח הפניות לשירות הלקוחות גדל משמעותית ועלול להכביד על הצוות, במיוחד בשעות השיא.',
+            whatIncludedHe:
+              "פיתוח ויישום של צ'אטבוט חכם המסוגל לטפל ב-70% מהפניות הנפוצות, עם יכולת העברה לנציג אנושי במקרים מורכבים.",
+          },
         ],
         financialSummary: {
           totalPrice: 25000,
           totalDays: 35,
           monthlySavings: 8000,
-          expectedROIMonths: 3
+          expectedROIMonths: 3,
         },
         terms: [
           'ההצעה תקפה ל-30 ימים מתאריך השליחה',
           'תשלום: 40% מקדמה, 30% באמצע הפרויקט, 30% בסיום',
           'אחריות מלאה לשלושה חודשים לאחר ההשקה',
           'כל השינויים יתואמו מראש עם הלקוח ויאושרו בכתב',
-          'זכויות היוצרים על הפתרונות המפותחים שייכות ללקוח בלעדית'
+          'זכויות היוצרים על הפתרונות המפותחים שייכות ללקוח בלעדית',
         ],
         nextSteps: [
           'סקירת ההצעה המפורטת ושאלות הבהרה (שיחת טלפון או זום)',
           'תיאום פגישת קיק-אוף להגדרת הדרישות המדויקות והתאמות אישיות',
           'חתימה על הסכם עבודה ותשלום המקדמה הנדרשת',
           'התחלת הפרויקט והטמעת הפתרונות בהתאם ללוח הזמנים המוסכם',
-          'מעקב שבועי אחר ההתקדמות והתאמות במידת הצורך'
-        ]
+          'מעקב שבועי אחר ההתקדמות והתאמות במידת הצורך',
+        ],
       };
 
       // Validate all sections
@@ -360,10 +382,14 @@ describe('AiProposalJsonSchema', () => {
       expect(validDoc.nextSteps).toHaveLength(5);
 
       // Validate content quality
-      expect(validDoc.executiveSummary.every(p => p.length > 50)).toBe(true);
-      expect(validDoc.services.every(s => s.whyRelevantHe.length > 20 && s.whatIncludedHe.length > 20)).toBe(true);
-      expect(validDoc.terms.every(t => t.length > 10)).toBe(true);
-      expect(validDoc.nextSteps.every(s => s.length > 10)).toBe(true);
+      expect(validDoc.executiveSummary.every((p) => p.length > 50)).toBe(true);
+      expect(
+        validDoc.services.every(
+          (s) => s.whyRelevantHe.length > 20 && s.whatIncludedHe.length > 20
+        )
+      ).toBe(true);
+      expect(validDoc.terms.every((t) => t.length > 10)).toBe(true);
+      expect(validDoc.nextSteps.every((s) => s.length > 10)).toBe(true);
     });
 
     it('should reject document with multiple validation errors', () => {
@@ -372,10 +398,10 @@ describe('AiProposalJsonSchema', () => {
         services: [], // Empty
         financialSummary: {
           totalPrice: -1000, // Negative
-          totalDays: 0 // Zero
+          totalDays: 0, // Zero
         },
         terms: ['Short'], // Too short
-        nextSteps: ['Short'] // Too short
+        nextSteps: ['Short'], // Too short
       };
 
       expect(invalidDoc.executiveSummary[0].length).toBeLessThan(50);

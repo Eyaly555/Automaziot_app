@@ -20,12 +20,15 @@ export const WizardNavigation: React.FC<WizardNavigationProps> = ({
   canGoPrevious,
   isLastStep = false,
   currentStep,
-  totalSteps
+  totalSteps,
 }) => {
   // Keyboard navigation
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
         return; // Don't navigate when typing in form fields
       }
 
@@ -80,9 +83,10 @@ export const WizardNavigation: React.FC<WizardNavigationProps> = ({
             disabled={!canGoPrevious}
             className={`
               w-full flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium transition-all
-              ${canGoPrevious
-                ? 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 hover:shadow-md'
-                : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+              ${
+                canGoPrevious
+                  ? 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 hover:shadow-md'
+                  : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
               }
             `}
             aria-label="חזור לשלב הקודם"
@@ -111,11 +115,12 @@ export const WizardNavigation: React.FC<WizardNavigationProps> = ({
             disabled={!canGoNext}
             className={`
               w-full flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium transition-all
-              ${canGoNext
-                ? isLastStep
-                  ? 'bg-green-600 text-white hover:bg-green-700 hover:shadow-lg'
-                  : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
-                : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+              ${
+                canGoNext
+                  ? isLastStep
+                    ? 'bg-green-600 text-white hover:bg-green-700 hover:shadow-lg'
+                    : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
+                  : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
               }
             `}
             aria-label={isLastStep ? 'סיים אשף' : 'המשך לשלב הבא'}
@@ -134,16 +139,22 @@ export const WizardNavigation: React.FC<WizardNavigationProps> = ({
         <div className="pt-3 border-t border-gray-200">
           <div className="text-xs text-gray-500 space-y-1">
             <div className="flex items-center gap-2">
-              <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">←/→</kbd>
+              <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">
+                ←/→
+              </kbd>
               <span>ניווט</span>
             </div>
             <div className="flex items-center gap-2">
-              <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">Ctrl+↵</kbd>
+              <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">
+                Ctrl+↵
+              </kbd>
               <span>המשך</span>
             </div>
             {onSkip && (
               <div className="flex items-center gap-2">
-                <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">Ctrl+S</kbd>
+                <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">
+                  Ctrl+S
+                </kbd>
                 <span>דלג</span>
               </div>
             )}

@@ -1,13 +1,13 @@
 /**
  * Smart Field Widget Component
- * 
+ *
  * Reusable component for rendering smart fields with auto-population indicators,
  * conflict warnings, and source information.
- * 
+ *
  * @example
  * ```tsx
  * const crmSystem = useSmartField({ fieldId: 'crm_system', ... });
- * 
+ *
  * <SmartFieldWidget
  *   smartField={crmSystem}
  *   fieldType="select"
@@ -24,7 +24,14 @@ import { CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 export interface SmartFieldWidgetProps<T = any> {
   smartField: SmartFieldValue<T>;
-  fieldType: 'text' | 'number' | 'email' | 'url' | 'select' | 'textarea' | 'checkbox';
+  fieldType:
+    | 'text'
+    | 'number'
+    | 'email'
+    | 'url'
+    | 'select'
+    | 'textarea'
+    | 'checkbox';
   options?: Array<{ value: string; label: string }>;
   placeholder?: string;
   className?: string;
@@ -42,7 +49,7 @@ export function SmartFieldWidget<T = any>(props: SmartFieldWidgetProps<T>) {
     className = '',
     disabled = false,
     multiline = false,
-    rows = 3
+    rows = 3,
   } = props;
 
   const {
@@ -54,7 +61,7 @@ export function SmartFieldWidget<T = any>(props: SmartFieldWidgetProps<T>) {
     conflict,
     isLoading,
     error,
-    metadata
+    metadata,
   } = smartField;
 
   if (isLoading) {
@@ -110,13 +117,13 @@ export function SmartFieldWidget<T = any>(props: SmartFieldWidgetProps<T>) {
       {/* Field Input */}
       {fieldType === 'select' && options ? (
         <select
-          value={value as string || ''}
+          value={(value as string) || ''}
           onChange={(e) => setValue(e.target.value as T)}
           className={inputClassName}
           disabled={disabled}
         >
           <option value="">{placeholder || 'בחר אפשרות...'}</option>
-          {options.map(opt => (
+          {options.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
@@ -124,7 +131,7 @@ export function SmartFieldWidget<T = any>(props: SmartFieldWidgetProps<T>) {
         </select>
       ) : fieldType === 'textarea' || multiline ? (
         <textarea
-          value={value as string || ''}
+          value={(value as string) || ''}
           onChange={(e) => setValue(e.target.value as T)}
           className={inputClassName}
           placeholder={placeholder}
@@ -135,7 +142,7 @@ export function SmartFieldWidget<T = any>(props: SmartFieldWidgetProps<T>) {
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
-            checked={value as boolean || false}
+            checked={(value as boolean) || false}
             onChange={(e) => setValue(e.target.checked as T)}
             className="rounded border-gray-300"
             disabled={disabled}
@@ -145,11 +152,12 @@ export function SmartFieldWidget<T = any>(props: SmartFieldWidgetProps<T>) {
       ) : (
         <input
           type={fieldType}
-          value={value as string || ''}
+          value={(value as string) || ''}
           onChange={(e) => {
-            const newValue = fieldType === 'number' 
-              ? (parseFloat(e.target.value) as T)
-              : (e.target.value as T);
+            const newValue =
+              fieldType === 'number'
+                ? (parseFloat(e.target.value) as T)
+                : (e.target.value as T);
             setValue(newValue);
           }}
           className={inputClassName}
@@ -167,8 +175,13 @@ export function SmartFieldWidget<T = any>(props: SmartFieldWidgetProps<T>) {
               <strong>מקור:</strong> {source.description}
             </div>
             <div className="text-green-700 mt-1">
-              השדה מולא אוטומטית מ-{source.phase === 'phase1' ? 'שלב 1' : source.phase === 'phase2' ? 'שלב 2' : 'שלב 3'}.
-              תוכל לערוך אם נדרש.
+              השדה מולא אוטומטית מ-
+              {source.phase === 'phase1'
+                ? 'שלב 1'
+                : source.phase === 'phase2'
+                  ? 'שלב 2'
+                  : 'שלב 3'}
+              . תוכל לערוך אם נדרש.
             </div>
           </div>
         </div>
@@ -180,19 +193,28 @@ export function SmartFieldWidget<T = any>(props: SmartFieldWidgetProps<T>) {
           <div className="flex items-start gap-2 mb-2">
             <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0" />
             <div className="flex-1">
-              <h4 className="font-semibold text-orange-900 text-sm">זוהתה אי-התאמה</h4>
+              <h4 className="font-semibold text-orange-900 text-sm">
+                זוהתה אי-התאמה
+              </h4>
               <p className="text-xs text-orange-700 mt-1">
                 נמצאו ערכים שונים עבור שדה זה במקומות שונים:
               </p>
             </div>
           </div>
-          
+
           <div className="space-y-1 mt-2">
             {conflict.locations.map((loc: any, idx: number) => (
-              <div key={idx} className="text-xs flex items-center gap-2 p-2 bg-white rounded">
-                <span className="font-mono text-orange-800">{JSON.stringify(loc.value)}</span>
+              <div
+                key={idx}
+                className="text-xs flex items-center gap-2 p-2 bg-white rounded"
+              >
+                <span className="font-mono text-orange-800">
+                  {JSON.stringify(loc.value)}
+                </span>
                 <span className="text-gray-500">←</span>
-                <span className="text-gray-600">{loc.location.description}</span>
+                <span className="text-gray-600">
+                  {loc.location.description}
+                </span>
               </div>
             ))}
           </div>
@@ -217,23 +239,34 @@ export function SmartFieldWidget<T = any>(props: SmartFieldWidgetProps<T>) {
 /**
  * Simplified smart field for common use cases
  */
-export function SmartTextField(props: Omit<SmartFieldWidgetProps, 'fieldType'>) {
+export function SmartTextField(
+  props: Omit<SmartFieldWidgetProps, 'fieldType'>
+) {
   return <SmartFieldWidget {...props} fieldType="text" />;
 }
 
-export function SmartSelectField(props: Omit<SmartFieldWidgetProps, 'fieldType'> & { options: Array<{ value: string; label: string }> }) {
+export function SmartSelectField(
+  props: Omit<SmartFieldWidgetProps, 'fieldType'> & {
+    options: Array<{ value: string; label: string }>;
+  }
+) {
   return <SmartFieldWidget {...props} fieldType="select" />;
 }
 
-export function SmartEmailField(props: Omit<SmartFieldWidgetProps, 'fieldType'>) {
+export function SmartEmailField(
+  props: Omit<SmartFieldWidgetProps, 'fieldType'>
+) {
   return <SmartFieldWidget {...props} fieldType="email" />;
 }
 
-export function SmartNumberField(props: Omit<SmartFieldWidgetProps, 'fieldType'>) {
+export function SmartNumberField(
+  props: Omit<SmartFieldWidgetProps, 'fieldType'>
+) {
   return <SmartFieldWidget {...props} fieldType="number" />;
 }
 
-export function SmartCheckboxField(props: Omit<SmartFieldWidgetProps, 'fieldType'>) {
+export function SmartCheckboxField(
+  props: Omit<SmartFieldWidgetProps, 'fieldType'>
+) {
   return <SmartFieldWidget {...props} fieldType="checkbox" />;
 }
-

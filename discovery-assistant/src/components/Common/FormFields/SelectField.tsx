@@ -29,7 +29,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({
   required = false,
   helperText,
   error = false,
-  className = ''
+  className = '',
 }) => {
   return (
     <div className={`space-y-1 ${className}`} dir="rtl">
@@ -49,7 +49,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({
             ${disabled ? 'bg-gray-100' : 'bg-white'}`}
         >
           <option value="">{placeholder}</option>
-          {options.map(option => (
+          {options.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>

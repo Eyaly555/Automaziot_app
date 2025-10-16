@@ -117,12 +117,13 @@ export const Input: React.FC<InputProps> = ({
   size = 'md',
   variant = 'default',
   loading = false,
-  readOnly = false
+  readOnly = false,
 }) => {
   const [_isFocused, setIsFocused] = useState(false);
 
   // Generate IDs for accessibility
-  const inputId = id || `input-${name || Math.random().toString(36).substr(2, 9)}`;
+  const inputId =
+    id || `input-${name || Math.random().toString(36).substr(2, 9)}`;
   const helperTextId = `${inputId}-helper`;
   const errorId = `${inputId}-error`;
 
@@ -130,14 +131,14 @@ export const Input: React.FC<InputProps> = ({
   const sizeClasses = {
     sm: 'px-2 py-1 text-sm',
     md: 'px-3 py-2 text-base',
-    lg: 'px-4 py-3 text-lg'
+    lg: 'px-4 py-3 text-lg',
   };
 
   // Variant classes
   const variantClasses = {
     default: 'bg-white border border-gray-300',
     filled: 'bg-gray-100 border border-transparent',
-    outlined: 'bg-transparent border-2 border-gray-300'
+    outlined: 'bg-transparent border-2 border-gray-300',
   };
 
   // Base input classes
@@ -182,9 +183,16 @@ export const Input: React.FC<InputProps> = ({
     <div className={`space-y-1 ${className}`} dir={dir}>
       {/* Label */}
       {label && (
-        <label htmlFor={inputId} className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor={inputId}
+          className="block text-sm font-medium text-gray-700"
+        >
           {label}
-          {required && <span className="text-red-500 mr-1" aria-label="חובה">*</span>}
+          {required && (
+            <span className="text-red-500 mr-1" aria-label="חובה">
+              *
+            </span>
+          )}
         </label>
       )}
 
@@ -213,7 +221,9 @@ export const Input: React.FC<InputProps> = ({
           maxLength={maxLength}
           autoComplete={autoComplete}
           aria-invalid={error}
-          aria-describedby={error ? errorId : helperText ? helperTextId : undefined}
+          aria-describedby={
+            error ? errorId : helperText ? helperTextId : undefined
+          }
           aria-required={required}
           className={baseClasses}
         />

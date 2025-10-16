@@ -96,7 +96,10 @@ export interface AIFaqBotRequirements {
   vectorDbCredentialsReady: boolean;
 
   /** Embedding model for semantic search */
-  embeddingModel: 'text-embedding-3-small' | 'text-embedding-3-large' | 'text-embedding-ada-002';
+  embeddingModel:
+    | 'text-embedding-3-small'
+    | 'text-embedding-3-large'
+    | 'text-embedding-ada-002';
 
   /** Knowledge base configuration */
   knowledgeBase: {
@@ -621,7 +624,14 @@ export interface AIServiceAgentRequirements {
   /** Ticketing system integration */
   ticketingSystem?: {
     /** System type */
-    system: 'zendesk' | 'freshdesk' | 'jira_service_desk' | 'helpscout' | 'intercom' | 'zoho_desk' | 'other';
+    system:
+      | 'zendesk'
+      | 'freshdesk'
+      | 'jira_service_desk'
+      | 'helpscout'
+      | 'intercom'
+      | 'zoho_desk'
+      | 'other';
 
     /** API configured */
     apiConfigured: boolean;
@@ -642,7 +652,12 @@ export interface AIServiceAgentRequirements {
     apiConfigured: boolean;
 
     /** Available functions */
-    functions: ('getOrderStatus' | 'getTrackingNumber' | 'processRefund' | 'updateShipping')[];
+    functions: (
+      | 'getOrderStatus'
+      | 'getTrackingNumber'
+      | 'processRefund'
+      | 'updateShipping'
+    )[];
   };
 
   /** Function/Tool definitions */
@@ -769,7 +784,13 @@ export interface AIActionAgentRequirements {
     description: string;
 
     /** Target system */
-    targetSystem: 'crm' | 'project_management' | 'email' | 'document_storage' | 'calendar' | 'other';
+    targetSystem:
+      | 'crm'
+      | 'project_management'
+      | 'email'
+      | 'document_storage'
+      | 'calendar'
+      | 'other';
 
     /** API endpoint or function */
     endpoint: string;
@@ -828,7 +849,14 @@ export interface AIActionAgentRequirements {
     storageSystem: 'supabase' | 'database' | 's3' | 'other';
 
     /** Log fields to capture */
-    logFields: ('user' | 'action' | 'parameters' | 'result' | 'timestamp' | 'ip_address')[];
+    logFields: (
+      | 'user'
+      | 'action'
+      | 'parameters'
+      | 'result'
+      | 'timestamp'
+      | 'ip_address'
+    )[];
 
     /** Retention period (days) */
     retentionDays: number;
@@ -861,7 +889,12 @@ export interface AIActionAgentRequirements {
   /** System integrations */
   systemIntegrations: {
     /** System name */
-    system: 'crm' | 'project_management' | 'email' | 'document_storage' | 'calendar';
+    system:
+      | 'crm'
+      | 'project_management'
+      | 'email'
+      | 'document_storage'
+      | 'calendar';
 
     /** System details */
     details: string;
@@ -1151,7 +1184,11 @@ export interface AITriageRequirements {
     enabled: boolean;
 
     /** VIP identification method */
-    vipIdentificationMethod: 'crm_field' | 'customer_tier' | 'email_domain' | 'manual_list';
+    vipIdentificationMethod:
+      | 'crm_field'
+      | 'customer_tier'
+      | 'email_domain'
+      | 'manual_list';
 
     /** CRM field name for VIP (if method is crm_field) */
     vipField?: string;
@@ -1172,7 +1209,10 @@ export interface AITriageRequirements {
     vipPriority: PriorityLevel;
 
     /** VIP notification method */
-    vipNotificationMethod: 'immediate_alert' | 'dedicated_queue' | 'auto_assign_senior';
+    vipNotificationMethod:
+      | 'immediate_alert'
+      | 'dedicated_queue'
+      | 'auto_assign_senior';
   };
 
   /** Training data */
@@ -1338,7 +1378,12 @@ export interface AIPredictiveRequirements {
   model: string;
 
   /** Prediction type */
-  predictionType: 'churn' | 'demand_forecasting' | 'lead_scoring' | 'revenue_prediction' | 'multi';
+  predictionType:
+    | 'churn'
+    | 'demand_forecasting'
+    | 'lead_scoring'
+    | 'revenue_prediction'
+    | 'multi';
 
   /** Data warehouse integration */
   dataWarehouse: {
@@ -1393,7 +1438,13 @@ export interface AIPredictiveRequirements {
     trainTestSplit: number; // e.g., 0.7 for 70/30 split
 
     /** Algorithms to test */
-    algorithms: ('linear_regression' | 'logistic_regression' | 'random_forest' | 'gradient_boosting' | 'neural_network')[];
+    algorithms: (
+      | 'linear_regression'
+      | 'logistic_regression'
+      | 'random_forest'
+      | 'gradient_boosting'
+      | 'neural_network'
+    )[];
 
     /** Baseline accuracy (without AI) */
     baselineAccuracy?: number;
@@ -1521,7 +1572,15 @@ export interface AIFullIntegrationRequirements {
   /** System integrations */
   systemIntegrations: {
     /** System type */
-    systemType: 'crm' | 'erp' | 'project_management' | 'finance' | 'hr' | 'email' | 'calendar' | 'document_storage';
+    systemType:
+      | 'crm'
+      | 'erp'
+      | 'project_management'
+      | 'finance'
+      | 'hr'
+      | 'email'
+      | 'calendar'
+      | 'document_storage';
 
     /** System name/provider */
     systemName: string;
@@ -1581,7 +1640,13 @@ export interface AIFullIntegrationRequirements {
     logAllQueries: boolean;
 
     /** Log fields */
-    logFields: ('user' | 'query' | 'systems_accessed' | 'data_returned' | 'timestamp')[];
+    logFields: (
+      | 'user'
+      | 'query'
+      | 'systems_accessed'
+      | 'data_returned'
+      | 'timestamp'
+    )[];
 
     /** Storage system */
     storageSystem: string;
@@ -1685,7 +1750,13 @@ export interface AIMultiAgentRequirements {
     name: string;
 
     /** Agent role */
-    role: 'sales' | 'support' | 'data_analysis' | 'action_execution' | 'routing' | 'custom';
+    role:
+      | 'sales'
+      | 'support'
+      | 'data_analysis'
+      | 'action_execution'
+      | 'routing'
+      | 'custom';
 
     /** Specialization description */
     specialization: string;
@@ -1706,7 +1777,11 @@ export interface AIMultiAgentRequirements {
   /** Supervisor configuration (if using supervisor pattern) */
   supervisorConfig?: {
     /** Routing algorithm */
-    routingAlgorithm: 'intent_based' | 'skill_based' | 'round_robin' | 'load_balanced';
+    routingAlgorithm:
+      | 'intent_based'
+      | 'skill_based'
+      | 'round_robin'
+      | 'load_balanced';
 
     /** Delegation rules */
     delegationRules: {
@@ -1871,16 +1946,16 @@ export interface AIAgentServiceEntry {
  * Service ID type for type safety
  */
 export type AIAgentServiceId =
-  | 'ai-faq-bot'           // #21
-  | 'ai-lead-qualifier'    // #22
-  | 'ai-sales-agent'       // #23
-  | 'ai-service-agent'     // #24
-  | 'ai-action-agent'      // #25
-  | 'ai-complex-workflow'  // #26
-  | 'ai-triage'            // #27
-  | 'ai-predictive'        // #28
-  | 'ai-full-integration'  // #29
-  | 'ai-multi-agent';      // #30
+  | 'ai-faq-bot' // #21
+  | 'ai-lead-qualifier' // #22
+  | 'ai-sales-agent' // #23
+  | 'ai-service-agent' // #24
+  | 'ai-action-agent' // #25
+  | 'ai-complex-workflow' // #26
+  | 'ai-triage' // #27
+  | 'ai-predictive' // #28
+  | 'ai-full-integration' // #29
+  | 'ai-multi-agent'; // #30
 
 /**
  * Service metadata for UI rendering
@@ -1902,91 +1977,101 @@ export const AI_AGENT_SERVICES_METADATA: AIAgentServiceMetadata[] = [
   {
     id: 'ai-faq-bot',
     nameEn: 'AI FAQ Bot',
-    nameHe: 'צ\'אטבוט AI למענה על שאלות נפוצות',
-    description: 'AI chatbot for answering frequently asked questions with RAG capabilities',
+    nameHe: "צ'אטבוט AI למענה על שאלות נפוצות",
+    description:
+      'AI chatbot for answering frequently asked questions with RAG capabilities',
     complexity: 'simple',
     estimatedImplementationDays: 5,
-    priority: 'quick_win'
+    priority: 'quick_win',
   },
   {
     id: 'ai-lead-qualifier',
     nameEn: 'AI Lead Qualifier',
     nameHe: 'AI לאיסוף מידע ראשוני מלידים',
-    description: 'AI bot for qualifying leads using BANT methodology with predictive scoring',
+    description:
+      'AI bot for qualifying leads using BANT methodology with predictive scoring',
     complexity: 'medium',
     estimatedImplementationDays: 7,
-    priority: 'quick_win'
+    priority: 'quick_win',
   },
   {
     id: 'ai-sales-agent',
     nameEn: 'AI Sales Agent',
     nameHe: 'סוכן AI למכירות',
-    description: 'Full AI sales agent handling conversations, scheduling, and CRM updates',
+    description:
+      'Full AI sales agent handling conversations, scheduling, and CRM updates',
     complexity: 'complex',
     estimatedImplementationDays: 10,
-    priority: 'high_value'
+    priority: 'high_value',
   },
   {
     id: 'ai-service-agent',
     nameEn: 'AI Service Agent',
     nameHe: 'סוכן AI לשירות לקוחות',
-    description: 'AI customer service agent with ticket management and order checking',
+    description:
+      'AI customer service agent with ticket management and order checking',
     complexity: 'complex',
     estimatedImplementationDays: 12,
-    priority: 'high_value'
+    priority: 'high_value',
   },
   {
     id: 'ai-action-agent',
     nameEn: 'AI Action Agent',
     nameHe: 'AI עם יכולות פעולה',
-    description: 'AI agent that performs actions across systems with audit logging',
+    description:
+      'AI agent that performs actions across systems with audit logging',
     complexity: 'complex',
     estimatedImplementationDays: 12,
-    priority: 'high_value'
+    priority: 'high_value',
   },
   {
     id: 'ai-triage',
     nameEn: 'AI Triage',
     nameHe: 'AI לסינון פניות ראשוני',
-    description: 'AI for classifying, prioritizing, and routing incoming inquiries',
+    description:
+      'AI for classifying, prioritizing, and routing incoming inquiries',
     complexity: 'simple',
     estimatedImplementationDays: 5,
-    priority: 'quick_win'
+    priority: 'quick_win',
   },
   {
     id: 'ai-complex-workflow',
     nameEn: 'AI Complex Workflow',
     nameHe: 'סוכן AI עם תהליכי עבודה מורכבים',
-    description: 'AI managing multi-step workflows with LangGraph orchestration',
+    description:
+      'AI managing multi-step workflows with LangGraph orchestration',
     complexity: 'advanced',
     estimatedImplementationDays: 15,
-    priority: 'advanced'
+    priority: 'advanced',
   },
   {
     id: 'ai-predictive',
     nameEn: 'AI Predictive Analytics',
     nameHe: 'AI עם יכולות ניתוח וחיזוי',
-    description: 'AI with predictive analytics for churn, lead scoring, and forecasting',
+    description:
+      'AI with predictive analytics for churn, lead scoring, and forecasting',
     complexity: 'advanced',
     estimatedImplementationDays: 20,
-    priority: 'advanced'
+    priority: 'advanced',
   },
   {
     id: 'ai-full-integration',
     nameEn: 'AI Full Integration',
     nameHe: 'אינטגרציה עמוקה עם כל המערכות',
-    description: 'AI integrated with all business systems (CRM, ERP, PM, Finance)',
+    description:
+      'AI integrated with all business systems (CRM, ERP, PM, Finance)',
     complexity: 'advanced',
     estimatedImplementationDays: 25,
-    priority: 'advanced'
+    priority: 'advanced',
   },
   {
     id: 'ai-multi-agent',
     nameEn: 'AI Multi-Agent System',
     nameHe: 'מספר סוכני AI משתפי פעולה',
-    description: 'System of 3-5 specialized AI agents collaborating via LangGraph',
+    description:
+      'System of 3-5 specialized AI agents collaborating via LangGraph',
     complexity: 'advanced',
     estimatedImplementationDays: 20,
-    priority: 'advanced'
-  }
+    priority: 'advanced',
+  },
 ];

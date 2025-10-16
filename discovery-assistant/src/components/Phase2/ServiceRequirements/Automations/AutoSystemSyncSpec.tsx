@@ -5,7 +5,14 @@ import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import type { AutoSystemSyncRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
-import { Plus, Trash2, Save, CheckCircle, AlertCircle, Info } from 'lucide-react';
+import {
+  Plus,
+  Trash2,
+  Save,
+  CheckCircle,
+  AlertCircle,
+  Info,
+} from 'lucide-react';
 
 const generateId = () => Math.random().toString(36).substring(2, 11);
 
@@ -27,44 +34,44 @@ export function AutoSystemSyncSpec() {
     fieldId: 'n8n_instance_url',
     localPath: 'n8nWorkflow.instanceUrl',
     serviceId: 'auto-system-sync',
-    autoSave: false // We'll batch save
+    autoSave: false, // We'll batch save
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'n8nWorkflow.errorHandling.alertEmail',
     serviceId: 'auto-system-sync',
-    autoSave: false
+    autoSave: false,
   });
 
   const syncFrequency = useSmartField<string>({
     fieldId: 'sync_frequency',
     localPath: 'syncLogic.syncFrequency',
     serviceId: 'auto-system-sync',
-    autoSave: false
+    autoSave: false,
   });
 
   const [config, setConfig] = useState<AutoSystemSyncRequirements>({
     systems: [],
     dataFlow: {
       flowDiagram: '',
-      flows: []
+      flows: [],
     },
     globalFieldMapping: {
-      masterDataDefinitions: []
+      masterDataDefinitions: [],
     },
     syncLogic: {
       syncType: 'incremental',
       conflictResolution: 'newest_wins',
       deduplicationEnabled: false,
-      deduplicationFields: []
+      deduplicationFields: [],
     },
     dataTransformation: {
       enabled: false,
       transformations: [],
       dateFormatStandardization: false,
       currencyConversion: false,
-      timezoneHandling: false
+      timezoneHandling: false,
     },
     errorHandling: {
       strategy: 'retry',
@@ -72,26 +79,26 @@ export function AutoSystemSyncSpec() {
       retryDelay: 5,
       partialFailureHandling: 'continue',
       errorNotificationEmail: '',
-      logAllSyncAttempts: true
+      logAllSyncAttempts: true,
     },
     webhooks: {
       enabled: false,
-      systemWebhooks: []
+      systemWebhooks: [],
     },
     initialDataLoad: {
       required: false,
       strategy: 'sequential',
       bulkImportSupported: false,
       estimatedRecordCount: 0,
-      estimatedTimeDays: 0
+      estimatedTimeDays: 0,
     },
     syncStateTracking: {
       database: 'supabase',
       trackingTables: {
         syncLogs: 'sync_logs',
         entityMapping: 'entity_mapping',
-        conflictQueue: 'conflict_queue'
-      }
+        conflictQueue: 'conflict_queue',
+      },
     },
     monitoring: {
       enabled: false,
@@ -100,8 +107,8 @@ export function AutoSystemSyncSpec() {
         syncFailures: false,
         dataDrift: false,
         performanceIssues: false,
-        apiRateLimitApproaching: false
-      }
+        apiRateLimitApproaching: false,
+      },
     },
     n8nWorkflow: {
       instanceUrl: '',
@@ -111,18 +118,33 @@ export function AutoSystemSyncSpec() {
       errorHandling: {
         retryAttempts: 3,
         alertEmail: '',
-        logErrors: true
-      }
-    }
+        logErrors: true,
+      },
+    },
   });
 
-  const [activeTab, setActiveTab] = useState<'systems' | 'flows' | 'mapping' | 'logic' | 'transform' | 'errors' | 'webhooks' | 'initial' | 'monitoring' | 'n8n'>('systems');
+  const [activeTab, setActiveTab] = useState<
+    | 'systems'
+    | 'flows'
+    | 'mapping'
+    | 'logic'
+    | 'transform'
+    | 'errors'
+    | 'webhooks'
+    | 'initial'
+    | 'monitoring'
+    | 'n8n'
+  >('systems');
   const [isSaving, setIsSaving] = useState(false);
 
   // Auto-save hook for immediate and debounced saving
-  const { saveData, isSaving: autoSaveIsSaving, saveError } = useAutoSave({
+  const {
+    saveData,
+    isSaving: autoSaveIsSaving,
+    saveError,
+  } = useAutoSave({
     serviceId: 'auto-system-sync',
-    category: 'automations'
+    category: 'automations',
   });
 
   useBeforeUnload(() => {
@@ -134,20 +156,23 @@ export function AutoSystemSyncSpec() {
         instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow.instanceUrl,
         errorHandling: {
           ...config.n8nWorkflow.errorHandling,
-          alertEmail: alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail
-        }
+          alertEmail:
+            alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail,
+        },
       },
       syncLogic: {
         ...config.syncLogic,
-        syncFrequency: syncFrequency.value || config.syncLogic.syncFrequency
-      }
+        syncFrequency: syncFrequency.value || config.syncLogic.syncFrequency,
+      },
     };
     saveData(completeConfig);
   });
 
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
-    const existing = automations.find((a: any) => a.serviceId === 'auto-system-sync');
+    const existing = automations.find(
+      (a: any) => a.serviceId === 'auto-system-sync'
+    );
     if (existing?.requirements) {
       setConfig(existing.requirements);
     }
@@ -159,16 +184,17 @@ export function AutoSystemSyncSpec() {
       ...config,
       syncLogic: {
         ...config.syncLogic,
-        syncFrequency: syncFrequency.value || config.syncLogic.syncFrequency
+        syncFrequency: syncFrequency.value || config.syncLogic.syncFrequency,
       },
       n8nWorkflow: {
         ...config.n8nWorkflow,
         instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow.instanceUrl,
         errorHandling: {
           ...config.n8nWorkflow.errorHandling,
-          alertEmail: alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail
-        }
-      }
+          alertEmail:
+            alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail,
+        },
+      },
     };
 
     await saveData(completeConfig);
@@ -187,18 +213,18 @@ export function AutoSystemSyncSpec() {
           authMethod: 'oauth',
           credentials: {},
           apiEndpoints: {
-            base: ''
+            base: '',
           },
-          rateLimits: {}
-        }
-      ]
+          rateLimits: {},
+        },
+      ],
     });
   };
 
   const removeSystem = (index: number) => {
     setConfig({
       ...config,
-      systems: config.systems.filter((_, i) => i !== index)
+      systems: config.systems.filter((_, i) => i !== index),
     });
   };
 
@@ -216,10 +242,10 @@ export function AutoSystemSyncSpec() {
             targetSystems: [],
             entityType: 'customer',
             syncDirection: 'one_way',
-            frequency: 'real_time'
-          }
-        ]
-      }
+            frequency: 'real_time',
+          },
+        ],
+      },
     });
   };
 
@@ -228,8 +254,8 @@ export function AutoSystemSyncSpec() {
       ...config,
       dataFlow: {
         ...config.dataFlow,
-        flows: config.dataFlow.flows.filter((_, i) => i !== index)
-      }
+        flows: config.dataFlow.flows.filter((_, i) => i !== index),
+      },
     });
   };
 
@@ -242,10 +268,10 @@ export function AutoSystemSyncSpec() {
           ...config.globalFieldMapping.masterDataDefinitions,
           {
             entityType: '',
-            masterFields: []
-          }
-        ]
-      }
+            masterFields: [],
+          },
+        ],
+      },
     });
   };
 
@@ -253,8 +279,11 @@ export function AutoSystemSyncSpec() {
     setConfig({
       ...config,
       globalFieldMapping: {
-        masterDataDefinitions: config.globalFieldMapping.masterDataDefinitions.filter((_, i) => i !== index)
-      }
+        masterDataDefinitions:
+          config.globalFieldMapping.masterDataDefinitions.filter(
+            (_, i) => i !== index
+          ),
+      },
     });
   };
 
@@ -264,24 +293,26 @@ export function AutoSystemSyncSpec() {
       fieldName: '',
       fieldType: '',
       required: false,
-      systemMappings: {}
+      systemMappings: {},
     });
     setConfig({
       ...config,
       globalFieldMapping: {
-        masterDataDefinitions: updatedDefs
-      }
+        masterDataDefinitions: updatedDefs,
+      },
     });
   };
 
   const removeMasterField = (defIndex: number, fieldIndex: number) => {
     const updatedDefs = [...config.globalFieldMapping.masterDataDefinitions];
-    updatedDefs[defIndex].masterFields = updatedDefs[defIndex].masterFields.filter((_, i) => i !== fieldIndex);
+    updatedDefs[defIndex].masterFields = updatedDefs[
+      defIndex
+    ].masterFields.filter((_, i) => i !== fieldIndex);
     setConfig({
       ...config,
       globalFieldMapping: {
-        masterDataDefinitions: updatedDefs
-      }
+        masterDataDefinitions: updatedDefs,
+      },
     });
   };
 
@@ -297,10 +328,10 @@ export function AutoSystemSyncSpec() {
             sourceSystem: '',
             targetSystem: '',
             transformationType: 'format',
-            transformationLogic: ''
-          }
-        ]
-      }
+            transformationLogic: '',
+          },
+        ],
+      },
     });
   };
 
@@ -309,8 +340,10 @@ export function AutoSystemSyncSpec() {
       ...config,
       dataTransformation: {
         ...config.dataTransformation,
-        transformations: config.dataTransformation.transformations.filter((_, i) => i !== index)
-      }
+        transformations: config.dataTransformation.transformations.filter(
+          (_, i) => i !== index
+        ),
+      },
     });
   };
 
@@ -325,10 +358,10 @@ export function AutoSystemSyncSpec() {
           {
             systemId: '',
             webhookUrl: '',
-            events: []
-          }
-        ]
-      }
+            events: [],
+          },
+        ],
+      },
     });
   };
 
@@ -337,8 +370,10 @@ export function AutoSystemSyncSpec() {
       ...config,
       webhooks: {
         ...config.webhooks,
-        systemWebhooks: config.webhooks.systemWebhooks.filter((_, i) => i !== index)
-      }
+        systemWebhooks: config.webhooks.systemWebhooks.filter(
+          (_, i) => i !== index
+        ),
+      },
     });
   };
 
@@ -352,9 +387,7 @@ export function AutoSystemSyncSpec() {
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 סנכרון בין מערכות
               </h1>
-              <p className="text-gray-600">
-                Auto System Sync - Service #14
-              </p>
+              <p className="text-gray-600">Auto System Sync - Service #14</p>
             </div>
             <button
               onClick={handleSave}
@@ -368,25 +401,33 @@ export function AutoSystemSyncSpec() {
         </div>
 
         {/* Smart Fields Info Banner */}
-        {(n8nInstanceUrl.isAutoPopulated || alertEmail.isAutoPopulated || syncFrequency.isAutoPopulated) && (
+        {(n8nInstanceUrl.isAutoPopulated ||
+          alertEmail.isAutoPopulated ||
+          syncFrequency.isAutoPopulated) && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3">
             <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+              <h4 className="font-semibold text-blue-900 mb-1">
+                נתונים מולאו אוטומטית משלב 1
+              </h4>
               <p className="text-sm text-blue-800">
-                חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-                תוכל לערוך אותם במידת הצורך.
+                חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל
+                לערוך אותם במידת הצורך.
               </p>
             </div>
           </div>
         )}
 
         {/* Conflict Warnings */}
-        {(n8nInstanceUrl.hasConflict || alertEmail.hasConflict || syncFrequency.hasConflict) && (
+        {(n8nInstanceUrl.hasConflict ||
+          alertEmail.hasConflict ||
+          syncFrequency.hasConflict) && (
           <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+              <h4 className="font-semibold text-orange-900 mb-1">
+                זוהה אי-התאמה בנתונים
+              </h4>
               <p className="text-sm text-orange-800">
                 נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
               </p>
@@ -408,8 +449,8 @@ export function AutoSystemSyncSpec() {
                 { id: 'webhooks', label: 'Webhooks' },
                 { id: 'initial', label: 'טעינה ראשונית' },
                 { id: 'monitoring', label: 'ניטור' },
-                { id: 'n8n', label: 'n8n' }
-              ].map(tab => (
+                { id: 'n8n', label: 'n8n' },
+              ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
@@ -502,7 +543,8 @@ export function AutoSystemSyncSpec() {
                           value={system.authMethod}
                           onChange={(e) => {
                             const updatedSystems = [...config.systems];
-                            updatedSystems[index].authMethod = e.target.value as any;
+                            updatedSystems[index].authMethod = e.target
+                              .value as any;
                             setConfig({ ...config, systems: updatedSystems });
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -524,7 +566,8 @@ export function AutoSystemSyncSpec() {
                             value={system.credentials.clientId || ''}
                             onChange={(e) => {
                               const updatedSystems = [...config.systems];
-                              updatedSystems[index].credentials.clientId = e.target.value;
+                              updatedSystems[index].credentials.clientId =
+                                e.target.value;
                               setConfig({ ...config, systems: updatedSystems });
                             }}
                             className="px-3 py-2 border border-gray-300 rounded-lg"
@@ -535,7 +578,8 @@ export function AutoSystemSyncSpec() {
                             value={system.credentials.clientSecret || ''}
                             onChange={(e) => {
                               const updatedSystems = [...config.systems];
-                              updatedSystems[index].credentials.clientSecret = e.target.value;
+                              updatedSystems[index].credentials.clientSecret =
+                                e.target.value;
                               setConfig({ ...config, systems: updatedSystems });
                             }}
                             className="px-3 py-2 border border-gray-300 rounded-lg"
@@ -546,7 +590,8 @@ export function AutoSystemSyncSpec() {
                             value={system.credentials.refreshToken || ''}
                             onChange={(e) => {
                               const updatedSystems = [...config.systems];
-                              updatedSystems[index].credentials.refreshToken = e.target.value;
+                              updatedSystems[index].credentials.refreshToken =
+                                e.target.value;
                               setConfig({ ...config, systems: updatedSystems });
                             }}
                             className="px-3 py-2 border border-gray-300 rounded-lg col-span-2"
@@ -560,7 +605,8 @@ export function AutoSystemSyncSpec() {
                           value={system.credentials.apiKey || ''}
                           onChange={(e) => {
                             const updatedSystems = [...config.systems];
-                            updatedSystems[index].credentials.apiKey = e.target.value;
+                            updatedSystems[index].credentials.apiKey =
+                              e.target.value;
                             setConfig({ ...config, systems: updatedSystems });
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -574,7 +620,8 @@ export function AutoSystemSyncSpec() {
                             value={system.credentials.username || ''}
                             onChange={(e) => {
                               const updatedSystems = [...config.systems];
-                              updatedSystems[index].credentials.username = e.target.value;
+                              updatedSystems[index].credentials.username =
+                                e.target.value;
                               setConfig({ ...config, systems: updatedSystems });
                             }}
                             className="px-3 py-2 border border-gray-300 rounded-lg"
@@ -585,7 +632,8 @@ export function AutoSystemSyncSpec() {
                             value={system.credentials.password || ''}
                             onChange={(e) => {
                               const updatedSystems = [...config.systems];
-                              updatedSystems[index].credentials.password = e.target.value;
+                              updatedSystems[index].credentials.password =
+                                e.target.value;
                               setConfig({ ...config, systems: updatedSystems });
                             }}
                             className="px-3 py-2 border border-gray-300 rounded-lg"
@@ -604,7 +652,8 @@ export function AutoSystemSyncSpec() {
                           value={system.apiEndpoints.base}
                           onChange={(e) => {
                             const updatedSystems = [...config.systems];
-                            updatedSystems[index].apiEndpoints.base = e.target.value;
+                            updatedSystems[index].apiEndpoints.base =
+                              e.target.value;
                             setConfig({ ...config, systems: updatedSystems });
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -615,7 +664,8 @@ export function AutoSystemSyncSpec() {
                           value={system.apiEndpoints.read || ''}
                           onChange={(e) => {
                             const updatedSystems = [...config.systems];
-                            updatedSystems[index].apiEndpoints.read = e.target.value;
+                            updatedSystems[index].apiEndpoints.read =
+                              e.target.value;
                             setConfig({ ...config, systems: updatedSystems });
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -626,7 +676,8 @@ export function AutoSystemSyncSpec() {
                           value={system.apiEndpoints.write || ''}
                           onChange={(e) => {
                             const updatedSystems = [...config.systems];
-                            updatedSystems[index].apiEndpoints.write = e.target.value;
+                            updatedSystems[index].apiEndpoints.write =
+                              e.target.value;
                             setConfig({ ...config, systems: updatedSystems });
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -637,7 +688,8 @@ export function AutoSystemSyncSpec() {
                           value={system.apiEndpoints.webhook || ''}
                           onChange={(e) => {
                             const updatedSystems = [...config.systems];
-                            updatedSystems[index].apiEndpoints.webhook = e.target.value;
+                            updatedSystems[index].apiEndpoints.webhook =
+                              e.target.value;
                             setConfig({ ...config, systems: updatedSystems });
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -659,7 +711,10 @@ export function AutoSystemSyncSpec() {
                             value={system.rateLimits.requestsPerMinute || ''}
                             onChange={(e) => {
                               const updatedSystems = [...config.systems];
-                              updatedSystems[index].rateLimits.requestsPerMinute = parseInt(e.target.value) || undefined;
+                              updatedSystems[
+                                index
+                              ].rateLimits.requestsPerMinute =
+                                parseInt(e.target.value) || undefined;
                               setConfig({ ...config, systems: updatedSystems });
                             }}
                             className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
@@ -675,7 +730,8 @@ export function AutoSystemSyncSpec() {
                             value={system.rateLimits.requestsPerDay || ''}
                             onChange={(e) => {
                               const updatedSystems = [...config.systems];
-                              updatedSystems[index].rateLimits.requestsPerDay = parseInt(e.target.value) || undefined;
+                              updatedSystems[index].rateLimits.requestsPerDay =
+                                parseInt(e.target.value) || undefined;
                               setConfig({ ...config, systems: updatedSystems });
                             }}
                             className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
@@ -691,7 +747,8 @@ export function AutoSystemSyncSpec() {
                             value={system.rateLimits.concurrent || ''}
                             onChange={(e) => {
                               const updatedSystems = [...config.systems];
-                              updatedSystems[index].rateLimits.concurrent = parseInt(e.target.value) || undefined;
+                              updatedSystems[index].rateLimits.concurrent =
+                                parseInt(e.target.value) || undefined;
                               setConfig({ ...config, systems: updatedSystems });
                             }}
                             className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
@@ -715,13 +772,15 @@ export function AutoSystemSyncSpec() {
                   <input
                     type="text"
                     value={config.dataFlow.flowDiagram}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      dataFlow: {
-                        ...config.dataFlow,
-                        flowDiagram: e.target.value
-                      }
-                    })}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        dataFlow: {
+                          ...config.dataFlow,
+                          flowDiagram: e.target.value,
+                        },
+                      })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     placeholder="URL לדיאגרמה או תיאור טקסטואלי"
                   />
@@ -762,14 +821,19 @@ export function AutoSystemSyncSpec() {
                             updatedFlows[index].sourceSystem = e.target.value;
                             setConfig({
                               ...config,
-                              dataFlow: { ...config.dataFlow, flows: updatedFlows }
+                              dataFlow: {
+                                ...config.dataFlow,
+                                flows: updatedFlows,
+                              },
                             });
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         >
                           <option value="">בחר מערכת...</option>
-                          {config.systems.map(sys => (
-                            <option key={sys.id} value={sys.id}>{sys.name}</option>
+                          {config.systems.map((sys) => (
+                            <option key={sys.id} value={sys.id}>
+                              {sys.name}
+                            </option>
                           ))}
                         </select>
                       </div>
@@ -781,10 +845,14 @@ export function AutoSystemSyncSpec() {
                           value={flow.entityType}
                           onChange={(e) => {
                             const updatedFlows = [...config.dataFlow.flows];
-                            updatedFlows[index].entityType = e.target.value as any;
+                            updatedFlows[index].entityType = e.target
+                              .value as any;
                             setConfig({
                               ...config,
-                              dataFlow: { ...config.dataFlow, flows: updatedFlows }
+                              dataFlow: {
+                                ...config.dataFlow,
+                                flows: updatedFlows,
+                              },
                             });
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -807,10 +875,14 @@ export function AutoSystemSyncSpec() {
                           value={flow.syncDirection}
                           onChange={(e) => {
                             const updatedFlows = [...config.dataFlow.flows];
-                            updatedFlows[index].syncDirection = e.target.value as any;
+                            updatedFlows[index].syncDirection = e.target
+                              .value as any;
                             setConfig({
                               ...config,
-                              dataFlow: { ...config.dataFlow, flows: updatedFlows }
+                              dataFlow: {
+                                ...config.dataFlow,
+                                flows: updatedFlows,
+                              },
                             });
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -827,10 +899,14 @@ export function AutoSystemSyncSpec() {
                           value={flow.frequency}
                           onChange={(e) => {
                             const updatedFlows = [...config.dataFlow.flows];
-                            updatedFlows[index].frequency = e.target.value as any;
+                            updatedFlows[index].frequency = e.target
+                              .value as any;
                             setConfig({
                               ...config,
-                              dataFlow: { ...config.dataFlow, flows: updatedFlows }
+                              dataFlow: {
+                                ...config.dataFlow,
+                                flows: updatedFlows,
+                              },
                             });
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -855,7 +931,10 @@ export function AutoSystemSyncSpec() {
                             updatedFlows[index].schedule = e.target.value;
                             setConfig({
                               ...config,
-                              dataFlow: { ...config.dataFlow, flows: updatedFlows }
+                              dataFlow: {
+                                ...config.dataFlow,
+                                flows: updatedFlows,
+                              },
                             });
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -873,10 +952,15 @@ export function AutoSystemSyncSpec() {
                         value={flow.targetSystems.join(', ')}
                         onChange={(e) => {
                           const updatedFlows = [...config.dataFlow.flows];
-                          updatedFlows[index].targetSystems = e.target.value.split(',').map(s => s.trim());
+                          updatedFlows[index].targetSystems = e.target.value
+                            .split(',')
+                            .map((s) => s.trim());
                           setConfig({
                             ...config,
-                            dataFlow: { ...config.dataFlow, flows: updatedFlows }
+                            dataFlow: {
+                              ...config.dataFlow,
+                              flows: updatedFlows,
+                            },
                           });
                         }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -902,109 +986,142 @@ export function AutoSystemSyncSpec() {
                   </button>
                 </div>
 
-                {config.globalFieldMapping.masterDataDefinitions.map((def, defIndex) => (
-                  <Card key={defIndex} className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="font-medium">ישות {defIndex + 1}</h4>
-                      <button
-                        onClick={() => removeMasterDataDefinition(defIndex)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        סוג ישות
-                      </label>
-                      <input
-                        type="text"
-                        value={def.entityType}
-                        onChange={(e) => {
-                          const updatedDefs = [...config.globalFieldMapping.masterDataDefinitions];
-                          updatedDefs[defIndex].entityType = e.target.value;
-                          setConfig({
-                            ...config,
-                            globalFieldMapping: { masterDataDefinitions: updatedDefs }
-                          });
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                        placeholder="Customer, Order, Product..."
-                      />
-                    </div>
-
-                    <div className="border-t pt-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <h5 className="text-sm font-medium">שדות Master</h5>
+                {config.globalFieldMapping.masterDataDefinitions.map(
+                  (def, defIndex) => (
+                    <Card key={defIndex} className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="font-medium">ישות {defIndex + 1}</h4>
                         <button
-                          onClick={() => addMasterField(defIndex)}
-                          className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200"
+                          onClick={() => removeMasterDataDefinition(defIndex)}
+                          className="text-red-600 hover:text-red-700"
                         >
-                          <Plus className="w-3 h-3" />
-                          הוסף שדה
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
 
-                      {def.masterFields.map((field, fieldIndex) => (
-                        <div key={fieldIndex} className="bg-gray-50 p-3 rounded-lg mb-2">
-                          <div className="grid grid-cols-3 gap-3 mb-2">
-                            <input
-                              type="text"
-                              value={field.fieldName}
-                              onChange={(e) => {
-                                const updatedDefs = [...config.globalFieldMapping.masterDataDefinitions];
-                                updatedDefs[defIndex].masterFields[fieldIndex].fieldName = e.target.value;
-                                setConfig({
-                                  ...config,
-                                  globalFieldMapping: { masterDataDefinitions: updatedDefs }
-                                });
-                              }}
-                              className="px-2 py-1 border border-gray-300 rounded text-sm"
-                              placeholder="שם שדה"
-                            />
-                            <input
-                              type="text"
-                              value={field.fieldType}
-                              onChange={(e) => {
-                                const updatedDefs = [...config.globalFieldMapping.masterDataDefinitions];
-                                updatedDefs[defIndex].masterFields[fieldIndex].fieldType = e.target.value;
-                                setConfig({
-                                  ...config,
-                                  globalFieldMapping: { masterDataDefinitions: updatedDefs }
-                                });
-                              }}
-                              className="px-2 py-1 border border-gray-300 rounded text-sm"
-                              placeholder="סוג (string, number...)"
-                            />
-                            <label className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                checked={field.required}
-                                onChange={(e) => {
-                                  const updatedDefs = [...config.globalFieldMapping.masterDataDefinitions];
-                                  updatedDefs[defIndex].masterFields[fieldIndex].required = e.target.checked;
-                                  setConfig({
-                                    ...config,
-                                    globalFieldMapping: { masterDataDefinitions: updatedDefs }
-                                  });
-                                }}
-                                className="rounded border-gray-300"
-                              />
-                              <span className="text-xs">חובה</span>
-                            </label>
-                          </div>
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          סוג ישות
+                        </label>
+                        <input
+                          type="text"
+                          value={def.entityType}
+                          onChange={(e) => {
+                            const updatedDefs = [
+                              ...config.globalFieldMapping
+                                .masterDataDefinitions,
+                            ];
+                            updatedDefs[defIndex].entityType = e.target.value;
+                            setConfig({
+                              ...config,
+                              globalFieldMapping: {
+                                masterDataDefinitions: updatedDefs,
+                              },
+                            });
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          placeholder="Customer, Order, Product..."
+                        />
+                      </div>
+
+                      <div className="border-t pt-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h5 className="text-sm font-medium">שדות Master</h5>
                           <button
-                            onClick={() => removeMasterField(defIndex, fieldIndex)}
-                            className="text-red-600 text-xs hover:text-red-700"
+                            onClick={() => addMasterField(defIndex)}
+                            className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200"
                           >
-                            הסר שדה
+                            <Plus className="w-3 h-3" />
+                            הוסף שדה
                           </button>
                         </div>
-                      ))}
-                    </div>
-                  </Card>
-                ))}
+
+                        {def.masterFields.map((field, fieldIndex) => (
+                          <div
+                            key={fieldIndex}
+                            className="bg-gray-50 p-3 rounded-lg mb-2"
+                          >
+                            <div className="grid grid-cols-3 gap-3 mb-2">
+                              <input
+                                type="text"
+                                value={field.fieldName}
+                                onChange={(e) => {
+                                  const updatedDefs = [
+                                    ...config.globalFieldMapping
+                                      .masterDataDefinitions,
+                                  ];
+                                  updatedDefs[defIndex].masterFields[
+                                    fieldIndex
+                                  ].fieldName = e.target.value;
+                                  setConfig({
+                                    ...config,
+                                    globalFieldMapping: {
+                                      masterDataDefinitions: updatedDefs,
+                                    },
+                                  });
+                                }}
+                                className="px-2 py-1 border border-gray-300 rounded text-sm"
+                                placeholder="שם שדה"
+                              />
+                              <input
+                                type="text"
+                                value={field.fieldType}
+                                onChange={(e) => {
+                                  const updatedDefs = [
+                                    ...config.globalFieldMapping
+                                      .masterDataDefinitions,
+                                  ];
+                                  updatedDefs[defIndex].masterFields[
+                                    fieldIndex
+                                  ].fieldType = e.target.value;
+                                  setConfig({
+                                    ...config,
+                                    globalFieldMapping: {
+                                      masterDataDefinitions: updatedDefs,
+                                    },
+                                  });
+                                }}
+                                className="px-2 py-1 border border-gray-300 rounded text-sm"
+                                placeholder="סוג (string, number...)"
+                              />
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={field.required}
+                                  onChange={(e) => {
+                                    const updatedDefs = [
+                                      ...config.globalFieldMapping
+                                        .masterDataDefinitions,
+                                    ];
+                                    updatedDefs[defIndex].masterFields[
+                                      fieldIndex
+                                    ].required = e.target.checked;
+                                    setConfig({
+                                      ...config,
+                                      globalFieldMapping: {
+                                        masterDataDefinitions: updatedDefs,
+                                      },
+                                    });
+                                  }}
+                                  className="rounded border-gray-300"
+                                />
+                                <span className="text-xs">חובה</span>
+                              </label>
+                            </div>
+                            <button
+                              onClick={() =>
+                                removeMasterField(defIndex, fieldIndex)
+                              }
+                              className="text-red-600 text-xs hover:text-red-700"
+                            >
+                              הסר שדה
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+                  )
+                )}
               </div>
             )}
 
@@ -1021,13 +1138,15 @@ export function AutoSystemSyncSpec() {
                       </label>
                       <select
                         value={config.syncLogic.syncType}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          syncLogic: {
-                            ...config.syncLogic,
-                            syncType: e.target.value as any
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            syncLogic: {
+                              ...config.syncLogic,
+                              syncType: e.target.value as any,
+                            },
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="full">Full Sync</option>
@@ -1051,7 +1170,9 @@ export function AutoSystemSyncSpec() {
                         value={syncFrequency.value || 'daily'}
                         onChange={(e) => syncFrequency.setValue(e.target.value)}
                         className={`w-full px-3 py-2 border rounded-lg ${
-                          syncFrequency.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                          syncFrequency.isAutoPopulated
+                            ? 'border-green-300 bg-green-50'
+                            : 'border-gray-300'
                         } ${syncFrequency.hasConflict ? 'border-orange-300' : ''}`}
                       >
                         <option value="realtime">בזמן אמת</option>
@@ -1061,11 +1182,12 @@ export function AutoSystemSyncSpec() {
                         <option value="daily">יומי</option>
                         <option value="weekly">שבועי</option>
                       </select>
-                      {syncFrequency.isAutoPopulated && syncFrequency.source && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          מקור: {syncFrequency.source.description}
-                        </p>
-                      )}
+                      {syncFrequency.isAutoPopulated &&
+                        syncFrequency.source && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            מקור: {syncFrequency.source.description}
+                          </p>
+                        )}
                     </div>
                   </div>
 
@@ -1076,18 +1198,22 @@ export function AutoSystemSyncSpec() {
                       </label>
                       <select
                         value={config.syncLogic.masterSystem || ''}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          syncLogic: {
-                            ...config.syncLogic,
-                            masterSystem: e.target.value
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            syncLogic: {
+                              ...config.syncLogic,
+                              masterSystem: e.target.value,
+                            },
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="">בחר מערכת...</option>
-                        {config.systems.map(sys => (
-                          <option key={sys.id} value={sys.id}>{sys.name}</option>
+                        {config.systems.map((sys) => (
+                          <option key={sys.id} value={sys.id}>
+                            {sys.name}
+                          </option>
                         ))}
                       </select>
                     </div>
@@ -1098,13 +1224,15 @@ export function AutoSystemSyncSpec() {
                       <input
                         type="checkbox"
                         checked={config.syncLogic.deduplicationEnabled}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          syncLogic: {
-                            ...config.syncLogic,
-                            deduplicationEnabled: e.target.checked
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            syncLogic: {
+                              ...config.syncLogic,
+                              deduplicationEnabled: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm">הפעל Deduplication</span>
@@ -1117,14 +1245,20 @@ export function AutoSystemSyncSpec() {
                         </label>
                         <input
                           type="text"
-                          value={config.syncLogic.deduplicationFields.join(', ')}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            syncLogic: {
-                              ...config.syncLogic,
-                              deduplicationFields: e.target.value.split(',').map(s => s.trim())
-                            }
-                          })}
+                          value={config.syncLogic.deduplicationFields.join(
+                            ', '
+                          )}
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              syncLogic: {
+                                ...config.syncLogic,
+                                deduplicationFields: e.target.value
+                                  .split(',')
+                                  .map((s) => s.trim()),
+                              },
+                            })
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           placeholder="email, phone, id"
                         />
@@ -1139,22 +1273,28 @@ export function AutoSystemSyncSpec() {
             {activeTab === 'transform' && (
               <div className="space-y-6">
                 <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">הגדרות טרנספורמציה</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    הגדרות טרנספורמציה
+                  </h3>
 
                   <label className="flex items-center gap-2 mb-4">
                     <input
                       type="checkbox"
                       checked={config.dataTransformation.enabled}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        dataTransformation: {
-                          ...config.dataTransformation,
-                          enabled: e.target.checked
-                        }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          dataTransformation: {
+                            ...config.dataTransformation,
+                            enabled: e.target.checked,
+                          },
+                        })
+                      }
                       className="rounded border-gray-300"
                     />
-                    <span className="text-sm font-medium">הפעל טרנספורמציות</span>
+                    <span className="text-sm font-medium">
+                      הפעל טרנספורמציות
+                    </span>
                   </label>
 
                   {config.dataTransformation.enabled && (
@@ -1163,14 +1303,19 @@ export function AutoSystemSyncSpec() {
                         <label className="flex items-center gap-2">
                           <input
                             type="checkbox"
-                            checked={config.dataTransformation.dateFormatStandardization}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              dataTransformation: {
-                                ...config.dataTransformation,
-                                dateFormatStandardization: e.target.checked
-                              }
-                            })}
+                            checked={
+                              config.dataTransformation
+                                .dateFormatStandardization
+                            }
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                dataTransformation: {
+                                  ...config.dataTransformation,
+                                  dateFormatStandardization: e.target.checked,
+                                },
+                              })
+                            }
                             className="rounded border-gray-300"
                           />
                           <span className="text-sm">תקנון פורמט תאריכים</span>
@@ -1178,14 +1323,18 @@ export function AutoSystemSyncSpec() {
                         <label className="flex items-center gap-2">
                           <input
                             type="checkbox"
-                            checked={config.dataTransformation.currencyConversion}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              dataTransformation: {
-                                ...config.dataTransformation,
-                                currencyConversion: e.target.checked
-                              }
-                            })}
+                            checked={
+                              config.dataTransformation.currencyConversion
+                            }
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                dataTransformation: {
+                                  ...config.dataTransformation,
+                                  currencyConversion: e.target.checked,
+                                },
+                              })
+                            }
                             className="rounded border-gray-300"
                           />
                           <span className="text-sm">המרת מטבעות</span>
@@ -1194,13 +1343,15 @@ export function AutoSystemSyncSpec() {
                           <input
                             type="checkbox"
                             checked={config.dataTransformation.timezoneHandling}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              dataTransformation: {
-                                ...config.dataTransformation,
-                                timezoneHandling: e.target.checked
-                              }
-                            })}
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                dataTransformation: {
+                                  ...config.dataTransformation,
+                                  timezoneHandling: e.target.checked,
+                                },
+                              })
+                            }
                             className="rounded border-gray-300"
                           />
                           <span className="text-sm">טיפול באזורי זמן</span>
@@ -1219,95 +1370,120 @@ export function AutoSystemSyncSpec() {
                           </button>
                         </div>
 
-                        {config.dataTransformation.transformations.map((trans, index) => (
-                          <div key={index} className="bg-gray-50 p-3 rounded-lg mb-2">
-                            <div className="grid grid-cols-2 gap-3 mb-2">
+                        {config.dataTransformation.transformations.map(
+                          (trans, index) => (
+                            <div
+                              key={index}
+                              className="bg-gray-50 p-3 rounded-lg mb-2"
+                            >
+                              <div className="grid grid-cols-2 gap-3 mb-2">
+                                <select
+                                  value={trans.sourceSystem}
+                                  onChange={(e) => {
+                                    const updated = [
+                                      ...config.dataTransformation
+                                        .transformations,
+                                    ];
+                                    updated[index].sourceSystem =
+                                      e.target.value;
+                                    setConfig({
+                                      ...config,
+                                      dataTransformation: {
+                                        ...config.dataTransformation,
+                                        transformations: updated,
+                                      },
+                                    });
+                                  }}
+                                  className="px-2 py-1 border border-gray-300 rounded text-sm"
+                                >
+                                  <option value="">מערכת מקור...</option>
+                                  {config.systems.map((sys) => (
+                                    <option key={sys.id} value={sys.id}>
+                                      {sys.name}
+                                    </option>
+                                  ))}
+                                </select>
+                                <select
+                                  value={trans.targetSystem}
+                                  onChange={(e) => {
+                                    const updated = [
+                                      ...config.dataTransformation
+                                        .transformations,
+                                    ];
+                                    updated[index].targetSystem =
+                                      e.target.value;
+                                    setConfig({
+                                      ...config,
+                                      dataTransformation: {
+                                        ...config.dataTransformation,
+                                        transformations: updated,
+                                      },
+                                    });
+                                  }}
+                                  className="px-2 py-1 border border-gray-300 rounded text-sm"
+                                >
+                                  <option value="">מערכת יעד...</option>
+                                  {config.systems.map((sys) => (
+                                    <option key={sys.id} value={sys.id}>
+                                      {sys.name}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
                               <select
-                                value={trans.sourceSystem}
+                                value={trans.transformationType}
                                 onChange={(e) => {
-                                  const updated = [...config.dataTransformation.transformations];
-                                  updated[index].sourceSystem = e.target.value;
+                                  const updated = [
+                                    ...config.dataTransformation
+                                      .transformations,
+                                  ];
+                                  updated[index].transformationType = e.target
+                                    .value as any;
                                   setConfig({
                                     ...config,
                                     dataTransformation: {
                                       ...config.dataTransformation,
-                                      transformations: updated
-                                    }
+                                      transformations: updated,
+                                    },
                                   });
                                 }}
-                                className="px-2 py-1 border border-gray-300 rounded text-sm"
+                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm mb-2"
                               >
-                                <option value="">מערכת מקור...</option>
-                                {config.systems.map(sys => (
-                                  <option key={sys.id} value={sys.id}>{sys.name}</option>
-                                ))}
+                                <option value="format">Format</option>
+                                <option value="calculate">Calculate</option>
+                                <option value="lookup">Lookup</option>
+                                <option value="merge">Merge</option>
                               </select>
-                              <select
-                                value={trans.targetSystem}
+                              <textarea
+                                value={trans.transformationLogic}
                                 onChange={(e) => {
-                                  const updated = [...config.dataTransformation.transformations];
-                                  updated[index].targetSystem = e.target.value;
+                                  const updated = [
+                                    ...config.dataTransformation
+                                      .transformations,
+                                  ];
+                                  updated[index].transformationLogic =
+                                    e.target.value;
                                   setConfig({
                                     ...config,
                                     dataTransformation: {
                                       ...config.dataTransformation,
-                                      transformations: updated
-                                    }
+                                      transformations: updated,
+                                    },
                                   });
                                 }}
-                                className="px-2 py-1 border border-gray-300 rounded text-sm"
+                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm mb-2"
+                                rows={2}
+                                placeholder="לוגיקה (JavaScript או פורמולה)"
+                              />
+                              <button
+                                onClick={() => removeTransformation(index)}
+                                className="text-red-600 text-xs hover:text-red-700"
                               >
-                                <option value="">מערכת יעד...</option>
-                                {config.systems.map(sys => (
-                                  <option key={sys.id} value={sys.id}>{sys.name}</option>
-                                ))}
-                              </select>
+                                הסר טרנספורמציה
+                              </button>
                             </div>
-                            <select
-                              value={trans.transformationType}
-                              onChange={(e) => {
-                                const updated = [...config.dataTransformation.transformations];
-                                updated[index].transformationType = e.target.value as any;
-                                setConfig({
-                                  ...config,
-                                  dataTransformation: {
-                                    ...config.dataTransformation,
-                                    transformations: updated
-                                  }
-                                });
-                              }}
-                              className="w-full px-2 py-1 border border-gray-300 rounded text-sm mb-2"
-                            >
-                              <option value="format">Format</option>
-                              <option value="calculate">Calculate</option>
-                              <option value="lookup">Lookup</option>
-                              <option value="merge">Merge</option>
-                            </select>
-                            <textarea
-                              value={trans.transformationLogic}
-                              onChange={(e) => {
-                                const updated = [...config.dataTransformation.transformations];
-                                updated[index].transformationLogic = e.target.value;
-                                setConfig({
-                                  ...config,
-                                  dataTransformation: {
-                                    ...config.dataTransformation,
-                                    transformations: updated
-                                  }
-                                });
-                              }}
-                              className="w-full px-2 py-1 border border-gray-300 rounded text-sm mb-2"
-                              rows={2}
-                              placeholder="לוגיקה (JavaScript או פורמולה)"
-                            />
-                            <button
-                              onClick={() => removeTransformation(index)}
-                              className="text-red-600 text-xs hover:text-red-700"
-                            >
-                              הסר טרנספורמציה
-                            </button>
-                          </div>
-                        ))}
+                          )
+                        )}
                       </div>
                     </>
                   )}
@@ -1328,13 +1504,15 @@ export function AutoSystemSyncSpec() {
                       </label>
                       <select
                         value={config.errorHandling.strategy}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          errorHandling: {
-                            ...config.errorHandling,
-                            strategy: e.target.value as any
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            errorHandling: {
+                              ...config.errorHandling,
+                              strategy: e.target.value as any,
+                            },
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="retry">Retry</option>
@@ -1349,13 +1527,15 @@ export function AutoSystemSyncSpec() {
                       </label>
                       <select
                         value={config.errorHandling.partialFailureHandling}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          errorHandling: {
-                            ...config.errorHandling,
-                            partialFailureHandling: e.target.value as any
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            errorHandling: {
+                              ...config.errorHandling,
+                              partialFailureHandling: e.target.value as any,
+                            },
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="rollback">Rollback</option>
@@ -1374,13 +1554,15 @@ export function AutoSystemSyncSpec() {
                         <input
                           type="number"
                           value={config.errorHandling.retryAttempts}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            errorHandling: {
-                              ...config.errorHandling,
-                              retryAttempts: parseInt(e.target.value) || 3
-                            }
-                          })}
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              errorHandling: {
+                                ...config.errorHandling,
+                                retryAttempts: parseInt(e.target.value) || 3,
+                              },
+                            })
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           min="1"
                           max="10"
@@ -1393,13 +1575,15 @@ export function AutoSystemSyncSpec() {
                         <input
                           type="number"
                           value={config.errorHandling.retryDelay}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            errorHandling: {
-                              ...config.errorHandling,
-                              retryDelay: parseInt(e.target.value) || 5
-                            }
-                          })}
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              errorHandling: {
+                                ...config.errorHandling,
+                                retryDelay: parseInt(e.target.value) || 5,
+                              },
+                            })
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           min="1"
                         />
@@ -1414,13 +1598,15 @@ export function AutoSystemSyncSpec() {
                     <input
                       type="email"
                       value={config.errorHandling.errorNotificationEmail}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        errorHandling: {
-                          ...config.errorHandling,
-                          errorNotificationEmail: e.target.value
-                        }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          errorHandling: {
+                            ...config.errorHandling,
+                            errorNotificationEmail: e.target.value,
+                          },
+                        })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       placeholder="admin@example.com"
                     />
@@ -1430,13 +1616,15 @@ export function AutoSystemSyncSpec() {
                     <input
                       type="checkbox"
                       checked={config.errorHandling.logAllSyncAttempts}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        errorHandling: {
-                          ...config.errorHandling,
-                          logAllSyncAttempts: e.target.checked
-                        }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          errorHandling: {
+                            ...config.errorHandling,
+                            logAllSyncAttempts: e.target.checked,
+                          },
+                        })
+                      }
                       className="rounded border-gray-300"
                     />
                     <span className="text-sm">רשום כל ניסיון סנכרון</span>
@@ -1455,13 +1643,15 @@ export function AutoSystemSyncSpec() {
                       <input
                         type="checkbox"
                         checked={config.webhooks.enabled}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          webhooks: {
-                            ...config.webhooks,
-                            enabled: e.target.checked
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            webhooks: {
+                              ...config.webhooks,
+                              enabled: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium">הפעל Webhooks</span>
@@ -1482,40 +1672,49 @@ export function AutoSystemSyncSpec() {
                       </div>
 
                       {config.webhooks.systemWebhooks.map((webhook, index) => (
-                        <div key={index} className="bg-gray-50 p-3 rounded-lg mb-2">
+                        <div
+                          key={index}
+                          className="bg-gray-50 p-3 rounded-lg mb-2"
+                        >
                           <div className="grid grid-cols-2 gap-3 mb-2">
                             <select
                               value={webhook.systemId}
                               onChange={(e) => {
-                                const updated = [...config.webhooks.systemWebhooks];
+                                const updated = [
+                                  ...config.webhooks.systemWebhooks,
+                                ];
                                 updated[index].systemId = e.target.value;
                                 setConfig({
                                   ...config,
                                   webhooks: {
                                     ...config.webhooks,
-                                    systemWebhooks: updated
-                                  }
+                                    systemWebhooks: updated,
+                                  },
                                 });
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
                             >
                               <option value="">בחר מערכת...</option>
-                              {config.systems.map(sys => (
-                                <option key={sys.id} value={sys.id}>{sys.name}</option>
+                              {config.systems.map((sys) => (
+                                <option key={sys.id} value={sys.id}>
+                                  {sys.name}
+                                </option>
                               ))}
                             </select>
                             <input
                               type="url"
                               value={webhook.webhookUrl}
                               onChange={(e) => {
-                                const updated = [...config.webhooks.systemWebhooks];
+                                const updated = [
+                                  ...config.webhooks.systemWebhooks,
+                                ];
                                 updated[index].webhookUrl = e.target.value;
                                 setConfig({
                                   ...config,
                                   webhooks: {
                                     ...config.webhooks,
-                                    systemWebhooks: updated
-                                  }
+                                    systemWebhooks: updated,
+                                  },
                                 });
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
@@ -1526,14 +1725,18 @@ export function AutoSystemSyncSpec() {
                             type="text"
                             value={webhook.events.join(', ')}
                             onChange={(e) => {
-                              const updated = [...config.webhooks.systemWebhooks];
-                              updated[index].events = e.target.value.split(',').map(s => s.trim());
+                              const updated = [
+                                ...config.webhooks.systemWebhooks,
+                              ];
+                              updated[index].events = e.target.value
+                                .split(',')
+                                .map((s) => s.trim());
                               setConfig({
                                 ...config,
                                 webhooks: {
                                   ...config.webhooks,
-                                  systemWebhooks: updated
-                                }
+                                  systemWebhooks: updated,
+                                },
                               });
                             }}
                             className="w-full px-2 py-1 border border-gray-300 rounded text-sm mb-2"
@@ -1543,14 +1746,16 @@ export function AutoSystemSyncSpec() {
                             type="password"
                             value={webhook.secret || ''}
                             onChange={(e) => {
-                              const updated = [...config.webhooks.systemWebhooks];
+                              const updated = [
+                                ...config.webhooks.systemWebhooks,
+                              ];
                               updated[index].secret = e.target.value;
                               setConfig({
                                 ...config,
                                 webhooks: {
                                   ...config.webhooks,
-                                  systemWebhooks: updated
-                                }
+                                  systemWebhooks: updated,
+                                },
                               });
                             }}
                             className="w-full px-2 py-1 border border-gray-300 rounded text-sm mb-2"
@@ -1580,16 +1785,20 @@ export function AutoSystemSyncSpec() {
                     <input
                       type="checkbox"
                       checked={config.initialDataLoad.required}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        initialDataLoad: {
-                          ...config.initialDataLoad,
-                          required: e.target.checked
-                        }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          initialDataLoad: {
+                            ...config.initialDataLoad,
+                            required: e.target.checked,
+                          },
+                        })
+                      }
                       className="rounded border-gray-300"
                     />
-                    <span className="text-sm font-medium">נדרשת טעינה ראשונית</span>
+                    <span className="text-sm font-medium">
+                      נדרשת טעינה ראשונית
+                    </span>
                   </label>
 
                   {config.initialDataLoad.required && (
@@ -1601,13 +1810,15 @@ export function AutoSystemSyncSpec() {
                           </label>
                           <select
                             value={config.initialDataLoad.strategy}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              initialDataLoad: {
-                                ...config.initialDataLoad,
-                                strategy: e.target.value as any
-                              }
-                            })}
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                initialDataLoad: {
+                                  ...config.initialDataLoad,
+                                  strategy: e.target.value as any,
+                                },
+                              })
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           >
                             <option value="parallel">Parallel</option>
@@ -1618,14 +1829,18 @@ export function AutoSystemSyncSpec() {
                           <label className="flex items-center gap-2 h-full items-end">
                             <input
                               type="checkbox"
-                              checked={config.initialDataLoad.bulkImportSupported}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                initialDataLoad: {
-                                  ...config.initialDataLoad,
-                                  bulkImportSupported: e.target.checked
-                                }
-                              })}
+                              checked={
+                                config.initialDataLoad.bulkImportSupported
+                              }
+                              onChange={(e) =>
+                                setConfig({
+                                  ...config,
+                                  initialDataLoad: {
+                                    ...config.initialDataLoad,
+                                    bulkImportSupported: e.target.checked,
+                                  },
+                                })
+                              }
                               className="rounded border-gray-300"
                             />
                             <span className="text-sm">תמיכה ב-Bulk Import</span>
@@ -1641,13 +1856,16 @@ export function AutoSystemSyncSpec() {
                           <input
                             type="number"
                             value={config.initialDataLoad.estimatedRecordCount}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              initialDataLoad: {
-                                ...config.initialDataLoad,
-                                estimatedRecordCount: parseInt(e.target.value) || 0
-                              }
-                            })}
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                initialDataLoad: {
+                                  ...config.initialDataLoad,
+                                  estimatedRecordCount:
+                                    parseInt(e.target.value) || 0,
+                                },
+                              })
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             min="0"
                           />
@@ -1659,13 +1877,16 @@ export function AutoSystemSyncSpec() {
                           <input
                             type="number"
                             value={config.initialDataLoad.estimatedTimeDays}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              initialDataLoad: {
-                                ...config.initialDataLoad,
-                                estimatedTimeDays: parseInt(e.target.value) || 0
-                              }
-                            })}
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                initialDataLoad: {
+                                  ...config.initialDataLoad,
+                                  estimatedTimeDays:
+                                    parseInt(e.target.value) || 0,
+                                },
+                              })
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             min="0"
                           />
@@ -1676,7 +1897,9 @@ export function AutoSystemSyncSpec() {
                 </Card>
 
                 <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">מעקב אחר מצב סנכרון</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    מעקב אחר מצב סנכרון
+                  </h3>
 
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1684,13 +1907,15 @@ export function AutoSystemSyncSpec() {
                     </label>
                     <select
                       value={config.syncStateTracking.database}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        syncStateTracking: {
-                          ...config.syncStateTracking,
-                          database: e.target.value as any
-                        }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          syncStateTracking: {
+                            ...config.syncStateTracking,
+                            database: e.target.value as any,
+                          },
+                        })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     >
                       <option value="postgres">PostgreSQL</option>
@@ -1700,7 +1925,8 @@ export function AutoSystemSyncSpec() {
                     </select>
                   </div>
 
-                  {(config.syncStateTracking.database === 'postgres' || config.syncStateTracking.database === 'mysql') && (
+                  {(config.syncStateTracking.database === 'postgres' ||
+                    config.syncStateTracking.database === 'mysql') && (
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Connection String
@@ -1708,13 +1934,15 @@ export function AutoSystemSyncSpec() {
                       <input
                         type="text"
                         value={config.syncStateTracking.connectionString || ''}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          syncStateTracking: {
-                            ...config.syncStateTracking,
-                            connectionString: e.target.value
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            syncStateTracking: {
+                              ...config.syncStateTracking,
+                              connectionString: e.target.value,
+                            },
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="postgresql://..."
                       />
@@ -1730,17 +1958,21 @@ export function AutoSystemSyncSpec() {
                         </label>
                         <input
                           type="text"
-                          value={config.syncStateTracking.trackingTables.syncLogs}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            syncStateTracking: {
-                              ...config.syncStateTracking,
-                              trackingTables: {
-                                ...config.syncStateTracking.trackingTables,
-                                syncLogs: e.target.value
-                              }
-                            }
-                          })}
+                          value={
+                            config.syncStateTracking.trackingTables.syncLogs
+                          }
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              syncStateTracking: {
+                                ...config.syncStateTracking,
+                                trackingTables: {
+                                  ...config.syncStateTracking.trackingTables,
+                                  syncLogs: e.target.value,
+                                },
+                              },
+                            })
+                          }
                           className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                         />
                       </div>
@@ -1750,17 +1982,22 @@ export function AutoSystemSyncSpec() {
                         </label>
                         <input
                           type="text"
-                          value={config.syncStateTracking.trackingTables.entityMapping}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            syncStateTracking: {
-                              ...config.syncStateTracking,
-                              trackingTables: {
-                                ...config.syncStateTracking.trackingTables,
-                                entityMapping: e.target.value
-                              }
-                            }
-                          })}
+                          value={
+                            config.syncStateTracking.trackingTables
+                              .entityMapping
+                          }
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              syncStateTracking: {
+                                ...config.syncStateTracking,
+                                trackingTables: {
+                                  ...config.syncStateTracking.trackingTables,
+                                  entityMapping: e.target.value,
+                                },
+                              },
+                            })
+                          }
                           className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                         />
                       </div>
@@ -1770,17 +2007,22 @@ export function AutoSystemSyncSpec() {
                         </label>
                         <input
                           type="text"
-                          value={config.syncStateTracking.trackingTables.conflictQueue}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            syncStateTracking: {
-                              ...config.syncStateTracking,
-                              trackingTables: {
-                                ...config.syncStateTracking.trackingTables,
-                                conflictQueue: e.target.value
-                              }
-                            }
-                          })}
+                          value={
+                            config.syncStateTracking.trackingTables
+                              .conflictQueue
+                          }
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              syncStateTracking: {
+                                ...config.syncStateTracking,
+                                trackingTables: {
+                                  ...config.syncStateTracking.trackingTables,
+                                  conflictQueue: e.target.value,
+                                },
+                              },
+                            })
+                          }
                           className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                         />
                       </div>
@@ -1800,13 +2042,15 @@ export function AutoSystemSyncSpec() {
                       <input
                         type="checkbox"
                         checked={config.monitoring.enabled}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          monitoring: {
-                            ...config.monitoring,
-                            enabled: e.target.checked
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            monitoring: {
+                              ...config.monitoring,
+                              enabled: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium">הפעל ניטור</span>
@@ -1822,13 +2066,17 @@ export function AutoSystemSyncSpec() {
                         <input
                           type="text"
                           value={config.monitoring.metricsToTrack.join(', ')}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            monitoring: {
-                              ...config.monitoring,
-                              metricsToTrack: e.target.value.split(',').map(s => s.trim())
-                            }
-                          })}
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              monitoring: {
+                                ...config.monitoring,
+                                metricsToTrack: e.target.value
+                                  .split(',')
+                                  .map((s) => s.trim()),
+                              },
+                            })
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           placeholder="sync_duration, record_count, error_rate"
                         />
@@ -1841,16 +2089,18 @@ export function AutoSystemSyncSpec() {
                             <input
                               type="checkbox"
                               checked={config.monitoring.alerting.syncFailures}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                monitoring: {
-                                  ...config.monitoring,
-                                  alerting: {
-                                    ...config.monitoring.alerting,
-                                    syncFailures: e.target.checked
-                                  }
-                                }
-                              })}
+                              onChange={(e) =>
+                                setConfig({
+                                  ...config,
+                                  monitoring: {
+                                    ...config.monitoring,
+                                    alerting: {
+                                      ...config.monitoring.alerting,
+                                      syncFailures: e.target.checked,
+                                    },
+                                  },
+                                })
+                              }
                               className="rounded border-gray-300"
                             />
                             <span className="text-sm">כישלונות סנכרון</span>
@@ -1859,16 +2109,18 @@ export function AutoSystemSyncSpec() {
                             <input
                               type="checkbox"
                               checked={config.monitoring.alerting.dataDrift}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                monitoring: {
-                                  ...config.monitoring,
-                                  alerting: {
-                                    ...config.monitoring.alerting,
-                                    dataDrift: e.target.checked
-                                  }
-                                }
-                              })}
+                              onChange={(e) =>
+                                setConfig({
+                                  ...config,
+                                  monitoring: {
+                                    ...config.monitoring,
+                                    alerting: {
+                                      ...config.monitoring.alerting,
+                                      dataDrift: e.target.checked,
+                                    },
+                                  },
+                                })
+                              }
                               className="rounded border-gray-300"
                             />
                             <span className="text-sm">סטייה בנתונים</span>
@@ -1876,17 +2128,21 @@ export function AutoSystemSyncSpec() {
                           <label className="flex items-center gap-2">
                             <input
                               type="checkbox"
-                              checked={config.monitoring.alerting.performanceIssues}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                monitoring: {
-                                  ...config.monitoring,
-                                  alerting: {
-                                    ...config.monitoring.alerting,
-                                    performanceIssues: e.target.checked
-                                  }
-                                }
-                              })}
+                              checked={
+                                config.monitoring.alerting.performanceIssues
+                              }
+                              onChange={(e) =>
+                                setConfig({
+                                  ...config,
+                                  monitoring: {
+                                    ...config.monitoring,
+                                    alerting: {
+                                      ...config.monitoring.alerting,
+                                      performanceIssues: e.target.checked,
+                                    },
+                                  },
+                                })
+                              }
                               className="rounded border-gray-300"
                             />
                             <span className="text-sm">בעיות ביצועים</span>
@@ -1894,17 +2150,22 @@ export function AutoSystemSyncSpec() {
                           <label className="flex items-center gap-2">
                             <input
                               type="checkbox"
-                              checked={config.monitoring.alerting.apiRateLimitApproaching}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                monitoring: {
-                                  ...config.monitoring,
-                                  alerting: {
-                                    ...config.monitoring.alerting,
-                                    apiRateLimitApproaching: e.target.checked
-                                  }
-                                }
-                              })}
+                              checked={
+                                config.monitoring.alerting
+                                  .apiRateLimitApproaching
+                              }
+                              onChange={(e) =>
+                                setConfig({
+                                  ...config,
+                                  monitoring: {
+                                    ...config.monitoring,
+                                    alerting: {
+                                      ...config.monitoring.alerting,
+                                      apiRateLimitApproaching: e.target.checked,
+                                    },
+                                  },
+                                })
+                              }
                               className="rounded border-gray-300"
                             />
                             <span className="text-sm">התקרבות למגבלת API</span>
@@ -1939,17 +2200,22 @@ export function AutoSystemSyncSpec() {
                       <input
                         type="url"
                         value={n8nInstanceUrl.value || ''}
-                        onChange={(e) => n8nInstanceUrl.setValue(e.target.value)}
+                        onChange={(e) =>
+                          n8nInstanceUrl.setValue(e.target.value)
+                        }
                         className={`w-full px-3 py-2 border rounded-lg ${
-                          n8nInstanceUrl.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                          n8nInstanceUrl.isAutoPopulated
+                            ? 'border-green-300 bg-green-50'
+                            : 'border-gray-300'
                         } ${n8nInstanceUrl.hasConflict ? 'border-orange-300' : ''}`}
                         placeholder="https://n8n.example.com"
                       />
-                      {n8nInstanceUrl.isAutoPopulated && n8nInstanceUrl.source && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          מקור: {n8nInstanceUrl.source.description}
-                        </p>
-                      )}
+                      {n8nInstanceUrl.isAutoPopulated &&
+                        n8nInstanceUrl.source && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            מקור: {n8nInstanceUrl.source.description}
+                          </p>
+                        )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1958,13 +2224,15 @@ export function AutoSystemSyncSpec() {
                       <input
                         type="url"
                         value={config.n8nWorkflow.webhookEndpoint}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          n8nWorkflow: {
-                            ...config.n8nWorkflow,
-                            webhookEndpoint: e.target.value
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            n8nWorkflow: {
+                              ...config.n8nWorkflow,
+                              webhookEndpoint: e.target.value,
+                            },
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="https://n8n.example.com/webhook/sync"
                       />
@@ -1978,13 +2246,15 @@ export function AutoSystemSyncSpec() {
                       </label>
                       <select
                         value={config.n8nWorkflow.workflowComplexity}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          n8nWorkflow: {
-                            ...config.n8nWorkflow,
-                            workflowComplexity: e.target.value as any
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            n8nWorkflow: {
+                              ...config.n8nWorkflow,
+                              workflowComplexity: e.target.value as any,
+                            },
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="simple">Simple</option>
@@ -1997,13 +2267,15 @@ export function AutoSystemSyncSpec() {
                         <input
                           type="checkbox"
                           checked={config.n8nWorkflow.httpsEnabled}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            n8nWorkflow: {
-                              ...config.n8nWorkflow,
-                              httpsEnabled: e.target.checked
-                            }
-                          })}
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              n8nWorkflow: {
+                                ...config.n8nWorkflow,
+                                httpsEnabled: e.target.checked,
+                              },
+                            })
+                          }
                           className="rounded border-gray-300"
                         />
                         <span className="text-sm">HTTPS Enabled</span>
@@ -2021,16 +2293,18 @@ export function AutoSystemSyncSpec() {
                         <input
                           type="number"
                           value={config.n8nWorkflow.errorHandling.retryAttempts}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            n8nWorkflow: {
-                              ...config.n8nWorkflow,
-                              errorHandling: {
-                                ...config.n8nWorkflow.errorHandling,
-                                retryAttempts: parseInt(e.target.value) || 3
-                              }
-                            }
-                          })}
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              n8nWorkflow: {
+                                ...config.n8nWorkflow,
+                                errorHandling: {
+                                  ...config.n8nWorkflow.errorHandling,
+                                  retryAttempts: parseInt(e.target.value) || 3,
+                                },
+                              },
+                            })
+                          }
                           className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                           min="0"
                         />
@@ -2052,7 +2326,9 @@ export function AutoSystemSyncSpec() {
                           value={alertEmail.value || ''}
                           onChange={(e) => alertEmail.setValue(e.target.value)}
                           className={`w-full px-2 py-1 border rounded text-sm ${
-                            alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                            alertEmail.isAutoPopulated
+                              ? 'border-green-300 bg-green-50'
+                              : 'border-gray-300'
                           } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
                           placeholder="admin@example.com"
                         />
@@ -2067,16 +2343,18 @@ export function AutoSystemSyncSpec() {
                       <input
                         type="checkbox"
                         checked={config.n8nWorkflow.errorHandling.logErrors}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          n8nWorkflow: {
-                            ...config.n8nWorkflow,
-                            errorHandling: {
-                              ...config.n8nWorkflow.errorHandling,
-                              logErrors: e.target.checked
-                            }
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            n8nWorkflow: {
+                              ...config.n8nWorkflow,
+                              errorHandling: {
+                                ...config.n8nWorkflow.errorHandling,
+                                logErrors: e.target.checked,
+                              },
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm">רשום שגיאות</span>

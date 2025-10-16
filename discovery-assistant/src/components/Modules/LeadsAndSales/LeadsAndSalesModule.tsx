@@ -1,13 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Plus, X, ChevronDown, Clock, DollarSign, Lightbulb, Flame, Sparkles, Info } from 'lucide-react';
+import {
+  ArrowRight,
+  Plus,
+  X,
+  ChevronDown,
+  Clock,
+  DollarSign,
+  Lightbulb,
+  Flame,
+  Sparkles,
+  Info,
+} from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Card, Input, Select, TextArea } from '../../Base';
 import {
   NumberField,
   CheckboxGroup,
   RadioGroup,
-  RatingField
+  RatingField,
 } from '../../Common/FormFields';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 import { PhaseReadOnlyBanner } from '../../Common/PhaseReadOnlyBanner';
@@ -27,35 +38,59 @@ const channelOptions = [
   { value: 'tiktok', label: 'טיקטוק' },
   { value: 'youtube', label: 'יוטיוב' },
   { value: 'exhibition', label: 'תערוכות' },
-  { value: 'partners', label: 'שותפים' }
+  { value: 'partners', label: 'שותפים' },
 ];
 
 export const LeadsAndSalesModule: React.FC = () => {
   console.log('[LeadsAndSalesModule] 🟡 Component rendering/mounting');
-  
+
   const navigate = useNavigate();
   const { currentMeeting, updateModule } = useMeetingStore();
   const moduleData = currentMeeting?.modules?.leadsAndSales || {};
 
   // Section states
-  const [expandedSections, setExpandedSections] = useState<string[]>(['leadSources']);
+  const [expandedSections, setExpandedSections] = useState<string[]>([
+    'leadSources',
+  ]);
   const [tooltipVisible, setTooltipVisible] = useState<string | null>(null);
 
   // 2.1 Lead Sources - Direct array format (migrated in v2)
   // Data migration handled by dataMigration.ts on load
-  const [leadSources, setLeadSources] = useState<LeadSource[]>(moduleData.leadSources || []);
-  const [newSource, setNewSource] = useState({ channel: '', volumePerMonth: 0, quality: 3 });
+  const [leadSources, setLeadSources] = useState<LeadSource[]>(
+    moduleData.leadSources || []
+  );
+  const [newSource, setNewSource] = useState({
+    channel: '',
+    volumePerMonth: 0,
+    quality: 3,
+  });
   const [customChannel, setCustomChannel] = useState('');
 
   // Top-level properties (moved from nested object in v2 migration)
-  const [centralSystem, setCentralSystem] = useState(moduleData.centralSystem || '');
-  const [commonIssues, setCommonIssues] = useState<string[]>(moduleData.commonIssues || []);
-  const [missingOpportunities, setMissingOpportunities] = useState(moduleData.missingOpportunities || '');
-  const [fallingLeadsPerMonth, setFallingLeadsPerMonth] = useState(moduleData.fallingLeadsPerMonth || 0);
-  const [duplicatesFrequency, setDuplicatesFrequency] = useState(moduleData.duplicatesFrequency || '');
-  const [missingInfoPercent, setMissingInfoPercent] = useState(moduleData.missingInfoPercent || 0);
-  const [timeToProcessLead, setTimeToProcessLead] = useState(moduleData.timeToProcessLead || 0);
-  const [costPerLostLead, setCostPerLostLead] = useState(moduleData.costPerLostLead || 0);
+  const [centralSystem, setCentralSystem] = useState(
+    moduleData.centralSystem || ''
+  );
+  const [commonIssues, setCommonIssues] = useState<string[]>(
+    moduleData.commonIssues || []
+  );
+  const [missingOpportunities, setMissingOpportunities] = useState(
+    moduleData.missingOpportunities || ''
+  );
+  const [fallingLeadsPerMonth, setFallingLeadsPerMonth] = useState(
+    moduleData.fallingLeadsPerMonth || 0
+  );
+  const [duplicatesFrequency, setDuplicatesFrequency] = useState(
+    moduleData.duplicatesFrequency || ''
+  );
+  const [missingInfoPercent, setMissingInfoPercent] = useState(
+    moduleData.missingInfoPercent || 0
+  );
+  const [timeToProcessLead, setTimeToProcessLead] = useState(
+    moduleData.timeToProcessLead || 0
+  );
+  const [costPerLostLead, setCostPerLostLead] = useState(
+    moduleData.costPerLostLead || 0
+  );
 
   // 2.2 Speed to Lead - Enhanced
   const [responseTime, setResponseTime] = useState<number | undefined>(
@@ -63,49 +98,115 @@ export const LeadsAndSalesModule: React.FC = () => {
       ? moduleData.speedToLead.duringBusinessHours
       : undefined
   );
-  const [responseTimeUnit, setResponseTimeUnit] = useState<'minutes' | 'hours' | 'days'>(
-    moduleData.speedToLead?.responseTimeUnit || 'minutes'
+  const [responseTimeUnit, setResponseTimeUnit] = useState<
+    'minutes' | 'hours' | 'days'
+  >(moduleData.speedToLead?.responseTimeUnit || 'minutes');
+  const [afterHoursResponse, setAfterHoursResponse] = useState(
+    moduleData.speedToLead?.afterHours || ''
   );
-  const [afterHoursResponse, setAfterHoursResponse] = useState(moduleData.speedToLead?.afterHours || '');
-  const [weekendResponse, setWeekendResponse] = useState(moduleData.speedToLead?.weekends || '');
-  const [unansweredPercentage, setUnansweredPercentage] = useState(moduleData.speedToLead?.unansweredPercentage || 0);
-  const [whatHappensWhenUnavailable, setWhatHappensWhenUnavailable] = useState(moduleData.speedToLead?.whatHappensWhenUnavailable || '');
-  const [urgentVsRegular, setUrgentVsRegular] = useState(moduleData.speedToLead?.urgentVsRegular || false);
-  const [urgentHandling, setUrgentHandling] = useState(moduleData.speedToLead?.urgentHandling || '');
-  const [speedToLeadOpportunity, setSpeedToLeadOpportunity] = useState(moduleData.speedToLead?.opportunity || '');
+  const [weekendResponse, setWeekendResponse] = useState(
+    moduleData.speedToLead?.weekends || ''
+  );
+  const [unansweredPercentage, setUnansweredPercentage] = useState(
+    moduleData.speedToLead?.unansweredPercentage || 0
+  );
+  const [whatHappensWhenUnavailable, setWhatHappensWhenUnavailable] = useState(
+    moduleData.speedToLead?.whatHappensWhenUnavailable || ''
+  );
+  const [urgentVsRegular, setUrgentVsRegular] = useState(
+    moduleData.speedToLead?.urgentVsRegular || false
+  );
+  const [urgentHandling, setUrgentHandling] = useState(
+    moduleData.speedToLead?.urgentHandling || ''
+  );
+  const [speedToLeadOpportunity, setSpeedToLeadOpportunity] = useState(
+    moduleData.speedToLead?.opportunity || ''
+  );
 
   // 2.3 Lead Routing - Enhanced
-  const [routingMethod, setRoutingMethod] = useState<string[]>(moduleData.leadRouting?.method || []);
-  const [routingMethodDetails, setRoutingMethodDetails] = useState(moduleData.leadRouting?.methodDetails || '');
-  const [unavailableHandling, setUnavailableHandling] = useState(moduleData.leadRouting?.unavailableAgentHandling || '');
-  const [hotLeadCriteria, setHotLeadCriteria] = useState<string[]>(moduleData.leadRouting?.hotLeadCriteria || []);
+  const [routingMethod, setRoutingMethod] = useState<string[]>(
+    moduleData.leadRouting?.method || []
+  );
+  const [routingMethodDetails, setRoutingMethodDetails] = useState(
+    moduleData.leadRouting?.methodDetails || ''
+  );
+  const [unavailableHandling, setUnavailableHandling] = useState(
+    moduleData.leadRouting?.unavailableAgentHandling || ''
+  );
+  const [hotLeadCriteria, setHotLeadCriteria] = useState<string[]>(
+    moduleData.leadRouting?.hotLeadCriteria || []
+  );
   const [customHotLeadCriteria, setCustomHotLeadCriteria] = useState('');
-  const [hotLeadPriority, setHotLeadPriority] = useState(moduleData.leadRouting?.hotLeadPriority || '');
-  const [aiPotentialRouting, setAiPotentialRouting] = useState(moduleData.leadRouting?.aiPotential || '');
+  const [hotLeadPriority, setHotLeadPriority] = useState(
+    moduleData.leadRouting?.hotLeadPriority || ''
+  );
+  const [aiPotentialRouting, setAiPotentialRouting] = useState(
+    moduleData.leadRouting?.aiPotential || ''
+  );
 
   // 2.4 Follow Up - Enhanced
-  const [followUpAttempts, setFollowUpAttempts] = useState(moduleData.followUp?.attempts || 0);
-  const [followUpDay1, setFollowUpDay1] = useState(moduleData.followUp?.day1Interval || '');
-  const [followUpDay3, setFollowUpDay3] = useState(moduleData.followUp?.day3Interval || '');
-  const [followUpDay7, setFollowUpDay7] = useState(moduleData.followUp?.day7Interval || '');
-  const [followUpChannels, setFollowUpChannels] = useState<string[]>(moduleData.followUp?.channels || []);
-  const [dropOffRate, setDropOffRate] = useState(moduleData.followUp?.dropOffRate || 0);
-  const [notNowLeadsHandling, setNotNowLeadsHandling] = useState(moduleData.followUp?.notNowHandling || '');
-  const [hasNurturing, setHasNurturing] = useState(moduleData.followUp?.nurturing || false);
-  const [nurturingDescription, setNurturingDescription] = useState(moduleData.followUp?.nurturingDescription || '');
-  const [customerJourneyOpportunity, setCustomerJourneyOpportunity] = useState(moduleData.followUp?.customerJourneyOpportunity || '');
+  const [followUpAttempts, setFollowUpAttempts] = useState(
+    moduleData.followUp?.attempts || 0
+  );
+  const [followUpDay1, setFollowUpDay1] = useState(
+    moduleData.followUp?.day1Interval || ''
+  );
+  const [followUpDay3, setFollowUpDay3] = useState(
+    moduleData.followUp?.day3Interval || ''
+  );
+  const [followUpDay7, setFollowUpDay7] = useState(
+    moduleData.followUp?.day7Interval || ''
+  );
+  const [followUpChannels, setFollowUpChannels] = useState<string[]>(
+    moduleData.followUp?.channels || []
+  );
+  const [dropOffRate, setDropOffRate] = useState(
+    moduleData.followUp?.dropOffRate || 0
+  );
+  const [notNowLeadsHandling, setNotNowLeadsHandling] = useState(
+    moduleData.followUp?.notNowHandling || ''
+  );
+  const [hasNurturing, setHasNurturing] = useState(
+    moduleData.followUp?.nurturing || false
+  );
+  const [nurturingDescription, setNurturingDescription] = useState(
+    moduleData.followUp?.nurturingDescription || ''
+  );
+  const [customerJourneyOpportunity, setCustomerJourneyOpportunity] = useState(
+    moduleData.followUp?.customerJourneyOpportunity || ''
+  );
 
   // 2.5 Appointments - Enhanced
-  const [avgSchedulingTime, setAvgSchedulingTime] = useState(moduleData.appointments?.avgSchedulingTime || 0);
-  const [messagesPerScheduling, setMessagesPerScheduling] = useState(moduleData.appointments?.messagesPerScheduling || 0);
-  const [cancellationRate, setCancellationRate] = useState(moduleData.appointments?.cancellationRate || 0);
-  const [noShowRate, setNoShowRate] = useState(moduleData.appointments?.noShowRate || 0);
-  const [multipleParticipants, setMultipleParticipants] = useState(moduleData.appointments?.multipleParticipants || false);
-  const [changesPerWeek, setChangesPerWeek] = useState(moduleData.appointments?.changesPerWeek || 0);
-  const [reminderWhen, setReminderWhen] = useState<string[]>(moduleData.appointments?.reminders?.when || []);
-  const [reminderChannels, setReminderChannels] = useState<string[]>(moduleData.appointments?.reminders?.channels || []);
-  const [customReminderTime, setCustomReminderTime] = useState(moduleData.appointments?.reminders?.customTime || '');
-  const [appointmentsCriticalPain, setAppointmentsCriticalPain] = useState(moduleData.appointments?.criticalPain || false);
+  const [avgSchedulingTime, setAvgSchedulingTime] = useState(
+    moduleData.appointments?.avgSchedulingTime || 0
+  );
+  const [messagesPerScheduling, setMessagesPerScheduling] = useState(
+    moduleData.appointments?.messagesPerScheduling || 0
+  );
+  const [cancellationRate, setCancellationRate] = useState(
+    moduleData.appointments?.cancellationRate || 0
+  );
+  const [noShowRate, setNoShowRate] = useState(
+    moduleData.appointments?.noShowRate || 0
+  );
+  const [multipleParticipants, setMultipleParticipants] = useState(
+    moduleData.appointments?.multipleParticipants || false
+  );
+  const [changesPerWeek, setChangesPerWeek] = useState(
+    moduleData.appointments?.changesPerWeek || 0
+  );
+  const [reminderWhen, setReminderWhen] = useState<string[]>(
+    moduleData.appointments?.reminders?.when || []
+  );
+  const [reminderChannels, setReminderChannels] = useState<string[]>(
+    moduleData.appointments?.reminders?.channels || []
+  );
+  const [customReminderTime, setCustomReminderTime] = useState(
+    moduleData.appointments?.reminders?.customTime || ''
+  );
+  const [appointmentsCriticalPain, setAppointmentsCriticalPain] = useState(
+    moduleData.appointments?.criticalPain || false
+  );
 
   const saveData = () => {
     updateModule('leadsAndSales', {
@@ -128,7 +229,7 @@ export const LeadsAndSalesModule: React.FC = () => {
         whatHappensWhenUnavailable,
         urgentVsRegular,
         urgentHandling,
-        opportunity: speedToLeadOpportunity
+        opportunity: speedToLeadOpportunity,
       },
       leadRouting: {
         method: routingMethod,
@@ -137,7 +238,7 @@ export const LeadsAndSalesModule: React.FC = () => {
         hotLeadCriteria,
         customHotLeadCriteria,
         hotLeadPriority,
-        aiPotential: aiPotentialRouting
+        aiPotential: aiPotentialRouting,
       },
       followUp: {
         attempts: followUpAttempts,
@@ -149,7 +250,7 @@ export const LeadsAndSalesModule: React.FC = () => {
         notNowHandling: notNowLeadsHandling,
         nurturing: hasNurturing,
         nurturingDescription,
-        customerJourneyOpportunity
+        customerJourneyOpportunity,
       },
       appointments: {
         avgSchedulingTime,
@@ -161,10 +262,10 @@ export const LeadsAndSalesModule: React.FC = () => {
         reminders: {
           when: reminderWhen,
           channels: reminderChannels,
-          customTime: customReminderTime
+          customTime: customReminderTime,
         },
-        criticalPain: appointmentsCriticalPain
-      }
+        criticalPain: appointmentsCriticalPain,
+      },
     });
   };
 
@@ -179,22 +280,57 @@ export const LeadsAndSalesModule: React.FC = () => {
 
     return () => clearTimeout(timer);
   }, [
-    leadSources, centralSystem, commonIssues, missingOpportunities, fallingLeadsPerMonth,
-    duplicatesFrequency, missingInfoPercent, timeToProcessLead, costPerLostLead,
-    responseTime, responseTimeUnit, afterHoursResponse, weekendResponse, unansweredPercentage,
-    whatHappensWhenUnavailable, urgentVsRegular, urgentHandling, speedToLeadOpportunity,
-    routingMethod, routingMethodDetails, unavailableHandling, hotLeadCriteria, customHotLeadCriteria,
-    hotLeadPriority, aiPotentialRouting, followUpAttempts, followUpDay1, followUpDay3, followUpDay7,
-    followUpChannels, dropOffRate, notNowLeadsHandling, hasNurturing, nurturingDescription,
-    customerJourneyOpportunity, avgSchedulingTime, messagesPerScheduling, cancellationRate,
-    noShowRate, multipleParticipants, changesPerWeek, reminderWhen, reminderChannels,
-    customReminderTime, appointmentsCriticalPain
+    leadSources,
+    centralSystem,
+    commonIssues,
+    missingOpportunities,
+    fallingLeadsPerMonth,
+    duplicatesFrequency,
+    missingInfoPercent,
+    timeToProcessLead,
+    costPerLostLead,
+    responseTime,
+    responseTimeUnit,
+    afterHoursResponse,
+    weekendResponse,
+    unansweredPercentage,
+    whatHappensWhenUnavailable,
+    urgentVsRegular,
+    urgentHandling,
+    speedToLeadOpportunity,
+    routingMethod,
+    routingMethodDetails,
+    unavailableHandling,
+    hotLeadCriteria,
+    customHotLeadCriteria,
+    hotLeadPriority,
+    aiPotentialRouting,
+    followUpAttempts,
+    followUpDay1,
+    followUpDay3,
+    followUpDay7,
+    followUpChannels,
+    dropOffRate,
+    notNowLeadsHandling,
+    hasNurturing,
+    nurturingDescription,
+    customerJourneyOpportunity,
+    avgSchedulingTime,
+    messagesPerScheduling,
+    cancellationRate,
+    noShowRate,
+    multipleParticipants,
+    changesPerWeek,
+    reminderWhen,
+    reminderChannels,
+    customReminderTime,
+    appointmentsCriticalPain,
   ]);
 
   const toggleSection = (section: string) => {
-    setExpandedSections(prev =>
+    setExpandedSections((prev) =>
       prev.includes(section)
-        ? prev.filter(s => s !== section)
+        ? prev.filter((s) => s !== section)
         : [...prev, section]
     );
   };
@@ -202,11 +338,14 @@ export const LeadsAndSalesModule: React.FC = () => {
   const handleAddLeadSource = () => {
     const channel = customChannel || newSource.channel;
     if (channel) {
-      setLeadSources([...leadSources, {
-        channel,
-        volumePerMonth: newSource.volumePerMonth,
-        quality: newSource.quality as 1 | 2 | 3 | 4 | 5
-      }]);
+      setLeadSources([
+        ...leadSources,
+        {
+          channel,
+          volumePerMonth: newSource.volumePerMonth,
+          quality: newSource.quality as 1 | 2 | 3 | 4 | 5,
+        },
+      ]);
       setNewSource({ channel: '', volumePerMonth: 0, quality: 3 });
       setCustomChannel('');
     }
@@ -215,7 +354,10 @@ export const LeadsAndSalesModule: React.FC = () => {
   const handleRemoveLeadSource = (index: number) => {
     // DEFENSIVE: Verify leadSources is an array before filtering
     if (!Array.isArray(leadSources)) {
-      console.error('Cannot remove lead source: leadSources is not an array', leadSources);
+      console.error(
+        'Cannot remove lead source: leadSources is not an array',
+        leadSources
+      );
       setLeadSources([]);
       return;
     }
@@ -223,7 +365,10 @@ export const LeadsAndSalesModule: React.FC = () => {
   };
 
   const handleAddCustomHotLeadCriteria = () => {
-    if (customHotLeadCriteria && !hotLeadCriteria.includes(customHotLeadCriteria)) {
+    if (
+      customHotLeadCriteria &&
+      !hotLeadCriteria.includes(customHotLeadCriteria)
+    ) {
       setHotLeadCriteria([...hotLeadCriteria, customHotLeadCriteria]);
       setCustomHotLeadCriteria('');
     }
@@ -246,11 +391,17 @@ export const LeadsAndSalesModule: React.FC = () => {
       console.warn('leadSources is not an array, returning 0 for total volume');
       return 0;
     }
-    return leadSources.reduce((sum, source) => sum + (source.volumePerMonth || 0), 0);
+    return leadSources.reduce(
+      (sum, source) => sum + (source.volumePerMonth || 0),
+      0
+    );
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 transition-all duration-500" dir="rtl">
+    <div
+      className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 transition-all duration-500"
+      dir="rtl"
+    >
       {/* Enhanced Header with Breadcrumbs */}
       <div className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-20">
         <div className="container mx-auto px-4 py-4">
@@ -264,7 +415,9 @@ export const LeadsAndSalesModule: React.FC = () => {
                 <ArrowRight className="w-5 h-5" />
               </button>
               {/* Module Title */}
-              <h1 className="text-2xl font-bold text-gray-800">💼 לידים ומכירות</h1>
+              <h1 className="text-2xl font-bold text-gray-800">
+                💼 לידים ומכירות
+              </h1>
             </div>
             <div className="flex items-center gap-3">
               {/* Module Progress */}
@@ -302,9 +455,13 @@ export const LeadsAndSalesModule: React.FC = () => {
                 <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
                   2.1 מקורות וקליטת לידים
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">ערוצי כניסה, איסוף וריכוז, בעיות נפוצות</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  ערוצי כניסה, איסוף וריכוז, בעיות נפוצות
+                </p>
               </div>
-              <div className={`transform transition-transform duration-300 ${expandedSections.includes('leadSources') ? 'rotate-180' : ''}`}>
+              <div
+                className={`transform transition-transform duration-300 ${expandedSections.includes('leadSources') ? 'rotate-180' : ''}`}
+              >
                 <ChevronDown className="w-5 h-5" />
               </div>
             </button>
@@ -330,53 +487,65 @@ export const LeadsAndSalesModule: React.FC = () => {
                   </label>
                   <div className="space-y-3">
                     {/* DEFENSIVE: Verify leadSources is array before mapping */}
-                    {Array.isArray(leadSources) && leadSources.map((source, index) => (
-                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                        <span className="font-medium min-w-[100px]">
-                          {channelOptions.find(o => o.value === source.channel)?.label || source.channel}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm text-gray-600">כמות/חודש:</span>
-                          <NumberField
-                            value={source.volumePerMonth}
-                            onChange={(v) => {
-                              const updated = [...leadSources];
-                              updated[index].volumePerMonth = v || 0;
-                              setLeadSources(updated);
-                            }}
-                            className="w-24"
-                            min={0}
-                          />
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm text-gray-600">איכות:</span>
-                          <RatingField
-                            value={source.quality}
-                            onChange={(v) => {
-                              const updated = [...leadSources];
-                              updated[index].quality = v as 1 | 2 | 3 | 4 | 5;
-                              setLeadSources(updated);
-                            }}
-                            showValue={false}
-                            className="mr-auto"
-                          />
-                        </div>
-                        <button
-                          onClick={() => handleRemoveLeadSource(index)}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-all"
-                          aria-label="הסר ערוץ"
+                    {Array.isArray(leadSources) &&
+                      leadSources.map((source, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                         >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
+                          <span className="font-medium min-w-[100px]">
+                            {channelOptions.find(
+                              (o) => o.value === source.channel
+                            )?.label || source.channel}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-600">
+                              כמות/חודש:
+                            </span>
+                            <NumberField
+                              value={source.volumePerMonth}
+                              onChange={(v) => {
+                                const updated = [...leadSources];
+                                updated[index].volumePerMonth = v || 0;
+                                setLeadSources(updated);
+                              }}
+                              className="w-24"
+                              min={0}
+                            />
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-600">
+                              איכות:
+                            </span>
+                            <RatingField
+                              value={source.quality}
+                              onChange={(v) => {
+                                const updated = [...leadSources];
+                                updated[index].quality = v as 1 | 2 | 3 | 4 | 5;
+                                setLeadSources(updated);
+                              }}
+                              showValue={false}
+                              className="mr-auto"
+                            />
+                          </div>
+                          <button
+                            onClick={() => handleRemoveLeadSource(index)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-all"
+                            aria-label="הסר ערוץ"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
                   </div>
 
                   {/* Add New Channel */}
                   <div className="mt-3 flex gap-2">
                     <Select
                       value={newSource.channel}
-                      onChange={(v) => setNewSource({ ...newSource, channel: v })}
+                      onChange={(v) =>
+                        setNewSource({ ...newSource, channel: v })
+                      }
                       options={channelOptions}
                       placeholder="בחר ערוץ"
                       className="flex-1"
@@ -391,7 +560,9 @@ export const LeadsAndSalesModule: React.FC = () => {
                     />
                     <NumberField
                       value={newSource.volumePerMonth}
-                      onChange={(v) => setNewSource({ ...newSource, volumePerMonth: v || 0 })}
+                      onChange={(v) =>
+                        setNewSource({ ...newSource, volumePerMonth: v || 0 })
+                      }
                       placeholder="כמות/חודש"
                       className="w-32"
                       min={0}
@@ -400,7 +571,9 @@ export const LeadsAndSalesModule: React.FC = () => {
                       <span className="text-sm">איכות:</span>
                       <RatingField
                         value={newSource.quality}
-                        onChange={(v) => setNewSource({ ...newSource, quality: v })}
+                        onChange={(v) =>
+                          setNewSource({ ...newSource, quality: v })
+                        }
                         showValue={false}
                       />
                     </div>
@@ -423,22 +596,32 @@ export const LeadsAndSalesModule: React.FC = () => {
                       { value: 'crm', label: 'CRM' },
                       { value: 'excel', label: 'Excel' },
                       { value: 'manual', label: 'ידני' },
-                      { value: 'scattered', label: 'מפוזר' }
+                      { value: 'scattered', label: 'מפוזר' },
                     ]}
                     dir="rtl"
                   />
-                  <p className="mt-1 text-sm text-gray-500">איפה אתם מרכזים את כל הלידים?</p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    איפה אתם מרכזים את כל הלידים?
+                  </p>
                 </div>
 
                 {/* Common Issues */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">בעיות נפוצות</label>
+                  <label className="block text-sm font-medium mb-2">
+                    בעיות נפוצות
+                  </label>
                   <CheckboxGroup
                     options={[
-                      { value: 'missing_opportunities', label: 'ערוצים שמפספסים הזדמנויות' },
-                      { value: 'falling_leads', label: 'לידים נופלים בין הכיסאות' },
+                      {
+                        value: 'missing_opportunities',
+                        label: 'ערוצים שמפספסים הזדמנויות',
+                      },
+                      {
+                        value: 'falling_leads',
+                        label: 'לידים נופלים בין הכיסאות',
+                      },
                       { value: 'duplicates', label: 'כפילויות' },
-                      { value: 'missing_info', label: 'מידע חסר/שגוי' }
+                      { value: 'missing_info', label: 'מידע חסר/שגוי' },
                     ]}
                     values={commonIssues}
                     onChange={setCommonIssues}
@@ -475,7 +658,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                         { value: 'daily', label: 'יומי' },
                         { value: 'weekly', label: 'שבועי' },
                         { value: 'monthly', label: 'חודשי' },
-                        { value: 'rare', label: 'נדיר' }
+                        { value: 'rare', label: 'נדיר' },
                       ]}
                       className="mt-3"
                       dir="rtl"
@@ -546,7 +729,11 @@ export const LeadsAndSalesModule: React.FC = () => {
                     </div>
                     <p className="text-sm text-green-700 mt-1">
                       {/* DEFENSIVE: Use safe calculation helper */}
-                      אוטומציה של קליטת לידים יכולה לחסוך {Math.round(timeToProcessLead * calculateTotalLeadVolume() / 60)} שעות בחודש
+                      אוטומציה של קליטת לידים יכולה לחסוך{' '}
+                      {Math.round(
+                        (timeToProcessLead * calculateTotalLeadVolume()) / 60
+                      )}{' '}
+                      שעות בחודש
                     </p>
                   </div>
                 )}
@@ -564,9 +751,13 @@ export const LeadsAndSalesModule: React.FC = () => {
                 <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
                   2.2 Speed to Lead - מהירות תגובה
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">זמני תגובה, מצבי החמצה והזדמנויות</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  זמני תגובה, מצבי החמצה והזדמנויות
+                </p>
               </div>
-              <div className={`transform transition-transform duration-300 ${expandedSections.includes('speedToLead') ? 'rotate-180' : ''}`}>
+              <div
+                className={`transform transition-transform duration-300 ${expandedSections.includes('speedToLead') ? 'rotate-180' : ''}`}
+              >
                 <ChevronDown className="w-5 h-5" />
               </div>
             </button>
@@ -587,11 +778,13 @@ export const LeadsAndSalesModule: React.FC = () => {
                     />
                     <Select
                       value={responseTimeUnit}
-                      onChange={(val) => setResponseTimeUnit(val as 'minutes' | 'hours' | 'days')}
+                      onChange={(val) =>
+                        setResponseTimeUnit(val as 'minutes' | 'hours' | 'days')
+                      }
                       options={[
                         { value: 'minutes', label: 'דקות' },
                         { value: 'hours', label: 'שעות' },
-                        { value: 'days', label: 'ימים' }
+                        { value: 'days', label: 'ימים' },
                       ]}
                       dir="rtl"
                     />
@@ -606,7 +799,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                   options={[
                     { value: 'no_response', label: 'אין מענה' },
                     { value: 'partial', label: 'מענה חלקי' },
-                    { value: 'full', label: 'מענה מלא' }
+                    { value: 'full', label: 'מענה מלא' },
                   ]}
                 />
 
@@ -618,7 +811,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                   options={[
                     { value: 'no_response', label: 'אין מענה' },
                     { value: 'partial', label: 'מענה חלקי' },
-                    { value: 'full', label: 'מענה מלא' }
+                    { value: 'full', label: 'מענה מלא' },
                   ]}
                 />
 
@@ -651,7 +844,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                       onChange={(v) => setUrgentVsRegular(v === 'yes')}
                       options={[
                         { value: 'yes', label: 'כן' },
-                        { value: 'no', label: 'לא' }
+                        { value: 'no', label: 'לא' },
                       ]}
                       orientation="horizontal"
                     />
@@ -684,7 +877,10 @@ export const LeadsAndSalesModule: React.FC = () => {
                 </div>
 
                 {/* Pain Point Detection */}
-                {(unansweredPercentage > 20 || (responseTime !== undefined && responseTime > 30 && responseTimeUnit === 'minutes')) && (
+                {(unansweredPercentage > 20 ||
+                  (responseTime !== undefined &&
+                    responseTime > 30 &&
+                    responseTimeUnit === 'minutes')) && (
                   <PainPointFlag
                     module="leadsAndSales"
                     subModule="speedToLead"
@@ -707,9 +903,13 @@ export const LeadsAndSalesModule: React.FC = () => {
                 <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
                   2.3 ניתוב וסיווג לידים 🆕
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">חלוקה חכמה וסיווג איכות</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  חלוקה חכמה וסיווג איכות
+                </p>
               </div>
-              <div className={`transform transition-transform duration-300 ${expandedSections.includes('leadRouting') ? 'rotate-180' : ''}`}>
+              <div
+                className={`transform transition-transform duration-300 ${expandedSections.includes('leadRouting') ? 'rotate-180' : ''}`}
+              >
                 <ChevronDown className="w-5 h-5" />
               </div>
             </button>
@@ -718,18 +918,21 @@ export const LeadsAndSalesModule: React.FC = () => {
               <div className="mt-6 space-y-6 animate-slideDown">
                 {/* Distribution Method */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">שיטת חלוקה נוכחית</label>
+                  <label className="block text-sm font-medium mb-2">
+                    שיטת חלוקה נוכחית
+                  </label>
                   <CheckboxGroup
                     options={[
                       { value: 'rotation', label: 'לפי תורנות' },
                       { value: 'expertise', label: 'לפי התמחות' },
                       { value: 'territory', label: 'לפי טריטוריה' },
-                      { value: 'manual', label: 'ידני/אקראי' }
+                      { value: 'manual', label: 'ידני/אקראי' },
                     ]}
                     values={routingMethod}
                     onChange={setRoutingMethod}
                   />
-                  {(routingMethod.includes('expertise') || routingMethod.includes('territory')) && (
+                  {(routingMethod.includes('expertise') ||
+                    routingMethod.includes('territory')) && (
                     <Input
                       label="פרט את השיטה"
                       value={routingMethodDetails}
@@ -753,7 +956,9 @@ export const LeadsAndSalesModule: React.FC = () => {
 
                 {/* Hot Lead Classification */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">קריטריונים ללידים חמים</label>
+                  <label className="block text-sm font-medium mb-2">
+                    קריטריונים ללידים חמים
+                  </label>
                   <CheckboxGroup
                     options={[
                       { value: 'budget', label: 'תקציב מוגדר' },
@@ -761,7 +966,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                       { value: 'fit', label: 'התאמה למוצר' },
                       { value: 'decision_maker', label: 'מקבל החלטות' },
                       { value: 'referral', label: 'המלצה' },
-                      { value: 'enterprise', label: 'ארגון גדול' }
+                      { value: 'enterprise', label: 'ארגון גדול' },
                     ]}
                     values={hotLeadCriteria}
                     onChange={setHotLeadCriteria}
@@ -824,9 +1029,13 @@ export const LeadsAndSalesModule: React.FC = () => {
                 <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
                   2.4 מעקבים (Follow-up) - מורחב
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">אסטרטגיית מעקב, טיפוח ומסעות לקוח</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  אסטרטגיית מעקב, טיפוח ומסעות לקוח
+                </p>
               </div>
-              <div className={`transform transition-transform duration-300 ${expandedSections.includes('followUp') ? 'rotate-180' : ''}`}>
+              <div
+                className={`transform transition-transform duration-300 ${expandedSections.includes('followUp') ? 'rotate-180' : ''}`}
+              >
                 <ChevronDown className="w-5 h-5" />
               </div>
             </button>
@@ -879,7 +1088,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                     { value: 'email', label: 'Email' },
                     { value: 'phone', label: 'טלפון' },
                     { value: 'linkedin', label: 'LinkedIn' },
-                    { value: 'facebook', label: 'Facebook Messenger' }
+                    { value: 'facebook', label: 'Facebook Messenger' },
                   ]}
                   values={followUpChannels}
                   onChange={setFollowUpChannels}
@@ -900,7 +1109,9 @@ export const LeadsAndSalesModule: React.FC = () => {
                   />
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">לידים ״לא עכשיו״ - טיפול</label>
+                    <label className="block text-sm font-medium mb-2">
+                      לידים ״לא עכשיו״ - טיפול
+                    </label>
                     <RadioGroup
                       value={notNowLeadsHandling}
                       onChange={setNotNowLeadsHandling}
@@ -908,7 +1119,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                         { value: 'saved', label: 'נשמרים במערכת' },
                         { value: 'deleted', label: 'נמחקים' },
                         { value: 'nurturing', label: 'נכנסים ל-nurturing' },
-                        { value: 'reminder', label: 'תזכורת עתידית' }
+                        { value: 'reminder', label: 'תזכורת עתידית' },
                       ]}
                     />
                   </div>
@@ -920,7 +1131,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                       onChange={(v) => setHasNurturing(v === 'yes')}
                       options={[
                         { value: 'yes', label: 'כן' },
-                        { value: 'no', label: 'לא' }
+                        { value: 'no', label: 'לא' },
                       ]}
                       orientation="horizontal"
                     />
@@ -976,9 +1187,13 @@ export const LeadsAndSalesModule: React.FC = () => {
                 <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
                   2.5 קביעת פגישות וזימונים 🆕
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">תיאום, ביטולים, תזכורות ומורכבות</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  תיאום, ביטולים, תזכורות ומורכבות
+                </p>
               </div>
-              <div className={`transform transition-transform duration-300 ${expandedSections.includes('appointments') ? 'rotate-180' : ''}`}>
+              <div
+                className={`transform transition-transform duration-300 ${expandedSections.includes('appointments') ? 'rotate-180' : ''}`}
+              >
                 <ChevronDown className="w-5 h-5" />
               </div>
             </button>
@@ -1035,7 +1250,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                     onChange={(v) => setMultipleParticipants(v === 'yes')}
                     options={[
                       { value: 'yes', label: 'כן' },
-                      { value: 'no', label: 'לא' }
+                      { value: 'no', label: 'לא' },
                     ]}
                     orientation="horizontal"
                   />
@@ -1050,7 +1265,9 @@ export const LeadsAndSalesModule: React.FC = () => {
 
                 {/* Reminders */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">תזכורות</label>
+                  <label className="block text-sm font-medium mb-2">
+                    תזכורות
+                  </label>
 
                   <div className="space-y-4">
                     <CheckboxGroup
@@ -1059,7 +1276,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                         { value: 'day_before', label: 'יום לפני' },
                         { value: 'hour_before', label: 'שעה לפני' },
                         { value: 'morning_of', label: 'בבוקר של היום' },
-                        { value: 'custom', label: 'אחר' }
+                        { value: 'custom', label: 'אחר' },
                       ]}
                       values={reminderWhen}
                       onChange={setReminderWhen}
@@ -1082,7 +1299,7 @@ export const LeadsAndSalesModule: React.FC = () => {
                         { value: 'sms', label: 'SMS' },
                         { value: 'whatsapp', label: 'WhatsApp' },
                         { value: 'email', label: 'Email' },
-                        { value: 'phone', label: 'טלפון' }
+                        { value: 'phone', label: 'טלפון' },
                       ]}
                       values={reminderChannels}
                       onChange={setReminderChannels}
@@ -1096,7 +1313,9 @@ export const LeadsAndSalesModule: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={appointmentsCriticalPain}
-                    onChange={(e) => setAppointmentsCriticalPain(e.target.checked)}
+                    onChange={(e) =>
+                      setAppointmentsCriticalPain(e.target.checked)
+                    }
                     className="w-5 h-5 text-red-600 rounded focus:ring-red-500"
                   />
                   <label className="flex items-center gap-2 text-red-800 font-medium cursor-pointer">
@@ -1106,7 +1325,9 @@ export const LeadsAndSalesModule: React.FC = () => {
                 </div>
 
                 {/* Pain Point Detection */}
-                {(cancellationRate > 20 || noShowRate > 15 || appointmentsCriticalPain) && (
+                {(cancellationRate > 20 ||
+                  noShowRate > 15 ||
+                  appointmentsCriticalPain) && (
                   <PainPointFlag
                     module="leadsAndSales"
                     subModule="appointments"

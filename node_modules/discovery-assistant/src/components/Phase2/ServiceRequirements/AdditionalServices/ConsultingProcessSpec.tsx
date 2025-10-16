@@ -15,20 +15,20 @@ export function ConsultingProcessSpec() {
     fieldId: 'database_type',
     localPath: 'databaseType',
     serviceId: 'consulting-process',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'alertEmail',
     serviceId: 'consulting-process',
-    autoSave: false
+    autoSave: false,
   });
 
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'consulting-process',
-    category: 'additionalServices'
+    category: 'additionalServices',
   });
 
   useBeforeUnload(() => {
@@ -36,20 +36,22 @@ export function ConsultingProcessSpec() {
     const completeConfig = {
       ...config,
       databaseType: databaseType.value,
-      alertEmail: alertEmail.value
+      alertEmail: alertEmail.value,
     };
     saveData(completeConfig);
   });
 
   const [config, setConfig] = useState<ConsultingProcessRequirements>({
     // Process Identification
-    processIdentification: [{
-      processName: '',
-      processOwner: '',
-      processScope: '',
-      processType: 'operational',
-      crossFunctional: false
-    }],
+    processIdentification: [
+      {
+        processName: '',
+        processOwner: '',
+        processScope: '',
+        processType: 'operational',
+        crossFunctional: false,
+      },
+    ],
 
     // Analysis Methodology
     analysisMethodology: {
@@ -59,22 +61,24 @@ export function ConsultingProcessSpec() {
         measure: true,
         analyze: true,
         improve: true,
-        control: true
+        control: true,
       },
       valueStreamMapping: false,
       bpmnModeling: false,
       fiveWhysAnalysis: false,
-      rootCauseAnalysis: false
+      rootCauseAnalysis: false,
     },
 
     // Stakeholder Engagement
     stakeholderEngagement: {
-      stakeholders: [{
-        role: '',
-        involvement: 'interview',
-        availabilityHours: 1
-      }],
-      workshopsRequired: false
+      stakeholders: [
+        {
+          role: '',
+          involvement: 'interview',
+          availabilityHours: 1,
+        },
+      ],
+      workshopsRequired: false,
     },
 
     // Current State Analysis
@@ -82,44 +86,50 @@ export function ConsultingProcessSpec() {
       documentationExists: false,
       needsObservation: true,
       needsDataCollection: true,
-      dataToCollect: [{
-        metric: '',
-        source: '',
-        historicalPeriod: ''
-      }],
-      painPoints: []
+      dataToCollect: [
+        {
+          metric: '',
+          source: '',
+          historicalPeriod: '',
+        },
+      ],
+      painPoints: [],
     },
 
     // Data Collection
     dataCollection: {
       historicalDataAccess: false,
       dataSources: [],
-      metrics: [{
-        metricName: '',
-        currentValue: '',
-        targetValue: ''
-      }],
+      metrics: [
+        {
+          metricName: '',
+          currentValue: '',
+          targetValue: '',
+        },
+      ],
       surveyRequired: false,
       interviewsRequired: false,
-      timeTrackingRequired: false
+      timeTrackingRequired: false,
     },
 
     // Gap Analysis
     gapAnalysis: {
       currentStateIssues: [],
       desiredState: '',
-      gapSize: 'moderate'
+      gapSize: 'moderate',
     },
 
     // Improvement Goals
     improvementGoals: {
       primaryGoal: '',
       secondaryGoals: [],
-      targetMetrics: [{
-        metric: '',
-        currentValue: '',
-        targetValue: ''
-      }]
+      targetMetrics: [
+        {
+          metric: '',
+          currentValue: '',
+          targetValue: '',
+        },
+      ],
     },
 
     // Process Mapping
@@ -128,18 +138,20 @@ export function ConsultingProcessSpec() {
       futureStateMap: true,
       swimLaneFormat: false,
       toolsUsed: [],
-      bpmnCompliant: false
+      bpmnCompliant: false,
     },
 
     // Recommendations
     recommendations: {
       quickWins: [],
       strategicChanges: [],
-      automationOpportunities: [{
-        task: '',
-        automationMethod: '',
-        estimatedSavingsHours: 0
-      }]
+      automationOpportunities: [
+        {
+          task: '',
+          automationMethod: '',
+          estimatedSavingsHours: 0,
+        },
+      ],
     },
 
     // ROI Analysis
@@ -149,7 +161,7 @@ export function ConsultingProcessSpec() {
       projectedSavings: {},
       paybackPeriodMonths: 6,
       netPresentValue: 0,
-      roiPercent: 0
+      roiPercent: 0,
     },
 
     // Implementation Timeline
@@ -159,7 +171,7 @@ export function ConsultingProcessSpec() {
       implementationPhaseWeeks: 4,
       testingPhaseWeeks: 1,
       totalWeeks: 9,
-      milestones: []
+      milestones: [],
     },
 
     // Success Criteria
@@ -168,7 +180,7 @@ export function ConsultingProcessSpec() {
       stakeholderSatisfaction: true,
       costSavings: true,
       errorReduction: false,
-      cycleTimeReduction: true
+      cycleTimeReduction: true,
     },
 
     // Deliverables
@@ -178,15 +190,18 @@ export function ConsultingProcessSpec() {
       implementationPlan: true,
       trainingMaterials: false,
       monitoringDashboard: false,
-      changeManagementPlan: false
-    }
+      changeManagementPlan: false,
+    },
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    const category = currentMeeting?.implementationSpec?.additionalServices || [];
-    const existing = category.find(item => item.serviceId === 'consulting-process');
+    const category =
+      currentMeeting?.implementationSpec?.additionalServices || [];
+    const existing = category.find(
+      (item) => item.serviceId === 'consulting-process'
+    );
     if (existing?.requirements) {
       setConfig(existing.requirements as ConsultingProcessRequirements);
     }
@@ -195,7 +210,10 @@ export function ConsultingProcessSpec() {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (config.processIdentification.length === 0 || config.processIdentification[0].processName.trim() === '') {
+    if (
+      config.processIdentification.length === 0 ||
+      config.processIdentification[0].processName.trim() === ''
+    ) {
       newErrors.processName = 'יש להזין לפחות שם תהליך אחד';
     }
 
@@ -221,7 +239,7 @@ export function ConsultingProcessSpec() {
     const completeConfig = {
       ...config,
       databaseType: databaseType.value,
-      alertEmail: alertEmail.value
+      alertEmail: alertEmail.value,
     };
 
     await saveData(completeConfig);
@@ -238,16 +256,18 @@ export function ConsultingProcessSpec() {
           processOwner: '',
           processScope: '',
           processType: 'operational',
-          crossFunctional: false
-        }
-      ]
+          crossFunctional: false,
+        },
+      ],
     });
   };
 
   const removeProcess = (index: number) => {
     setConfig({
       ...config,
-      processIdentification: config.processIdentification.filter((_, i) => i !== index)
+      processIdentification: config.processIdentification.filter(
+        (_, i) => i !== index
+      ),
     });
   };
 
@@ -261,10 +281,10 @@ export function ConsultingProcessSpec() {
           {
             role: '',
             involvement: 'interview',
-            availabilityHours: 1
-          }
-        ]
-      }
+            availabilityHours: 1,
+          },
+        ],
+      },
     });
   };
 
@@ -273,8 +293,10 @@ export function ConsultingProcessSpec() {
       ...config,
       stakeholderEngagement: {
         ...config.stakeholderEngagement,
-        stakeholders: config.stakeholderEngagement.stakeholders.filter((_, i) => i !== index)
-      }
+        stakeholders: config.stakeholderEngagement.stakeholders.filter(
+          (_, i) => i !== index
+        ),
+      },
     });
   };
 
@@ -288,10 +310,10 @@ export function ConsultingProcessSpec() {
           {
             metricName: '',
             currentValue: '',
-            targetValue: ''
-          }
-        ]
-      }
+            targetValue: '',
+          },
+        ],
+      },
     });
   };
 
@@ -300,17 +322,20 @@ export function ConsultingProcessSpec() {
       ...config,
       dataCollection: {
         ...config.dataCollection,
-        metrics: config.dataCollection.metrics.filter((_, i) => i !== index)
-      }
+        metrics: config.dataCollection.metrics.filter((_, i) => i !== index),
+      },
     });
   };
-
 
   return (
     <div className="space-y-6 p-8" dir="rtl">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">שירות #58: ייעוץ תהליכים</h2>
-        <p className="text-gray-600 mt-2">ניתוח וייעוץ מקצועי לשיפור תהליכי עבודה בעסק</p>
+        <h2 className="text-2xl font-bold text-gray-900">
+          שירות #58: ייעוץ תהליכים
+        </h2>
+        <p className="text-gray-600 mt-2">
+          ניתוח וייעוץ מקצועי לשיפור תהליכי עבודה בעסק
+        </p>
       </div>
 
       {/* Smart Fields Info Banner */}
@@ -318,10 +343,12 @@ export function ConsultingProcessSpec() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
           <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <h4 className="font-semibold text-blue-900 mb-1">
+              נתונים מולאו אוטומטית משלב 1
+            </h4>
             <p className="text-sm text-blue-800">
-              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-              תוכל לערוך אותם במידת הצורך.
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל לערוך
+              אותם במידת הצורך.
             </p>
           </div>
         </div>
@@ -331,7 +358,9 @@ export function ConsultingProcessSpec() {
       <Card className="p-6">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">זיהוי תהליכים <span className="text-red-500">*</span></h3>
+            <h3 className="text-lg font-semibold">
+              זיהוי תהליכים <span className="text-red-500">*</span>
+            </h3>
             <button
               type="button"
               onClick={addProcess}
@@ -340,10 +369,15 @@ export function ConsultingProcessSpec() {
               + הוסף תהליך
             </button>
           </div>
-          {errors.processName && <p className="text-red-500 text-sm">{errors.processName}</p>}
+          {errors.processName && (
+            <p className="text-red-500 text-sm">{errors.processName}</p>
+          )}
 
           {config.processIdentification.map((process, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+            <div
+              key={index}
+              className="border border-gray-200 rounded-lg p-4 space-y-3"
+            >
               <div className="flex justify-between items-center">
                 <h4 className="font-medium">תהליך #{index + 1}</h4>
                 <button
@@ -357,7 +391,9 @@ export function ConsultingProcessSpec() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">שם התהליך</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    שם התהליך
+                  </label>
                   <input
                     type="text"
                     value={process.processName}
@@ -372,7 +408,9 @@ export function ConsultingProcessSpec() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">בעל התהליך</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    בעל התהליך
+                  </label>
                   <input
                     type="text"
                     value={process.processOwner}
@@ -387,7 +425,9 @@ export function ConsultingProcessSpec() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">היקף התהליך</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    היקף התהליך
+                  </label>
                   <textarea
                     value={process.processScope}
                     onChange={(e) => {
@@ -402,7 +442,9 @@ export function ConsultingProcessSpec() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">סוג תהליך</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    סוג תהליך
+                  </label>
                   <select
                     value={process.processType}
                     onChange={(e) => {
@@ -426,7 +468,10 @@ export function ConsultingProcessSpec() {
                       onChange={(e) => {
                         const updated = [...config.processIdentification];
                         updated[index].crossFunctional = e.target.checked;
-                        setConfig({ ...config, processIdentification: updated });
+                        setConfig({
+                          ...config,
+                          processIdentification: updated,
+                        });
                       }}
                       className="rounded border-gray-300"
                     />
@@ -444,13 +489,20 @@ export function ConsultingProcessSpec() {
         <h3 className="text-lg font-semibold mb-4">מתודולוגיית ניתוח</h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">גישה לניתוח</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              גישה לניתוח
+            </label>
             <select
               value={config.analysisMethodology.approach}
-              onChange={(e) => setConfig({
-                ...config,
-                analysisMethodology: { ...config.analysisMethodology, approach: e.target.value as any }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  analysisMethodology: {
+                    ...config.analysisMethodology,
+                    approach: e.target.value as any,
+                  },
+                })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="lean_six_sigma">Lean Six Sigma</option>
@@ -461,49 +513,61 @@ export function ConsultingProcessSpec() {
             </select>
           </div>
 
-          {config.analysisMethodology.approach === 'lean_six_sigma' && config.analysisMethodology.dmaic && (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium mb-3">DMAIC (Lean Six Sigma)</h4>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                {[
-                  { key: 'define', label: 'Define' },
-                  { key: 'measure', label: 'Measure' },
-                  { key: 'analyze', label: 'Analyze' },
-                  { key: 'improve', label: 'Improve' },
-                  { key: 'control', label: 'Control' }
-                ].map(({ key, label }) => (
-                  <label key={key} className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={config.analysisMethodology.dmaic[key as keyof typeof config.analysisMethodology.dmaic]}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        analysisMethodology: {
-                          ...config.analysisMethodology,
-                          dmaic: {
-                            ...config.analysisMethodology.dmaic,
-                            [key]: e.target.checked
-                          }
+          {config.analysisMethodology.approach === 'lean_six_sigma' &&
+            config.analysisMethodology.dmaic && (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium mb-3">DMAIC (Lean Six Sigma)</h4>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                  {[
+                    { key: 'define', label: 'Define' },
+                    { key: 'measure', label: 'Measure' },
+                    { key: 'analyze', label: 'Analyze' },
+                    { key: 'improve', label: 'Improve' },
+                    { key: 'control', label: 'Control' },
+                  ].map(({ key, label }) => (
+                    <label key={key} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={
+                          config.analysisMethodology.dmaic[
+                            key as keyof typeof config.analysisMethodology.dmaic
+                          ]
                         }
-                      })}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm">{label}</span>
-                  </label>
-                ))}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            analysisMethodology: {
+                              ...config.analysisMethodology,
+                              dmaic: {
+                                ...config.analysisMethodology.dmaic,
+                                [key]: e.target.checked,
+                              },
+                            },
+                          })
+                        }
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm">{label}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
                 checked={config.analysisMethodology.valueStreamMapping}
-                onChange={(e) => setConfig({
-                  ...config,
-                  analysisMethodology: { ...config.analysisMethodology, valueStreamMapping: e.target.checked }
-                })}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    analysisMethodology: {
+                      ...config.analysisMethodology,
+                      valueStreamMapping: e.target.checked,
+                    },
+                  })
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">Value Stream Mapping</span>
@@ -513,10 +577,15 @@ export function ConsultingProcessSpec() {
               <input
                 type="checkbox"
                 checked={config.analysisMethodology.bpmnModeling}
-                onChange={(e) => setConfig({
-                  ...config,
-                  analysisMethodology: { ...config.analysisMethodology, bpmnModeling: e.target.checked }
-                })}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    analysisMethodology: {
+                      ...config.analysisMethodology,
+                      bpmnModeling: e.target.checked,
+                    },
+                  })
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">BPMN Modeling</span>
@@ -539,89 +608,121 @@ export function ConsultingProcessSpec() {
             </button>
           </div>
 
-          {config.stakeholderEngagement.stakeholders.map((stakeholder, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
-              <div className="flex justify-between items-center">
-                <h4 className="font-medium">בעל עניין #{index + 1}</h4>
-                <button
-                  type="button"
-                  onClick={() => removeStakeholder(index)}
-                  className="text-red-600 hover:text-red-800 text-sm"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">תפקיד</label>
-                  <input
-                    type="text"
-                    value={stakeholder.role}
-                    onChange={(e) => {
-                      const updated = [...config.stakeholderEngagement.stakeholders];
-                      updated[index].role = e.target.value;
-                      setConfig({
-                        ...config,
-                        stakeholderEngagement: { ...config.stakeholderEngagement, stakeholders: updated }
-                      });
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    placeholder="למשל: מנהל מכירות"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">סוג מעורבות</label>
-                  <select
-                    value={stakeholder.involvement}
-                    onChange={(e) => {
-                      const updated = [...config.stakeholderEngagement.stakeholders];
-                      updated[index].involvement = e.target.value as any;
-                      setConfig({
-                        ...config,
-                        stakeholderEngagement: { ...config.stakeholderEngagement, stakeholders: updated }
-                      });
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          {config.stakeholderEngagement.stakeholders.map(
+            (stakeholder, index) => (
+              <div
+                key={index}
+                className="border border-gray-200 rounded-lg p-4 space-y-3"
+              >
+                <div className="flex justify-between items-center">
+                  <h4 className="font-medium">בעל עניין #{index + 1}</h4>
+                  <button
+                    type="button"
+                    onClick={() => removeStakeholder(index)}
+                    className="text-red-600 hover:text-red-800 text-sm"
                   >
-                    <option value="interview">ראיון</option>
-                    <option value="workshop">סדנה</option>
-                    <option value="observation">תצפית</option>
-                    <option value="data_provider">ספק נתונים</option>
-                  </select>
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">שעות זמינות</label>
-                  <input
-                    type="number"
-                    value={stakeholder.availabilityHours}
-                    onChange={(e) => {
-                      const updated = [...config.stakeholderEngagement.stakeholders];
-                      updated[index].availabilityHours = parseInt(e.target.value) || 1;
-                      setConfig({
-                        ...config,
-                        stakeholderEngagement: { ...config.stakeholderEngagement, stakeholders: updated }
-                      });
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    min="1"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      תפקיד
+                    </label>
+                    <input
+                      type="text"
+                      value={stakeholder.role}
+                      onChange={(e) => {
+                        const updated = [
+                          ...config.stakeholderEngagement.stakeholders,
+                        ];
+                        updated[index].role = e.target.value;
+                        setConfig({
+                          ...config,
+                          stakeholderEngagement: {
+                            ...config.stakeholderEngagement,
+                            stakeholders: updated,
+                          },
+                        });
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      placeholder="למשל: מנהל מכירות"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      סוג מעורבות
+                    </label>
+                    <select
+                      value={stakeholder.involvement}
+                      onChange={(e) => {
+                        const updated = [
+                          ...config.stakeholderEngagement.stakeholders,
+                        ];
+                        updated[index].involvement = e.target.value as any;
+                        setConfig({
+                          ...config,
+                          stakeholderEngagement: {
+                            ...config.stakeholderEngagement,
+                            stakeholders: updated,
+                          },
+                        });
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    >
+                      <option value="interview">ראיון</option>
+                      <option value="workshop">סדנה</option>
+                      <option value="observation">תצפית</option>
+                      <option value="data_provider">ספק נתונים</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      שעות זמינות
+                    </label>
+                    <input
+                      type="number"
+                      value={stakeholder.availabilityHours}
+                      onChange={(e) => {
+                        const updated = [
+                          ...config.stakeholderEngagement.stakeholders,
+                        ];
+                        updated[index].availabilityHours =
+                          parseInt(e.target.value) || 1;
+                        setConfig({
+                          ...config,
+                          stakeholderEngagement: {
+                            ...config.stakeholderEngagement,
+                            stakeholders: updated,
+                          },
+                        });
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      min="1"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          )}
 
           <div className="flex items-center gap-4 pt-4 border-t">
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
                 checked={config.stakeholderEngagement.workshopsRequired}
-                onChange={(e) => setConfig({
-                  ...config,
-                  stakeholderEngagement: { ...config.stakeholderEngagement, workshopsRequired: e.target.checked }
-                })}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    stakeholderEngagement: {
+                      ...config.stakeholderEngagement,
+                      workshopsRequired: e.target.checked,
+                    },
+                  })
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">נדרשים סדנאות</span>
@@ -639,10 +740,15 @@ export function ConsultingProcessSpec() {
               <input
                 type="checkbox"
                 checked={config.currentStateAnalysis.documentationExists}
-                onChange={(e) => setConfig({
-                  ...config,
-                  currentStateAnalysis: { ...config.currentStateAnalysis, documentationExists: e.target.checked }
-                })}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    currentStateAnalysis: {
+                      ...config.currentStateAnalysis,
+                      documentationExists: e.target.checked,
+                    },
+                  })
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">קיימת תיעוד של התהליך</span>
@@ -652,10 +758,15 @@ export function ConsultingProcessSpec() {
               <input
                 type="checkbox"
                 checked={config.currentStateAnalysis.needsObservation}
-                onChange={(e) => setConfig({
-                  ...config,
-                  currentStateAnalysis: { ...config.currentStateAnalysis, needsObservation: e.target.checked }
-                })}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    currentStateAnalysis: {
+                      ...config.currentStateAnalysis,
+                      needsObservation: e.target.checked,
+                    },
+                  })
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">נדרשת תצפית בתהליך</span>
@@ -663,16 +774,22 @@ export function ConsultingProcessSpec() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">נקודות כאב ידועות</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              נקודות כאב ידועות
+            </label>
             <textarea
               value={config.currentStateAnalysis.painPoints.join('\n')}
-              onChange={(e) => setConfig({
-                ...config,
-                currentStateAnalysis: {
-                  ...config.currentStateAnalysis,
-                  painPoints: e.target.value.split('\n').filter(p => p.trim())
-                }
-              })}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  currentStateAnalysis: {
+                    ...config.currentStateAnalysis,
+                    painPoints: e.target.value
+                      .split('\n')
+                      .filter((p) => p.trim()),
+                  },
+                })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               rows={3}
               placeholder="כל בעיה בשורה נפרדת"
@@ -696,7 +813,10 @@ export function ConsultingProcessSpec() {
           </div>
 
           {config.dataCollection.metrics.map((metric, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+            <div
+              key={index}
+              className="border border-gray-200 rounded-lg p-4 space-y-3"
+            >
               <div className="flex justify-between items-center">
                 <h4 className="font-medium">מדד #{index + 1}</h4>
                 <button
@@ -710,7 +830,9 @@ export function ConsultingProcessSpec() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">שם המדד</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    שם המדד
+                  </label>
                   <input
                     type="text"
                     value={metric.metricName}
@@ -719,7 +841,10 @@ export function ConsultingProcessSpec() {
                       updated[index].metricName = e.target.value;
                       setConfig({
                         ...config,
-                        dataCollection: { ...config.dataCollection, metrics: updated }
+                        dataCollection: {
+                          ...config.dataCollection,
+                          metrics: updated,
+                        },
                       });
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -728,7 +853,9 @@ export function ConsultingProcessSpec() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">ערך נוכחי</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ערך נוכחי
+                  </label>
                   <input
                     type="text"
                     value={metric.currentValue}
@@ -737,7 +864,10 @@ export function ConsultingProcessSpec() {
                       updated[index].currentValue = e.target.value;
                       setConfig({
                         ...config,
-                        dataCollection: { ...config.dataCollection, metrics: updated }
+                        dataCollection: {
+                          ...config.dataCollection,
+                          metrics: updated,
+                        },
                       });
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -745,7 +875,9 @@ export function ConsultingProcessSpec() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">ערך יעד</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ערך יעד
+                  </label>
                   <input
                     type="text"
                     value={metric.targetValue}
@@ -754,7 +886,10 @@ export function ConsultingProcessSpec() {
                       updated[index].targetValue = e.target.value;
                       setConfig({
                         ...config,
-                        dataCollection: { ...config.dataCollection, metrics: updated }
+                        dataCollection: {
+                          ...config.dataCollection,
+                          metrics: updated,
+                        },
                       });
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -769,10 +904,15 @@ export function ConsultingProcessSpec() {
               <input
                 type="checkbox"
                 checked={config.dataCollection.surveyRequired}
-                onChange={(e) => setConfig({
-                  ...config,
-                  dataCollection: { ...config.dataCollection, surveyRequired: e.target.checked }
-                })}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    dataCollection: {
+                      ...config.dataCollection,
+                      surveyRequired: e.target.checked,
+                    },
+                  })
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">נדרש סקר</span>
@@ -782,10 +922,15 @@ export function ConsultingProcessSpec() {
               <input
                 type="checkbox"
                 checked={config.dataCollection.interviewsRequired}
-                onChange={(e) => setConfig({
-                  ...config,
-                  dataCollection: { ...config.dataCollection, interviewsRequired: e.target.checked }
-                })}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    dataCollection: {
+                      ...config.dataCollection,
+                      interviewsRequired: e.target.checked,
+                    },
+                  })
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">נדרשים ראונות</span>
@@ -795,10 +940,15 @@ export function ConsultingProcessSpec() {
               <input
                 type="checkbox"
                 checked={config.dataCollection.timeTrackingRequired}
-                onChange={(e) => setConfig({
-                  ...config,
-                  dataCollection: { ...config.dataCollection, timeTrackingRequired: e.target.checked }
-                })}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    dataCollection: {
+                      ...config.dataCollection,
+                      timeTrackingRequired: e.target.checked,
+                    },
+                  })
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">נדרש מעקב זמן</span>
@@ -814,7 +964,8 @@ export function ConsultingProcessSpec() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium text-gray-700">
-                {databaseType.metadata.label.he} <span className="text-red-500">*</span>
+                {databaseType.metadata.label.he}{' '}
+                <span className="text-red-500">*</span>
               </label>
               {databaseType.isAutoPopulated && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
@@ -827,10 +978,14 @@ export function ConsultingProcessSpec() {
               value={databaseType.value || 'default'}
               onChange={(e) => databaseType.setValue(e.target.value)}
               className={`w-full px-3 py-2 border rounded-md ${
-                databaseType.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                databaseType.isAutoPopulated
+                  ? 'border-green-300 bg-green-50'
+                  : 'border-gray-300'
               } ${databaseType.hasConflict ? 'border-orange-300' : ''}`}
             >
-              <option value="default" disabled>בחר סוג מסד נתונים</option>
+              <option value="default" disabled>
+                בחר סוג מסד נתונים
+              </option>
               <option value="postgresql">PostgreSQL</option>
               <option value="mysql">MySQL</option>
               <option value="sql_server">SQL Server</option>
@@ -842,13 +997,16 @@ export function ConsultingProcessSpec() {
                 <span>ערך שונה מהנתונים הקודמים - נא לוודא</span>
               </div>
             )}
-            {errors.databaseType && <p className="text-red-500 text-sm mt-1">{errors.databaseType}</p>}
+            {errors.databaseType && (
+              <p className="text-red-500 text-sm mt-1">{errors.databaseType}</p>
+            )}
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium text-gray-700">
-                {alertEmail.metadata.label.he} <span className="text-red-500">*</span>
+                {alertEmail.metadata.label.he}{' '}
+                <span className="text-red-500">*</span>
               </label>
               {alertEmail.isAutoPopulated && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
@@ -862,7 +1020,9 @@ export function ConsultingProcessSpec() {
               value={alertEmail.value || ''}
               onChange={(e) => alertEmail.setValue(e.target.value)}
               className={`w-full px-3 py-2 border rounded-md ${
-                alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                alertEmail.isAutoPopulated
+                  ? 'border-green-300 bg-green-50'
+                  : 'border-gray-300'
               } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
               placeholder="admin@company.com"
             />
@@ -872,7 +1032,9 @@ export function ConsultingProcessSpec() {
                 <span>ערך שונה מהנתונים הקודמים - נא לוודא</span>
               </div>
             )}
-            {errors.alertEmail && <p className="text-red-500 text-sm mt-1">{errors.alertEmail}</p>}
+            {errors.alertEmail && (
+              <p className="text-red-500 text-sm mt-1">{errors.alertEmail}</p>
+            )}
           </div>
         </div>
       </Card>
@@ -891,12 +1053,14 @@ export function ConsultingProcessSpec() {
               <span className="text-sm">שגיאה בשמירה</span>
             </div>
           )}
-          {!isSaving && !saveError && config.processIdentification.some(p => p.processName) && (
-            <div className="flex items-center gap-2 text-green-600">
-              <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-              <span className="text-sm">נשמר אוטומטית</span>
-            </div>
-          )}
+          {!isSaving &&
+            !saveError &&
+            config.processIdentification.some((p) => p.processName) && (
+              <div className="flex items-center gap-2 text-green-600">
+                <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                <span className="text-sm">נשמר אוטומטית</span>
+              </div>
+            )}
         </div>
         <button
           onClick={handleSave}

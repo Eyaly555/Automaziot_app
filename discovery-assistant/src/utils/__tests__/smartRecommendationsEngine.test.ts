@@ -9,7 +9,7 @@ import {
   prioritizeRecommendations,
   getQuickWins,
   getSmartRecommendations,
-  SmartRecommendation
+  SmartRecommendation,
 } from '../smartRecommendationsEngine';
 import { Meeting } from '../../types';
 
@@ -23,80 +23,87 @@ describe('SmartRecommendationsEngine', () => {
       leadsAndSales: {
         leadSources: [
           { channel: 'whatsapp', volumePerMonth: 150, quality: 4 },
-          { channel: 'website', volumePerMonth: 100, quality: 3 }
+          { channel: 'website', volumePerMonth: 100, quality: 3 },
         ],
         speedToLead: {
           duringBusinessHours: 'manual',
           afterHours: 'no_response',
           weekends: 'no_response',
-          unansweredPercentage: 35
+          unansweredPercentage: 35,
         },
         leadRouting: {
-          method: 'manual'
+          method: 'manual',
         },
         followUp: {},
-        appointments: {}
+        appointments: {},
       },
       customerService: {
         channels: [
           { type: 'whatsapp', volumePerDay: 50 },
-          { type: 'email', volumePerDay: 30 }
+          { type: 'email', volumePerDay: 30 },
         ],
         autoResponse: {
           topQuestions: [
             { question: 'What are your hours?', frequencyPerDay: 25 },
             { question: 'How do I place an order?', frequencyPerDay: 30 },
-            { question: 'Where is my order?', frequencyPerDay: 20 }
+            { question: 'Where is my order?', frequencyPerDay: 20 },
           ],
-          commonRequests: []
+          commonRequests: [],
         },
         proactiveCommunication: {},
         communityManagement: { exists: false },
         reputationManagement: {},
         onboarding: {
-          steps: [{ name: 'Setup', duration: '2 days' }]
-        }
+          steps: [{ name: 'Setup', duration: '2 days' }],
+        },
       },
       operations: {
         // Updated to match new OperationsModule v2 structure
         workProcesses: {
           processes: [
-            { name: 'Data Entry', frequency: 'daily', duration: 30, automated: false }
+            {
+              name: 'Data Entry',
+              frequency: 'daily',
+              duration: 30,
+              automated: false,
+            },
           ],
           commonFailures: ['Manual errors'],
           errorTrackingSystem: 'Excel',
           processDocumentation: 'None',
-          automationReadiness: 7
+          automationReadiness: 7,
         },
         documentManagement: {
           flows: [
-            { name: 'Invoice Processing', volumePerMonth: 80, automated: false }
+            {
+              name: 'Invoice Processing',
+              volumePerMonth: 80,
+              automated: false,
+            },
           ],
           storageLocations: ['Email', 'Google Drive'],
           searchDifficulties: 'Hard to find documents',
           versionControlMethod: 'Manual',
           approvalWorkflow: 'Email',
-          documentRetention: 12
+          documentRetention: 12,
         },
         projectManagement: {
           tools: ['Spreadsheets'],
           taskCreationSources: ['Email'],
           issues: [
             { type: 'Tracking', frequency: 'often', impact: 'high' },
-            { type: 'Communication', frequency: 'sometimes', impact: 'medium' }
+            { type: 'Communication', frequency: 'sometimes', impact: 'medium' },
           ],
           resourceAllocationMethod: 'Manual',
           timelineAccuracy: 60,
           projectVisibility: 'Limited',
-          deadlineMissRate: 25
+          deadlineMissRate: 25,
         },
         hr: {},
-        logistics: {}
+        logistics: {},
       },
       reporting: {
-        scheduledReports: [
-          { name: 'Sales Report', frequency: 'daily' }
-        ]
+        scheduledReports: [{ name: 'Sales Report', frequency: 'daily' }],
       },
       aiAgents: {},
       systems: {
@@ -110,7 +117,7 @@ describe('SmartRecommendationsEngine', () => {
             mainPainPoints: [],
             integrationNeeds: [],
             migrationWillingness: 'reluctant',
-            criticalFeatures: []
+            criticalFeatures: [],
           },
           {
             id: 'accounting-1',
@@ -128,18 +135,18 @@ describe('SmartRecommendationsEngine', () => {
                 frequency: 'daily',
                 dataFlow: 'bidirectional',
                 criticalityLevel: 'critical',
-                currentStatus: 'missing'
-              }
+                currentStatus: 'missing',
+              },
             ],
             migrationWillingness: 'open',
-            criticalFeatures: []
-          }
-        ]
+            criticalFeatures: [],
+          },
+        ],
       },
       roi: {},
-      planning: {}
+      planning: {},
     },
-    painPoints: []
+    painPoints: [],
   };
 
   describe('Pattern Recognition', () => {
@@ -150,7 +157,7 @@ describe('SmartRecommendationsEngine', () => {
       expect(analysis.detectedPatterns.length).toBeGreaterThan(0);
 
       const missingIntegration = analysis.detectedPatterns.find(
-        p => p.type === 'missing_integration'
+        (p) => p.type === 'missing_integration'
       );
 
       expect(missingIntegration).toBeDefined();
@@ -164,7 +171,7 @@ describe('SmartRecommendationsEngine', () => {
       const analysis = engine.getPatternAnalysis();
 
       const manualEntry = analysis.detectedPatterns.find(
-        p => p.type === 'manual_data_entry'
+        (p) => p.type === 'manual_data_entry'
       );
 
       // This test is skipped because detectManualDataEntry logic was removed
@@ -176,7 +183,7 @@ describe('SmartRecommendationsEngine', () => {
       const analysis = engine.getPatternAnalysis();
 
       const highVolume = analysis.detectedPatterns.find(
-        p => p.type === 'high_volume_task'
+        (p) => p.type === 'high_volume_task'
       );
 
       expect(highVolume).toBeDefined();
@@ -188,7 +195,7 @@ describe('SmartRecommendationsEngine', () => {
       const analysis = engine.getPatternAnalysis();
 
       const afterHours = analysis.detectedPatterns.find(
-        p => p.type === 'after_hours_gap'
+        (p) => p.type === 'after_hours_gap'
       );
 
       expect(afterHours).toBeDefined();
@@ -200,7 +207,7 @@ describe('SmartRecommendationsEngine', () => {
       const analysis = engine.getPatternAnalysis();
 
       const lowSatisfaction = analysis.detectedPatterns.find(
-        p => p.type === 'low_satisfaction'
+        (p) => p.type === 'low_satisfaction'
       );
 
       expect(lowSatisfaction).toBeDefined();
@@ -221,7 +228,7 @@ describe('SmartRecommendationsEngine', () => {
       const recommendations = engine.getRecommendations();
 
       const integration = recommendations.find(
-        r => r.category === 'integration'
+        (r) => r.category === 'integration'
       );
 
       expect(integration).toBeDefined();
@@ -234,7 +241,7 @@ describe('SmartRecommendationsEngine', () => {
       const recommendations = engine.getRecommendations();
 
       const automation = recommendations.find(
-        r => r.category === 'automation'
+        (r) => r.category === 'automation'
       );
 
       expect(automation).toBeDefined();
@@ -245,9 +252,7 @@ describe('SmartRecommendationsEngine', () => {
       const engine = new SmartRecommendationsEngine(mockMeeting);
       const recommendations = engine.getRecommendations();
 
-      const aiAgent = recommendations.find(
-        r => r.category === 'ai_agent'
-      );
+      const aiAgent = recommendations.find((r) => r.category === 'ai_agent');
 
       expect(aiAgent).toBeDefined();
       expect(aiAgent?.n8nWorkflowTemplate).toBeDefined();
@@ -257,7 +262,7 @@ describe('SmartRecommendationsEngine', () => {
       const engine = new SmartRecommendationsEngine(mockMeeting);
       const quickWins = engine.getQuickWins();
 
-      quickWins.forEach(rec => {
+      quickWins.forEach((rec) => {
         expect(rec.quickWin).toBe(true);
         expect(rec.impactScore).toBeGreaterThanOrEqual(7);
         expect(rec.effortScore).toBeLessThanOrEqual(4);
@@ -268,7 +273,7 @@ describe('SmartRecommendationsEngine', () => {
       const engine = new SmartRecommendationsEngine(mockMeeting);
       const recommendations = engine.getRecommendations();
 
-      recommendations.forEach(rec => {
+      recommendations.forEach((rec) => {
         expect(rec.estimatedROI).toBeGreaterThan(0);
       });
     });
@@ -279,8 +284,8 @@ describe('SmartRecommendationsEngine', () => {
       const engine = new SmartRecommendationsEngine(mockMeeting);
       const recommendations = engine.getRecommendations();
 
-      const quickWins = recommendations.filter(r => r.quickWin);
-      const nonQuickWins = recommendations.filter(r => !r.quickWin);
+      const quickWins = recommendations.filter((r) => r.quickWin);
+      const nonQuickWins = recommendations.filter((r) => !r.quickWin);
 
       if (quickWins.length > 0 && nonQuickWins.length > 0) {
         const lastQuickWin = quickWins[quickWins.length - 1];
@@ -324,7 +329,7 @@ describe('SmartRecommendationsEngine', () => {
       const recommendations = engine.getRecommendations();
 
       const crmWhatsApp = recommendations.find(
-        r => r.n8nWorkflowTemplate?.name === 'CRM to WhatsApp Integration'
+        (r) => r.n8nWorkflowTemplate?.name === 'CRM to WhatsApp Integration'
       );
 
       if (crmWhatsApp) {
@@ -341,14 +346,14 @@ describe('SmartRecommendationsEngine', () => {
       const recommendations = engine.getRecommendations();
 
       const aiChatbot = recommendations.find(
-        r => r.n8nWorkflowTemplate?.name === 'AI Customer Service Chatbot'
+        (r) => r.n8nWorkflowTemplate?.name === 'AI Customer Service Chatbot'
       );
 
       if (aiChatbot) {
         const template = aiChatbot.n8nWorkflowTemplate!;
 
-        expect(template.nodes.some(n => n.type === 'openai')).toBe(true);
-        expect(template.nodes.some(n => n.type === 'if')).toBe(true);
+        expect(template.nodes.some((n) => n.type === 'openai')).toBe(true);
+        expect(template.nodes.some((n) => n.type === 'if')).toBe(true);
       }
     });
 
@@ -357,7 +362,7 @@ describe('SmartRecommendationsEngine', () => {
       const recommendations = engine.getRecommendations();
 
       const afterHours = recommendations.find(
-        r => r.n8nWorkflowTemplate?.name === 'After Hours Auto-Response'
+        (r) => r.n8nWorkflowTemplate?.name === 'After Hours Auto-Response'
       );
 
       expect(afterHours).toBeDefined();
@@ -367,13 +372,15 @@ describe('SmartRecommendationsEngine', () => {
       const engine = new SmartRecommendationsEngine(mockMeeting);
       const recommendations = engine.getRecommendations();
 
-      const withTemplates = recommendations.filter(r => r.n8nWorkflowTemplate);
+      const withTemplates = recommendations.filter(
+        (r) => r.n8nWorkflowTemplate
+      );
 
-      withTemplates.forEach(rec => {
+      withTemplates.forEach((rec) => {
         const template = rec.n8nWorkflowTemplate!;
-        const nodeIds = new Set(template.nodes.map(n => n.id));
+        const nodeIds = new Set(template.nodes.map((n) => n.id));
 
-        template.connections.forEach(conn => {
+        template.connections.forEach((conn) => {
           expect(nodeIds.has(conn.from)).toBe(true);
           expect(nodeIds.has(conn.to)).toBe(true);
         });
@@ -401,7 +408,7 @@ describe('SmartRecommendationsEngine', () => {
     it('getQuickWins should filter quick wins', () => {
       const quickWins = getQuickWins(mockMeeting);
 
-      quickWins.forEach(rec => {
+      quickWins.forEach((rec) => {
         expect(rec.quickWin).toBe(true);
       });
     });
@@ -421,7 +428,7 @@ describe('SmartRecommendationsEngine', () => {
           affectedSystems: [],
           suggestedTools: [],
           implementationSteps: [],
-          priority: 0
+          priority: 0,
         },
         {
           id: '2',
@@ -436,8 +443,8 @@ describe('SmartRecommendationsEngine', () => {
           affectedSystems: [],
           suggestedTools: [],
           implementationSteps: [],
-          priority: 0
-        }
+          priority: 0,
+        },
       ];
 
       const prioritized = prioritizeRecommendations(mockRecs);
@@ -461,7 +468,7 @@ describe('SmartRecommendationsEngine', () => {
       const engine = new SmartRecommendationsEngine(mockMeeting);
       const quickWins = engine.getQuickWins();
 
-      quickWins.forEach(rec => {
+      quickWins.forEach((rec) => {
         expect(rec.quickWin).toBe(true);
       });
     });
@@ -470,7 +477,7 @@ describe('SmartRecommendationsEngine', () => {
       const engine = new SmartRecommendationsEngine(mockMeeting);
       const integrations = engine.getByCategory('integration');
 
-      integrations.forEach(rec => {
+      integrations.forEach((rec) => {
         expect(rec.category).toBe('integration');
       });
     });
@@ -501,7 +508,10 @@ describe('SmartRecommendationsEngine', () => {
       const total = engine.getTotalEstimatedROI();
       const recommendations = engine.getRecommendations();
 
-      const manualSum = recommendations.reduce((sum, rec) => sum + rec.estimatedROI, 0);
+      const manualSum = recommendations.reduce(
+        (sum, rec) => sum + rec.estimatedROI,
+        0
+      );
 
       expect(total).toBe(manualSum);
     });
@@ -520,7 +530,7 @@ describe('SmartRecommendationsEngine', () => {
             speedToLead: {},
             leadRouting: {},
             followUp: {},
-            appointments: {}
+            appointments: {},
           },
           customerService: {
             channels: [],
@@ -528,7 +538,7 @@ describe('SmartRecommendationsEngine', () => {
             proactiveCommunication: {},
             communityManagement: { exists: false },
             reputationManagement: {},
-            onboarding: {}
+            onboarding: {},
           },
           operations: {
             // Updated to match new OperationsModule v2 structure
@@ -536,15 +546,15 @@ describe('SmartRecommendationsEngine', () => {
             documentManagement: {},
             projectManagement: {},
             hr: {},
-            logistics: {}
+            logistics: {},
           },
           reporting: {},
           aiAgents: {},
           systems: {},
           roi: {},
-          planning: {}
+          planning: {},
         },
-        painPoints: []
+        painPoints: [],
       };
 
       const engine = new SmartRecommendationsEngine(emptyMeeting);
@@ -568,9 +578,9 @@ describe('SmartRecommendationsEngine', () => {
           aiAgents: {},
           systems: {},
           roi: {},
-          planning: {}
+          planning: {},
         },
-        painPoints: []
+        painPoints: [],
       };
 
       expect(() => {

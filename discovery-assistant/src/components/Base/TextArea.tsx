@@ -33,7 +33,7 @@ export const TextArea = ({
   disabled,
   helpText,
   dir = 'rtl',
-  className = ''
+  className = '',
 }: TextAreaProps) => {
   // Auto-resize functionality
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -91,7 +91,9 @@ export const TextArea = ({
         </div>
 
         {showCharCount && maxLength && (
-          <span className={`text-xs ${value.length > maxLength * 0.9 ? 'text-orange-600' : 'text-gray-400'}`}>
+          <span
+            className={`text-xs ${value.length > maxLength * 0.9 ? 'text-orange-600' : 'text-gray-400'}`}
+          >
             {value.length}/{maxLength}
           </span>
         )}

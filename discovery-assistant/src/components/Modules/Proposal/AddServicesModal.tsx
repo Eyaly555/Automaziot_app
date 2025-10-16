@@ -1,7 +1,22 @@
 import React, { useState, useMemo } from 'react';
-import { X, Search, Plus, Check, Zap, Bot, Link, Database, Settings, Clock } from 'lucide-react';
+import {
+  X,
+  Search,
+  Plus,
+  Check,
+  Zap,
+  Bot,
+  Link,
+  Database,
+  Settings,
+  Clock,
+} from 'lucide-react';
 import { ServiceItem, ServiceCategoryId } from '../../../types/proposal';
-import { SERVICES_DATABASE, SERVICE_CATEGORIES, getCategoryById } from '../../../config/servicesDatabase';
+import {
+  SERVICES_DATABASE,
+  SERVICE_CATEGORIES,
+  getCategoryById,
+} from '../../../config/servicesDatabase';
 import { Input, Select } from '../../Base';
 
 interface AddServicesModalProps {
@@ -62,20 +77,24 @@ const formatPrice = (price: number) => {
 export const AddServicesModal: React.FC<AddServicesModalProps> = ({
   onClose,
   onAddService,
-  selectedServiceIds
+  selectedServiceIds,
 }) => {
   const [filters, setFilters] = useState<ModalFilters>({
     category: 'all',
     complexity: 'all',
     priceRange: 'all',
-    searchQuery: ''
+    searchQuery: '',
   });
 
-  const [locallyAddedIds, setLocallyAddedIds] = useState<Set<string>>(new Set());
+  const [locallyAddedIds, setLocallyAddedIds] = useState<Set<string>>(
+    new Set()
+  );
 
   // Filter available services (exclude already selected ones)
   const availableServices = useMemo(() => {
-    return SERVICES_DATABASE.filter(service => !selectedServiceIds.includes(service.id));
+    return SERVICES_DATABASE.filter(
+      (service) => !selectedServiceIds.includes(service.id)
+    );
   }, [selectedServiceIds]);
 
   // Apply filters
@@ -84,12 +103,12 @@ export const AddServicesModal: React.FC<AddServicesModalProps> = ({
 
     // Apply category filter
     if (filters.category !== 'all') {
-      services = services.filter(s => s.category === filters.category);
+      services = services.filter((s) => s.category === filters.category);
     }
 
     // Apply complexity filter
     if (filters.complexity !== 'all') {
-      services = services.filter(s => s.complexity === filters.complexity);
+      services = services.filter((s) => s.complexity === filters.complexity);
     }
 
     // Apply price range filter
@@ -98,20 +117,26 @@ export const AddServicesModal: React.FC<AddServicesModalProps> = ({
         '0-2000': [0, 2000],
         '2000-5000': [2000, 5000],
         '5000-10000': [5000, 10000],
-        '10000+': [10000, Infinity]
+        '10000+': [10000, Infinity],
       };
-      const [min, max] = ranges[filters.priceRange as keyof typeof ranges] || [0, Infinity];
-      services = services.filter(s => s.basePrice >= min && s.basePrice < max);
+      const [min, max] = ranges[filters.priceRange as keyof typeof ranges] || [
+        0,
+        Infinity,
+      ];
+      services = services.filter(
+        (s) => s.basePrice >= min && s.basePrice < max
+      );
     }
 
     // Apply search query
     if (filters.searchQuery) {
       const query = filters.searchQuery.toLowerCase();
-      services = services.filter(s =>
-        s.nameHe.toLowerCase().includes(query) ||
-        s.name.toLowerCase().includes(query) ||
-        s.descriptionHe.toLowerCase().includes(query) ||
-        s.tags.some(tag => tag.toLowerCase().includes(query))
+      services = services.filter(
+        (s) =>
+          s.nameHe.toLowerCase().includes(query) ||
+          s.name.toLowerCase().includes(query) ||
+          s.descriptionHe.toLowerCase().includes(query) ||
+          s.tags.some((tag) => tag.toLowerCase().includes(query))
       );
     }
 
@@ -119,7 +144,7 @@ export const AddServicesModal: React.FC<AddServicesModalProps> = ({
   }, [availableServices, filters]);
 
   const updateFilters = (newFilters: Partial<ModalFilters>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    setFilters((prev) => ({ ...prev, ...newFilters }));
   };
 
   const clearAllFilters = () => {
@@ -127,29 +152,36 @@ export const AddServicesModal: React.FC<AddServicesModalProps> = ({
       category: 'all',
       complexity: 'all',
       priceRange: 'all',
-      searchQuery: ''
+      searchQuery: '',
     });
   };
 
   const handleAddService = (serviceId: string) => {
     onAddService(serviceId);
-    setLocallyAddedIds(prev => new Set([...prev, serviceId]));
+    setLocallyAddedIds((prev) => new Set([...prev, serviceId]));
   };
 
   const hasActiveFilters = useMemo(() => {
-    return filters.complexity !== 'all' ||
-           filters.priceRange !== 'all' ||
-           filters.category !== 'all' ||
-           filters.searchQuery !== '';
+    return (
+      filters.complexity !== 'all' ||
+      filters.priceRange !== 'all' ||
+      filters.category !== 'all' ||
+      filters.searchQuery !== ''
+    );
   }, [filters]);
 
   const isServiceAdded = (serviceId: string) => {
-    return selectedServiceIds.includes(serviceId) || locallyAddedIds.has(serviceId);
+    return (
+      selectedServiceIds.includes(serviceId) || locallyAddedIds.has(serviceId)
+    );
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div 
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
         className="bg-white rounded-xl shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
         dir="rtl"
@@ -157,7 +189,9 @@ export const AddServicesModal: React.FC<AddServicesModalProps> = ({
         {/* Header */}
         <div className="sticky top-0 bg-white border-b p-6 flex items-center justify-between z-10">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">הוסף שירותים להצעה</h2>
+            <h2 className="text-2xl font-bold text-gray-900">
+              הוסף שירותים להצעה
+            </h2>
             <p className="text-sm text-gray-500 mt-1">
               {locallyAddedIds.size > 0 && (
                 <span className="text-green-600 font-semibold">
@@ -190,10 +224,15 @@ export const AddServicesModal: React.FC<AddServicesModalProps> = ({
             {/* Category filter */}
             <Select
               value={filters.category}
-              onChange={(val) => updateFilters({ category: val as ServiceCategoryId | 'all' })}
+              onChange={(val) =>
+                updateFilters({ category: val as ServiceCategoryId | 'all' })
+              }
               options={[
                 { value: 'all', label: 'כל הקטגוריות' },
-                ...SERVICE_CATEGORIES.map(cat => ({ value: cat.id, label: cat.nameHe }))
+                ...SERVICE_CATEGORIES.map((cat) => ({
+                  value: cat.id,
+                  label: cat.nameHe,
+                })),
               ]}
               dir="rtl"
             />
@@ -206,7 +245,7 @@ export const AddServicesModal: React.FC<AddServicesModalProps> = ({
                 { value: 'all', label: 'כל רמות המורכבות' },
                 { value: 'simple', label: 'נמוכה' },
                 { value: 'medium', label: 'בינונית' },
-                { value: 'complex', label: 'גבוהה' }
+                { value: 'complex', label: 'גבוהה' },
               ]}
               dir="rtl"
             />
@@ -220,7 +259,7 @@ export const AddServicesModal: React.FC<AddServicesModalProps> = ({
                 { value: '0-2000', label: 'עד ₪2,000' },
                 { value: '2000-5000', label: '₪2,000 - ₪5,000' },
                 { value: '5000-10000', label: '₪5,000 - ₪10,000' },
-                { value: '10000+', label: '₪10,000+' }
+                { value: '10000+', label: '₪10,000+' },
               ]}
               dir="rtl"
             />
@@ -235,7 +274,11 @@ export const AddServicesModal: React.FC<AddServicesModalProps> = ({
                   onClick={() => updateFilters({ category: 'all' })}
                   className="bg-blue-100 text-blue-700 text-sm px-3 py-1 rounded-full flex items-center gap-1 hover:bg-blue-200"
                 >
-                  קטגוריה: {SERVICE_CATEGORIES.find(c => c.id === filters.category)?.nameHe}
+                  קטגוריה:{' '}
+                  {
+                    SERVICE_CATEGORIES.find((c) => c.id === filters.category)
+                      ?.nameHe
+                  }
                   <X size={12} />
                 </button>
               )}
@@ -244,7 +287,12 @@ export const AddServicesModal: React.FC<AddServicesModalProps> = ({
                   onClick={() => updateFilters({ complexity: 'all' })}
                   className="bg-blue-100 text-blue-700 text-sm px-3 py-1 rounded-full flex items-center gap-1 hover:bg-blue-200"
                 >
-                  מורכבות: {filters.complexity === 'simple' ? 'נמוכה' : filters.complexity === 'medium' ? 'בינונית' : 'גבוהה'}
+                  מורכבות:{' '}
+                  {filters.complexity === 'simple'
+                    ? 'נמוכה'
+                    : filters.complexity === 'medium'
+                      ? 'בינונית'
+                      : 'גבוהה'}
                   <X size={12} />
                 </button>
               )}
@@ -280,7 +328,7 @@ export const AddServicesModal: React.FC<AddServicesModalProps> = ({
         <div className="flex-1 overflow-y-auto p-6">
           {filteredServices.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredServices.map(service => {
+              {filteredServices.map((service) => {
                 const categoryInfo = getCategoryById(service.category);
                 const isAdded = isServiceAdded(service.id);
 
@@ -288,7 +336,9 @@ export const AddServicesModal: React.FC<AddServicesModalProps> = ({
                   <div
                     key={service.id}
                     className={`bg-white rounded-lg border-2 shadow-sm transition-all hover:shadow-md ${
-                      isAdded ? 'border-green-400 bg-green-50' : 'border-gray-200'
+                      isAdded
+                        ? 'border-green-400 bg-green-50'
+                        : 'border-gray-200'
                     }`}
                   >
                     {/* Card Header */}
@@ -297,7 +347,9 @@ export const AddServicesModal: React.FC<AddServicesModalProps> = ({
                         <div className="flex-shrink-0">
                           {getServiceIcon(service.category, 24)}
                         </div>
-                        <span className={`text-xs px-2 py-1 rounded-full border ${getCategoryBadgeColor(service.category)}`}>
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full border ${getCategoryBadgeColor(service.category)}`}
+                        >
                           {categoryInfo?.nameHe}
                         </span>
                       </div>
@@ -319,9 +371,14 @@ export const AddServicesModal: React.FC<AddServicesModalProps> = ({
                           <Clock size={12} />
                           {service.estimatedDays} ימים
                         </div>
-                        <span className={`text-xs px-2 py-1 rounded ${getComplexityBadgeColor(service.complexity)}`}>
-                          {service.complexity === 'simple' ? 'פשוט' :
-                           service.complexity === 'medium' ? 'בינוני' : 'מורכב'}
+                        <span
+                          className={`text-xs px-2 py-1 rounded ${getComplexityBadgeColor(service.complexity)}`}
+                        >
+                          {service.complexity === 'simple'
+                            ? 'פשוט'
+                            : service.complexity === 'medium'
+                              ? 'בינוני'
+                              : 'מורכב'}
                         </span>
                       </div>
 
@@ -403,4 +460,3 @@ export const AddServicesModal: React.FC<AddServicesModalProps> = ({
     </div>
   );
 };
-

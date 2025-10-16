@@ -14,7 +14,7 @@ import {
   UsabilityRequirement,
   DetailedSystemSpec,
   IntegrationFlow,
-  DetailedAIAgentSpec
+  DetailedAIAgentSpec,
 } from '../types/phase2';
 import { getServiceById } from '../config/servicesDatabase';
 
@@ -23,22 +23,28 @@ const generateId = () => Math.random().toString(36).substr(2, 9);
 /**
  * Generate acceptance criteria from implementation spec
  */
-export const generateAcceptanceCriteria = (meeting: Meeting): AcceptanceCriteria => {
+export const generateAcceptanceCriteria = (
+  meeting: Meeting
+): AcceptanceCriteria => {
   return {
     functional: generateFunctionalRequirements(meeting),
     performance: generatePerformanceRequirements(meeting),
     security: generateSecurityRequirements(meeting),
-    usability: generateUsabilityRequirements(meeting)
+    usability: generateUsabilityRequirements(meeting),
   };
 };
 
 /**
  * Generate functional requirements from services and systems
  */
-const generateFunctionalRequirements = (meeting: Meeting): FunctionalRequirement[] => {
+const generateFunctionalRequirements = (
+  meeting: Meeting
+): FunctionalRequirement[] => {
   const requirements: FunctionalRequirement[] = [];
-  const services = meeting.modules?.proposal?.purchasedServices ||
-                  meeting.modules?.proposal?.selectedServices || [];
+  const services =
+    meeting.modules?.proposal?.purchasedServices ||
+    meeting.modules?.proposal?.selectedServices ||
+    [];
   const systems = meeting.implementationSpec?.systems || [];
   const integrations = meeting.implementationSpec?.integrations || [];
   const aiAgents = meeting.implementationSpec?.aiAgents || [];
@@ -48,7 +54,10 @@ const generateFunctionalRequirements = (meeting: Meeting): FunctionalRequirement
     const service = getServiceById(serviceId);
     if (!service) return;
 
-    const serviceRequirements = generateServiceRequirements(serviceId, service.nameHe);
+    const serviceRequirements = generateServiceRequirements(
+      serviceId,
+      service.nameHe
+    );
     requirements.push(...serviceRequirements);
   });
 
@@ -61,7 +70,7 @@ const generateFunctionalRequirements = (meeting: Meeting): FunctionalRequirement
       priority: 'must_have',
       testScenario: `ביצוע קריאת API ל-${system.systemName} עם הזדהות`,
       acceptanceCriteria: `קריאת API מצליחה וחוזרת עם status 200`,
-      status: 'pending'
+      status: 'pending',
     });
 
     if (system.dataMigration.required && system.dataMigration.recordCount > 0) {
@@ -72,7 +81,7 @@ const generateFunctionalRequirements = (meeting: Meeting): FunctionalRequirement
         priority: 'must_have',
         testScenario: `ביצוע העברת נתונים ניסיונית ל-100 רשומות ראשונות`,
         acceptanceCriteria: `100% מהרשומות מועברות ללא שגיאות, כל השדות תקינים`,
-        status: 'pending'
+        status: 'pending',
       });
     }
   });
@@ -85,8 +94,10 @@ const generateFunctionalRequirements = (meeting: Meeting): FunctionalRequirement
       description: integration.name || `סנכרון בין מערכות`,
       priority: integration.priority,
       testScenario: `יצירת רשומה במערכת מקור ובדיקת העברה למערכת יעד`,
-      acceptanceCriteria: getIntegrationAcceptanceCriteria(integration.frequency),
-      status: 'pending'
+      acceptanceCriteria: getIntegrationAcceptanceCriteria(
+        integration.frequency
+      ),
+      status: 'pending',
     });
 
     if (integration.direction === 'bidirectional') {
@@ -96,8 +107,10 @@ const generateFunctionalRequirements = (meeting: Meeting): FunctionalRequirement
         description: `${integration.name || 'סנכרון'} - כיוון הפוך`,
         priority: integration.priority,
         testScenario: `עדכון רשומה במערכת יעד ובדיקת סנכרון חזרה למערכת מקור`,
-        acceptanceCriteria: getIntegrationAcceptanceCriteria(integration.frequency),
-        status: 'pending'
+        acceptanceCriteria: getIntegrationAcceptanceCriteria(
+          integration.frequency
+        ),
+        status: 'pending',
       });
     }
   });
@@ -111,7 +124,7 @@ const generateFunctionalRequirements = (meeting: Meeting): FunctionalRequirement
       priority: 'must_have',
       testScenario: `שליחת שאלה טיפוסית לסוכן וקבלת תגובה`,
       acceptanceCriteria: `הסוכן עונה תוך 5 שניות עם תשובה רלוונטית`,
-      status: 'pending'
+      status: 'pending',
     });
 
     if (agent.integrations.crmEnabled) {
@@ -122,7 +135,7 @@ const generateFunctionalRequirements = (meeting: Meeting): FunctionalRequirement
         priority: 'should_have',
         testScenario: `בדיקת יצירת ליד חדש ב-CRM דרך השיחה עם הסוכן`,
         acceptanceCriteria: `ליד נוצר ב-CRM עם כל הפרטים שנאספו בשיחה`,
-        status: 'pending'
+        status: 'pending',
       });
     }
   });
@@ -133,7 +146,10 @@ const generateFunctionalRequirements = (meeting: Meeting): FunctionalRequirement
 /**
  * Generate service-specific functional requirements
  */
-const generateServiceRequirements = (serviceId: string, serviceName: string): FunctionalRequirement[] => {
+const generateServiceRequirements = (
+  serviceId: string,
+  serviceName: string
+): FunctionalRequirement[] => {
   const requirements: FunctionalRequirement[] = [];
 
   // CRM Implementation
@@ -146,7 +162,7 @@ const generateServiceRequirements = (serviceId: string, serviceName: string): Fu
         priority: 'must_have',
         testScenario: 'מילוי טופס באתר ובדיקת יצירת הליד ב-CRM',
         acceptanceCriteria: 'ליד נוצר תוך 60 שניות עם כל השדות הנדרשים',
-        status: 'pending'
+        status: 'pending',
       },
       {
         id: generateId(),
@@ -154,8 +170,9 @@ const generateServiceRequirements = (serviceId: string, serviceName: string): Fu
         description: 'הקצאה אוטומטית של לידים לנציגים',
         priority: 'must_have',
         testScenario: 'יצירת 10 לידים ובדיקת ההקצאה',
-        acceptanceCriteria: 'כל ליד מוקצה לנציג על בסיס round-robin או טריטוריה',
-        status: 'pending'
+        acceptanceCriteria:
+          'כל ליד מוקצה לנציג על בסיס round-robin או טריטוריה',
+        status: 'pending',
       }
     );
   }
@@ -169,7 +186,7 @@ const generateServiceRequirements = (serviceId: string, serviceName: string): Fu
       priority: 'must_have',
       testScenario: 'הפעלת trigger ובדיקת ביצוע האוטומציה',
       acceptanceCriteria: 'האוטומציה רצה בהצלחה תוך הזמן המוגדר',
-      status: 'pending'
+      status: 'pending',
     });
   }
 
@@ -182,7 +199,7 @@ const generateServiceRequirements = (serviceId: string, serviceName: string): Fu
       priority: 'must_have',
       testScenario: 'בדיקת 50 שאלות טיפוסיות',
       acceptanceCriteria: 'לפחות 85% תשובות נכונות ורלוונטיות',
-      status: 'pending'
+      status: 'pending',
     });
   }
 
@@ -210,7 +227,9 @@ const getIntegrationAcceptanceCriteria = (frequency: string): string => {
 /**
  * Generate performance requirements
  */
-const generatePerformanceRequirements = (meeting: Meeting): PerformanceRequirement[] => {
+const generatePerformanceRequirements = (
+  meeting: Meeting
+): PerformanceRequirement[] => {
   const requirements: PerformanceRequirement[] = [];
   const systems = meeting.implementationSpec?.systems || [];
   const integrations = meeting.implementationSpec?.integrations || [];
@@ -223,7 +242,7 @@ const generatePerformanceRequirements = (meeting: Meeting): PerformanceRequireme
       metric: `${system.systemName} - זמן תגובת API`,
       target: '< 500ms',
       testMethod: 'בדיקה עם 100 בקשות רצופות',
-      status: 'pending'
+      status: 'pending',
     });
   });
 
@@ -235,7 +254,7 @@ const generatePerformanceRequirements = (meeting: Meeting): PerformanceRequireme
         metric: `${integration.name || 'אינטגרציה'} - זמן סנכרון`,
         target: '< 2 minutes',
         testMethod: 'מדידת זמן מיצירת רשומה עד הופעתה במערכת היעד',
-        status: 'pending'
+        status: 'pending',
       });
     }
   });
@@ -247,7 +266,7 @@ const generatePerformanceRequirements = (meeting: Meeting): PerformanceRequireme
       metric: `${agent.name} - זמן תגובה`,
       target: '< 5 seconds',
       testMethod: 'שליחת 50 שאלות ומדידת זמן תגובה ממוצע',
-      status: 'pending'
+      status: 'pending',
     });
   });
 
@@ -257,7 +276,7 @@ const generatePerformanceRequirements = (meeting: Meeting): PerformanceRequireme
     metric: 'זמן טעינת דשבורד ראשי',
     target: '< 2 seconds',
     testMethod: 'טעינת הדשבורד עם 50 רשומות',
-    status: 'pending'
+    status: 'pending',
   });
 
   return requirements;
@@ -266,7 +285,9 @@ const generatePerformanceRequirements = (meeting: Meeting): PerformanceRequireme
 /**
  * Generate security requirements
  */
-const generateSecurityRequirements = (meeting: Meeting): SecurityRequirement[] => {
+const generateSecurityRequirements = (
+  meeting: Meeting
+): SecurityRequirement[] => {
   const requirements: SecurityRequirement[] = [];
   const systems = meeting.implementationSpec?.systems || [];
 
@@ -277,7 +298,7 @@ const generateSecurityRequirements = (meeting: Meeting): SecurityRequirement[] =
       requirement: `אבטחת גישה ל-${system.systemName}`,
       category: 'authentication',
       implementation: `${system.authentication.method} עם הצפנת פרטי גישה`,
-      verified: false
+      verified: false,
     });
 
     if (system.dataMigration.required) {
@@ -286,7 +307,7 @@ const generateSecurityRequirements = (meeting: Meeting): SecurityRequirement[] =
         requirement: `הצפנת נתונים בהעברה מ-${system.systemName}`,
         category: 'data_encryption',
         implementation: 'שימוש ב-HTTPS/TLS 1.3 להעברת נתונים',
-        verified: false
+        verified: false,
       });
     }
   });
@@ -297,7 +318,7 @@ const generateSecurityRequirements = (meeting: Meeting): SecurityRequirement[] =
     requirement: 'הגנת API endpoints',
     category: 'authentication',
     implementation: 'אימות API keys + rate limiting',
-    verified: false
+    verified: false,
   });
 
   // Data backup
@@ -306,7 +327,7 @@ const generateSecurityRequirements = (meeting: Meeting): SecurityRequirement[] =
     requirement: 'גיבוי נתונים יומי',
     category: 'compliance',
     implementation: 'גיבוי אוטומטי לשרת מרוחק עם שמירת 30 ימים אחורה',
-    verified: false
+    verified: false,
   });
 
   // Audit log
@@ -315,7 +336,7 @@ const generateSecurityRequirements = (meeting: Meeting): SecurityRequirement[] =
     requirement: 'לוג שינויים ופעולות',
     category: 'audit',
     implementation: 'רישום כל פעולה עם timestamp, משתמש, ופעולה',
-    verified: false
+    verified: false,
   });
 
   return requirements;
@@ -324,7 +345,9 @@ const generateSecurityRequirements = (meeting: Meeting): SecurityRequirement[] =
 /**
  * Generate usability requirements
  */
-const generateUsabilityRequirements = (meeting: Meeting): UsabilityRequirement[] => {
+const generateUsabilityRequirements = (
+  meeting: Meeting
+): UsabilityRequirement[] => {
   const requirements: UsabilityRequirement[] = [];
   const aiAgents = meeting.implementationSpec?.aiAgents || [];
 
@@ -335,21 +358,21 @@ const generateUsabilityRequirements = (meeting: Meeting): UsabilityRequirement[]
       requirement: 'ממשק משתמש אינטואיטיבי',
       userRole: 'כל המשתמשים',
       successCriteria: 'משתמש חדש מסוגל לבצע משימה בסיסית ללא הדרכה תוך 5 דקות',
-      tested: false
+      tested: false,
     },
     {
       id: generateId(),
       requirement: 'תמיכה בעברית מלאה',
       userRole: 'כל המשתמשים',
       successCriteria: 'כל הטקסטים, ההודעות והשגיאות בעברית תקינה וקריאה',
-      tested: false
+      tested: false,
     },
     {
       id: generateId(),
       requirement: 'הודעות שגיאה ברורות',
       userRole: 'כל המשתמשים',
       successCriteria: 'הודעת שגיאה מסבירה מה קרה ואיך לתקן',
-      tested: false
+      tested: false,
     }
   );
 
@@ -358,10 +381,14 @@ const generateUsabilityRequirements = (meeting: Meeting): UsabilityRequirement[]
     requirements.push({
       id: generateId(),
       requirement: `${agent.name} - קלות שימוש`,
-      userRole: agent.department === 'sales' ? 'נציג מכירות' :
-                agent.department === 'service' ? 'נציג שירות' : 'מנהל',
+      userRole:
+        agent.department === 'sales'
+          ? 'נציג מכירות'
+          : agent.department === 'service'
+            ? 'נציג שירות'
+            : 'מנהל',
       successCriteria: 'המשתמש מבין את תשובות הסוכן ומצליח להשלים משימה',
-      tested: false
+      tested: false,
     });
   });
 
@@ -371,7 +398,7 @@ const generateUsabilityRequirements = (meeting: Meeting): UsabilityRequirement[]
     requirement: 'תצוגה נכונה במובייל',
     userRole: 'כל המשתמשים',
     successCriteria: 'הממשק נראה ותפקודי במסכים 320px עד 1920px',
-    tested: false
+    tested: false,
   });
 
   return requirements;
@@ -381,10 +408,11 @@ const generateUsabilityRequirements = (meeting: Meeting): UsabilityRequirement[]
  * Get statistics about generated acceptance criteria
  */
 export const getAcceptanceCriteriaStats = (criteria: AcceptanceCriteria) => {
-  const total = criteria.functional.length +
-                criteria.performance.length +
-                criteria.security.length +
-                criteria.usability.length;
+  const total =
+    criteria.functional.length +
+    criteria.performance.length +
+    criteria.security.length +
+    criteria.usability.length;
 
   return {
     total,
@@ -392,62 +420,93 @@ export const getAcceptanceCriteriaStats = (criteria: AcceptanceCriteria) => {
     performance: criteria.performance.length,
     security: criteria.security.length,
     usability: criteria.usability.length,
-    mustHave: criteria.functional.filter(r => r.priority === 'must_have').length,
-    shouldHave: criteria.functional.filter(r => r.priority === 'should_have').length,
-    niceToHave: criteria.functional.filter(r => r.priority === 'nice_to_have').length
+    mustHave: criteria.functional.filter((r) => r.priority === 'must_have')
+      .length,
+    shouldHave: criteria.functional.filter((r) => r.priority === 'should_have')
+      .length,
+    niceToHave: criteria.functional.filter((r) => r.priority === 'nice_to_have')
+      .length,
   };
 };
 
 /**
  * Filter acceptance criteria for a specific system
  */
-export const getSystemCriteria = (criteria: AcceptanceCriteria, systemName: string) => {
+export const getSystemCriteria = (
+  criteria: AcceptanceCriteria,
+  systemName: string
+) => {
   return {
-    functional: criteria.functional.filter(r => r.category.includes(systemName)),
-    performance: criteria.performance.filter(r => r.metric.includes(systemName)),
-    security: criteria.security.filter(r => r.requirement.includes(systemName)),
-    usability: criteria.usability.filter(r => r.requirement.includes(systemName))
+    functional: criteria.functional.filter((r) =>
+      r.category.includes(systemName)
+    ),
+    performance: criteria.performance.filter((r) =>
+      r.metric.includes(systemName)
+    ),
+    security: criteria.security.filter((r) =>
+      r.requirement.includes(systemName)
+    ),
+    usability: criteria.usability.filter((r) =>
+      r.requirement.includes(systemName)
+    ),
   };
 };
 
 /**
  * Filter acceptance criteria for a specific integration
  */
-export const getIntegrationCriteria = (criteria: AcceptanceCriteria, integrationName: string) => {
+export const getIntegrationCriteria = (
+  criteria: AcceptanceCriteria,
+  integrationName: string
+) => {
   return {
-    functional: criteria.functional.filter(r =>
-      r.category === 'אינטגרציה' && r.description.includes(integrationName)
+    functional: criteria.functional.filter(
+      (r) =>
+        r.category === 'אינטגרציה' && r.description.includes(integrationName)
     ),
-    performance: criteria.performance.filter(r =>
-      r.metric.includes(integrationName) || r.metric.includes('אינטגרציה')
+    performance: criteria.performance.filter(
+      (r) =>
+        r.metric.includes(integrationName) || r.metric.includes('אינטגרציה')
     ),
-    security: criteria.security.filter(r =>
-      r.requirement.includes('API') || r.requirement.includes('הצפנת נתונים')
+    security: criteria.security.filter(
+      (r) =>
+        r.requirement.includes('API') || r.requirement.includes('הצפנת נתונים')
     ),
-    usability: []
+    usability: [],
   };
 };
 
 /**
  * Filter acceptance criteria for a specific AI agent
  */
-export const getAIAgentCriteria = (criteria: AcceptanceCriteria, agentName: string, department: string) => {
-  const departmentHe = department === 'sales' ? 'מכירות' :
-                       department === 'service' ? 'שירות' : 'תפעול';
+export const getAIAgentCriteria = (
+  criteria: AcceptanceCriteria,
+  agentName: string,
+  department: string
+) => {
+  const departmentHe =
+    department === 'sales'
+      ? 'מכירות'
+      : department === 'service'
+        ? 'שירות'
+        : 'תפעול';
 
   return {
-    functional: criteria.functional.filter(r =>
-      (r.category.includes('AI') && r.category.includes(departmentHe)) ||
-      r.description.includes(agentName)
+    functional: criteria.functional.filter(
+      (r) =>
+        (r.category.includes('AI') && r.category.includes(departmentHe)) ||
+        r.description.includes(agentName)
     ),
-    performance: criteria.performance.filter(r =>
-      r.metric.includes(agentName) || (r.metric.includes('זמן תגובה') && r.metric.includes('AI'))
+    performance: criteria.performance.filter(
+      (r) =>
+        r.metric.includes(agentName) ||
+        (r.metric.includes('זמן תגובה') && r.metric.includes('AI'))
     ),
-    security: criteria.security.filter(r =>
-      r.category === 'authentication' || r.category === 'data_encryption'
+    security: criteria.security.filter(
+      (r) => r.category === 'authentication' || r.category === 'data_encryption'
     ),
-    usability: criteria.usability.filter(r =>
-      r.requirement.includes(agentName) || r.requirement.includes('סוכן')
-    )
+    usability: criteria.usability.filter(
+      (r) => r.requirement.includes(agentName) || r.requirement.includes('סוכן')
+    ),
   };
 };

@@ -14,25 +14,25 @@ export function IntCrmSupportSpec() {
     fieldId: 'crm_system',
     localPath: 'crmSystem',
     serviceId: 'int-crm-support',
-    autoSave: false
+    autoSave: false,
   });
 
   const apiAuthMethod = useSmartField<string>({
     fieldId: 'api_auth_method',
     localPath: 'crmAuthMethod',
     serviceId: 'int-crm-support',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'alertEmail',
     serviceId: 'int-crm-support',
-    autoSave: false
+    autoSave: false,
   });
 
   const [config, setConfig] = useState<any>({
-    ...{ crmSystem: 'zoho', helpdeskSystem: 'zendesk', ticketSync: true }
+    ...{ crmSystem: 'zoho', helpdeskSystem: 'zendesk', ticketSync: true },
   });
 
   // Track if we're currently loading data to prevent save loops
@@ -42,7 +42,7 @@ export function IntCrmSupportSpec() {
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'int-crm-support',
-    category: 'integrationServices'
+    category: 'integrationServices',
   });
 
   useBeforeUnload(() => {
@@ -51,15 +51,18 @@ export function IntCrmSupportSpec() {
       ...config,
       crmSystem: crmSystem.value,
       crmAuthMethod: apiAuthMethod.value,
-      alertEmail: alertEmail.value
+      alertEmail: alertEmail.value,
     };
     saveData(completeConfig);
   });
 
   // Load existing data ONCE on mount or when service data actually changes
   useEffect(() => {
-    const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
-    const existing = integrationServices.find((i: any) => i.serviceId === 'int-crm-support');
+    const integrationServices =
+      currentMeeting?.implementationSpec?.integrationServices || [];
+    const existing = integrationServices.find(
+      (i: any) => i.serviceId === 'int-crm-support'
+    );
 
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
@@ -92,23 +95,26 @@ export function IntCrmSupportSpec() {
   //   }
   // }, [config, crmSystem.value, apiAuthMethod.value, alertEmail.value, saveData]);
 
-  const handleFieldChange = useCallback((field: keyof typeof config, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = {
-            ...updated,
-            crmSystem: crmSystem.value,
-            crmAuthMethod: apiAuthMethod.value,
-            alertEmail: alertEmail.value
-          };
-          saveData(completeConfig);
-        }
-      }, 0);
-      return updated;
-    });
-  }, [crmSystem.value, apiAuthMethod.value, alertEmail.value, saveData]);
+  const handleFieldChange = useCallback(
+    (field: keyof typeof config, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = {
+              ...updated,
+              crmSystem: crmSystem.value,
+              crmAuthMethod: apiAuthMethod.value,
+              alertEmail: alertEmail.value,
+            };
+            saveData(completeConfig);
+          }
+        }, 0);
+        return updated;
+      });
+    },
+    [crmSystem.value, apiAuthMethod.value, alertEmail.value, saveData]
+  );
 
   const handleSave = useCallback(async () => {
     // Build complete config with smart field values
@@ -116,37 +122,51 @@ export function IntCrmSupportSpec() {
       ...config,
       crmSystem: crmSystem.value,
       crmAuthMethod: apiAuthMethod.value,
-      alertEmail: alertEmail.value
+      alertEmail: alertEmail.value,
     };
 
     // Save using auto-save (manual save trigger)
     await saveData(completeConfig, 'manual');
 
     alert('הגדרות נשמרו בהצלחה!');
-  }, [config, crmSystem.value, apiAuthMethod.value, alertEmail.value, saveData]);
+  }, [
+    config,
+    crmSystem.value,
+    apiAuthMethod.value,
+    alertEmail.value,
+    saveData,
+  ]);
 
   return (
     <div className="space-y-6" dir="rtl">
       {/* Smart Fields Info Banner */}
-      {(crmSystem.isAutoPopulated || apiAuthMethod.isAutoPopulated || alertEmail.isAutoPopulated) && (
+      {(crmSystem.isAutoPopulated ||
+        apiAuthMethod.isAutoPopulated ||
+        alertEmail.isAutoPopulated) && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
           <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <h4 className="font-semibold text-blue-900 mb-1">
+              נתונים מולאו אוטומטית משלב 1
+            </h4>
             <p className="text-sm text-blue-800">
-              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-              תוכל לערוך אותם במידת הצורך.
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל לערוך
+              אותם במידת הצורך.
             </p>
           </div>
         </div>
       )}
 
       {/* Conflict Warnings */}
-      {(crmSystem.hasConflict || apiAuthMethod.hasConflict || alertEmail.hasConflict) && (
+      {(crmSystem.hasConflict ||
+        apiAuthMethod.hasConflict ||
+        alertEmail.hasConflict) && (
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+            <h4 className="font-semibold text-orange-900 mb-1">
+              זוהה אי-התאמה בנתונים
+            </h4>
             <p className="text-sm text-orange-800">
               נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
             </p>
@@ -176,7 +196,9 @@ export function IntCrmSupportSpec() {
                   value={crmSystem.value || 'zoho'}
                   onChange={(e) => crmSystem.setValue(e.target.value)}
                   className={`w-full px-3 py-2 border rounded-md ${
-                    crmSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    crmSystem.isAutoPopulated
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-300'
                   } ${crmSystem.hasConflict ? 'border-orange-300' : ''}`}
                 >
                   <option value="zoho">Zoho CRM</option>
@@ -209,7 +231,9 @@ export function IntCrmSupportSpec() {
                   value={apiAuthMethod.value || 'oauth'}
                   onChange={(e) => apiAuthMethod.setValue(e.target.value)}
                   className={`w-full px-3 py-2 border rounded-md ${
-                    apiAuthMethod.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    apiAuthMethod.isAutoPopulated
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-300'
                   } ${apiAuthMethod.hasConflict ? 'border-orange-300' : ''}`}
                 >
                   <option value="oauth">OAuth 2.0</option>
@@ -231,10 +255,14 @@ export function IntCrmSupportSpec() {
           <div>
             <h3 className="text-lg font-semibold mb-4">מערכת תמיכה</h3>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">מערכת Helpdesk</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                מערכת Helpdesk
+              </label>
               <select
                 value={config.helpdeskSystem || 'zendesk'}
-                onChange={(e) => handleFieldChange('helpdeskSystem', e.target.value)}
+                onChange={(e) =>
+                  handleFieldChange('helpdeskSystem', e.target.value)
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
                 <option value="zendesk">Zendesk</option>
@@ -267,7 +295,9 @@ export function IntCrmSupportSpec() {
                 value={alertEmail.value || ''}
                 onChange={(e) => alertEmail.setValue(e.target.value)}
                 className={`w-full px-3 py-2 border rounded-md ${
-                  alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  alertEmail.isAutoPopulated
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-300'
                 } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
                 placeholder="error@company.com"
               />
@@ -287,7 +317,9 @@ export function IntCrmSupportSpec() {
                 <input
                   type="checkbox"
                   checked={config.ticketSync || false}
-                  onChange={(e) => handleFieldChange('ticketSync', e.target.checked)}
+                  onChange={(e) =>
+                    handleFieldChange('ticketSync', e.target.checked)
+                  }
                   className="mr-2"
                 />
                 <span className="text-sm">סנכרון כרטיסי תמיכה</span>
@@ -296,7 +328,12 @@ export function IntCrmSupportSpec() {
           </div>
 
           <div className="flex justify-end pt-4 border-t">
-            <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">שמור הגדרות</button>
+            <button
+              onClick={handleSave}
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              שמור הגדרות
+            </button>
           </div>
         </div>
       </Card>

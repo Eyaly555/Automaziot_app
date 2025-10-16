@@ -20,7 +20,7 @@ const businessTypeOptions = [
   { value: 'service', label: 'שירותים' },
   { value: 'manufacturing', label: 'ייצור' },
   { value: 'retail', label: 'קמעונאות' },
-  { value: 'other', label: 'אחר' }
+  { value: 'other', label: 'אחר' },
 ];
 
 const focusAreaOptions = [
@@ -30,9 +30,8 @@ const focusAreaOptions = [
   { value: 'automation', label: 'אוטומציה של תהליכים חוזרים' },
   { value: 'crm_upgrade', label: 'שדרוג/החלפת מערכת CRM' },
   { value: 'reporting', label: 'דיווח וניתוח נתונים' },
-  { value: 'ai_agents', label: 'אוטומציה מבוססת AI' }
+  { value: 'ai_agents', label: 'אוטומציה מבוססת AI' },
 ];
-
 
 const leadCaptureChannelOptions = [
   { value: 'website_form', label: 'טופס באתר' },
@@ -42,7 +41,7 @@ const leadCaptureChannelOptions = [
   { value: 'facebook', label: 'Facebook' },
   { value: 'google_ads', label: 'Google Ads' },
   { value: 'referral', label: 'המלצות' },
-  { value: 'walk_in', label: 'כניסה ישירה' }
+  { value: 'walk_in', label: 'כניסה ישירה' },
 ];
 
 const leadStorageOptions = [
@@ -50,34 +49,52 @@ const leadStorageOptions = [
   { value: 'google_sheets', label: 'Google Sheets' },
   { value: 'crm', label: 'מערכת CRM' },
   { value: 'email', label: 'אימייל' },
-  { value: 'paper', label: 'נייר/לא מתועד' }
+  { value: 'paper', label: 'נייר/לא מתועד' },
 ];
 
 export const OverviewModule: React.FC = () => {
   console.log('[OverviewModule] 🔵 Component rendering/mounting');
-  
+
   const navigate = useNavigate();
   const { currentMeeting, updateModule } = useMeetingStore();
   const overviewData = currentMeeting?.modules?.overview || {};
 
   // Basic Information
-  const [businessType, setBusinessType] = useState(overviewData.businessType || '');
+  const [businessType, setBusinessType] = useState(
+    overviewData.businessType || ''
+  );
   const [employees, setEmployees] = useState(overviewData.employees || '');
-  const [mainChallenge, setMainChallenge] = useState(overviewData.mainChallenge || '');
+  const [mainChallenge, setMainChallenge] = useState(
+    overviewData.mainChallenge || ''
+  );
   const [budget, setBudget] = useState(overviewData.budget || '');
 
   // KEEP: Lead Sources (for business context - detailed lead management stays in Leads & Sales)
-  const [leadSources, setLeadSources] = useState<LeadSource[]>(overviewData.leadSources || []);
-  const [leadCaptureChannels, setLeadCaptureChannels] = useState<string[]>(overviewData.leadCaptureChannels || []);
-  const [leadStorageMethod, setLeadStorageMethod] = useState(overviewData.leadStorageMethod || '');
+  const [leadSources, setLeadSources] = useState<LeadSource[]>(
+    overviewData.leadSources || []
+  );
+  const [leadCaptureChannels, setLeadCaptureChannels] = useState<string[]>(
+    overviewData.leadCaptureChannels || []
+  );
+  const [leadStorageMethod, setLeadStorageMethod] = useState(
+    overviewData.leadStorageMethod || ''
+  );
 
   // KEEP: Service Channels (for business context - detailed service management stays in Customer Service)
-  const [serviceChannels, setServiceChannels] = useState<ServiceChannel[]>(overviewData.serviceChannels || []);
-  const [serviceVolume, setServiceVolume] = useState(overviewData.serviceVolume || '');
-  const [serviceSystemExists, setServiceSystemExists] = useState(overviewData.serviceSystemExists || false);
+  const [serviceChannels, setServiceChannels] = useState<ServiceChannel[]>(
+    overviewData.serviceChannels || []
+  );
+  const [serviceVolume, setServiceVolume] = useState(
+    overviewData.serviceVolume || ''
+  );
+  const [serviceSystemExists, setServiceSystemExists] = useState(
+    overviewData.serviceSystemExists || false
+  );
 
   // NEW: Focus Areas
-  const [focusAreas, setFocusAreas] = useState<string[]>((overviewData.focusAreas as string[]) || []);
+  const [focusAreas, setFocusAreas] = useState<string[]>(
+    (overviewData.focusAreas as string[]) || []
+  );
 
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError, hasUnsavedChanges } = useAutoSave({
@@ -86,7 +103,7 @@ export const OverviewModule: React.FC = () => {
     debounceMs: 1000,
     onError: (error) => {
       console.error('Auto-save error in Overview:', error);
-    }
+    },
   });
 
   useBeforeUnload(() => {
@@ -102,7 +119,7 @@ export const OverviewModule: React.FC = () => {
       serviceChannels,
       serviceVolume,
       serviceSystemExists,
-      focusAreas: focusAreas as FocusArea[]
+      focusAreas: focusAreas as FocusArea[],
     });
   });
 
@@ -119,9 +136,9 @@ export const OverviewModule: React.FC = () => {
       serviceChannels,
       serviceVolume,
       serviceSystemExists,
-      focusAreas: focusAreas as FocusArea[]
+      focusAreas: focusAreas as FocusArea[],
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     businessType,
     employees,
@@ -133,7 +150,7 @@ export const OverviewModule: React.FC = () => {
     serviceChannels,
     serviceVolume,
     serviceSystemExists,
-    focusAreas
+    focusAreas,
   ]);
 
   return (
@@ -169,7 +186,9 @@ export const OverviewModule: React.FC = () => {
           {/* Info Banner */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-800">
-              <strong>מה המטרה של הסקירה הכללית?</strong> אנחנו רוצים להבין את העסק שלך ולזהות את התחומים שבהם אנחנו יכולים לעזור. על בסיס מה שתמלא כאן, נציג לך שאלות ממוקדות בהמשך.
+              <strong>מה המטרה של הסקירה הכללית?</strong> אנחנו רוצים להבין את
+              העסק שלך ולזהות את התחומים שבהם אנחנו יכולים לעזור. על בסיס מה
+              שתמלא כאן, נציג לך שאלות ממוקדות בהמשך.
             </p>
           </div>
 
@@ -193,7 +212,7 @@ export const OverviewModule: React.FC = () => {
                   { value: '11-50', label: '11-50 עובדים' },
                   { value: '51-200', label: '51-200 עובדים' },
                   { value: '201-500', label: '201-500 עובדים' },
-                  { value: '501+', label: '501+ עובדים' }
+                  { value: '501+', label: '501+ עובדים' },
                 ]}
                 placeholder="בחר טווח"
                 dir="rtl"
@@ -212,7 +231,11 @@ export const OverviewModule: React.FC = () => {
           </Card>
 
           {/* Main Challenge */}
-          <Card title="אתגר מרכזי" subtitle="מה הבעיה העיקרית שאתם מנסים לפתור?" icon={<Target className="w-5 h-5" />}>
+          <Card
+            title="אתגר מרכזי"
+            subtitle="מה הבעיה העיקרית שאתם מנסים לפתור?"
+            icon={<Target className="w-5 h-5" />}
+          >
             <TextArea
               label="תיאור האתגר"
               value={mainChallenge}
@@ -240,7 +263,8 @@ export const OverviewModule: React.FC = () => {
           >
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
               <p className="text-sm text-yellow-800">
-                <strong>חשוב!</strong> הבחירות שלך כאן יקבעו אילו שאלות נציג לך במודול "איפיון ממוקד" הבא.
+                <strong>חשוב!</strong> הבחירות שלך כאן יקבעו אילו שאלות נציג לך
+                במודול "איפיון ממוקד" הבא.
               </p>
             </div>
             <CheckboxGroup
@@ -252,8 +276,13 @@ export const OverviewModule: React.FC = () => {
           </Card>
 
           {/* Lead Sources - Conditional on focusAreas */}
-          {(focusAreas.includes('lead_capture') || focusAreas.includes('sales_process')) && (
-            <Card title="מקורות לידים" subtitle="מאיפה מגיעים הלידים שלך?" className="border-l-4 border-l-green-500">
+          {(focusAreas.includes('lead_capture') ||
+            focusAreas.includes('sales_process')) && (
+            <Card
+              title="מקורות לידים"
+              subtitle="מאיפה מגיעים הלידים שלך?"
+              className="border-l-4 border-l-green-500"
+            >
               <div className="space-y-4">
                 <LeadSourceBuilder
                   sources={leadSources}
@@ -286,7 +315,11 @@ export const OverviewModule: React.FC = () => {
 
           {/* Service Channels - Conditional on focusAreas */}
           {focusAreas.includes('customer_service') && (
-            <Card title="ערוצי שירות" subtitle="איך לקוחות פונים אליכם?" className="border-l-4 border-l-purple-500">
+            <Card
+              title="ערוצי שירות"
+              subtitle="איך לקוחות פונים אליכם?"
+              className="border-l-4 border-l-purple-500"
+            >
               <div className="space-y-4">
                 <ServiceChannelBuilder
                   channels={serviceChannels}
@@ -311,7 +344,9 @@ export const OverviewModule: React.FC = () => {
                       onChange={(e) => setServiceSystemExists(e.target.checked)}
                       className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-700">יש לנו מערכת לניהול פניות שירות</span>
+                    <span className="text-sm text-gray-700">
+                      יש לנו מערכת לניהול פניות שירות
+                    </span>
                   </label>
                 </div>
               </div>
@@ -320,14 +355,19 @@ export const OverviewModule: React.FC = () => {
 
           {/* Summary Card */}
           {focusAreas.length > 0 && (
-            <Card title="סיכום" className="bg-gradient-to-br from-blue-50 to-purple-50">
+            <Card
+              title="סיכום"
+              className="bg-gradient-to-br from-blue-50 to-purple-50"
+            >
               <div className="space-y-2">
                 <p className="text-sm text-gray-700">
                   <strong>תחומי עניין שנבחרו:</strong> {focusAreas.length}
                 </p>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {focusAreas.map((area) => {
-                    const option = focusAreaOptions.find(o => o.value === area);
+                    const option = focusAreaOptions.find(
+                      (o) => o.value === area
+                    );
                     return (
                       <span
                         key={area}

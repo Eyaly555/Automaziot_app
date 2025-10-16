@@ -14,14 +14,20 @@ async function getFFmpeg(): Promise<FFmpeg> {
       try {
         const baseURL = '/ffmpeg-core';
         await ffmpeg.load({
-          coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-          wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+          coreURL: await toBlobURL(
+            `${baseURL}/ffmpeg-core.js`,
+            'text/javascript'
+          ),
+          wasmURL: await toBlobURL(
+            `${baseURL}/ffmpeg-core.wasm`,
+            'application/wasm'
+          ),
         });
         resolve(ffmpeg);
       } catch (error) {
-        console.error("Failed to load FFmpeg:", error);
+        console.error('Failed to load FFmpeg:', error);
         ffmpegLoadPromise = null; // Reset for a potential retry
-        reject(new Error("Failed to initialize audio converter."));
+        reject(new Error('Failed to initialize audio converter.'));
       }
     });
   }
@@ -58,12 +64,17 @@ export async function convertAudio(
 
     // Lightweight MP3 settings
     const ffmpegArgs = [
-      '-i', inputFileName,
-      '-b:a', '64k',    // Audio bitrate 64kbps
-      '-ar', '16000',   // Sample rate 16kHz
-      '-ac', '1',       // Mono audio
-      '-f', 'mp3',      // Output format MP3
-      outputFileName
+      '-i',
+      inputFileName,
+      '-b:a',
+      '64k', // Audio bitrate 64kbps
+      '-ar',
+      '16000', // Sample rate 16kHz
+      '-ac',
+      '1', // Mono audio
+      '-f',
+      'mp3', // Output format MP3
+      outputFileName,
     ];
 
     await ffmpeg.exec(ffmpegArgs);
@@ -125,6 +136,9 @@ export function estimateConversionTime(fileSizeMB: number): number {
 /**
  * Calculates compression ratio
  */
-export function getCompressionRatio(originalSize: number, convertedSize: number): number {
-  return Math.round((1 - (convertedSize / originalSize)) * 100);
+export function getCompressionRatio(
+  originalSize: number,
+  convertedSize: number
+): number {
+  return Math.round((1 - convertedSize / originalSize) * 100);
 }

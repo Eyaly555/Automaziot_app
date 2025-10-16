@@ -16,16 +16,19 @@ export const WizardProgress: React.FC<WizardProgressProps> = ({
   completedSteps,
   skippedSteps,
   onStepClick,
-  progress
+  progress,
 }) => {
   // Group steps by module
-  const moduleGroups = WIZARD_STEPS.reduce((acc, step) => {
-    if (!acc[step.moduleId]) {
-      acc[step.moduleId] = [];
-    }
-    acc[step.moduleId].push(step);
-    return acc;
-  }, {} as Record<string, typeof WIZARD_STEPS>);
+  const moduleGroups = WIZARD_STEPS.reduce(
+    (acc, step) => {
+      if (!acc[step.moduleId]) {
+        acc[step.moduleId] = [];
+      }
+      acc[step.moduleId].push(step);
+      return acc;
+    },
+    {} as Record<string, typeof WIZARD_STEPS>
+  );
 
   const moduleNames: Record<string, string> = {
     overview: 'סקירה כללית',
@@ -36,7 +39,7 @@ export const WizardProgress: React.FC<WizardProgressProps> = ({
     aiAgents: 'סוכני AI',
     systems: 'מערכות',
     roi: 'החזר השקעה',
-    planning: 'תכנון'
+    planning: 'תכנון',
   };
 
   return (
@@ -45,7 +48,9 @@ export const WizardProgress: React.FC<WizardProgressProps> = ({
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold text-gray-900">התקדמות כללית</span>
+            <span className="text-sm font-semibold text-gray-900">
+              התקדמות כללית
+            </span>
             <span className="text-xs text-gray-600">
               ({completedSteps.length} / {WIZARD_STEPS.length} שלבים)
             </span>
@@ -58,12 +63,16 @@ export const WizardProgress: React.FC<WizardProgressProps> = ({
       {/* Compact Module Overview */}
       <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2">
         {Object.entries(moduleGroups).map(([moduleId, steps]) => {
-          const moduleCompleted = steps.every(step =>
-            completedSteps.includes(step.id) || skippedSteps.includes(step.id)
+          const moduleCompleted = steps.every(
+            (step) =>
+              completedSteps.includes(step.id) || skippedSteps.includes(step.id)
           );
-          const moduleInProgress = steps.some(step => step.id === currentStep);
-          const moduleCompletedCount = steps.filter(step =>
-            completedSteps.includes(step.id) || skippedSteps.includes(step.id)
+          const moduleInProgress = steps.some(
+            (step) => step.id === currentStep
+          );
+          const moduleCompletedCount = steps.filter(
+            (step) =>
+              completedSteps.includes(step.id) || skippedSteps.includes(step.id)
           ).length;
 
           return (
@@ -71,32 +80,48 @@ export const WizardProgress: React.FC<WizardProgressProps> = ({
               key={moduleId}
               onClick={() => {
                 // Jump to first incomplete step in module or first step
-                const firstIncomplete = steps.find(s => !completedSteps.includes(s.id) && !skippedSteps.includes(s.id));
+                const firstIncomplete = steps.find(
+                  (s) =>
+                    !completedSteps.includes(s.id) &&
+                    !skippedSteps.includes(s.id)
+                );
                 onStepClick(firstIncomplete?.id || steps[0].id);
               }}
               className={`
                 relative p-2 rounded-md border transition-all duration-200 hover:shadow-md
-                ${moduleCompleted
-                  ? 'bg-green-50 border-green-300 hover:bg-green-100'
-                  : moduleInProgress
-                    ? 'bg-blue-50 border-blue-400 ring-2 ring-blue-400'
-                    : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                ${
+                  moduleCompleted
+                    ? 'bg-green-50 border-green-300 hover:bg-green-100'
+                    : moduleInProgress
+                      ? 'bg-blue-50 border-blue-400 ring-2 ring-blue-400'
+                      : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
                 }
               `}
               title={`${moduleNames[moduleId]} (${moduleCompletedCount}/${steps.length})`}
             >
               <div className="flex flex-col items-center gap-1">
-                {moduleCompleted && <Check className="w-4 h-4 text-green-600" />}
-                {!moduleCompleted && moduleInProgress && <Circle className="w-4 h-4 text-blue-600 fill-current" />}
-                {!moduleCompleted && !moduleInProgress && <Circle className="w-4 h-4 text-gray-400" />}
+                {moduleCompleted && (
+                  <Check className="w-4 h-4 text-green-600" />
+                )}
+                {!moduleCompleted && moduleInProgress && (
+                  <Circle className="w-4 h-4 text-blue-600 fill-current" />
+                )}
+                {!moduleCompleted && !moduleInProgress && (
+                  <Circle className="w-4 h-4 text-gray-400" />
+                )}
 
-                <span className={`
+                <span
+                  className={`
                   text-xs font-medium text-center line-clamp-2
-                  ${moduleCompleted ? 'text-green-700' :
-                    moduleInProgress ? 'text-blue-700' :
-                    'text-gray-600'
+                  ${
+                    moduleCompleted
+                      ? 'text-green-700'
+                      : moduleInProgress
+                        ? 'text-blue-700'
+                        : 'text-gray-600'
                   }
-                `}>
+                `}
+                >
                   {moduleNames[moduleId]}
                 </span>
 
@@ -116,14 +141,16 @@ export const WizardProgress: React.FC<WizardProgressProps> = ({
           className={`
             w-full flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm
             transition-all duration-200 hover:shadow-md
-            ${currentStep === 'summary'
-              ? 'bg-blue-500 text-white ring-2 ring-blue-500 ring-offset-2'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            ${
+              currentStep === 'summary'
+                ? 'bg-blue-500 text-white ring-2 ring-blue-500 ring-offset-2'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }
           `}
         >
           <span className="font-medium">סיכום וסקירה</span>
-          {completedSteps.length === WIZARD_STEPS.filter(s => !s.isOptional).length && (
+          {completedSteps.length ===
+            WIZARD_STEPS.filter((s) => !s.isOptional).length && (
             <Check className="w-4 h-4" />
           )}
         </button>

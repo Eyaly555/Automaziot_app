@@ -8,7 +8,7 @@ import {
   ArrowPathIcon,
   InformationCircleIcon,
   CogIcon,
-  BoltIcon
+  BoltIcon,
 } from '@heroicons/react/24/outline';
 import { aiService } from '../../services/AIService';
 import { useAutoSave } from '../../hooks/useAutoSave';
@@ -35,7 +35,7 @@ export const AISettings: React.FC = () => {
     debounceMs: 1000,
     onError: (error) => {
       console.error('Auto-save error in AISettings:', error);
-    }
+    },
   });
 
   useBeforeUnload(() => {
@@ -61,7 +61,7 @@ export const AISettings: React.FC = () => {
         temperature: 0.7,
         enableCache: true,
         fallbackToLocal: true,
-        rateLimitPerMinute: 10
+        rateLimitPerMinute: 10,
       });
     }
 
@@ -75,7 +75,6 @@ export const AISettings: React.FC = () => {
       saveData(config);
     }
   }, [config]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
 
   // Test AI connection
   const handleTestConnection = async () => {
@@ -86,12 +85,12 @@ export const AISettings: React.FC = () => {
       const result = await aiService.testConnection();
       setTestResult({
         success: result.success,
-        message: result.message
+        message: result.message,
       });
     } catch (error) {
       setTestResult({
         success: false,
-        message: 'Connection test failed'
+        message: 'Connection test failed',
       });
     } finally {
       setTesting(false);
@@ -113,7 +112,7 @@ export const AISettings: React.FC = () => {
 
     setTestResult({
       success: true,
-      message: 'הגדרות נשמרו בהצלחה'
+      message: 'הגדרות נשמרו בהצלחה',
     });
   };
 
@@ -123,7 +122,7 @@ export const AISettings: React.FC = () => {
     setCacheStats(aiService.getCacheStats());
     setTestResult({
       success: true,
-      message: 'המטמון נוקה בהצלחה'
+      message: 'המטמון נוקה בהצלחה',
     });
   };
 
@@ -133,51 +132,56 @@ export const AISettings: React.FC = () => {
 
     setConfig({
       ...config,
-      [field]: value
+      [field]: value,
     });
   };
 
-  const providers: { value: AIProvider; label: string; description: string }[] = [
-    {
-      value: 'openai',
-      label: 'OpenAI',
-      description: 'GPT-4, GPT-3.5 Turbo'
-    },
-    {
-      value: 'anthropic',
-      label: 'Anthropic',
-      description: 'Claude 3 Opus, Sonnet, Haiku'
-    },
-    {
-      value: 'cohere',
-      label: 'Cohere',
-      description: 'Command R+, Command R'
-    },
-    {
-      value: 'huggingface',
-      label: 'HuggingFace',
-      description: 'Llama 2, Mistral, Falcon'
-    },
-    {
-      value: 'local',
-      label: 'מקומי (ללא AI)',
-      description: 'המלצות מובנות בלבד'
-    }
-  ];
+  const providers: { value: AIProvider; label: string; description: string }[] =
+    [
+      {
+        value: 'openai',
+        label: 'OpenAI',
+        description: 'GPT-4, GPT-3.5 Turbo',
+      },
+      {
+        value: 'anthropic',
+        label: 'Anthropic',
+        description: 'Claude 3 Opus, Sonnet, Haiku',
+      },
+      {
+        value: 'cohere',
+        label: 'Cohere',
+        description: 'Command R+, Command R',
+      },
+      {
+        value: 'huggingface',
+        label: 'HuggingFace',
+        description: 'Llama 2, Mistral, Falcon',
+      },
+      {
+        value: 'local',
+        label: 'מקומי (ללא AI)',
+        description: 'המלצות מובנות בלבד',
+      },
+    ];
 
   const getModelOptions = (provider: AIProvider): string[] => {
     switch (provider) {
       case 'openai':
         return ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k'];
       case 'anthropic':
-        return ['claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307'];
+        return [
+          'claude-3-opus-20240229',
+          'claude-3-sonnet-20240229',
+          'claude-3-haiku-20240307',
+        ];
       case 'cohere':
         return ['command-r-plus', 'command-r', 'command'];
       case 'huggingface':
         return [
           'meta-llama/Llama-2-70b-chat-hf',
           'mistralai/Mixtral-8x7B-Instruct-v0.1',
-          'tiiuae/falcon-180B-chat'
+          'tiiuae/falcon-180B-chat',
         ];
       default:
         return [];
@@ -214,7 +218,9 @@ export const AISettings: React.FC = () => {
           ) : (
             <>
               <XCircleIcon className="h-5 w-5 text-gray-400" />
-              <span className="text-gray-600">AI לא מוגדר - משתמש בהמלצות מקומיות</span>
+              <span className="text-gray-600">
+                AI לא מוגדר - משתמש בהמלצות מקומיות
+              </span>
             </>
           )}
         </div>
@@ -228,7 +234,7 @@ export const AISettings: React.FC = () => {
         </h3>
 
         <div className="grid gap-3">
-          {providers.map(provider => (
+          {providers.map((provider) => (
             <label
               key={provider.value}
               className={`flex items-start gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${
@@ -247,7 +253,9 @@ export const AISettings: React.FC = () => {
               />
               <div className="flex-1">
                 <div className="font-medium">{provider.label}</div>
-                <div className="text-sm text-gray-600">{provider.description}</div>
+                <div className="text-sm text-gray-600">
+                  {provider.description}
+                </div>
               </div>
             </label>
           ))}
@@ -292,8 +300,10 @@ export const AISettings: React.FC = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">בחר מודל</option>
-                {getModelOptions(config.provider).map(model => (
-                  <option key={model} value={model}>{model}</option>
+                {getModelOptions(config.provider).map((model) => (
+                  <option key={model} value={model}>
+                    {model}
+                  </option>
                 ))}
               </select>
             </div>
@@ -307,7 +317,9 @@ export const AISettings: React.FC = () => {
                 <input
                   type="number"
                   value={config.maxTokens}
-                  onChange={(e) => handleInputChange('maxTokens', parseInt(e.target.value))}
+                  onChange={(e) =>
+                    handleInputChange('maxTokens', parseInt(e.target.value))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   min="100"
                   max="32000"
@@ -321,7 +333,9 @@ export const AISettings: React.FC = () => {
                 <input
                   type="number"
                   value={config.temperature}
-                  onChange={(e) => handleInputChange('temperature', parseFloat(e.target.value))}
+                  onChange={(e) =>
+                    handleInputChange('temperature', parseFloat(e.target.value))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   min="0"
                   max="1"
@@ -338,7 +352,12 @@ export const AISettings: React.FC = () => {
               <input
                 type="number"
                 value={config.rateLimitPerMinute}
-                onChange={(e) => handleInputChange('rateLimitPerMinute', parseInt(e.target.value))}
+                onChange={(e) =>
+                  handleInputChange(
+                    'rateLimitPerMinute',
+                    parseInt(e.target.value)
+                  )
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 min="1"
                 max="60"
@@ -370,7 +389,9 @@ export const AISettings: React.FC = () => {
             <input
               type="checkbox"
               checked={config.enableCache}
-              onChange={(e) => handleInputChange('enableCache', e.target.checked)}
+              onChange={(e) =>
+                handleInputChange('enableCache', e.target.checked)
+              }
               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span>השתמש במטמון לשיפור ביצועים</span>
@@ -380,7 +401,9 @@ export const AISettings: React.FC = () => {
             <input
               type="checkbox"
               checked={config.fallbackToLocal}
-              onChange={(e) => handleInputChange('fallbackToLocal', e.target.checked)}
+              onChange={(e) =>
+                handleInputChange('fallbackToLocal', e.target.checked)
+              }
               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span>חזור להמלצות מקומיות בשגיאה</span>
@@ -399,7 +422,8 @@ export const AISettings: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-gray-700">
-                פריטים במטמון: <span className="font-semibold">{cacheStats.size}</span>
+                פריטים במטמון:{' '}
+                <span className="font-semibold">{cacheStats.size}</span>
               </p>
               <p className="text-sm text-gray-500">
                 המטמון חוסך קריאות מיותרות ל-API
@@ -453,9 +477,11 @@ export const AISettings: React.FC = () => {
           </button>
 
           {testResult && (
-            <div className={`flex items-center gap-2 ${
-              testResult.success ? 'text-green-700' : 'text-red-700'
-            }`}>
+            <div
+              className={`flex items-center gap-2 ${
+                testResult.success ? 'text-green-700' : 'text-red-700'
+              }`}
+            >
               {testResult.success ? (
                 <CheckCircleIcon className="h-5 w-5" />
               ) : (
@@ -491,9 +517,9 @@ export const AISettings: React.FC = () => {
           <div className="text-sm text-blue-800">
             <p className="font-semibold mb-1">אודות המלצות AI</p>
             <p>
-              כאשר AI מופעל, המערכת תנתח את נתוני המפגש ותספק המלצות מותאמות אישית
-              לשיפור תהליכים עסקיים. ההמלצות מבוססות על דפוסים שזוהו בנתונים
-              ומותאמות לצרכים הספציפיים של הארגון.
+              כאשר AI מופעל, המערכת תנתח את נתוני המפגש ותספק המלצות מותאמות
+              אישית לשיפור תהליכים עסקיים. ההמלצות מבוססות על דפוסים שזוהו
+              בנתונים ומותאמות לצרכים הספציפיים של הארגון.
             </p>
             <p className="mt-2">
               במקרה של כשל או חוסר הגדרה, המערכת תשתמש בהמלצות מובנות המבוססות

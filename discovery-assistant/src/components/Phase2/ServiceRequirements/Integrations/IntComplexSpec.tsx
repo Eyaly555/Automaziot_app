@@ -14,55 +14,64 @@ export function IntComplexSpec() {
     fieldId: 'api_auth_method',
     localPath: 'sourceSystem.authType',
     serviceId: 'int-complex',
-    autoSave: false
+    autoSave: false,
   });
 
   const syncFrequency = useSmartField<string>({
     fieldId: 'sync_frequency',
     localPath: 'syncConfig.frequency',
     serviceId: 'int-complex',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'errorHandling.alertRecipients[0]',
     serviceId: 'int-complex',
-    autoSave: false
+    autoSave: false,
   });
 
   const [config, setConfig] = useState<any>({
     sourceSystem: {
       name: '',
-      authType: 'oauth2'
+      authType: 'oauth2',
     },
     targetSystem: {
       name: '',
-      authType: 'oauth2'
+      authType: 'oauth2',
     },
     syncConfig: {
       frequency: 'realtime',
-      direction: 'bi-directional'
+      direction: 'bi-directional',
     },
     transformationRules: [],
     validationRules: [],
     errorHandling: {
       retryAttempts: 5,
-      alertRecipients: []
+      alertRecipients: [],
     },
     metadata: {
       complexity: 'complex',
-      estimatedHours: 50
-    }
+      estimatedHours: 50,
+    },
   });
 
-  const [newRule, setNewRule] = useState({ type: 'transformation', source: '', target: '', logic: '' });
-  const [newValidation, setNewValidation] = useState({ field: '', rule: '', message: '' });
+  const [newRule, setNewRule] = useState({
+    type: 'transformation',
+    source: '',
+    target: '',
+    logic: '',
+  });
+  const [newValidation, setNewValidation] = useState({
+    field: '',
+    rule: '',
+    message: '',
+  });
 
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'int-complex',
-    category: 'integrationServices'
+    category: 'integrationServices',
   });
 
   useBeforeUnload(() => {
@@ -71,23 +80,26 @@ export function IntComplexSpec() {
       ...config,
       sourceSystem: {
         ...config.sourceSystem,
-        authType: apiAuthMethod.value
+        authType: apiAuthMethod.value,
       },
       syncConfig: {
         ...config.syncConfig,
-        frequency: syncFrequency.value
+        frequency: syncFrequency.value,
       },
       errorHandling: {
         ...config.errorHandling,
-        alertRecipients: [alertEmail.value]
-      }
+        alertRecipients: [alertEmail.value],
+      },
     };
     saveData(completeConfig);
   });
 
   useEffect(() => {
-    const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
-    const existing = integrationServices.find(i => i.serviceId === 'int-complex');
+    const integrationServices =
+      currentMeeting?.implementationSpec?.integrationServices || [];
+    const existing = integrationServices.find(
+      (i) => i.serviceId === 'int-complex'
+    );
     if (existing?.requirements) {
       setConfig(existing.requirements);
     }
@@ -101,16 +113,18 @@ export function IntComplexSpec() {
       ...config,
       sourceSystem: {
         ...config.sourceSystem,
-        authType: apiAuthMethod.value
+        authType: apiAuthMethod.value,
       },
       syncConfig: {
         ...config.syncConfig,
-        frequency: frequencyValue
+        frequency: frequencyValue,
       },
       errorHandling: {
         ...config.errorHandling,
-        alertRecipients: alertEmail.value ? [alertEmail.value] : config.errorHandling?.alertRecipients || []
-      }
+        alertRecipients: alertEmail.value
+          ? [alertEmail.value]
+          : config.errorHandling?.alertRecipients || [],
+      },
     };
 
     await saveData(completeConfig);
@@ -120,7 +134,7 @@ export function IntComplexSpec() {
     if (newRule.source && newRule.target && newRule.logic) {
       setConfig({
         ...config,
-        transformationRules: [...config.transformationRules, { ...newRule }]
+        transformationRules: [...config.transformationRules, { ...newRule }],
       });
       setNewRule({ type: 'transformation', source: '', target: '', logic: '' });
     }
@@ -129,7 +143,9 @@ export function IntComplexSpec() {
   const removeTransformation = (index: number) => {
     setConfig({
       ...config,
-      transformationRules: config.transformationRules.filter((_, i) => i !== index)
+      transformationRules: config.transformationRules.filter(
+        (_, i) => i !== index
+      ),
     });
   };
 
@@ -137,7 +153,7 @@ export function IntComplexSpec() {
     if (newValidation.field && newValidation.rule && newValidation.message) {
       setConfig({
         ...config,
-        validationRules: [...config.validationRules, { ...newValidation }]
+        validationRules: [...config.validationRules, { ...newValidation }],
       });
       setNewValidation({ field: '', rule: '', message: '' });
     }
@@ -146,18 +162,22 @@ export function IntComplexSpec() {
   const removeValidation = (index: number) => {
     setConfig({
       ...config,
-      validationRules: config.validationRules.filter((_, i) => i !== index)
+      validationRules: config.validationRules.filter((_, i) => i !== index),
     });
   };
 
   return (
     <div className="space-y-6 p-8" dir="rtl">
       {/* Banners */}
-      {(apiAuthMethod.isAutoPopulated || syncFrequency.isAutoPopulated || alertEmail.isAutoPopulated) && (
+      {(apiAuthMethod.isAutoPopulated ||
+        syncFrequency.isAutoPopulated ||
+        alertEmail.isAutoPopulated) && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
           <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <h4 className="font-semibold text-blue-900 mb-1">
+              נתונים מולאו אוטומטית משלב 1
+            </h4>
             <p className="text-sm text-blue-800">
               חלק מהשדות מולאו באופן אוטומטי.
             </p>
@@ -165,11 +185,15 @@ export function IntComplexSpec() {
         </div>
       )}
 
-      {(apiAuthMethod.hasConflict || syncFrequency.hasConflict || alertEmail.hasConflict) && (
+      {(apiAuthMethod.hasConflict ||
+        syncFrequency.hasConflict ||
+        alertEmail.hasConflict) && (
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-semibold text-orange-900 mb-1">אי התאמה בנתונים</h4>
+            <h4 className="font-semibold text-orange-900 mb-1">
+              אי התאמה בנתונים
+            </h4>
             <p className="text-sm text-orange-800">בדוק ותקן.</p>
           </div>
         </div>
@@ -182,11 +206,21 @@ export function IntComplexSpec() {
             <h3 className="text-lg font-semibold mb-4">מערכות</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-2">מערכת מקור</label>
+                <label className="block text-sm font-medium mb-2">
+                  מערכת מקור
+                </label>
                 <input
                   type="text"
                   value={config.sourceSystem.name || ''}
-                  onChange={(e) => setConfig({ ...config, sourceSystem: { ...config.sourceSystem, name: e.target.value } })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      sourceSystem: {
+                        ...config.sourceSystem,
+                        name: e.target.value,
+                      },
+                    })
+                  }
                   className="w-full px-3 py-2 border rounded"
                   placeholder="שם מערכת מקור"
                 />
@@ -207,7 +241,9 @@ export function IntComplexSpec() {
                   value={apiAuthMethod.value || 'oauth2'}
                   onChange={(e) => apiAuthMethod.setValue(e.target.value)}
                   className={`w-full px-3 py-2 border rounded-md ${
-                    apiAuthMethod.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    apiAuthMethod.isAutoPopulated
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-300'
                   } ${apiAuthMethod.hasConflict ? 'border-orange-300' : ''}`}
                 >
                   <option value="oauth">OAuth 2.0</option>
@@ -217,15 +253,27 @@ export function IntComplexSpec() {
                   <option value="jwt">JWT</option>
                 </select>
                 {apiAuthMethod.isAutoPopulated && apiAuthMethod.source && (
-                  <p className="text-xs text-gray-500 mt-1">מקור: {apiAuthMethod.source.description}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {apiAuthMethod.source.description}
+                  </p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">מערכת יעד</label>
+                <label className="block text-sm font-medium mb-2">
+                  מערכת יעד
+                </label>
                 <input
                   type="text"
                   value={config.targetSystem.name || ''}
-                  onChange={(e) => setConfig({ ...config, targetSystem: { ...config.targetSystem, name: e.target.value } })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      targetSystem: {
+                        ...config.targetSystem,
+                        name: e.target.value,
+                      },
+                    })
+                  }
                   className="w-full px-3 py-2 border rounded"
                   placeholder="שם מערכת יעד"
                 />
@@ -253,7 +301,9 @@ export function IntComplexSpec() {
                   value={syncFrequency.value || 'realtime'}
                   onChange={(e) => syncFrequency.setValue(e.target.value)}
                   className={`w-full px-3 py-2 border rounded-md ${
-                    syncFrequency.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    syncFrequency.isAutoPopulated
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-300'
                   } ${syncFrequency.hasConflict ? 'border-orange-300' : ''}`}
                 >
                   <option value="realtime">בזמן אמת</option>
@@ -262,14 +312,26 @@ export function IntComplexSpec() {
                   <option value="daily">יומי</option>
                 </select>
                 {syncFrequency.isAutoPopulated && syncFrequency.source && (
-                  <p className="text-xs text-gray-500 mt-1">מקור: {syncFrequency.source.description}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {syncFrequency.source.description}
+                  </p>
                 )}
               </div>
               <label className="flex items-center">
                 <input
                   type="checkbox"
                   checked={config.syncConfig.direction === 'bi-directional'}
-                  onChange={(e) => setConfig({ ...config, syncConfig: { ...config.syncConfig, direction: e.target.checked ? 'bi-directional' : 'one-way' } })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      syncConfig: {
+                        ...config.syncConfig,
+                        direction: e.target.checked
+                          ? 'bi-directional'
+                          : 'one-way',
+                      },
+                    })
+                  }
                   className="mr-2 rounded"
                 />
                 <span>דו-כיווני</span>
@@ -285,30 +347,51 @@ export function IntComplexSpec() {
                 <input
                   type="text"
                   value={newRule.source}
-                  onChange={(e) => setNewRule({ ...newRule, source: e.target.value })}
+                  onChange={(e) =>
+                    setNewRule({ ...newRule, source: e.target.value })
+                  }
                   placeholder="שדה מקור"
                   className="px-3 py-2 border rounded"
                 />
                 <input
                   type="text"
                   value={newRule.target}
-                  onChange={(e) => setNewRule({ ...newRule, target: e.target.value })}
+                  onChange={(e) =>
+                    setNewRule({ ...newRule, target: e.target.value })
+                  }
                   placeholder="שדה יעד"
                   className="px-3 py-2 border rounded"
                 />
                 <input
                   type="text"
                   value={newRule.logic}
-                  onChange={(e) => setNewRule({ ...newRule, logic: e.target.value })}
+                  onChange={(e) =>
+                    setNewRule({ ...newRule, logic: e.target.value })
+                  }
                   placeholder="לוגיקה (JS)"
                   className="px-3 py-2 border rounded"
                 />
               </div>
-              <button onClick={addTransformation} className="px-4 py-2 bg-green-600 text-white rounded">הוסף</button>
+              <button
+                onClick={addTransformation}
+                className="px-4 py-2 bg-green-600 text-white rounded"
+              >
+                הוסף
+              </button>
               {config.transformationRules.map((rule, index) => (
-                <div key={index} className="flex justify-between bg-gray-50 p-2 rounded">
-                  <span>{rule.source} → {rule.target}: {rule.logic}</span>
-                  <button onClick={() => removeTransformation(index)} className="text-red-600">הסר</button>
+                <div
+                  key={index}
+                  className="flex justify-between bg-gray-50 p-2 rounded"
+                >
+                  <span>
+                    {rule.source} → {rule.target}: {rule.logic}
+                  </span>
+                  <button
+                    onClick={() => removeTransformation(index)}
+                    className="text-red-600"
+                  >
+                    הסר
+                  </button>
                 </div>
               ))}
             </div>
@@ -322,30 +405,57 @@ export function IntComplexSpec() {
                 <input
                   type="text"
                   value={newValidation.field}
-                  onChange={(e) => setNewValidation({ ...newValidation, field: e.target.value })}
+                  onChange={(e) =>
+                    setNewValidation({
+                      ...newValidation,
+                      field: e.target.value,
+                    })
+                  }
                   placeholder="שדה"
                   className="px-3 py-2 border rounded"
                 />
                 <input
                   type="text"
                   value={newValidation.rule}
-                  onChange={(e) => setNewValidation({ ...newValidation, rule: e.target.value })}
+                  onChange={(e) =>
+                    setNewValidation({ ...newValidation, rule: e.target.value })
+                  }
                   placeholder="כלל (regex/JS)"
                   className="px-3 py-2 border rounded"
                 />
                 <input
                   type="text"
                   value={newValidation.message}
-                  onChange={(e) => setNewValidation({ ...newValidation, message: e.target.value })}
+                  onChange={(e) =>
+                    setNewValidation({
+                      ...newValidation,
+                      message: e.target.value,
+                    })
+                  }
                   placeholder="הודעת שגיאה"
                   className="px-3 py-2 border rounded"
                 />
               </div>
-              <button onClick={addValidation} className="px-4 py-2 bg-green-600 text-white rounded">הוסף</button>
+              <button
+                onClick={addValidation}
+                className="px-4 py-2 bg-green-600 text-white rounded"
+              >
+                הוסף
+              </button>
               {config.validationRules.map((val, index) => (
-                <div key={index} className="flex justify-between bg-gray-50 p-2 rounded">
-                  <span>{val.field}: {val.rule} - {val.message}</span>
-                  <button onClick={() => removeValidation(index)} className="text-red-600">הסר</button>
+                <div
+                  key={index}
+                  className="flex justify-between bg-gray-50 p-2 rounded"
+                >
+                  <span>
+                    {val.field}: {val.rule} - {val.message}
+                  </span>
+                  <button
+                    onClick={() => removeValidation(index)}
+                    className="text-red-600"
+                  >
+                    הסר
+                  </button>
                 </div>
               ))}
             </div>
@@ -357,11 +467,21 @@ export function IntComplexSpec() {
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">ניסיונות חוזרים</label>
+                  <label className="block text-sm font-medium mb-1">
+                    ניסיונות חוזרים
+                  </label>
                   <input
                     type="number"
                     value={config.errorHandling.retryAttempts || 5}
-                    onChange={(e) => setConfig({ ...config, errorHandling: { ...config.errorHandling, retryAttempts: parseInt(e.target.value) } })}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        errorHandling: {
+                          ...config.errorHandling,
+                          retryAttempts: parseInt(e.target.value),
+                        },
+                      })
+                    }
                     className="w-full px-3 py-2 border rounded"
                   />
                 </div>
@@ -383,12 +503,16 @@ export function IntComplexSpec() {
                   value={alertEmail.value || ''}
                   onChange={(e) => alertEmail.setValue(e.target.value)}
                   className={`w-full px-3 py-2 border rounded-md ${
-                    alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    alertEmail.isAutoPopulated
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-300'
                   } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
                   placeholder="alerts@company.com"
                 />
                 {alertEmail.isAutoPopulated && alertEmail.source && (
-                  <p className="text-xs text-gray-500 mt-1">מקור: {alertEmail.source.description}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {alertEmail.source.description}
+                  </p>
                 )}
               </div>
             </div>

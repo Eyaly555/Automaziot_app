@@ -10,7 +10,7 @@ import {
   validateServiceRequirements,
   isPhase2Complete,
   getServiceCompletionStatus,
-  type ServiceValidationResult
+  type ServiceValidationResult,
 } from '../serviceRequirementsValidation';
 import type { Meeting } from '../../types';
 
@@ -22,20 +22,35 @@ describe('serviceRequirementsValidation', () => {
   describe('validateServiceRequirements', () => {
     it('should return valid when all services completed', () => {
       const purchasedServices = [
-        { id: 'auto-lead-response', name: 'Auto Lead Response', nameHe: 'תגובה אוטומטית ללידים' },
-        { id: 'ai-faq-bot', name: 'FAQ Bot', nameHe: 'בוט FAQ' }
+        {
+          id: 'auto-lead-response',
+          name: 'Auto Lead Response',
+          nameHe: 'תגובה אוטומטית ללידים',
+        },
+        { id: 'ai-faq-bot', name: 'FAQ Bot', nameHe: 'בוט FAQ' },
       ];
 
       const implementationSpec = {
         automations: [
-          { serviceId: 'auto-lead-response', requirements: {}, completedAt: '2025-01-01' }
+          {
+            serviceId: 'auto-lead-response',
+            requirements: {},
+            completedAt: '2025-01-01',
+          },
         ],
         aiAgentServices: [
-          { serviceId: 'ai-faq-bot', requirements: {}, completedAt: '2025-01-01' }
-        ]
+          {
+            serviceId: 'ai-faq-bot',
+            requirements: {},
+            completedAt: '2025-01-01',
+          },
+        ],
       };
 
-      const result = validateServiceRequirements(purchasedServices, implementationSpec);
+      const result = validateServiceRequirements(
+        purchasedServices,
+        implementationSpec
+      );
 
       expect(result.isValid).toBe(true);
       expect(result.missingServices).toHaveLength(0);
@@ -45,18 +60,29 @@ describe('serviceRequirementsValidation', () => {
 
     it('should return invalid when services are missing from automations', () => {
       const purchasedServices = [
-        { id: 'auto-lead-response', name: 'Auto Lead Response', nameHe: 'תגובה אוטומטית ללידים' },
-        { id: 'ai-faq-bot', name: 'FAQ Bot', nameHe: 'בוט FAQ' }
+        {
+          id: 'auto-lead-response',
+          name: 'Auto Lead Response',
+          nameHe: 'תגובה אוטומטית ללידים',
+        },
+        { id: 'ai-faq-bot', name: 'FAQ Bot', nameHe: 'בוט FAQ' },
       ];
 
       const implementationSpec = {
         automations: [
-          { serviceId: 'auto-lead-response', requirements: {}, completedAt: '2025-01-01' }
-        ]
+          {
+            serviceId: 'auto-lead-response',
+            requirements: {},
+            completedAt: '2025-01-01',
+          },
+        ],
         // Missing ai-faq-bot
       };
 
-      const result = validateServiceRequirements(purchasedServices, implementationSpec);
+      const result = validateServiceRequirements(
+        purchasedServices,
+        implementationSpec
+      );
 
       expect(result.isValid).toBe(false);
       expect(result.missingServices).toContain('בוט FAQ');
@@ -66,18 +92,29 @@ describe('serviceRequirementsValidation', () => {
 
     it('should return invalid when services are missing from integrations', () => {
       const purchasedServices = [
-        { id: 'zapier-integration', name: 'Zapier Integration', nameHe: 'אינטגרציה Zapier' },
-        { id: 'make-integration', name: 'Make.com Integration', nameHe: 'אינטגרציה Make.com' }
+        {
+          id: 'zapier-integration',
+          name: 'Zapier Integration',
+          nameHe: 'אינטגרציה Zapier',
+        },
+        {
+          id: 'make-integration',
+          name: 'Make.com Integration',
+          nameHe: 'אינטגרציה Make.com',
+        },
       ];
 
       const implementationSpec = {
         integrationServices: [
-          { serviceId: 'zapier-integration', requirements: {} }
-        ]
+          { serviceId: 'zapier-integration', requirements: {} },
+        ],
         // Missing make-integration
       };
 
-      const result = validateServiceRequirements(purchasedServices, implementationSpec);
+      const result = validateServiceRequirements(
+        purchasedServices,
+        implementationSpec
+      );
 
       expect(result.isValid).toBe(false);
       expect(result.missingServices).toContain('אינטגרציה Make.com');
@@ -96,7 +133,11 @@ describe('serviceRequirementsValidation', () => {
 
     it('should handle missing implementationSpec', () => {
       const purchasedServices = [
-        { id: 'auto-lead-response', name: 'Auto Lead Response', nameHe: 'תגובה אוטומטית ללידים' }
+        {
+          id: 'auto-lead-response',
+          name: 'Auto Lead Response',
+          nameHe: 'תגובה אוטומטית ללידים',
+        },
       ];
 
       const result = validateServiceRequirements(purchasedServices, undefined);
@@ -109,7 +150,11 @@ describe('serviceRequirementsValidation', () => {
 
     it('should handle null implementationSpec', () => {
       const purchasedServices = [
-        { id: 'auto-lead-response', name: 'Auto Lead Response', nameHe: 'תגובה אוטומטית ללידים' }
+        {
+          id: 'auto-lead-response',
+          name: 'Auto Lead Response',
+          nameHe: 'תגובה אוטומטית ללידים',
+        },
       ];
 
       const result = validateServiceRequirements(purchasedServices, null);
@@ -122,32 +167,37 @@ describe('serviceRequirementsValidation', () => {
 
     it('should detect services from all service categories', () => {
       const purchasedServices = [
-        { id: 'service-1', name: 'Automation Service', nameHe: 'שירות אוטומציה' },
+        {
+          id: 'service-1',
+          name: 'Automation Service',
+          nameHe: 'שירות אוטומציה',
+        },
         { id: 'service-2', name: 'AI Service', nameHe: 'שירות AI' },
-        { id: 'service-3', name: 'Integration Service', nameHe: 'שירות אינטגרציה' },
-        { id: 'service-4', name: 'System Implementation', nameHe: 'הטמעת מערכת' },
-        { id: 'service-5', name: 'Additional Service', nameHe: 'שירות נוסף' }
+        {
+          id: 'service-3',
+          name: 'Integration Service',
+          nameHe: 'שירות אינטגרציה',
+        },
+        {
+          id: 'service-4',
+          name: 'System Implementation',
+          nameHe: 'הטמעת מערכת',
+        },
+        { id: 'service-5', name: 'Additional Service', nameHe: 'שירות נוסף' },
       ];
 
       const implementationSpec = {
-        automations: [
-          { serviceId: 'service-1', requirements: {} }
-        ],
-        aiAgentServices: [
-          { serviceId: 'service-2', requirements: {} }
-        ],
-        integrationServices: [
-          { serviceId: 'service-3', requirements: {} }
-        ],
-        systemImplementations: [
-          { serviceId: 'service-4', requirements: {} }
-        ],
-        additionalServices: [
-          { serviceId: 'service-5', requirements: {} }
-        ]
+        automations: [{ serviceId: 'service-1', requirements: {} }],
+        aiAgentServices: [{ serviceId: 'service-2', requirements: {} }],
+        integrationServices: [{ serviceId: 'service-3', requirements: {} }],
+        systemImplementations: [{ serviceId: 'service-4', requirements: {} }],
+        additionalServices: [{ serviceId: 'service-5', requirements: {} }],
       };
 
-      const result = validateServiceRequirements(purchasedServices, implementationSpec);
+      const result = validateServiceRequirements(
+        purchasedServices,
+        implementationSpec
+      );
 
       expect(result.isValid).toBe(true);
       expect(result.missingServices).toHaveLength(0);
@@ -157,16 +207,19 @@ describe('serviceRequirementsValidation', () => {
 
     it('should handle services without serviceId gracefully', () => {
       const purchasedServices = [
-        { id: 'service-1', name: 'Service 1', nameHe: 'שירות 1' }
+        { id: 'service-1', name: 'Service 1', nameHe: 'שירות 1' },
       ];
 
       const implementationSpec = {
         automations: [
-          { requirements: {} } // Missing serviceId
-        ]
+          { requirements: {} }, // Missing serviceId
+        ],
       };
 
-      const result = validateServiceRequirements(purchasedServices, implementationSpec);
+      const result = validateServiceRequirements(
+        purchasedServices,
+        implementationSpec
+      );
 
       expect(result.isValid).toBe(false);
       expect(result.missingServices).toContain('שירות 1');
@@ -175,14 +228,17 @@ describe('serviceRequirementsValidation', () => {
 
     it('should use name when nameHe is missing', () => {
       const purchasedServices = [
-        { id: 'service-1', name: 'Service 1' } // No nameHe
+        { id: 'service-1', name: 'Service 1' }, // No nameHe
       ];
 
       const implementationSpec = {
-        automations: []
+        automations: [],
       };
 
-      const result = validateServiceRequirements(purchasedServices, implementationSpec);
+      const result = validateServiceRequirements(
+        purchasedServices,
+        implementationSpec
+      );
 
       expect(result.isValid).toBe(false);
       expect(result.missingServices).toContain('Service 1');
@@ -190,7 +246,7 @@ describe('serviceRequirementsValidation', () => {
 
     it('should handle implementationSpec with empty arrays', () => {
       const purchasedServices = [
-        { id: 'service-1', name: 'Service 1', nameHe: 'שירות 1' }
+        { id: 'service-1', name: 'Service 1', nameHe: 'שירות 1' },
       ];
 
       const implementationSpec = {
@@ -198,10 +254,13 @@ describe('serviceRequirementsValidation', () => {
         aiAgentServices: [],
         integrationServices: [],
         systemImplementations: [],
-        additionalServices: []
+        additionalServices: [],
       };
 
-      const result = validateServiceRequirements(purchasedServices, implementationSpec);
+      const result = validateServiceRequirements(
+        purchasedServices,
+        implementationSpec
+      );
 
       expect(result.isValid).toBe(false);
       expect(result.completedCount).toBe(0);
@@ -210,17 +269,20 @@ describe('serviceRequirementsValidation', () => {
 
     it('should not count duplicate service IDs multiple times', () => {
       const purchasedServices = [
-        { id: 'service-1', name: 'Service 1', nameHe: 'שירות 1' }
+        { id: 'service-1', name: 'Service 1', nameHe: 'שירות 1' },
       ];
 
       const implementationSpec = {
         automations: [
           { serviceId: 'service-1', requirements: {} },
-          { serviceId: 'service-1', requirements: {} } // Duplicate
-        ]
+          { serviceId: 'service-1', requirements: {} }, // Duplicate
+        ],
       };
 
-      const result = validateServiceRequirements(purchasedServices, implementationSpec);
+      const result = validateServiceRequirements(
+        purchasedServices,
+        implementationSpec
+      );
 
       expect(result.isValid).toBe(true);
       expect(result.completedCount).toBe(1); // Should count only once
@@ -228,14 +290,17 @@ describe('serviceRequirementsValidation', () => {
 
     it('should handle malformed service category gracefully', () => {
       const purchasedServices = [
-        { id: 'service-1', name: 'Service 1', nameHe: 'שירות 1' }
+        { id: 'service-1', name: 'Service 1', nameHe: 'שירות 1' },
       ];
 
       const implementationSpec = {
-        automations: 'not-an-array' // Invalid structure
+        automations: 'not-an-array', // Invalid structure
       };
 
-      const result = validateServiceRequirements(purchasedServices, implementationSpec);
+      const result = validateServiceRequirements(
+        purchasedServices,
+        implementationSpec
+      );
 
       expect(result.isValid).toBe(false);
       expect(result.missingServices).toContain('שירות 1');
@@ -252,15 +317,23 @@ describe('serviceRequirementsValidation', () => {
         modules: {
           proposal: {
             purchasedServices: [
-              { id: 'auto-lead-response', name: 'Auto Lead Response', nameHe: 'תגובה אוטומטית ללידים' }
-            ]
-          }
+              {
+                id: 'auto-lead-response',
+                name: 'Auto Lead Response',
+                nameHe: 'תגובה אוטומטית ללידים',
+              },
+            ],
+          },
         },
         implementationSpec: {
           automations: [
-            { serviceId: 'auto-lead-response', requirements: {}, completedAt: '2025-01-01' }
-          ]
-        }
+            {
+              serviceId: 'auto-lead-response',
+              requirements: {},
+              completedAt: '2025-01-01',
+            },
+          ],
+        },
       } as unknown as Meeting;
 
       expect(isPhase2Complete(meeting)).toBe(true);
@@ -271,13 +344,17 @@ describe('serviceRequirementsValidation', () => {
         modules: {
           proposal: {
             purchasedServices: [
-              { id: 'auto-lead-response', name: 'Auto Lead Response', nameHe: 'תגובה אוטומטית ללידים' }
-            ]
-          }
+              {
+                id: 'auto-lead-response',
+                name: 'Auto Lead Response',
+                nameHe: 'תגובה אוטומטית ללידים',
+              },
+            ],
+          },
         },
         implementationSpec: {
-          automations: []
-        }
+          automations: [],
+        },
       } as unknown as Meeting;
 
       expect(isPhase2Complete(meeting)).toBe(false);
@@ -295,12 +372,12 @@ describe('serviceRequirementsValidation', () => {
       const meeting = {
         modules: {
           proposal: {
-            purchasedServices: []
-          }
+            purchasedServices: [],
+          },
         },
         implementationSpec: {
-          automations: []
-        }
+          automations: [],
+        },
       } as unknown as Meeting;
 
       // FIXED: Zero services = nothing to validate = complete
@@ -310,11 +387,11 @@ describe('serviceRequirementsValidation', () => {
     it('should return TRUE when purchasedServices is missing (CRITICAL FIX)', () => {
       const meeting = {
         modules: {
-          proposal: {}
+          proposal: {},
         },
         implementationSpec: {
-          automations: []
-        }
+          automations: [],
+        },
       } as unknown as Meeting;
 
       // FIXED: No services = nothing to validate = complete
@@ -324,8 +401,8 @@ describe('serviceRequirementsValidation', () => {
     it('should return TRUE when modules is missing (CRITICAL FIX)', () => {
       const meeting = {
         implementationSpec: {
-          automations: []
-        }
+          automations: [],
+        },
       } as unknown as Meeting;
 
       // FIXED: No modules = no purchasedServices = nothing to validate = complete
@@ -336,8 +413,8 @@ describe('serviceRequirementsValidation', () => {
       const meeting = {
         modules: {},
         implementationSpec: {
-          automations: []
-        }
+          automations: [],
+        },
       } as unknown as Meeting;
 
       // FIXED: No proposal module = no purchasedServices = nothing to validate = complete
@@ -351,21 +428,15 @@ describe('serviceRequirementsValidation', () => {
             purchasedServices: [
               { id: 'service-1', name: 'Service 1', nameHe: 'שירות 1' },
               { id: 'service-2', name: 'Service 2', nameHe: 'שירות 2' },
-              { id: 'service-3', name: 'Service 3', nameHe: 'שירות 3' }
-            ]
-          }
+              { id: 'service-3', name: 'Service 3', nameHe: 'שירות 3' },
+            ],
+          },
         },
         implementationSpec: {
-          automations: [
-            { serviceId: 'service-1', requirements: {} }
-          ],
-          aiAgentServices: [
-            { serviceId: 'service-2', requirements: {} }
-          ],
-          integrationServices: [
-            { serviceId: 'service-3', requirements: {} }
-          ]
-        }
+          automations: [{ serviceId: 'service-1', requirements: {} }],
+          aiAgentServices: [{ serviceId: 'service-2', requirements: {} }],
+          integrationServices: [{ serviceId: 'service-3', requirements: {} }],
+        },
       } as unknown as Meeting;
 
       expect(isPhase2Complete(meeting)).toBe(true);
@@ -377,16 +448,14 @@ describe('serviceRequirementsValidation', () => {
           proposal: {
             purchasedServices: [
               { id: 'service-1', name: 'Service 1', nameHe: 'שירות 1' },
-              { id: 'service-2', name: 'Service 2', nameHe: 'שירות 2' }
-            ]
-          }
+              { id: 'service-2', name: 'Service 2', nameHe: 'שירות 2' },
+            ],
+          },
         },
         implementationSpec: {
-          automations: [
-            { serviceId: 'service-1', requirements: {} }
-          ]
+          automations: [{ serviceId: 'service-1', requirements: {} }],
           // Missing service-2
-        }
+        },
       } as unknown as Meeting;
 
       expect(isPhase2Complete(meeting)).toBe(false);
@@ -404,16 +473,16 @@ describe('serviceRequirementsValidation', () => {
           proposal: {
             purchasedServices: [
               { id: 'service-1', name: 'Service 1', nameHe: 'שירות 1' },
-              { id: 'service-2', name: 'Service 2', nameHe: 'שירות 2' }
-            ]
-          }
+              { id: 'service-2', name: 'Service 2', nameHe: 'שירות 2' },
+            ],
+          },
         },
         implementationSpec: {
           automations: [
             { serviceId: 'service-1', requirements: {} },
-            { serviceId: 'service-2', requirements: {} }
-          ]
-        }
+            { serviceId: 'service-2', requirements: {} },
+          ],
+        },
       } as unknown as Meeting;
 
       const status = getServiceCompletionStatus(meeting);
@@ -430,15 +499,13 @@ describe('serviceRequirementsValidation', () => {
           proposal: {
             purchasedServices: [
               { id: 'service-1', name: 'Service 1', nameHe: 'שירות 1' },
-              { id: 'service-2', name: 'Service 2', nameHe: 'שירות 2' }
-            ]
-          }
+              { id: 'service-2', name: 'Service 2', nameHe: 'שירות 2' },
+            ],
+          },
         },
         implementationSpec: {
-          automations: [
-            { serviceId: 'service-1', requirements: {} }
-          ]
-        }
+          automations: [{ serviceId: 'service-1', requirements: {} }],
+        },
       } as unknown as Meeting;
 
       const status = getServiceCompletionStatus(meeting);
@@ -462,10 +529,10 @@ describe('serviceRequirementsValidation', () => {
       const meeting = {
         modules: {
           proposal: {
-            purchasedServices: []
-          }
+            purchasedServices: [],
+          },
         },
-        implementationSpec: {}
+        implementationSpec: {},
       } as unknown as Meeting;
 
       const status = getServiceCompletionStatus(meeting);
@@ -479,9 +546,9 @@ describe('serviceRequirementsValidation', () => {
     it('should handle missing purchasedServices gracefully', () => {
       const meeting = {
         modules: {
-          proposal: {}
+          proposal: {},
         },
-        implementationSpec: {}
+        implementationSpec: {},
       } as unknown as Meeting;
 
       const status = getServiceCompletionStatus(meeting);
@@ -495,10 +562,10 @@ describe('serviceRequirementsValidation', () => {
         modules: {
           proposal: {
             purchasedServices: [
-              { id: 'service-1', name: 'Service 1', nameHe: 'שירות 1' }
-            ]
-          }
-        }
+              { id: 'service-1', name: 'Service 1', nameHe: 'שירות 1' },
+            ],
+          },
+        },
       } as unknown as Meeting;
 
       const status = getServiceCompletionStatus(meeting);
@@ -517,16 +584,16 @@ describe('serviceRequirementsValidation', () => {
               { id: 'service-1', name: 'Service 1', nameHe: 'שירות 1' },
               { id: 'service-2', name: 'Service 2', nameHe: 'שירות 2' },
               { id: 'service-3', name: 'Service 3', nameHe: 'שירות 3' },
-              { id: 'service-4', name: 'Service 4', nameHe: 'שירות 4' }
-            ]
-          }
+              { id: 'service-4', name: 'Service 4', nameHe: 'שירות 4' },
+            ],
+          },
         },
         implementationSpec: {
           automations: [
             { serviceId: 'service-1', requirements: {} },
-            { serviceId: 'service-2', requirements: {} }
-          ]
-        }
+            { serviceId: 'service-2', requirements: {} },
+          ],
+        },
       } as unknown as Meeting;
 
       const status = getServiceCompletionStatus(meeting);
@@ -545,14 +612,17 @@ describe('serviceRequirementsValidation', () => {
   describe('Edge Cases', () => {
     it('should handle service with both nameHe and name correctly', () => {
       const purchasedServices = [
-        { id: 'service-1', name: 'English Name', nameHe: 'שם עברי' }
+        { id: 'service-1', name: 'English Name', nameHe: 'שם עברי' },
       ];
 
       const implementationSpec = {
-        automations: []
+        automations: [],
       };
 
-      const result = validateServiceRequirements(purchasedServices, implementationSpec);
+      const result = validateServiceRequirements(
+        purchasedServices,
+        implementationSpec
+      );
 
       // Should prefer nameHe
       expect(result.missingServices).toContain('שם עברי');
@@ -560,16 +630,19 @@ describe('serviceRequirementsValidation', () => {
 
     it('should handle services with special characters in IDs', () => {
       const purchasedServices = [
-        { id: 'service-1-special_chars-123', name: 'Service', nameHe: 'שירות' }
+        { id: 'service-1-special_chars-123', name: 'Service', nameHe: 'שירות' },
       ];
 
       const implementationSpec = {
         automations: [
-          { serviceId: 'service-1-special_chars-123', requirements: {} }
-        ]
+          { serviceId: 'service-1-special_chars-123', requirements: {} },
+        ],
       };
 
-      const result = validateServiceRequirements(purchasedServices, implementationSpec);
+      const result = validateServiceRequirements(
+        purchasedServices,
+        implementationSpec
+      );
 
       expect(result.isValid).toBe(true);
       expect(result.completedCount).toBe(1);
@@ -579,17 +652,20 @@ describe('serviceRequirementsValidation', () => {
       const purchasedServices = Array.from({ length: 100 }, (_, i) => ({
         id: `service-${i}`,
         name: `Service ${i}`,
-        nameHe: `שירות ${i}`
+        nameHe: `שירות ${i}`,
       }));
 
       const implementationSpec = {
         automations: Array.from({ length: 100 }, (_, i) => ({
           serviceId: `service-${i}`,
-          requirements: {}
-        }))
+          requirements: {},
+        })),
       };
 
-      const result = validateServiceRequirements(purchasedServices, implementationSpec);
+      const result = validateServiceRequirements(
+        purchasedServices,
+        implementationSpec
+      );
 
       expect(result.isValid).toBe(true);
       expect(result.completedCount).toBe(100);
@@ -598,16 +674,19 @@ describe('serviceRequirementsValidation', () => {
 
     it('should handle service IDs with different casing', () => {
       const purchasedServices = [
-        { id: 'Service-1', name: 'Service 1', nameHe: 'שירות 1' }
+        { id: 'Service-1', name: 'Service 1', nameHe: 'שירות 1' },
       ];
 
       const implementationSpec = {
         automations: [
-          { serviceId: 'service-1', requirements: {} } // Different case
-        ]
+          { serviceId: 'service-1', requirements: {} }, // Different case
+        ],
       };
 
-      const result = validateServiceRequirements(purchasedServices, implementationSpec);
+      const result = validateServiceRequirements(
+        purchasedServices,
+        implementationSpec
+      );
 
       // Should be case-sensitive (not match)
       expect(result.isValid).toBe(false);

@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { CheckCircle, DollarSign, Zap, Languages, Info, TrendingUp } from 'lucide-react';
+import {
+  CheckCircle,
+  DollarSign,
+  Zap,
+  Languages,
+  Info,
+  TrendingUp,
+} from 'lucide-react';
 import { Card } from '../../Common/Card';
 import { AIModelComparison, AIAgentUseCase } from '../../../types';
 import { useMeetingStore } from '../../../store/useMeetingStore';
@@ -23,9 +30,19 @@ const AI_MODELS: AIModelComparison[] = [
     hebrewSupport: 'excellent',
     responseSpeed: 'medium',
     contextWindow: 272000,
-    strengths: ['יכולות חשיבה מתקדמות', 'הקשר גדול מאוד (272K)', 'מולטימודלי מלא', 'הנחה 90% על cache'],
-    bestFor: ['משימות מורכבות', 'שירות לקוחות מתקדם', 'ניתוח עומק', 'ייעוץ מכירות'],
-    limitations: ['מחיר בינוני-גבוה', 'מהירות בינונית']
+    strengths: [
+      'יכולות חשיבה מתקדמות',
+      'הקשר גדול מאוד (272K)',
+      'מולטימודלי מלא',
+      'הנחה 90% על cache',
+    ],
+    bestFor: [
+      'משימות מורכבות',
+      'שירות לקוחות מתקדם',
+      'ניתוח עומק',
+      'ייעוץ מכירות',
+    ],
+    limitations: ['מחיר בינוני-גבוה', 'מהירות בינונית'],
   },
   {
     modelId: 'gpt-5-mini',
@@ -38,9 +55,15 @@ const AI_MODELS: AIModelComparison[] = [
     hebrewSupport: 'excellent',
     responseSpeed: 'fast',
     contextWindow: 272000,
-    strengths: ['מחיר מעולה', '80% מביצועי GPT-5', 'מהיר', 'הקשר גדול', 'cache זול'],
+    strengths: [
+      'מחיר מעולה',
+      '80% מביצועי GPT-5',
+      'מהיר',
+      'הקשר גדול',
+      'cache זול',
+    ],
     bestFor: ['נפח גבוה', 'שירות לקוחות יומיומי', 'מענה ללידים', 'אוטומציות'],
-    limitations: ['פחות מתקדם מהגרסה הרגילה']
+    limitations: ['פחות מתקדם מהגרסה הרגילה'],
   },
   {
     modelId: 'gpt-5-nano',
@@ -53,9 +76,14 @@ const AI_MODELS: AIModelComparison[] = [
     hebrewSupport: 'excellent',
     responseSpeed: 'fast',
     contextWindow: 272000,
-    strengths: ['הזול ביותר', 'מהיר מאוד', 'מושלם למשימות פשוטות', 'חיסכון משמעותי'],
+    strengths: [
+      'הזול ביותר',
+      'מהיר מאוד',
+      'מושלם למשימות פשוטות',
+      'חיסכון משמעותי',
+    ],
     bestFor: ['סיווג', 'חילוץ מידע', 'משימות פשוטות', 'בדיקות בסיסיות'],
-    limitations: ['יכולות בסיסיות', 'לא מתאים למשימות מורכבות']
+    limitations: ['יכולות בסיסיות', 'לא מתאים למשימות מורכבות'],
   },
 
   // Anthropic Claude 4 Family
@@ -70,9 +98,21 @@ const AI_MODELS: AIModelComparison[] = [
     hebrewSupport: 'excellent',
     responseSpeed: 'fast',
     contextWindow: 200000,
-    strengths: ['עברית מושלמת', 'יחס מחיר/ביצועים מעולה', 'מהיר', 'אמין', 'הנחה 90% על cache'],
-    bestFor: ['כל סוגי המשימות', 'שירות לקוחות בעברית', 'מכירות', 'תפעול', 'קוד'],
-    limitations: ['הקשר קטן יותר מ-Opus']
+    strengths: [
+      'עברית מושלמת',
+      'יחס מחיר/ביצועים מעולה',
+      'מהיר',
+      'אמין',
+      'הנחה 90% על cache',
+    ],
+    bestFor: [
+      'כל סוגי המשימות',
+      'שירות לקוחות בעברית',
+      'מכירות',
+      'תפעול',
+      'קוד',
+    ],
+    limitations: ['הקשר קטן יותר מ-Opus'],
   },
   {
     modelId: 'claude-opus-4.1',
@@ -85,9 +125,19 @@ const AI_MODELS: AIModelComparison[] = [
     hebrewSupport: 'excellent',
     responseSpeed: 'medium',
     contextWindow: 1000000,
-    strengths: ['הקשר ענק (1M טוקנים)', 'עברית מושלמת', 'המדויק ביותר', 'הנחה 90% cache'],
-    bestFor: ['ניתוח מסמכים ענקיים', 'codebases שלמים', 'מחקר מעמיק', 'משימות קריטיות'],
-    limitations: ['היקר ביותר', 'מהירות בינונית', 'מוגזם לרוב המשימות']
+    strengths: [
+      'הקשר ענק (1M טוקנים)',
+      'עברית מושלמת',
+      'המדויק ביותר',
+      'הנחה 90% cache',
+    ],
+    bestFor: [
+      'ניתוח מסמכים ענקיים',
+      'codebases שלמים',
+      'מחקר מעמיק',
+      'משימות קריטיות',
+    ],
+    limitations: ['היקר ביותר', 'מהירות בינונית', 'מוגזם לרוב המשימות'],
   },
 
   // Google Gemini 2.5
@@ -102,9 +152,20 @@ const AI_MODELS: AIModelComparison[] = [
     hebrewSupport: 'excellent',
     responseSpeed: 'fast',
     contextWindow: 1000000,
-    strengths: ['הקשר ענקי (1M-2M)', 'מחיר תחרותי', 'מולטימודלי', 'cache חוסך 75%', 'אינטגרציה Google'],
-    bestFor: ['ניתוח מסמכים רבים', 'Google Workspace', 'נפח גבוה', 'סוכנים (agents)'],
-    limitations: ['מחיר עולה מעל 200K טוקנים']
+    strengths: [
+      'הקשר ענקי (1M-2M)',
+      'מחיר תחרותי',
+      'מולטימודלי',
+      'cache חוסך 75%',
+      'אינטגרציה Google',
+    ],
+    bestFor: [
+      'ניתוח מסמכים רבים',
+      'Google Workspace',
+      'נפח גבוה',
+      'סוכנים (agents)',
+    ],
+    limitations: ['מחיר עולה מעל 200K טוקנים'],
   },
 
   // xAI Grok 4 Family
@@ -119,9 +180,14 @@ const AI_MODELS: AIModelComparison[] = [
     hebrewSupport: 'excellent',
     responseSpeed: 'medium',
     contextWindow: 128000,
-    strengths: ['גישה לX (Twitter)', 'חיפוש אינטרנט מובנה', 'עדכני (נובמבר 2024)', 'יכולות חשיבה'],
+    strengths: [
+      'גישה לX (Twitter)',
+      'חיפוש אינטרנט מובנה',
+      'עדכני (נובמבר 2024)',
+      'יכולות חשיבה',
+    ],
     bestFor: ['מחקר שוק', 'מעקב מדיה חברתית', 'טרנדים', 'מידע עדכני'],
-    limitations: ['הקשר קטן יותר', 'חדש יחסית']
+    limitations: ['הקשר קטן יותר', 'חדש יחסית'],
   },
   {
     modelId: 'grok-4-fast',
@@ -134,13 +200,23 @@ const AI_MODELS: AIModelComparison[] = [
     hebrewSupport: 'excellent',
     responseSpeed: 'fast',
     contextWindow: 2000000,
-    strengths: ['הקשר ענקי (2M!)', 'זול מאוד', 'מהיר', 'חיפוש X', 'cache זול ($0.05/1M)', 'גישה חינמית'],
+    strengths: [
+      'הקשר ענקי (2M!)',
+      'זול מאוד',
+      'מהיר',
+      'חיפוש X',
+      'cache זול ($0.05/1M)',
+      'גישה חינמית',
+    ],
     bestFor: ['נפח גבוה מאוד', 'מסמכים ענקיים', 'אוטומציה', 'חיסכון בעלויות'],
-    limitations: ['מחיר כפול מעל 128K', 'חדש יחסית']
-  }
+    limitations: ['מחיר כפול מעל 128K', 'חדש יחסית'],
+  },
 ];
 
-export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSelectModel }) => {
+export const AIModelSelector: React.FC<AIModelSelectorProps> = ({
+  useCase,
+  onSelectModel,
+}) => {
   const { updateModule, currentMeeting } = useMeetingStore();
   const moduleData = currentMeeting?.modules?.aiAgents || {};
 
@@ -153,27 +229,38 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
     const avgInputTokens = 2000;
     const avgOutputTokens = 1000;
 
-    const inputCost = (avgInputTokens * volume * model.costPer1MTokensInput) / 1000000;
-    const outputCost = (avgOutputTokens * volume * model.costPer1MTokensOutput) / 1000000;
+    const inputCost =
+      (avgInputTokens * volume * model.costPer1MTokensInput) / 1000000;
+    const outputCost =
+      (avgOutputTokens * volume * model.costPer1MTokensOutput) / 1000000;
 
     return (inputCost + outputCost).toFixed(2);
   };
 
   // Get recommendation based on use case (Updated for 2025 models)
-  const getRecommendation = (model: AIModelComparison): 'excellent' | 'good' | 'ok' | null => {
+  const getRecommendation = (
+    model: AIModelComparison
+  ): 'excellent' | 'good' | 'ok' | null => {
     if (!useCase) return null;
 
     // Sales use cases - prefer fast, economical with good Hebrew
     if (useCase.department === 'sales') {
-      if (model.modelId === 'claude-sonnet-4.5' || model.modelId === 'gpt-5-mini') {
+      if (
+        model.modelId === 'claude-sonnet-4.5' ||
+        model.modelId === 'gpt-5-mini'
+      ) {
         return 'excellent';
       }
-      if (model.modelId === 'gpt-5' || model.modelId === 'gemini-2.5-pro') return 'good';
+      if (model.modelId === 'gpt-5' || model.modelId === 'gemini-2.5-pro')
+        return 'good';
     }
 
     // Service use cases - prefer excellent Hebrew and reliability
     if (useCase.department === 'service') {
-      if (model.modelId === 'claude-sonnet-4.5' || model.modelId === 'claude-opus-4.1') {
+      if (
+        model.modelId === 'claude-sonnet-4.5' ||
+        model.modelId === 'claude-opus-4.1'
+      ) {
         return 'excellent';
       }
       if (model.modelId === 'gpt-5') return 'good';
@@ -184,7 +271,10 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
       if (model.modelId === 'gpt-5-nano' || model.modelId === 'grok-4-fast') {
         return 'excellent';
       }
-      if (model.modelId === 'gpt-5-mini' || model.modelId === 'gemini-2.5-pro') {
+      if (
+        model.modelId === 'gpt-5-mini' ||
+        model.modelId === 'gemini-2.5-pro'
+      ) {
         return 'good';
       }
     }
@@ -202,7 +292,10 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
       if (model.modelId === 'gpt-5-mini' || model.modelId === 'grok-4-fast') {
         return 'excellent';
       }
-      if (model.modelId === 'gemini-2.5-pro' || model.modelId === 'gpt-5-nano') {
+      if (
+        model.modelId === 'gemini-2.5-pro' ||
+        model.modelId === 'gpt-5-nano'
+      ) {
         return 'good';
       }
     }
@@ -217,23 +310,27 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
       onSelectModel(modelId);
 
       // Save selection to store
-      const model = AI_MODELS.find(m => m.modelId === modelId);
+      const model = AI_MODELS.find((m) => m.modelId === modelId);
       if (model) {
         const selection = {
           useCaseId: useCase.id,
           selectedModelId: modelId,
           reasoning: `נבחר עבור ${useCase.name}`,
-          estimatedMonthlyCost: parseFloat(calculateMonthlyCost(model, useCase.expectedVolume)),
-          estimatedTokensPerMonth: useCase.expectedVolume * 3000 // 3000 tokens average per interaction
+          estimatedMonthlyCost: parseFloat(
+            calculateMonthlyCost(model, useCase.expectedVolume)
+          ),
+          estimatedTokensPerMonth: useCase.expectedVolume * 3000, // 3000 tokens average per interaction
         };
 
         const existingSelections = moduleData.selectedModels || [];
-        const updatedSelections = existingSelections.filter(s => s.useCaseId !== useCase.id);
+        const updatedSelections = existingSelections.filter(
+          (s) => s.useCaseId !== useCase.id
+        );
         updatedSelections.push(selection);
 
         updateModule('aiAgents', {
           ...moduleData,
-          selectedModels: updatedSelections
+          selectedModels: updatedSelections,
         });
       }
     }
@@ -244,18 +341,20 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
       excellent: 'bg-green-100 text-green-700 border-green-300',
       good: 'bg-blue-100 text-blue-700 border-blue-300',
       basic: 'bg-yellow-100 text-yellow-700 border-yellow-300',
-      none: 'bg-gray-100 text-gray-700 border-gray-300'
+      none: 'bg-gray-100 text-gray-700 border-gray-300',
     };
 
     const labels = {
       excellent: 'מצוינת',
       good: 'טובה',
       basic: 'בסיסית',
-      none: 'אין'
+      none: 'אין',
     };
 
     return (
-      <span className={`px-2 py-1 rounded text-xs font-medium border ${colors[level as keyof typeof colors]}`}>
+      <span
+        className={`px-2 py-1 rounded text-xs font-medium border ${colors[level as keyof typeof colors]}`}
+      >
         {labels[level as keyof typeof labels]}
       </span>
     );
@@ -265,17 +364,19 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
     const colors = {
       fast: 'bg-green-100 text-green-700',
       medium: 'bg-yellow-100 text-yellow-700',
-      slow: 'bg-red-100 text-red-700'
+      slow: 'bg-red-100 text-red-700',
     };
 
     const labels = {
       fast: 'מהיר',
       medium: 'בינוני',
-      slow: 'איטי'
+      slow: 'איטי',
     };
 
     return (
-      <span className={`px-2 py-1 rounded text-xs font-medium ${colors[speed as keyof typeof colors]}`}>
+      <span
+        className={`px-2 py-1 rounded text-xs font-medium ${colors[speed as keyof typeof colors]}`}
+      >
         {labels[speed as keyof typeof labels]}
       </span>
     );
@@ -294,7 +395,13 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
               <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-blue-800">
                 <p className="font-semibold mb-1">המלצה אוטומטית</p>
-                <p>בהתבסס על מחלקה: <strong>{useCase.department}</strong>, נפח צפוי: <strong>{useCase.expectedVolume.toLocaleString()} פניות/חודש</strong></p>
+                <p>
+                  בהתבסס על מחלקה: <strong>{useCase.department}</strong>, נפח
+                  צפוי:{' '}
+                  <strong>
+                    {useCase.expectedVolume.toLocaleString()} פניות/חודש
+                  </strong>
+                </p>
               </div>
             </div>
           </div>
@@ -304,15 +411,18 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
           {AI_MODELS.map((model) => {
             const recommendation = getRecommendation(model);
             const isSelected = selectedModelId === model.modelId;
-            const monthlyCost = useCase ? calculateMonthlyCost(model, useCase.expectedVolume) : '0';
+            const monthlyCost = useCase
+              ? calculateMonthlyCost(model, useCase.expectedVolume)
+              : '0';
 
             return (
               <div
                 key={model.modelId}
                 className={`border-2 rounded-lg p-4 transition-all duration-300 cursor-pointer
-                  ${isSelected
-                    ? 'border-blue-500 bg-blue-50 shadow-lg'
-                    : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
+                  ${
+                    isSelected
+                      ? 'border-blue-500 bg-blue-50 shadow-lg'
+                      : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
                   }
                   ${recommendation === 'excellent' ? 'ring-2 ring-green-400 ring-opacity-50' : ''}
                 `}
@@ -321,7 +431,9 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-bold text-gray-900">{model.modelName}</h3>
+                      <h3 className="text-lg font-bold text-gray-900">
+                        {model.modelName}
+                      </h3>
                       {recommendation === 'excellent' && (
                         <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full flex items-center gap-1">
                           <TrendingUp className="w-3 h-3" />
@@ -332,7 +444,9 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
                         <CheckCircle className="w-5 h-5 text-blue-600" />
                       )}
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">{model.provider} • {model.version}</p>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {model.provider} • {model.version}
+                    </p>
                   </div>
                 </div>
 
@@ -342,7 +456,9 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
                     <DollarSign className="w-4 h-4 text-gray-500" />
                     <div>
                       <p className="text-xs text-gray-500">Input</p>
-                      <p className="text-sm font-semibold">${model.costPer1MTokensInput}/1M</p>
+                      <p className="text-sm font-semibold">
+                        ${model.costPer1MTokensInput}/1M
+                      </p>
                     </div>
                   </div>
 
@@ -350,7 +466,9 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
                     <DollarSign className="w-4 h-4 text-gray-500" />
                     <div>
                       <p className="text-xs text-gray-500">Output</p>
-                      <p className="text-sm font-semibold">${model.costPer1MTokensOutput}/1M</p>
+                      <p className="text-sm font-semibold">
+                        ${model.costPer1MTokensOutput}/1M
+                      </p>
                     </div>
                   </div>
 
@@ -375,8 +493,12 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
                 {useCase && (
                   <div className="mb-4 p-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700">עלות חודשית משוערת:</span>
-                      <span className="text-2xl font-bold text-purple-700">${monthlyCost}</span>
+                      <span className="text-sm font-medium text-gray-700">
+                        עלות חודשית משוערת:
+                      </span>
+                      <span className="text-2xl font-bold text-purple-700">
+                        ${monthlyCost}
+                      </span>
                     </div>
                     <p className="text-xs text-gray-600 mt-1">
                       בהנחה של ~3000 טוקנים לכל שיחה
@@ -388,7 +510,9 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setShowDetails(showDetails === model.modelId ? null : model.modelId);
+                    setShowDetails(
+                      showDetails === model.modelId ? null : model.modelId
+                    );
                   }}
                   className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
@@ -399,10 +523,15 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
                 {showDetails === model.modelId && (
                   <div className="mt-4 pt-4 border-t border-gray-200 space-y-3">
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2">יתרונות:</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                        יתרונות:
+                      </h4>
                       <ul className="space-y-1">
                         {model.strengths.map((strength, idx) => (
-                          <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
+                          <li
+                            key={idx}
+                            className="text-sm text-gray-600 flex items-start gap-2"
+                          >
                             <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                             {strength}
                           </li>
@@ -411,10 +540,15 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
                     </div>
 
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2">מתאים ל:</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                        מתאים ל:
+                      </h4>
                       <ul className="space-y-1">
                         {model.bestFor.map((use, idx) => (
-                          <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
+                          <li
+                            key={idx}
+                            className="text-sm text-gray-600 flex items-start gap-2"
+                          >
                             <span className="text-blue-500">•</span>
                             {use}
                           </li>
@@ -423,10 +557,15 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
                     </div>
 
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2">מגבלות:</h4>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                        מגבלות:
+                      </h4>
                       <ul className="space-y-1">
                         {model.limitations.map((limitation, idx) => (
-                          <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
+                          <li
+                            key={idx}
+                            className="text-sm text-gray-600 flex items-start gap-2"
+                          >
                             <span className="text-orange-500">•</span>
                             {limitation}
                           </li>
@@ -437,11 +576,15 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
                     <div className="grid grid-cols-2 gap-4 pt-3 border-t border-gray-100">
                       <div>
                         <p className="text-xs text-gray-500">הקשר מקסימלי</p>
-                        <p className="text-sm font-semibold">{model.contextWindow.toLocaleString()} טוקנים</p>
+                        <p className="text-sm font-semibold">
+                          {model.contextWindow.toLocaleString()} טוקנים
+                        </p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500">פלט מקסימלי</p>
-                        <p className="text-sm font-semibold">{model.maxTokens.toLocaleString()} טוקנים</p>
+                        <p className="text-sm font-semibold">
+                          {model.maxTokens.toLocaleString()} טוקנים
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -453,14 +596,20 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
 
         {/* Summary / Comparison Table */}
         <div className="mt-8 pt-6 border-t border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">טבלת השוואה מהירה</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            טבלת השוואה מהירה
+          </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm" dir="rtl">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-right font-semibold">מודל</th>
-                  <th className="px-4 py-3 text-right font-semibold">מחיר Input</th>
-                  <th className="px-4 py-3 text-right font-semibold">מחיר Output</th>
+                  <th className="px-4 py-3 text-right font-semibold">
+                    מחיר Input
+                  </th>
+                  <th className="px-4 py-3 text-right font-semibold">
+                    מחיר Output
+                  </th>
                   <th className="px-4 py-3 text-right font-semibold">עברית</th>
                   <th className="px-4 py-3 text-right font-semibold">מהירות</th>
                   <th className="px-4 py-3 text-right font-semibold">הקשר</th>
@@ -470,11 +619,21 @@ export const AIModelSelector: React.FC<AIModelSelectorProps> = ({ useCase, onSel
                 {AI_MODELS.map((model) => (
                   <tr key={model.modelId} className="hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium">{model.modelName}</td>
-                    <td className="px-4 py-3">${model.costPer1MTokensInput}/1M</td>
-                    <td className="px-4 py-3">${model.costPer1MTokensOutput}/1M</td>
-                    <td className="px-4 py-3">{hebrewSupportBadge(model.hebrewSupport)}</td>
-                    <td className="px-4 py-3">{speedBadge(model.responseSpeed)}</td>
-                    <td className="px-4 py-3">{(model.contextWindow / 1000).toFixed(0)}K</td>
+                    <td className="px-4 py-3">
+                      ${model.costPer1MTokensInput}/1M
+                    </td>
+                    <td className="px-4 py-3">
+                      ${model.costPer1MTokensOutput}/1M
+                    </td>
+                    <td className="px-4 py-3">
+                      {hebrewSupportBadge(model.hebrewSupport)}
+                    </td>
+                    <td className="px-4 py-3">
+                      {speedBadge(model.responseSpeed)}
+                    </td>
+                    <td className="px-4 py-3">
+                      {(model.contextWindow / 1000).toFixed(0)}K
+                    </td>
                   </tr>
                 ))}
               </tbody>

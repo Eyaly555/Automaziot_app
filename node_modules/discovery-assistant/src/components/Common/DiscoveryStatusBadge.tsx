@@ -6,9 +6,12 @@ import {
   Send,
   CheckCircle,
   Rocket,
-  Circle
+  Circle,
 } from 'lucide-react';
-import { DiscoveryStatusValue, getStatusInfo } from '../../services/discoveryStatusService';
+import {
+  DiscoveryStatusValue,
+  getStatusInfo,
+} from '../../services/discoveryStatusService';
 
 interface DiscoveryStatusBadgeProps {
   status: DiscoveryStatusValue;
@@ -33,41 +36,44 @@ const getStatusIcon = (status: DiscoveryStatusValue, size: number) => {
 
 // Status color scheme mapper (Tailwind classes)
 const getStatusColor = (status: DiscoveryStatusValue) => {
-  const colorMap: Record<DiscoveryStatusValue, {
-    bg: string;
-    text: string;
-    border: string;
-    iconColor: string;
-  }> = {
+  const colorMap: Record<
+    DiscoveryStatusValue,
+    {
+      bg: string;
+      text: string;
+      border: string;
+      iconColor: string;
+    }
+  > = {
     discovery_started: {
       bg: 'bg-blue-50',
       text: 'text-blue-700',
       border: 'border-blue-300',
-      iconColor: 'text-blue-600'
+      iconColor: 'text-blue-600',
     },
     proposal: {
       bg: 'bg-purple-50',
       text: 'text-purple-700',
       border: 'border-purple-300',
-      iconColor: 'text-purple-600'
+      iconColor: 'text-purple-600',
     },
     proposal_sent: {
       bg: 'bg-orange-50',
       text: 'text-orange-700',
       border: 'border-orange-300',
-      iconColor: 'text-orange-600'
+      iconColor: 'text-orange-600',
     },
     technical_details_collection: {
       bg: 'bg-teal-50',
       text: 'text-teal-700',
       border: 'border-teal-300',
-      iconColor: 'text-teal-600'
+      iconColor: 'text-teal-600',
     },
     implementation_started: {
       bg: 'bg-green-50',
       text: 'text-green-700',
       border: 'border-green-300',
-      iconColor: 'text-green-600'
+      iconColor: 'text-green-600',
     },
   };
 
@@ -81,20 +87,20 @@ const getSizeConfig = (size: 'sm' | 'md' | 'lg') => {
       padding: 'px-2 py-1',
       text: 'text-xs',
       iconSize: 12,
-      gap: 'gap-1'
+      gap: 'gap-1',
     },
     md: {
       padding: 'px-3 py-1.5',
       text: 'text-sm',
       iconSize: 16,
-      gap: 'gap-2'
+      gap: 'gap-2',
     },
     lg: {
       padding: 'px-4 py-2',
       text: 'text-base',
       iconSize: 20,
-      gap: 'gap-2'
-    }
+      gap: 'gap-2',
+    },
   };
 
   return sizeMap[size];
@@ -105,7 +111,7 @@ export const DiscoveryStatusBadge: React.FC<DiscoveryStatusBadgeProps> = ({
   size = 'md',
   showIcon = true,
   showDescription = false,
-  className = ''
+  className = '',
 }) => {
   const statusInfo = getStatusInfo(status);
   const colors = getStatusColor(status);
@@ -137,7 +143,9 @@ export const DiscoveryStatusBadge: React.FC<DiscoveryStatusBadgeProps> = ({
       </div>
 
       {showDescription && (
-        <p className={`mt-2 text-gray-600 ${size === 'sm' ? 'text-xs' : 'text-sm'}`}>
+        <p
+          className={`mt-2 text-gray-600 ${size === 'sm' ? 'text-xs' : 'text-sm'}`}
+        >
           {statusInfo.description}
         </p>
       )}
@@ -151,16 +159,15 @@ interface DiscoveryStatusProgressProps {
   className?: string;
 }
 
-export const DiscoveryStatusProgress: React.FC<DiscoveryStatusProgressProps> = ({
-  currentStatus,
-  className = ''
-}) => {
+export const DiscoveryStatusProgress: React.FC<
+  DiscoveryStatusProgressProps
+> = ({ currentStatus, className = '' }) => {
   const statuses: DiscoveryStatusValue[] = [
     'discovery_started',
     'proposal',
     'proposal_sent',
     'technical_details_collection',
-    'implementation_started'
+    'implementation_started',
   ];
 
   const currentIndex = statuses.indexOf(currentStatus);

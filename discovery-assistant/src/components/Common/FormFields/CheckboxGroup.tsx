@@ -28,14 +28,18 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
   disabled = false,
   helperText,
   className = '',
-  columns = 1
+  columns = 1,
 }) => {
   // Support both 'value' and 'values' prop names
-  const selectedValues = Array.isArray(value) ? value : Array.isArray(values) ? values : [];
+  const selectedValues = Array.isArray(value)
+    ? value
+    : Array.isArray(values)
+      ? values
+      : [];
 
   const handleToggle = (toggleValue: string) => {
     if (selectedValues.includes(toggleValue)) {
-      onChange(selectedValues.filter(v => v !== toggleValue));
+      onChange(selectedValues.filter((v) => v !== toggleValue));
     } else {
       onChange([...selectedValues, toggleValue]);
     }
@@ -45,21 +49,19 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
     1: 'grid-cols-1',
     2: 'grid-cols-2',
     3: 'grid-cols-3',
-    4: 'grid-cols-4'
+    4: 'grid-cols-4',
   }[columns];
 
   // Check if we're in mobile context by looking for mobile classes or mobile route
-  const isMobile = className.includes('mobile-') || window.location.pathname.includes('/mobile/');
-  
+  const isMobile =
+    className.includes('mobile-') ||
+    window.location.pathname.includes('/mobile/');
+
   if (isMobile) {
     return (
       <div className="mobile-checkbox-group" dir="rtl">
-        {label && (
-          <label className="mobile-question">
-            {label}
-          </label>
-        )}
-        {options.map(option => (
+        {label && <label className="mobile-question">{label}</label>}
+        {options.map((option) => (
           <label
             key={option.value}
             className={`mobile-checkbox-option ${selectedValues.includes(option.value) ? 'selected' : ''}
@@ -74,9 +76,7 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
             <span>{option.label}</span>
           </label>
         ))}
-        {helperText && (
-          <p className="mobile-helper-text">{helperText}</p>
-        )}
+        {helperText && <p className="mobile-helper-text">{helperText}</p>}
       </div>
     );
   }
@@ -89,7 +89,7 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
         </label>
       )}
       <div className={`grid ${gridCols} gap-3`}>
-        {options.map(option => (
+        {options.map((option) => (
           <label
             key={option.value}
             className={`flex items-center space-x-2 space-x-reverse cursor-pointer
@@ -103,10 +103,14 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
                 disabled={disabled}
                 className="sr-only"
               />
-              <div className={`w-5 h-5 border-2 rounded flex items-center justify-center
-                ${selectedValues.includes(option.value)
-                  ? 'bg-primary border-primary'
-                  : 'bg-white border-gray-300'}`}>
+              <div
+                className={`w-5 h-5 border-2 rounded flex items-center justify-center
+                ${
+                  selectedValues.includes(option.value)
+                    ? 'bg-primary border-primary'
+                    : 'bg-white border-gray-300'
+                }`}
+              >
                 {selectedValues.includes(option.value) && (
                   <Check className="w-3 h-3 text-white" />
                 )}
@@ -116,9 +120,7 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
           </label>
         ))}
       </div>
-      {helperText && (
-        <p className="text-sm text-gray-500">{helperText}</p>
-      )}
+      {helperText && <p className="text-sm text-gray-500">{helperText}</p>}
     </div>
   );
 };

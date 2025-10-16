@@ -12,7 +12,7 @@ export const PhaseProgressBar: React.FC<PhaseProgressBarProps> = ({
   isCompleted,
   isSubPhase = false,
   compact = false,
-  animated = true
+  animated = true,
 }) => {
   return (
     <div

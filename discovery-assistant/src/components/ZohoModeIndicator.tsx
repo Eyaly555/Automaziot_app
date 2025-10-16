@@ -11,19 +11,25 @@ export const ZohoModeIndicator: React.FC = () => {
 
   const getSyncIcon = () => {
     switch (syncStatus) {
-      case 'syncing': return '🔄';
-      case 'error': return '⚠️';
-      default: return '✓';
+      case 'syncing':
+        return '🔄';
+      case 'error':
+        return '⚠️';
+      default:
+        return '✓';
     }
   };
 
   const formatSyncTime = (time?: string) => {
     if (!time) return 'לא סונכרן';
     const date = new Date(time);
-    return `${date.toLocaleDateString('he-IL')} ${date.toLocaleTimeString('he-IL', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })}`;
+    return `${date.toLocaleDateString('he-IL')} ${date.toLocaleTimeString(
+      'he-IL',
+      {
+        hour: '2-digit',
+        minute: '2-digit',
+      }
+    )}`;
   };
 
   return (
@@ -33,7 +39,9 @@ export const ZohoModeIndicator: React.FC = () => {
     >
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium">מצב Zoho</span>
-        <span className="text-xs opacity-90">ID: {zoho.recordId.slice(-8)}</span>
+        <span className="text-xs opacity-90">
+          ID: {zoho.recordId.slice(-8)}
+        </span>
       </div>
 
       <div className="h-4 w-px bg-white/30" />

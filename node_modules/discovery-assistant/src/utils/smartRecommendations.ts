@@ -55,28 +55,40 @@ export class SmartRecommendationsEngine {
 
       // Time wastage from manual lead processing
       // Note: timeToProcessLead is at top level of LeadsAndSalesModule, not in leadSources array
-      if (leadData.timeToProcessLead && leadData.leadSources && Array.isArray(leadData.leadSources)) {
-        const totalMonthlyLeads = leadData.leadSources.reduce((sum, source) => sum + (source.volumePerMonth || 0), 0);
-        timeWastage += leadData.timeToProcessLead * totalMonthlyLeads / 60;
+      if (
+        leadData.timeToProcessLead &&
+        leadData.leadSources &&
+        Array.isArray(leadData.leadSources)
+      ) {
+        const totalMonthlyLeads = leadData.leadSources.reduce(
+          (sum, source) => sum + (source.volumePerMonth || 0),
+          0
+        );
+        timeWastage += (leadData.timeToProcessLead * totalMonthlyLeads) / 60;
       }
 
       // Cost of lost leads
       // Note: costPerLostLead and fallingLeadsPerMonth are at top level, not nested
       if (leadData.costPerLostLead && leadData.fallingLeadsPerMonth) {
-        estimatedMonthlySavings += leadData.costPerLostLead *
-                                   leadData.fallingLeadsPerMonth * 0.3; // Assume 30% can be saved
+        estimatedMonthlySavings +=
+          leadData.costPerLostLead * leadData.fallingLeadsPerMonth * 0.3; // Assume 30% can be saved
       }
 
       // Automation opportunities
       // Note: leadSources is an array of LeadSource, check if any source is 'crm'
-      if (leadData.leadSources &&
-          Array.isArray(leadData.leadSources) &&
-          !leadData.leadSources.some(source => source.channel === 'crm')) {
+      if (
+        leadData.leadSources &&
+        Array.isArray(leadData.leadSources) &&
+        !leadData.leadSources.some((source) => source.channel === 'crm')
+      ) {
         automationOpportunities++;
       }
       // Note: FollowUpStrategy doesn't have 'method' property, it has 'channels' array
       // If manual follow-up is being done, channels would be limited or undefined
-      if (leadData.followUp && (!leadData.followUp.channels || leadData.followUp.channels.length === 0)) {
+      if (
+        leadData.followUp &&
+        (!leadData.followUp.channels || leadData.followUp.channels.length === 0)
+      ) {
         automationOpportunities++;
       }
       // Note: LeadsAndSalesModule doesn't have 'qualification' property
@@ -91,39 +103,55 @@ export class SmartRecommendationsEngine {
       const serviceData = modules.customerService;
 
       // Response time impact - calculate average response time across channels
-      if (serviceData.channels && Array.isArray(serviceData.channels) && serviceData.channels.length > 0) {
-        const channelsWithResponseTime = serviceData.channels.filter(ch => {
+      if (
+        serviceData.channels &&
+        Array.isArray(serviceData.channels) &&
+        serviceData.channels.length > 0
+      ) {
+        const channelsWithResponseTime = serviceData.channels.filter((ch) => {
           const time = ch.responseTime;
           return time && typeof time === 'string' && !isNaN(parseInt(time));
         });
 
         if (channelsWithResponseTime.length > 0) {
-          const avgResponseTime = channelsWithResponseTime.reduce((sum, ch) => {
-            const time = parseInt(ch.responseTime || '0');
-            return sum + time;
-          }, 0) / channelsWithResponseTime.length;
+          const avgResponseTime =
+            channelsWithResponseTime.reduce((sum, ch) => {
+              const time = parseInt(ch.responseTime || '0');
+              return sum + time;
+            }, 0) / channelsWithResponseTime.length;
 
           if (avgResponseTime > 60) {
-            const volumePerDay = serviceData.channels.reduce((sum, ch) => sum + (ch.volumePerDay || 0), 0);
-            timeWastage += avgResponseTime * volumePerDay * 22 / 60; // 22 working days
+            const volumePerDay = serviceData.channels.reduce(
+              (sum, ch) => sum + (ch.volumePerDay || 0),
+              0
+            );
+            timeWastage += (avgResponseTime * volumePerDay * 22) / 60; // 22 working days
           }
         }
       }
 
       // FAQ automation potential
-      if (serviceData.autoResponse?.topQuestions && Array.isArray(serviceData.autoResponse.topQuestions)) {
-        const totalFAQVolume = serviceData.autoResponse.topQuestions
-          .reduce((sum, q: FAQ) => sum + (q?.frequencyPerDay || 0), 0);
+      if (
+        serviceData.autoResponse?.topQuestions &&
+        Array.isArray(serviceData.autoResponse.topQuestions)
+      ) {
+        const totalFAQVolume = serviceData.autoResponse.topQuestions.reduce(
+          (sum, q: FAQ) => sum + (q?.frequencyPerDay || 0),
+          0
+        );
 
         if (totalFAQVolume > 50) {
           automationOpportunities++;
-          timeWastage += totalFAQVolume * 5 * 22 / 60; // 5 min per FAQ, 22 days
+          timeWastage += (totalFAQVolume * 5 * 22) / 60; // 5 min per FAQ, 22 days
         }
       }
 
       // Multi-channel inefficiency - check if unificationMethod is missing
       // Note: 'unifiedInbox' is not a property of channels array. Check unificationMethod instead.
-      if (!serviceData.unificationMethod || serviceData.unificationMethod === 'none') {
+      if (
+        !serviceData.unificationMethod ||
+        serviceData.unificationMethod === 'none'
+      ) {
         automationOpportunities++;
       }
     }
@@ -145,9 +173,15 @@ export class SmartRecommendationsEngine {
       }
 
       // Document processing time
-      if (opsData.documentManagement?.flows && Array.isArray(opsData.documentManagement.flows)) {
-        const docTime = opsData.documentManagement.flows
-          .reduce((sum, flow: DocumentFlow) => sum + (flow.volumePerMonth * flow.timePerDocument), 0);
+      if (
+        opsData.documentManagement?.flows &&
+        Array.isArray(opsData.documentManagement.flows)
+      ) {
+        const docTime = opsData.documentManagement.flows.reduce(
+          (sum, flow: DocumentFlow) =>
+            sum + flow.volumePerMonth * flow.timePerDocument,
+          0
+        );
         timeWastage += docTime / 60;
 
         if (docTime > 1000) {
@@ -156,7 +190,10 @@ export class SmartRecommendationsEngine {
       }
 
       // HR inefficiencies
-      if (opsData.hr?.onboardingDuration && opsData.hr.onboardingDuration > 30) {
+      if (
+        opsData.hr?.onboardingDuration &&
+        opsData.hr.onboardingDuration > 30
+      ) {
         automationOpportunities++;
       }
     }
@@ -164,7 +201,8 @@ export class SmartRecommendationsEngine {
     // Calculate scores
     const efficiencyScore = Math.max(0, 100 - (timeWastage / 100) * 10);
     const digitalMaturityScore = this.calculateDigitalMaturity();
-    const riskLevel = totalPainPoints > 15 ? 'high' : totalPainPoints > 8 ? 'medium' : 'low';
+    const riskLevel =
+      totalPainPoints > 15 ? 'high' : totalPainPoints > 8 ? 'medium' : 'low';
     const growthPotential = Math.min(100, automationOpportunities * 8);
     const customerSatisfactionImpact = this.calculateCustomerImpact();
 
@@ -187,36 +225,66 @@ export class SmartRecommendationsEngine {
 
     // Lead management maturity
     // Note: leadSources is an array of LeadSource, not an object with sources property
-    if (modules.leadsAndSales?.leadSources &&
-        Array.isArray(modules.leadsAndSales.leadSources) &&
-        modules.leadsAndSales.leadSources.some(source => source.channel === 'crm')) score += 5;
-    if (modules.leadsAndSales?.leadSources &&
-        Array.isArray(modules.leadsAndSales.leadSources) &&
-        modules.leadsAndSales.leadSources.some(source => source.channel === 'website')) score += 5;
+    if (
+      modules.leadsAndSales?.leadSources &&
+      Array.isArray(modules.leadsAndSales.leadSources) &&
+      modules.leadsAndSales.leadSources.some(
+        (source) => source.channel === 'crm'
+      )
+    )
+      score += 5;
+    if (
+      modules.leadsAndSales?.leadSources &&
+      Array.isArray(modules.leadsAndSales.leadSources) &&
+      modules.leadsAndSales.leadSources.some(
+        (source) => source.channel === 'website'
+      )
+    )
+      score += 5;
     // Note: LeadsAndSalesModule doesn't have 'qualification' property
     // Use leadRouting automation level as alternative indicator
-    if (modules.leadsAndSales?.leadRouting?.method &&
-        Array.isArray(modules.leadsAndSales.leadRouting.method) &&
-        modules.leadsAndSales.leadRouting.method.includes('automated')) score += 10;
+    if (
+      modules.leadsAndSales?.leadRouting?.method &&
+      Array.isArray(modules.leadsAndSales.leadRouting.method) &&
+      modules.leadsAndSales.leadRouting.method.includes('automated')
+    )
+      score += 10;
 
     // Customer service maturity
     // Note: channels is an array, check unificationMethod instead for unified inbox
-    if (modules.customerService?.unificationMethod && modules.customerService.unificationMethod !== 'none') score += 10;
+    if (
+      modules.customerService?.unificationMethod &&
+      modules.customerService.unificationMethod !== 'none'
+    )
+      score += 10;
     // Note: AutoResponse doesn't have 'hasBot' property
     // Use automationPotential as alternative indicator
-    if (modules.customerService?.autoResponse?.automationPotential &&
-        modules.customerService.autoResponse.automationPotential > 50) score += 10;
+    if (
+      modules.customerService?.autoResponse?.automationPotential &&
+      modules.customerService.autoResponse.automationPotential > 50
+    )
+      score += 10;
 
     // Operations maturity
-    if (modules.operations?.documentManagement?.versionControlMethod !== 'none') score += 5;
-    if (modules.operations?.projectManagement?.tools && modules.operations.projectManagement.tools.length > 0) score += 5;
+    if (modules.operations?.documentManagement?.versionControlMethod !== 'none')
+      score += 5;
+    if (
+      modules.operations?.projectManagement?.tools &&
+      modules.operations.projectManagement.tools.length > 0
+    )
+      score += 5;
 
     // AI readiness
-    if (modules.aiAgents?.currentAI && modules.aiAgents.currentAI.length > 0) score += 10;
+    if (modules.aiAgents?.currentAI && modules.aiAgents.currentAI.length > 0)
+      score += 10;
     if (modules.aiAgents?.readinessLevel === 'high') score += 10;
 
     // Systems integration
-    if (modules.systems?.currentSystems && modules.systems.currentSystems.length > 3) score += 5;
+    if (
+      modules.systems?.currentSystems &&
+      modules.systems.currentSystems.length > 3
+    )
+      score += 5;
     if (modules.systems?.integrations?.level === 'full') score += 10;
 
     return Math.min(100, score);
@@ -227,17 +295,24 @@ export class SmartRecommendationsEngine {
     const modules = this.meeting.modules;
 
     // Response time impact - calculate average response time from channels array
-    if (modules.customerService?.channels && Array.isArray(modules.customerService.channels) && modules.customerService.channels.length > 0) {
-      const channelsWithResponseTime = modules.customerService.channels.filter(ch => {
-        const time = ch.responseTime;
-        return time && typeof time === 'string' && !isNaN(parseInt(time));
-      });
+    if (
+      modules.customerService?.channels &&
+      Array.isArray(modules.customerService.channels) &&
+      modules.customerService.channels.length > 0
+    ) {
+      const channelsWithResponseTime = modules.customerService.channels.filter(
+        (ch) => {
+          const time = ch.responseTime;
+          return time && typeof time === 'string' && !isNaN(parseInt(time));
+        }
+      );
 
       if (channelsWithResponseTime.length > 0) {
-        const avgResponseTime = channelsWithResponseTime.reduce((sum, ch) => {
-          const time = parseInt(ch.responseTime || '0');
-          return sum + time;
-        }, 0) / channelsWithResponseTime.length;
+        const avgResponseTime =
+          channelsWithResponseTime.reduce((sum, ch) => {
+            const time = parseInt(ch.responseTime || '0');
+            return sum + time;
+          }, 0) / channelsWithResponseTime.length;
 
         if (avgResponseTime < 30) impact += 20;
         else if (avgResponseTime > 120) impact -= 20;
@@ -246,17 +321,26 @@ export class SmartRecommendationsEngine {
 
     // Service quality
     // Note: channels is an array, check unificationMethod for unified inbox
-    if (modules.customerService?.unificationMethod && modules.customerService.unificationMethod !== 'none') impact += 10;
+    if (
+      modules.customerService?.unificationMethod &&
+      modules.customerService.unificationMethod !== 'none'
+    )
+      impact += 10;
     // Note: AutoResponse doesn't have 'hasBot' property
     // Use automationPotential as alternative indicator
-    if (modules.customerService?.autoResponse?.automationPotential &&
-        modules.customerService.autoResponse.automationPotential > 50) impact += 10;
+    if (
+      modules.customerService?.autoResponse?.automationPotential &&
+      modules.customerService.autoResponse.automationPotential > 50
+    )
+      impact += 10;
 
     // Lead response
     // Note: FollowUpStrategy doesn't have 'firstContactTime' property
     // Use speedToLead.duringBusinessHours as alternative
     if (modules.leadsAndSales?.speedToLead?.duringBusinessHours) {
-      const responseTime = parseInt(modules.leadsAndSales.speedToLead.duringBusinessHours);
+      const responseTime = parseInt(
+        modules.leadsAndSales.speedToLead.duringBusinessHours
+      );
       if (!isNaN(responseTime)) {
         if (responseTime < 60) impact += 15;
         else if (responseTime > 1440) impact -= 15;
@@ -303,9 +387,10 @@ export class SmartRecommendationsEngine {
 
     // CRM implementation
     // Note: leadSources is an array of LeadSource, not an object with sources property
-    const hasCRM = leadData.leadSources &&
-                   Array.isArray(leadData.leadSources) &&
-                   leadData.leadSources.some(source => source.channel === 'crm');
+    const hasCRM =
+      leadData.leadSources &&
+      Array.isArray(leadData.leadSources) &&
+      leadData.leadSources.some((source) => source.channel === 'crm');
 
     if (!hasCRM) {
       this.recommendations.push({
@@ -313,7 +398,8 @@ export class SmartRecommendationsEngine {
         module: 'leadsAndSales',
         priority: 'high',
         title: 'הטמעת מערכת CRM',
-        description: 'מערכת CRM תאפשר ניהול מרכזי של לידים, אוטומציה של תהליכים ומעקב מדויק',
+        description:
+          'מערכת CRM תאפשר ניהול מרכזי של לידים, אוטומציה של תהליכים ומעקב מדויק',
         impact: 'הגדלת שיעור ההמרה ב-25%, חיסכון של 15 שעות שבועיות',
         effort: 'medium',
         estimatedSavings: 15000,
@@ -322,26 +408,28 @@ export class SmartRecommendationsEngine {
           'בחירת מערכת CRM מתאימה (HubSpot, Salesforce, Monday)',
           'הגדרת תהליכי עבודה במערכת',
           'הכשרת צוות המכירות',
-          'חיבור לאתר ולערוצי השיווק'
+          'חיבור לאתר ולערוצי השיווק',
         ],
         relatedPainPoints: ['manual-lead-tracking', 'lost-leads'],
         category: 'efficiency',
-        timeframe: 'short'
+        timeframe: 'short',
       });
     }
 
     // Lead scoring automation
     // Note: LeadsAndSalesModule doesn't have 'qualification' property
     // Check if lead routing is automated instead
-    const hasAutomatedRouting = leadData.leadRouting?.method &&
-                                 Array.isArray(leadData.leadRouting.method) &&
-                                 leadData.leadRouting.method.includes('automated');
+    const hasAutomatedRouting =
+      leadData.leadRouting?.method &&
+      Array.isArray(leadData.leadRouting.method) &&
+      leadData.leadRouting.method.includes('automated');
 
     if (!hasAutomatedRouting) {
       this.recommendations.push({
         id: 'lead-scoring-automation',
         module: 'leadsAndSales',
-        priority: (leadData.fallingLeadsPerMonth ?? 0) > 50 ? 'critical' : 'high',
+        priority:
+          (leadData.fallingLeadsPerMonth ?? 0) > 50 ? 'critical' : 'high',
         title: 'אוטומציה של ניקוד לידים',
         description: 'מערכת ניקוד אוטומטית תעדף לידים איכותיים ותמנע בזבוז זמן',
         impact: 'שיפור יעילות צוות המכירות ב-40%',
@@ -352,19 +440,19 @@ export class SmartRecommendationsEngine {
           'הגדרת קריטריונים לניקוד',
           'יצירת מודל ניקוד במערכת',
           'אוטומציה של הקצאת לידים',
-          'מעקב ואופטימיזציה'
+          'מעקב ואופטימיזציה',
         ],
         relatedPainPoints: ['lead-qualification'],
         category: 'efficiency',
-        timeframe: 'immediate'
+        timeframe: 'immediate',
       });
     }
 
     // Follow-up automation
     // Note: FollowUpStrategy doesn't have 'method' property
     // Check if follow-up channels are limited or missing, indicating manual process
-    const hasAutomatedFollowUp = leadData.followUp?.channels &&
-                                  leadData.followUp.channels.length > 1;
+    const hasAutomatedFollowUp =
+      leadData.followUp?.channels && leadData.followUp.channels.length > 1;
 
     if (leadData.followUp && !hasAutomatedFollowUp) {
       this.recommendations.push({
@@ -381,11 +469,11 @@ export class SmartRecommendationsEngine {
           'יצירת תבניות למיילי מעקב',
           'הגדרת טריגרים וזמנים',
           'חיבור למערכת שליחת SMS',
-          'יצירת רצפים personalized'
+          'יצירת רצפים personalized',
         ],
         relatedPainPoints: ['follow-up-delays'],
         category: 'growth',
-        timeframe: 'immediate'
+        timeframe: 'immediate',
       });
     }
 
@@ -400,18 +488,19 @@ export class SmartRecommendationsEngine {
         description: 'קמפיין ממוקד להחזרת לידים שנשרו מהתהליך',
         impact: `החזרת ${Math.round(leadData.fallingLeadsPerMonth * 0.15)} לידים בחודש`,
         effort: 'medium',
-        estimatedSavings: leadData.costPerLostLead ?
-          leadData.costPerLostLead * leadData.fallingLeadsPerMonth * 0.15 : 3000,
+        estimatedSavings: leadData.costPerLostLead
+          ? leadData.costPerLostLead * leadData.fallingLeadsPerMonth * 0.15
+          : 3000,
         automationPotential: 60,
         implementation: [
           'ניתוח סיבות לנשירה',
           'יצירת הצעות ממוקדות',
           'קמפיין אימייל/SMS להחזרה',
-          'הצעות מיוחדות ללידים חוזרים'
+          'הצעות מיוחדות ללידים חוזרים',
         ],
         relatedPainPoints: ['high-lead-loss'],
         category: 'growth',
-        timeframe: 'short'
+        timeframe: 'short',
       });
     }
   }
@@ -421,52 +510,62 @@ export class SmartRecommendationsEngine {
     if (!serviceData) return;
 
     // Chatbot for FAQs
-    if (serviceData.autoResponse?.topQuestions && Array.isArray(serviceData.autoResponse.topQuestions)) {
-      const faqVolume = serviceData.autoResponse.topQuestions
-        .reduce((sum, q: FAQ) => sum + (q?.frequencyPerDay || 0), 0);
+    if (
+      serviceData.autoResponse?.topQuestions &&
+      Array.isArray(serviceData.autoResponse.topQuestions)
+    ) {
+      const faqVolume = serviceData.autoResponse.topQuestions.reduce(
+        (sum, q: FAQ) => sum + (q?.frequencyPerDay || 0),
+        0
+      );
 
       // Note: AutoResponse doesn't have 'hasBot' property
       // Use automationPotential as indicator - if low or undefined, suggest chatbot
-      const hasBot = serviceData.autoResponse?.automationPotential &&
-                     serviceData.autoResponse.automationPotential > 70;
+      const hasBot =
+        serviceData.autoResponse?.automationPotential &&
+        serviceData.autoResponse.automationPotential > 70;
 
       if (faqVolume > 30 && !hasBot) {
         this.recommendations.push({
           id: 'chatbot-implementation',
           module: 'customerService',
           priority: faqVolume > 100 ? 'critical' : 'high',
-          title: 'הטמעת צ\'אטבוט לשאלות נפוצות',
+          title: "הטמעת צ'אטבוט לשאלות נפוצות",
           description: 'בוט אוטומטי שיענה על השאלות הנפוצות וישחרר את הצוות',
-          impact: `חיסכון של ${Math.round(faqVolume * 5 / 60)} שעות ביום`,
+          impact: `חיסכון של ${Math.round((faqVolume * 5) / 60)} שעות ביום`,
           effort: 'medium',
-          estimatedSavings: faqVolume * 5 * 22 * 50 / 60, // 50 ₪ per hour
+          estimatedSavings: (faqVolume * 5 * 22 * 50) / 60, // 50 ₪ per hour
           automationPotential: 95,
           implementation: [
             'מיפוי כל השאלות הנפוצות',
             'כתיבת תשובות מפורטות',
-            'הטמעת פלטפורמת צ\'אט',
+            "הטמעת פלטפורמת צ'אט",
             'אימון הבוט ובדיקות',
-            'השקה הדרגתית עם backup אנושי'
+            'השקה הדרגתית עם backup אנושי',
           ],
           relatedPainPoints: ['repetitive-questions'],
           category: 'efficiency',
-          timeframe: 'short'
+          timeframe: 'short',
         });
       }
     }
 
     // Unified inbox - check if unificationMethod is missing and multiple channels exist
     // Note: channels is an array, check unificationMethod and channels.length instead
-    if ((!serviceData.unificationMethod || serviceData.unificationMethod === 'none') &&
-        serviceData.channels &&
-        Array.isArray(serviceData.channels) &&
-        serviceData.channels.length > 2) {
+    if (
+      (!serviceData.unificationMethod ||
+        serviceData.unificationMethod === 'none') &&
+      serviceData.channels &&
+      Array.isArray(serviceData.channels) &&
+      serviceData.channels.length > 2
+    ) {
       this.recommendations.push({
         id: 'unified-inbox',
         module: 'customerService',
         priority: 'high',
         title: 'מערכת תיבת דואר מאוחדת',
-        description: 'ריכוז כל הערוצים במקום אחד - אימייל, WhatsApp, פייסבוק, טלפון',
+        description:
+          'ריכוז כל הערוצים במקום אחד - אימייל, WhatsApp, פייסבוק, טלפון',
         impact: 'קיצור זמן תגובה ב-50%, מניעת כפילויות',
         effort: 'medium',
         estimatedSavings: 12000,
@@ -475,26 +574,31 @@ export class SmartRecommendationsEngine {
           'בחירת פלטפורמה (Intercom, Zendesk, Freshdesk)',
           'חיבור כל הערוצים',
           'הגדרת SLA וחוקי ניתוב',
-          'הכשרת הצוות'
+          'הכשרת הצוות',
         ],
         relatedPainPoints: ['channel-fragmentation'],
         category: 'quality',
-        timeframe: 'short'
+        timeframe: 'short',
       });
     }
 
     // Response time improvement - check average response time across channels
-    if (serviceData.channels && Array.isArray(serviceData.channels) && serviceData.channels.length > 0) {
-      const channelsWithResponseTime = serviceData.channels.filter(ch => {
+    if (
+      serviceData.channels &&
+      Array.isArray(serviceData.channels) &&
+      serviceData.channels.length > 0
+    ) {
+      const channelsWithResponseTime = serviceData.channels.filter((ch) => {
         const time = ch.responseTime;
         return time && typeof time === 'string' && !isNaN(parseInt(time));
       });
 
       if (channelsWithResponseTime.length > 0) {
-        const avgResponseTime = channelsWithResponseTime.reduce((sum, ch) => {
-          const time = parseInt(ch.responseTime || '0');
-          return sum + time;
-        }, 0) / channelsWithResponseTime.length;
+        const avgResponseTime =
+          channelsWithResponseTime.reduce((sum, ch) => {
+            const time = parseInt(ch.responseTime || '0');
+            return sum + time;
+          }, 0) / channelsWithResponseTime.length;
 
         if (avgResponseTime > 120) {
           this.recommendations.push({
@@ -511,11 +615,11 @@ export class SmartRecommendationsEngine {
               'הגדרת SLA ברורים',
               'תבניות תגובה מהירה',
               'מערכת התראות לפניות ממתינות',
-              'תעדוף פניות לפי דחיפות'
+              'תעדוף פניות לפי דחיפות',
             ],
             relatedPainPoints: ['slow-response'],
             category: 'quality',
-            timeframe: 'immediate'
+            timeframe: 'immediate',
           });
         }
       }
@@ -523,10 +627,12 @@ export class SmartRecommendationsEngine {
 
     // Sentiment analysis - check if reputation management feedback collection exists
     // Note: CustomerServiceModule doesn't have 'satisfaction' field. Check reputationManagement instead.
-    if (serviceData.reputationManagement &&
-        (!serviceData.reputationManagement.feedbackCollection ||
-         !serviceData.reputationManagement.feedbackCollection.how ||
-         serviceData.reputationManagement.feedbackCollection.how.length === 0)) {
+    if (
+      serviceData.reputationManagement &&
+      (!serviceData.reputationManagement.feedbackCollection ||
+        !serviceData.reputationManagement.feedbackCollection.how ||
+        serviceData.reputationManagement.feedbackCollection.how.length === 0)
+    ) {
       this.recommendations.push({
         id: 'sentiment-tracking',
         module: 'customerService',
@@ -541,11 +647,11 @@ export class SmartRecommendationsEngine {
           'הטמעת סקרי NPS/CSAT',
           'ניתוח סנטימנט אוטומטי',
           'דשבורד מעקב',
-          'תוכנית שיפור מבוססת נתונים'
+          'תוכנית שיפור מבוססת נתונים',
         ],
         relatedPainPoints: ['no-feedback-loop'],
         category: 'quality',
-        timeframe: 'short'
+        timeframe: 'short',
       });
     }
   }
@@ -556,8 +662,9 @@ export class SmartRecommendationsEngine {
 
     // Process automation
     if (opsData.workProcesses?.processes) {
-      const complexProcesses = opsData.workProcesses.processes
-        .filter((p: WorkProcess) => p.stepCount > 10 || p.bottleneck);
+      const complexProcesses = opsData.workProcesses.processes.filter(
+        (p: WorkProcess) => p.stepCount > 10 || p.bottleneck
+      );
 
       if (complexProcesses.length > 0) {
         this.recommendations.push({
@@ -574,18 +681,20 @@ export class SmartRecommendationsEngine {
             'מיפוי מפורט של התהליכים',
             'זיהוי נקודות לאוטומציה',
             'בחירת כלי אוטומציה (Zapier, Make, n8n)',
-            'בנייה והטמעה הדרגתית'
+            'בנייה והטמעה הדרגתית',
           ],
           relatedPainPoints: ['process-bottlenecks'],
           category: 'efficiency',
-          timeframe: 'medium'
+          timeframe: 'medium',
         });
       }
     }
 
     // Document management system
-    if (opsData.documentManagement?.versionControlMethod === 'none' ||
-        opsData.documentManagement?.searchDifficulties) {
+    if (
+      opsData.documentManagement?.versionControlMethod === 'none' ||
+      opsData.documentManagement?.searchDifficulties
+    ) {
       this.recommendations.push({
         id: 'document-management',
         module: 'operations',
@@ -600,11 +709,11 @@ export class SmartRecommendationsEngine {
           'בחירת פלטפורמה (SharePoint, Google Workspace)',
           'הגדרת מבנה תיקיות וקטלוג',
           'העברת מסמכים קיימים',
-          'הגדרת הרשאות וגרסאות'
+          'הגדרת הרשאות וגרסאות',
         ],
         relatedPainPoints: ['document-chaos'],
         category: 'efficiency',
-        timeframe: 'short'
+        timeframe: 'short',
       });
     }
 
@@ -624,20 +733,24 @@ export class SmartRecommendationsEngine {
           'יצירת checklist דיגיטלי',
           'אוטומציה של הרשאות ומערכות',
           'ערכת קליטה דיגיטלית',
-          'מנטור אוטומטי למעקב'
+          'מנטור אוטומטי למעקב',
         ],
         relatedPainPoints: ['lengthy-onboarding'],
         category: 'efficiency',
-        timeframe: 'short'
+        timeframe: 'short',
       });
     }
 
     // Project management tools
-    if (opsData.projectManagement?.deadlineMissRate && opsData.projectManagement.deadlineMissRate > 20) {
+    if (
+      opsData.projectManagement?.deadlineMissRate &&
+      opsData.projectManagement.deadlineMissRate > 20
+    ) {
       this.recommendations.push({
         id: 'project-management-improvement',
         module: 'operations',
-        priority: opsData.projectManagement.deadlineMissRate > 40 ? 'critical' : 'high',
+        priority:
+          opsData.projectManagement.deadlineMissRate > 40 ? 'critical' : 'high',
         title: 'שיפור ניהול פרויקטים',
         description: 'כלים ותהליכים לעמידה בלוחות זמנים',
         impact: 'הפחתת חריגות מלו"ז ב-60%',
@@ -648,11 +761,11 @@ export class SmartRecommendationsEngine {
           'הטמעת כלי ניהול פרויקטים',
           'הגדרת תהליכי תכנון ריאליים',
           'מעקב אוטומטי והתראות',
-          'ניתוח חסמים וצווארי בקבוק'
+          'ניתוח חסמים וצווארי בקבוק',
         ],
         relatedPainPoints: ['deadline-misses'],
         category: 'risk',
-        timeframe: 'short'
+        timeframe: 'short',
       });
     }
   }
@@ -662,7 +775,10 @@ export class SmartRecommendationsEngine {
     if (!aiData) return;
 
     // AI implementation based on readiness
-    if (aiData.readinessLevel === 'high' && (!aiData.currentAI || aiData.currentAI.length === 0)) {
+    if (
+      aiData.readinessLevel === 'high' &&
+      (!aiData.currentAI || aiData.currentAI.length === 0)
+    ) {
       this.recommendations.push({
         id: 'ai-quick-wins',
         module: 'aiAgents',
@@ -674,19 +790,19 @@ export class SmartRecommendationsEngine {
         estimatedSavings: 20000,
         automationPotential: 90,
         implementation: [
-          'צ\'אטבוט לשירות לקוחות',
+          "צ'אטבוט לשירות לקוחות",
           'אוטומציה של מיילים',
           'ניתוח נתונים אוטומטי',
-          'תמלול ותיעוד אוטומטי'
+          'תמלול ותיעוד אוטומטי',
         ],
         relatedPainPoints: ['no-ai-usage'],
         category: 'growth',
-        timeframe: 'immediate'
+        timeframe: 'immediate',
       });
     }
 
     // Specific AI use cases based on pain points
-    if (this.meeting.painPoints?.some(p => p.module === 'customerService')) {
+    if (this.meeting.painPoints?.some((p) => p.module === 'customerService')) {
       this.recommendations.push({
         id: 'ai-customer-service',
         module: 'aiAgents',
@@ -701,19 +817,21 @@ export class SmartRecommendationsEngine {
           'אימון מודל על היסטוריית פניות',
           'יצירת knowledge base',
           'אינטגרציה עם מערכות קיימות',
-          'השקה הדרגתית עם supervision'
+          'השקה הדרגתית עם supervision',
         ],
         relatedPainPoints: ['high-service-volume'],
         category: 'efficiency',
-        timeframe: 'short'
+        timeframe: 'short',
       });
     }
 
     // AI for data analysis - check if dashboards don't exist or are not real-time
     // Note: DashboardConfig doesn't have 'updateFrequency' property, use 'realTime' instead
-    if (this.meeting.modules.reporting?.dashboards &&
-        (!this.meeting.modules.reporting.dashboards.exists ||
-         !this.meeting.modules.reporting.dashboards.realTime)) {
+    if (
+      this.meeting.modules.reporting?.dashboards &&
+      (!this.meeting.modules.reporting.dashboards.exists ||
+        !this.meeting.modules.reporting.dashboards.realTime)
+    ) {
       this.recommendations.push({
         id: 'ai-analytics',
         module: 'aiAgents',
@@ -728,11 +846,11 @@ export class SmartRecommendationsEngine {
           'חיבור למקורות נתונים',
           'הגדרת KPIs ומטריקות',
           'יצירת דשבורדים חכמים',
-          'התראות על חריגות'
+          'התראות על חריגות',
         ],
         relatedPainPoints: ['manual-reporting'],
         category: 'quality',
-        timeframe: 'medium'
+        timeframe: 'medium',
       });
     }
   }
@@ -742,10 +860,12 @@ export class SmartRecommendationsEngine {
     if (!sysData) return;
 
     // Systems integration
-    if (sysData.integrations?.level === 'none' &&
-        sysData.currentSystems &&
-        Array.isArray(sysData.currentSystems) &&
-        sysData.currentSystems.length > 3) {
+    if (
+      sysData.integrations?.level === 'none' &&
+      sysData.currentSystems &&
+      Array.isArray(sysData.currentSystems) &&
+      sysData.currentSystems.length > 3
+    ) {
       this.recommendations.push({
         id: 'systems-integration',
         module: 'systems',
@@ -760,19 +880,21 @@ export class SmartRecommendationsEngine {
           'מיפוי נקודות חיבור נדרשות',
           'בחירת פלטפורמת אינטגרציה',
           'פיתוח חיבורים',
-          'בדיקות וולידציה'
+          'בדיקות וולידציה',
         ],
         relatedPainPoints: ['system-silos'],
         category: 'efficiency',
-        timeframe: 'medium'
+        timeframe: 'medium',
       });
     }
 
     // API development
-    if (sysData.apiAccess === false &&
-        sysData.currentSystems &&
-        Array.isArray(sysData.currentSystems) &&
-        sysData.currentSystems.length > 2) {
+    if (
+      sysData.apiAccess === false &&
+      sysData.currentSystems &&
+      Array.isArray(sysData.currentSystems) &&
+      sysData.currentSystems.length > 2
+    ) {
       this.recommendations.push({
         id: 'api-development',
         module: 'systems',
@@ -787,11 +909,11 @@ export class SmartRecommendationsEngine {
           'הגדרת דרישות API',
           'פיתוח endpoints',
           'תיעוד ממשקים',
-          'אבטחה והרשאות'
+          'אבטחה והרשאות',
         ],
         relatedPainPoints: ['no-api-access'],
         category: 'growth',
-        timeframe: 'long'
+        timeframe: 'long',
       });
     }
   }
@@ -813,11 +935,11 @@ export class SmartRecommendationsEngine {
           'מיפוי תהליכים חוצי ארגון',
           'תכנון ארכיטקטורת אוטומציה',
           'הטמעה בשלבים',
-          'ניטור ואופטימיזציה'
+          'ניטור ואופטימיזציה',
         ],
         relatedPainPoints: ['manual-everything'],
         category: 'growth',
-        timeframe: 'long'
+        timeframe: 'long',
       });
     }
 
@@ -837,16 +959,19 @@ export class SmartRecommendationsEngine {
           'בחירת פלטפורמת DW',
           'ETL מכל המערכות',
           'מודל נתונים אחיד',
-          'כלי BI ודשבורדים'
+          'כלי BI ודשבורדים',
         ],
         relatedPainPoints: ['data-fragmentation'],
         category: 'quality',
-        timeframe: 'long'
+        timeframe: 'long',
       });
     }
 
     // Customer 360 view
-    if (this.meeting.modules.leadsAndSales && this.meeting.modules.customerService) {
+    if (
+      this.meeting.modules.leadsAndSales &&
+      this.meeting.modules.customerService
+    ) {
       this.recommendations.push({
         id: 'customer-360',
         module: 'cross-module',
@@ -861,11 +986,11 @@ export class SmartRecommendationsEngine {
           'איחוד נתוני לקוחות',
           'יצירת פרופיל לקוח מאוחד',
           'ממשק גישה אחיד',
-          'היסטוריה והעדפות'
+          'היסטוריה והעדפות',
         ],
         relatedPainPoints: ['customer-data-silos'],
         category: 'quality',
-        timeframe: 'medium'
+        timeframe: 'medium',
       });
     }
   }
@@ -883,35 +1008,41 @@ export class SmartRecommendationsEngine {
   }
 
   public getQuickWins(): Recommendation[] {
-    return this.recommendations.filter(r =>
-      r.effort === 'low' && r.timeframe === 'immediate'
+    return this.recommendations.filter(
+      (r) => r.effort === 'low' && r.timeframe === 'immediate'
     );
   }
 
   public getHighImpactItems(): Recommendation[] {
-    return this.recommendations.filter(r =>
-      (r.estimatedSavings || 0) > 10000 || (r.automationPotential ?? 0) > 80
+    return this.recommendations.filter(
+      (r) =>
+        (r.estimatedSavings || 0) > 10000 || (r.automationPotential ?? 0) > 80
     );
   }
 
   public getByModule(module: string): Recommendation[] {
-    return this.recommendations.filter(r => r.module === module);
+    return this.recommendations.filter((r) => r.module === module);
   }
 
   public getByCategory(category: string): Recommendation[] {
-    return this.recommendations.filter(r => r.category === category);
+    return this.recommendations.filter((r) => r.category === category);
   }
 
   public getTotalEstimatedSavings(): number {
-    return this.recommendations.reduce((sum, r) => sum + (r.estimatedSavings || 0), 0);
+    return this.recommendations.reduce(
+      (sum, r) => sum + (r.estimatedSavings || 0),
+      0
+    );
   }
 
   public getImplementationRoadmap(): { [key: string]: Recommendation[] } {
     return {
-      immediate: this.recommendations.filter(r => r.timeframe === 'immediate'),
-      short: this.recommendations.filter(r => r.timeframe === 'short'),
-      medium: this.recommendations.filter(r => r.timeframe === 'medium'),
-      long: this.recommendations.filter(r => r.timeframe === 'long'),
+      immediate: this.recommendations.filter(
+        (r) => r.timeframe === 'immediate'
+      ),
+      short: this.recommendations.filter((r) => r.timeframe === 'short'),
+      medium: this.recommendations.filter((r) => r.timeframe === 'medium'),
+      long: this.recommendations.filter((r) => r.timeframe === 'long'),
     };
   }
 
@@ -931,17 +1062,21 @@ export class SmartRecommendationsEngine {
 
       פוטנציאל חיסכון:
       • ₪${savings.toLocaleString()} לחודש
-      • ${Math.round(savings * 12 / 1000)}K ₪ בשנה
+      • ${Math.round((savings * 12) / 1000)}K ₪ בשנה
 
       3 המלצות מובילות:
-      ${topRecs.map((r, i) => `
+      ${topRecs
+        .map(
+          (r, i) => `
       ${i + 1}. ${r.title}
          השפעה: ${r.impact}
          חיסכון: ₪${r.estimatedSavings?.toLocaleString() || 'לא חושב'}
-      `).join('')}
+      `
+        )
+        .join('')}
 
       Quick Wins (${quickWins.length} פעולות):
-      ${quickWins.map(r => `• ${r.title}`).join('\n      ')}
+      ${quickWins.map((r) => `• ${r.title}`).join('\n      ')}
     `;
   }
 }

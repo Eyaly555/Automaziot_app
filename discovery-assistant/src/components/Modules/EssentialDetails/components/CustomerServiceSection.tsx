@@ -5,17 +5,22 @@ import type { EssentialDetailsModule } from '../../../../types';
 
 interface CustomerServiceSectionProps {
   data?: EssentialDetailsModule['customerServiceDetails'];
-  onChange: (data: Partial<EssentialDetailsModule['customerServiceDetails']>) => void;
+  onChange: (
+    data: Partial<EssentialDetailsModule['customerServiceDetails']>
+  ) => void;
 }
 
 export const CustomerServiceSection: React.FC<CustomerServiceSectionProps> = ({
   data = {},
-  onChange
+  onChange,
 }) => {
   const [newCategory, setNewCategory] = useState('');
   const [newIssue, setNewIssue] = useState('');
 
-  const updateField = <K extends keyof typeof data>(field: K, value: typeof data[K]) => {
+  const updateField = <K extends keyof typeof data>(
+    field: K,
+    value: (typeof data)[K]
+  ) => {
     onChange({ [field]: value });
   };
 
@@ -27,7 +32,9 @@ export const CustomerServiceSection: React.FC<CustomerServiceSectionProps> = ({
   };
 
   const removeCategory = (index: number) => {
-    const categories = (data.ticketCategories || []).filter((_, i) => i !== index);
+    const categories = (data.ticketCategories || []).filter(
+      (_, i) => i !== index
+    );
     onChange({ ticketCategories: categories });
   };
 
@@ -62,7 +69,10 @@ export const CustomerServiceSection: React.FC<CustomerServiceSectionProps> = ({
           {(data.ticketCategories || []).length > 0 && (
             <div className="flex flex-wrap gap-2 mb-3">
               {(data.ticketCategories || []).map((category, index) => (
-                <div key={index} className="inline-flex items-center gap-1 bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
+                <div
+                  key={index}
+                  className="inline-flex items-center gap-1 bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm"
+                >
                   <span>{category}</span>
                   <button
                     onClick={() => removeCategory(index)}
@@ -132,7 +142,10 @@ export const CustomerServiceSection: React.FC<CustomerServiceSectionProps> = ({
           {(data.repeatIssues || []).length > 0 && (
             <div className="space-y-2 mb-3">
               {(data.repeatIssues || []).map((issue, index) => (
-                <div key={index} className="flex items-center justify-between bg-red-50 border border-red-200 rounded-lg p-2">
+                <div
+                  key={index}
+                  className="flex items-center justify-between bg-red-50 border border-red-200 rounded-lg p-2"
+                >
                   <span className="text-sm">{issue}</span>
                   <button
                     onClick={() => removeIssue(index)}

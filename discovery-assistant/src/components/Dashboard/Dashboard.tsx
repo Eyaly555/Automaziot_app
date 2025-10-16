@@ -22,7 +22,7 @@ import {
   RotateCcw,
   Database,
   Mic,
-  Smartphone
+  Smartphone,
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { formatTime, formatCurrency, formatDate } from '../../utils/formatters';
@@ -50,16 +50,76 @@ interface ModuleConfig {
 }
 
 const modules: ModuleConfig[] = [
-  { id: 'overview', name: 'סקירה כללית', icon: '1️⃣', subModules: 0, description: 'מידע בסיסי על העסק, תחומי עניין ומקורות לידים' },
-  { id: 'essentialDetails', name: 'איפיון ממוקד', icon: '⭐', subModules: 0, description: 'שאלות ממוקדות בהתאם לתחומי העניין שבחרת' },
-  { id: 'leadsAndSales', name: 'לידים ומכירות', icon: '2️⃣', subModules: 5, description: 'מקורות לידים, תהליך מכירה, זמני תגובה וניהול אפשרויות' },
-  { id: 'customerService', name: 'שירות לקוחות', icon: '3️⃣', subModules: 6, description: 'ערוצי תמיכה, זמני תגובה, אונבורדינג ותקשורת פרואקטיבית' },
-  { id: 'operations', name: 'תפעול פנימי', icon: '4️⃣', subModules: 6, description: 'ניהול מלאי, ספקים, תהליכים ובקרת איכות' },
-  { id: 'reporting', name: 'דוחות והתראות', icon: '5️⃣', subModules: 3, description: 'דוחות נוכחיים, כלי BI, מקורות נתונים ותהליכי החלטה' },
-  { id: 'aiAgents', name: 'סוכני AI', icon: '6️⃣', subModules: 3, description: 'מקרי שימוש ב-AI במכירות, שירות ותפעול' },
-  { id: 'systems', name: 'מערכות וטכנולוגיה', icon: '7️⃣', subModules: 0, description: 'מלאי מערכות נוכחיות, אינטגרציות וצרכים טכנולוגיים' },
-  { id: 'roi', name: 'ROI וכימות', icon: '8️⃣', subModules: 0, description: 'ניתוח עלויות, חיסכון זמן ותחזיות החזר השקעה' },
-  { id: 'planning', name: 'סיכום ותכנון', icon: '9️⃣', subModules: 5, description: 'סיכום ממצאים, המלצות והצעדים הבאים' }
+  {
+    id: 'overview',
+    name: 'סקירה כללית',
+    icon: '1️⃣',
+    subModules: 0,
+    description: 'מידע בסיסי על העסק, תחומי עניין ומקורות לידים',
+  },
+  {
+    id: 'essentialDetails',
+    name: 'איפיון ממוקד',
+    icon: '⭐',
+    subModules: 0,
+    description: 'שאלות ממוקדות בהתאם לתחומי העניין שבחרת',
+  },
+  {
+    id: 'leadsAndSales',
+    name: 'לידים ומכירות',
+    icon: '2️⃣',
+    subModules: 5,
+    description: 'מקורות לידים, תהליך מכירה, זמני תגובה וניהול אפשרויות',
+  },
+  {
+    id: 'customerService',
+    name: 'שירות לקוחות',
+    icon: '3️⃣',
+    subModules: 6,
+    description: 'ערוצי תמיכה, זמני תגובה, אונבורדינג ותקשורת פרואקטיבית',
+  },
+  {
+    id: 'operations',
+    name: 'תפעול פנימי',
+    icon: '4️⃣',
+    subModules: 6,
+    description: 'ניהול מלאי, ספקים, תהליכים ובקרת איכות',
+  },
+  {
+    id: 'reporting',
+    name: 'דוחות והתראות',
+    icon: '5️⃣',
+    subModules: 3,
+    description: 'דוחות נוכחיים, כלי BI, מקורות נתונים ותהליכי החלטה',
+  },
+  {
+    id: 'aiAgents',
+    name: 'סוכני AI',
+    icon: '6️⃣',
+    subModules: 3,
+    description: 'מקרי שימוש ב-AI במכירות, שירות ותפעול',
+  },
+  {
+    id: 'systems',
+    name: 'מערכות וטכנולוגיה',
+    icon: '7️⃣',
+    subModules: 0,
+    description: 'מלאי מערכות נוכחיות, אינטגרציות וצרכים טכנולוגיים',
+  },
+  {
+    id: 'roi',
+    name: 'ROI וכימות',
+    icon: '8️⃣',
+    subModules: 0,
+    description: 'ניתוח עלויות, חיסכון זמן ותחזיות החזר השקעה',
+  },
+  {
+    id: 'planning',
+    name: 'סיכום ותכנון',
+    icon: '9️⃣',
+    subModules: 5,
+    description: 'סיכום ממצאים, המלצות והצעדים הבאים',
+  },
 ];
 
 export const Dashboard: React.FC = () => {
@@ -77,14 +137,15 @@ export const Dashboard: React.FC = () => {
     timerInterval,
     zohoClientsList,
     initializeWizard,
-    syncModulesToWizard
+    syncModulesToWizard,
   } = useMeetingStore();
 
   const [showMeetingSelector, setShowMeetingSelector] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
   const [showRestoreBackupMenu, setShowRestoreBackupMenu] = useState(false);
-  const [showConversationAnalyzer, setShowConversationAnalyzer] = useState(false);
+  const [showConversationAnalyzer, setShowConversationAnalyzer] =
+    useState(false);
   const [showConversationSummary, setShowConversationSummary] = useState(false);
 
   const moduleProgress = getModuleProgress();
@@ -146,11 +207,18 @@ export const Dashboard: React.FC = () => {
 
     // Title
     pdf.setFontSize(24);
-    pdf.text(currentMeeting.clientName, pageWidth - 20, yPosition, { align: 'right' });
+    pdf.text(currentMeeting.clientName, pageWidth - 20, yPosition, {
+      align: 'right',
+    });
     yPosition += 10;
 
     pdf.setFontSize(12);
-    pdf.text(`Date: ${formatDate(currentMeeting.date)}`, pageWidth - 20, yPosition, { align: 'right' });
+    pdf.text(
+      `Date: ${formatDate(currentMeeting.date)}`,
+      pageWidth - 20,
+      yPosition,
+      { align: 'right' }
+    );
     yPosition += 10;
 
     // Summary
@@ -159,17 +227,28 @@ export const Dashboard: React.FC = () => {
     yPosition += 8;
 
     pdf.setFontSize(11);
-    pdf.text(`Progress: ${overallProgress}%`, pageWidth - 20, yPosition, { align: 'right' });
+    pdf.text(`Progress: ${overallProgress}%`, pageWidth - 20, yPosition, {
+      align: 'right',
+    });
     yPosition += 6;
-    pdf.text(`Pain Points: ${painPoints.length}`, pageWidth - 20, yPosition, { align: 'right' });
+    pdf.text(`Pain Points: ${painPoints.length}`, pageWidth - 20, yPosition, {
+      align: 'right',
+    });
     yPosition += 6;
-    pdf.text(`ROI Potential: ${formatCurrency(roi?.totalMonthlySavings || 0)}/month`, pageWidth - 20, yPosition, { align: 'right' });
+    pdf.text(
+      `ROI Potential: ${formatCurrency(roi?.totalMonthlySavings || 0)}/month`,
+      pageWidth - 20,
+      yPosition,
+      { align: 'right' }
+    );
     yPosition += 10;
 
     // Pain Points
     if (painPoints.length > 0) {
       pdf.setFontSize(14);
-      pdf.text('Pain Points Identified', pageWidth - 20, yPosition, { align: 'right' });
+      pdf.text('Pain Points Identified', pageWidth - 20, yPosition, {
+        align: 'right',
+      });
       yPosition += 8;
 
       pdf.setFontSize(10);
@@ -178,7 +257,12 @@ export const Dashboard: React.FC = () => {
           pdf.addPage();
           yPosition = 20;
         }
-        pdf.text(`${index + 1}. ${point.module}: ${point.description}`, pageWidth - 20, yPosition, { align: 'right' });
+        pdf.text(
+          `${index + 1}. ${point.module}: ${point.description}`,
+          pageWidth - 20,
+          yPosition,
+          { align: 'right' }
+        );
         yPosition += 6;
       });
     }
@@ -197,13 +281,20 @@ export const Dashboard: React.FC = () => {
       pdf.setFontSize(10);
       Object.entries(roi.breakdown).forEach(([key, value]) => {
         if (value > 0) {
-          pdf.text(`${key}: ${formatCurrency(value)}/month`, pageWidth - 20, yPosition, { align: 'right' });
+          pdf.text(
+            `${key}: ${formatCurrency(value)}/month`,
+            pageWidth - 20,
+            yPosition,
+            { align: 'right' }
+          );
           yPosition += 6;
         }
       });
     }
 
-    pdf.save(`discovery-${currentMeeting.clientName}-${new Date().toISOString().split('T')[0]}.pdf`);
+    pdf.save(
+      `discovery-${currentMeeting.clientName}-${new Date().toISOString().split('T')[0]}.pdf`
+    );
   };
 
   return (
@@ -219,7 +310,13 @@ export const Dashboard: React.FC = () => {
                 style={{
                   left: `${Math.random() * 100}%`,
                   animationDelay: `${Math.random() * 3}s`,
-                  backgroundColor: ['#60A5FA', '#34D399', '#FBBF24', '#F87171', '#A78BFA'][Math.floor(Math.random() * 5)]
+                  backgroundColor: [
+                    '#60A5FA',
+                    '#34D399',
+                    '#FBBF24',
+                    '#F87171',
+                    '#A78BFA',
+                  ][Math.floor(Math.random() * 5)],
                 }}
               />
             ))}
@@ -242,11 +339,15 @@ export const Dashboard: React.FC = () => {
                 <>
                   <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-lg">
                     <Building2 className="w-5 h-5 text-blue-600" />
-                    <span className="font-semibold text-blue-900">{currentMeeting.clientName}</span>
+                    <span className="font-semibold text-blue-900">
+                      {currentMeeting.clientName}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-600">
                     <Calendar className="w-4 h-4" />
-                    <span className="text-sm">{formatDate(currentMeeting.date)}</span>
+                    <span className="text-sm">
+                      {formatDate(currentMeeting.date)}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Timer className="w-4 h-4 text-gray-600" />
@@ -254,16 +355,24 @@ export const Dashboard: React.FC = () => {
                       {formatTime(currentMeeting.timer || 0)}
                     </span>
                     <button
-                      onClick={() => timerInterval ? stopTimer() : startTimer()}
+                      onClick={() =>
+                        timerInterval ? stopTimer() : startTimer()
+                      }
                       className="p-2 hover:bg-gray-100 rounded-lg transition-all duration-200 hover:scale-110"
                       title={timerInterval ? 'עצור טיימר' : 'התחל טיימר'}
                     >
-                      {timerInterval ? <Pause className="w-4 h-4 text-red-500" /> : <Play className="w-4 h-4 text-green-500" />}
+                      {timerInterval ? (
+                        <Pause className="w-4 h-4 text-red-500" />
+                      ) : (
+                        <Play className="w-4 h-4 text-green-500" />
+                      )}
                     </button>
                   </div>
                 </>
               ) : (
-                <div className="text-lg font-semibold text-gray-700">Discovery Assistant</div>
+                <div className="text-lg font-semibold text-gray-700">
+                  Discovery Assistant
+                </div>
               )}
             </div>
 
@@ -281,7 +390,7 @@ export const Dashboard: React.FC = () => {
                   >
                     גרסת מובייל
                   </Button>
-                  
+
                   {/* Conversation Analyzer Button */}
                   <Button
                     onClick={() => setShowConversationAnalyzer(true)}
@@ -362,7 +471,11 @@ export const Dashboard: React.FC = () => {
               >
                 כל הלקוחות
                 {zohoClientsList.length > 0 && (
-                  <Badge variant="primary" size="sm" className="bg-indigo-800 border-indigo-900 mr-1">
+                  <Badge
+                    variant="primary"
+                    size="sm"
+                    className="bg-indigo-800 border-indigo-900 mr-1"
+                  >
                     {zohoClientsList.length}
                   </Badge>
                 )}
@@ -374,17 +487,25 @@ export const Dashboard: React.FC = () => {
 
       {/* Meeting Selector Modal */}
       {showMeetingSelector && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowMeetingSelector(false)}>
-          <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full mx-4 max-h-[70vh] overflow-y-auto animate-slideUp" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={() => setShowMeetingSelector(false)}
+        >
+          <div
+            className="bg-white rounded-lg shadow-2xl max-w-2xl w-full mx-4 max-h-[70vh] overflow-y-auto animate-slideUp"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-xl font-semibold">בחר פגישה</h2>
             </div>
             <div className="p-6">
               {meetings.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">אין פגישות שמורות</p>
+                <p className="text-gray-500 text-center py-8">
+                  אין פגישות שמורות
+                </p>
               ) : (
                 <div className="space-y-3">
-                  {meetings.map(meeting => (
+                  {meetings.map((meeting) => (
                     <div
                       key={meeting.meetingId}
                       onClick={() => handleLoadMeeting(meeting.meetingId)}
@@ -392,11 +513,17 @@ export const Dashboard: React.FC = () => {
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <h3 className="font-semibold group-hover:text-primary transition-colors">{meeting.clientName}</h3>
-                          <p className="text-sm text-gray-600">{formatDate(meeting.date)}</p>
+                          <h3 className="font-semibold group-hover:text-primary transition-colors">
+                            {meeting.clientName}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {formatDate(meeting.date)}
+                          </p>
                         </div>
                         <button
-                          onClick={(e) => handleDeleteMeeting(meeting.meetingId, e)}
+                          onClick={(e) =>
+                            handleDeleteMeeting(meeting.meetingId, e)
+                          }
                           className="p-2 text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200"
                         >
                           <X className="w-4 h-4" />
@@ -426,7 +553,8 @@ export const Dashboard: React.FC = () => {
                     📋 ממתין לאישור לקוח
                   </h3>
                   <p className="text-base text-orange-800 mb-4">
-                    הצעת המחיר נשלחה ללקוח. יש לסמן אילו שירותים הלקוח החליט לרכוש ולאשר את המעבר לשלב מפרט היישום.
+                    הצעת המחיר נשלחה ללקוח. יש לסמן אילו שירותים הלקוח החליט
+                    לרכוש ולאשר את המעבר לשלב מפרט היישום.
                   </p>
                   <button
                     onClick={() => navigate('/approval')}
@@ -455,9 +583,12 @@ export const Dashboard: React.FC = () => {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-blue-900 mb-1">
-                    {currentMeeting.phase === 'implementation_spec' && 'שלב מפרט יישום - תצוגת קריאה בלבד'}
-                    {currentMeeting.phase === 'development' && 'Development Phase - Discovery View Only'}
-                    {currentMeeting.phase === 'completed' && 'פרויקט הושלם - תצוגת קריאה בלבד'}
+                    {currentMeeting.phase === 'implementation_spec' &&
+                      'שלב מפרט יישום - תצוגת קריאה בלבד'}
+                    {currentMeeting.phase === 'development' &&
+                      'Development Phase - Discovery View Only'}
+                    {currentMeeting.phase === 'completed' &&
+                      'פרויקט הושלם - תצוגת קריאה בלבד'}
                   </h3>
                   <p className="text-sm text-blue-700">
                     {currentMeeting.phase === 'implementation_spec' && (
@@ -484,7 +615,8 @@ export const Dashboard: React.FC = () => {
                         to continue work.
                       </>
                     )}
-                    {currentMeeting.phase === 'completed' && 'הפרויקט הושלם. נתוני הגילוי זמינים לצפייה בלבד.'}
+                    {currentMeeting.phase === 'completed' &&
+                      'הפרויקט הושלם. נתוני הגילוי זמינים לצפייה בלבד.'}
                   </p>
                 </div>
                 <div className="flex-shrink-0">
@@ -497,38 +629,73 @@ export const Dashboard: React.FC = () => {
           {/* Progress Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {/* Overall Progress */}
-            <Card variant="elevated" padding="md" hoverable className="transform hover:-translate-y-1 transition-all duration-300">
+            <Card
+              variant="elevated"
+              padding="md"
+              hoverable
+              className="transform hover:-translate-y-1 transition-all duration-300"
+            >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-700">התקדמות כללית</h3>
+                <h3 className="text-lg font-semibold text-gray-700">
+                  התקדמות כללית
+                </h3>
                 <TrendingUp className="w-6 h-6 text-blue-500" />
               </div>
               <div className="relative mb-2">
-                <ProgressBar value={overallProgress} showPercentage={false} size="md" animated />
+                <ProgressBar
+                  value={overallProgress}
+                  showPercentage={false}
+                  size="md"
+                  animated
+                />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-sm font-bold text-white drop-shadow-lg">{overallProgress}%</span>
+                  <span className="text-sm font-bold text-white drop-shadow-lg">
+                    {overallProgress}%
+                  </span>
                 </div>
               </div>
               <p className="text-sm text-gray-600">
-                {moduleProgress.filter(m => m.completed === m.total && m.total > 0).length} מתוך {modules.length} מודולים הושלמו
+                {
+                  moduleProgress.filter(
+                    (m) => m.completed === m.total && m.total > 0
+                  ).length
+                }{' '}
+                מתוך {modules.length} מודולים הושלמו
               </p>
             </Card>
 
             {/* Pain Points */}
-            <Card variant="elevated" padding="md" hoverable className="transform hover:-translate-y-1 transition-all duration-300">
+            <Card
+              variant="elevated"
+              padding="md"
+              hoverable
+              className="transform hover:-translate-y-1 transition-all duration-300"
+            >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-700">כאבים שזוהו</h3>
+                <h3 className="text-lg font-semibold text-gray-700">
+                  כאבים שזוהו
+                </h3>
                 <AlertCircle className="w-6 h-6 text-orange-500" />
               </div>
-              <div className="text-3xl font-bold text-orange-600 mb-2">{painPoints.length}</div>
+              <div className="text-3xl font-bold text-orange-600 mb-2">
+                {painPoints.length}
+              </div>
               <p className="text-sm text-gray-600">
                 נקודות כאב הדורשות התייחסות
               </p>
             </Card>
 
             {/* ROI Potential */}
-            <Card variant="elevated" padding="md" hoverable className="transform hover:-translate-y-1 transition-all duration-300">
+            <Card
+              variant="elevated"
+              padding="md"
+              hoverable
+              className="transform hover:-translate-y-1 transition-all duration-300"
+            >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-700">פוטנציאל ROI</h3>
+                <h3 className="text-lg font-semibold text-gray-700">
+                  פוטנציאל ROI
+                </h3>
                 <Sparkles className="w-6 h-6 text-green-500" />
               </div>
               <div className="text-3xl font-bold text-green-600 mb-2">
@@ -550,104 +717,145 @@ export const Dashboard: React.FC = () => {
           </div>
 
           {/* Phase 5: Smart Recommendations */}
-          {currentMeeting && overallProgress > 30 && (() => {
-            const recommendations = getSmartRecommendations(currentMeeting);
-            const topRecommendations = recommendations.slice(0, 3);
+          {currentMeeting &&
+            overallProgress > 30 &&
+            (() => {
+              const recommendations = getSmartRecommendations(currentMeeting);
+              const topRecommendations = recommendations.slice(0, 3);
 
-            return topRecommendations.length > 0 ? (
-              <div className="mb-8">
-                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 shadow-md">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <Sparkles className="w-6 h-6 text-purple-600" />
-                      <h3 className="text-xl font-bold text-gray-900">המלצות אוטומציה חכמות</h3>
-                    </div>
-                    <span className="text-sm text-purple-700 font-medium">
-                      {recommendations.length} הזדמנויות זוהו
-                    </span>
-                  </div>
-
-                  <div className="space-y-3">
-                    {topRecommendations.map((rec, index) => (
-                      <Card key={index} variant="default" padding="md" hoverable>
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Badge
-                                variant={
-                                  rec.priority >= 8 ? 'danger' :
-                                  rec.priority >= 6 ? 'warning' :
-                                  rec.priority >= 4 ? 'info' :
-                                  'success'
-                                }
-                                size="sm"
-                              >
-                                {rec.priority >= 8 ? 'קריטי' : rec.priority >= 6 ? 'גבוה' : rec.priority >= 4 ? 'בינוני' : 'נמוך'}
-                              </Badge>
-                              <Badge
-                                variant={
-                                  rec.quickWin ? 'success' :
-                                  rec.category === 'integration' ? 'primary' :
-                                  rec.category === 'automation' ? 'info' :
-                                  'gray'
-                                }
-                                size="sm"
-                              >
-                                {rec.quickWin && '⚡ Quick Win'}
-                                {rec.category === 'integration' && '🔗 אינטגרציה'}
-                                {rec.category === 'automation' && '🤖 אוטומציה'}
-                                {rec.category === 'ai_agent' && '🧠 AI Agent'}
-                                {rec.category === 'process_improvement' && '📈 שיפור תהליכים'}
-                              </Badge>
-                            </div>
-
-                            <h4 className="font-semibold text-gray-900 mb-1">{rec.title}</h4>
-                            <p className="text-sm text-gray-600 mb-2">{rec.description || 'לא זמין תיאור'}</p>
-
-                            <div className="flex flex-wrap gap-2 text-xs">
-                              {rec.estimatedTimeSavings && (
-                                <span className="text-green-600">⏱️ {rec.estimatedTimeSavings}</span>
-                              )}
-                              {rec.estimatedCostSavings && (
-                                <span className="text-blue-600">💰 {rec.estimatedCostSavings}</span>
-                              )}
-                              {rec.suggestedTools && rec.suggestedTools.length > 0 && (
-                                <span className="text-purple-600">🛠️ {rec.suggestedTools.join(', ')}</span>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="text-2xl">{index + 1}</div>
-                        </div>
-                      </Card>
-                    ))}
-
-                    {recommendations.length > 3 && (
-                      <div className="text-center pt-2">
-                        <button
-                          onClick={() => navigate('/module/planning')}
-                          className="text-sm text-purple-700 hover:text-purple-900 font-medium"
-                        >
-                          צפה בכל {recommendations.length} ההמלצות ←
-                        </button>
+              return topRecommendations.length > 0 ? (
+                <div className="mb-8">
+                  <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 shadow-md">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <Sparkles className="w-6 h-6 text-purple-600" />
+                        <h3 className="text-xl font-bold text-gray-900">
+                          המלצות אוטומציה חכמות
+                        </h3>
                       </div>
-                    )}
+                      <span className="text-sm text-purple-700 font-medium">
+                        {recommendations.length} הזדמנויות זוהו
+                      </span>
+                    </div>
+
+                    <div className="space-y-3">
+                      {topRecommendations.map((rec, index) => (
+                        <Card
+                          key={index}
+                          variant="default"
+                          padding="md"
+                          hoverable
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Badge
+                                  variant={
+                                    rec.priority >= 8
+                                      ? 'danger'
+                                      : rec.priority >= 6
+                                        ? 'warning'
+                                        : rec.priority >= 4
+                                          ? 'info'
+                                          : 'success'
+                                  }
+                                  size="sm"
+                                >
+                                  {rec.priority >= 8
+                                    ? 'קריטי'
+                                    : rec.priority >= 6
+                                      ? 'גבוה'
+                                      : rec.priority >= 4
+                                        ? 'בינוני'
+                                        : 'נמוך'}
+                                </Badge>
+                                <Badge
+                                  variant={
+                                    rec.quickWin
+                                      ? 'success'
+                                      : rec.category === 'integration'
+                                        ? 'primary'
+                                        : rec.category === 'automation'
+                                          ? 'info'
+                                          : 'gray'
+                                  }
+                                  size="sm"
+                                >
+                                  {rec.quickWin && '⚡ Quick Win'}
+                                  {rec.category === 'integration' &&
+                                    '🔗 אינטגרציה'}
+                                  {rec.category === 'automation' &&
+                                    '🤖 אוטומציה'}
+                                  {rec.category === 'ai_agent' && '🧠 AI Agent'}
+                                  {rec.category === 'process_improvement' &&
+                                    '📈 שיפור תהליכים'}
+                                </Badge>
+                              </div>
+
+                              <h4 className="font-semibold text-gray-900 mb-1">
+                                {rec.title}
+                              </h4>
+                              <p className="text-sm text-gray-600 mb-2">
+                                {rec.description || 'לא זמין תיאור'}
+                              </p>
+
+                              <div className="flex flex-wrap gap-2 text-xs">
+                                {rec.estimatedTimeSavings && (
+                                  <span className="text-green-600">
+                                    ⏱️ {rec.estimatedTimeSavings}
+                                  </span>
+                                )}
+                                {rec.estimatedCostSavings && (
+                                  <span className="text-blue-600">
+                                    💰 {rec.estimatedCostSavings}
+                                  </span>
+                                )}
+                                {rec.suggestedTools &&
+                                  rec.suggestedTools.length > 0 && (
+                                    <span className="text-purple-600">
+                                      🛠️ {rec.suggestedTools.join(', ')}
+                                    </span>
+                                  )}
+                              </div>
+                            </div>
+
+                            <div className="text-2xl">{index + 1}</div>
+                          </div>
+                        </Card>
+                      ))}
+
+                      {recommendations.length > 3 && (
+                        <div className="text-center pt-2">
+                          <button
+                            onClick={() => navigate('/module/planning')}
+                            className="text-sm text-purple-700 hover:text-purple-900 font-medium"
+                          >
+                            צפה בכל {recommendations.length} ההמלצות ←
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ) : null;
-          })()}
+              ) : null;
+            })()}
 
           {/* Wizard Mode Section */}
           <div className="mb-8">
-            <Card variant="highlighted" padding="lg" className="bg-gradient-to-r from-blue-50 to-indigo-50 hover:shadow-lg transition-all duration-300">
+            <Card
+              variant="highlighted"
+              padding="lg"
+              className="bg-gradient-to-r from-blue-50 to-indigo-50 hover:shadow-lg transition-all duration-300"
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-white rounded-full shadow-sm">
                     <Wand2 className="w-8 h-8 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-800">מצב אשף מודרך</h3>
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      מצב אשף מודרך
+                    </h3>
                     <p className="text-sm text-gray-600 mt-1">
                       עבור על כל המודולים בממשק אחד מודרך, צעד אחר צעד
                     </p>
@@ -664,17 +872,25 @@ export const Dashboard: React.FC = () => {
                 </Button>
               </div>
               <div className="mt-4 flex flex-wrap gap-2 text-xs">
-                <Badge variant="gray" size="sm" className="bg-white">✓ ניווט קל בין שלבים</Badge>
-                <Badge variant="gray" size="sm" className="bg-white">✓ דילוג על סעיפים אופציונליים</Badge>
-                <Badge variant="gray" size="sm" className="bg-white">✓ סיכום מלא בסוף</Badge>
-                <Badge variant="gray" size="sm" className="bg-white">✓ סנכרון אוטומטי עם המודולים</Badge>
+                <Badge variant="gray" size="sm" className="bg-white">
+                  ✓ ניווט קל בין שלבים
+                </Badge>
+                <Badge variant="gray" size="sm" className="bg-white">
+                  ✓ דילוג על סעיפים אופציונליים
+                </Badge>
+                <Badge variant="gray" size="sm" className="bg-white">
+                  ✓ סיכום מלא בסוף
+                </Badge>
+                <Badge variant="gray" size="sm" className="bg-white">
+                  ✓ סנכרון אוטומטי עם המודולים
+                </Badge>
               </div>
             </Card>
           </div>
 
           {/* Modules Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {modules.map(module => (
+            {modules.map((module) => (
               <ModuleProgressCard
                 key={module.id}
                 moduleId={module.id}
@@ -688,16 +904,21 @@ export const Dashboard: React.FC = () => {
 
           {/* Quick Actions */}
           {overallProgress === 100 && (
-            <Card variant="default" padding="lg" className="mt-8 bg-green-50 text-center animate-slideUp">
+            <Card
+              variant="default"
+              padding="lg"
+              className="mt-8 bg-green-50 text-center animate-slideUp"
+            >
               <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
-              <h3 className="text-xl font-semibold text-green-800 mb-2">מצוין! הערכת Discovery הושלמה</h3>
-              <p className="text-green-700 mb-4">כל המודולים מולאו בהצלחה. כעת ניתן לייצא את הנתונים ולהכין הצעת פתרון.</p>
+              <h3 className="text-xl font-semibold text-green-800 mb-2">
+                מצוין! הערכת Discovery הושלמה
+              </h3>
+              <p className="text-green-700 mb-4">
+                כל המודולים מולאו בהצלחה. כעת ניתן לייצא את הנתונים ולהכין הצעת
+                פתרון.
+              </p>
               <div className="flex gap-3 justify-center">
-                <Button
-                  onClick={handleExportPDF}
-                  variant="success"
-                  size="lg"
-                >
+                <Button onClick={handleExportPDF} variant="success" size="lg">
                   ייצא דוח PDF
                 </Button>
                 <Button
@@ -719,7 +940,9 @@ export const Dashboard: React.FC = () => {
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-2xl mx-auto text-center">
             <Card variant="elevated" padding="lg" className="shadow-lg">
-              <h1 className="text-3xl font-bold mb-4 text-gray-800">ברוכים הבאים ל-Discovery Assistant</h1>
+              <h1 className="text-3xl font-bold mb-4 text-gray-800">
+                ברוכים הבאים ל-Discovery Assistant
+              </h1>
               <p className="text-lg text-gray-600 mb-8">
                 כלי מקצועי לביצוע פגישות Discovery ואיתור הזדמנויות לאוטומציה
               </p>

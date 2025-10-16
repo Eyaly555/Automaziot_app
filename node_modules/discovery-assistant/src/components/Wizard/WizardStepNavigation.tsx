@@ -50,11 +50,12 @@ export const WizardStepNavigation: React.FC = () => {
                   disabled={!isClickable}
                   className={`
                     relative flex items-center gap-2 px-3 py-2 rounded-lg transition-all
-                    ${isCurrent
-                      ? 'bg-blue-100 text-blue-700 shadow-sm'
-                      : isCompleted
-                      ? 'bg-green-50 text-green-700 hover:bg-green-100 cursor-pointer'
-                      : 'text-gray-400 bg-gray-50 cursor-not-allowed'
+                    ${
+                      isCurrent
+                        ? 'bg-blue-100 text-blue-700 shadow-sm'
+                        : isCompleted
+                          ? 'bg-green-50 text-green-700 hover:bg-green-100 cursor-pointer'
+                          : 'text-gray-400 bg-gray-50 cursor-not-allowed'
                     }
                     ${isClickable ? 'hover:shadow-md' : ''}
                   `}
@@ -62,16 +63,19 @@ export const WizardStepNavigation: React.FC = () => {
                   aria-current={isCurrent ? 'step' : undefined}
                 >
                   {/* Step Number/Check Circle */}
-                  <div className={`
+                  <div
+                    className={`
                     w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold
                     transition-all duration-200
-                    ${isCurrent
-                      ? 'bg-blue-600 text-white shadow-md'
-                      : isCompleted
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-300 text-gray-500'
+                    ${
+                      isCurrent
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : isCompleted
+                          ? 'bg-green-600 text-white'
+                          : 'bg-gray-300 text-gray-500'
                     }
-                  `}>
+                  `}
+                  >
                     {isCompleted ? (
                       <Check className="w-4 h-4" strokeWidth={3} />
                     ) : (
@@ -95,7 +99,7 @@ export const WizardStepNavigation: React.FC = () => {
                       transition={{
                         type: 'spring',
                         stiffness: 300,
-                        damping: 30
+                        damping: 30,
                       }}
                     />
                   )}

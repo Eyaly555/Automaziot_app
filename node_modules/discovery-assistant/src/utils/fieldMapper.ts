@@ -1,16 +1,16 @@
 /**
  * Field Mapper Utility
- * 
+ *
  * Handles cross-phase field mapping, value extraction, and data pre-population.
  * Connects Phase 1 → Phase 2 → Phase 3 data flows.
  */
 
 import { Meeting } from '../types';
-import { 
-  RegistryField, 
-  FieldLocation, 
-  FieldConflict, 
-  PrePopulationResult
+import {
+  RegistryField,
+  FieldLocation,
+  FieldConflict,
+  PrePopulationResult,
 } from '../types/fieldRegistry';
 import { getFieldById, FIELD_REGISTRY } from '../config/fieldRegistry';
 
@@ -53,7 +53,10 @@ export function extractFieldValue(
     // Simple path extraction
     return get(meeting, location.path);
   } catch (error) {
-    console.warn(`[FieldMapper] Failed to extract value from path: ${location.path}`, error);
+    console.warn(
+      `[FieldMapper] Failed to extract value from path: ${location.path}`,
+      error
+    );
     return undefined;
   }
 }
@@ -64,7 +67,7 @@ export function extractFieldValue(
  */
 function extractFromArrayPath(meeting: Meeting, path: string): any {
   const parts = path.split('[]');
-  
+
   if (parts.length === 1) {
     return get(meeting, path);
   }
@@ -78,7 +81,9 @@ function extractFromArrayPath(meeting: Meeting, path: string): any {
   }
 
   // Get property from array items
-  const propertyPath = parts[1].startsWith('.') ? parts[1].substring(1) : parts[1];
+  const propertyPath = parts[1].startsWith('.')
+    ? parts[1].substring(1)
+    : parts[1];
 
   if (!propertyPath) {
     // Return the array itself
@@ -87,15 +92,15 @@ function extractFromArrayPath(meeting: Meeting, path: string): any {
 
   // Extract property from each item
   const values = array
-    .map(item => get(item, propertyPath))
-    .filter(val => val !== undefined && val !== null && val !== '');
+    .map((item) => get(item, propertyPath))
+    .filter((val) => val !== undefined && val !== null && val !== '');
 
   // Return first value for single-value fields, or sum for numbers
   if (values.length === 0) return undefined;
   if (values.length === 1) return values[0];
 
   // If all values are numbers, return sum (useful for volume calculations)
-  if (values.every(v => typeof v === 'number')) {
+  if (values.every((v) => typeof v === 'number')) {
     return values.reduce((sum, val) => sum + val, 0);
   }
 
@@ -117,7 +122,9 @@ export function setFieldValue(
 
     // Handle array paths
     if (location.path.includes('[]')) {
-      console.warn(`[FieldMapper] Cannot set value on array path: ${location.path}`);
+      console.warn(
+        `[FieldMapper] Cannot set value on array path: ${location.path}`
+      );
       return meeting;
     }
 
@@ -126,7 +133,10 @@ export function setFieldValue(
 
     return updated;
   } catch (error) {
-    console.error(`[FieldMapper] Failed to set value at path: ${location.path}`, error);
+    console.error(
+      `[FieldMapper] Failed to set value at path: ${location.path}`,
+      error
+    );
     return meeting;
   }
 }
@@ -145,7 +155,7 @@ export function prePopulateField(
       fieldId,
       populated: false,
       confidence: 0,
-      message: 'Field not found in registry'
+      message: 'Field not found in registry',
     };
   }
 
@@ -154,7 +164,7 @@ export function prePopulateField(
       fieldId,
       populated: false,
       confidence: 0,
-      message: 'Field is not configured for auto-population'
+      message: 'Field is not configured for auto-population',
     };
   }
 
@@ -163,7 +173,7 @@ export function prePopulateField(
       fieldId,
       populated: false,
       confidence: 0,
-      message: 'No meeting data available'
+      message: 'No meeting data available',
     };
   }
 
@@ -177,22 +187,26 @@ export function prePopulateField(
       source: field.primarySource,
       value,
       confidence: 1.0,
-      message: 'Populated from primary source'
+      message: 'Populated from primary source',
     };
   }
 
   // Try secondary sources
   for (const secondarySource of field.secondarySources) {
     const secondaryValue = extractFieldValue(meeting, secondarySource);
-    
-    if (secondaryValue !== undefined && secondaryValue !== null && secondaryValue !== '') {
+
+    if (
+      secondaryValue !== undefined &&
+      secondaryValue !== null &&
+      secondaryValue !== ''
+    ) {
       return {
         fieldId,
         populated: true,
         source: secondarySource,
         value: secondaryValue,
         confidence: 0.8,
-        message: 'Populated from secondary source'
+        message: 'Populated from secondary source',
       };
     }
   }
@@ -201,7 +215,7 @@ export function prePopulateField(
     fieldId,
     populated: false,
     confidence: 0,
-    message: 'No data available in any source'
+    message: 'No data available in any source',
   };
 }
 
@@ -215,8 +229,8 @@ export function prePopulateServiceFields(
   const results: Record<string, PrePopulationResult> = {};
 
   // Get all fields for this service
-  const fields = Object.values(FIELD_REGISTRY).filter(field =>
-    field.usedBy.includes(serviceId) && field.autoPopulate
+  const fields = Object.values(FIELD_REGISTRY).filter(
+    (field) => field.usedBy.includes(serviceId) && field.autoPopulate
   );
 
   // Pre-populate each field
@@ -244,20 +258,28 @@ export function detectFieldConflicts(
 
   // Extract from primary source
   const primaryValue = extractFieldValue(meeting, field.primarySource);
-  if (primaryValue !== undefined && primaryValue !== null && primaryValue !== '') {
+  if (
+    primaryValue !== undefined &&
+    primaryValue !== null &&
+    primaryValue !== ''
+  ) {
     locations.push({
       location: field.primarySource,
-      value: primaryValue
+      value: primaryValue,
     });
   }
 
   // Extract from secondary sources
   for (const secondarySource of field.secondarySources) {
     const secondaryValue = extractFieldValue(meeting, secondarySource);
-    if (secondaryValue !== undefined && secondaryValue !== null && secondaryValue !== '') {
+    if (
+      secondaryValue !== undefined &&
+      secondaryValue !== null &&
+      secondaryValue !== ''
+    ) {
       locations.push({
         location: secondarySource,
-        value: secondaryValue
+        value: secondaryValue,
       });
     }
   }
@@ -267,7 +289,9 @@ export function detectFieldConflicts(
     return null; // No conflict if only one value
   }
 
-  const uniqueValues = new Set(locations.map(loc => JSON.stringify(loc.value)));
+  const uniqueValues = new Set(
+    locations.map((loc) => JSON.stringify(loc.value))
+  );
   if (uniqueValues.size === 1) {
     return null; // No conflict if all values are the same
   }
@@ -277,7 +301,7 @@ export function detectFieldConflicts(
     fieldId,
     locations,
     suggestedResolution: 'use_primary',
-    primaryLocation: field.primarySource
+    primaryLocation: field.primarySource,
   };
 }
 
@@ -320,7 +344,7 @@ export function getFieldRecommendations(
   needsManualEntry: string[];
   hasConflicts: string[];
 } {
-  const serviceFields = Object.values(FIELD_REGISTRY).filter(field =>
+  const serviceFields = Object.values(FIELD_REGISTRY).filter((field) =>
     field.usedBy.includes(serviceId)
   );
 
@@ -344,7 +368,7 @@ export function getFieldRecommendations(
   return {
     autoPopulated,
     needsManualEntry,
-    hasConflicts
+    hasConflicts,
   };
 }
 
@@ -366,8 +390,9 @@ export function extractBusinessContext(meeting: Meeting): {
     mainChallenge: meeting.modules?.overview?.mainChallenge,
     monthlyLeadVolume: meeting.modules?.leadsAndSales?.leadVolume,
     crmSystem: meeting.modules?.systems?.crmName,
-    currentResponseTime: meeting.modules?.leadsAndSales?.speedToLead?.duringBusinessHours,
-    painPoints: meeting.painPoints?.map(p => p.description) || []
+    currentResponseTime:
+      meeting.modules?.leadsAndSales?.speedToLead?.duringBusinessHours,
+    painPoints: meeting.painPoints?.map((p) => p.description) || [],
   };
 }
 
@@ -388,16 +413,16 @@ export function transformFieldValue(
   switch (toField.type) {
     case 'text':
       return String(value);
-    
+
     case 'number':
       return Number(value) || 0;
-    
+
     case 'boolean':
       return Boolean(value);
-    
+
     case 'array':
       return Array.isArray(value) ? value : [value];
-    
+
     default:
       return value;
   }
@@ -411,7 +436,7 @@ export function validateFieldValue(
   value: any
 ): { valid: boolean; errors: string[] } {
   const field = getFieldById(fieldId);
-  
+
   if (!field) {
     return { valid: false, errors: ['Field not found in registry'] };
   }
@@ -419,18 +444,25 @@ export function validateFieldValue(
   const errors: string[] = [];
 
   // Check required
-  if (field.required && (value === undefined || value === null || value === '')) {
+  if (
+    field.required &&
+    (value === undefined || value === null || value === '')
+  ) {
     errors.push(`${field.label.en} is required`);
   }
 
   // Skip validation if value is empty and not required
-  if (!field.required && (value === undefined || value === null || value === '')) {
+  if (
+    !field.required &&
+    (value === undefined || value === null || value === '')
+  ) {
     return { valid: true, errors: [] };
   }
 
   // Validate based on type and rules
   if (field.validation) {
-    const { pattern, min, max, minLength, maxLength, custom } = field.validation;
+    const { pattern, min, max, minLength, maxLength, custom } =
+      field.validation;
 
     // Pattern validation
     if (pattern && typeof value === 'string') {
@@ -453,10 +485,14 @@ export function validateFieldValue(
     // String length validation
     if (typeof value === 'string') {
       if (minLength !== undefined && value.length < minLength) {
-        errors.push(`${field.label.en} must be at least ${minLength} characters`);
+        errors.push(
+          `${field.label.en} must be at least ${minLength} characters`
+        );
       }
       if (maxLength !== undefined && value.length > maxLength) {
-        errors.push(`${field.label.en} must be at most ${maxLength} characters`);
+        errors.push(
+          `${field.label.en} must be at most ${maxLength} characters`
+        );
       }
     }
 
@@ -468,7 +504,6 @@ export function validateFieldValue(
 
   return {
     valid: errors.length === 0,
-    errors
+    errors,
   };
 }
-

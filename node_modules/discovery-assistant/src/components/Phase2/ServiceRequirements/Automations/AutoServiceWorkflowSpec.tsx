@@ -15,56 +15,56 @@ export function AutoServiceWorkflowSpec() {
     fieldId: 'workflow_trigger',
     localPath: 'technicalConfig.trigger',
     serviceId: 'auto-service-workflow',
-    autoSave: false
+    autoSave: false,
   });
 
   const databaseType = useSmartField<string>({
     fieldId: 'database_type',
     localPath: 'databaseConfig.type',
     serviceId: 'auto-service-workflow',
-    autoSave: false
+    autoSave: false,
   });
 
   const notificationChannels = useSmartField<string[]>({
     fieldId: 'notification_channels',
     localPath: 'notificationConfig.channels',
     serviceId: 'auto-service-workflow',
-    autoSave: false
+    autoSave: false,
   });
 
   const businessHoursStart = useSmartField<string>({
     fieldId: 'business_hours_start',
     localPath: 'schedulingRules.businessHours.start',
     serviceId: 'auto-service-workflow',
-    autoSave: false
+    autoSave: false,
   });
 
   const businessHoursEnd = useSmartField<string>({
     fieldId: 'business_hours_end',
     localPath: 'schedulingRules.businessHours.end',
     serviceId: 'auto-service-workflow',
-    autoSave: false
+    autoSave: false,
   });
 
   const n8nInstanceUrl = useSmartField<string>({
     fieldId: 'n8n_instance_url',
     localPath: 'n8nWorkflow.instanceUrl',
     serviceId: 'auto-service-workflow',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'n8nWorkflow.errorHandling.alertEmail',
     serviceId: 'auto-service-workflow',
-    autoSave: false
+    autoSave: false,
   });
 
   const crmSystem = useSmartField<string>({
     fieldId: 'crm_system',
     localPath: 'integration.crmSystem',
     serviceId: 'auto-service-workflow',
-    autoSave: false
+    autoSave: false,
   });
 
   const [config, setConfig] = useState<AutoServiceWorkflowRequirements>({
@@ -74,58 +74,62 @@ export function AutoServiceWorkflowSpec() {
         name: 'קבלת פנייה',
         description: 'זיהוי פנייה חדשה והתחלת תהליך',
         duration: 'מיידי',
-        responsible: 'מערכת אוטומטית'
+        responsible: 'מערכת אוטומטית',
       },
       {
         id: '2',
         name: 'ניתוח בעיה',
         description: 'ניתוח אוטומטי של סוג הבעיה וחומרתה',
         duration: '2-5 דקות',
-        responsible: 'סוכן AI'
+        responsible: 'סוכן AI',
       },
       {
         id: '3',
         name: 'הצעת פתרון',
         description: 'הצעת פתרונות ראשוניים או העברה לנציג',
         duration: '5-10 דקות',
-        responsible: 'סוכן AI + נציג אנושי'
-      }
+        responsible: 'סוכן AI + נציג אנושי',
+      },
     ],
     escalationRules: {
-      highPriority: ['מבקש לדבר עם מנהל', 'בעיה קריטית', 'אי שביעות רצון חמורה'],
-      immediateTransfer: ['איום משפטי', 'בעיה בטיחותית', 'תקלה מלאה במערכת']
+      highPriority: [
+        'מבקש לדבר עם מנהל',
+        'בעיה קריטית',
+        'אי שביעות רצון חמורה',
+      ],
+      immediateTransfer: ['איום משפטי', 'בעיה בטיחותית', 'תקלה מלאה במערכת'],
     },
     serviceMetrics: {
       responseTime: '< 5 דקות',
       resolutionTime: '< 24 שעות',
-      satisfactionTarget: 4.5
+      satisfactionTarget: 4.5,
     },
     integration: {
       crmSystem: '',
       crmSync: true,
       knowledgeBase: true,
-      ticketSystem: true
+      ticketSystem: true,
     },
     // Add technicalConfig
     technicalConfig: {
-      trigger: ''
+      trigger: '',
     },
     // Add databaseConfig
     databaseConfig: {
       type: '',
-      connectionString: ''
+      connectionString: '',
     },
     // Add notificationConfig
     notificationConfig: {
-      channels: []
+      channels: [],
     },
     // Add schedulingRules
     schedulingRules: {
       businessHours: {
         start: '09:00',
         end: '18:00',
-        workDays: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday']
-      }
+        workDays: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
+      },
     },
     // Add n8nWorkflow
     n8nWorkflow: {
@@ -134,15 +138,15 @@ export function AutoServiceWorkflowSpec() {
       httpsEnabled: true,
       errorHandling: {
         retryAttempts: 3,
-        alertEmail: ''
-      }
-    }
+        alertEmail: '',
+      },
+    },
   });
 
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-service-workflow',
-    category: 'automations'
+    category: 'automations',
   });
 
   useBeforeUnload(() => {
@@ -151,36 +155,41 @@ export function AutoServiceWorkflowSpec() {
       ...config,
       technicalConfig: {
         ...config.technicalConfig,
-        trigger: workflowTrigger.value || config.technicalConfig.trigger
+        trigger: workflowTrigger.value || config.technicalConfig.trigger,
       },
       databaseConfig: {
         ...config.databaseConfig,
-        type: databaseType.value || config.databaseConfig.type
+        type: databaseType.value || config.databaseConfig.type,
       },
       notificationConfig: {
         ...config.notificationConfig,
-        channels: notificationChannels.value || config.notificationConfig.channels
+        channels:
+          notificationChannels.value || config.notificationConfig.channels,
       },
       schedulingRules: {
         ...config.schedulingRules,
         businessHours: {
           ...config.schedulingRules.businessHours,
-          start: businessHoursStart.value || config.schedulingRules.businessHours.start,
-          end: businessHoursEnd.value || config.schedulingRules.businessHours.end
-        }
+          start:
+            businessHoursStart.value ||
+            config.schedulingRules.businessHours.start,
+          end:
+            businessHoursEnd.value || config.schedulingRules.businessHours.end,
+        },
       },
       integration: {
         ...config.integration,
-        crmSystem: crmSystem.value || config.integration.crmSystem
+        crmSystem: crmSystem.value || config.integration.crmSystem,
       },
       n8nWorkflow: {
         ...config.n8nWorkflow,
         instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow.instanceUrl,
         errorHandling: {
           ...config.n8nWorkflow.errorHandling,
-          alertEmail: alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail
-        }
-      }
+          alertEmail:
+            alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail,
+        },
+      },
     };
     saveData(completeConfig);
   });
@@ -202,36 +211,41 @@ export function AutoServiceWorkflowSpec() {
       ...config,
       technicalConfig: {
         ...config.technicalConfig,
-        trigger: workflowTrigger.value || config.technicalConfig.trigger
+        trigger: workflowTrigger.value || config.technicalConfig.trigger,
       },
       databaseConfig: {
         ...config.databaseConfig,
-        type: databaseType.value || config.databaseConfig.type
+        type: databaseType.value || config.databaseConfig.type,
       },
       notificationConfig: {
         ...config.notificationConfig,
-        channels: notificationChannels.value || config.notificationConfig.channels
+        channels:
+          notificationChannels.value || config.notificationConfig.channels,
       },
       schedulingRules: {
         ...config.schedulingRules,
         businessHours: {
           ...config.schedulingRules.businessHours,
-          start: businessHoursStart.value || config.schedulingRules.businessHours.start,
-          end: businessHoursEnd.value || config.schedulingRules.businessHours.end
-        }
+          start:
+            businessHoursStart.value ||
+            config.schedulingRules.businessHours.start,
+          end:
+            businessHoursEnd.value || config.schedulingRules.businessHours.end,
+        },
       },
       integration: {
         ...config.integration,
-        crmSystem: crmSystem.value || config.integration.crmSystem
+        crmSystem: crmSystem.value || config.integration.crmSystem,
       },
       n8nWorkflow: {
         ...config.n8nWorkflow,
         instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow.instanceUrl,
         errorHandling: {
           ...config.n8nWorkflow.errorHandling,
-          alertEmail: alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail
-        }
-      }
+          alertEmail:
+            alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail,
+        },
+      },
     };
 
     await saveData(completeConfig);
@@ -240,22 +254,32 @@ export function AutoServiceWorkflowSpec() {
   return (
     <div className="space-y-6" dir="rtl">
       {/* Smart Fields Info Banner */}
-      {(workflowTrigger.isAutoPopulated || databaseType.isAutoPopulated || notificationChannels.isAutoPopulated || 
-        businessHoursStart.isAutoPopulated || businessHoursEnd.isAutoPopulated || 
-        n8nInstanceUrl.isAutoPopulated || alertEmail.isAutoPopulated || crmSystem.isAutoPopulated) && (
+      {(workflowTrigger.isAutoPopulated ||
+        databaseType.isAutoPopulated ||
+        notificationChannels.isAutoPopulated ||
+        businessHoursStart.isAutoPopulated ||
+        businessHoursEnd.isAutoPopulated ||
+        n8nInstanceUrl.isAutoPopulated ||
+        alertEmail.isAutoPopulated ||
+        crmSystem.isAutoPopulated) && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3">
           <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <h4 className="font-semibold text-blue-900 mb-1">
+              נתונים מולאו אוטומטית משלב 1
+            </h4>
             <p className="text-sm text-blue-800">
-              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-              תוכל לערוך אותם במידת הצורך.
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל לערוך
+              אותם במידת הצורך.
             </p>
           </div>
         </div>
       )}
 
-      <Card title="זרימת עבודה לשירות לקוחות" subtitle="הגדר את תהליך הטיפול בפניות לקוחות מהתחלה ועד סיום">
+      <Card
+        title="זרימת עבודה לשירות לקוחות"
+        subtitle="הגדר את תהליך הטיפול בפניות לקוחות מהתחלה ועד סיום"
+      >
         <div className="space-y-6">
           {/* שלבי זרימה - existing */}
           <div>
@@ -265,13 +289,18 @@ export function AutoServiceWorkflowSpec() {
             </h4>
             <div className="space-y-3">
               {config.workflowSteps.map((step, index) => (
-                <div key={step.id} className="flex items-start gap-4 p-4 border rounded-lg">
+                <div
+                  key={step.id}
+                  className="flex items-start gap-4 p-4 border rounded-lg"
+                >
                   <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm">
                     {index + 1}
                   </div>
                   <div className="flex-1">
                     <h5 className="font-medium">{step.name}</h5>
-                    <p className="text-sm text-gray-600 mt-1">{step.description}</p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {step.description}
+                    </p>
                     <div className="flex gap-4 mt-2 text-xs text-gray-500">
                       <span>⏱️ {step.duration}</span>
                       <span>👤 {step.responsible}</span>
@@ -287,16 +316,22 @@ export function AutoServiceWorkflowSpec() {
             <h4 className="font-medium mb-3">כללי הסלמה</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-2">הסלמה בעדיפות גבוהה</label>
+                <label className="block text-sm font-medium mb-2">
+                  הסלמה בעדיפות גבוהה
+                </label>
                 <textarea
                   value={config.escalationRules.highPriority.join('\n')}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    escalationRules: {
-                      ...prev.escalationRules,
-                      highPriority: e.target.value.split('\n').filter(s => s.trim())
-                    }
-                  }))}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      escalationRules: {
+                        ...prev.escalationRules,
+                        highPriority: e.target.value
+                          .split('\n')
+                          .filter((s) => s.trim()),
+                      },
+                    }))
+                  }
                   rows={3}
                   className="w-full p-2 border rounded-lg text-sm"
                   placeholder="כל שורה - כלל הסלמה אחד..."
@@ -304,16 +339,22 @@ export function AutoServiceWorkflowSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">העברה מיידית</label>
+                <label className="block text-sm font-medium mb-2">
+                  העברה מיידית
+                </label>
                 <textarea
                   value={config.escalationRules.immediateTransfer.join('\n')}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    escalationRules: {
-                      ...prev.escalationRules,
-                      immediateTransfer: e.target.value.split('\n').filter(s => s.trim())
-                    }
-                  }))}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      escalationRules: {
+                        ...prev.escalationRules,
+                        immediateTransfer: e.target.value
+                          .split('\n')
+                          .filter((s) => s.trim()),
+                      },
+                    }))
+                  }
                   rows={3}
                   className="w-full p-2 border rounded-lg text-sm"
                   placeholder="כל שורה - סיבה להעברה מיידית..."
@@ -330,17 +371,23 @@ export function AutoServiceWorkflowSpec() {
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-3 border rounded-lg text-center">
-                <div className="text-2xl font-bold text-blue-600">{config.serviceMetrics.responseTime}</div>
+                <div className="text-2xl font-bold text-blue-600">
+                  {config.serviceMetrics.responseTime}
+                </div>
                 <div className="text-sm text-gray-600">זמן תגובה ראשוני</div>
               </div>
 
               <div className="p-3 border rounded-lg text-center">
-                <div className="text-2xl font-bold text-green-600">{config.serviceMetrics.resolutionTime}</div>
+                <div className="text-2xl font-bold text-green-600">
+                  {config.serviceMetrics.resolutionTime}
+                </div>
                 <div className="text-sm text-gray-600">זמן פתרון</div>
               </div>
 
               <div className="p-3 border rounded-lg text-center">
-                <div className="text-2xl font-bold text-purple-600">{config.serviceMetrics.satisfactionTarget}/5</div>
+                <div className="text-2xl font-bold text-purple-600">
+                  {config.serviceMetrics.satisfactionTarget}/5
+                </div>
                 <div className="text-sm text-gray-600">שביעות רצון לקוח</div>
               </div>
             </div>
@@ -368,12 +415,16 @@ export function AutoServiceWorkflowSpec() {
                   value={crmSystem.value || ''}
                   onChange={(e) => crmSystem.setValue(e.target.value)}
                   className={`w-full p-2 border rounded-lg ${
-                    crmSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    crmSystem.isAutoPopulated
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-300'
                   }`}
                   placeholder="Zoho CRM, Salesforce, HubSpot"
                 />
                 {crmSystem.isAutoPopulated && crmSystem.source && (
-                  <p className="text-xs text-gray-500 mt-1">מקור: {crmSystem.source.description}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {crmSystem.source.description}
+                  </p>
                 )}
               </div>
 
@@ -382,10 +433,15 @@ export function AutoServiceWorkflowSpec() {
                   <input
                     type="checkbox"
                     checked={config.integration.crmSync}
-                    onChange={(e) => setConfig(prev => ({
-                      ...prev,
-                      integration: { ...prev.integration, crmSync: e.target.checked }
-                    }))}
+                    onChange={(e) =>
+                      setConfig((prev) => ({
+                        ...prev,
+                        integration: {
+                          ...prev.integration,
+                          crmSync: e.target.checked,
+                        },
+                      }))
+                    }
                   />
                   <span className="text-sm">סנכרון עם מערכת CRM</span>
                 </label>
@@ -394,10 +450,15 @@ export function AutoServiceWorkflowSpec() {
                   <input
                     type="checkbox"
                     checked={config.integration.knowledgeBase}
-                    onChange={(e) => setConfig(prev => ({
-                      ...prev,
-                      integration: { ...prev.integration, knowledgeBase: e.target.checked }
-                    }))}
+                    onChange={(e) =>
+                      setConfig((prev) => ({
+                        ...prev,
+                        integration: {
+                          ...prev.integration,
+                          knowledgeBase: e.target.checked,
+                        },
+                      }))
+                    }
                   />
                   <span className="text-sm">חיפוש בבסיס ידע</span>
                 </label>
@@ -406,10 +467,15 @@ export function AutoServiceWorkflowSpec() {
                   <input
                     type="checkbox"
                     checked={config.integration.ticketSystem}
-                    onChange={(e) => setConfig(prev => ({
-                      ...prev,
-                      integration: { ...prev.integration, ticketSystem: e.target.checked }
-                    }))}
+                    onChange={(e) =>
+                      setConfig((prev) => ({
+                        ...prev,
+                        integration: {
+                          ...prev.integration,
+                          ticketSystem: e.target.checked,
+                        },
+                      }))
+                    }
                   />
                   <span className="text-sm">יצירת כרטיסים במערכת טיקטים</span>
                 </label>
@@ -438,7 +504,9 @@ export function AutoServiceWorkflowSpec() {
                   value={workflowTrigger.value || ''}
                   onChange={(e) => workflowTrigger.setValue(e.target.value)}
                   className={`w-full p-2 border rounded-lg ${
-                    workflowTrigger.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    workflowTrigger.isAutoPopulated
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-300'
                   }`}
                 >
                   <option value="">בחר טריגר</option>
@@ -449,7 +517,9 @@ export function AutoServiceWorkflowSpec() {
                   <option value="api_call">קריאת API</option>
                 </select>
                 {workflowTrigger.isAutoPopulated && workflowTrigger.source && (
-                  <p className="text-xs text-gray-500 mt-1">מקור: {workflowTrigger.source.description}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {workflowTrigger.source.description}
+                  </p>
                 )}
               </div>
 
@@ -470,7 +540,9 @@ export function AutoServiceWorkflowSpec() {
                   value={databaseType.value || ''}
                   onChange={(e) => databaseType.setValue(e.target.value)}
                   className={`w-full p-2 border rounded-lg ${
-                    databaseType.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    databaseType.isAutoPopulated
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-300'
                   }`}
                 >
                   <option value="">בחר סוג מסד נתונים</option>
@@ -480,16 +552,25 @@ export function AutoServiceWorkflowSpec() {
                   <option value="sql_server">SQL Server</option>
                 </select>
                 {databaseType.isAutoPopulated && databaseType.source && (
-                  <p className="text-xs text-gray-500 mt-1">מקור: {databaseType.source.description}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {databaseType.source.description}
+                  </p>
                 )}
-                <label className="block text-sm font-medium text-gray-700 mt-2 mb-1">מחרוזת חיבור</label>
+                <label className="block text-sm font-medium text-gray-700 mt-2 mb-1">
+                  מחרוזת חיבור
+                </label>
                 <input
                   type="text"
                   value={config.databaseConfig.connectionString || ''}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    databaseConfig: { ...prev.databaseConfig, connectionString: e.target.value }
-                  }))}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      databaseConfig: {
+                        ...prev.databaseConfig,
+                        connectionString: e.target.value,
+                      },
+                    }))
+                  }
                   className="w-full p-2 border rounded-lg"
                   placeholder="postgresql://user:password@host:port/database"
                 />
@@ -512,11 +593,16 @@ export function AutoServiceWorkflowSpec() {
                   multiple
                   value={notificationChannels.value || []}
                   onChange={(e) => {
-                    const selected = Array.from(e.target.selectedOptions, option => option.value);
+                    const selected = Array.from(
+                      e.target.selectedOptions,
+                      (option) => option.value
+                    );
                     notificationChannels.setValue(selected);
                   }}
                   className={`w-full p-2 border rounded-lg ${
-                    notificationChannels.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    notificationChannels.isAutoPopulated
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-300'
                   }`}
                 >
                   <option value="email">אימייל</option>
@@ -525,9 +611,12 @@ export function AutoServiceWorkflowSpec() {
                   <option value="slack">Slack</option>
                   <option value="teams">Microsoft Teams</option>
                 </select>
-                {notificationChannels.isAutoPopulated && notificationChannels.source && (
-                  <p className="text-xs text-gray-500 mt-1">מקור: {notificationChannels.source.description}</p>
-                )}
+                {notificationChannels.isAutoPopulated &&
+                  notificationChannels.source && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      מקור: {notificationChannels.source.description}
+                    </p>
+                  )}
               </div>
 
               {/* Business Hours */}
@@ -547,15 +636,22 @@ export function AutoServiceWorkflowSpec() {
                   <input
                     type="time"
                     value={businessHoursStart.value || ''}
-                    onChange={(e) => businessHoursStart.setValue(e.target.value)}
+                    onChange={(e) =>
+                      businessHoursStart.setValue(e.target.value)
+                    }
                     className={`w-full p-2 border rounded-lg ${
-                      businessHoursStart.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                      businessHoursStart.isAutoPopulated
+                        ? 'border-green-300 bg-green-50'
+                        : 'border-gray-300'
                     }`}
                     placeholder="09:00"
                   />
-                  {businessHoursStart.isAutoPopulated && businessHoursStart.source && (
-                    <p className="text-xs text-gray-500 mt-1">מקור: {businessHoursStart.source.description}</p>
-                  )}
+                  {businessHoursStart.isAutoPopulated &&
+                    businessHoursStart.source && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        מקור: {businessHoursStart.source.description}
+                      </p>
+                    )}
                 </div>
 
                 <div>
@@ -575,13 +671,18 @@ export function AutoServiceWorkflowSpec() {
                     value={businessHoursEnd.value || ''}
                     onChange={(e) => businessHoursEnd.setValue(e.target.value)}
                     className={`w-full p-2 border rounded-lg ${
-                      businessHoursEnd.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                      businessHoursEnd.isAutoPopulated
+                        ? 'border-green-300 bg-green-50'
+                        : 'border-gray-300'
                     }`}
                     placeholder="18:00"
                   />
-                  {businessHoursEnd.isAutoPopulated && businessHoursEnd.source && (
-                    <p className="text-xs text-gray-500 mt-1">מקור: {businessHoursEnd.source.description}</p>
-                  )}
+                  {businessHoursEnd.isAutoPopulated &&
+                    businessHoursEnd.source && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        מקור: {businessHoursEnd.source.description}
+                      </p>
+                    )}
                 </div>
               </div>
 
@@ -604,43 +705,60 @@ export function AutoServiceWorkflowSpec() {
                     value={n8nInstanceUrl.value || ''}
                     onChange={(e) => n8nInstanceUrl.setValue(e.target.value)}
                     className={`w-full p-2 border rounded-lg ${
-                      n8nInstanceUrl.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                      n8nInstanceUrl.isAutoPopulated
+                        ? 'border-green-300 bg-green-50'
+                        : 'border-gray-300'
                     }`}
                     placeholder="https://n8n.example.com"
                   />
                   {n8nInstanceUrl.isAutoPopulated && n8nInstanceUrl.source && (
-                    <p className="text-xs text-gray-500 mt-1">מקור: {n8nInstanceUrl.source.description}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      מקור: {n8nInstanceUrl.source.description}
+                    </p>
                   )}
                 </div>
 
-                <label className="block text-sm font-medium text-gray-700 mb-2">Webhook Endpoint</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Webhook Endpoint
+                </label>
                 <input
                   type="url"
                   value={config.n8nWorkflow.webhookEndpoint || ''}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    n8nWorkflow: { ...prev.n8nWorkflow, webhookEndpoint: e.target.value }
-                  }))}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      n8nWorkflow: {
+                        ...prev.n8nWorkflow,
+                        webhookEndpoint: e.target.value,
+                      },
+                    }))
+                  }
                   className="w-full p-2 border rounded-lg"
                   placeholder="https://n8n.example.com/webhook/..."
                 />
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">ניסיונות חוזרים</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ניסיונות חוזרים
+                    </label>
                     <input
                       type="number"
-                      value={config.n8nWorkflow.errorHandling.retryAttempts || 3}
-                      onChange={(e) => setConfig(prev => ({
-                        ...prev,
-                        n8nWorkflow: {
-                          ...prev.n8nWorkflow,
-                          errorHandling: {
-                            ...prev.n8nWorkflow.errorHandling,
-                            retryAttempts: parseInt(e.target.value) || 3
-                          }
-                        }
-                      }))}
+                      value={
+                        config.n8nWorkflow.errorHandling.retryAttempts || 3
+                      }
+                      onChange={(e) =>
+                        setConfig((prev) => ({
+                          ...prev,
+                          n8nWorkflow: {
+                            ...prev.n8nWorkflow,
+                            errorHandling: {
+                              ...prev.n8nWorkflow.errorHandling,
+                              retryAttempts: parseInt(e.target.value) || 3,
+                            },
+                          },
+                        }))
+                      }
                       className="w-full p-2 border rounded-lg"
                       min="0"
                       max="10"
@@ -664,12 +782,16 @@ export function AutoServiceWorkflowSpec() {
                       value={alertEmail.value || ''}
                       onChange={(e) => alertEmail.setValue(e.target.value)}
                       className={`w-full p-2 border rounded-lg ${
-                        alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                        alertEmail.isAutoPopulated
+                          ? 'border-green-300 bg-green-50'
+                          : 'border-gray-300'
                       }`}
                       placeholder="alerts@example.com"
                     />
                     {alertEmail.isAutoPopulated && alertEmail.source && (
-                      <p className="text-xs text-gray-500 mt-1">מקור: {alertEmail.source.description}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        מקור: {alertEmail.source.description}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -678,10 +800,15 @@ export function AutoServiceWorkflowSpec() {
                   <input
                     type="checkbox"
                     checked={config.n8nWorkflow.httpsEnabled || true}
-                    onChange={(e) => setConfig(prev => ({
-                      ...prev,
-                      n8nWorkflow: { ...prev.n8nWorkflow, httpsEnabled: e.target.checked }
-                    }))}
+                    onChange={(e) =>
+                      setConfig((prev) => ({
+                        ...prev,
+                        n8nWorkflow: {
+                          ...prev.n8nWorkflow,
+                          httpsEnabled: e.target.checked,
+                        },
+                      }))
+                    }
                     className="rounded border-gray-300"
                   />
                   <span className="text-sm">HTTPS מופעל</span>
@@ -725,6 +852,3 @@ export function AutoServiceWorkflowSpec() {
     </div>
   );
 }
-
-
-

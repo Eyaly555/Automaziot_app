@@ -28,7 +28,9 @@ class AutoSyncService {
     }
 
     this.isRunning = true;
-    console.log(`[AutoSync] Starting with interval ${this.syncIntervalMs / 1000}s`);
+    console.log(
+      `[AutoSync] Starting with interval ${this.syncIntervalMs / 1000}s`
+    );
 
     // Initial sync
     this.syncCurrentMeeting();
@@ -86,12 +88,12 @@ class AutoSyncService {
     try {
       console.log('[AutoSync] Syncing current meeting...', {
         clientName: meeting.clientName,
-        recordId: meeting.zohoIntegration.recordId
+        recordId: meeting.zohoIntegration.recordId,
       });
 
       const success = await store.syncCurrentToZoho({
         silent: true,
-        fullSync: false
+        fullSync: false,
       });
 
       if (success) {
@@ -132,7 +134,7 @@ class AutoSyncService {
     return await store.syncCurrentToZoho({
       silent: false,
       fullSync: true,
-      force: true
+      force: true,
     });
   }
 
@@ -141,12 +143,12 @@ class AutoSyncService {
    */
   private getLastSyncTimeAsNumber(): number {
     if (!this.lastSyncTime) return 0;
-    
+
     // Handle both Date objects and string dates from localStorage
     if (typeof this.lastSyncTime === 'string') {
       return new Date(this.lastSyncTime).getTime();
     }
-    
+
     return this.lastSyncTime.getTime();
   }
 
@@ -159,15 +161,16 @@ class AutoSyncService {
     nextSyncIn: number | null;
     queueStatus: { pending: number; failed: number };
   } {
-    const nextSyncIn = this.lastSyncTime && this.isRunning
-      ? this.syncIntervalMs - (Date.now() - this.getLastSyncTimeAsNumber())
-      : null;
+    const nextSyncIn =
+      this.lastSyncTime && this.isRunning
+        ? this.syncIntervalMs - (Date.now() - this.getLastSyncTimeAsNumber())
+        : null;
 
     return {
       isRunning: this.isRunning,
       lastSyncTime: this.lastSyncTime,
       nextSyncIn: nextSyncIn && nextSyncIn > 0 ? nextSyncIn : null,
-      queueStatus: zohoClientsService.getSyncQueueStatus()
+      queueStatus: zohoClientsService.getSyncQueueStatus(),
     };
   }
 

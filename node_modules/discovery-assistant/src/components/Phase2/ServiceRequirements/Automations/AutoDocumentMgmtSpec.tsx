@@ -23,14 +23,14 @@ export function AutoDocumentMgmtSpec() {
     fieldId: 'n8n_instance_url',
     localPath: 'n8nWorkflow.instanceUrl',
     serviceId: 'auto-document-mgmt',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'n8nWorkflow.errorHandling.alertEmail',
     serviceId: 'auto-document-mgmt',
-    autoSave: false
+    autoSave: false,
   });
   const [config, setConfig] = useState<Partial<AutoDocumentMgmtConfig>>({
     storageProvider: 'google_drive',
@@ -44,7 +44,7 @@ export function AutoDocumentMgmtSpec() {
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-document-mgmt',
-    category: 'automations'
+    category: 'automations',
   });
 
   useBeforeUnload(() => {
@@ -52,14 +52,16 @@ export function AutoDocumentMgmtSpec() {
     const completeConfig = {
       ...config,
       n8nInstanceUrl: n8nInstanceUrl.value,
-      alertEmail: alertEmail.value
+      alertEmail: alertEmail.value,
     };
     saveData(completeConfig);
   });
 
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
-    const existing = automations.find((a: any) => a.serviceId === 'auto-document-mgmt');
+    const existing = automations.find(
+      (a: any) => a.serviceId === 'auto-document-mgmt'
+    );
     if (existing?.requirements) {
       setConfig(existing.requirements);
     }
@@ -71,7 +73,7 @@ export function AutoDocumentMgmtSpec() {
       const completeConfig = {
         ...config,
         n8nInstanceUrl: n8nInstanceUrl.value,
-        alertEmail: alertEmail.value
+        alertEmail: alertEmail.value,
       };
       saveData(completeConfig);
     }
@@ -82,7 +84,7 @@ export function AutoDocumentMgmtSpec() {
     const completeConfig = {
       ...config,
       n8nInstanceUrl: n8nInstanceUrl.value,
-      alertEmail: alertEmail.value
+      alertEmail: alertEmail.value,
     };
 
     // Save using auto-save (manual save trigger)
@@ -100,10 +102,12 @@ export function AutoDocumentMgmtSpec() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
               <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+                <h4 className="font-semibold text-blue-900 mb-1">
+                  נתונים מולאו אוטומטית משלב 1
+                </h4>
                 <p className="text-sm text-blue-800">
-                  חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-                  תוכל לערוך אותם במידת הצורך.
+                  חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל
+                  לערוך אותם במידת הצורך.
                 </p>
               </div>
             </div>
@@ -114,7 +118,9 @@ export function AutoDocumentMgmtSpec() {
             <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+                <h4 className="font-semibold text-orange-900 mb-1">
+                  זוהה אי-התאמה בנתונים
+                </h4>
                 <p className="text-sm text-orange-800">
                   נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
                 </p>
@@ -142,7 +148,9 @@ export function AutoDocumentMgmtSpec() {
                 value={n8nInstanceUrl.value || ''}
                 onChange={(e) => n8nInstanceUrl.setValue(e.target.value)}
                 className={`w-full px-3 py-2 border rounded-md ${
-                  n8nInstanceUrl.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  n8nInstanceUrl.isAutoPopulated
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-300'
                 } ${n8nInstanceUrl.hasConflict ? 'border-orange-300' : ''}`}
                 placeholder="https://n8n.example.com"
               />
@@ -171,7 +179,9 @@ export function AutoDocumentMgmtSpec() {
                 value={alertEmail.value || ''}
                 onChange={(e) => alertEmail.setValue(e.target.value)}
                 className={`w-full px-3 py-2 border rounded-md ${
-                  alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  alertEmail.isAutoPopulated
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-300'
                 } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
                 placeholder="admin@example.com"
               />
@@ -184,47 +194,98 @@ export function AutoDocumentMgmtSpec() {
           </div>
 
           <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">ספק אחסון</label>
-            <select value={config.storageProvider} onChange={(e) => setConfig({ ...config, storageProvider: e.target.value as any })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md">
-              <option value="google_drive">Google Drive</option>
-              <option value="onedrive">OneDrive</option>
-              <option value="dropbox">Dropbox</option>
-              <option value="box">Box</option>
-              <option value="s3">Amazon S3</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">מבנה תיקיות</label>
-            <input type="text" value={config.folderStructure} onChange={(e) => setConfig({ ...config, folderStructure: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="לקוחות/שנה/חודש" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">מוסכמת שמות</label>
-            <input type="text" value={config.namingConvention} onChange={(e) => setConfig({ ...config, namingConvention: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="ClientName_YYYYMMDD_Type" />
-          </div>
-          <div className="space-y-3">
-            <label className="flex items-center">
-              <input type="checkbox" checked={config.versionControl}
-                onChange={(e) => setConfig({ ...config, versionControl: e.target.checked })} className="mr-2" />
-              <span className="text-sm">ניהול גרסאות</span>
-            </label>
-            <label className="flex items-center">
-              <input type="checkbox" checked={config.accessControl}
-                onChange={(e) => setConfig({ ...config, accessControl: e.target.checked })} className="mr-2" />
-              <span className="text-sm">בקרת גישה</span>
-            </label>
-            <label className="flex items-center">
-              <input type="checkbox" checked={config.autoTagging}
-                onChange={(e) => setConfig({ ...config, autoTagging: e.target.checked })} className="mr-2" />
-              <span className="text-sm">תיוג אוטומטי</span>
-            </label>
-          </div>
-          <div className="flex justify-end pt-4 border-t">
-            <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">שמור הגדרות</button>
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ספק אחסון
+              </label>
+              <select
+                value={config.storageProvider}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    storageProvider: e.target.value as any,
+                  })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              >
+                <option value="google_drive">Google Drive</option>
+                <option value="onedrive">OneDrive</option>
+                <option value="dropbox">Dropbox</option>
+                <option value="box">Box</option>
+                <option value="s3">Amazon S3</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                מבנה תיקיות
+              </label>
+              <input
+                type="text"
+                value={config.folderStructure}
+                onChange={(e) =>
+                  setConfig({ ...config, folderStructure: e.target.value })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                placeholder="לקוחות/שנה/חודש"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                מוסכמת שמות
+              </label>
+              <input
+                type="text"
+                value={config.namingConvention}
+                onChange={(e) =>
+                  setConfig({ ...config, namingConvention: e.target.value })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                placeholder="ClientName_YYYYMMDD_Type"
+              />
+            </div>
+            <div className="space-y-3">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={config.versionControl}
+                  onChange={(e) =>
+                    setConfig({ ...config, versionControl: e.target.checked })
+                  }
+                  className="mr-2"
+                />
+                <span className="text-sm">ניהול גרסאות</span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={config.accessControl}
+                  onChange={(e) =>
+                    setConfig({ ...config, accessControl: e.target.checked })
+                  }
+                  className="mr-2"
+                />
+                <span className="text-sm">בקרת גישה</span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={config.autoTagging}
+                  onChange={(e) =>
+                    setConfig({ ...config, autoTagging: e.target.checked })
+                  }
+                  className="mr-2"
+                />
+                <span className="text-sm">תיוג אוטומטי</span>
+              </label>
+            </div>
+            <div className="flex justify-end pt-4 border-t">
+              <button
+                onClick={handleSave}
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                שמור הגדרות
+              </button>
+            </div>
           </div>
         </div>
       </Card>

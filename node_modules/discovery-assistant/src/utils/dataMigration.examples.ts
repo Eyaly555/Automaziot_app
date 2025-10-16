@@ -13,7 +13,7 @@ import {
   getMigrationLogs,
   generateMigrationReport,
   migrateAllLocalStorageMeetings,
-  CURRENT_DATA_VERSION
+  CURRENT_DATA_VERSION,
 } from './dataMigration';
 
 // ============================================================================
@@ -26,10 +26,10 @@ export function example1_checkIfMigrationNeeded() {
   const meetings = [
     { meetingId: 'old-meeting', dataVersion: 1 },
     { meetingId: 'current-meeting', dataVersion: CURRENT_DATA_VERSION },
-    { meetingId: 'legacy-meeting' } // No version property
+    { meetingId: 'legacy-meeting' }, // No version property
   ];
 
-  meetings.forEach(meeting => {
+  meetings.forEach((meeting) => {
     const needs = needsMigration(meeting);
     const summary = getMigrationSummary(meeting);
 
@@ -56,28 +56,34 @@ export function example2_migrateSingleMeeting() {
         leadSources: {
           sources: [
             { channel: 'Website', volumePerMonth: 100, quality: 4 },
-            { channel: 'Facebook Ads', volumePerMonth: 50, quality: 3 }
+            { channel: 'Facebook Ads', volumePerMonth: 50, quality: 3 },
           ],
           centralSystem: 'HubSpot',
-          commonIssues: ['Slow lead response', 'Manual data entry']
-        }
+          commonIssues: ['Slow lead response', 'Manual data entry'],
+        },
       },
       customerService: {
         channels: {
           list: [
             { type: 'Phone', volumePerDay: 50, responseTime: '5 minutes' },
-            { type: 'Email', volumePerDay: 100, responseTime: '2 hours' }
+            { type: 'Email', volumePerDay: 100, responseTime: '2 hours' },
           ],
           multiChannelIssue: 'Data scattered across systems',
-          unificationMethod: 'Planned CRM integration'
-        }
-      }
-    }
+          unificationMethod: 'Planned CRM integration',
+        },
+      },
+    },
   };
 
   console.log('Before migration:');
-  console.log('  leadSources type:', typeof oldMeeting.modules.leadsAndSales.leadSources);
-  console.log('  channels type:', typeof oldMeeting.modules.customerService.channels);
+  console.log(
+    '  leadSources type:',
+    typeof oldMeeting.modules.leadsAndSales.leadSources
+  );
+  console.log(
+    '  channels type:',
+    typeof oldMeeting.modules.customerService.channels
+  );
 
   // Run migration
   const result = migrateMeetingData(oldMeeting as any);
@@ -91,29 +97,43 @@ export function example2_migrateSingleMeeting() {
     console.log('  leadSources:', {
       isArray: Array.isArray(result.meeting.modules.leadsAndSales.leadSources),
       length: result.meeting.modules.leadsAndSales.leadSources?.length,
-      data: result.meeting.modules.leadsAndSales.leadSources
+      data: result.meeting.modules.leadsAndSales.leadSources,
     });
     console.log('  channels:', {
       isArray: Array.isArray(result.meeting.modules.customerService.channels),
       length: result.meeting.modules.customerService.channels?.length,
-      data: result.meeting.modules.customerService.channels
+      data: result.meeting.modules.customerService.channels,
     });
 
     // Check preserved metadata
     if (result.meeting.modules.leadsAndSales.leadSourcesMetadata) {
       console.log('\n  Preserved leadSources metadata:');
-      console.log('    centralSystem:', result.meeting.modules.leadsAndSales.leadSourcesMetadata.centralSystem);
-      console.log('    commonIssues:', result.meeting.modules.leadsAndSales.leadSourcesMetadata.commonIssues);
+      console.log(
+        '    centralSystem:',
+        result.meeting.modules.leadsAndSales.leadSourcesMetadata.centralSystem
+      );
+      console.log(
+        '    commonIssues:',
+        result.meeting.modules.leadsAndSales.leadSourcesMetadata.commonIssues
+      );
     }
 
     if (result.meeting.modules.customerService.channelsMetadata) {
       console.log('\n  Preserved channels metadata:');
-      console.log('    multiChannelIssue:', result.meeting.modules.customerService.channelsMetadata.multiChannelIssue);
-      console.log('    unificationMethod:', result.meeting.modules.customerService.channelsMetadata.unificationMethod);
+      console.log(
+        '    multiChannelIssue:',
+        result.meeting.modules.customerService.channelsMetadata
+          .multiChannelIssue
+      );
+      console.log(
+        '    unificationMethod:',
+        result.meeting.modules.customerService.channelsMetadata
+          .unificationMethod
+      );
     }
   } else if (result.errors.length > 0) {
     console.log('\n✗ Migration failed:');
-    result.errors.forEach(error => console.log('  -', error));
+    result.errors.forEach((error) => console.log('  -', error));
   }
 
   return result.meeting;
@@ -137,7 +157,7 @@ export function example3_validateMigration() {
 
   if (!validation.valid) {
     console.log('  Issues found:');
-    validation.issues.forEach(issue => console.log('    -', issue));
+    validation.issues.forEach((issue) => console.log('    -', issue));
   } else {
     console.log('  ✓ All checks passed');
   }
@@ -158,10 +178,10 @@ export function example4_edgeCases() {
         dataVersion: 1,
         modules: {
           leadsAndSales: {
-            leadSources: { sources: [] }
-          }
-        }
-      }
+            leadSources: { sources: [] },
+          },
+        },
+      },
     },
     {
       name: 'Undefined leadSources',
@@ -169,9 +189,9 @@ export function example4_edgeCases() {
         meetingId: 'test-2',
         dataVersion: 1,
         modules: {
-          leadsAndSales: {}
-        }
-      }
+          leadsAndSales: {},
+        },
+      },
     },
     {
       name: 'Null channels',
@@ -180,10 +200,10 @@ export function example4_edgeCases() {
         dataVersion: 1,
         modules: {
           customerService: {
-            channels: null
-          }
-        }
-      }
+            channels: null,
+          },
+        },
+      },
     },
     {
       name: 'Already array (migrated)',
@@ -192,10 +212,10 @@ export function example4_edgeCases() {
         dataVersion: 1,
         modules: {
           leadsAndSales: {
-            leadSources: [{ channel: 'Website' }]
-          }
-        }
-      }
+            leadSources: [{ channel: 'Website' }],
+          },
+        },
+      },
     },
     {
       name: 'Malformed object',
@@ -206,11 +226,11 @@ export function example4_edgeCases() {
           leadsAndSales: {
             leadSources: {
               item1: { channel: 'Website' },
-              item2: { channel: 'Facebook' }
-            }
-          }
-        }
-      }
+              item2: { channel: 'Facebook' },
+            },
+          },
+        },
+      },
     },
     {
       name: 'Invalid type (string)',
@@ -219,11 +239,11 @@ export function example4_edgeCases() {
         dataVersion: 1,
         modules: {
           leadsAndSales: {
-            leadSources: 'invalid string'
-          }
-        }
-      }
-    }
+            leadSources: 'invalid string',
+          },
+        },
+      },
+    },
   ];
 
   edgeCases.forEach(({ name, meeting }) => {
@@ -233,7 +253,10 @@ export function example4_edgeCases() {
     if (result.migrated) {
       console.log('  ✓ Migrated successfully');
       console.log('    Applied:', result.migrationsApplied);
-      console.log('    Result:', result.meeting.modules.leadsAndSales?.leadSources || 'N/A');
+      console.log(
+        '    Result:',
+        result.meeting.modules.leadsAndSales?.leadSources || 'N/A'
+      );
     } else if (result.errors.length > 0) {
       console.log('  ✗ Errors:', result.errors);
     } else {
@@ -264,7 +287,9 @@ export function example5_batchMigration() {
     result.results.forEach((res, idx) => {
       console.log(`  ${idx + 1}. Meeting ${res.meeting.meetingId}:`);
       console.log(`     Migrated: ${res.migrated}`);
-      console.log(`     Migrations: ${res.migrationsApplied.join(', ') || 'none'}`);
+      console.log(
+        `     Migrations: ${res.migrationsApplied.join(', ') || 'none'}`
+      );
       if (res.errors.length > 0) {
         console.log(`     Errors: ${res.errors.join(', ')}`);
       }
@@ -441,7 +466,7 @@ if (typeof window !== 'undefined') {
     example7_generateReport,
     example8_storeIntegration,
     example9_defensiveProgramming,
-    runAllExamples
+    runAllExamples,
   };
 
   console.log('[Migration Examples] Available in window.dataMigrationExamples');

@@ -46,8 +46,8 @@ export function calculateRemainingTasks(meeting: Meeting): RemainingTask[] {
     tasks.push({
       type: 'module',
       description: `${incompleteModules.length} מודולים לא הושלמו ב-Discovery`,
-      urgent: incompleteModules.some(m => m.total - m.completed > 3),
-      count: incompleteModules.length
+      urgent: incompleteModules.some((m) => m.total - m.completed > 3),
+      count: incompleteModules.length,
     });
   }
 
@@ -56,59 +56,70 @@ export function calculateRemainingTasks(meeting: Meeting): RemainingTask[] {
     const spec = meeting.implementationSpec;
 
     // Incomplete system specs
-    const incompleteSystems = spec.systems.filter((s: any) => s.completionPercentage < 100);
+    const incompleteSystems = spec.systems.filter(
+      (s: any) => s.completionPercentage < 100
+    );
     if (incompleteSystems.length > 0) {
       tasks.push({
         type: 'spec',
         description: `${incompleteSystems.length} מפרטי מערכות לא הושלמו`,
         urgent: true,
-        count: incompleteSystems.length
+        count: incompleteSystems.length,
       });
     }
 
     // Missing integrations
-    const requiredIntegrations = spec.integrations.filter((i: any) => i.isRequired !== false);
-    const incompleteIntegrations = spec.integrations.filter((i: any) => i.completionPercentage < 100);
+    const requiredIntegrations = spec.integrations.filter(
+      (i: any) => i.isRequired !== false
+    );
+    const incompleteIntegrations = spec.integrations.filter(
+      (i: any) => i.completionPercentage < 100
+    );
     if (requiredIntegrations.length === 0) {
       tasks.push({
         type: 'integration',
         description: 'אינטגרציות לא הוגדרו',
-        urgent: true
+        urgent: true,
       });
     } else if (incompleteIntegrations.length > 0) {
       tasks.push({
         type: 'integration',
         description: `${incompleteIntegrations.length} אינטגרציות לא הושלמו`,
         urgent: true,
-        count: incompleteIntegrations.length
+        count: incompleteIntegrations.length,
       });
     }
 
     // Missing AI agents
-    const requiredAIAgents = spec.aiAgents.filter((a: any) => a.isRequired !== false);
-    const incompleteAIAgents = spec.aiAgents.filter((a: any) => a.completionPercentage < 100);
+    const requiredAIAgents = spec.aiAgents.filter(
+      (a: any) => a.isRequired !== false
+    );
+    const incompleteAIAgents = spec.aiAgents.filter(
+      (a: any) => a.completionPercentage < 100
+    );
     if (requiredAIAgents.length > 0 && incompleteAIAgents.length > 0) {
       tasks.push({
         type: 'ai_agent',
         description: `${incompleteAIAgents.length} סוכני AI לא הוגדרו`,
         urgent: false,
-        count: incompleteAIAgents.length
+        count: incompleteAIAgents.length,
       });
     }
 
     // Missing acceptance criteria
-    const hasAcceptanceCriteria = spec.acceptanceCriteria &&
+    const hasAcceptanceCriteria =
+      spec.acceptanceCriteria &&
       Object.values(spec.acceptanceCriteria).some((arr: any) => arr.length > 0);
     if (!hasAcceptanceCriteria) {
       tasks.push({
         type: 'acceptance',
         description: 'Acceptance Criteria לא נכתבו',
-        urgent: false
+        urgent: false,
       });
     }
   }
 
-    // Check Phase 3 - Development
+  // Check Phase 3 - Development
   if (meeting.phase === 'development' && meeting.developmentTracking) {
     const dev = meeting.developmentTracking;
     const incompleteTasks = dev.tasks.filter((t: any) => t.status !== 'done');
@@ -117,7 +128,7 @@ export function calculateRemainingTasks(meeting: Meeting): RemainingTask[] {
         type: 'module',
         description: `${incompleteTasks.length} משימות פיתוח לא הושלמו`,
         urgent: incompleteTasks.some((t: any) => t.priority === 'critical'),
-        count: incompleteTasks.length
+        count: incompleteTasks.length,
       });
     }
   }
@@ -137,7 +148,7 @@ export function getPurchasedServices(meeting: Meeting): PurchasedService[] {
     id: service.id,
     name: service.name,
     price: service.price,
-    category: service.category
+    category: service.category,
   }));
 }
 
@@ -161,26 +172,31 @@ export function generateNextActions(meeting: Meeting): NextAction[] {
         if (incompleteModules.length > 0) {
           window.location.href = `/module/${incompleteModules[0].moduleId}`;
         }
-      }
+      },
     });
   }
 
   // If services selected but not sent to client
-  const hasSelectedServices = meeting.modules?.proposal?.selectedServices?.some((s: any) => s.selected);
+  const hasSelectedServices = meeting.modules?.proposal?.selectedServices?.some(
+    (s: any) => s.selected
+  );
   if (hasSelectedServices && !meeting.modules?.proposal?.proposalSent) {
     actions.push({
       description: 'שלח הצעה ללקוח',
       urgent: true,
-      action: () => window.location.href = '/module/proposal'
+      action: () => (window.location.href = '/module/proposal'),
     });
   }
 
   // If proposal sent but client decision pending
-  if (meeting.modules?.proposal?.proposalSent && meeting.status === 'awaiting_client_decision') {
+  if (
+    meeting.modules?.proposal?.proposalSent &&
+    meeting.status === 'awaiting_client_decision'
+  ) {
     actions.push({
       description: 'המתן לאישור לקוח והכנס שירותים שנרכשו',
       urgent: false,
-      action: () => window.location.href = '/approval'
+      action: () => (window.location.href = '/approval'),
     });
   }
 
@@ -192,7 +208,7 @@ export function generateNextActions(meeting: Meeting): NextAction[] {
       action: () => {
         // This would trigger phase transition
         console.log('Transition to implementation_spec');
-      }
+      },
     });
   }
 
@@ -200,12 +216,12 @@ export function generateNextActions(meeting: Meeting): NextAction[] {
   if (meeting.phase === 'implementation_spec') {
     const remainingTasks = calculateRemainingTasks(meeting);
     if (remainingTasks.length > 0) {
-      const urgentTasks = remainingTasks.filter(t => t.urgent);
+      const urgentTasks = remainingTasks.filter((t) => t.urgent);
       if (urgentTasks.length > 0) {
         actions.push({
           description: `השלם ${urgentTasks.length} משימות דחופות ב-Phase 2`,
           urgent: true,
-          action: () => window.location.href = '/phase2'
+          action: () => (window.location.href = '/phase2'),
         });
       }
     } else {
@@ -215,7 +231,7 @@ export function generateNextActions(meeting: Meeting): NextAction[] {
         action: () => {
           // Trigger transition to development
           console.log('Transition to development');
-        }
+        },
       });
     }
   }
@@ -225,7 +241,7 @@ export function generateNextActions(meeting: Meeting): NextAction[] {
     actions.push({
       description: 'נהל משימות פיתוח וספרינטים',
       urgent: false,
-      action: () => window.location.href = '/phase3'
+      action: () => (window.location.href = '/phase3'),
     });
   }
 
@@ -243,17 +259,27 @@ function getIncompleteModules(meeting: Meeting): ModuleProgress[] {
   if (!meeting.modules) return modules;
 
   const moduleNames = [
-    'overview', 'essentialDetails', 'leadsAndSales', 'customerService',
-    'operations', 'reporting', 'aiAgents', 'systems', 'roi'
+    'overview',
+    'essentialDetails',
+    'leadsAndSales',
+    'customerService',
+    'operations',
+    'reporting',
+    'aiAgents',
+    'systems',
+    'roi',
   ];
 
-  moduleNames.forEach(moduleName => {
+  moduleNames.forEach((moduleName) => {
     const moduleData = meeting.modules[moduleName as keyof Meeting['modules']];
     if (moduleData) {
       const fields = Object.keys(moduleData).length;
-      const completedFields = Object.values(moduleData).filter(v =>
-        v !== null && v !== undefined && v !== '' &&
-        (Array.isArray(v) ? v.length > 0 : true)
+      const completedFields = Object.values(moduleData).filter(
+        (v) =>
+          v !== null &&
+          v !== undefined &&
+          v !== '' &&
+          (Array.isArray(v) ? v.length > 0 : true)
       ).length;
 
       if (completedFields < fields) {
@@ -263,8 +289,14 @@ function getIncompleteModules(meeting: Meeting): ModuleProgress[] {
           hebrewName: getModuleHebrewName(moduleName),
           completed: completedFields,
           total: fields,
-          percentage: fields > 0 ? Math.round((completedFields / fields) * 100) : 0,
-          status: completedFields === 0 ? 'empty' : completedFields === fields ? 'completed' : 'in_progress'
+          percentage:
+            fields > 0 ? Math.round((completedFields / fields) * 100) : 0,
+          status:
+            completedFields === 0
+              ? 'empty'
+              : completedFields === fields
+                ? 'completed'
+                : 'in_progress',
         } as ModuleProgress);
       }
     }
@@ -280,20 +312,30 @@ function getOverallProgress(meeting: Meeting): number {
   if (!meeting.modules) return 0;
 
   const moduleNames = [
-    'overview', 'essentialDetails', 'leadsAndSales', 'customerService',
-    'operations', 'reporting', 'aiAgents', 'systems', 'roi'
+    'overview',
+    'essentialDetails',
+    'leadsAndSales',
+    'customerService',
+    'operations',
+    'reporting',
+    'aiAgents',
+    'systems',
+    'roi',
   ];
 
   let totalFields = 0;
   let completedFields = 0;
 
-  moduleNames.forEach(moduleName => {
+  moduleNames.forEach((moduleName) => {
     const moduleData = meeting.modules[moduleName as keyof Meeting['modules']];
     if (moduleData) {
       const fields = Object.keys(moduleData).length;
-      const completed = Object.values(moduleData).filter(v =>
-        v !== null && v !== undefined && v !== '' &&
-        (Array.isArray(v) ? v.length > 0 : true)
+      const completed = Object.values(moduleData).filter(
+        (v) =>
+          v !== null &&
+          v !== undefined &&
+          v !== '' &&
+          (Array.isArray(v) ? v.length > 0 : true)
       ).length;
 
       totalFields += fields;
@@ -301,7 +343,9 @@ function getOverallProgress(meeting: Meeting): number {
     }
   });
 
-  return totalFields > 0 ? Math.round((completedFields / totalFields) * 100) : 0;
+  return totalFields > 0
+    ? Math.round((completedFields / totalFields) * 100)
+    : 0;
 }
 
 /**
@@ -317,7 +361,7 @@ function getModuleHebrewName(moduleId: string): string {
     reporting: 'דוחות והתראות',
     aiAgents: 'סוכני AI',
     systems: 'מערכות וטכנולוגיה',
-    roi: 'ROI וכימות'
+    roi: 'ROI וכימות',
   };
   return names[moduleId] || moduleId;
 }
@@ -325,16 +369,27 @@ function getModuleHebrewName(moduleId: string): string {
 /**
  * Calculate client progress summary
  */
-export function calculateClientProgressSummary(meeting: Meeting): ClientProgressSummary {
+export function calculateClientProgressSummary(
+  meeting: Meeting
+): ClientProgressSummary {
   const overallProgress = getOverallProgress(meeting);
   const remainingTasks = calculateRemainingTasks(meeting);
   const purchasedServices = getPurchasedServices(meeting);
   const nextActions = generateNextActions(meeting);
 
   // Determine phase statuses
-  let discoveryStatus: 'completed' | 'in_progress' | 'not_started' = 'not_started';
-  let implementationStatus: 'completed' | 'in_progress' | 'waiting' | 'not_started' = 'not_started';
-  let developmentStatus: 'completed' | 'in_progress' | 'waiting' | 'not_started' = 'not_started';
+  let discoveryStatus: 'completed' | 'in_progress' | 'not_started' =
+    'not_started';
+  let implementationStatus:
+    | 'completed'
+    | 'in_progress'
+    | 'waiting'
+    | 'not_started' = 'not_started';
+  let developmentStatus:
+    | 'completed'
+    | 'in_progress'
+    | 'waiting'
+    | 'not_started' = 'not_started';
 
   // Discovery status
   if (overallProgress === 100) {
@@ -366,10 +421,10 @@ export function calculateClientProgressSummary(meeting: Meeting): ClientProgress
     phaseStatus: {
       discovery: discoveryStatus,
       implementation: implementationStatus,
-      development: developmentStatus
+      development: developmentStatus,
     },
     remainingTasks,
     purchasedServices,
-    nextActions
+    nextActions,
   };
 }

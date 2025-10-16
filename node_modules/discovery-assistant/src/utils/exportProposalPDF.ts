@@ -1,5 +1,12 @@
-import { SelectedService, ProposalData, ContractVersion } from '../types/proposal';
-import { COMPANY_BRANDING, TRIAL_CONTRACT_TERMS } from '../config/companyBranding';
+import {
+  SelectedService,
+  ProposalData,
+  ContractVersion,
+} from '../types/proposal';
+import {
+  COMPANY_BRANDING,
+  TRIAL_CONTRACT_TERMS,
+} from '../config/companyBranding';
 import { AiProposalDoc } from '../schemas/aiProposal.schema';
 
 export interface ProposalPDFOptions {
@@ -35,14 +42,16 @@ const generateTermsSection = (
     return `
       <h3>💳 ${TRIAL_CONTRACT_TERMS.title}</h3>
       <div style="padding-right: 15px; margin-bottom: 20px;">
-        ${TRIAL_CONTRACT_TERMS.terms.map(term => {
-          // Highlight the specific text as requested
-          const highlightedTerm = term.replace(
-            TRIAL_CONTRACT_TERMS.highlightedText,
-            `<strong style="background-color: #ffff00; padding: 2px 4px; border-radius: 3px; border: 2px solid #ff6b00; font-weight: bold; color: #000;">${TRIAL_CONTRACT_TERMS.highlightedText}</strong>`
-          );
-          return `<p style="margin-bottom: 8px;">• ${highlightedTerm}</p>`;
-        }).join('')}
+        ${TRIAL_CONTRACT_TERMS.terms
+          .map((term) => {
+            // Highlight the specific text as requested
+            const highlightedTerm = term.replace(
+              TRIAL_CONTRACT_TERMS.highlightedText,
+              `<strong style="background-color: #ffff00; padding: 2px 4px; border-radius: 3px; border: 2px solid #ff6b00; font-weight: bold; color: #000;">${TRIAL_CONTRACT_TERMS.highlightedText}</strong>`
+            );
+            return `<p style="margin-bottom: 8px;">• ${highlightedTerm}</p>`;
+          })
+          .join('')}
       </div>
       
       <!-- Trial contracts do NOT include validity terms or additional conditions -->
@@ -54,7 +63,7 @@ const generateTermsSection = (
   if (aiProposal?.terms && contractVersion === 'standard') {
     return `
       <div>
-        ${aiProposal.terms.map(term => `<p style="padding-right: 15px; margin-bottom: 8px;">• ${term}</p>`).join('')}
+        ${aiProposal.terms.map((term) => `<p style="padding-right: 15px; margin-bottom: 8px;">• ${term}</p>`).join('')}
       </div>
     `;
   }
@@ -93,7 +102,14 @@ import html2pdf from 'html2pdf.js';
  * This function is shared between PDF generation for sending and direct downloading.
  */
 const buildProposalHtmlContent = (options: ProposalPDFOptions): string => {
-  const { clientName, clientCompany, services, proposalData, aiProposal, contractVersion = 'standard' } = options;
+  const {
+    clientName,
+    clientCompany,
+    services,
+    proposalData,
+    aiProposal,
+    contractVersion = 'standard',
+  } = options;
 
   const today = new Date();
   const validUntil = new Date(today);
@@ -382,9 +398,12 @@ const buildProposalHtmlContent = (options: ProposalPDFOptions): string => {
     </div>
 
     <h2>תקציר מנהלים</h2>
-    ${aiProposal?.executiveSummary ? `
-      ${aiProposal.executiveSummary.map(paragraph => `<p style="font-size: 11pt; margin-bottom: 8px;">${paragraph}</p>`).join('')}
-    ` : `
+    ${
+      aiProposal?.executiveSummary
+        ? `
+      ${aiProposal.executiveSummary.map((paragraph) => `<p style="font-size: 11pt; margin-bottom: 8px;">${paragraph}</p>`).join('')}
+    `
+        : `
       <p style="font-size: 11pt;">
         לאחר ניתוח מעמיק של תהליכי העבודה שלכם, זיהינו ${proposalData.summary.totalServices} פתרונות
         אוטומציה ו-AI. ההשקעה הכוללת: ${formatPrice(proposalData.totalPrice)}${
@@ -393,7 +412,8 @@ const buildProposalHtmlContent = (options: ProposalPDFOptions): string => {
             : ''
         }.
       </p>
-    `}
+    `
+    }
   </div>
 
   <!-- PAGE 2: SERVICES TABLE -->
@@ -434,8 +454,12 @@ const buildProposalHtmlContent = (options: ProposalPDFOptions): string => {
     <h2>פירוט מלא של השירותים</h2>
     <p style="color: #666; margin-bottom: 15px;">כל שירות מותאם במיוחד לצרכים שזיהינו</p>
 
-    ${aiProposal?.services ? `
-      ${aiProposal.services.map((aiService, index) => `
+    ${
+      aiProposal?.services
+        ? `
+      ${aiProposal.services
+        .map(
+          (aiService, index) => `
         <div class="service-box">
           <div class="service-title">${index + 1}. ${aiService.titleHe}</div>
 
@@ -449,8 +473,11 @@ const buildProposalHtmlContent = (options: ProposalPDFOptions): string => {
             <p>${aiService.whatIncludedHe}</p>
           </div>
         </div>
-      `).join('')}
-    ` : `
+      `
+        )
+        .join('')}
+    `
+        : `
       ${services
         .map(
           (service, index) => `
@@ -485,7 +512,8 @@ const buildProposalHtmlContent = (options: ProposalPDFOptions): string => {
       `
         )
         .join('')}
-    `}
+    `
+    }
   </div>
 
   <!-- PAGE 4: FINANCIAL SUMMARY -->
@@ -510,14 +538,16 @@ const buildProposalHtmlContent = (options: ProposalPDFOptions): string => {
     </div>
 
     ${
-      (aiProposal?.financialSummary.monthlySavings || (proposalData.monthlySavings || 0)) > 0
+      (aiProposal?.financialSummary.monthlySavings ||
+        proposalData.monthlySavings ||
+        0) > 0
         ? `
     <div class="roi-highlight">
       <h3>🎯 תשואה שנתית צפויה</h3>
-      <div class="value">${formatPrice((aiProposal?.financialSummary.monthlySavings || (proposalData.monthlySavings || 0)) * 12)}</div>
+      <div class="value">${formatPrice((aiProposal?.financialSummary.monthlySavings || proposalData.monthlySavings || 0) * 12)}</div>
       <p style="margin-top: 12px; font-size: 12pt;">
-        חיסכון חודשי: ${formatPrice(aiProposal?.financialSummary.monthlySavings || (proposalData.monthlySavings || 0))} |
-        החזר השקעה: ${aiProposal?.financialSummary.expectedROIMonths || (proposalData.expectedROIMonths || 0)} חודשים
+        חיסכון חודשי: ${formatPrice(aiProposal?.financialSummary.monthlySavings || proposalData.monthlySavings || 0)} |
+        החזר השקעה: ${aiProposal?.financialSummary.expectedROIMonths || proposalData.expectedROIMonths || 0} חודשים
       </p>
     </div>
     `
@@ -544,11 +574,14 @@ const buildProposalHtmlContent = (options: ProposalPDFOptions): string => {
   <div class="page">
     <h1 style="text-align: center; margin-bottom: 25px;">🚀 השלב הבא</h1>
 
-    ${aiProposal?.nextSteps ? `
+    ${
+      aiProposal?.nextSteps
+        ? `
       <ol style="padding-right: 30px; font-size: 12pt; line-height: 2; margin-bottom: 25px;">
-        ${aiProposal.nextSteps.map(step => `<li>${step}</li>`).join('')}
+        ${aiProposal.nextSteps.map((step) => `<li>${step}</li>`).join('')}
       </ol>
-    ` : `
+    `
+        : `
       <ol style="padding-right: 30px; font-size: 12pt; line-height: 2; margin-bottom: 25px;">
         <li>סקירת ההצעה ושאלות הבהרה</li>
         <li>תיאום פגישת קיק-אוף</li>
@@ -556,7 +589,8 @@ const buildProposalHtmlContent = (options: ProposalPDFOptions): string => {
         <li>תשלום מקדמה</li>
         <li>התחלת העבודה!</li>
       </ol>
-    `}
+    `
+    }
 
     <div class="contact-box">
       <h3 style="color: ${COMPANY_BRANDING.secondaryColor}; margin-bottom: 12px;">
@@ -590,7 +624,9 @@ const buildProposalHtmlContent = (options: ProposalPDFOptions): string => {
  * Generate Professional PDF using html2pdf.js
  * Returns Blob for WhatsApp/Email sending
  */
-export const generateProposalPDF = async (options: ProposalPDFOptions): Promise<Blob> => {
+export const generateProposalPDF = async (
+  options: ProposalPDFOptions
+): Promise<Blob> => {
   // Create a temporary div to hold the HTML content
   const tempDiv = document.createElement('div');
   tempDiv.id = 'proposal-content';
@@ -602,7 +638,8 @@ export const generateProposalPDF = async (options: ProposalPDFOptions): Promise<
 
   // Load Rubik font first
   const fontLink = document.createElement('link');
-  fontLink.href = 'https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap';
+  fontLink.href =
+    'https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap';
   fontLink.rel = 'stylesheet';
   document.head.appendChild(fontLink);
 
@@ -623,10 +660,16 @@ export const generateProposalPDF = async (options: ProposalPDFOptions): Promise<
       letterRendering: true,
       logging: false,
       windowWidth: 794, // A4 width in pixels at 96 DPI
-      windowHeight: 1123 // A4 height in pixels at 96 DPI
+      windowHeight: 1123, // A4 height in pixels at 96 DPI
     },
-    jsPDF: { unit: 'in' as const, format: 'a4' as const, orientation: 'portrait' as const },
-    pagebreak: { mode: ['avoid-all' as const, 'css' as const, 'legacy' as const] }
+    jsPDF: {
+      unit: 'in' as const,
+      format: 'a4' as const,
+      orientation: 'portrait' as const,
+    },
+    pagebreak: {
+      mode: ['avoid-all' as const, 'css' as const, 'legacy' as const],
+    },
   };
 
   try {

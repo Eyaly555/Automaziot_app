@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
-import type { IntegrationComplexRequirements, SystemConfig } from '../../../../types/integrationServices';
+import type {
+  IntegrationComplexRequirements,
+  SystemConfig,
+} from '../../../../types/integrationServices';
 import { useSmartField } from '../../../../hooks/useSmartField';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
@@ -9,58 +12,60 @@ import { Info } from 'lucide-react';
 
 export function IntegrationComplexSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
-  const [config, setConfig] = useState<Partial<IntegrationComplexRequirements>>({
-    systems: [],
-    syncConfig: {
-      direction: 'bi-directional',
-      frequency: 'real-time',
-      requiresWebhooks: true,
-      conflictResolution: 'last-write-wins'
-    },
-    fieldMappings: [],
-    webhooks: [],
-    database: {
-      type: 'supabase',
-      tables: {
-        syncLog: true,
-        conflictQueue: true,
-        syncState: true
-      }
-    },
-    circularUpdatePrevention: {
-      enabled: true,
-      syncSourceIdField: 'sync_source_id',
-      conflictLogging: true
-    },
-    n8nConfig: {
-      mainWorkflow: '',
-      subWorkflows: [],
-      errorWorkflows: [],
-      estimatedNodes: 15
-    },
-    monitoring: {
-      enableLogging: true,
-      logLevel: 'info',
-      enableMetrics: true,
-      dashboardUrl: ''
-    },
-    errorHandling: {
-      retryAttempts: 3,
-      retryDelays: [5, 25, 125],
-      alertChannels: ['email', 'slack'],
-      alertRecipients: [],
-      deadLetterQueue: true,
-      tokenRefreshAutomation: true,
-      webhookRetryQueue: true
-    },
-    metadata: {
-      complexity: 'complex',
-      estimatedHours: 40,
-      prerequisites: [],
-      monthlyApiCalls: 10000,
-      monthlyCost: 0
+  const [config, setConfig] = useState<Partial<IntegrationComplexRequirements>>(
+    {
+      systems: [],
+      syncConfig: {
+        direction: 'bi-directional',
+        frequency: 'real-time',
+        requiresWebhooks: true,
+        conflictResolution: 'last-write-wins',
+      },
+      fieldMappings: [],
+      webhooks: [],
+      database: {
+        type: 'supabase',
+        tables: {
+          syncLog: true,
+          conflictQueue: true,
+          syncState: true,
+        },
+      },
+      circularUpdatePrevention: {
+        enabled: true,
+        syncSourceIdField: 'sync_source_id',
+        conflictLogging: true,
+      },
+      n8nConfig: {
+        mainWorkflow: '',
+        subWorkflows: [],
+        errorWorkflows: [],
+        estimatedNodes: 15,
+      },
+      monitoring: {
+        enableLogging: true,
+        logLevel: 'info',
+        enableMetrics: true,
+        dashboardUrl: '',
+      },
+      errorHandling: {
+        retryAttempts: 3,
+        retryDelays: [5, 25, 125],
+        alertChannels: ['email', 'slack'],
+        alertRecipients: [],
+        deadLetterQueue: true,
+        tokenRefreshAutomation: true,
+        webhookRetryQueue: true,
+      },
+      metadata: {
+        complexity: 'complex',
+        estimatedHours: 40,
+        prerequisites: [],
+        monthlyApiCalls: 10000,
+        monthlyCost: 0,
+      },
     }
-  });
+  );
 
   // Track if we're currently loading data to prevent save loops
   const isLoadingRef = useRef(false);
@@ -69,7 +74,7 @@ export function IntegrationComplexSpec() {
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'integration-complex',
-    category: 'integrationServices'
+    category: 'integrationServices',
   });
 
   useBeforeUnload(() => {
@@ -82,34 +87,37 @@ export function IntegrationComplexSpec() {
     authType: 'oauth2',
     credentials: {},
     apiVersion: '',
-    baseUrl: ''
+    baseUrl: '',
   });
 
   const apiAuthMethod = useSmartField<string>({
     fieldId: 'api_auth_method',
     localPath: 'systems[0].authType',
     serviceId: 'integration-complex',
-    autoSave: false
+    autoSave: false,
   });
 
   const syncFrequency = useSmartField<string>({
     fieldId: 'sync_frequency',
     localPath: 'syncConfig.frequency',
     serviceId: 'integration-complex',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'errorHandling.alertRecipients[0]',
     serviceId: 'integration-complex',
-    autoSave: false
+    autoSave: false,
   });
 
   // Load existing data ONCE on mount or when service data actually changes
   useEffect(() => {
-    const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
-    const existing = integrationServices.find((i: any) => i.serviceId === 'integration-complex');
+    const integrationServices =
+      currentMeeting?.implementationSpec?.integrationServices || [];
+    const existing = integrationServices.find(
+      (i: any) => i.serviceId === 'integration-complex'
+    );
 
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
@@ -137,40 +145,53 @@ export function IntegrationComplexSpec() {
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [config]);
 
-  const handleFieldChange = useCallback((field: keyof Partial<IntegrationComplexRequirements>, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = {
-            ...updated,
-            syncConfig: {
-              ...updated.syncConfig,
-              frequency: syncFrequency.value === 'realtime' ? 'real-time' : syncFrequency.value
-            },
-            errorHandling: {
-              ...updated.errorHandling,
-              alertRecipients: alertEmail.value ? [alertEmail.value] : updated.errorHandling?.alertRecipients || []
-            }
-          };
-          saveData(completeConfig);
-        }
-      }, 0);
-      return updated;
-    });
-  }, [syncFrequency.value, alertEmail.value, saveData]);
+  const handleFieldChange = useCallback(
+    (field: keyof Partial<IntegrationComplexRequirements>, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = {
+              ...updated,
+              syncConfig: {
+                ...updated.syncConfig,
+                frequency:
+                  syncFrequency.value === 'realtime'
+                    ? 'real-time'
+                    : syncFrequency.value,
+              },
+              errorHandling: {
+                ...updated.errorHandling,
+                alertRecipients: alertEmail.value
+                  ? [alertEmail.value]
+                  : updated.errorHandling?.alertRecipients || [],
+              },
+            };
+            saveData(completeConfig);
+          }
+        }, 0);
+        return updated;
+      });
+    },
+    [syncFrequency.value, alertEmail.value, saveData]
+  );
 
   const handleSave = useCallback(async () => {
     const completeConfig = {
       ...config,
       syncConfig: {
         ...config.syncConfig,
-        frequency: syncFrequency.value === 'realtime' ? 'real-time' : syncFrequency.value
+        frequency:
+          syncFrequency.value === 'realtime'
+            ? 'real-time'
+            : syncFrequency.value,
       },
       errorHandling: {
         ...config.errorHandling,
-        alertRecipients: alertEmail.value ? [alertEmail.value] : config.errorHandling?.alertRecipients || []
-      }
+        alertRecipients: alertEmail.value
+          ? [alertEmail.value]
+          : config.errorHandling?.alertRecipients || [],
+      },
     };
 
     // Save using auto-save (manual save trigger)
@@ -181,9 +202,18 @@ export function IntegrationComplexSpec() {
 
   const addSystem = () => {
     if (newSystem.name) {
-      const updatedSystems = [...(config.systems || []), newSystem as SystemConfig];
+      const updatedSystems = [
+        ...(config.systems || []),
+        newSystem as SystemConfig,
+      ];
       handleFieldChange('systems', updatedSystems);
-      setNewSystem({ name: '', authType: 'oauth2', credentials: {}, apiVersion: '', baseUrl: '' });
+      setNewSystem({
+        name: '',
+        authType: 'oauth2',
+        credentials: {},
+        apiVersion: '',
+        baseUrl: '',
+      });
     }
   };
 
@@ -194,7 +224,9 @@ export function IntegrationComplexSpec() {
 
   return (
     <div className="space-y-6 p-8" dir="rtl">
-      {(apiAuthMethod.isAutoPopulated || syncFrequency.isAutoPopulated || alertEmail.isAutoPopulated) && (
+      {(apiAuthMethod.isAutoPopulated ||
+        syncFrequency.isAutoPopulated ||
+        alertEmail.isAutoPopulated) && (
         <div className="bg-blue-50 border rounded-lg p-4">
           <Info className="w-5 h-5 text-blue-600" />
           <p>נתונים מולאו אוטומטית.</p>
@@ -202,7 +234,6 @@ export function IntegrationComplexSpec() {
       )}
       <Card title="שירות #32: אינטגרציה מורכבת (3+ מערכות)">
         <div className="space-y-6">
-
           {/* Systems Management */}
           <div className="border-b pb-4">
             <h3 className="text-lg font-semibold mb-4">מערכות (3 ומעלה)</h3>
@@ -211,13 +242,20 @@ export function IntegrationComplexSpec() {
                 <input
                   type="text"
                   value={newSystem.name || ''}
-                  onChange={(e) => setNewSystem({ ...newSystem, name: e.target.value })}
+                  onChange={(e) =>
+                    setNewSystem({ ...newSystem, name: e.target.value })
+                  }
                   className="px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="שם המערכת"
                 />
                 <select
                   value={newSystem.authType || 'oauth2'}
-                  onChange={(e) => setNewSystem({ ...newSystem, authType: e.target.value as any })}
+                  onChange={(e) =>
+                    setNewSystem({
+                      ...newSystem,
+                      authType: e.target.value as any,
+                    })
+                  }
                   className="px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="oauth2">OAuth 2.0</option>
@@ -228,7 +266,9 @@ export function IntegrationComplexSpec() {
                 <input
                   type="text"
                   value={newSystem.apiVersion || ''}
-                  onChange={(e) => setNewSystem({ ...newSystem, apiVersion: e.target.value })}
+                  onChange={(e) =>
+                    setNewSystem({ ...newSystem, apiVersion: e.target.value })
+                  }
                   className="px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="גרסת API"
                 />
@@ -242,13 +282,24 @@ export function IntegrationComplexSpec() {
 
               {config.systems && config.systems.length > 0 && (
                 <div className="mt-3 space-y-2">
-                  <p className="text-sm text-gray-600">מערכות ({config.systems.length}):</p>
+                  <p className="text-sm text-gray-600">
+                    מערכות ({config.systems.length}):
+                  </p>
                   {config.systems.map((system, index) => (
-                    <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between bg-gray-50 p-3 rounded"
+                    >
                       <div>
                         <span className="font-medium">{system.name}</span>
-                        <span className="text-sm text-gray-600 mr-2">({system.authType})</span>
-                        {system.apiVersion && <span className="text-xs text-gray-500">v{system.apiVersion}</span>}
+                        <span className="text-sm text-gray-600 mr-2">
+                          ({system.authType})
+                        </span>
+                        {system.apiVersion && (
+                          <span className="text-xs text-gray-500">
+                            v{system.apiVersion}
+                          </span>
+                        )}
                       </div>
                       <button
                         onClick={() => removeSystem(index)}
@@ -265,13 +316,24 @@ export function IntegrationComplexSpec() {
 
           {/* Sync Configuration */}
           <div className="border-b pb-4">
-            <h3 className="text-lg font-semibold mb-4">הגדרות סנכרון דו-כיווני</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              הגדרות סנכרון דו-כיווני
+            </h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">אסטרטגיית פתרון קונפליקטים</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  אסטרטגיית פתרון קונפליקטים
+                </label>
                 <select
-                  value={config.syncConfig?.conflictResolution || 'last-write-wins'}
-                  onChange={(e) => handleFieldChange('syncConfig.conflictResolution', e.target.value as any)}
+                  value={
+                    config.syncConfig?.conflictResolution || 'last-write-wins'
+                  }
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'syncConfig.conflictResolution',
+                      e.target.value as any
+                    )
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="last-write-wins">Last Write Wins</option>
@@ -285,7 +347,12 @@ export function IntegrationComplexSpec() {
                   <input
                     type="checkbox"
                     checked={config.syncConfig?.requiresWebhooks}
-                    onChange={(e) => handleFieldChange('syncConfig.requiresWebhooks', e.target.checked)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'syncConfig.requiresWebhooks',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>דורש Webhooks</span>
@@ -299,10 +366,14 @@ export function IntegrationComplexSpec() {
             <h3 className="text-lg font-semibold mb-4">בסיס נתונים</h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">סוג Database</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  סוג Database
+                </label>
                 <select
                   value={config.database?.type || 'supabase'}
-                  onChange={(e) => handleFieldChange('database.type', e.target.value as any)}
+                  onChange={(e) =>
+                    handleFieldChange('database.type', e.target.value as any)
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="supabase">Supabase</option>
@@ -310,13 +381,20 @@ export function IntegrationComplexSpec() {
                 </select>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">טבלאות נדרשות:</p>
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  טבלאות נדרשות:
+                </p>
                 <div className="space-y-2">
                   <label className="flex items-center space-x-2">
                     <input
                       type="checkbox"
                       checked={config.database?.tables?.syncLog}
-                      onChange={(e) => handleFieldChange('database.tables.syncLog', e.target.checked)}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          'database.tables.syncLog',
+                          e.target.checked
+                        )
+                      }
                       className="rounded"
                     />
                     <span>Sync Log</span>
@@ -325,7 +403,12 @@ export function IntegrationComplexSpec() {
                     <input
                       type="checkbox"
                       checked={config.database?.tables?.conflictQueue}
-                      onChange={(e) => handleFieldChange('database.tables.conflictQueue', e.target.checked)}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          'database.tables.conflictQueue',
+                          e.target.checked
+                        )
+                      }
                       className="rounded"
                     />
                     <span>Conflict Queue</span>
@@ -334,7 +417,12 @@ export function IntegrationComplexSpec() {
                     <input
                       type="checkbox"
                       checked={config.database?.tables?.syncState}
-                      onChange={(e) => handleFieldChange('database.tables.syncState', e.target.checked)}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          'database.tables.syncState',
+                          e.target.checked
+                        )
+                      }
                       className="rounded"
                     />
                     <span>Sync State</span>
@@ -346,13 +434,20 @@ export function IntegrationComplexSpec() {
 
           {/* Circular Update Prevention */}
           <div className="border-b pb-4">
-            <h3 className="text-lg font-semibold mb-4">מניעת עדכונים מעגליים</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              מניעת עדכונים מעגליים
+            </h3>
             <div className="space-y-3">
               <label className="flex items-center space-x-2">
                 <input
                   type="checkbox"
                   checked={config.circularUpdatePrevention?.enabled}
-                  onChange={(e) => handleFieldChange('circularUpdatePrevention.enabled', e.target.checked)}
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'circularUpdatePrevention.enabled',
+                      e.target.checked
+                    )
+                  }
                   className="rounded"
                 />
                 <span>הפעל מניעת עדכונים מעגליים</span>
@@ -360,11 +455,20 @@ export function IntegrationComplexSpec() {
               {config.circularUpdatePrevention?.enabled && (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">שם שדה Sync Source ID</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      שם שדה Sync Source ID
+                    </label>
                     <input
                       type="text"
-                      value={config.circularUpdatePrevention?.syncSourceIdField || ''}
-                      onChange={(e) => handleFieldChange('circularUpdatePrevention.syncSourceIdField', e.target.value)}
+                      value={
+                        config.circularUpdatePrevention?.syncSourceIdField || ''
+                      }
+                      onChange={(e) =>
+                        handleFieldChange(
+                          'circularUpdatePrevention.syncSourceIdField',
+                          e.target.value
+                        )
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     />
                   </div>
@@ -372,8 +476,15 @@ export function IntegrationComplexSpec() {
                     <label className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={config.circularUpdatePrevention?.conflictLogging}
-                        onChange={(e) => handleFieldChange('circularUpdatePrevention.conflictLogging', e.target.checked)}
+                        checked={
+                          config.circularUpdatePrevention?.conflictLogging
+                        }
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'circularUpdatePrevention.conflictLogging',
+                            e.target.checked
+                          )
+                        }
                         className="rounded"
                       />
                       <span>רישום קונפליקטים</span>
@@ -389,22 +500,33 @@ export function IntegrationComplexSpec() {
             <h3 className="text-lg font-semibold mb-4">הגדרות n8n</h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Main Workflow</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Main Workflow
+                </label>
                 <input
                   type="text"
                   value={config.n8nConfig?.mainWorkflow || ''}
-                  onChange={(e) => handleFieldChange('n8nConfig.mainWorkflow', e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange('n8nConfig.mainWorkflow', e.target.value)
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="שם Workflow ראשי"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">מספר Nodes משוער</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  מספר Nodes משוער
+                </label>
                 <input
                   type="number"
                   min="10"
                   value={config.n8nConfig?.estimatedNodes || 15}
-                  onChange={(e) => handleFieldChange('n8nConfig.estimatedNodes', parseInt(e.target.value))}
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'n8nConfig.estimatedNodes',
+                      parseInt(e.target.value)
+                    )
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
@@ -420,7 +542,12 @@ export function IntegrationComplexSpec() {
                   <input
                     type="checkbox"
                     checked={config.monitoring?.enableLogging}
-                    onChange={(e) => handleFieldChange('monitoring.enableLogging', e.target.checked)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'monitoring.enableLogging',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>הפעל Logging</span>
@@ -429,7 +556,12 @@ export function IntegrationComplexSpec() {
                   <input
                     type="checkbox"
                     checked={config.monitoring?.enableMetrics}
-                    onChange={(e) => handleFieldChange('monitoring.enableMetrics', e.target.checked)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'monitoring.enableMetrics',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>הפעל Metrics</span>
@@ -437,10 +569,17 @@ export function IntegrationComplexSpec() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">רמת Log</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    רמת Log
+                  </label>
                   <select
                     value={config.monitoring?.logLevel || 'info'}
-                    onChange={(e) => handleFieldChange('monitoring.logLevel', e.target.value as any)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'monitoring.logLevel',
+                        e.target.value as any
+                      )
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   >
                     <option value="debug">Debug</option>
@@ -450,11 +589,18 @@ export function IntegrationComplexSpec() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Dashboard URL (אופציונלי)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Dashboard URL (אופציונלי)
+                  </label>
                   <input
                     type="url"
                     value={config.monitoring?.dashboardUrl || ''}
-                    onChange={(e) => handleFieldChange('monitoring.dashboardUrl', e.target.value)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'monitoring.dashboardUrl',
+                        e.target.value
+                      )
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -468,12 +614,19 @@ export function IntegrationComplexSpec() {
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">ניסיונות חוזרים</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    ניסיונות חוזרים
+                  </label>
                   <input
                     type="number"
                     min="0"
                     value={config.errorHandling?.retryAttempts || 3}
-                    onChange={(e) => handleFieldChange('errorHandling.retryAttempts', parseInt(e.target.value))}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'errorHandling.retryAttempts',
+                        parseInt(e.target.value)
+                      )
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -483,7 +636,12 @@ export function IntegrationComplexSpec() {
                   <input
                     type="checkbox"
                     checked={config.errorHandling?.tokenRefreshAutomation}
-                    onChange={(e) => handleFieldChange('errorHandling.tokenRefreshAutomation', e.target.checked)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'errorHandling.tokenRefreshAutomation',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>רענון אוטומטי של Tokens</span>
@@ -492,7 +650,12 @@ export function IntegrationComplexSpec() {
                   <input
                     type="checkbox"
                     checked={config.errorHandling?.webhookRetryQueue}
-                    onChange={(e) => handleFieldChange('errorHandling.webhookRetryQueue', e.target.checked)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'errorHandling.webhookRetryQueue',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>תור ניסיונות חוזרים ל-Webhooks</span>
@@ -506,22 +669,36 @@ export function IntegrationComplexSpec() {
             <h3 className="text-lg font-semibold mb-4">Metadata</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">שעות משוערות</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  שעות משוערות
+                </label>
                 <input
                   type="number"
                   min="1"
                   value={config.metadata?.estimatedHours || 40}
-                  onChange={(e) => handleFieldChange('metadata.estimatedHours', parseInt(e.target.value))}
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'metadata.estimatedHours',
+                      parseInt(e.target.value)
+                    )
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">קריאות API חודשיות משוערות</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  קריאות API חודשיות משוערות
+                </label>
                 <input
                   type="number"
                   min="0"
                   value={config.metadata?.monthlyApiCalls || 10000}
-                  onChange={(e) => handleFieldChange('metadata.monthlyApiCalls', parseInt(e.target.value))}
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'metadata.monthlyApiCalls',
+                      parseInt(e.target.value)
+                    )
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>

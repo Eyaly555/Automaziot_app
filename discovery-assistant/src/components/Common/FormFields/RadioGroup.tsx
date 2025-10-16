@@ -29,11 +29,13 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
   helperText,
   error = false,
   className = '',
-  orientation = 'vertical'
+  orientation = 'vertical',
 }) => {
   // Check if we're in mobile context by looking for mobile classes or mobile route
-  const isMobile = className.includes('mobile-') || window.location.pathname.includes('/mobile/');
-  
+  const isMobile =
+    className.includes('mobile-') ||
+    window.location.pathname.includes('/mobile/');
+
   if (isMobile) {
     return (
       <div className={`mobile-radio-group ${className}`} dir="rtl">
@@ -43,8 +45,10 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
             {required && <span className="text-red-500 mr-1">*</span>}
           </label>
         )}
-        <div className={`${orientation === 'horizontal' ? 'flex flex-wrap gap-4' : 'space-y-2'}`}>
-          {options.map(option => (
+        <div
+          className={`${orientation === 'horizontal' ? 'flex flex-wrap gap-4' : 'space-y-2'}`}
+        >
+          {options.map((option) => (
             <label
               key={option.value}
               className={`mobile-radio-option ${value === option.value ? 'selected' : ''}
@@ -60,7 +64,9 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
               />
               <span className="mobile-radio-option label">{option.label}</span>
               {option.description && (
-                <p className="text-xs text-gray-500 mt-0.5">{option.description}</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {option.description}
+                </p>
               )}
             </label>
           ))}
@@ -82,8 +88,10 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
           {required && <span className="text-red-500 mr-1">*</span>}
         </label>
       )}
-      <div className={`${orientation === 'horizontal' ? 'flex flex-wrap gap-4' : 'space-y-2'}`}>
-        {options.map(option => (
+      <div
+        className={`${orientation === 'horizontal' ? 'flex flex-wrap gap-4' : 'space-y-2'}`}
+      >
+        {options.map((option) => (
           <label
             key={option.value}
             className={`flex items-start cursor-pointer
@@ -100,7 +108,9 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
             <div className="flex-1">
               <span className="text-sm text-gray-700">{option.label}</span>
               {option.description && (
-                <p className="text-xs text-gray-500 mt-0.5">{option.description}</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {option.description}
+                </p>
               )}
             </div>
           </label>

@@ -10,7 +10,7 @@ import {
   Lock,
   ChevronRight,
   Loader2,
-  AlertTriangle
+  AlertTriangle,
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { MeetingPhase, MeetingStatus } from '../../types';
@@ -36,19 +36,25 @@ const PHASE_CONFIGS: PhaseConfig[] = [
     phase: 'discovery',
     label: { he: 'גילוי', en: 'Discovery' },
     icon: Search,
-    description: { he: 'איסוף מידע ראשוני מהלקוח', en: 'Initial client data collection' },
+    description: {
+      he: 'איסוף מידע ראשוני מהלקוח',
+      en: 'Initial client data collection',
+    },
     requiredStatus: ['discovery_in_progress', 'discovery_complete'],
-    order: 1
+    order: 1,
   },
   {
     id: 'requirements',
     phase: 'discovery',
     label: { he: 'איסוף דרישות', en: 'Requirements' },
     icon: ClipboardList,
-    description: { he: 'איסוף דרישות מפורטות לשירותים', en: 'Detailed service requirements collection' },
+    description: {
+      he: 'איסוף דרישות מפורטות לשירותים',
+      en: 'Detailed service requirements collection',
+    },
     requiredStatus: ['discovery_complete', 'awaiting_client_decision'],
     isSubPhase: true,
-    order: 1.5
+    order: 1.5,
   },
   {
     id: 'approval',
@@ -58,35 +64,50 @@ const PHASE_CONFIGS: PhaseConfig[] = [
     description: { he: 'המתנה לאישור לקוח', en: 'Awaiting client approval' },
     requiredStatus: ['awaiting_client_decision', 'client_approved'],
     isSubPhase: true,
-    order: 1.9
+    order: 1.9,
   },
   {
     id: 'implementation_spec',
     phase: 'implementation_spec',
     label: { he: 'מפרט יישום', en: 'Implementation Spec' },
     icon: FileCode,
-    description: { he: 'פירוט טכני מלא של המערכות והאינטגרציות', en: 'Detailed technical specifications' },
+    description: {
+      he: 'פירוט טכני מלא של המערכות והאינטגרציות',
+      en: 'Detailed technical specifications',
+    },
     requiredStatus: ['spec_in_progress', 'spec_complete'],
-    order: 2
+    order: 2,
   },
   {
     id: 'development',
     phase: 'development',
     label: { he: 'פיתוח', en: 'Development' },
     icon: Code,
-    description: { he: 'ניהול משימות ומעקב אחר הפיתוח', en: 'Task management and development tracking' },
-    requiredStatus: ['dev_not_started', 'dev_in_progress', 'dev_testing', 'dev_ready_for_deployment', 'deployed'],
-    order: 3
+    description: {
+      he: 'ניהול משימות ומעקב אחר הפיתוח',
+      en: 'Task management and development tracking',
+    },
+    requiredStatus: [
+      'dev_not_started',
+      'dev_in_progress',
+      'dev_testing',
+      'dev_ready_for_deployment',
+      'deployed',
+    ],
+    order: 3,
   },
   {
     id: 'completed',
     phase: 'completed',
     label: { he: 'הושלם', en: 'Completed' },
     icon: Trophy,
-    description: { he: 'הפרויקט הושלם בהצלחה', en: 'Project completed successfully' },
+    description: {
+      he: 'הפרויקט הושלם בהצלחה',
+      en: 'Project completed successfully',
+    },
     requiredStatus: ['completed'],
-    order: 4
-  }
+    order: 4,
+  },
 ];
 
 interface PhaseNavigatorProps {
@@ -98,13 +119,20 @@ interface PhaseNavigatorProps {
 export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
   language = 'he',
   compact = false,
-  showProgress = true
+  showProgress = true,
 }) => {
   const navigate = useNavigate();
-  const { currentMeeting, transitionPhase, canTransitionTo, getPhaseProgress, getOverallProgress } = useMeetingStore();
+  const {
+    currentMeeting,
+    transitionPhase,
+    canTransitionTo,
+    getPhaseProgress,
+    getOverallProgress,
+  } = useMeetingStore();
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [pendingTransition, setPendingTransition] = useState<PhaseConfig | null>(null);
+  const [pendingTransition, setPendingTransition] =
+    useState<PhaseConfig | null>(null);
 
   if (!currentMeeting) return null;
 
@@ -132,19 +160,24 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
   /**
    * Determine the state of each phase/sub-phase
    */
-  const getPhaseState = (config: PhaseConfig): 'completed' | 'active' | 'unlocked' | 'locked' => {
-    const phaseIndex = PHASE_CONFIGS.findIndex(p => p.id === config.id);
-    const currentIndex = PHASE_CONFIGS.findIndex(p =>
-      p.phase === currentPhase &&
-      (!p.requiredStatus || p.requiredStatus.includes(currentStatus))
+  const getPhaseState = (
+    config: PhaseConfig
+  ): 'completed' | 'active' | 'unlocked' | 'locked' => {
+    const phaseIndex = PHASE_CONFIGS.findIndex((p) => p.id === config.id);
+    const currentIndex = PHASE_CONFIGS.findIndex(
+      (p) =>
+        p.phase === currentPhase &&
+        (!p.requiredStatus || p.requiredStatus.includes(currentStatus))
     );
 
     // Completed: Phase is before current
     if (phaseIndex < currentIndex) return 'completed';
 
     // Active: Current phase/sub-phase
-    if (config.phase === currentPhase &&
-        (!config.requiredStatus || config.requiredStatus.includes(currentStatus))) {
+    if (
+      config.phase === currentPhase &&
+      (!config.requiredStatus || config.requiredStatus.includes(currentStatus))
+    ) {
       return 'active';
     }
 
@@ -167,11 +200,15 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
     // Show lock reason for locked phases
     if (state === 'locked') {
       const lockReason = getLockReason(config);
-      toast.error(lockReason || (language === 'he' ? 'שלב זה נעול' : 'This phase is locked'), {
-        duration: 4000,
-        icon: '🔒',
-        position: 'top-center'
-      });
+      toast.error(
+        lockReason ||
+          (language === 'he' ? 'שלב זה נעול' : 'This phase is locked'),
+        {
+          duration: 4000,
+          icon: '🔒',
+          position: 'top-center',
+        }
+      );
       return;
     }
 
@@ -183,7 +220,10 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
 
     // Unlocked: Show confirmation dialog for major transitions
     if (state === 'unlocked') {
-      if (config.phase === 'implementation_spec' || config.phase === 'development') {
+      if (
+        config.phase === 'implementation_spec' ||
+        config.phase === 'development'
+      ) {
         setPendingTransition(config);
         setShowConfirmDialog(true);
       } else {
@@ -199,7 +239,10 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
     setIsTransitioning(true);
     try {
       // Transition phase in store
-      const success = transitionPhase(config.phase, `User initiated transition to ${config.phase}`);
+      const success = transitionPhase(
+        config.phase,
+        `User initiated transition to ${config.phase}`
+      );
 
       if (!success) {
         toast.error(
@@ -276,7 +319,8 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
    */
   const getServiceRequirementsValidation = () => {
     if (!currentMeeting) return null;
-    const purchasedServices = currentMeeting.modules?.proposal?.purchasedServices || [];
+    const purchasedServices =
+      currentMeeting.modules?.proposal?.purchasedServices || [];
     return validateServiceRequirements(
       purchasedServices,
       currentMeeting.implementationSpec || {}
@@ -302,29 +346,29 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
         border: 'border-green-500',
         text: 'text-green-600',
         ring: 'ring-green-500',
-        icon: 'text-white'
+        icon: 'text-white',
       },
       active: {
         bg: 'bg-blue-600',
         border: 'border-blue-600',
         text: 'text-blue-600',
         ring: 'ring-blue-600',
-        icon: 'text-white'
+        icon: 'text-white',
       },
       unlocked: {
         bg: 'bg-blue-100',
         border: 'border-blue-400',
         text: 'text-blue-600',
         ring: 'ring-blue-400',
-        icon: 'text-blue-600'
+        icon: 'text-blue-600',
       },
       locked: {
         bg: 'bg-gray-200',
         border: 'border-gray-300',
         text: 'text-gray-400',
         ring: 'ring-gray-300',
-        icon: 'text-gray-400'
-      }
+        icon: 'text-gray-400',
+      },
     };
 
     const scheme = colors[state];
@@ -342,9 +386,14 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
         onClick={() => handlePhaseClick(config)}
         title={
           state === 'locked'
-            ? lockReason || (language === 'he' ? 'השלם את השלב הקודם' : 'Complete previous phase')
+            ? lockReason ||
+              (language === 'he'
+                ? 'השלם את השלב הקודם'
+                : 'Complete previous phase')
             : state === 'unlocked'
-              ? (language === 'he' ? 'לחץ לעבור לשלב זה' : 'Click to transition to this phase')
+              ? language === 'he'
+                ? 'לחץ לעבור לשלב זה'
+                : 'Click to transition to this phase'
               : description
         }
         role="button"
@@ -366,11 +415,17 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
             `}
           >
             {state === 'completed' ? (
-              <CheckCircleIcon className={`${compact ? 'w-7 h-7' : 'w-9 h-9'} ${scheme.icon}`} />
+              <CheckCircleIcon
+                className={`${compact ? 'w-7 h-7' : 'w-9 h-9'} ${scheme.icon}`}
+              />
             ) : state === 'locked' ? (
-              <Lock className={`${compact ? 'w-5 h-5' : 'w-7 h-7'} ${scheme.icon}`} />
+              <Lock
+                className={`${compact ? 'w-5 h-5' : 'w-7 h-7'} ${scheme.icon}`}
+              />
             ) : (
-              <Icon className={`${compact ? 'w-6 h-6' : 'w-8 h-8'} ${scheme.icon}`} />
+              <Icon
+                className={`${compact ? 'w-6 h-6' : 'w-8 h-8'} ${scheme.icon}`}
+              />
             )}
           </div>
 
@@ -401,7 +456,9 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
         {/* Label */}
         {!compact && (
           <div className="mt-3 text-center max-w-[100px]">
-            <div className={`text-sm font-semibold ${scheme.text} leading-tight`}>
+            <div
+              className={`text-sm font-semibold ${scheme.text} leading-tight`}
+            >
               {label}
             </div>
             {state === 'active' && showProgress && progress > 0 && (
@@ -410,25 +467,32 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
               </div>
             )}
             {/* Show service requirements badge for Phase 2 */}
-            {config.phase === 'implementation_spec' && (state === 'active' || state === 'unlocked') && (() => {
-              const validation = getServiceRequirementsValidation();
-              if (!validation) return null;
-              return (
-                <div className={`text-xs mt-1 px-2 py-0.5 rounded-full inline-block ${
-                  validation.isValid
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-orange-100 text-orange-700'
-                }`}>
-                  {validation.completedCount}/{validation.totalCount} {language === 'he' ? 'טפסים' : 'forms'}
-                </div>
-              );
-            })()}
+            {config.phase === 'implementation_spec' &&
+              (state === 'active' || state === 'unlocked') &&
+              (() => {
+                const validation = getServiceRequirementsValidation();
+                if (!validation) return null;
+                return (
+                  <div
+                    className={`text-xs mt-1 px-2 py-0.5 rounded-full inline-block ${
+                      validation.isValid
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-orange-100 text-orange-700'
+                    }`}
+                  >
+                    {validation.completedCount}/{validation.totalCount}{' '}
+                    {language === 'he' ? 'טפסים' : 'forms'}
+                  </div>
+                );
+              })()}
           </div>
         )}
 
         {/* Compact Label */}
         {compact && (
-          <div className={`text-xs font-medium ${scheme.text} mt-1 text-center max-w-[60px] leading-tight`}>
+          <div
+            className={`text-xs font-medium ${scheme.text} mt-1 text-center max-w-[60px] leading-tight`}
+          >
             {label}
           </div>
         )}
@@ -443,7 +507,9 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
     const fromState = getPhaseState(fromConfig);
     const toState = getPhaseState(toConfig);
 
-    const isCompleted = fromState === 'completed' && (toState === 'completed' || toState === 'active');
+    const isCompleted =
+      fromState === 'completed' &&
+      (toState === 'completed' || toState === 'active');
     const isSubPhase = fromConfig.isSubPhase || toConfig.isSubPhase;
 
     return (
@@ -469,16 +535,19 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
     <div className="bg-white border-b border-gray-200 shadow-sm">
       <div className="container mx-auto px-4 py-4 md:py-6">
         {/* Phase Steps */}
-        <div className={`
+        <div
+          className={`
           flex items-center justify-center
           ${compact ? 'gap-1' : 'gap-2'}
           overflow-x-auto
           scrollbar-hide
-        `}>
+        `}
+        >
           {PHASE_CONFIGS.map((config, index) => (
             <React.Fragment key={config.id}>
               {renderPhaseStep(config, index)}
-              {index < PHASE_CONFIGS.length - 1 && renderConnector(config, PHASE_CONFIGS[index + 1])}
+              {index < PHASE_CONFIGS.length - 1 &&
+                renderConnector(config, PHASE_CONFIGS[index + 1])}
             </React.Fragment>
           ))}
         </div>
@@ -487,10 +556,13 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
         {!compact && (
           <div className="text-center mt-4 max-w-2xl mx-auto">
             <p className="text-sm text-gray-600">
-              {PHASE_CONFIGS.find(p => getPhaseState(p) === 'active')?.description[language]}
+              {
+                PHASE_CONFIGS.find((p) => getPhaseState(p) === 'active')
+                  ?.description[language]
+              }
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              {language === 'he' ? 'סטטוס' : 'Status'}: {' '}
+              {language === 'he' ? 'סטטוס' : 'Status'}:{' '}
               <span className="font-medium">
                 {currentStatus?.replace(/_/g, ' ')}
               </span>
@@ -509,31 +581,41 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
         )}
 
         {/* Phase History Link (optional) */}
-        {currentMeeting.phaseHistory && currentMeeting.phaseHistory.length > 1 && (
-          <div className="text-center mt-3">
-            <button
-              className="text-xs text-gray-500 hover:text-gray-700 underline"
-              onClick={() => {
-                console.log('Phase History:', currentMeeting.phaseHistory);
-                // Could open a modal showing phase history
-              }}
-            >
-              {language === 'he' ? 'היסטוריית שלבים' : 'Phase History'} ({currentMeeting.phaseHistory.length - 1})
-            </button>
-          </div>
-        )}
+        {currentMeeting.phaseHistory &&
+          currentMeeting.phaseHistory.length > 1 && (
+            <div className="text-center mt-3">
+              <button
+                className="text-xs text-gray-500 hover:text-gray-700 underline"
+                onClick={() => {
+                  console.log('Phase History:', currentMeeting.phaseHistory);
+                  // Could open a modal showing phase history
+                }}
+              >
+                {language === 'he' ? 'היסטוריית שלבים' : 'Phase History'} (
+                {currentMeeting.phaseHistory.length - 1})
+              </button>
+            </div>
+          )}
 
         {/* Confirmation Dialog */}
         {showConfirmDialog && pendingTransition && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowConfirmDialog(false)}>
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={() => setShowConfirmDialog(false)}
+          >
+            <div
+              className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex items-start gap-3 mb-4">
                 <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
                   <AlertTriangle className="w-6 h-6 text-blue-600" />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                    {language === 'he' ? 'אישור מעבר לשלב הבא' : 'Confirm Phase Transition'}
+                    {language === 'he'
+                      ? 'אישור מעבר לשלב הבא'
+                      : 'Confirm Phase Transition'}
                   </h3>
                   <p className="text-sm text-gray-600">
                     {language === 'he'
@@ -576,7 +658,9 @@ export const PhaseNavigator: React.FC<PhaseNavigatorProps> = ({
                     setPendingTransition(null);
                   }}
                 >
-                  {language === 'he' ? 'המשך לשלב הבא' : 'Continue to Next Phase'}
+                  {language === 'he'
+                    ? 'המשך לשלב הבא'
+                    : 'Continue to Next Phase'}
                 </button>
               </div>
             </div>

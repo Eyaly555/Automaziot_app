@@ -43,11 +43,28 @@ export interface DevelopmentTask {
   description: string;
 
   // Task Classification
-  type: 'integration' | 'ai_agent' | 'workflow' | 'migration' | 'testing' | 'deployment' | 'documentation' | 'bug_fix' | 'enhancement' | 'service_implementation' | 'system_implementation' | 'additional_service';
+  type:
+    | 'integration'
+    | 'ai_agent'
+    | 'workflow'
+    | 'migration'
+    | 'testing'
+    | 'deployment'
+    | 'documentation'
+    | 'bug_fix'
+    | 'enhancement'
+    | 'service_implementation'
+    | 'system_implementation'
+    | 'additional_service';
 
   // Context from Phase 2
   relatedSpec: {
-    type: 'system' | 'integration_flow' | 'ai_agent' | 'acceptance_criteria' | 'service';
+    type:
+      | 'system'
+      | 'integration_flow'
+      | 'ai_agent'
+      | 'acceptance_criteria'
+      | 'service';
     specId: string;
     specName: string;
   };
@@ -405,7 +422,13 @@ export interface Blocker {
    * - external: Third-party dependency
    * - unclear_requirements: Need clarification
    */
-  blockerType: 'technical' | 'dependency' | 'resource' | 'approval' | 'external' | 'unclear_requirements';
+  blockerType:
+    | 'technical'
+    | 'dependency'
+    | 'resource'
+    | 'approval'
+    | 'external'
+    | 'unclear_requirements';
 
   description: string;
 
@@ -421,7 +444,11 @@ export interface Blocker {
   /**
    * Impact on project
    */
-  impact?: 'blocks_sprint' | 'delays_task' | 'reduces_quality' | 'increases_risk';
+  impact?:
+    | 'blocks_sprint'
+    | 'delays_task'
+    | 'reduces_quality'
+    | 'increases_risk';
 
   // Reporting
   reportedBy: string; // Who reported the blocker
@@ -523,7 +550,11 @@ export interface TaskTemplate {
  * Rules for generating tasks from different Phase 2 spec types
  */
 export interface TaskGenerationRule {
-  sourceType: 'system' | 'integration_flow' | 'ai_agent' | 'acceptance_criteria';
+  sourceType:
+    | 'system'
+    | 'integration_flow'
+    | 'ai_agent'
+    | 'acceptance_criteria';
   templates: TaskTemplate[];
   customRules?: (sourceData: any) => DevelopmentTask[];
 }

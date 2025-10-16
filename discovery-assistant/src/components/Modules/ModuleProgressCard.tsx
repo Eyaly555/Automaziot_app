@@ -33,14 +33,14 @@ export const ModuleProgressCard: React.FC<ModuleProgressCardProps> = ({
   moduleName,
   icon,
   description,
-  route
+  route,
 }) => {
   const navigate = useNavigate();
   const { getModuleProgress } = useMeetingStore();
 
   // Get progress for this specific module
   const allProgress = getModuleProgress();
-  const moduleProgress = allProgress.find(m => m.moduleId === moduleId);
+  const moduleProgress = allProgress.find((m) => m.moduleId === moduleId);
   const progressPercentage = moduleProgress
     ? Math.round((moduleProgress.completed / moduleProgress.total) * 100)
     : 0;
@@ -117,7 +117,8 @@ export const ModuleProgressCard: React.FC<ModuleProgressCardProps> = ({
           <div className="mt-2 text-xs text-gray-600">
             {moduleProgress && (
               <span>
-                {moduleProgress.completed} מתוך {moduleProgress.total} שדות הושלמו
+                {moduleProgress.completed} מתוך {moduleProgress.total} שדות
+                הושלמו
               </span>
             )}
           </div>

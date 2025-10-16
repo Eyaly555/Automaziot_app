@@ -10,12 +10,15 @@ interface SalesProcessSectionProps {
 
 export const SalesProcessSection: React.FC<SalesProcessSectionProps> = ({
   data = {},
-  onChange
+  onChange,
 }) => {
   const [newStage, setNewStage] = useState('');
   const [newStageCriteria, setNewStageCriteria] = useState('');
 
-  const updateField = <K extends keyof typeof data>(field: K, value: typeof data[K]) => {
+  const updateField = <K extends keyof typeof data>(
+    field: K,
+    value: (typeof data)[K]
+  ) => {
     onChange({ [field]: value });
   };
 
@@ -24,7 +27,7 @@ export const SalesProcessSection: React.FC<SalesProcessSectionProps> = ({
     const stages = [...(data.salesStages || []), newStage];
     const criteria = [
       ...(data.stageCriteria || []),
-      { stage: newStage, criteria: newStageCriteria }
+      { stage: newStage, criteria: newStageCriteria },
     ];
     onChange({ salesStages: stages, stageCriteria: criteria });
     setNewStage('');
@@ -48,9 +51,14 @@ export const SalesProcessSection: React.FC<SalesProcessSectionProps> = ({
           {(data.salesStages || []).length > 0 && (
             <div className="space-y-2 mb-3">
               {(data.salesStages || []).map((stage, index) => {
-                const stageCriteria = (data.stageCriteria || []).find(c => c.stage === stage);
+                const stageCriteria = (data.stageCriteria || []).find(
+                  (c) => c.stage === stage
+                );
                 return (
-                  <div key={index} className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div
+                    key={index}
+                    className="bg-blue-50 border border-blue-200 rounded-lg p-3"
+                  >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
@@ -60,7 +68,9 @@ export const SalesProcessSection: React.FC<SalesProcessSectionProps> = ({
                           <span className="font-medium">{stage}</span>
                         </div>
                         {stageCriteria?.criteria && (
-                          <p className="text-sm text-gray-600 mr-8">{stageCriteria.criteria}</p>
+                          <p className="text-sm text-gray-600 mr-8">
+                            {stageCriteria.criteria}
+                          </p>
                         )}
                       </div>
                       <button
@@ -109,7 +119,9 @@ export const SalesProcessSection: React.FC<SalesProcessSectionProps> = ({
           label="כמה זמן לוקח תהליך מכירה ממוצע? (בימים)"
           type="number"
           value={data.averageSalesCycle?.toString() || ''}
-          onChange={(val) => updateField('averageSalesCycle', val ? parseInt(val) : undefined)}
+          onChange={(val) =>
+            updateField('averageSalesCycle', val ? parseInt(val) : undefined)
+          }
           placeholder="למשל: 30 ימים"
           dir="rtl"
         />
@@ -118,7 +130,9 @@ export const SalesProcessSection: React.FC<SalesProcessSectionProps> = ({
           label="אחוז המרה ממוצע (מליד לעסקה סגורה)"
           type="number"
           value={data.conversionRate?.toString() || ''}
-          onChange={(val) => updateField('conversionRate', val ? parseInt(val) : undefined)}
+          onChange={(val) =>
+            updateField('conversionRate', val ? parseInt(val) : undefined)
+          }
           placeholder="למשל: 20%"
           dir="rtl"
         />

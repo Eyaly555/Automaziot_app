@@ -9,7 +9,7 @@ import {
   Target,
   Cpu,
   MessageSquare,
-  Settings
+  Settings,
 } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Card, Input, Select } from '../../Base';
@@ -80,20 +80,20 @@ export const AIAgentsModule: React.FC = () => {
       sales: {
         useCases: salesUseCases,
         potential: salesPotential || undefined,
-        readiness: salesReadiness
+        readiness: salesReadiness,
       },
       service: {
         useCases: serviceUseCases,
         potential: servicePotential || undefined,
-        readiness: serviceReadiness
+        readiness: serviceReadiness,
       },
       operations: {
         useCases: operationsUseCases,
         potential: operationsPotential || undefined,
-        readiness: operationsReadiness
+        readiness: operationsReadiness,
       },
       priority: aiPriority,
-      naturalLanguageImportance: nlpImportance || undefined
+      naturalLanguageImportance: nlpImportance || undefined,
     });
   };
 
@@ -107,22 +107,36 @@ export const AIAgentsModule: React.FC = () => {
 
     return () => clearTimeout(timer);
   }, [
-    salesUseCases, salesPotential, salesReadiness,
-    serviceUseCases, servicePotential, serviceReadiness,
-    operationsUseCases, operationsPotential, operationsReadiness,
-    aiPriority, nlpImportance,
-    updateModule
+    salesUseCases,
+    salesPotential,
+    salesReadiness,
+    serviceUseCases,
+    servicePotential,
+    serviceReadiness,
+    operationsUseCases,
+    operationsPotential,
+    operationsReadiness,
+    aiPriority,
+    nlpImportance,
+    updateModule,
   ]);
 
   const toggleSection = (section: string) => {
-    setExpandedSections(prev =>
-      prev.includes(section) ? prev.filter(s => s !== section) : [...prev, section]
+    setExpandedSections((prev) =>
+      prev.includes(section)
+        ? prev.filter((s) => s !== section)
+        : [...prev, section]
     );
   };
 
   const calculateAIReadiness = () => {
     let score = 0;
-    if (salesPotential === 'high' || servicePotential === 'high' || operationsPotential === 'high') score += 30;
+    if (
+      salesPotential === 'high' ||
+      servicePotential === 'high' ||
+      operationsPotential === 'high'
+    )
+      score += 30;
     if (dataQuality === 'high') score += 25;
     if (teamSkillLevel >= 4) score += 25;
     if (currentAITools.length > 0) score += 20;
@@ -145,7 +159,10 @@ export const AIAgentsModule: React.FC = () => {
 
               {/* Breadcrumbs */}
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span className="hover:text-gray-900 cursor-pointer" onClick={() => navigate('/dashboard')}>
+                <span
+                  className="hover:text-gray-900 cursor-pointer"
+                  onClick={() => navigate('/dashboard')}
+                >
                   ראשי
                 </span>
                 <span>/</span>
@@ -208,24 +225,39 @@ export const AIAgentsModule: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">6.1 AI במכירות</h3>
-                  <p className="text-sm text-gray-600 mt-1">אוטומציה וסיוע בתהליכי מכירה</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    אוטומציה וסיוע בתהליכי מכירה
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 {salesPotential && (
                   <div className="flex gap-1">
                     {[...Array(5)].map((_, i) => (
-                      <span key={i} className={i < (salesPotential === 'high' ? 5 : salesPotential === 'medium' ? 3 : 1) ? 'text-yellow-400' : 'text-gray-300'}>
+                      <span
+                        key={i}
+                        className={
+                          i <
+                          (salesPotential === 'high'
+                            ? 5
+                            : salesPotential === 'medium'
+                              ? 3
+                              : 1)
+                            ? 'text-yellow-400'
+                            : 'text-gray-300'
+                        }
+                      >
                         ★
                       </span>
                     ))}
                   </div>
                 )}
                 <div className="transform transition-transform duration-300">
-                  {expandedSections.includes('sales') ?
-                    <ChevronUp className="w-5 h-5" /> :
+                  {expandedSections.includes('sales') ? (
+                    <ChevronUp className="w-5 h-5" />
+                  ) : (
                     <ChevronDown className="w-5 h-5" />
-                  }
+                  )}
                 </div>
               </div>
             </button>
@@ -235,16 +267,22 @@ export const AIAgentsModule: React.FC = () => {
                 <CheckboxGroup
                   label="מקרי שימוש אפשריים"
                   options={[
-                    { value: 'lead_qualification', label: 'סיווג לידים אוטומטי' },
+                    {
+                      value: 'lead_qualification',
+                      label: 'סיווג לידים אוטומטי',
+                    },
                     { value: 'first_contact', label: 'שיחה ראשונית עם לידים' },
-                    { value: 'appointment_scheduling', label: 'תיאום פגישות אוטומטי' },
+                    {
+                      value: 'appointment_scheduling',
+                      label: 'תיאום פגישות אוטומטי',
+                    },
                     { value: 'price_quotes', label: 'הצעות מחיר אוטומטיות' },
                     { value: 'follow_up', label: 'מעקבים אוטומטיים' },
                     { value: 'nurturing', label: 'טיפוח לידים ארוך טווח' },
                     { value: 'sales_insights', label: 'ניתוח ותובנות מכירות' },
                     { value: 'personalization', label: 'התאמה אישית ללקוחות' },
                     { value: 'predictive', label: 'חיזוי סגירת עסקאות' },
-                    { value: 'chatbot', label: 'בוט מכירות חכם' }
+                    { value: 'chatbot', label: 'בוט מכירות חכם' },
                   ]}
                   values={salesUseCases}
                   onChange={setSalesUseCases}
@@ -261,8 +299,20 @@ export const AIAgentsModule: React.FC = () => {
 
                 <RatingField
                   label="פוטנציאל השפעה על המכירות"
-                  value={salesPotential === 'high' ? 5 : salesPotential === 'medium' ? 3 : salesPotential === 'low' ? 1 : 0}
-                  onChange={(value) => setSalesPotential(value >= 4 ? 'high' : value >= 2 ? 'medium' : 'low')}
+                  value={
+                    salesPotential === 'high'
+                      ? 5
+                      : salesPotential === 'medium'
+                        ? 3
+                        : salesPotential === 'low'
+                          ? 1
+                          : 0
+                  }
+                  onChange={(value) =>
+                    setSalesPotential(
+                      value >= 4 ? 'high' : value >= 2 ? 'medium' : 'low'
+                    )
+                  }
                   helperText="עד כמה AI יכול להשפיע על תהליכי המכירות?"
                 />
 
@@ -276,7 +326,7 @@ export const AIAgentsModule: React.FC = () => {
                     { value: 'short', label: 'טווח קצר - תוך 3 חודשים' },
                     { value: 'medium', label: 'טווח בינוני - תוך 6 חודשים' },
                     { value: 'long', label: 'טווח ארוך - מעל 6 חודשים' },
-                    { value: 'not_ready', label: 'לא מוכנים כרגע' }
+                    { value: 'not_ready', label: 'לא מוכנים כרגע' },
                   ]}
                   dir="rtl"
                 />
@@ -305,25 +355,42 @@ export const AIAgentsModule: React.FC = () => {
                   <MessageSquare className="w-5 h-5 text-green-700" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold">6.2 AI בשירות לקוחות</h3>
-                  <p className="text-sm text-gray-600 mt-1">אוטומציה ושיפור חווית הלקוח</p>
+                  <h3 className="text-lg font-semibold">
+                    6.2 AI בשירות לקוחות
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    אוטומציה ושיפור חווית הלקוח
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 {servicePotential && (
                   <div className="flex gap-1">
                     {[...Array(5)].map((_, i) => (
-                      <span key={i} className={i < (servicePotential === 'high' ? 5 : servicePotential === 'medium' ? 3 : 1) ? 'text-yellow-400' : 'text-gray-300'}>
+                      <span
+                        key={i}
+                        className={
+                          i <
+                          (servicePotential === 'high'
+                            ? 5
+                            : servicePotential === 'medium'
+                              ? 3
+                              : 1)
+                            ? 'text-yellow-400'
+                            : 'text-gray-300'
+                        }
+                      >
                         ★
                       </span>
                     ))}
                   </div>
                 )}
                 <div className="transform transition-transform duration-300">
-                  {expandedSections.includes('service') ?
-                    <ChevronUp className="w-5 h-5" /> :
+                  {expandedSections.includes('service') ? (
+                    <ChevronUp className="w-5 h-5" />
+                  ) : (
                     <ChevronDown className="w-5 h-5" />
-                  }
+                  )}
                 </div>
               </div>
             </button>
@@ -339,10 +406,13 @@ export const AIAgentsModule: React.FC = () => {
                     { value: 'routing', label: 'ניתוב חכם לנציגים' },
                     { value: 'knowledge_base', label: 'מאגר ידע חכם' },
                     { value: 'voice_assistant', label: 'עוזר קולי' },
-                    { value: 'ticket_classification', label: 'סיווג פניות אוטומטי' },
+                    {
+                      value: 'ticket_classification',
+                      label: 'סיווג פניות אוטומטי',
+                    },
                     { value: 'priority', label: 'תעדוף אוטומטי' },
                     { value: 'translation', label: 'תרגום אוטומטי' },
-                    { value: 'summary', label: 'סיכום שיחות' }
+                    { value: 'summary', label: 'סיכום שיחות' },
                   ]}
                   values={serviceUseCases}
                   onChange={setServiceUseCases}
@@ -359,8 +429,20 @@ export const AIAgentsModule: React.FC = () => {
 
                 <RatingField
                   label="פוטנציאל השפעה על השירות"
-                  value={servicePotential === 'high' ? 5 : servicePotential === 'medium' ? 3 : servicePotential === 'low' ? 1 : 0}
-                  onChange={(value) => setServicePotential(value >= 4 ? 'high' : value >= 2 ? 'medium' : 'low')}
+                  value={
+                    servicePotential === 'high'
+                      ? 5
+                      : servicePotential === 'medium'
+                        ? 3
+                        : servicePotential === 'low'
+                          ? 1
+                          : 0
+                  }
+                  onChange={(value) =>
+                    setServicePotential(
+                      value >= 4 ? 'high' : value >= 2 ? 'medium' : 'low'
+                    )
+                  }
                   helperText="עד כמה AI יכול לשפר את השירות?"
                 />
 
@@ -374,20 +456,21 @@ export const AIAgentsModule: React.FC = () => {
                     { value: 'short', label: 'טווח קצר - תוך 3 חודשים' },
                     { value: 'medium', label: 'טווח בינוני - תוך 6 חודשים' },
                     { value: 'long', label: 'טווח ארוך - מעל 6 חודשים' },
-                    { value: 'not_ready', label: 'לא מוכנים כרגע' }
+                    { value: 'not_ready', label: 'לא מוכנים כרגע' },
                   ]}
                   dir="rtl"
                 />
 
-                {serviceUseCases.includes('chatbot') && servicePotential === 'high' && (
-                  <PainPointFlag
-                    module="aiAgents"
-                    subModule="service"
-                    label="צ'אטבוט יכול לחסוך שעות רבות"
-                    autoDetect={true}
-                    condition={true}
-                  />
-                )}
+                {serviceUseCases.includes('chatbot') &&
+                  servicePotential === 'high' && (
+                    <PainPointFlag
+                      module="aiAgents"
+                      subModule="service"
+                      label="צ'אטבוט יכול לחסוך שעות רבות"
+                      autoDetect={true}
+                      condition={true}
+                    />
+                  )}
               </div>
             )}
           </Card>
@@ -404,24 +487,39 @@ export const AIAgentsModule: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">6.3 AI בתפעול</h3>
-                  <p className="text-sm text-gray-600 mt-1">אוטומציה של תהליכים פנימיים</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    אוטומציה של תהליכים פנימיים
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 {operationsPotential && (
                   <div className="flex gap-1">
                     {[...Array(5)].map((_, i) => (
-                      <span key={i} className={i < (operationsPotential === 'high' ? 5 : operationsPotential === 'medium' ? 3 : 1) ? 'text-yellow-400' : 'text-gray-300'}>
+                      <span
+                        key={i}
+                        className={
+                          i <
+                          (operationsPotential === 'high'
+                            ? 5
+                            : operationsPotential === 'medium'
+                              ? 3
+                              : 1)
+                            ? 'text-yellow-400'
+                            : 'text-gray-300'
+                        }
+                      >
                         ★
                       </span>
                     ))}
                   </div>
                 )}
                 <div className="transform transition-transform duration-300">
-                  {expandedSections.includes('operations') ?
-                    <ChevronUp className="w-5 h-5" /> :
+                  {expandedSections.includes('operations') ? (
+                    <ChevronUp className="w-5 h-5" />
+                  ) : (
                     <ChevronDown className="w-5 h-5" />
-                  }
+                  )}
                 </div>
               </div>
             </button>
@@ -431,16 +529,25 @@ export const AIAgentsModule: React.FC = () => {
                 <CheckboxGroup
                   label="מקרי שימוש אפשריים"
                   options={[
-                    { value: 'document_processing', label: 'עיבוד מסמכים אוטומטי' },
+                    {
+                      value: 'document_processing',
+                      label: 'עיבוד מסמכים אוטומטי',
+                    },
                     { value: 'data_entry', label: 'הזנת נתונים אוטומטית' },
                     { value: 'invoice_processing', label: 'עיבוד חשבוניות' },
                     { value: 'email_sorting', label: 'מיון וניתוב מיילים' },
-                    { value: 'report_generation', label: 'יצירת דוחות אוטומטית' },
+                    {
+                      value: 'report_generation',
+                      label: 'יצירת דוחות אוטומטית',
+                    },
                     { value: 'scheduling', label: 'תזמון משימות חכם' },
                     { value: 'quality_control', label: 'בקרת איכות אוטומטית' },
                     { value: 'inventory', label: 'ניהול מלאי חכם' },
                     { value: 'predictive_maintenance', label: 'תחזוקה חזויה' },
-                    { value: 'workflow_optimization', label: 'אופטימיזציה של תהליכים' }
+                    {
+                      value: 'workflow_optimization',
+                      label: 'אופטימיזציה של תהליכים',
+                    },
                   ]}
                   values={operationsUseCases}
                   onChange={setOperationsUseCases}
@@ -457,8 +564,20 @@ export const AIAgentsModule: React.FC = () => {
 
                 <RatingField
                   label="פוטנציאל השפעה על התפעול"
-                  value={operationsPotential === 'high' ? 5 : operationsPotential === 'medium' ? 3 : operationsPotential === 'low' ? 1 : 0}
-                  onChange={(value) => setOperationsPotential(value >= 4 ? 'high' : value >= 2 ? 'medium' : 'low')}
+                  value={
+                    operationsPotential === 'high'
+                      ? 5
+                      : operationsPotential === 'medium'
+                        ? 3
+                        : operationsPotential === 'low'
+                          ? 1
+                          : 0
+                  }
+                  onChange={(value) =>
+                    setOperationsPotential(
+                      value >= 4 ? 'high' : value >= 2 ? 'medium' : 'low'
+                    )
+                  }
                   helperText="עד כמה AI יכול לייעל את התפעול?"
                 />
 
@@ -472,7 +591,7 @@ export const AIAgentsModule: React.FC = () => {
                     { value: 'short', label: 'טווח קצר - תוך 3 חודשים' },
                     { value: 'medium', label: 'טווח בינוני - תוך 6 חודשים' },
                     { value: 'long', label: 'טווח ארוך - מעל 6 חודשים' },
-                    { value: 'not_ready', label: 'לא מוכנים כרגע' }
+                    { value: 'not_ready', label: 'לא מוכנים כרגע' },
                   ]}
                   dir="rtl"
                 />
@@ -492,14 +611,17 @@ export const AIAgentsModule: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">הגדרות AI כלליות</h3>
-                  <p className="text-sm text-gray-600 mt-1">עדיפויות, מוכנות ארגונית וחסמים</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    עדיפויות, מוכנות ארגונית וחסמים
+                  </p>
                 </div>
               </div>
               <div className="transform transition-transform duration-300">
-                {expandedSections.includes('general') ?
-                  <ChevronUp className="w-5 h-5" /> :
+                {expandedSections.includes('general') ? (
+                  <ChevronUp className="w-5 h-5" />
+                ) : (
                   <ChevronDown className="w-5 h-5" />
-                }
+                )}
               </div>
             </button>
 
@@ -514,14 +636,30 @@ export const AIAgentsModule: React.FC = () => {
                     { value: 'service', label: 'AI בשירות - לשפר חווית לקוח' },
                     { value: 'operations', label: 'AI בתפעול - לחסוך עלויות' },
                     { value: 'all', label: 'כל התחומים במקביל' },
-                    { value: 'pilot', label: 'פיילוט קטן בתחום אחד' }
+                    { value: 'pilot', label: 'פיילוט קטן בתחום אחד' },
                   ]}
                 />
 
                 <RatingField
                   label="חשיבות שפה טבעית בעברית"
-                  value={nlpImportance === 'critical' ? 5 : nlpImportance === 'important' ? 3 : nlpImportance === 'less_important' ? 1 : 0}
-                  onChange={(value) => setNlpImportance(value >= 4 ? 'critical' : value >= 2 ? 'important' : 'less_important')}
+                  value={
+                    nlpImportance === 'critical'
+                      ? 5
+                      : nlpImportance === 'important'
+                        ? 3
+                        : nlpImportance === 'less_important'
+                          ? 1
+                          : 0
+                  }
+                  onChange={(value) =>
+                    setNlpImportance(
+                      value >= 4
+                        ? 'critical'
+                        : value >= 2
+                          ? 'important'
+                          : 'less_important'
+                    )
+                  }
                   helperText="עד כמה חשוב שה-AI יבין וידבר עברית טבעית?"
                 />
 
@@ -533,7 +671,7 @@ export const AIAgentsModule: React.FC = () => {
                     { value: 'gemini', label: 'Google Gemini' },
                     { value: 'copilot', label: 'Microsoft Copilot' },
                     { value: 'custom', label: 'פתרון מותאם אישית' },
-                    { value: 'none', label: 'אין שימוש כרגע' }
+                    { value: 'none', label: 'אין שימוש כרגע' },
                   ]}
                   values={currentAITools}
                   onChange={setCurrentAITools}
@@ -550,7 +688,7 @@ export const AIAgentsModule: React.FC = () => {
                     { value: 'resistance', label: 'התנגדות לשינוי' },
                     { value: 'security', label: 'חששות אבטחה' },
                     { value: 'regulation', label: 'רגולציה' },
-                    { value: 'trust', label: 'חוסר אמון בטכנולוגיה' }
+                    { value: 'trust', label: 'חוסר אמון בטכנולוגיה' },
                   ]}
                   values={aiBarriers}
                   onChange={setAiBarriers}
@@ -566,7 +704,7 @@ export const AIAgentsModule: React.FC = () => {
                     { value: 'high', label: 'גבוהה - נתונים נקיים ומסודרים' },
                     { value: 'medium', label: 'בינונית - דורש קצת ניקוי' },
                     { value: 'low', label: 'נמוכה - דורש עבודה רבה' },
-                    { value: 'unknown', label: 'לא ברור' }
+                    { value: 'unknown', label: 'לא ברור' },
                   ]}
                   dir="rtl"
                 />
@@ -597,18 +735,21 @@ export const AIAgentsModule: React.FC = () => {
               <div className="flex items-center gap-3">
                 <Sparkles className="w-6 h-6 text-purple-600" />
                 <div>
-                  <h3 className="font-semibold text-gray-900">סיכום פוטנציאל AI</h3>
+                  <h3 className="font-semibold text-gray-900">
+                    סיכום פוטנציאל AI
+                  </h3>
                   <div className="mt-2 space-y-1 text-sm text-gray-600">
-                    {(salesPotential === 'high') && (
+                    {salesPotential === 'high' && (
                       <p>• מכירות: פוטנציאל גבוה מאוד להטמעת AI</p>
                     )}
-                    {(servicePotential === 'high') && (
+                    {servicePotential === 'high' && (
                       <p>• שירות: הזדמנות מצוינת לשיפור עם AI</p>
                     )}
-                    {(operationsPotential === 'high') && (
+                    {operationsPotential === 'high' && (
                       <p>• תפעול: אוטומציה יכולה לחסוך זמן רב</p>
                     )}
-                    {(nlpImportance === 'critical' || nlpImportance === 'important') && (
+                    {(nlpImportance === 'critical' ||
+                      nlpImportance === 'important') && (
                       <p>• נדרש AI עם יכולות עברית מתקדמות</p>
                     )}
                   </div>
@@ -618,7 +759,9 @@ export const AIAgentsModule: React.FC = () => {
           )}
 
           {/* Phase 2: Advanced AI Agent Design Tools */}
-          {(salesUseCases.length > 0 || serviceUseCases.length > 0 || operationsUseCases.length > 0) && (
+          {(salesUseCases.length > 0 ||
+            serviceUseCases.length > 0 ||
+            operationsUseCases.length > 0) && (
             <div className="mt-8 space-y-6">
               <div className="bg-gradient-to-r from-purple-100 to-indigo-100 p-6 rounded-lg">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-3">
@@ -626,7 +769,8 @@ export const AIAgentsModule: React.FC = () => {
                   כלי תכנון AI מתקדמים
                 </h2>
                 <p className="text-gray-700">
-                  השתמש בכלים אלה כדי לתכנן בפירוט את סוכני ה-AI שלך ולבחור את המודל המתאים
+                  השתמש בכלים אלה כדי לתכנן בפירוט את סוכני ה-AI שלך ולבחור את
+                  המודל המתאים
                 </p>
               </div>
 

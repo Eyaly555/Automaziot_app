@@ -22,7 +22,7 @@ export const RatingField: React.FC<RatingFieldProps> = ({
   required = false,
   helperText,
   className = '',
-  showValue = true
+  showValue = true,
 }) => {
   const handleClick = (rating: number) => {
     if (!disabled) {
@@ -40,7 +40,7 @@ export const RatingField: React.FC<RatingFieldProps> = ({
       )}
       <div className="flex items-center gap-2">
         <div className="flex gap-1">
-          {Array.from({ length: max }, (_, i) => i + 1).map(rating => (
+          {Array.from({ length: max }, (_, i) => i + 1).map((rating) => (
             <button
               key={rating}
               type="button"
@@ -51,9 +51,11 @@ export const RatingField: React.FC<RatingFieldProps> = ({
             >
               <Star
                 className={`w-6 h-6 transition-colors
-                  ${rating <= (value || 0)
-                    ? 'fill-yellow-400 text-yellow-400'
-                    : 'text-gray-300'}`}
+                  ${
+                    rating <= (value || 0)
+                      ? 'fill-yellow-400 text-yellow-400'
+                      : 'text-gray-300'
+                  }`}
               />
             </button>
           ))}
@@ -64,9 +66,7 @@ export const RatingField: React.FC<RatingFieldProps> = ({
           </span>
         )}
       </div>
-      {helperText && (
-        <p className="text-sm text-gray-500">{helperText}</p>
-      )}
+      {helperText && <p className="text-sm text-gray-500">{helperText}</p>}
     </div>
   );
 };

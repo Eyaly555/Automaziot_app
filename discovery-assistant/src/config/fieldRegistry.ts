@@ -1,6 +1,6 @@
 /**
  * Central Field Registry
- * 
+ *
  * Single source of truth for all fields across Phase 1, Phase 2, and Phase 3.
  * Maps field relationships and enables smart auto-population.
  */
@@ -15,14 +15,14 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
   // ============================================================================
   // CRM SYSTEM FIELDS
   // ============================================================================
-  
+
   crm_system: {
     id: 'crm_system',
     label: { he: 'מערכת CRM', en: 'CRM System' },
     placeholder: { he: 'בחר מערכת CRM', en: 'Select CRM System' },
     description: {
       he: 'מערכת ניהול קשרי לקוחות בשימוש',
-      en: 'Customer Relationship Management system in use'
+      en: 'Customer Relationship Management system in use',
     },
     type: 'select',
     category: 'crm',
@@ -37,36 +37,38 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       'impl-crm',
       'ai-lead-qualifier',
       'ai-action-agent',
-      'ai-full-integration'
+      'ai-full-integration',
     ],
     primarySource: {
       path: 'modules.overview.crmName',
       phase: 'phase1',
       module: 'overview',
-      description: 'CRM system name from Overview module'
+      description: 'CRM system name from Overview module',
     },
     secondarySources: [
       {
         path: 'modules.systems.detailedSystems[].specificSystem',
         phase: 'phase1',
         module: 'systems',
-        description: 'Detailed CRM system from Systems module'
-      }
+        description: 'Detailed CRM system from Systems module',
+      },
     ],
     autoPopulate: true,
     syncBidirectional: true,
     required: false,
     importance: 'critical',
-    businessContext: 'Core system for managing customer relationships and sales pipeline',
-    technicalContext: 'Required for CRM integrations, lead management, and data sync automations',
+    businessContext:
+      'Core system for managing customer relationships and sales pipeline',
+    technicalContext:
+      'Required for CRM integrations, lead management, and data sync automations',
     options: [
       { value: 'zoho', label: { he: 'Zoho CRM', en: 'Zoho CRM' } },
       { value: 'salesforce', label: { he: 'Salesforce', en: 'Salesforce' } },
       { value: 'hubspot', label: { he: 'HubSpot', en: 'HubSpot' } },
       { value: 'pipedrive', label: { he: 'Pipedrive', en: 'Pipedrive' } },
       { value: 'monday', label: { he: 'Monday CRM', en: 'Monday CRM' } },
-      { value: 'other', label: { he: 'אחר', en: 'Other' } }
-    ]
+      { value: 'other', label: { he: 'אחר', en: 'Other' } },
+    ],
   },
 
   crm_auth_method: {
@@ -74,7 +76,7 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     label: { he: 'שיטת אימות CRM', en: 'CRM Authentication Method' },
     description: {
       he: 'שיטת האימות לגישה ל-CRM',
-      en: 'Authentication method for CRM access'
+      en: 'Authentication method for CRM access',
     },
     type: 'select',
     category: 'authentication',
@@ -83,12 +85,12 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       'auto-form-to-crm',
       'auto-crm-update',
       'auto-lead-response',
-      'int-crm-marketing'
+      'int-crm-marketing',
     ],
     primarySource: {
       path: 'implementationSpec.systems[].authentication.method',
       phase: 'phase2',
-      description: 'CRM authentication method from System Deep Dive'
+      description: 'CRM authentication method from System Deep Dive',
     },
     secondarySources: [],
     autoPopulate: false,
@@ -100,8 +102,8 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       { value: 'oauth', label: { he: 'OAuth 2.0', en: 'OAuth 2.0' } },
       { value: 'api_key', label: { he: 'API Key', en: 'API Key' } },
       { value: 'basic_auth', label: { he: 'Basic Auth', en: 'Basic Auth' } },
-      { value: 'jwt', label: { he: 'JWT Token', en: 'JWT Token' } }
-    ]
+      { value: 'jwt', label: { he: 'JWT Token', en: 'JWT Token' } },
+    ],
   },
 
   crm_module: {
@@ -109,20 +111,16 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     label: { he: 'מודול CRM', en: 'CRM Module' },
     description: {
       he: 'המודול ב-CRM לעבודה (לידים, אנשי קשר, עסקאות)',
-      en: 'CRM module to work with (Leads, Contacts, Deals)'
+      en: 'CRM module to work with (Leads, Contacts, Deals)',
     },
     type: 'select',
     category: 'crm',
     collectedIn: ['phase2'],
-    usedBy: [
-      'auto-form-to-crm',
-      'auto-crm-update',
-      'auto-lead-response'
-    ],
+    usedBy: ['auto-form-to-crm', 'auto-crm-update', 'auto-lead-response'],
     primarySource: {
       path: 'implementationSpec.automations[].requirements.crmAccess.module',
       phase: 'phase2',
-      description: 'CRM module from automation requirements'
+      description: 'CRM module from automation requirements',
     },
     secondarySources: [],
     autoPopulate: false,
@@ -133,8 +131,8 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       { value: 'leads', label: { he: 'לידים', en: 'Leads' } },
       { value: 'contacts', label: { he: 'אנשי קשר', en: 'Contacts' } },
       { value: 'potentials', label: { he: 'עסקאות', en: 'Potentials/Deals' } },
-      { value: 'accounts', label: { he: 'חשבונות', en: 'Accounts' } }
-    ]
+      { value: 'accounts', label: { he: 'חשבונות', en: 'Accounts' } },
+    ],
   },
 
   // ============================================================================
@@ -146,7 +144,7 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     label: { he: 'ספק שירות אימייל', en: 'Email Service Provider' },
     description: {
       he: 'ספק השירות לשליחת אימיילים אוטומטיים',
-      en: 'Service provider for sending automated emails'
+      en: 'Service provider for sending automated emails',
     },
     type: 'select',
     category: 'email',
@@ -155,27 +153,31 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       'auto-lead-response',
       'auto-email-templates',
       'auto-welcome-email',
-      'auto-notifications'
+      'auto-notifications',
     ],
     primarySource: {
       path: 'implementationSpec.automations[].requirements.emailServiceAccess.provider',
       phase: 'phase2',
-      description: 'Email provider from automation requirements'
+      description: 'Email provider from automation requirements',
     },
     secondarySources: [],
     autoPopulate: false,
     syncBidirectional: true,
     required: true,
     importance: 'high',
-    technicalContext: 'Email service used for all automated email communications',
+    technicalContext:
+      'Email service used for all automated email communications',
     options: [
       { value: 'sendgrid', label: { he: 'SendGrid', en: 'SendGrid' } },
       { value: 'mailgun', label: { he: 'Mailgun', en: 'Mailgun' } },
       { value: 'smtp', label: { he: 'SMTP', en: 'SMTP' } },
       { value: 'gmail', label: { he: 'Gmail API', en: 'Gmail API' } },
-      { value: 'outlook', label: { he: 'Outlook/Office 365', en: 'Outlook/Office 365' } },
-      { value: 'other', label: { he: 'אחר', en: 'Other' } }
-    ]
+      {
+        value: 'outlook',
+        label: { he: 'Outlook/Office 365', en: 'Outlook/Office 365' },
+      },
+      { value: 'other', label: { he: 'אחר', en: 'Other' } },
+    ],
   },
 
   email_daily_limit: {
@@ -184,11 +186,15 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     type: 'number',
     category: 'email',
     collectedIn: ['phase2'],
-    usedBy: ['auto-lead-response', 'auto-email-templates', 'auto-notifications'],
+    usedBy: [
+      'auto-lead-response',
+      'auto-email-templates',
+      'auto-notifications',
+    ],
     primarySource: {
       path: 'implementationSpec.automations[].requirements.emailServiceAccess.rateLimits.daily',
       phase: 'phase2',
-      description: 'Daily email rate limit'
+      description: 'Daily email rate limit',
     },
     secondarySources: [],
     autoPopulate: false,
@@ -197,8 +203,8 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     importance: 'medium',
     validation: {
       min: 0,
-      max: 1000000
-    }
+      max: 1000000,
+    },
   },
 
   // ============================================================================
@@ -210,19 +216,16 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     label: { he: 'פלטפורמת טפסים', en: 'Form Platform' },
     description: {
       he: 'הפלטפורמה בה הטפסים בנויים',
-      en: 'Platform where forms are built'
+      en: 'Platform where forms are built',
     },
     type: 'select',
     category: 'forms',
     collectedIn: ['phase1', 'phase2'],
-    usedBy: [
-      'auto-form-to-crm',
-      'auto-lead-response'
-    ],
+    usedBy: ['auto-form-to-crm', 'auto-lead-response'],
     primarySource: {
       path: 'modules.leadsAndSales.leadSources[].channel',
       phase: 'phase1',
-      description: 'Form platform from lead sources'
+      description: 'Form platform from lead sources',
     },
     secondarySources: [],
     autoPopulate: true,
@@ -233,11 +236,14 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       { value: 'wix', label: { he: 'Wix Forms', en: 'Wix Forms' } },
       { value: 'wordpress', label: { he: 'WordPress', en: 'WordPress' } },
       { value: 'elementor', label: { he: 'Elementor', en: 'Elementor' } },
-      { value: 'google_forms', label: { he: 'Google Forms', en: 'Google Forms' } },
+      {
+        value: 'google_forms',
+        label: { he: 'Google Forms', en: 'Google Forms' },
+      },
       { value: 'typeform', label: { he: 'Typeform', en: 'Typeform' } },
       { value: 'jotform', label: { he: 'JotForm', en: 'JotForm' } },
-      { value: 'custom', label: { he: 'מותאם אישית', en: 'Custom' } }
-    ]
+      { value: 'custom', label: { he: 'מותאם אישית', en: 'Custom' } },
+    ],
   },
 
   form_webhook_capability: {
@@ -250,14 +256,15 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     primarySource: {
       path: 'implementationSpec.automations[].requirements.formPlatformAccess.webhookCapability',
       phase: 'phase2',
-      description: 'Form platform webhook capability'
+      description: 'Form platform webhook capability',
     },
     secondarySources: [],
     autoPopulate: false,
     syncBidirectional: true,
     required: false,
     importance: 'high',
-    technicalContext: 'Determines if we can use webhooks (realtime) or need polling'
+    technicalContext:
+      'Determines if we can use webhooks (realtime) or need polling',
   },
 
   // ============================================================================
@@ -274,12 +281,12 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       'auto-lead-response',
       'auto-form-to-crm',
       'auto-data-sync',
-      'auto-notifications'
+      'auto-notifications',
     ],
     primarySource: {
       path: 'implementationSpec.automations[].requirements.n8nWorkflow.instanceUrl',
       phase: 'phase2',
-      description: 'n8n instance URL'
+      description: 'n8n instance URL',
     },
     secondarySources: [],
     autoPopulate: true,
@@ -287,8 +294,8 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     required: true,
     importance: 'critical',
     validation: {
-      pattern: /^https?:\/\/.+/
-    }
+      pattern: /^https?:\/\/.+/,
+    },
   },
 
   n8n_webhook_endpoint: {
@@ -301,7 +308,7 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     primarySource: {
       path: 'implementationSpec.automations[].requirements.n8nWorkflow.webhookEndpoint',
       phase: 'phase2',
-      description: 'n8n webhook endpoint URL'
+      description: 'n8n webhook endpoint URL',
     },
     secondarySources: [],
     autoPopulate: false,
@@ -309,8 +316,8 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     required: true,
     importance: 'critical',
     validation: {
-      pattern: /^https?:\/\/.+\/webhook\/.+/
-    }
+      pattern: /^https?:\/\/.+\/webhook\/.+/,
+    },
   },
 
   // ============================================================================
@@ -322,7 +329,7 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     label: { he: 'כמות לידים חודשית', en: 'Monthly Lead Volume' },
     description: {
       he: 'כמות הלידים המגיעים בחודש',
-      en: 'Number of leads received per month'
+      en: 'Number of leads received per month',
     },
     type: 'number',
     category: 'business',
@@ -331,15 +338,15 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     primarySource: {
       path: 'modules.leadsAndSales.leadVolume',
       phase: 'phase1',
-      description: 'Lead volume from Leads and Sales module'
+      description: 'Lead volume from Leads and Sales module',
     },
     secondarySources: [
       {
         path: 'modules.leadsAndSales.leadSources[].volumePerMonth',
         phase: 'phase1',
         module: 'leadsAndSales',
-        description: 'Sum of all lead source volumes'
-      }
+        description: 'Sum of all lead source volumes',
+      },
     ],
     autoPopulate: true,
     syncBidirectional: false,
@@ -348,8 +355,8 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     businessContext: 'Helps size infrastructure and estimate costs',
     validation: {
       min: 0,
-      max: 1000000
-    }
+      max: 1000000,
+    },
   },
 
   current_response_time: {
@@ -357,7 +364,7 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     label: { he: 'זמן תגובה נוכחי', en: 'Current Response Time' },
     description: {
       he: 'זמן התגובה הממוצע ללידים כיום',
-      en: 'Current average response time to leads'
+      en: 'Current average response time to leads',
     },
     type: 'text',
     category: 'business',
@@ -366,14 +373,14 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     primarySource: {
       path: 'modules.leadsAndSales.speedToLead.duringBusinessHours',
       phase: 'phase1',
-      description: 'Response time from Speed to Lead section'
+      description: 'Response time from Speed to Lead section',
     },
     secondarySources: [],
     autoPopulate: true,
     syncBidirectional: false,
     required: false,
     importance: 'medium',
-    businessContext: 'Baseline for measuring improvement after automation'
+    businessContext: 'Baseline for measuring improvement after automation',
   },
 
   // ============================================================================
@@ -390,13 +397,13 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     primarySource: {
       path: 'modules.systems.detailedSystems[].specificSystem',
       phase: 'phase1',
-      description: 'System name from Systems module'
+      description: 'System name from Systems module',
     },
     secondarySources: [],
     autoPopulate: true,
     syncBidirectional: true,
     required: true,
-    importance: 'high'
+    importance: 'high',
   },
 
   system_api_access: {
@@ -409,7 +416,7 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     primarySource: {
       path: 'modules.systems.detailedSystems[].apiAccess',
       phase: 'phase1',
-      description: 'API access level from Systems module'
+      description: 'API access level from Systems module',
     },
     secondarySources: [],
     autoPopulate: true,
@@ -420,8 +427,8 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       { value: 'full', label: { he: 'גישה מלאה', en: 'Full Access' } },
       { value: 'limited', label: { he: 'גישה מוגבלת', en: 'Limited Access' } },
       { value: 'none', label: { he: 'אין גישה', en: 'No Access' } },
-      { value: 'unknown', label: { he: 'לא ידוע', en: 'Unknown' } }
-    ]
+      { value: 'unknown', label: { he: 'לא ידוע', en: 'Unknown' } },
+    ],
   },
 
   // ============================================================================
@@ -438,7 +445,7 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     primarySource: {
       path: 'modules.aiAgents.priority',
       phase: 'phase1',
-      description: 'Priority department for AI from AI Agents module'
+      description: 'Priority department for AI from AI Agents module',
     },
     secondarySources: [],
     autoPopulate: true,
@@ -448,8 +455,8 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     options: [
       { value: 'sales', label: { he: 'מכירות', en: 'Sales' } },
       { value: 'service', label: { he: 'שירות', en: 'Service' } },
-      { value: 'operations', label: { he: 'תפעול', en: 'Operations' } }
-    ]
+      { value: 'operations', label: { he: 'תפעול', en: 'Operations' } },
+    ],
   },
 
   ai_model_preference: {
@@ -458,11 +465,19 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     type: 'select',
     category: 'ai',
     collectedIn: ['phase2'],
-    usedBy: ['ai-sales-agent', 'ai-service-agent', 'ai-faq-bot', 'ai-lead-qualifier', 'ai-triage', 'ai-action-agent', 'ai-full-integration'],
+    usedBy: [
+      'ai-sales-agent',
+      'ai-service-agent',
+      'ai-faq-bot',
+      'ai-lead-qualifier',
+      'ai-triage',
+      'ai-action-agent',
+      'ai-full-integration',
+    ],
     primarySource: {
       path: 'implementationSpec.aiAgents[].model.modelName',
       phase: 'phase2',
-      description: 'AI model selection from AI agent spec'
+      description: 'AI model selection from AI agent spec',
     },
     secondarySources: [],
     autoPopulate: false,
@@ -473,9 +488,15 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       { value: 'gpt-4o', label: { he: 'GPT-4o', en: 'GPT-4o' } },
       { value: 'gpt-4o-mini', label: { he: 'GPT-4o Mini', en: 'GPT-4o Mini' } },
       { value: 'gpt-4-turbo', label: { he: 'GPT-4 Turbo', en: 'GPT-4 Turbo' } },
-      { value: 'claude-3.5-sonnet', label: { he: 'Claude 3.5 Sonnet', en: 'Claude 3.5 Sonnet' } },
-      { value: 'claude-3.5-haiku', label: { he: 'Claude 3.5 Haiku', en: 'Claude 3.5 Haiku' } }
-    ]
+      {
+        value: 'claude-3.5-sonnet',
+        label: { he: 'Claude 3.5 Sonnet', en: 'Claude 3.5 Sonnet' },
+      },
+      {
+        value: 'claude-3.5-haiku',
+        label: { he: 'Claude 3.5 Haiku', en: 'Claude 3.5 Haiku' },
+      },
+    ],
   },
 
   // ============================================================================
@@ -492,12 +513,12 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       'whatsapp-api-setup',
       'auto-sms-whatsapp',
       'auto-notifications',
-      'ai-service-agent'
+      'ai-service-agent',
     ],
     primarySource: {
       path: 'implementationSpec.integrationServices[].requirements.provider',
       phase: 'phase2',
-      description: 'WhatsApp API provider'
+      description: 'WhatsApp API provider',
     },
     secondarySources: [],
     autoPopulate: true,
@@ -507,9 +528,12 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     options: [
       { value: 'twilio', label: { he: 'Twilio', en: 'Twilio' } },
       { value: 'messagebird', label: { he: 'MessageBird', en: 'MessageBird' } },
-      { value: 'whatsapp_business', label: { he: 'WhatsApp Business API', en: 'WhatsApp Business API' } },
-      { value: 'vonage', label: { he: 'Vonage', en: 'Vonage' } }
-    ]
+      {
+        value: 'whatsapp_business',
+        label: { he: 'WhatsApp Business API', en: 'WhatsApp Business API' },
+      },
+      { value: 'vonage', label: { he: 'Vonage', en: 'Vonage' } },
+    ],
   },
 
   whatsapp_phone_number: {
@@ -522,22 +546,22 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     primarySource: {
       path: 'implementationSpec.integrationServices[].requirements.businessPhone',
       phase: 'phase2',
-      description: 'WhatsApp business phone number'
+      description: 'WhatsApp business phone number',
     },
     secondarySources: [
       {
         path: 'modules.overview.contactPhone',
         phase: 'phase1',
-        description: 'Company phone from Overview'
-      }
+        description: 'Company phone from Overview',
+      },
     ],
     autoPopulate: true,
     syncBidirectional: false,
     required: true,
     importance: 'critical',
     validation: {
-      pattern: /^\+?[1-9]\d{1,14}$/
-    }
+      pattern: /^\+?[1-9]\d{1,14}$/,
+    },
   },
 
   // ============================================================================
@@ -554,12 +578,12 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       'int-calendar',
       'auto-appointment-reminders',
       'auto-meeting-scheduler',
-      'ai-sales-agent'
+      'ai-sales-agent',
     ],
     primarySource: {
       path: 'implementationSpec.integrationServices[].requirements.calendarSystem',
       phase: 'phase2',
-      description: 'Calendar system selection'
+      description: 'Calendar system selection',
     },
     secondarySources: [],
     autoPopulate: true,
@@ -567,11 +591,20 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     required: true,
     importance: 'high',
     options: [
-      { value: 'google_calendar', label: { he: 'Google Calendar', en: 'Google Calendar' } },
-      { value: 'outlook', label: { he: 'Outlook Calendar', en: 'Outlook Calendar' } },
+      {
+        value: 'google_calendar',
+        label: { he: 'Google Calendar', en: 'Google Calendar' },
+      },
+      {
+        value: 'outlook',
+        label: { he: 'Outlook Calendar', en: 'Outlook Calendar' },
+      },
       { value: 'office365', label: { he: 'Office 365', en: 'Office 365' } },
-      { value: 'apple_calendar', label: { he: 'Apple Calendar', en: 'Apple Calendar' } }
-    ]
+      {
+        value: 'apple_calendar',
+        label: { he: 'Apple Calendar', en: 'Apple Calendar' },
+      },
+    ],
   },
 
   // ============================================================================
@@ -588,14 +621,14 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     primarySource: {
       path: 'modules.overview.industry',
       phase: 'phase1',
-      description: 'Company industry from Overview'
+      description: 'Company industry from Overview',
     },
     secondarySources: [],
     autoPopulate: true,
     syncBidirectional: false,
     required: false,
     importance: 'medium',
-    businessContext: 'Helps tailor automations to industry-specific needs'
+    businessContext: 'Helps tailor automations to industry-specific needs',
   },
 
   company_size: {
@@ -608,7 +641,7 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     primarySource: {
       path: 'modules.overview.employees',
       phase: 'phase1',
-      description: 'Number of employees from Overview'
+      description: 'Number of employees from Overview',
     },
     secondarySources: [],
     autoPopulate: true,
@@ -618,8 +651,8 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     businessContext: 'Determines scale of automations and user licenses needed',
     validation: {
       min: 1,
-      max: 100000
-    }
+      max: 100000,
+    },
   },
 
   company_website: {
@@ -632,7 +665,7 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     primarySource: {
       path: 'modules.overview.website',
       phase: 'phase1',
-      description: 'Company website from Overview'
+      description: 'Company website from Overview',
     },
     secondarySources: [],
     autoPopulate: true,
@@ -640,8 +673,8 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     required: false,
     importance: 'low',
     validation: {
-      pattern: /^https?:\/\/.+/
-    }
+      pattern: /^https?:\/\/.+/,
+    },
   },
 
   // ============================================================================
@@ -663,19 +696,19 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       'ai-triage',
       'add-custom-reports',
       'add-dashboard',
-      'consulting-process'
+      'consulting-process',
     ],
     primarySource: {
       path: 'implementationSpec.automations[].requirements.n8nWorkflow.errorHandling.alertEmail',
       phase: 'phase2',
-      description: 'Alert email for errors'
+      description: 'Alert email for errors',
     },
     secondarySources: [
       {
         path: 'modules.overview.contactEmail',
         phase: 'phase1',
-        description: 'Company contact email from Overview'
-      }
+        description: 'Company contact email from Overview',
+      },
     ],
     autoPopulate: true,
     syncBidirectional: true,
@@ -683,8 +716,8 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     importance: 'high',
     technicalContext: 'Email address for receiving system alerts and errors',
     validation: {
-      pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    }
+      pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    },
   },
 
   retry_attempts: {
@@ -698,23 +731,24 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       'auto-form-to-crm',
       'auto-data-sync',
       'int-simple',
-      'int-complex'
+      'int-complex',
     ],
     primarySource: {
       path: 'implementationSpec.automations[].requirements.n8nWorkflow.errorHandling.retryAttempts',
       phase: 'phase2',
-      description: 'Number of retry attempts on failure'
+      description: 'Number of retry attempts on failure',
     },
     secondarySources: [],
     autoPopulate: true,
     syncBidirectional: true,
     required: false,
     importance: 'medium',
-    technicalContext: 'How many times to retry failed operations before alerting',
+    technicalContext:
+      'How many times to retry failed operations before alerting',
     validation: {
       min: 0,
-      max: 10
-    }
+      max: 10,
+    },
   },
 
   // ============================================================================
@@ -727,16 +761,11 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     type: 'select',
     category: 'integration',
     collectedIn: ['phase2'],
-    usedBy: [
-      'auto-data-sync',
-      'auto-system-sync',
-      'int-simple',
-      'int-complex'
-    ],
+    usedBy: ['auto-data-sync', 'auto-system-sync', 'int-simple', 'int-complex'],
     primarySource: {
       path: 'implementationSpec.integrations[].frequency',
       phase: 'phase2',
-      description: 'Integration sync frequency'
+      description: 'Integration sync frequency',
     },
     secondarySources: [],
     autoPopulate: false,
@@ -745,12 +774,18 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     importance: 'high',
     options: [
       { value: 'realtime', label: { he: 'בזמן אמת', en: 'Realtime' } },
-      { value: 'every_5_min', label: { he: 'כל 5 דקות', en: 'Every 5 minutes' } },
-      { value: 'every_15_min', label: { he: 'כל 15 דקות', en: 'Every 15 minutes' } },
+      {
+        value: 'every_5_min',
+        label: { he: 'כל 5 דקות', en: 'Every 5 minutes' },
+      },
+      {
+        value: 'every_15_min',
+        label: { he: 'כל 15 דקות', en: 'Every 15 minutes' },
+      },
       { value: 'hourly', label: { he: 'כל שעה', en: 'Hourly' } },
       { value: 'daily', label: { he: 'יומי', en: 'Daily' } },
-      { value: 'weekly', label: { he: 'שבועי', en: 'Weekly' } }
-    ]
+      { value: 'weekly', label: { he: 'שבועי', en: 'Weekly' } },
+    ],
   },
 
   // ============================================================================
@@ -767,14 +802,14 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     primarySource: {
       path: 'implementationSpec.automations[].requirements.emailServiceAccess.smtpCredentials.host',
       phase: 'phase2',
-      description: 'SMTP server host'
+      description: 'SMTP server host',
     },
     secondarySources: [],
     autoPopulate: true,
     syncBidirectional: true,
     required: false,
     importance: 'medium',
-    placeholder: { he: 'smtp.gmail.com', en: 'smtp.gmail.com' }
+    placeholder: { he: 'smtp.gmail.com', en: 'smtp.gmail.com' },
   },
 
   smtp_port: {
@@ -787,7 +822,7 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     primarySource: {
       path: 'implementationSpec.automations[].requirements.emailServiceAccess.smtpCredentials.port',
       phase: 'phase2',
-      description: 'SMTP server port'
+      description: 'SMTP server port',
     },
     secondarySources: [],
     autoPopulate: true,
@@ -796,8 +831,8 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     importance: 'medium',
     validation: {
       min: 1,
-      max: 65535
-    }
+      max: 65535,
+    },
   },
 
   // ============================================================================
@@ -810,18 +845,22 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     type: 'text',
     category: 'business',
     collectedIn: ['phase1', 'phase2'],
-    usedBy: ['ai-sales-agent', 'auto-appointment-reminders', 'auto-service-workflow'],
+    usedBy: [
+      'ai-sales-agent',
+      'auto-appointment-reminders',
+      'auto-service-workflow',
+    ],
     primarySource: {
       path: 'modules.customerService.businessHours.start',
       phase: 'phase1',
-      description: 'Business hours start time'
+      description: 'Business hours start time',
     },
     secondarySources: [],
     autoPopulate: true,
     syncBidirectional: false,
     required: false,
     importance: 'medium',
-    placeholder: { he: '09:00', en: '09:00' }
+    placeholder: { he: '09:00', en: '09:00' },
   },
 
   business_hours_end: {
@@ -830,18 +869,22 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     type: 'text',
     category: 'business',
     collectedIn: ['phase1', 'phase2'],
-    usedBy: ['ai-sales-agent', 'auto-appointment-reminders', 'auto-service-workflow'],
+    usedBy: [
+      'ai-sales-agent',
+      'auto-appointment-reminders',
+      'auto-service-workflow',
+    ],
     primarySource: {
       path: 'modules.customerService.businessHours.end',
       phase: 'phase1',
-      description: 'Business hours end time'
+      description: 'Business hours end time',
     },
     secondarySources: [],
     autoPopulate: true,
     syncBidirectional: false,
     required: false,
     importance: 'medium',
-    placeholder: { he: '18:00', en: '18:00' }
+    placeholder: { he: '18:00', en: '18:00' },
   },
 
   // ============================================================================
@@ -858,14 +901,14 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     primarySource: {
       path: 'modules.leadsAndSales.leadSources[0].channel',
       phase: 'phase1',
-      description: 'Primary lead source channel'
+      description: 'Primary lead source channel',
     },
     secondarySources: [],
     autoPopulate: true,
     syncBidirectional: false,
     required: false,
     importance: 'medium',
-    businessContext: 'Main channel where leads come from'
+    businessContext: 'Main channel where leads come from',
   },
 
   // ============================================================================
@@ -882,13 +925,13 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     primarySource: {
       path: 'implementationSpec.automations[].requirements.defaultAssignee',
       phase: 'phase2',
-      description: 'Default person to assign leads/tasks to'
+      description: 'Default person to assign leads/tasks to',
     },
     secondarySources: [],
     autoPopulate: false,
     syncBidirectional: true,
     required: false,
-    importance: 'medium'
+    importance: 'medium',
   },
 
   // ============================================================================
@@ -909,12 +952,12 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       'impl-crm',
       'add-custom-reports',
       'add-dashboard',
-      'consulting-process'
+      'consulting-process',
     ],
     primarySource: {
       path: 'implementationSpec.automations[].requirements.stateManagement.storageType',
       phase: 'phase2',
-      description: 'Database type for state management'
+      description: 'Database type for state management',
     },
     secondarySources: [],
     autoPopulate: false,
@@ -925,8 +968,8 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       { value: 'postgresql', label: { he: 'PostgreSQL', en: 'PostgreSQL' } },
       { value: 'mysql', label: { he: 'MySQL', en: 'MySQL' } },
       { value: 'mongodb', label: { he: 'MongoDB', en: 'MongoDB' } },
-      { value: 'sql_server', label: { he: 'SQL Server', en: 'SQL Server' } }
-    ]
+      { value: 'sql_server', label: { he: 'SQL Server', en: 'SQL Server' } },
+    ],
   },
 
   database_connection_string: {
@@ -939,20 +982,24 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       'auto-approval-workflow',
       'auto-service-workflow',
       'auto-data-sync',
-      'int-complex'
+      'int-complex',
     ],
     primarySource: {
       path: 'implementationSpec.automations[].requirements.stateManagement.databaseConfig.connectionString',
       phase: 'phase2',
-      description: 'Database connection string'
+      description: 'Database connection string',
     },
     secondarySources: [],
     autoPopulate: false,
     syncBidirectional: true,
     required: true,
     importance: 'critical',
-    technicalContext: 'Full connection string including credentials for database access',
-    placeholder: { he: 'postgresql://user:password@host:port/database', en: 'postgresql://user:password@host:port/database' }
+    technicalContext:
+      'Full connection string including credentials for database access',
+    placeholder: {
+      he: 'postgresql://user:password@host:port/database',
+      en: 'postgresql://user:password@host:port/database',
+    },
   },
 
   // ============================================================================
@@ -969,12 +1016,12 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       'auto-notifications',
       'auto-approval-workflow',
       'auto-service-workflow',
-      'auto-team-alerts'
+      'auto-team-alerts',
     ],
     primarySource: {
       path: 'implementationSpec.automations[].requirements.notificationChannels',
       phase: 'phase2',
-      description: 'Notification channels to use'
+      description: 'Notification channels to use',
     },
     secondarySources: [],
     autoPopulate: false,
@@ -986,8 +1033,11 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       { value: 'sms', label: { he: 'SMS', en: 'SMS' } },
       { value: 'whatsapp', label: { he: 'WhatsApp', en: 'WhatsApp' } },
       { value: 'slack', label: { he: 'Slack', en: 'Slack' } },
-      { value: 'teams', label: { he: 'Microsoft Teams', en: 'Microsoft Teams' } }
-    ]
+      {
+        value: 'teams',
+        label: { he: 'Microsoft Teams', en: 'Microsoft Teams' },
+      },
+    ],
   },
 
   // ============================================================================
@@ -1005,12 +1055,12 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       'int-complex',
       'int-calendar',
       'int-crm-marketing',
-      'impl-crm'
+      'impl-crm',
     ],
     primarySource: {
       path: 'implementationSpec.integrations[].authMethod',
       phase: 'phase2',
-      description: 'API authentication method'
+      description: 'API authentication method',
     },
     secondarySources: [],
     autoPopulate: false,
@@ -1021,9 +1071,12 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       { value: 'oauth', label: { he: 'OAuth 2.0', en: 'OAuth 2.0' } },
       { value: 'api_key', label: { he: 'API Key', en: 'API Key' } },
       { value: 'basic_auth', label: { he: 'Basic Auth', en: 'Basic Auth' } },
-      { value: 'bearer_token', label: { he: 'Bearer Token', en: 'Bearer Token' } },
-      { value: 'jwt', label: { he: 'JWT', en: 'JWT' } }
-    ]
+      {
+        value: 'bearer_token',
+        label: { he: 'Bearer Token', en: 'Bearer Token' },
+      },
+      { value: 'jwt', label: { he: 'JWT', en: 'JWT' } },
+    ],
   },
 
   api_endpoint_url: {
@@ -1032,16 +1085,11 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     type: 'url',
     category: 'technical',
     collectedIn: ['phase2'],
-    usedBy: [
-      'int-simple',
-      'int-complex',
-      'int-calendar',
-      'whatsapp-api-setup'
-    ],
+    usedBy: ['int-simple', 'int-complex', 'int-calendar', 'whatsapp-api-setup'],
     primarySource: {
       path: 'implementationSpec.integrations[].endpointUrl',
       phase: 'phase2',
-      description: 'API endpoint URL'
+      description: 'API endpoint URL',
     },
     secondarySources: [],
     autoPopulate: false,
@@ -1049,8 +1097,8 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     required: true,
     importance: 'critical',
     validation: {
-      pattern: /^https?:\/\/.+/
-    }
+      pattern: /^https?:\/\/.+/,
+    },
   },
 
   // ============================================================================
@@ -1067,12 +1115,12 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       'auto-service-workflow',
       'auto-lead-workflow',
       'auto-approval-workflow',
-      'auto-complex-logic'
+      'auto-complex-logic',
     ],
     primarySource: {
       path: 'implementationSpec.automations[].requirements.trigger',
       phase: 'phase2',
-      description: 'What triggers the workflow'
+      description: 'What triggers the workflow',
     },
     secondarySources: [],
     autoPopulate: false,
@@ -1084,8 +1132,8 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
       { value: 'schedule', label: { he: 'לפי זמן', en: 'Schedule' } },
       { value: 'event', label: { he: 'אירוע', en: 'Event' } },
       { value: 'manual', label: { he: 'ידני', en: 'Manual' } },
-      { value: 'api_call', label: { he: 'קריאת API', en: 'API Call' } }
-    ]
+      { value: 'api_call', label: { he: 'קריאת API', en: 'API Call' } },
+    ],
   },
 
   // ============================================================================
@@ -1102,21 +1150,25 @@ export const FIELD_REGISTRY: Record<string, RegistryField> = {
     primarySource: {
       path: 'implementationSpec.automations[].requirements.duplicateDetectionField',
       phase: 'phase2',
-      description: 'Field used for duplicate detection'
+      description: 'Field used for duplicate detection',
     },
     secondarySources: [],
     autoPopulate: false,
     syncBidirectional: true,
     required: false,
     importance: 'high',
-    technicalContext: 'Field to check for duplicates (typically email or phone)',
+    technicalContext:
+      'Field to check for duplicates (typically email or phone)',
     options: [
       { value: 'email', label: { he: 'אימייל', en: 'Email' } },
       { value: 'phone', label: { he: 'טלפון', en: 'Phone' } },
-      { value: 'email_and_phone', label: { he: 'אימייל + טלפון', en: 'Email + Phone' } },
-      { value: 'custom', label: { he: 'שדה מותאם', en: 'Custom Field' } }
-    ]
-  }
+      {
+        value: 'email_and_phone',
+        label: { he: 'אימייל + טלפון', en: 'Email + Phone' },
+      },
+      { value: 'custom', label: { he: 'שדה מותאם', en: 'Custom Field' } },
+    ],
+  },
 };
 
 /**
@@ -1130,7 +1182,7 @@ export function getFieldById(fieldId: string): RegistryField | undefined {
  * Get all fields for a specific service
  */
 export function getFieldsForService(serviceId: string): RegistryField[] {
-  return Object.values(FIELD_REGISTRY).filter(field => 
+  return Object.values(FIELD_REGISTRY).filter((field) =>
     field.usedBy.includes(serviceId)
   );
 }
@@ -1139,8 +1191,8 @@ export function getFieldsForService(serviceId: string): RegistryField[] {
  * Get all fields for a specific category
  */
 export function getFieldsByCategory(category: string): RegistryField[] {
-  return Object.values(FIELD_REGISTRY).filter(field => 
-    field.category === category
+  return Object.values(FIELD_REGISTRY).filter(
+    (field) => field.category === category
   );
 }
 
@@ -1148,17 +1200,18 @@ export function getFieldsByCategory(category: string): RegistryField[] {
  * Get all auto-populate fields
  */
 export function getAutoPopulateFields(): RegistryField[] {
-  return Object.values(FIELD_REGISTRY).filter(field => 
-    field.autoPopulate === true
+  return Object.values(FIELD_REGISTRY).filter(
+    (field) => field.autoPopulate === true
   );
 }
 
 /**
  * Get fields collected in a specific phase
  */
-export function getFieldsByPhase(phase: 'phase1' | 'phase2' | 'phase3'): RegistryField[] {
-  return Object.values(FIELD_REGISTRY).filter(field => 
+export function getFieldsByPhase(
+  phase: 'phase1' | 'phase2' | 'phase3'
+): RegistryField[] {
+  return Object.values(FIELD_REGISTRY).filter((field) =>
     field.collectedIn.includes(phase)
   );
 }
-

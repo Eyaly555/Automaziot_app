@@ -8,7 +8,11 @@ const API_BASE = '/api/zoho';
 /**
  * Test Zoho connection
  */
-export async function testZohoConnection(): Promise<{ success: boolean; organization?: any; message?: string }> {
+export async function testZohoConnection(): Promise<{
+  success: boolean;
+  organization?: any;
+  message?: string;
+}> {
   try {
     const response = await fetch(`${API_BASE}/test`);
     const data = await response.json();
@@ -22,9 +26,13 @@ export async function testZohoConnection(): Promise<{ success: boolean; organiza
 /**
  * Get Discovery data from Zoho record
  */
-export async function getDiscoveryFromZoho(recordId: string): Promise<{ success: boolean; discoveryData?: any; message?: string }> {
+export async function getDiscoveryFromZoho(
+  recordId: string
+): Promise<{ success: boolean; discoveryData?: any; message?: string }> {
   try {
-    const response = await fetch(`${API_BASE}/get-discovery?recordId=${recordId}`);
+    const response = await fetch(
+      `${API_BASE}/get-discovery?recordId=${recordId}`
+    );
     if (!response.ok) {
       throw new Error(`Failed to fetch discovery data: ${response.statusText}`);
     }
@@ -34,7 +42,10 @@ export async function getDiscoveryFromZoho(recordId: string): Promise<{ success:
     console.error('Failed to get discovery data from Zoho:', error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to fetch discovery data'
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch discovery data',
     };
   }
 }
@@ -42,18 +53,21 @@ export async function getDiscoveryFromZoho(recordId: string): Promise<{ success:
 /**
  * Sync meeting data with Zoho CRM
  */
-export async function syncMeetingWithZoho(meeting: any, recordId?: string): Promise<{ success: boolean; recordId?: string; message?: string }> {
+export async function syncMeetingWithZoho(
+  meeting: any,
+  recordId?: string
+): Promise<{ success: boolean; recordId?: string; message?: string }> {
   try {
     const response = await fetch(`${API_BASE}/sync`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         meeting,
         recordId,
-        module: meeting.zohoIntegration?.module || 'Potentials1'
-      })
+        module: meeting.zohoIntegration?.module || 'Potentials1',
+      }),
     });
 
     if (!response.ok) {
@@ -66,7 +80,8 @@ export async function syncMeetingWithZoho(meeting: any, recordId?: string): Prom
     console.error('Failed to sync with Zoho:', error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to sync with Zoho'
+      message:
+        error instanceof Error ? error.message : 'Failed to sync with Zoho',
     };
   }
 }
@@ -95,9 +110,9 @@ export async function updateZohoDeal(dealId: string, data: any): Promise<any> {
     const response = await fetch(`${API_BASE}/deals?dealId=${dealId}`, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     });
 
     if (!response.ok) {
@@ -118,9 +133,9 @@ export async function createZohoDeal(data: any): Promise<any> {
     const response = await fetch(`${API_BASE}/deals`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     });
 
     if (!response.ok) {
@@ -159,7 +174,9 @@ export async function getZohoPotentialFull(recordId: string): Promise<any> {
     const response = await fetch(`${API_BASE}/potentials/${recordId}/full`);
 
     if (!response.ok) {
-      throw new Error(`Failed to get potential full data: ${response.statusText}`);
+      throw new Error(
+        `Failed to get potential full data: ${response.statusText}`
+      );
     }
     return await response.json();
   } catch (error) {
@@ -171,18 +188,21 @@ export async function getZohoPotentialFull(recordId: string): Promise<any> {
 /**
  * NEW: Sync full meeting data to Zoho
  */
-export async function syncFullMeetingToZoho(meeting: any, recordId?: string): Promise<any> {
+export async function syncFullMeetingToZoho(
+  meeting: any,
+  recordId?: string
+): Promise<any> {
   try {
     const response = await fetch(`${API_BASE}/potentials/sync-full`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         meeting,
         recordId,
-        module: 'Potentials1'
-      })
+        module: 'Potentials1',
+      }),
     });
 
     if (!response.ok) {
@@ -198,14 +218,19 @@ export async function syncFullMeetingToZoho(meeting: any, recordId?: string): Pr
 /**
  * NEW: Update phase in Zoho potential
  */
-export async function updateZohoPotentialPhase(recordId: string, phase: string, status: string, notes?: string): Promise<any> {
+export async function updateZohoPotentialPhase(
+  recordId: string,
+  phase: string,
+  status: string,
+  notes?: string
+): Promise<any> {
   try {
     const response = await fetch(`${API_BASE}/potentials/${recordId}/phase`, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ phase, status, notes })
+      body: JSON.stringify({ phase, status, notes }),
     });
 
     if (!response.ok) {
@@ -223,7 +248,9 @@ export async function updateZohoPotentialPhase(recordId: string, phase: string, 
  */
 export async function searchZohoPotentials(query: string): Promise<any> {
   try {
-    const response = await fetch(`${API_BASE}/potentials/search?q=${encodeURIComponent(query)}`);
+    const response = await fetch(
+      `${API_BASE}/potentials/search?q=${encodeURIComponent(query)}`
+    );
 
     if (!response.ok) {
       throw new Error(`Failed to search potentials: ${response.statusText}`);
@@ -238,13 +265,13 @@ export async function searchZohoPotentials(query: string): Promise<any> {
 /**
  * NEW: Create a note in Zoho CRM
  * Attaches a note to a specific record (e.g., Potential, Contact, Lead)
- * 
+ *
  * @param recordId - The parent record ID to attach the note to
  * @param title - Note title
  * @param content - Note content (supports plain text and HTML)
  * @param module - The module name (default: 'Potentials1')
  * @returns Promise with note creation result
- * 
+ *
  * @example
  * ```typescript
  * await createZohoNote(
@@ -265,21 +292,23 @@ export async function createZohoNote(
     const response = await fetch(`${API_BASE}/notes/create`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         recordId,
         title,
         content,
-        module
-      })
+        module,
+      }),
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `Failed to create note: ${response.statusText}`);
+      throw new Error(
+        errorData.message || `Failed to create note: ${response.statusText}`
+      );
     }
-    
+
     const result = await response.json();
     return result;
   } catch (error) {

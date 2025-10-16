@@ -13,7 +13,7 @@ function mapTaskTypeToJiraType(type: string): string {
     testing: 'Test',
     deployment: 'Task',
     bug: 'Bug',
-    feature: 'Story'
+    feature: 'Story',
   };
 
   return mapping[type] || 'Task';
@@ -27,7 +27,7 @@ function mapPriorityToJira(priority: string): string {
     critical: 'Highest',
     high: 'High',
     medium: 'Medium',
-    low: 'Low'
+    low: 'Low',
   };
 
   return mapping[priority] || 'Medium';
@@ -42,7 +42,7 @@ function mapStatusToJira(status: string): string {
     in_progress: 'In Progress',
     in_review: 'In Review',
     blocked: 'Blocked',
-    done: 'Done'
+    done: 'Done',
   };
 
   return mapping[status] || 'To Do';
@@ -74,7 +74,9 @@ function formatGitHubIssueBody(task: DevelopmentTask): string {
 
   // Related spec
   if (task.relatedSpec) {
-    parts.push(`**Related Spec:** ${task.relatedSpec.type} - ${task.relatedSpec.specName}`);
+    parts.push(
+      `**Related Spec:** ${task.relatedSpec.type} - ${task.relatedSpec.specName}`
+    );
     parts.push('');
   }
 
@@ -121,7 +123,11 @@ function formatGitHubIssueBody(task: DevelopmentTask): string {
 /**
  * Download file helper
  */
-function downloadFile(content: string, filename: string, mimeType: string): void {
+function downloadFile(
+  content: string,
+  filename: string,
+  mimeType: string
+): void {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -142,7 +148,11 @@ function escapeCSVField(value: unknown): string {
   const stringValue = String(value);
 
   // If contains comma, newline, or quote, wrap in quotes and escape internal quotes
-  if (stringValue.includes(',') || stringValue.includes('\n') || stringValue.includes('"')) {
+  if (
+    stringValue.includes(',') ||
+    stringValue.includes('\n') ||
+    stringValue.includes('"')
+  ) {
     return `"${stringValue.replace(/"/g, '""')}"`;
   }
 
@@ -174,7 +184,7 @@ export function exportTasksToJiraCSV(meeting: Meeting): void {
     'Labels',
     'Component',
     'Estimated Hours',
-    'System'
+    'System',
   ];
 
   const rows = tasks.map((task: DevelopmentTask) => [
@@ -190,16 +200,20 @@ export function exportTasksToJiraCSV(meeting: Meeting): void {
     escapeCSVField(`${task.type} ${task.priority}`), // Combined type and priority as labels
     escapeCSVField(task.relatedSpec?.type || ''),
     task.estimatedHours || 0,
-    escapeCSVField(task.relatedSpec?.specName || '')
+    escapeCSVField(task.relatedSpec?.specName || ''),
   ]);
 
   const csv = [
     headers.join(','),
-    ...rows.map((row: (string | number)[]) => row.join(','))
+    ...rows.map((row: (string | number)[]) => row.join(',')),
   ].join('\n');
 
   const timestamp = new Date().toISOString().split('T')[0];
-  downloadFile(csv, `Jira_Import_${meeting.clientName.replace(/\s+/g, '_')}_${timestamp}.csv`, 'text/csv');
+  downloadFile(
+    csv,
+    `Jira_Import_${meeting.clientName.replace(/\s+/g, '_')}_${timestamp}.csv`,
+    'text/csv'
+  );
 }
 
 /**
@@ -219,23 +233,29 @@ export function exportTasksToGitHubCSV(meeting: Meeting): void {
   const rows = tasks.map((task: DevelopmentTask) => [
     escapeCSVField(task.title),
     escapeCSVField(formatGitHubIssueBody(task)),
-    escapeCSVField([
-      task.type,
-      task.priority,
-      task.status,
-      task.relatedSpec?.type || 'general'
-    ].join(',')),
+    escapeCSVField(
+      [
+        task.type,
+        task.priority,
+        task.status,
+        task.relatedSpec?.type || 'general',
+      ].join(',')
+    ),
     escapeCSVField(task.sprint || ''),
-    escapeCSVField(task.assignedTo || '')
+    escapeCSVField(task.assignedTo || ''),
   ]);
 
   const csv = [
     headers.join(','),
-    ...rows.map((row: string[]) => row.join(','))
+    ...rows.map((row: string[]) => row.join(',')),
   ].join('\n');
 
   const timestamp = new Date().toISOString().split('T')[0];
-  downloadFile(csv, `GitHub_Import_${meeting.clientName.replace(/\s+/g, '_')}_${timestamp}.csv`, 'text/csv');
+  downloadFile(
+    csv,
+    `GitHub_Import_${meeting.clientName.replace(/\s+/g, '_')}_${timestamp}.csv`,
+    'text/csv'
+  );
 }
 
 /**
@@ -263,7 +283,7 @@ export function exportTasksToGenericCSV(meeting: Meeting): void {
     'Related Spec',
     'System',
     'Created',
-    'Updated'
+    'Updated',
   ];
 
   const rows = tasks.map((task: DevelopmentTask) => [
@@ -277,19 +297,29 @@ export function exportTasksToGenericCSV(meeting: Meeting): void {
     task.actualHours || 0,
     escapeCSVField(task.assignedTo || 'Unassigned'),
     escapeCSVField(task.sprint || 'Backlog'),
-    escapeCSVField(`${task.relatedSpec?.type || ''} - ${task.relatedSpec?.specName || ''}`),
+    escapeCSVField(
+      `${task.relatedSpec?.type || ''} - ${task.relatedSpec?.specName || ''}`
+    ),
     escapeCSVField(task.system || ''), // Use system instead of tags
-    escapeCSVField(task.createdAt ? new Date(task.createdAt).toLocaleDateString() : ''),
-    escapeCSVField(task.updatedAt ? new Date(task.updatedAt).toLocaleDateString() : '')
+    escapeCSVField(
+      task.createdAt ? new Date(task.createdAt).toLocaleDateString() : ''
+    ),
+    escapeCSVField(
+      task.updatedAt ? new Date(task.updatedAt).toLocaleDateString() : ''
+    ),
   ]);
 
   const csv = [
     headers.join(','),
-    ...rows.map((row: (string | number)[]) => row.join(','))
+    ...rows.map((row: (string | number)[]) => row.join(',')),
   ].join('\n');
 
   const timestamp = new Date().toISOString().split('T')[0];
-  downloadFile(csv, `Tasks_${meeting.clientName.replace(/\s+/g, '_')}_${timestamp}.csv`, 'text/csv');
+  downloadFile(
+    csv,
+    `Tasks_${meeting.clientName.replace(/\s+/g, '_')}_${timestamp}.csv`,
+    'text/csv'
+  );
 }
 
 /**
@@ -317,20 +347,40 @@ export function exportSprintSummaryToCSV(meeting: Meeting): void {
     'Todo',
     'Completion %',
     'Total Hours Estimated',
-    'Total Hours Actual'
+    'Total Hours Actual',
   ];
 
   const rows = sprints.map((sprint: Sprint) => {
-    const sprintTasks = tasks.filter((t: DevelopmentTask) => t.sprint === sprint.name);
-    const completed = sprintTasks.filter((t: DevelopmentTask) => t.status === 'done').length;
-    const inProgress = sprintTasks.filter((t: DevelopmentTask) => t.status === 'in_progress').length;
-    const blocked = sprintTasks.filter((t: DevelopmentTask) => t.status === 'blocked').length;
-    const todo = sprintTasks.filter((t: DevelopmentTask) => t.status === 'todo').length;
-    const totalEstimated = sprintTasks.reduce((sum: number, t: DevelopmentTask) => sum + (t.estimatedHours || 0), 0);
-    const totalActual = sprintTasks.reduce((sum: number, t: DevelopmentTask) => sum + (t.actualHours || 0), 0);
+    const sprintTasks = tasks.filter(
+      (t: DevelopmentTask) => t.sprint === sprint.name
+    );
+    const completed = sprintTasks.filter(
+      (t: DevelopmentTask) => t.status === 'done'
+    ).length;
+    const inProgress = sprintTasks.filter(
+      (t: DevelopmentTask) => t.status === 'in_progress'
+    ).length;
+    const blocked = sprintTasks.filter(
+      (t: DevelopmentTask) => t.status === 'blocked'
+    ).length;
+    const todo = sprintTasks.filter(
+      (t: DevelopmentTask) => t.status === 'todo'
+    ).length;
+    const totalEstimated = sprintTasks.reduce(
+      (sum: number, t: DevelopmentTask) => sum + (t.estimatedHours || 0),
+      0
+    );
+    const totalActual = sprintTasks.reduce(
+      (sum: number, t: DevelopmentTask) => sum + (t.actualHours || 0),
+      0
+    );
 
-    const startDate = sprint.startDate ? new Date(sprint.startDate).toLocaleDateString() : 'Not set';
-    const endDate = sprint.endDate ? new Date(sprint.endDate).toLocaleDateString() : 'Not set';
+    const startDate = sprint.startDate
+      ? new Date(sprint.startDate).toLocaleDateString()
+      : 'Not set';
+    const endDate = sprint.endDate
+      ? new Date(sprint.endDate).toLocaleDateString()
+      : 'Not set';
 
     return [
       escapeCSVField(sprint.name),
@@ -345,17 +395,21 @@ export function exportSprintSummaryToCSV(meeting: Meeting): void {
       todo,
       `${Math.round((completed / (sprintTasks.length || 1)) * 100)}%`,
       totalEstimated,
-      totalActual
+      totalActual,
     ];
   });
 
   const csv = [
     headers.join(','),
-    ...rows.map((row: (string | number)[]) => row.join(','))
+    ...rows.map((row: (string | number)[]) => row.join(',')),
   ].join('\n');
 
   const timestamp = new Date().toISOString().split('T')[0];
-  downloadFile(csv, `Sprint_Summary_${meeting.clientName.replace(/\s+/g, '_')}_${timestamp}.csv`, 'text/csv');
+  downloadFile(
+    csv,
+    `Sprint_Summary_${meeting.clientName.replace(/\s+/g, '_')}_${timestamp}.csv`,
+    'text/csv'
+  );
 }
 
 /**
@@ -380,16 +434,19 @@ export function exportBlockersToCSV(meeting: Meeting): void {
     'Status',
     'Resolution',
     'Resolved Date',
-    'Resolved By'
+    'Resolved By',
   ];
 
   const tasks = meeting.developmentTracking?.tasks || [];
 
   const rows = blockers.map((blocker: Blocker) => {
     const task = tasks.find((t: DevelopmentTask) => t.id === blocker.taskId);
-    const createdDate = (blocker.createdAt || blocker.reportedAt)
-      ? new Date(blocker.createdAt || blocker.reportedAt!).toLocaleDateString()
-      : 'Not recorded';
+    const createdDate =
+      blocker.createdAt || blocker.reportedAt
+        ? new Date(
+            blocker.createdAt || blocker.reportedAt!
+          ).toLocaleDateString()
+        : 'Not recorded';
     const resolvedDate = blocker.resolvedAt
       ? new Date(blocker.resolvedAt).toLocaleDateString()
       : '';
@@ -405,15 +462,19 @@ export function exportBlockersToCSV(meeting: Meeting): void {
       blocker.resolved ? 'Resolved' : 'Active',
       escapeCSVField(blocker.resolution || 'Pending'),
       escapeCSVField(resolvedDate),
-      escapeCSVField(blocker.resolvedBy || '')
+      escapeCSVField(blocker.resolvedBy || ''),
     ];
   });
 
   const csv = [
     headers.join(','),
-    ...rows.map((row: string[]) => row.join(','))
+    ...rows.map((row: string[]) => row.join(',')),
   ].join('\n');
 
   const timestamp = new Date().toISOString().split('T')[0];
-  downloadFile(csv, `Blockers_${meeting.clientName.replace(/\s+/g, '_')}_${timestamp}.csv`, 'text/csv');
+  downloadFile(
+    csv,
+    `Blockers_${meeting.clientName.replace(/\s+/g, '_')}_${timestamp}.csv`,
+    'text/csv'
+  );
 }

@@ -15,7 +15,7 @@ import {
   TrendingUp,
   ArrowLeft,
   Play,
-  Languages
+  Languages,
 } from 'lucide-react';
 import { ExportMenu } from '../Common/ExportMenu';
 import { TaskQuickFilters } from './TaskQuickFilters';
@@ -35,7 +35,7 @@ const translations = {
       list: 'רשימה',
       sprint: 'ספרינט',
       system: 'מערכת',
-      team: 'צוות'
+      team: 'צוות',
     },
     stats: {
       totalTasks: 'משימות כוללות',
@@ -46,7 +46,7 @@ const translations = {
       projectHealth: 'בריאות הפרויקט',
       onTrack: 'על המסלול',
       atRisk: 'בסיכון',
-      behind: 'מאחור'
+      behind: 'מאחור',
     },
     filters: {
       title: 'סינון',
@@ -63,34 +63,34 @@ const translations = {
       low: 'נמוך',
       showing: 'מציג',
       of: 'מתוך',
-      tasks: 'משימות'
+      tasks: 'משימות',
     },
     progress: {
       overall: 'התקדמות כללית',
       hoursEstimated: 'שעות משוערות',
       hoursActual: 'שעות בפועל',
-      hoursRemaining: 'שעות נותרות'
+      hoursRemaining: 'שעות נותרות',
     },
     errors: {
       noProject: 'לא נמצא פרויקט',
       backToDashboard: 'חזרה לדשבורד',
       specRequired: 'נדרשת מפרט יישום',
       specRequiredDesc: 'השלם את מפרט היישום בשלב 2 לפני יצירת משימות פיתוח.',
-      goToPhase2: 'עבור לשלב 2'
+      goToPhase2: 'עבור לשלב 2',
     },
     statusLabels: {
       todo: 'לביצוע',
       in_progress: 'בתהליך',
       in_review: 'בבדיקה',
       blocked: 'חסום',
-      done: 'הושלם'
+      done: 'הושלם',
     },
     comingSoon: {
       sprint: 'תצוגת ספרינט בקרוב',
       system: 'תצוגת מערכת בקרוב',
       team: 'תצוגת צוות בקרוב',
-      underDevelopment: 'תצוגה זו בפיתוח'
-    }
+      underDevelopment: 'תצוגה זו בפיתוח',
+    },
   },
   en: {
     title: 'Developer Dashboard',
@@ -100,7 +100,7 @@ const translations = {
       list: 'List',
       sprint: 'Sprint',
       system: 'System',
-      team: 'Team'
+      team: 'Team',
     },
     stats: {
       totalTasks: 'Total Tasks',
@@ -111,7 +111,7 @@ const translations = {
       projectHealth: 'Project Health',
       onTrack: 'On Track',
       atRisk: 'At Risk',
-      behind: 'Behind'
+      behind: 'Behind',
     },
     filters: {
       title: 'Filters',
@@ -128,35 +128,36 @@ const translations = {
       low: 'Low',
       showing: 'Showing',
       of: 'of',
-      tasks: 'tasks'
+      tasks: 'tasks',
     },
     progress: {
       overall: 'Overall Progress',
       hoursEstimated: 'hours estimated',
       hoursActual: 'hours actual',
-      hoursRemaining: 'hours remaining'
+      hoursRemaining: 'hours remaining',
     },
     errors: {
       noProject: 'No Project Found',
       backToDashboard: 'Back to Dashboard',
       specRequired: 'Implementation Spec Required',
-      specRequiredDesc: 'Complete the implementation specification in Phase 2 before generating development tasks.',
-      goToPhase2: 'Go to Phase 2'
+      specRequiredDesc:
+        'Complete the implementation specification in Phase 2 before generating development tasks.',
+      goToPhase2: 'Go to Phase 2',
     },
     statusLabels: {
       todo: 'To Do',
       in_progress: 'In Progress',
       in_review: 'In Review',
       blocked: 'Blocked',
-      done: 'Done'
+      done: 'Done',
     },
     comingSoon: {
       sprint: 'Sprint view coming soon',
       system: 'System view coming soon',
       team: 'Team view coming soon',
-      underDevelopment: 'This view is under development'
-    }
-  }
+      underDevelopment: 'This view is under development',
+    },
+  },
 };
 
 export const DeveloperDashboard: React.FC = () => {
@@ -187,7 +188,10 @@ export const DeveloperDashboard: React.FC = () => {
 
     if (!currentMeeting.developmentTracking) {
       // Check if we can generate tasks
-      if (!currentMeeting.implementationSpec || currentMeeting.implementationSpec.systems.length === 0) {
+      if (
+        !currentMeeting.implementationSpec ||
+        currentMeeting.implementationSpec.systems.length === 0
+      ) {
         return;
       }
 
@@ -208,20 +212,26 @@ export const DeveloperDashboard: React.FC = () => {
             ai_agent: { total: 0, done: 0, inProgress: 0 },
             workflow: { total: 0, done: 0, inProgress: 0 },
             testing: { total: 0, done: 0, inProgress: 0 },
-            deployment: { total: 0, done: 0, inProgress: 0 }
+            deployment: { total: 0, done: 0, inProgress: 0 },
           },
           bySystem: [],
           estimatedCompletion: new Date(),
-          hoursEstimated: generatedTasks.reduce((sum, t) => sum + t.estimatedHours, 0),
+          hoursEstimated: generatedTasks.reduce(
+            (sum, t) => sum + t.estimatedHours,
+            0
+          ),
           hoursActual: 0,
-          hoursRemaining: generatedTasks.reduce((sum, t) => sum + t.estimatedHours, 0),
+          hoursRemaining: generatedTasks.reduce(
+            (sum, t) => sum + t.estimatedHours,
+            0
+          ),
           onTrack: true,
           projectHealth: 'on_track',
           healthReasons: [],
           activeBlockers: 0,
           blockersList: [],
           criticalBlockers: 0,
-          teamUtilization: []
+          teamUtilization: [],
         },
         blockers: [],
         defaultSprintDuration: 14,
@@ -230,7 +240,7 @@ export const DeveloperDashboard: React.FC = () => {
         tasksGenerated: true,
         tasksGeneratedAt: new Date(),
         tasksGeneratedBy: 'system',
-        lastUpdated: new Date()
+        lastUpdated: new Date(),
       };
 
       updateMeeting({ developmentTracking: newTracking });
@@ -239,9 +249,14 @@ export const DeveloperDashboard: React.FC = () => {
 
   if (!currentMeeting) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center" dir={language === 'he' ? 'rtl' : 'ltr'}>
+      <div
+        className="min-h-screen bg-gray-100 flex items-center justify-center"
+        dir={language === 'he' ? 'rtl' : 'ltr'}
+      >
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">{t.errors.noProject}</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            {t.errors.noProject}
+          </h2>
           <Button
             onClick={() => navigate('/dashboard')}
             variant="primary"
@@ -256,13 +271,16 @@ export const DeveloperDashboard: React.FC = () => {
 
   if (!currentMeeting.developmentTracking) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center" dir={language === 'he' ? 'rtl' : 'ltr'}>
+      <div
+        className="min-h-screen bg-gray-100 flex items-center justify-center"
+        dir={language === 'he' ? 'rtl' : 'ltr'}
+      >
         <div className="text-center max-w-md">
           <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">{t.errors.specRequired}</h2>
-          <p className="text-gray-600 mb-6">
-            {t.errors.specRequiredDesc}
-          </p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            {t.errors.specRequired}
+          </h2>
+          <p className="text-gray-600 mb-6">{t.errors.specRequiredDesc}</p>
           <Button
             onClick={() => navigate('/phase2')}
             variant="primary"
@@ -281,51 +299,79 @@ export const DeveloperDashboard: React.FC = () => {
 
   // Calculate real-time stats
   const tasks = tracking.tasks;
-  const todoTasks = tasks.filter(t => t.status === 'todo');
-  const inProgressTasks = tasks.filter(t => t.status === 'in_progress');
-  const inReviewTasks = tasks.filter(t => t.status === 'in_review');
-  const blockedTasks = tasks.filter(t => t.status === 'blocked');
-  const doneTasks = tasks.filter(t => t.status === 'done');
+  const todoTasks = tasks.filter((t) => t.status === 'todo');
+  const inProgressTasks = tasks.filter((t) => t.status === 'in_progress');
+  const inReviewTasks = tasks.filter((t) => t.status === 'in_review');
+  const blockedTasks = tasks.filter((t) => t.status === 'blocked');
+  const doneTasks = tasks.filter((t) => t.status === 'done');
 
-  const progressPercentage = Math.round((doneTasks.length / tasks.length) * 100);
+  const progressPercentage = Math.round(
+    (doneTasks.length / tasks.length) * 100
+  );
 
   // Extract unique systems from tasks
-  const uniqueSystems = Array.from(new Set(tasks.map(t => t.system).filter(Boolean)));
+  const uniqueSystems = Array.from(
+    new Set(tasks.map((t) => t.system).filter(Boolean))
+  );
 
   // Build filter options for TaskQuickFilters
   const filterOptions = {
-    sprints: sprints.map(s => ({
+    sprints: sprints.map((s) => ({
       id: s.sprintId,
       label: s.name,
-      count: tasks.filter(t => t.sprintId === s.sprintId).length
+      count: tasks.filter((t) => t.sprintId === s.sprintId).length,
     })),
-    systems: uniqueSystems.map(sys => ({
+    systems: uniqueSystems.map((sys) => ({
       id: sys,
       label: sys,
-      count: tasks.filter(t => t.system === sys).length
+      count: tasks.filter((t) => t.system === sys).length,
     })),
     priorities: [
-      { id: 'critical', label: t.filters.critical, count: tasks.filter(t => t.priority === 'critical').length },
-      { id: 'high', label: t.filters.high, count: tasks.filter(t => t.priority === 'high').length },
-      { id: 'medium', label: t.filters.medium, count: tasks.filter(t => t.priority === 'medium').length },
-      { id: 'low', label: t.filters.low, count: tasks.filter(t => t.priority === 'low').length }
+      {
+        id: 'critical',
+        label: t.filters.critical,
+        count: tasks.filter((t) => t.priority === 'critical').length,
+      },
+      {
+        id: 'high',
+        label: t.filters.high,
+        count: tasks.filter((t) => t.priority === 'high').length,
+      },
+      {
+        id: 'medium',
+        label: t.filters.medium,
+        count: tasks.filter((t) => t.priority === 'medium').length,
+      },
+      {
+        id: 'low',
+        label: t.filters.low,
+        count: tasks.filter((t) => t.priority === 'low').length,
+      },
     ],
     statuses: [
       { id: 'todo', label: t.filters.toDo, count: todoTasks.length },
-      { id: 'in_progress', label: t.filters.inProgress, count: inProgressTasks.length },
-      { id: 'in_review', label: t.filters.inReview, count: inReviewTasks.length },
+      {
+        id: 'in_progress',
+        label: t.filters.inProgress,
+        count: inProgressTasks.length,
+      },
+      {
+        id: 'in_review',
+        label: t.filters.inReview,
+        count: inReviewTasks.length,
+      },
       { id: 'blocked', label: t.filters.blocked, count: blockedTasks.length },
-      { id: 'done', label: t.filters.done, count: doneTasks.length }
-    ]
+      { id: 'done', label: t.filters.done, count: doneTasks.length },
+    ],
   };
 
   // Filter tasks based on active filters
   let filteredTasks = tasks;
   if (filterStatus !== 'all') {
-    filteredTasks = filteredTasks.filter(t => t.status === filterStatus);
+    filteredTasks = filteredTasks.filter((t) => t.status === filterStatus);
   }
   if (filterPriority !== 'all') {
-    filteredTasks = filteredTasks.filter(t => t.priority === filterPriority);
+    filteredTasks = filteredTasks.filter((t) => t.priority === filterPriority);
   }
 
   // Health indicator
@@ -340,7 +386,10 @@ export const DeveloperDashboard: React.FC = () => {
     setEditingTask(taskId);
   };
 
-  const handleSaveTask = (taskId: string, updates: Partial<DevelopmentTask>) => {
+  const handleSaveTask = (
+    taskId: string,
+    updates: Partial<DevelopmentTask>
+  ) => {
     if (!currentMeeting?.developmentTracking) return;
 
     const updatedTasks = updateTask(
@@ -353,8 +402,8 @@ export const DeveloperDashboard: React.FC = () => {
       developmentTracking: {
         ...currentMeeting.developmentTracking,
         tasks: updatedTasks,
-        lastUpdated: new Date()
-      }
+        lastUpdated: new Date(),
+      },
     });
 
     setEditingTask(null);
@@ -363,21 +412,27 @@ export const DeveloperDashboard: React.FC = () => {
   const handleRegeneratePlan = () => {
     if (!currentMeeting) return;
 
-    const newTasks = regenerateTaskPlan(currentMeeting, currentMeeting.developmentTracking?.tasks || []);
+    const newTasks = regenerateTaskPlan(
+      currentMeeting,
+      currentMeeting.developmentTracking?.tasks || []
+    );
 
     updateMeeting({
       developmentTracking: {
         ...currentMeeting.developmentTracking,
         tasks: newTasks,
-        lastUpdated: new Date()
-      }
+        lastUpdated: new Date(),
+      },
     });
   };
 
   const healthColor = getHealthColor();
 
   return (
-    <div className="min-h-screen bg-gray-100" dir={language === 'he' ? 'rtl' : 'ltr'}>
+    <div
+      className="min-h-screen bg-gray-100"
+      dir={language === 'he' ? 'rtl' : 'ltr'}
+    >
       {/* Header */}
       <div className="bg-white border-b border-gray-200 shadow-sm">
         <div className="container mx-auto px-4 py-6">
@@ -391,7 +446,9 @@ export const DeveloperDashboard: React.FC = () => {
               </button>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">{t.title}</h1>
-                <p className="text-gray-600 mt-1">{t.project}: {currentMeeting.clientName}</p>
+                <p className="text-gray-600 mt-1">
+                  {t.project}: {currentMeeting.clientName}
+                </p>
               </div>
             </div>
 
@@ -403,10 +460,16 @@ export const DeveloperDashboard: React.FC = () => {
               <button
                 onClick={handleRegeneratePlan}
                 className="flex items-center gap-2 px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition"
-                title={language === 'he' ? 'יצירת מחדש של התוכנית מהנתונים העדכניים' : 'Regenerate plan from current data'}
+                title={
+                  language === 'he'
+                    ? 'יצירת מחדש של התוכנית מהנתונים העדכניים'
+                    : 'Regenerate plan from current data'
+                }
               >
                 <TrendingUp className="w-5 h-5" />
-                <span className="font-medium">{language === 'he' ? 'יצירת מחדש' : 'Regenerate'}</span>
+                <span className="font-medium">
+                  {language === 'he' ? 'יצירת מחדש' : 'Regenerate'}
+                </span>
               </button>
 
               {/* Language Toggle */}
@@ -415,17 +478,39 @@ export const DeveloperDashboard: React.FC = () => {
                 className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
               >
                 <Languages className="w-5 h-5" />
-                <span className="font-medium">{language === 'he' ? 'English' : 'עברית'}</span>
+                <span className="font-medium">
+                  {language === 'he' ? 'English' : 'עברית'}
+                </span>
               </button>
 
               {/* View Mode Switcher */}
               <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
                 {[
-                  { mode: 'kanban' as ViewMode, icon: LayoutGrid, label: t.viewModes.kanban },
-                  { mode: 'list' as ViewMode, icon: List, label: t.viewModes.list },
-                  { mode: 'sprint' as ViewMode, icon: Calendar, label: t.viewModes.sprint },
-                  { mode: 'system' as ViewMode, icon: FolderTree, label: t.viewModes.system },
-                  { mode: 'team' as ViewMode, icon: Users, label: t.viewModes.team }
+                  {
+                    mode: 'kanban' as ViewMode,
+                    icon: LayoutGrid,
+                    label: t.viewModes.kanban,
+                  },
+                  {
+                    mode: 'list' as ViewMode,
+                    icon: List,
+                    label: t.viewModes.list,
+                  },
+                  {
+                    mode: 'sprint' as ViewMode,
+                    icon: Calendar,
+                    label: t.viewModes.sprint,
+                  },
+                  {
+                    mode: 'system' as ViewMode,
+                    icon: FolderTree,
+                    label: t.viewModes.system,
+                  },
+                  {
+                    mode: 'team' as ViewMode,
+                    icon: Users,
+                    label: t.viewModes.team,
+                  },
                 ].map(({ mode, icon: Icon, label }) => (
                   <button
                     key={mode}
@@ -453,8 +538,12 @@ export const DeveloperDashboard: React.FC = () => {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">{t.stats.totalTasks}</p>
-                <p className="text-3xl font-bold text-gray-900">{tasks.length}</p>
+                <p className="text-sm text-gray-600 mb-1">
+                  {t.stats.totalTasks}
+                </p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {tasks.length}
+                </p>
               </div>
               <List className="w-10 h-10 text-blue-600" />
             </div>
@@ -464,20 +553,30 @@ export const DeveloperDashboard: React.FC = () => {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">{t.stats.completed}</p>
-                <p className="text-3xl font-bold text-green-600">{doneTasks.length}</p>
+                <p className="text-sm text-gray-600 mb-1">
+                  {t.stats.completed}
+                </p>
+                <p className="text-3xl font-bold text-green-600">
+                  {doneTasks.length}
+                </p>
               </div>
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
-            <div className="mt-2 text-xs text-gray-500">{progressPercentage}% {t.stats.done}</div>
+            <div className="mt-2 text-xs text-gray-500">
+              {progressPercentage}% {t.stats.done}
+            </div>
           </Card>
 
           {/* In Progress */}
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">{t.stats.inProgress}</p>
-                <p className="text-3xl font-bold text-blue-600">{inProgressTasks.length}</p>
+                <p className="text-sm text-gray-600 mb-1">
+                  {t.stats.inProgress}
+                </p>
+                <p className="text-3xl font-bold text-blue-600">
+                  {inProgressTasks.length}
+                </p>
               </div>
               <Play className="w-10 h-10 text-blue-600" />
             </div>
@@ -488,7 +587,9 @@ export const DeveloperDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">{t.stats.blocked}</p>
-                <p className="text-3xl font-bold text-red-600">{blockedTasks.length}</p>
+                <p className="text-3xl font-bold text-red-600">
+                  {blockedTasks.length}
+                </p>
               </div>
               <AlertTriangle className="w-10 h-10 text-red-600" />
             </div>
@@ -498,22 +599,34 @@ export const DeveloperDashboard: React.FC = () => {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">{t.stats.projectHealth}</p>
-                <p className={`text-2xl font-bold ${
-                  healthColor === 'green' ? 'text-green-600' :
-                  healthColor === 'yellow' ? 'text-yellow-600' :
-                  'text-red-600'
-                }`}>
-                  {healthColor === 'green' ? `🟢 ${t.stats.onTrack}` :
-                   healthColor === 'yellow' ? `🟡 ${t.stats.atRisk}` :
-                   `🔴 ${t.stats.behind}`}
+                <p className="text-sm text-gray-600 mb-1">
+                  {t.stats.projectHealth}
+                </p>
+                <p
+                  className={`text-2xl font-bold ${
+                    healthColor === 'green'
+                      ? 'text-green-600'
+                      : healthColor === 'yellow'
+                        ? 'text-yellow-600'
+                        : 'text-red-600'
+                  }`}
+                >
+                  {healthColor === 'green'
+                    ? `🟢 ${t.stats.onTrack}`
+                    : healthColor === 'yellow'
+                      ? `🟡 ${t.stats.atRisk}`
+                      : `🔴 ${t.stats.behind}`}
                 </p>
               </div>
-              <TrendingUp className={`w-10 h-10 ${
-                healthColor === 'green' ? 'text-green-600' :
-                healthColor === 'yellow' ? 'text-yellow-600' :
-                'text-red-600'
-              }`} />
+              <TrendingUp
+                className={`w-10 h-10 ${
+                  healthColor === 'green'
+                    ? 'text-green-600'
+                    : healthColor === 'yellow'
+                      ? 'text-yellow-600'
+                      : 'text-red-600'
+                }`}
+              />
             </div>
           </Card>
         </div>
@@ -521,8 +634,12 @@ export const DeveloperDashboard: React.FC = () => {
         {/* Progress Bar */}
         <Card className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">{t.progress.overall}</h3>
-            <span className="text-2xl font-bold text-blue-600">{progressPercentage}%</span>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {t.progress.overall}
+            </h3>
+            <span className="text-2xl font-bold text-blue-600">
+              {progressPercentage}%
+            </span>
           </div>
           <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
             <div
@@ -531,9 +648,15 @@ export const DeveloperDashboard: React.FC = () => {
             />
           </div>
           <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
-            <span>{progress.hoursEstimated} {t.progress.hoursEstimated}</span>
-            <span>{progress.hoursActual} {t.progress.hoursActual}</span>
-            <span>{progress.hoursRemaining} {t.progress.hoursRemaining}</span>
+            <span>
+              {progress.hoursEstimated} {t.progress.hoursEstimated}
+            </span>
+            <span>
+              {progress.hoursActual} {t.progress.hoursActual}
+            </span>
+            <span>
+              {progress.hoursRemaining} {t.progress.hoursRemaining}
+            </span>
           </div>
         </Card>
 
@@ -543,7 +666,7 @@ export const DeveloperDashboard: React.FC = () => {
             filters={filterOptions}
             activeFilters={{
               status: filterStatus === 'all' ? undefined : filterStatus,
-              priority: filterPriority === 'all' ? undefined : filterPriority
+              priority: filterPriority === 'all' ? undefined : filterPriority,
             }}
             onChange={(filters) => {
               setFilterStatus(filters.status || 'all');
@@ -553,7 +676,8 @@ export const DeveloperDashboard: React.FC = () => {
 
           {/* Filter results count */}
           <div className="mt-3 text-sm text-gray-600 text-center">
-            {t.filters.showing} {filteredTasks.length} {t.filters.of} {tasks.length} {t.filters.tasks}
+            {t.filters.showing} {filteredTasks.length} {t.filters.of}{' '}
+            {tasks.length} {t.filters.tasks}
           </div>
         </div>
 
@@ -561,37 +685,65 @@ export const DeveloperDashboard: React.FC = () => {
         {viewMode === 'list' && (
           <div className="bg-white rounded-lg shadow">
             <div className="divide-y divide-gray-200">
-              {filteredTasks.map(task => (
-                <div key={task.id} className="p-6 hover:bg-gray-50 transition group">
+              {filteredTasks.map((task) => (
+                <div
+                  key={task.id}
+                  className="p-6 hover:bg-gray-50 transition group"
+                >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className={`w-3 h-3 rounded-full ${
-                          task.status === 'done' ? 'bg-green-500' :
-                          task.status === 'in_progress' ? 'bg-blue-500' :
-                          task.status === 'blocked' ? 'bg-red-500' :
-                          task.status === 'in_review' ? 'bg-purple-500' :
-                          'bg-gray-300'
-                        }`} />
-                        <h3 className="text-lg font-semibold text-gray-900">{task.title}</h3>
+                        <span
+                          className={`w-3 h-3 rounded-full ${
+                            task.status === 'done'
+                              ? 'bg-green-500'
+                              : task.status === 'in_progress'
+                                ? 'bg-blue-500'
+                                : task.status === 'blocked'
+                                  ? 'bg-red-500'
+                                  : task.status === 'in_review'
+                                    ? 'bg-purple-500'
+                                    : 'bg-gray-300'
+                          }`}
+                        />
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {task.title}
+                        </h3>
                         <button
                           onClick={() => handleEditTask(task.id)}
                           className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded ml-auto"
                           title={language === 'he' ? 'ערוך משימה' : 'Edit Task'}
                         >
-                          <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          <svg
+                            className="w-4 h-4 text-gray-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            />
                           </svg>
                         </button>
                       </div>
-                      <p className="text-sm text-gray-600 mb-3">{task.description}</p>
+                      <p className="text-sm text-gray-600 mb-3">
+                        {task.description}
+                      </p>
                       <div className="flex items-center gap-4 text-sm">
-                        <span className={`px-2 py-1 rounded-full font-semibold ${
-                          task.priority === 'critical' ? 'bg-red-100 text-red-700' :
-                          task.priority === 'high' ? 'bg-orange-100 text-orange-700' :
-                          task.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-green-100 text-green-700'
-                        }`}>
+                        <span
+                          className={`px-2 py-1 rounded-full font-semibold ${
+                            task.priority === 'critical'
+                              ? 'bg-red-100 text-red-700'
+                              : task.priority === 'high'
+                                ? 'bg-orange-100 text-orange-700'
+                                : task.priority === 'medium'
+                                  ? 'bg-yellow-100 text-yellow-700'
+                                  : 'bg-green-100 text-green-700'
+                          }`}
+                        >
                           {task.priority}
                         </span>
                         <span className="text-gray-600">
@@ -613,70 +765,103 @@ export const DeveloperDashboard: React.FC = () => {
 
         {viewMode === 'kanban' && (
           <div className="grid grid-cols-5 gap-6">
-            {['todo', 'in_progress', 'in_review', 'blocked', 'done'].map(status => {
-              const statusTasks = filteredTasks.filter(t => t.status === status);
+            {['todo', 'in_progress', 'in_review', 'blocked', 'done'].map(
+              (status) => {
+                const statusTasks = filteredTasks.filter(
+                  (t) => t.status === status
+                );
 
-              return (
-                <div key={status} className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900">{t.statusLabels[status as keyof typeof t.statusLabels]}</h3>
-                    <span className="text-sm text-gray-600">{statusTasks.length}</span>
-                  </div>
-                  <div className="space-y-3">
-                    {statusTasks.map(task => (
-                      <div key={task.id} className="bg-white rounded-lg p-4 shadow-sm border-l-4 relative group" style={{
-                        borderColor:
-                          task.priority === 'critical' ? '#DC2626' :
-                          task.priority === 'high' ? '#F59E0B' :
-                          task.priority === 'medium' ? '#3B82F6' :
-                          '#10B981'
-                      }}>
-                        <button
-                          onClick={() => handleEditTask(task.id)}
-                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded"
-                          title={language === 'he' ? 'ערוך משימה' : 'Edit Task'}
+                return (
+                  <div key={status} className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-gray-900">
+                        {t.statusLabels[status as keyof typeof t.statusLabels]}
+                      </h3>
+                      <span className="text-sm text-gray-600">
+                        {statusTasks.length}
+                      </span>
+                    </div>
+                    <div className="space-y-3">
+                      {statusTasks.map((task) => (
+                        <div
+                          key={task.id}
+                          className="bg-white rounded-lg p-4 shadow-sm border-l-4 relative group"
+                          style={{
+                            borderColor:
+                              task.priority === 'critical'
+                                ? '#DC2626'
+                                : task.priority === 'high'
+                                  ? '#F59E0B'
+                                  : task.priority === 'medium'
+                                    ? '#3B82F6'
+                                    : '#10B981',
+                          }}
                         >
-                          <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </button>
+                          <button
+                            onClick={() => handleEditTask(task.id)}
+                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded"
+                            title={
+                              language === 'he' ? 'ערוך משימה' : 'Edit Task'
+                            }
+                          >
+                            <svg
+                              className="w-4 h-4 text-gray-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                          </button>
 
-                        <h4 className="font-semibold text-sm text-gray-900 mb-2 pr-8">{task.title}</h4>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-xs text-gray-600">
-                            <Clock className="w-3 h-3" />
-                            <span>{task.estimatedHours}h</span>
-                            {task.actualHours > 0 && (
-                              <>
-                                <span>/</span>
-                                <span className="font-medium">{task.actualHours}h</span>
-                              </>
+                          <h4 className="font-semibold text-sm text-gray-900 mb-2 pr-8">
+                            {task.title}
+                          </h4>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-xs text-gray-600">
+                              <Clock className="w-3 h-3" />
+                              <span>{task.estimatedHours}h</span>
+                              {task.actualHours > 0 && (
+                                <>
+                                  <span>/</span>
+                                  <span className="font-medium">
+                                    {task.actualHours}h
+                                  </span>
+                                </>
+                              )}
+                            </div>
+
+                            {task.assignedTo && (
+                              <div className="text-xs text-gray-500">
+                                {task.assignedTo}
+                              </div>
                             )}
                           </div>
 
-                          {task.assignedTo && (
-                            <div className="text-xs text-gray-500">
-                              {task.assignedTo}
+                          {task.blockingReason && (
+                            <div className="mt-2 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
+                              Blocked: {task.blockingReason}
                             </div>
                           )}
                         </div>
-
-                        {task.blockingReason && (
-                          <div className="mt-2 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
-                            Blocked: {task.blockingReason}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              }
+            )}
           </div>
         )}
 
         {/* Other views placeholder */}
-        {(viewMode === 'sprint' || viewMode === 'system' || viewMode === 'team') && (
+        {(viewMode === 'sprint' ||
+          viewMode === 'system' ||
+          viewMode === 'team') && (
           <div className="bg-white rounded-lg shadow p-12 text-center">
             <p className="text-gray-600 text-lg mb-4">
               {viewMode === 'sprint' && t.comingSoon.sprint}
@@ -692,7 +877,11 @@ export const DeveloperDashboard: React.FC = () => {
         {/* Task Editor Modal */}
         {editingTask && currentMeeting?.developmentTracking?.tasks && (
           <TaskEditor
-            task={currentMeeting.developmentTracking.tasks.find(t => t.id === editingTask)!}
+            task={
+              currentMeeting.developmentTracking.tasks.find(
+                (t) => t.id === editingTask
+              )!
+            }
             isOpen={!!editingTask}
             onClose={() => setEditingTask(null)}
             onSave={(updates) => handleSaveTask(editingTask, updates)}

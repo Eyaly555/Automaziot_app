@@ -8,7 +8,7 @@ import {
   needsMigration,
   validateMigration,
   getMigrationSummary,
-  CURRENT_DATA_VERSION
+  CURRENT_DATA_VERSION,
 } from '../dataMigration';
 import type { Meeting, LeadSource, ServiceChannel } from '../../types';
 
@@ -25,7 +25,10 @@ describe('dataMigration', () => {
     });
 
     it('should return false for meetings at current version', () => {
-      const meeting = { meetingId: 'test-1', dataVersion: CURRENT_DATA_VERSION } as any;
+      const meeting = {
+        meetingId: 'test-1',
+        dataVersion: CURRENT_DATA_VERSION,
+      } as any;
       expect(needsMigration(meeting)).toBe(false);
     });
 
@@ -58,13 +61,13 @@ describe('dataMigration', () => {
             leadSources: {
               sources: [
                 { channel: 'Website', volumePerMonth: 100, quality: 4 },
-                { channel: 'Facebook', volumePerMonth: 50, quality: 3 }
+                { channel: 'Facebook', volumePerMonth: 50, quality: 3 },
               ],
               centralSystem: 'HubSpot',
-              commonIssues: ['Slow response']
-            }
-          }
-        }
+              commonIssues: ['Slow response'],
+            },
+          },
+        },
       } as any;
 
       const result = migrateMeetingData(oldMeeting);
@@ -72,10 +75,16 @@ describe('dataMigration', () => {
       expect(result.migrated).toBe(true);
       expect(result.errors).toHaveLength(0);
       expect(result.meeting.dataVersion).toBe(CURRENT_DATA_VERSION);
-      expect(Array.isArray(result.meeting.modules.leadsAndSales.leadSources)).toBe(true);
+      expect(
+        Array.isArray(result.meeting.modules.leadsAndSales.leadSources)
+      ).toBe(true);
       expect(result.meeting.modules.leadsAndSales.leadSources).toHaveLength(2);
-      expect(result.meeting.modules.leadsAndSales.leadSources[0].channel).toBe('Website');
-      expect(result.migrationsApplied).toContain('leadsAndSales_leadSources_object_to_array');
+      expect(result.meeting.modules.leadsAndSales.leadSources[0].channel).toBe(
+        'Website'
+      );
+      expect(result.migrationsApplied).toContain(
+        'leadsAndSales_leadSources_object_to_array'
+      );
     });
 
     it('should preserve metadata when migrating leadSources', () => {
@@ -87,18 +96,26 @@ describe('dataMigration', () => {
             leadSources: {
               sources: [{ channel: 'Website' }],
               centralSystem: 'HubSpot',
-              customField: 'preserved'
-            }
-          }
-        }
+              customField: 'preserved',
+            },
+          },
+        },
       } as any;
 
       const result = migrateMeetingData(oldMeeting);
 
-      expect(result.meeting.modules.leadsAndSales.leadSourcesMetadata).toBeDefined();
-      expect(result.meeting.modules.leadsAndSales.leadSourcesMetadata.centralSystem).toBe('HubSpot');
-      expect(result.meeting.modules.leadsAndSales.leadSourcesMetadata.customField).toBe('preserved');
-      expect(result.migrationsApplied).toContain('leadsAndSales_leadSources_preserved_metadata');
+      expect(
+        result.meeting.modules.leadsAndSales.leadSourcesMetadata
+      ).toBeDefined();
+      expect(
+        result.meeting.modules.leadsAndSales.leadSourcesMetadata.centralSystem
+      ).toBe('HubSpot');
+      expect(
+        result.meeting.modules.leadsAndSales.leadSourcesMetadata.customField
+      ).toBe('preserved');
+      expect(result.migrationsApplied).toContain(
+        'leadsAndSales_leadSources_preserved_metadata'
+      );
     });
 
     it('should keep leadSources as array if already migrated', () => {
@@ -107,16 +124,16 @@ describe('dataMigration', () => {
         dataVersion: 1,
         modules: {
           leadsAndSales: {
-            leadSources: [
-              { channel: 'Website', volumePerMonth: 100 }
-            ]
-          }
-        }
+            leadSources: [{ channel: 'Website', volumePerMonth: 100 }],
+          },
+        },
       } as any;
 
       const result = migrateMeetingData(meeting);
 
-      expect(Array.isArray(result.meeting.modules.leadsAndSales.leadSources)).toBe(true);
+      expect(
+        Array.isArray(result.meeting.modules.leadsAndSales.leadSources)
+      ).toBe(true);
       expect(result.meeting.modules.leadsAndSales.leadSources).toHaveLength(1);
     });
 
@@ -126,9 +143,9 @@ describe('dataMigration', () => {
         dataVersion: 1,
         modules: {
           leadsAndSales: {
-            leadSources: { sources: [] }
-          }
-        }
+            leadSources: { sources: [] },
+          },
+        },
       } as any;
 
       const result = migrateMeetingData(meeting);
@@ -141,14 +158,16 @@ describe('dataMigration', () => {
         meetingId: 'test-1',
         dataVersion: 1,
         modules: {
-          leadsAndSales: {}
-        }
+          leadsAndSales: {},
+        },
       } as any;
 
       const result = migrateMeetingData(meeting);
 
       expect(result.meeting.modules.leadsAndSales.leadSources).toEqual([]);
-      expect(result.migrationsApplied).toContain('leadsAndSales_leadSources_initialized_empty');
+      expect(result.migrationsApplied).toContain(
+        'leadsAndSales_leadSources_initialized_empty'
+      );
     });
 
     it('should handle malformed leadSources object', () => {
@@ -159,17 +178,23 @@ describe('dataMigration', () => {
           leadsAndSales: {
             leadSources: {
               item1: { channel: 'Website' },
-              item2: { channel: 'Facebook' }
-            }
-          }
-        }
+              item2: { channel: 'Facebook' },
+            },
+          },
+        },
       } as any;
 
       const result = migrateMeetingData(meeting);
 
-      expect(Array.isArray(result.meeting.modules.leadsAndSales.leadSources)).toBe(true);
-      expect(result.meeting.modules.leadsAndSales.leadSources.length).toBeGreaterThan(0);
-      expect(result.migrationsApplied).toContain('leadsAndSales_leadSources_recovered_from_malformed_object');
+      expect(
+        Array.isArray(result.meeting.modules.leadsAndSales.leadSources)
+      ).toBe(true);
+      expect(
+        result.meeting.modules.leadsAndSales.leadSources.length
+      ).toBeGreaterThan(0);
+      expect(result.migrationsApplied).toContain(
+        'leadsAndSales_leadSources_recovered_from_malformed_object'
+      );
     });
 
     it('should handle invalid type for leadSources', () => {
@@ -178,15 +203,17 @@ describe('dataMigration', () => {
         dataVersion: 1,
         modules: {
           leadsAndSales: {
-            leadSources: 'invalid string'
-          }
-        }
+            leadSources: 'invalid string',
+          },
+        },
       } as any;
 
       const result = migrateMeetingData(meeting);
 
       expect(result.meeting.modules.leadsAndSales.leadSources).toEqual([]);
-      expect(result.migrationsApplied).toContain('leadsAndSales_leadSources_reset_invalid_type');
+      expect(result.migrationsApplied).toContain(
+        'leadsAndSales_leadSources_reset_invalid_type'
+      );
     });
   });
 
@@ -200,13 +227,13 @@ describe('dataMigration', () => {
             channels: {
               list: [
                 { type: 'Phone', volumePerDay: 50 },
-                { type: 'Email', volumePerDay: 100 }
+                { type: 'Email', volumePerDay: 100 },
               ],
               multiChannelIssue: 'Data scattered',
-              unificationMethod: 'CRM'
-            }
-          }
-        }
+              unificationMethod: 'CRM',
+            },
+          },
+        },
       } as any;
 
       const result = migrateMeetingData(oldMeeting);
@@ -214,10 +241,16 @@ describe('dataMigration', () => {
       expect(result.migrated).toBe(true);
       expect(result.errors).toHaveLength(0);
       expect(result.meeting.dataVersion).toBe(CURRENT_DATA_VERSION);
-      expect(Array.isArray(result.meeting.modules.customerService.channels)).toBe(true);
+      expect(
+        Array.isArray(result.meeting.modules.customerService.channels)
+      ).toBe(true);
       expect(result.meeting.modules.customerService.channels).toHaveLength(2);
-      expect(result.meeting.modules.customerService.channels[0].type).toBe('Phone');
-      expect(result.migrationsApplied).toContain('customerService_channels_object_to_array');
+      expect(result.meeting.modules.customerService.channels[0].type).toBe(
+        'Phone'
+      );
+      expect(result.migrationsApplied).toContain(
+        'customerService_channels_object_to_array'
+      );
     });
 
     it('should preserve metadata when migrating channels', () => {
@@ -229,18 +262,27 @@ describe('dataMigration', () => {
             channels: {
               list: [{ type: 'Phone' }],
               multiChannelIssue: 'Scattered data',
-              customNote: 'important'
-            }
-          }
-        }
+              customNote: 'important',
+            },
+          },
+        },
       } as any;
 
       const result = migrateMeetingData(oldMeeting);
 
-      expect(result.meeting.modules.customerService.channelsMetadata).toBeDefined();
-      expect(result.meeting.modules.customerService.channelsMetadata.multiChannelIssue).toBe('Scattered data');
-      expect(result.meeting.modules.customerService.channelsMetadata.customNote).toBe('important');
-      expect(result.migrationsApplied).toContain('customerService_channels_preserved_metadata');
+      expect(
+        result.meeting.modules.customerService.channelsMetadata
+      ).toBeDefined();
+      expect(
+        result.meeting.modules.customerService.channelsMetadata
+          .multiChannelIssue
+      ).toBe('Scattered data');
+      expect(
+        result.meeting.modules.customerService.channelsMetadata.customNote
+      ).toBe('important');
+      expect(result.migrationsApplied).toContain(
+        'customerService_channels_preserved_metadata'
+      );
     });
 
     it('should keep channels as array if already migrated', () => {
@@ -249,16 +291,16 @@ describe('dataMigration', () => {
         dataVersion: 1,
         modules: {
           customerService: {
-            channels: [
-              { type: 'Phone', volumePerDay: 50 }
-            ]
-          }
-        }
+            channels: [{ type: 'Phone', volumePerDay: 50 }],
+          },
+        },
       } as any;
 
       const result = migrateMeetingData(meeting);
 
-      expect(Array.isArray(result.meeting.modules.customerService.channels)).toBe(true);
+      expect(
+        Array.isArray(result.meeting.modules.customerService.channels)
+      ).toBe(true);
       expect(result.meeting.modules.customerService.channels).toHaveLength(1);
     });
 
@@ -268,9 +310,9 @@ describe('dataMigration', () => {
         dataVersion: 1,
         modules: {
           customerService: {
-            channels: { list: [] }
-          }
-        }
+            channels: { list: [] },
+          },
+        },
       } as any;
 
       const result = migrateMeetingData(meeting);
@@ -283,14 +325,16 @@ describe('dataMigration', () => {
         meetingId: 'test-1',
         dataVersion: 1,
         modules: {
-          customerService: {}
-        }
+          customerService: {},
+        },
       } as any;
 
       const result = migrateMeetingData(meeting);
 
       expect(result.meeting.modules.customerService.channels).toEqual([]);
-      expect(result.migrationsApplied).toContain('customerService_channels_initialized_empty');
+      expect(result.migrationsApplied).toContain(
+        'customerService_channels_initialized_empty'
+      );
     });
 
     it('should handle malformed channels object', () => {
@@ -301,17 +345,23 @@ describe('dataMigration', () => {
           customerService: {
             channels: {
               ch1: { type: 'Phone' },
-              ch2: { type: 'Email' }
-            }
-          }
-        }
+              ch2: { type: 'Email' },
+            },
+          },
+        },
       } as any;
 
       const result = migrateMeetingData(meeting);
 
-      expect(Array.isArray(result.meeting.modules.customerService.channels)).toBe(true);
-      expect(result.meeting.modules.customerService.channels.length).toBeGreaterThan(0);
-      expect(result.migrationsApplied).toContain('customerService_channels_recovered_from_malformed_object');
+      expect(
+        Array.isArray(result.meeting.modules.customerService.channels)
+      ).toBe(true);
+      expect(
+        result.meeting.modules.customerService.channels.length
+      ).toBeGreaterThan(0);
+      expect(result.migrationsApplied).toContain(
+        'customerService_channels_recovered_from_malformed_object'
+      );
     });
   });
 
@@ -323,24 +373,32 @@ describe('dataMigration', () => {
         modules: {
           leadsAndSales: {
             leadSources: {
-              sources: [{ channel: 'Website' }]
-            }
+              sources: [{ channel: 'Website' }],
+            },
           },
           customerService: {
             channels: {
-              list: [{ type: 'Phone' }]
-            }
-          }
-        }
+              list: [{ type: 'Phone' }],
+            },
+          },
+        },
       } as any;
 
       const result = migrateMeetingData(oldMeeting);
 
       expect(result.migrated).toBe(true);
-      expect(result.migrationsApplied).toContain('leadsAndSales_leadSources_object_to_array');
-      expect(result.migrationsApplied).toContain('customerService_channels_object_to_array');
-      expect(Array.isArray(result.meeting.modules.leadsAndSales.leadSources)).toBe(true);
-      expect(Array.isArray(result.meeting.modules.customerService.channels)).toBe(true);
+      expect(result.migrationsApplied).toContain(
+        'leadsAndSales_leadSources_object_to_array'
+      );
+      expect(result.migrationsApplied).toContain(
+        'customerService_channels_object_to_array'
+      );
+      expect(
+        Array.isArray(result.meeting.modules.leadsAndSales.leadSources)
+      ).toBe(true);
+      expect(
+        Array.isArray(result.meeting.modules.customerService.channels)
+      ).toBe(true);
     });
 
     it('should not mutate original meeting object', () => {
@@ -350,27 +408,33 @@ describe('dataMigration', () => {
         modules: {
           leadsAndSales: {
             leadSources: {
-              sources: [{ channel: 'Website' }]
-            }
-          }
-        }
+              sources: [{ channel: 'Website' }],
+            },
+          },
+        },
       } as any;
 
       const originalLeadSources = oldMeeting.modules.leadsAndSales.leadSources;
       const result = migrateMeetingData(oldMeeting);
 
       // Original should not be modified
-      expect(oldMeeting.modules.leadsAndSales.leadSources).toBe(originalLeadSources);
-      expect(typeof oldMeeting.modules.leadsAndSales.leadSources).toBe('object');
+      expect(oldMeeting.modules.leadsAndSales.leadSources).toBe(
+        originalLeadSources
+      );
+      expect(typeof oldMeeting.modules.leadsAndSales.leadSources).toBe(
+        'object'
+      );
 
       // Result should be migrated
-      expect(Array.isArray(result.meeting.modules.leadsAndSales.leadSources)).toBe(true);
+      expect(
+        Array.isArray(result.meeting.modules.leadsAndSales.leadSources)
+      ).toBe(true);
     });
 
     it('should handle missing modules object gracefully', () => {
       const meeting = {
         meetingId: 'test-1',
-        dataVersion: 1
+        dataVersion: 1,
       } as any;
 
       const result = migrateMeetingData(meeting);
@@ -386,9 +450,9 @@ describe('dataMigration', () => {
         dataVersion: CURRENT_DATA_VERSION,
         modules: {
           leadsAndSales: {
-            leadSources: [{ channel: 'Website' }]
-          }
-        }
+            leadSources: [{ channel: 'Website' }],
+          },
+        },
       } as any;
 
       const result = migrateMeetingData(meeting);
@@ -413,12 +477,12 @@ describe('dataMigration', () => {
         dataVersion: CURRENT_DATA_VERSION,
         modules: {
           leadsAndSales: {
-            leadSources: [{ channel: 'Website' }]
+            leadSources: [{ channel: 'Website' }],
           },
           customerService: {
-            channels: [{ type: 'Phone' }]
-          }
-        }
+            channels: [{ type: 'Phone' }],
+          },
+        },
       } as any;
 
       const validation = validateMigration(meeting);
@@ -431,13 +495,15 @@ describe('dataMigration', () => {
       const meeting = {
         meetingId: 'test-1',
         dataVersion: 1,
-        modules: {}
+        modules: {},
       } as any;
 
       const validation = validateMigration(meeting);
 
       expect(validation.valid).toBe(false);
-      expect(validation.issues.some(issue => issue.includes('outdated'))).toBe(true);
+      expect(
+        validation.issues.some((issue) => issue.includes('outdated'))
+      ).toBe(true);
     });
 
     it('should detect invalid leadSources structure', () => {
@@ -446,15 +512,17 @@ describe('dataMigration', () => {
         dataVersion: CURRENT_DATA_VERSION,
         modules: {
           leadsAndSales: {
-            leadSources: { sources: [] } // Should be array
-          }
-        }
+            leadSources: { sources: [] }, // Should be array
+          },
+        },
       } as any;
 
       const validation = validateMigration(meeting);
 
       expect(validation.valid).toBe(false);
-      expect(validation.issues.some(issue => issue.includes('leadSources'))).toBe(true);
+      expect(
+        validation.issues.some((issue) => issue.includes('leadSources'))
+      ).toBe(true);
     });
 
     it('should detect invalid channels structure', () => {
@@ -463,15 +531,17 @@ describe('dataMigration', () => {
         dataVersion: CURRENT_DATA_VERSION,
         modules: {
           customerService: {
-            channels: { list: [] } // Should be array
-          }
-        }
+            channels: { list: [] }, // Should be array
+          },
+        },
       } as any;
 
       const validation = validateMigration(meeting);
 
       expect(validation.valid).toBe(false);
-      expect(validation.issues.some(issue => issue.includes('channels'))).toBe(true);
+      expect(
+        validation.issues.some((issue) => issue.includes('channels'))
+      ).toBe(true);
     });
   });
 });

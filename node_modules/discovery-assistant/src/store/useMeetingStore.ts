@@ -1,15 +1,40 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Meeting, PainPoint, ModuleProgress, WizardState, SelectOption, MeetingPhase, MeetingStatus, PhaseTransition, ZohoClientListItem, ZohoClientsCache, ZohoSyncOptions } from '../types';
+import {
+  Meeting,
+  PainPoint,
+  ModuleProgress,
+  WizardState,
+  SelectOption,
+  MeetingPhase,
+  MeetingStatus,
+  PhaseTransition,
+  ZohoClientListItem,
+  ZohoClientsCache,
+  ZohoSyncOptions,
+} from '../types';
 import { WIZARD_STEPS } from '../config/wizardSteps';
 import { syncService } from '../services/syncService';
 import { isSupabaseConfigured } from '../lib/supabase';
-import { supabaseService, isSupabaseConfigured as isSupabaseReady } from '../services/supabaseService';
-import { migrateMeetingData, needsMigration, CURRENT_DATA_VERSION } from '../utils/dataMigration';
+import {
+  supabaseService,
+  isSupabaseConfigured as isSupabaseReady,
+} from '../services/supabaseService';
+import {
+  migrateMeetingData,
+  needsMigration,
+  CURRENT_DATA_VERSION,
+} from '../utils/dataMigration';
 import { validateServiceRequirements } from '../utils/serviceRequirementsValidation';
 import { logger } from '../utils/consoleLogger';
-import { backupPhaseHistory, restorePhaseHistory } from '../utils/phaseHistoryBackup';
-import { getSmartValidationMessages, formatValidationMessagesForUI } from '../utils/smartValidationMessages';
+import {
+  backupPhaseHistory,
+  restorePhaseHistory,
+} from '../utils/phaseHistoryBackup';
+import {
+  getSmartValidationMessages,
+  formatValidationMessagesForUI,
+} from '../utils/smartValidationMessages';
 import { getBackupMetadata } from '../services/meetingBackupService';
 
 interface MeetingStore {
@@ -62,14 +87,25 @@ interface MeetingStore {
   initializeWizard: () => void;
   setWizardState: (state: WizardState | null) => void;
   updateWizardProgress: (stepId: string) => void;
-  navigateWizardStep: (direction: 'next' | 'prev' | 'jump', target?: number) => void;
+  navigateWizardStep: (
+    direction: 'next' | 'prev' | 'jump',
+    target?: number
+  ) => void;
   skipWizardSection: (sectionId: string) => void;
   syncWizardToModules: () => void;
   syncModulesToWizard: () => void;
 
   // Custom field values
-  addCustomValue: (moduleId: string, fieldName: string, value: SelectOption) => void;
-  removeCustomValue: (moduleId: string, fieldName: string, value: string) => void;
+  addCustomValue: (
+    moduleId: string,
+    fieldName: string,
+    value: SelectOption
+  ) => void;
+  removeCustomValue: (
+    moduleId: string,
+    fieldName: string,
+    value: string
+  ) => void;
   getCustomValues: (moduleId: string, fieldName: string) => SelectOption[];
 
   // Supabase sync
@@ -85,13 +121,25 @@ interface MeetingStore {
   enableSync: (userId: string) => void;
   disableSync: () => void;
   getSyncStatus: () => { pending: number; failed: number; isOnline: boolean };
-  resolveConflict: (meetingId: string, resolution: 'local' | 'remote') => Promise<void>;
+  resolveConflict: (
+    meetingId: string,
+    resolution: 'local' | 'remote'
+  ) => Promise<void>;
 
   // Update meeting field with optional sync
   updateMeetingField: (moduleId: string, field: string, value: any) => void;
 
   // NEW: Phase 2 implementation spec update
-  updateImplementationSpec: (category: 'automations' | 'integrationServices' | 'aiAgentServices' | 'systemImplementations' | 'additionalServices', serviceId: string, data: any) => void;
+  updateImplementationSpec: (
+    category:
+      | 'automations'
+      | 'integrationServices'
+      | 'aiAgentServices'
+      | 'systemImplementations'
+      | 'additionalServices',
+    serviceId: string,
+    data: any
+  ) => void;
 
   // NEW: Phase management actions
   getDefaultStatusForPhase: (phase: MeetingPhase) => MeetingStatus;
@@ -106,14 +154,24 @@ interface MeetingStore {
   updateTask: (taskId: string, updates: Partial<any>) => void;
   deleteTask: (taskId: string) => void;
   assignTask: (taskId: string, assignee: string) => void;
-  updateTaskStatus: (taskId: string, status: 'todo' | 'in_progress' | 'in_review' | 'blocked' | 'done') => void;
+  updateTaskStatus: (
+    taskId: string,
+    status: 'todo' | 'in_progress' | 'in_review' | 'blocked' | 'done'
+  ) => void;
   addTaskTestCase: (taskId: string, testCase: any) => void;
-  updateTaskTestCase: (taskId: string, testCaseId: string, updates: Partial<any>) => void;
+  updateTaskTestCase: (
+    taskId: string,
+    testCaseId: string,
+    updates: Partial<any>
+  ) => void;
   addBlocker: (taskId: string, blocker: any) => void;
   resolveBlocker: (taskId: string, blockerId: string) => void;
 
   // NEW: Zoho clients list actions
-  fetchZohoClients: (options?: { force?: boolean; filters?: any }) => Promise<void>;
+  fetchZohoClients: (options?: {
+    force?: boolean;
+    filters?: any;
+  }) => Promise<void>;
   loadClientFromZoho: (recordId: string) => Promise<void>;
   syncCurrentToZoho: (options?: ZohoSyncOptions) => Promise<boolean>;
   refreshClientsList: () => Promise<void>;
@@ -149,7 +207,11 @@ const normalizePhase = (phase: string | undefined): MeetingPhase => {
   if (!phase) return 'discovery';
   const normalized = phase.toLowerCase();
   // Validate it's a valid phase
-  if (['discovery', 'implementation_spec', 'development', 'completed'].includes(normalized)) {
+  if (
+    ['discovery', 'implementation_spec', 'development', 'completed'].includes(
+      normalized
+    )
+  ) {
     return normalized as MeetingPhase;
   }
   logger.warn('Invalid phase value, defaulting to discovery', { phase });
@@ -161,7 +223,9 @@ const getStorageKey = (meeting: Meeting | null): string => {
   if (meeting?.zohoIntegration?.recordId) {
     return `discovery_zoho_${meeting.zohoIntegration.recordId}`;
   }
-  return meeting ? `discovery_standalone_${meeting.meetingId}` : 'discovery_temp';
+  return meeting
+    ? `discovery_standalone_${meeting.meetingId}`
+    : 'discovery_temp';
 };
 
 // Immediate save to Supabase (no debounce to prevent data loss)
@@ -202,7 +266,10 @@ export const useMeetingStore = create<MeetingStore>()(
       lastSavedTime: null,
 
       // Memoization cache for phase validation to reduce console spam
-      _validationCache: new Map<string, { result: boolean; timestamp: number }>(),
+      _validationCache: new Map<
+        string,
+        { result: boolean; timestamp: number }
+      >(),
       _lastLoggedState: {} as Record<string, boolean>,
 
       /**
@@ -243,26 +310,28 @@ export const useMeetingStore = create<MeetingStore>()(
             aiAgents: {},
             systems: {},
             roi: {},
-            planning: {}
+            planning: {},
           },
           painPoints: [],
           notes: '',
           // NEW: Initialize phase tracking
           phase: 'discovery',
           status: 'discovery_in_progress',
-          phaseHistory: [{
-            fromPhase: null,
-            toPhase: 'discovery',
-            timestamp: new Date(),
-            transitionedBy: 'system'
-          }],
+          phaseHistory: [
+            {
+              fromPhase: null,
+              toPhase: 'discovery',
+              timestamp: new Date(),
+              transitionedBy: 'system',
+            },
+          ],
           implementationSpec: undefined,
-          developmentTracking: undefined
+          developmentTracking: undefined,
         };
 
         set((state) => ({
           currentMeeting: meeting,
-          meetings: [...state.meetings, meeting]
+          meetings: [...state.meetings, meeting],
         }));
       },
 
@@ -272,21 +341,21 @@ export const useMeetingStore = create<MeetingStore>()(
 
           const updatedMeeting = {
             ...state.currentMeeting,
-            ...updates
+            ...updates,
           };
 
           return {
             currentMeeting: updatedMeeting,
-            meetings: state.meetings.map(m =>
+            meetings: state.meetings.map((m) =>
               m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-            )
+            ),
           };
         });
       },
 
       loadMeeting: (meetingId) => {
         set((state) => {
-          const meeting = state.meetings.find(m => m.meetingId === meetingId);
+          const meeting = state.meetings.find((m) => m.meetingId === meetingId);
           if (meeting) {
             // Normalize phase (handle capitalized phases from Zoho/legacy data)
             meeting.phase = normalizePhase(meeting.phase as any);
@@ -296,7 +365,9 @@ export const useMeetingStore = create<MeetingStore>()(
 
             // ✅ NEW: Restore phase history if missing
             if (!meeting.phaseHistory || meeting.phaseHistory.length === 0) {
-              console.warn('[Store] Phase history missing - attempting restore');
+              console.warn(
+                '[Store] Phase history missing - attempting restore'
+              );
               const restored = restorePhaseHistory(meetingId);
 
               if (restored) {
@@ -304,12 +375,14 @@ export const useMeetingStore = create<MeetingStore>()(
                 console.log('[Store] ✅ Phase history restored from backup');
               } else {
                 // Create default if no backup exists
-                meeting.phaseHistory = [{
-                  fromPhase: null,
-                  toPhase: meeting.phase,
-                  timestamp: new Date(),
-                  transitionedBy: 'system'
-                }];
+                meeting.phaseHistory = [
+                  {
+                    fromPhase: null,
+                    toPhase: meeting.phase,
+                    timestamp: new Date(),
+                    transitionedBy: 'system',
+                  },
+                ];
                 console.warn('[Store] ⚠️ Created default phase history');
               }
             }
@@ -320,10 +393,11 @@ export const useMeetingStore = create<MeetingStore>()(
 
       deleteMeeting: (meetingId) => {
         set((state) => ({
-          meetings: state.meetings.filter(m => m.meetingId !== meetingId),
-          currentMeeting: state.currentMeeting?.meetingId === meetingId
-            ? null
-            : state.currentMeeting
+          meetings: state.meetings.filter((m) => m.meetingId !== meetingId),
+          currentMeeting:
+            state.currentMeeting?.meetingId === meetingId
+              ? null
+              : state.currentMeeting,
         }));
       },
 
@@ -339,21 +413,29 @@ export const useMeetingStore = create<MeetingStore>()(
           if (isSupabaseReady()) {
             logger.info('Checking Supabase for existing meeting', { recordId });
             try {
-              const supabaseMeeting = await supabaseService.loadMeeting(recordId);
+              const supabaseMeeting =
+                await supabaseService.loadMeeting(recordId);
 
               if (supabaseMeeting) {
                 logger.info('Found existing meeting in Supabase, loading');
                 // Normalize phase (handle capitalized phases from Zoho/legacy data)
-                const normalizedPhase = normalizePhase(initialData.phase as any || supabaseMeeting.phase as any);
+                const normalizedPhase = normalizePhase(
+                  (initialData.phase as any) || (supabaseMeeting.phase as any)
+                );
 
                 // Ensure status exists (for backward compatibility)
-                if (!supabaseMeeting.status) supabaseMeeting.status = initialData.status || 'discovery_in_progress';
-                if (!supabaseMeeting.phaseHistory) supabaseMeeting.phaseHistory = initialData.phaseHistory || [{
-                  fromPhase: null,
-                  toPhase: normalizedPhase,
-                  timestamp: new Date(),
-                  transitionedBy: 'system'
-                }];
+                if (!supabaseMeeting.status)
+                  supabaseMeeting.status =
+                    initialData.status || 'discovery_in_progress';
+                if (!supabaseMeeting.phaseHistory)
+                  supabaseMeeting.phaseHistory = initialData.phaseHistory || [
+                    {
+                      fromPhase: null,
+                      toPhase: normalizedPhase,
+                      timestamp: new Date(),
+                      transitionedBy: 'system',
+                    },
+                  ];
 
                 // Update with any new data from Zoho
                 const updatedMeeting = {
@@ -361,21 +443,29 @@ export const useMeetingStore = create<MeetingStore>()(
                   ...initialData,
                   modules: {
                     ...supabaseMeeting.modules,
-                    ...(initialData.modules || {})
+                    ...(initialData.modules || {}),
                   },
                   phase: normalizedPhase,
                   status: initialData.status || supabaseMeeting.status,
-                  phaseHistory: initialData.phaseHistory || supabaseMeeting.phaseHistory
+                  phaseHistory:
+                    initialData.phaseHistory || supabaseMeeting.phaseHistory,
                 };
 
                 set({
                   currentMeeting: updatedMeeting,
-                  meetings: [...state.meetings.filter(m => m.meetingId !== supabaseMeeting.meetingId), updatedMeeting]
+                  meetings: [
+                    ...state.meetings.filter(
+                      (m) => m.meetingId !== supabaseMeeting.meetingId
+                    ),
+                    updatedMeeting,
+                  ],
                 });
 
                 return; // Meeting found and loaded - exit
               }
-              logger.info('No meeting found in Supabase, checking Zustand state');
+              logger.info(
+                'No meeting found in Supabase, checking Zustand state'
+              );
             } catch (error) {
               logger.error('Error checking Supabase', error);
               // Continue to Zustand state check
@@ -383,20 +473,29 @@ export const useMeetingStore = create<MeetingStore>()(
           }
 
           // STEP 2: Check Zustand state (Zustand persist handles localStorage automatically)
-          const existingMeeting = state.meetings.find(m => m.zohoIntegration?.recordId === recordId);
+          const existingMeeting = state.meetings.find(
+            (m) => m.zohoIntegration?.recordId === recordId
+          );
           if (existingMeeting) {
             logger.info('Found existing meeting in Zustand state, loading');
             // Normalize phase (handle capitalized phases from Zoho/legacy data)
-            const normalizedPhase = normalizePhase(initialData.phase as any || existingMeeting.phase as any);
+            const normalizedPhase = normalizePhase(
+              (initialData.phase as any) || (existingMeeting.phase as any)
+            );
 
             // Ensure status exists (for backward compatibility with old data)
-            if (!existingMeeting.status) existingMeeting.status = initialData.status || 'discovery_in_progress';
-            if (!existingMeeting.phaseHistory) existingMeeting.phaseHistory = initialData.phaseHistory || [{
-              fromPhase: null,
-              toPhase: normalizedPhase,
-              timestamp: new Date(),
-              transitionedBy: 'system'
-            }];
+            if (!existingMeeting.status)
+              existingMeeting.status =
+                initialData.status || 'discovery_in_progress';
+            if (!existingMeeting.phaseHistory)
+              existingMeeting.phaseHistory = initialData.phaseHistory || [
+                {
+                  fromPhase: null,
+                  toPhase: normalizedPhase,
+                  timestamp: new Date(),
+                  transitionedBy: 'system',
+                },
+              ];
 
             // Update with any new data from Zoho
             const updatedMeeting = {
@@ -404,21 +503,29 @@ export const useMeetingStore = create<MeetingStore>()(
               ...initialData,
               modules: {
                 ...existingMeeting.modules,
-                ...(initialData.modules || {})
+                ...(initialData.modules || {}),
               },
               phase: normalizedPhase,
               status: initialData.status || existingMeeting.status,
-              phaseHistory: initialData.phaseHistory || existingMeeting.phaseHistory
+              phaseHistory:
+                initialData.phaseHistory || existingMeeting.phaseHistory,
             };
 
             set({
               currentMeeting: updatedMeeting,
-              meetings: [...state.meetings.filter(m => m.meetingId !== existingMeeting.meetingId), updatedMeeting]
+              meetings: [
+                ...state.meetings.filter(
+                  (m) => m.meetingId !== existingMeeting.meetingId
+                ),
+                updatedMeeting,
+              ],
             });
 
             // Save to Supabase for cross-device sync
             if (isSupabaseReady()) {
-              console.log('[Store] Saving existing meeting to Supabase for sync...');
+              console.log(
+                '[Store] Saving existing meeting to Supabase for sync...'
+              );
               await supabaseService.saveMeeting(updatedMeeting);
             }
 
@@ -426,7 +533,10 @@ export const useMeetingStore = create<MeetingStore>()(
           }
 
           // STEP 3: No existing meeting found - create new one
-          console.log('[Store] No existing meeting found, creating new one for:', recordId);
+          console.log(
+            '[Store] No existing meeting found, creating new one for:',
+            recordId
+          );
         }
 
         // Create new meeting with initial data
@@ -448,27 +558,29 @@ export const useMeetingStore = create<MeetingStore>()(
             aiAgents: initialData.modules?.aiAgents || {},
             systems: initialData.modules?.systems || {},
             roi: initialData.modules?.roi || {},
-            planning: initialData.modules?.planning || {}
+            planning: initialData.modules?.planning || {},
           },
           painPoints: [],
           notes: initialData.notes || '',
           // Initialize phase tracking with normalized phase
           phase: normalizedPhase,
           status: initialData.status || 'discovery_in_progress',
-          phaseHistory: initialData.phaseHistory || [{
-            fromPhase: null,
-            toPhase: normalizedPhase,
-            timestamp: new Date(),
-            transitionedBy: 'system'
-          }],
+          phaseHistory: initialData.phaseHistory || [
+            {
+              fromPhase: null,
+              toPhase: normalizedPhase,
+              timestamp: new Date(),
+              transitionedBy: 'system',
+            },
+          ],
           implementationSpec: initialData.implementationSpec,
           developmentTracking: initialData.developmentTracking,
-          zohoIntegration: initialData.zohoIntegration
+          zohoIntegration: initialData.zohoIntegration,
         };
 
         set((state) => ({
           currentMeeting: meeting,
-          meetings: [...state.meetings, meeting]
+          meetings: [...state.meetings, meeting],
         }));
 
         // Save to Supabase immediately for new meetings
@@ -486,15 +598,15 @@ export const useMeetingStore = create<MeetingStore>()(
             ...state.currentMeeting,
             zohoIntegration: {
               ...state.currentMeeting.zohoIntegration,
-              lastSyncTime: time
-            }
+              lastSyncTime: time,
+            },
           };
 
           return {
             currentMeeting: updatedMeeting,
-            meetings: state.meetings.map(m =>
+            meetings: state.meetings.map((m) =>
               m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-            )
+            ),
           };
         });
       },
@@ -507,21 +619,23 @@ export const useMeetingStore = create<MeetingStore>()(
             ...state.currentMeeting,
             zohoIntegration: {
               ...state.currentMeeting.zohoIntegration,
-              syncEnabled: enabled
-            }
+              syncEnabled: enabled,
+            },
           };
 
           return {
             currentMeeting: updatedMeeting,
-            meetings: state.meetings.map(m =>
+            meetings: state.meetings.map((m) =>
               m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-            )
+            ),
           };
         });
       },
 
       loadMeetingByZohoId: (recordId) => {
-        const meeting = get().meetings.find(m => m.zohoIntegration?.recordId === recordId);
+        const meeting = get().meetings.find(
+          (m) => m.zohoIntegration?.recordId === recordId
+        );
 
         if (meeting) {
           try {
@@ -533,7 +647,9 @@ export const useMeetingStore = create<MeetingStore>()(
 
             // ✅ NEW: Restore phase history if missing
             if (!meeting.phaseHistory || meeting.phaseHistory.length === 0) {
-              console.warn('[Store] Phase history missing - attempting restore');
+              console.warn(
+                '[Store] Phase history missing - attempting restore'
+              );
               const restored = restorePhaseHistory(meeting.meetingId);
 
               if (restored) {
@@ -541,12 +657,14 @@ export const useMeetingStore = create<MeetingStore>()(
                 console.log('[Store] ✅ Phase history restored from backup');
               } else {
                 // Create default if no backup exists
-                meeting.phaseHistory = [{
-                  fromPhase: null,
-                  toPhase: meeting.phase,
-                  timestamp: new Date(),
-                  transitionedBy: 'system'
-                }];
+                meeting.phaseHistory = [
+                  {
+                    fromPhase: null,
+                    toPhase: meeting.phase,
+                    timestamp: new Date(),
+                    transitionedBy: 'system',
+                  },
+                ];
                 console.warn('[Store] ⚠️ Created default phase history');
               }
             }
@@ -559,7 +677,6 @@ export const useMeetingStore = create<MeetingStore>()(
         return null;
       },
 
-
       updateModule: (moduleName, data) => {
         set((state) => {
           if (!state.currentMeeting) return state;
@@ -570,9 +687,9 @@ export const useMeetingStore = create<MeetingStore>()(
               ...state.currentMeeting.modules,
               [moduleName]: {
                 ...state.currentMeeting.modules[moduleName],
-                ...data
-              }
-            }
+                ...data,
+              },
+            },
           };
 
           // BIDIRECTIONAL SYNC: Overview ↔ LeadsAndSales/CustomerService
@@ -580,15 +697,18 @@ export const useMeetingStore = create<MeetingStore>()(
           if (moduleName === 'overview' && data.leadSources !== undefined) {
             updatedMeeting.modules.leadsAndSales = {
               ...updatedMeeting.modules.leadsAndSales,
-              leadSources: data.leadSources
+              leadSources: data.leadSources,
             };
           }
 
           // If leadsAndSales.leadSources is updated, sync to overview.leadSources
-          if (moduleName === 'leadsAndSales' && data.leadSources !== undefined) {
+          if (
+            moduleName === 'leadsAndSales' &&
+            data.leadSources !== undefined
+          ) {
             updatedMeeting.modules.overview = {
               ...updatedMeeting.modules.overview,
-              leadSources: data.leadSources
+              leadSources: data.leadSources,
             };
           }
 
@@ -596,7 +716,7 @@ export const useMeetingStore = create<MeetingStore>()(
           if (moduleName === 'overview' && data.serviceChannels !== undefined) {
             updatedMeeting.modules.customerService = {
               ...updatedMeeting.modules.customerService,
-              channels: data.serviceChannels
+              channels: data.serviceChannels,
             };
           }
 
@@ -604,51 +724,79 @@ export const useMeetingStore = create<MeetingStore>()(
           if (moduleName === 'customerService' && data.channels !== undefined) {
             updatedMeeting.modules.overview = {
               ...updatedMeeting.modules.overview,
-              serviceChannels: data.channels
+              serviceChannels: data.channels,
             };
           }
 
           // NEW: Systems ↔ Overview sync for CRM fields
-          if (moduleName === 'systems' && (data.crmStatus !== undefined || data.crmName !== undefined || data.crmSatisfaction !== undefined)) {
+          if (
+            moduleName === 'systems' &&
+            (data.crmStatus !== undefined ||
+              data.crmName !== undefined ||
+              data.crmSatisfaction !== undefined)
+          ) {
             updatedMeeting.modules.overview = {
               ...updatedMeeting.modules.overview,
               crmStatus: data.crmStatus,
               crmName: data.crmName,
-              crmSatisfaction: data.crmSatisfaction
+              crmSatisfaction: data.crmSatisfaction,
             };
           }
 
-          if (moduleName === 'overview' && (data.crmStatus !== undefined || data.crmName !== undefined || data.crmSatisfaction !== undefined)) {
-            if (!updatedMeeting.modules.systems) updatedMeeting.modules.systems = {};
+          if (
+            moduleName === 'overview' &&
+            (data.crmStatus !== undefined ||
+              data.crmName !== undefined ||
+              data.crmSatisfaction !== undefined)
+          ) {
+            if (!updatedMeeting.modules.systems)
+              updatedMeeting.modules.systems = {};
             updatedMeeting.modules.systems.crmStatus = data.crmStatus;
             updatedMeeting.modules.systems.crmName = data.crmName;
-            updatedMeeting.modules.systems.crmSatisfaction = data.crmSatisfaction;
+            updatedMeeting.modules.systems.crmSatisfaction =
+              data.crmSatisfaction;
           }
 
           // NEW: Operations ↔ Overview sync for employee count
-          if (moduleName === 'operations' && data.hr?.employeeCount !== undefined) {
+          if (
+            moduleName === 'operations' &&
+            data.hr?.employeeCount !== undefined
+          ) {
             updatedMeeting.modules.overview = {
               ...updatedMeeting.modules.overview,
-              employees: data.hr.employeeCount
+              employees: data.hr.employeeCount,
             };
           }
 
           if (moduleName === 'overview' && data.employees !== undefined) {
-            if (!updatedMeeting.modules.operations) updatedMeeting.modules.operations = {};
-            if (!updatedMeeting.modules.operations.hr) updatedMeeting.modules.operations.hr = {};
+            if (!updatedMeeting.modules.operations)
+              updatedMeeting.modules.operations = {};
+            if (!updatedMeeting.modules.operations.hr)
+              updatedMeeting.modules.operations.hr = {};
             updatedMeeting.modules.operations.hr.employeeCount = data.employees;
           }
 
           // NEW: Systems ↔ Leads & Sales sync for data quality
-          if (moduleName === 'systems' && data.dataQuality?.duplicates !== undefined) {
-            if (!updatedMeeting.modules.leadsAndSales) updatedMeeting.modules.leadsAndSales = {};
-            updatedMeeting.modules.leadsAndSales.duplicatesFrequency = data.dataQuality.duplicates;
+          if (
+            moduleName === 'systems' &&
+            data.dataQuality?.duplicates !== undefined
+          ) {
+            if (!updatedMeeting.modules.leadsAndSales)
+              updatedMeeting.modules.leadsAndSales = {};
+            updatedMeeting.modules.leadsAndSales.duplicatesFrequency =
+              data.dataQuality.duplicates;
           }
 
-          if (moduleName === 'leadsAndSales' && data.duplicatesFrequency !== undefined) {
-            if (!updatedMeeting.modules.systems) updatedMeeting.modules.systems = {};
-            if (!updatedMeeting.modules.systems.dataQuality) updatedMeeting.modules.systems.dataQuality = {};
-            updatedMeeting.modules.systems.dataQuality.duplicates = data.duplicatesFrequency;
+          if (
+            moduleName === 'leadsAndSales' &&
+            data.duplicatesFrequency !== undefined
+          ) {
+            if (!updatedMeeting.modules.systems)
+              updatedMeeting.modules.systems = {};
+            if (!updatedMeeting.modules.systems.dataQuality)
+              updatedMeeting.modules.systems.dataQuality = {};
+            updatedMeeting.modules.systems.dataQuality.duplicates =
+              data.duplicatesFrequency;
           }
 
           // Save to Supabase (immediate)
@@ -656,10 +804,10 @@ export const useMeetingStore = create<MeetingStore>()(
 
           return {
             currentMeeting: updatedMeeting,
-            meetings: state.meetings.map(m =>
+            meetings: state.meetings.map((m) =>
               m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
             ),
-            lastSavedTime: new Date()
+            lastSavedTime: new Date(),
           };
         });
       },
@@ -667,7 +815,7 @@ export const useMeetingStore = create<MeetingStore>()(
       addPainPoint: (painPoint) => {
         const newPainPoint: PainPoint = {
           ...painPoint,
-          id: generateId()
+          id: generateId(),
         };
 
         set((state) => {
@@ -675,14 +823,14 @@ export const useMeetingStore = create<MeetingStore>()(
 
           const updatedMeeting = {
             ...state.currentMeeting,
-            painPoints: [...state.currentMeeting.painPoints, newPainPoint]
+            painPoints: [...state.currentMeeting.painPoints, newPainPoint],
           };
 
           return {
             currentMeeting: updatedMeeting,
-            meetings: state.meetings.map(m =>
+            meetings: state.meetings.map((m) =>
               m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-            )
+            ),
           };
         });
       },
@@ -693,16 +841,16 @@ export const useMeetingStore = create<MeetingStore>()(
 
           const updatedMeeting = {
             ...state.currentMeeting,
-            painPoints: state.currentMeeting.painPoints.map(pp =>
+            painPoints: state.currentMeeting.painPoints.map((pp) =>
               pp.id === id ? { ...pp, ...updates } : pp
-            )
+            ),
           };
 
           return {
             currentMeeting: updatedMeeting,
-            meetings: state.meetings.map(m =>
+            meetings: state.meetings.map((m) =>
               m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-            )
+            ),
           };
         });
       },
@@ -713,14 +861,16 @@ export const useMeetingStore = create<MeetingStore>()(
 
           const updatedMeeting = {
             ...state.currentMeeting,
-            painPoints: state.currentMeeting.painPoints.filter(pp => pp.id !== id)
+            painPoints: state.currentMeeting.painPoints.filter(
+              (pp) => pp.id !== id
+            ),
           };
 
           return {
             currentMeeting: updatedMeeting,
-            meetings: state.meetings.map(m =>
+            meetings: state.meetings.map((m) =>
               m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-            )
+            ),
           };
         });
       },
@@ -731,18 +881,21 @@ export const useMeetingStore = create<MeetingStore>()(
 
         // Helper function to check if a value contains meaningful user input
         const hasUserInput = (value: any): boolean => {
-          if (value === null || value === undefined || value === '') return false;
+          if (value === null || value === undefined || value === '')
+            return false;
 
           // Check arrays - must have non-empty items
           if (Array.isArray(value)) {
             if (value.length === 0) return false;
             // Check if array contains meaningful data
-            return value.some(item => {
+            return value.some((item) => {
               if (typeof item === 'object' && item !== null) {
                 // For objects in arrays, check if they have meaningful content
-                return Object.keys(item).some(key => {
+                return Object.keys(item).some((key) => {
                   const val = item[key];
-                  return val !== '' && val !== 0 && val !== null && val !== undefined;
+                  return (
+                    val !== '' && val !== 0 && val !== null && val !== undefined
+                  );
                 });
               }
               return item !== '' && item !== null && item !== undefined;
@@ -754,7 +907,7 @@ export const useMeetingStore = create<MeetingStore>()(
             const keys = Object.keys(value);
             if (keys.length === 0) return false;
             // Recursively check if object has meaningful content
-            return keys.some(key => hasUserInput(value[key]));
+            return keys.some((key) => hasUserInput(value[key]));
           }
 
           // For primitives, check if they're meaningful
@@ -779,7 +932,7 @@ export const useMeetingStore = create<MeetingStore>()(
             hebrewName: 'סקירה כללית',
             completed: 0,
             total: 6,
-            status: 'empty'
+            status: 'empty',
           },
           {
             moduleId: 'leadsAndSales',
@@ -789,12 +942,37 @@ export const useMeetingStore = create<MeetingStore>()(
             total: 5,
             status: 'empty',
             subModules: [
-              { id: 'leadSources', name: 'Lead Sources', hebrewName: 'מקורות לידים', status: 'empty' },
-              { id: 'speedToLead', name: 'Speed to Lead', hebrewName: 'מהירות תגובה', status: 'empty' },
-              { id: 'leadRouting', name: 'Lead Routing', hebrewName: 'ניתוב לידים', status: 'empty' },
-              { id: 'followUp', name: 'Follow Up', hebrewName: 'מעקבים', status: 'empty' },
-              { id: 'appointments', name: 'Appointments', hebrewName: 'קביעת פגישות', status: 'empty' }
-            ]
+              {
+                id: 'leadSources',
+                name: 'Lead Sources',
+                hebrewName: 'מקורות לידים',
+                status: 'empty',
+              },
+              {
+                id: 'speedToLead',
+                name: 'Speed to Lead',
+                hebrewName: 'מהירות תגובה',
+                status: 'empty',
+              },
+              {
+                id: 'leadRouting',
+                name: 'Lead Routing',
+                hebrewName: 'ניתוב לידים',
+                status: 'empty',
+              },
+              {
+                id: 'followUp',
+                name: 'Follow Up',
+                hebrewName: 'מעקבים',
+                status: 'empty',
+              },
+              {
+                id: 'appointments',
+                name: 'Appointments',
+                hebrewName: 'קביעת פגישות',
+                status: 'empty',
+              },
+            ],
           },
           {
             moduleId: 'customerService',
@@ -804,13 +982,43 @@ export const useMeetingStore = create<MeetingStore>()(
             total: 6,
             status: 'empty',
             subModules: [
-              { id: 'channels', name: 'Service Channels', hebrewName: 'ערוצי שירות', status: 'empty' },
-              { id: 'autoResponse', name: 'Auto Response', hebrewName: 'מענה אוטומטי', status: 'empty' },
-              { id: 'proactiveCommunication', name: 'Proactive Communication', hebrewName: 'תקשורת יזומה', status: 'empty' },
-              { id: 'communityManagement', name: 'Community', hebrewName: 'ניהול קהילות', status: 'empty' },
-              { id: 'reputationManagement', name: 'Reputation', hebrewName: 'ניהול מוניטין', status: 'empty' },
-              { id: 'onboarding', name: 'Onboarding', hebrewName: 'קליטת לקוחות', status: 'empty' }
-            ]
+              {
+                id: 'channels',
+                name: 'Service Channels',
+                hebrewName: 'ערוצי שירות',
+                status: 'empty',
+              },
+              {
+                id: 'autoResponse',
+                name: 'Auto Response',
+                hebrewName: 'מענה אוטומטי',
+                status: 'empty',
+              },
+              {
+                id: 'proactiveCommunication',
+                name: 'Proactive Communication',
+                hebrewName: 'תקשורת יזומה',
+                status: 'empty',
+              },
+              {
+                id: 'communityManagement',
+                name: 'Community',
+                hebrewName: 'ניהול קהילות',
+                status: 'empty',
+              },
+              {
+                id: 'reputationManagement',
+                name: 'Reputation',
+                hebrewName: 'ניהול מוניטין',
+                status: 'empty',
+              },
+              {
+                id: 'onboarding',
+                name: 'Onboarding',
+                hebrewName: 'קליטת לקוחות',
+                status: 'empty',
+              },
+            ],
           },
           {
             moduleId: 'operations',
@@ -820,13 +1028,43 @@ export const useMeetingStore = create<MeetingStore>()(
             total: 6,
             status: 'empty',
             subModules: [
-              { id: 'systemSync', name: 'System Sync', hebrewName: 'סנכרון מערכות', status: 'empty' },
-              { id: 'documentManagement', name: 'Documents', hebrewName: 'ניהול מסמכים', status: 'empty' },
-              { id: 'projectManagement', name: 'Projects', hebrewName: 'ניהול פרויקטים', status: 'empty' },
-              { id: 'financialProcesses', name: 'Finance', hebrewName: 'תהליכים פיננסיים', status: 'empty' },
-              { id: 'hr', name: 'HR', hebrewName: 'משאבי אנוש', status: 'empty' },
-              { id: 'crossDepartment', name: 'Cross Department', hebrewName: 'בין מחלקות', status: 'empty' }
-            ]
+              {
+                id: 'systemSync',
+                name: 'System Sync',
+                hebrewName: 'סנכרון מערכות',
+                status: 'empty',
+              },
+              {
+                id: 'documentManagement',
+                name: 'Documents',
+                hebrewName: 'ניהול מסמכים',
+                status: 'empty',
+              },
+              {
+                id: 'projectManagement',
+                name: 'Projects',
+                hebrewName: 'ניהול פרויקטים',
+                status: 'empty',
+              },
+              {
+                id: 'financialProcesses',
+                name: 'Finance',
+                hebrewName: 'תהליכים פיננסיים',
+                status: 'empty',
+              },
+              {
+                id: 'hr',
+                name: 'HR',
+                hebrewName: 'משאבי אנוש',
+                status: 'empty',
+              },
+              {
+                id: 'crossDepartment',
+                name: 'Cross Department',
+                hebrewName: 'בין מחלקות',
+                status: 'empty',
+              },
+            ],
           },
           {
             moduleId: 'reporting',
@@ -834,7 +1072,7 @@ export const useMeetingStore = create<MeetingStore>()(
             hebrewName: 'דוחות והתראות',
             completed: 0,
             total: 4,
-            status: 'empty'
+            status: 'empty',
           },
           {
             moduleId: 'aiAgents',
@@ -842,7 +1080,7 @@ export const useMeetingStore = create<MeetingStore>()(
             hebrewName: 'סוכני AI',
             completed: 0,
             total: 3,
-            status: 'empty'
+            status: 'empty',
           },
           {
             moduleId: 'systems',
@@ -850,7 +1088,7 @@ export const useMeetingStore = create<MeetingStore>()(
             hebrewName: 'מערכות וטכנולוגיה',
             completed: 0,
             total: 3,
-            status: 'empty'
+            status: 'empty',
           },
           {
             moduleId: 'roi',
@@ -858,7 +1096,7 @@ export const useMeetingStore = create<MeetingStore>()(
             hebrewName: 'ROI וכימות',
             completed: 0,
             total: 2,
-            status: 'empty'
+            status: 'empty',
           },
           {
             moduleId: 'planning',
@@ -866,12 +1104,12 @@ export const useMeetingStore = create<MeetingStore>()(
             hebrewName: 'סיכום ותכנון',
             completed: 0,
             total: 4,
-            status: 'empty'
-          }
+            status: 'empty',
+          },
         ];
 
         // Calculate actual progress for each module
-        modules.forEach(module => {
+        modules.forEach((module) => {
           // Guard against undefined modules object
           if (!meeting.modules) {
             module.completed = 0;
@@ -879,14 +1117,18 @@ export const useMeetingStore = create<MeetingStore>()(
             return;
           }
 
-          const moduleData = meeting.modules[module.moduleId as keyof Meeting['modules']];
+          const moduleData =
+            meeting.modules[module.moduleId as keyof Meeting['modules']];
           let completed = 0;
 
           // Count only properties with meaningful user input
           if (moduleData && typeof moduleData === 'object') {
-            completed = Object.values(moduleData).filter(v => hasUserInput(v)).length;
+            completed = Object.values(moduleData).filter((v) =>
+              hasUserInput(v)
+            ).length;
             if (completed > 0) {
-              module.status = completed >= module.total ? 'completed' : 'in_progress';
+              module.status =
+                completed >= module.total ? 'completed' : 'in_progress';
             }
           }
 
@@ -900,7 +1142,9 @@ export const useMeetingStore = create<MeetingStore>()(
         const modules = get().getModuleProgress();
         const totalSteps = modules.reduce((acc, m) => acc + m.total, 0);
         const completedSteps = modules.reduce((acc, m) => acc + m.completed, 0);
-        return totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
+        return totalSteps > 0
+          ? Math.round((completedSteps / totalSteps) * 100)
+          : 0;
       },
 
       exportMeeting: () => {
@@ -917,15 +1161,23 @@ export const useMeetingStore = create<MeetingStore>()(
 
           // Ensure status exists (for backward compatibility with old data)
           if (!meeting.status) meeting.status = 'discovery_in_progress';
-          if (!meeting.phaseHistory) meeting.phaseHistory = [{
-            fromPhase: null,
-            toPhase: meeting.phase,
-            timestamp: new Date(),
-            transitionedBy: 'system'
-          }];
+          if (!meeting.phaseHistory)
+            meeting.phaseHistory = [
+              {
+                fromPhase: null,
+                toPhase: meeting.phase,
+                timestamp: new Date(),
+                transitionedBy: 'system',
+              },
+            ];
           set((state) => ({
             currentMeeting: meeting,
-            meetings: [...state.meetings.filter(m => m.meetingId !== meeting.meetingId), meeting]
+            meetings: [
+              ...state.meetings.filter(
+                (m) => m.meetingId !== meeting.meetingId
+              ),
+              meeting,
+            ],
           }));
         } catch (error) {
           console.error('Failed to import meeting:', error);
@@ -939,14 +1191,14 @@ export const useMeetingStore = create<MeetingStore>()(
 
             const updatedMeeting = {
               ...state.currentMeeting,
-              timer: (state.currentMeeting.timer || 0) + 1
+              timer: (state.currentMeeting.timer || 0) + 1,
             };
 
             return {
               currentMeeting: updatedMeeting,
-              meetings: state.meetings.map(m =>
+              meetings: state.meetings.map((m) =>
                 m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-              )
+              ),
             };
           });
         }, 1000);
@@ -972,7 +1224,7 @@ export const useMeetingStore = create<MeetingStore>()(
           completedSteps: new Set(),
           skippedSections: new Set(),
           navigationHistory: [],
-          mode: 'wizard'
+          mode: 'wizard',
         };
         set({ wizardState });
 
@@ -1001,29 +1253,29 @@ export const useMeetingStore = create<MeetingStore>()(
 
           const updatedWizardState = {
             ...state.wizardState,
-            completedSteps
+            completedSteps,
           };
 
           // Update meeting
           if (state.currentMeeting) {
             const updatedMeeting = {
               ...state.currentMeeting,
-              wizardState: updatedWizardState
+              wizardState: updatedWizardState,
             };
 
             return {
               ...state,
               wizardState: updatedWizardState,
               currentMeeting: updatedMeeting,
-              meetings: state.meetings.map(m =>
+              meetings: state.meetings.map((m) =>
                 m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-              )
+              ),
             };
           }
 
           return {
             ...state,
-            wizardState: updatedWizardState
+            wizardState: updatedWizardState,
           };
         });
       },
@@ -1036,14 +1288,20 @@ export const useMeetingStore = create<MeetingStore>()(
 
           switch (direction) {
             case 'next':
-              newStep = Math.min(state.wizardState.currentStep + 1, state.wizardState.totalSteps - 1);
+              newStep = Math.min(
+                state.wizardState.currentStep + 1,
+                state.wizardState.totalSteps - 1
+              );
               break;
             case 'prev':
               newStep = Math.max(state.wizardState.currentStep - 1, 0);
               break;
             case 'jump':
               if (target !== undefined) {
-                newStep = Math.max(0, Math.min(target, state.wizardState.totalSteps - 1));
+                newStep = Math.max(
+                  0,
+                  Math.min(target, state.wizardState.totalSteps - 1)
+                );
               }
               break;
           }
@@ -1051,12 +1309,15 @@ export const useMeetingStore = create<MeetingStore>()(
           const updatedWizardState = {
             ...state.wizardState,
             currentStep: newStep,
-            navigationHistory: [...state.wizardState.navigationHistory, WIZARD_STEPS[newStep]?.id || 'unknown']
+            navigationHistory: [
+              ...state.wizardState.navigationHistory,
+              WIZARD_STEPS[newStep]?.id || 'unknown',
+            ],
           };
 
           return {
             ...state,
-            wizardState: updatedWizardState
+            wizardState: updatedWizardState,
           };
         });
       },
@@ -1070,29 +1331,29 @@ export const useMeetingStore = create<MeetingStore>()(
 
           const updatedWizardState = {
             ...state.wizardState,
-            skippedSections
+            skippedSections,
           };
 
           // Update meeting
           if (state.currentMeeting) {
             const updatedMeeting = {
               ...state.currentMeeting,
-              wizardState: updatedWizardState
+              wizardState: updatedWizardState,
             };
 
             return {
               ...state,
               wizardState: updatedWizardState,
               currentMeeting: updatedMeeting,
-              meetings: state.meetings.map(m =>
+              meetings: state.meetings.map((m) =>
                 m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-              )
+              ),
             };
           }
 
           return {
             ...state,
-            wizardState: updatedWizardState
+            wizardState: updatedWizardState,
           };
         });
       },
@@ -1122,7 +1383,9 @@ export const useMeetingStore = create<MeetingStore>()(
 
         // If modules doesn't exist, initialize it
         if (!meeting.modules) {
-          console.warn('[syncModulesToWizard] No modules found, initializing empty modules');
+          console.warn(
+            '[syncModulesToWizard] No modules found, initializing empty modules'
+          );
           const updatedMeeting = {
             ...meeting,
             modules: {
@@ -1134,8 +1397,8 @@ export const useMeetingStore = create<MeetingStore>()(
               aiAgents: {},
               systems: {},
               roi: {},
-              planning: {}
-            }
+              planning: {},
+            },
           };
           get().updateMeeting(updatedMeeting);
           return;
@@ -1144,14 +1407,17 @@ export const useMeetingStore = create<MeetingStore>()(
         // Calculate which steps should be marked as completed based on module data
         const completedSteps = new Set<string>();
 
-        WIZARD_STEPS.forEach(step => {
+        WIZARD_STEPS.forEach((step) => {
           if (!step.moduleId) return;
 
           const moduleData = meeting.modules[step.moduleId];
           if (moduleData && typeof moduleData === 'object') {
-            const hasData = Object.values(moduleData).some(value =>
-              value !== undefined && value !== null && value !== '' &&
-              !(Array.isArray(value) && value.length === 0)
+            const hasData = Object.values(moduleData).some(
+              (value) =>
+                value !== undefined &&
+                value !== null &&
+                value !== '' &&
+                !(Array.isArray(value) && value.length === 0)
             );
             if (hasData) {
               completedSteps.add(step.id);
@@ -1161,7 +1427,7 @@ export const useMeetingStore = create<MeetingStore>()(
 
         const updatedWizardState = {
           ...wizardState,
-          completedSteps
+          completedSteps,
         };
 
         get().setWizardState(updatedWizardState);
@@ -1172,7 +1438,8 @@ export const useMeetingStore = create<MeetingStore>()(
         set((state) => {
           if (!state.currentMeeting) return state;
 
-          const customFieldValues = state.currentMeeting.customFieldValues || {};
+          const customFieldValues =
+            state.currentMeeting.customFieldValues || {};
           if (!customFieldValues[moduleId]) {
             customFieldValues[moduleId] = {};
           }
@@ -1183,44 +1450,50 @@ export const useMeetingStore = create<MeetingStore>()(
           customFieldValues[moduleId][fieldName].push({
             ...value,
             isCustom: true,
-            addedAt: new Date()
+            addedAt: new Date(),
           });
 
           const updatedMeeting = {
             ...state.currentMeeting,
-            customFieldValues
+            customFieldValues,
           };
 
           return {
             currentMeeting: updatedMeeting,
-            meetings: state.meetings.map(m =>
+            meetings: state.meetings.map((m) =>
               m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-            )
+            ),
           };
         });
       },
 
       removeCustomValue: (moduleId, fieldName, value) => {
         set((state) => {
-          if (!state.currentMeeting || !state.currentMeeting.customFieldValues) return state;
+          if (!state.currentMeeting || !state.currentMeeting.customFieldValues)
+            return state;
 
-          const customFieldValues = { ...state.currentMeeting.customFieldValues };
-          if (customFieldValues[moduleId] && customFieldValues[moduleId][fieldName]) {
-            customFieldValues[moduleId][fieldName] = customFieldValues[moduleId][fieldName].filter(
-              opt => opt.value !== value
-            );
+          const customFieldValues = {
+            ...state.currentMeeting.customFieldValues,
+          };
+          if (
+            customFieldValues[moduleId] &&
+            customFieldValues[moduleId][fieldName]
+          ) {
+            customFieldValues[moduleId][fieldName] = customFieldValues[
+              moduleId
+            ][fieldName].filter((opt) => opt.value !== value);
           }
 
           const updatedMeeting = {
             ...state.currentMeeting,
-            customFieldValues
+            customFieldValues,
           };
 
           return {
             currentMeeting: updatedMeeting,
-            meetings: state.meetings.map(m =>
+            meetings: state.meetings.map((m) =>
               m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-            )
+            ),
           };
         });
       },
@@ -1242,7 +1515,7 @@ export const useMeetingStore = create<MeetingStore>()(
       syncMeeting: async (meetingId) => {
         const state = get();
         const targetMeeting = meetingId
-          ? state.meetings.find(m => m.meetingId === meetingId)
+          ? state.meetings.find((m) => m.meetingId === meetingId)
           : state.currentMeeting;
 
         if (!targetMeeting || !isSupabaseConfigured()) {
@@ -1263,18 +1536,18 @@ export const useMeetingStore = create<MeetingStore>()(
           if (result.success) {
             set({
               lastSyncTime: new Date().toISOString(),
-              isSyncing: false
+              isSyncing: false,
             });
           } else {
             set({
               syncError: result.error || 'Sync failed',
-              isSyncing: false
+              isSyncing: false,
             });
           }
         } catch (error) {
           set({
             syncError: error instanceof Error ? error.message : 'Sync failed',
-            isSyncing: false
+            isSyncing: false,
           });
         }
       },
@@ -1293,23 +1566,26 @@ export const useMeetingStore = create<MeetingStore>()(
             throw new Error('User not authenticated');
           }
 
-          const result = await syncService.syncAllMeetings(state.meetings, userId);
+          const result = await syncService.syncAllMeetings(
+            state.meetings,
+            userId
+          );
 
           if (result.success) {
             set({
               lastSyncTime: new Date().toISOString(),
-              isSyncing: false
+              isSyncing: false,
             });
           } else {
             set({
               syncError: result.error || 'Some meetings failed to sync',
-              isSyncing: false
+              isSyncing: false,
             });
           }
         } catch (error) {
           set({
             syncError: error instanceof Error ? error.message : 'Sync failed',
-            isSyncing: false
+            isSyncing: false,
           });
         }
       },
@@ -1334,38 +1610,45 @@ export const useMeetingStore = create<MeetingStore>()(
             const localMeetings = get().meetings;
             const mergedMeetings = [...localMeetings];
 
-            result.meetings.forEach(pulledMeeting => {
+            result.meetings.forEach((pulledMeeting) => {
               // Normalize phase (handle capitalized phases from Zoho/legacy data)
               pulledMeeting.phase = normalizePhase(pulledMeeting.phase as any);
 
               // Ensure status exists (for backward compatibility with old data)
-              if (!pulledMeeting.status) pulledMeeting.status = 'discovery_in_progress';
-              if (!pulledMeeting.phaseHistory) pulledMeeting.phaseHistory = [{
-                fromPhase: null,
-                toPhase: pulledMeeting.phase,
-                timestamp: new Date(),
-                transitionedBy: 'system'
-              }];
+              if (!pulledMeeting.status)
+                pulledMeeting.status = 'discovery_in_progress';
+              if (!pulledMeeting.phaseHistory)
+                pulledMeeting.phaseHistory = [
+                  {
+                    fromPhase: null,
+                    toPhase: pulledMeeting.phase,
+                    timestamp: new Date(),
+                    transitionedBy: 'system',
+                  },
+                ];
 
               const existingIndex = mergedMeetings.findIndex(
-                m => m.meetingId === pulledMeeting.id
+                (m) => m.meetingId === pulledMeeting.id
               );
 
               if (existingIndex >= 0) {
                 // Update existing meeting if remote is newer
                 const existing = mergedMeetings[existingIndex];
-                if (!existing.updatedAt ||
-                    new Date(pulledMeeting.updatedAt) > new Date(existing.updatedAt)) {
+                if (
+                  !existing.updatedAt ||
+                  new Date(pulledMeeting.updatedAt) >
+                    new Date(existing.updatedAt)
+                ) {
                   mergedMeetings[existingIndex] = {
                     ...pulledMeeting,
-                    meetingId: pulledMeeting.id // Ensure correct ID mapping
+                    meetingId: pulledMeeting.id, // Ensure correct ID mapping
                   };
                 }
               } else {
                 // Add new meeting
                 mergedMeetings.push({
                   ...pulledMeeting,
-                  meetingId: pulledMeeting.id
+                  meetingId: pulledMeeting.id,
                 });
               }
             });
@@ -1373,7 +1656,7 @@ export const useMeetingStore = create<MeetingStore>()(
             set({
               meetings: mergedMeetings,
               lastSyncTime: new Date().toISOString(),
-              isSyncing: false
+              isSyncing: false,
             });
           } else {
             set({ isSyncing: false });
@@ -1381,7 +1664,7 @@ export const useMeetingStore = create<MeetingStore>()(
         } catch (error) {
           set({
             syncError: error instanceof Error ? error.message : 'Pull failed',
-            isSyncing: false
+            isSyncing: false,
           });
         }
       },
@@ -1409,7 +1692,7 @@ export const useMeetingStore = create<MeetingStore>()(
         return {
           pending: status.queueLength,
           failed: syncService.getFailedSyncs().length,
-          isOnline: status.isOnline
+          isOnline: status.isOnline,
         };
       },
 
@@ -1431,14 +1714,14 @@ export const useMeetingStore = create<MeetingStore>()(
             ...state.currentMeeting.modules,
             [moduleId]: {
               ...state.currentMeeting.modules[moduleId],
-              [field]: value
-            }
+              [field]: value,
+            },
           };
 
           const updatedMeeting = {
             ...state.currentMeeting,
             modules: updatedModules,
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
           };
 
           // Auto-sync if enabled
@@ -1450,9 +1733,9 @@ export const useMeetingStore = create<MeetingStore>()(
 
           return {
             currentMeeting: updatedMeeting,
-            meetings: state.meetings.map(m =>
+            meetings: state.meetings.map((m) =>
               m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-            )
+            ),
           };
         });
       },
@@ -1476,8 +1759,12 @@ export const useMeetingStore = create<MeetingStore>()(
           if (existingIndex >= 0) {
             // Update existing
             updatedArray = categoryArray.map((item: any, idx: number) =>
-              idx === existingIndex 
-                ? { ...item, requirements: data, completedAt: new Date().toISOString() }
+              idx === existingIndex
+                ? {
+                    ...item,
+                    requirements: data,
+                    completedAt: new Date().toISOString(),
+                  }
                 : item
             );
           } else {
@@ -1487,8 +1774,8 @@ export const useMeetingStore = create<MeetingStore>()(
               {
                 serviceId,
                 requirements: data,
-                completedAt: new Date().toISOString()
-              }
+                completedAt: new Date().toISOString(),
+              },
             ];
           }
 
@@ -1497,23 +1784,25 @@ export const useMeetingStore = create<MeetingStore>()(
             implementationSpec: {
               ...spec,
               [category]: updatedArray,
-              lastUpdated: new Date()
-            }
+              lastUpdated: new Date(),
+            },
           };
 
           // Trigger Supabase sync (immediate, not debounced)
           if (isSupabaseReady()) {
-            supabaseService.saveMeeting(updatedMeeting).catch(err => 
-              console.error('[Store] Supabase save failed:', err)
-            );
+            supabaseService
+              .saveMeeting(updatedMeeting)
+              .catch((err) =>
+                console.error('[Store] Supabase save failed:', err)
+              );
           }
 
           return {
             currentMeeting: updatedMeeting,
-            meetings: state.meetings.map(m =>
+            meetings: state.meetings.map((m) =>
               m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
             ),
-            lastSavedTime: new Date()
+            lastSavedTime: new Date(),
           };
         });
       },
@@ -1540,7 +1829,6 @@ export const useMeetingStore = create<MeetingStore>()(
         }
       },
 
-
       /**
        * Validates if the current meeting can transition to the target phase
        *
@@ -1559,8 +1847,10 @@ export const useMeetingStore = create<MeetingStore>()(
         }
 
         // Normalize phase names to lowercase (handle legacy/Zoho data with capitalized phases)
-        const currentPhase = (currentMeeting.phase?.toLowerCase() || 'discovery') as MeetingPhase;
-        const normalizedTargetPhase = (targetPhase?.toLowerCase() || 'discovery') as MeetingPhase;
+        const currentPhase = (currentMeeting.phase?.toLowerCase() ||
+          'discovery') as MeetingPhase;
+        const normalizedTargetPhase = (targetPhase?.toLowerCase() ||
+          'discovery') as MeetingPhase;
 
         // Create cache key
         const cacheKey = `${currentMeeting.meetingId}_${currentPhase}_to_${normalizedTargetPhase}_${currentMeeting.status}`;
@@ -1569,11 +1859,18 @@ export const useMeetingStore = create<MeetingStore>()(
         // Defensive: Ensure cache is a Map (might be deserialized as {})
         const cache = get()._validationCache;
         if (!cache || !(cache instanceof Map)) {
-          console.warn('[Store] Reinitializing validation cache (was not a Map)');
-          set({ _validationCache: new Map<string, { result: boolean; timestamp: number }>() });
+          console.warn(
+            '[Store] Reinitializing validation cache (was not a Map)'
+          );
+          set({
+            _validationCache: new Map<
+              string,
+              { result: boolean; timestamp: number }
+            >(),
+          });
         }
 
-        const cached = (cache instanceof Map) ? cache.get(cacheKey) : undefined;
+        const cached = cache instanceof Map ? cache.get(cacheKey) : undefined;
         const CACHE_TTL = 1000;
 
         if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
@@ -1590,7 +1887,12 @@ export const useMeetingStore = create<MeetingStore>()(
           result = false;
         } else {
           // Define the phase order for validation
-          const phaseOrder: MeetingPhase[] = ['discovery', 'implementation_spec', 'development', 'completed'];
+          const phaseOrder: MeetingPhase[] = [
+            'discovery',
+            'implementation_spec',
+            'development',
+            'completed',
+          ];
           const currentIndex = phaseOrder.indexOf(currentPhase);
           const targetIndex = phaseOrder.indexOf(normalizedTargetPhase);
 
@@ -1618,21 +1920,25 @@ export const useMeetingStore = create<MeetingStore>()(
 
               case 'development':
                 if (!currentMeeting.implementationSpec) {
-                  failureReason = 'Implementation spec required for development phase';
+                  failureReason =
+                    'Implementation spec required for development phase';
                   result = false;
                 } else {
-                  const specProgress = currentMeeting.implementationSpec.completionPercentage || 0;
+                  const specProgress =
+                    currentMeeting.implementationSpec.completionPercentage || 0;
 
                   // Require 100% completion for spec (not 90%)
                   if (specProgress < 100) {
                     failureReason = `Spec must be 100% complete. Current: ${specProgress}%`;
                     result = false;
                   } else {
-                    const purchasedServices = currentMeeting.modules?.proposal?.purchasedServices || [];
+                    const purchasedServices =
+                      currentMeeting.modules?.proposal?.purchasedServices || [];
 
                     // Don't allow transition with 0 purchased services
                     if (purchasedServices.length === 0) {
-                      failureReason = 'At least one service must be purchased before transitioning to development';
+                      failureReason =
+                        'At least one service must be purchased before transitioning to development';
                       result = false;
                     } else {
                       const validation = validateServiceRequirements(
@@ -1652,7 +1958,8 @@ export const useMeetingStore = create<MeetingStore>()(
 
               case 'completed':
                 if (!currentMeeting.developmentTracking) {
-                  failureReason = 'Development tracking required for completion';
+                  failureReason =
+                    'Development tracking required for completion';
                   result = false;
                 } else {
                   const tasks = currentMeeting.developmentTracking.tasks || [];
@@ -1660,9 +1967,13 @@ export const useMeetingStore = create<MeetingStore>()(
                     failureReason = 'No development tasks found';
                     result = false;
                   } else {
-                    const allTasksComplete = tasks.every(t => t.status === 'done');
+                    const allTasksComplete = tasks.every(
+                      (t) => t.status === 'done'
+                    );
                     if (!allTasksComplete) {
-                      const incompleteTasks = tasks.filter(t => t.status !== 'done').length;
+                      const incompleteTasks = tasks.filter(
+                        (t) => t.status !== 'done'
+                      ).length;
                       failureReason = `All tasks must be complete. Incomplete: ${incompleteTasks}`;
                       result = false;
                     } else {
@@ -1690,10 +2001,15 @@ export const useMeetingStore = create<MeetingStore>()(
         if (get()._lastLoggedState[stateKey] !== result || !cached) {
           if (!result && failureReason) {
             // ✅ NEW: Get smart messages
-            const smartMessages = getSmartValidationMessages(currentMeeting, normalizedTargetPhase);
+            const smartMessages = getSmartValidationMessages(
+              currentMeeting,
+              normalizedTargetPhase
+            );
             if (smartMessages.length > 0) {
               const formatted = formatValidationMessagesForUI(smartMessages);
-              console.warn('[Phase Validation] ❌ Validation failed:\n' + formatted);
+              console.warn(
+                '[Phase Validation] ❌ Validation failed:\n' + formatted
+              );
             } else {
               console.warn(`[Phase Validation] ${failureReason}`);
             }
@@ -1724,14 +2040,20 @@ export const useMeetingStore = create<MeetingStore>()(
         }
 
         if (!canTransitionTo(targetPhase)) {
-          console.error('[Phase Transition] Cannot transition to', targetPhase, 'from', currentMeeting.phase);
+          console.error(
+            '[Phase Transition] Cannot transition to',
+            targetPhase,
+            'from',
+            currentMeeting.phase
+          );
           return false;
         }
 
         // Get user info (from auth or Zoho integration)
-        const transitionedBy = currentMeeting.zohoIntegration?.contactInfo?.email
-          || localStorage.getItem('userId')
-          || 'system';
+        const transitionedBy =
+          currentMeeting.zohoIntegration?.contactInfo?.email ||
+          localStorage.getItem('userId') ||
+          'system';
 
         // Create phase transition record
         const transition: PhaseTransition = {
@@ -1739,7 +2061,9 @@ export const useMeetingStore = create<MeetingStore>()(
           toPhase: targetPhase,
           timestamp: new Date(),
           transitionedBy,
-          notes: notes || `Transitioned from ${currentMeeting.phase} to ${targetPhase}`
+          notes:
+            notes ||
+            `Transitioned from ${currentMeeting.phase} to ${targetPhase}`,
         };
 
         // Get default status for new phase
@@ -1750,27 +2074,37 @@ export const useMeetingStore = create<MeetingStore>()(
           ...currentMeeting,
           phase: targetPhase,
           status: newStatus,
-          phaseHistory: [...currentMeeting.phaseHistory, transition]
+          phaseHistory: [...currentMeeting.phaseHistory, transition],
         };
 
         set((state) => ({
           currentMeeting: updatedMeeting,
-          meetings: state.meetings.map(m =>
+          meetings: state.meetings.map((m) =>
             m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-          )
+          ),
         }));
 
         // ✅ NEW: Backup phase history
-        backupPhaseHistory(updatedMeeting.meetingId, updatedMeeting.phaseHistory);
+        backupPhaseHistory(
+          updatedMeeting.meetingId,
+          updatedMeeting.phaseHistory
+        );
 
-        console.log('[Phase Transition] ✓ Successfully transitioned:', currentMeeting.phase, '→', targetPhase);
+        console.log(
+          '[Phase Transition] ✓ Successfully transitioned:',
+          currentMeeting.phase,
+          '→',
+          targetPhase
+        );
 
         // Trigger Zoho sync if enabled
         if (currentMeeting.zohoIntegration?.syncEnabled) {
           console.log('[Phase Transition] Triggering Zoho sync...');
-          get().syncCurrentToZoho({ silent: true }).catch(err =>
-            console.error('[Phase Transition] Zoho sync failed:', err)
-          );
+          get()
+            .syncCurrentToZoho({ silent: true })
+            .catch((err) =>
+              console.error('[Phase Transition] Zoho sync failed:', err)
+            );
         }
 
         // Trigger Supabase sync if configured
@@ -1797,28 +2131,44 @@ export const useMeetingStore = create<MeetingStore>()(
 
         // Validate that status is appropriate for current phase
         const phaseStatusMap: Record<MeetingPhase, MeetingStatus[]> = {
-          discovery: ['discovery_in_progress', 'discovery_complete', 'awaiting_client_decision', 'client_approved'],
+          discovery: [
+            'discovery_in_progress',
+            'discovery_complete',
+            'awaiting_client_decision',
+            'client_approved',
+          ],
           implementation_spec: ['spec_in_progress', 'spec_complete'],
-          development: ['dev_not_started', 'dev_in_progress', 'dev_testing', 'dev_ready_for_deployment', 'deployed'],
-          completed: ['completed']
+          development: [
+            'dev_not_started',
+            'dev_in_progress',
+            'dev_testing',
+            'dev_ready_for_deployment',
+            'deployed',
+          ],
+          completed: ['completed'],
         };
 
         const validStatuses = phaseStatusMap[currentMeeting.phase];
         if (!validStatuses.includes(status)) {
-          console.warn('[Phase Status] Invalid status', status, 'for phase', currentMeeting.phase);
+          console.warn(
+            '[Phase Status] Invalid status',
+            status,
+            'for phase',
+            currentMeeting.phase
+          );
           return;
         }
 
         const updatedMeeting = {
           ...currentMeeting,
-          status
+          status,
         };
 
         set((state) => ({
           currentMeeting: updatedMeeting,
-          meetings: state.meetings.map(m =>
+          meetings: state.meetings.map((m) =>
             m.meetingId === updatedMeeting.meetingId ? updatedMeeting : m
-          )
+          ),
         }));
 
         console.log('[Phase Status] Updated status to:', status);
@@ -1870,7 +2220,9 @@ export const useMeetingStore = create<MeetingStore>()(
             const tasks = dev.tasks || [];
             if (tasks.length === 0) return 0;
 
-            const completedTasks = tasks.filter(t => t.status === 'done').length;
+            const completedTasks = tasks.filter(
+              (t) => t.status === 'done'
+            ).length;
             return Math.round((completedTasks / tasks.length) * 100);
 
           case 'completed':
@@ -1890,10 +2242,13 @@ export const useMeetingStore = create<MeetingStore>()(
           ...taskData,
           id: generateId(),
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         };
 
-        const updatedTasks = [...state.currentMeeting.developmentTracking.tasks, newTask];
+        const updatedTasks = [
+          ...state.currentMeeting.developmentTracking.tasks,
+          newTask,
+        ];
 
         set({
           currentMeeting: {
@@ -1901,9 +2256,9 @@ export const useMeetingStore = create<MeetingStore>()(
             developmentTracking: {
               ...state.currentMeeting.developmentTracking,
               tasks: updatedTasks,
-              lastUpdated: new Date()
-            }
-          }
+              lastUpdated: new Date(),
+            },
+          },
         });
       },
 
@@ -1911,10 +2266,11 @@ export const useMeetingStore = create<MeetingStore>()(
         const state = get();
         if (!state.currentMeeting?.developmentTracking) return;
 
-        const updatedTasks = state.currentMeeting.developmentTracking.tasks.map(task =>
-          task.id === taskId
-            ? { ...task, ...updates, updatedAt: new Date() }
-            : task
+        const updatedTasks = state.currentMeeting.developmentTracking.tasks.map(
+          (task) =>
+            task.id === taskId
+              ? { ...task, ...updates, updatedAt: new Date() }
+              : task
         );
 
         set({
@@ -1923,9 +2279,9 @@ export const useMeetingStore = create<MeetingStore>()(
             developmentTracking: {
               ...state.currentMeeting.developmentTracking,
               tasks: updatedTasks,
-              lastUpdated: new Date()
-            }
-          }
+              lastUpdated: new Date(),
+            },
+          },
         });
       },
 
@@ -1933,9 +2289,10 @@ export const useMeetingStore = create<MeetingStore>()(
         const state = get();
         if (!state.currentMeeting?.developmentTracking) return;
 
-        const updatedTasks = state.currentMeeting.developmentTracking.tasks.filter(
-          task => task.id !== taskId
-        );
+        const updatedTasks =
+          state.currentMeeting.developmentTracking.tasks.filter(
+            (task) => task.id !== taskId
+          );
 
         set({
           currentMeeting: {
@@ -1943,9 +2300,9 @@ export const useMeetingStore = create<MeetingStore>()(
             developmentTracking: {
               ...state.currentMeeting.developmentTracking,
               tasks: updatedTasks,
-              lastUpdated: new Date()
-            }
-          }
+              lastUpdated: new Date(),
+            },
+          },
         });
       },
 
@@ -1961,16 +2318,18 @@ export const useMeetingStore = create<MeetingStore>()(
         const state = get();
         if (!state.currentMeeting?.developmentTracking) return;
 
-        const task = state.currentMeeting.developmentTracking.tasks.find(t => t.id === taskId);
+        const task = state.currentMeeting.developmentTracking.tasks.find(
+          (t) => t.id === taskId
+        );
         if (!task) return;
 
         const newTestCase = {
           ...testCase,
-          id: generateId()
+          id: generateId(),
         };
 
         get().updateTask(taskId, {
-          testCases: [...(task.testCases || []), newTestCase]
+          testCases: [...(task.testCases || []), newTestCase],
         });
       },
 
@@ -1978,10 +2337,12 @@ export const useMeetingStore = create<MeetingStore>()(
         const state = get();
         if (!state.currentMeeting?.developmentTracking) return;
 
-        const task = state.currentMeeting.developmentTracking.tasks.find(t => t.id === taskId);
+        const task = state.currentMeeting.developmentTracking.tasks.find(
+          (t) => t.id === taskId
+        );
         if (!task || !task.testCases) return;
 
-        const updatedTestCases = task.testCases.map(tc =>
+        const updatedTestCases = task.testCases.map((tc) =>
           tc.id === testCaseId ? { ...tc, ...updates } : tc
         );
 
@@ -1996,12 +2357,12 @@ export const useMeetingStore = create<MeetingStore>()(
           ...blocker,
           id: generateId(),
           createdAt: new Date(),
-          resolved: false
+          resolved: false,
         };
 
         const updatedBlockers = [
           ...(state.currentMeeting.developmentTracking.blockers || []),
-          newBlocker
+          newBlocker,
         ];
 
         set({
@@ -2009,9 +2370,9 @@ export const useMeetingStore = create<MeetingStore>()(
             ...state.currentMeeting,
             developmentTracking: {
               ...state.currentMeeting.developmentTracking,
-              blockers: updatedBlockers
-            }
-          }
+              blockers: updatedBlockers,
+            },
+          },
         });
 
         // Also update task status to blocked
@@ -2022,20 +2383,21 @@ export const useMeetingStore = create<MeetingStore>()(
         const state = get();
         if (!state.currentMeeting?.developmentTracking) return;
 
-        const updatedBlockers = state.currentMeeting.developmentTracking.blockers?.map(blocker =>
-          blocker.id === blockerId
-            ? { ...blocker, resolved: true, resolvedAt: new Date() }
-            : blocker
-        );
+        const updatedBlockers =
+          state.currentMeeting.developmentTracking.blockers?.map((blocker) =>
+            blocker.id === blockerId
+              ? { ...blocker, resolved: true, resolvedAt: new Date() }
+              : blocker
+          );
 
         set({
           currentMeeting: {
             ...state.currentMeeting,
             developmentTracking: {
               ...state.currentMeeting.developmentTracking,
-              blockers: updatedBlockers
-            }
-          }
+              blockers: updatedBlockers,
+            },
+          },
         });
       },
 
@@ -2049,14 +2411,16 @@ export const useMeetingStore = create<MeetingStore>()(
         try {
           // Check cache first
           const cache = get().zohoClientsCache;
-          const cacheAge = cache ? Date.now() - new Date(cache.lastFetch).getTime() : Infinity;
+          const cacheAge = cache
+            ? Date.now() - new Date(cache.lastFetch).getTime()
+            : Infinity;
 
           // Use cache if it's fresh (< 5 minutes) and not forced
           if (!options.force && cache && cacheAge < 5 * 60 * 1000) {
             console.log('[ZohoClients] Using cached data');
             set({
               zohoClientsList: cache.clients,
-              isLoadingClients: false
+              isLoadingClients: false,
             });
             return;
           }
@@ -2076,25 +2440,28 @@ export const useMeetingStore = create<MeetingStore>()(
             const newCache: ZohoClientsCache = {
               lastFetch: new Date(),
               clients: data.potentials,
-              totalCount: data.total || data.potentials.length
+              totalCount: data.total || data.potentials.length,
             };
 
             // Zustand persist middleware handles localStorage automatically
             set({
               zohoClientsList: data.potentials,
               zohoClientsCache: newCache,
-              isLoadingClients: false
+              isLoadingClients: false,
             });
 
-            console.log(`[ZohoClients] Loaded ${data.potentials.length} clients`);
+            console.log(
+              `[ZohoClients] Loaded ${data.potentials.length} clients`
+            );
           } else {
             throw new Error(data.message || 'Failed to fetch clients');
           }
         } catch (error) {
           console.error('[ZohoClients] Fetch error:', error);
           set({
-            clientsLoadError: error instanceof Error ? error.message : 'Failed to load clients',
-            isLoadingClients: false
+            clientsLoadError:
+              error instanceof Error ? error.message : 'Failed to load clients',
+            isLoadingClients: false,
           });
 
           // Zustand persist middleware handles cache restoration automatically
@@ -2122,26 +2489,38 @@ export const useMeetingStore = create<MeetingStore>()(
           }
 
           // STEP 2: Try Zustand state (Zustand persist handles localStorage automatically)
-          const existingMeeting = get().meetings.find(m => m.zohoIntegration?.recordId === recordId);
+          const existingMeeting = get().meetings.find(
+            (m) => m.zohoIntegration?.recordId === recordId
+          );
           if (existingMeeting) {
-            console.log('[ZohoClients] Found existing meeting in Zustand state, loading');
+            console.log(
+              '[ZohoClients] Found existing meeting in Zustand state, loading'
+            );
             // Normalize phase (handle capitalized phases from Zoho/legacy data)
-            existingMeeting.phase = normalizePhase(existingMeeting.phase as any);
+            existingMeeting.phase = normalizePhase(
+              existingMeeting.phase as any
+            );
 
             // Ensure status exists (for backward compatibility with old data)
-            if (!existingMeeting.status) existingMeeting.status = 'discovery_in_progress';
-            if (!existingMeeting.phaseHistory) existingMeeting.phaseHistory = [{
-              fromPhase: null,
-              toPhase: existingMeeting.phase,
-              timestamp: new Date(),
-              transitionedBy: 'system'
-            }];
+            if (!existingMeeting.status)
+              existingMeeting.status = 'discovery_in_progress';
+            if (!existingMeeting.phaseHistory)
+              existingMeeting.phaseHistory = [
+                {
+                  fromPhase: null,
+                  toPhase: existingMeeting.phase,
+                  timestamp: new Date(),
+                  transitionedBy: 'system',
+                },
+              ];
 
             set({ currentMeeting: existingMeeting });
 
             // Save to Supabase for cross-device sync
             if (isSupabaseReady()) {
-              console.log('[Store] Saving existing meeting to Supabase for sync...');
+              console.log(
+                '[Store] Saving existing meeting to Supabase for sync...'
+              );
               await supabaseService.saveMeeting(existingMeeting);
             }
 
@@ -2165,12 +2544,15 @@ export const useMeetingStore = create<MeetingStore>()(
 
             // Ensure status exists (for backward compatibility)
             if (!meeting.status) meeting.status = 'discovery_in_progress';
-            if (!meeting.phaseHistory) meeting.phaseHistory = [{
-              fromPhase: null,
-              toPhase: meeting.phase,
-              timestamp: new Date(),
-              transitionedBy: 'system'
-            }];
+            if (!meeting.phaseHistory)
+              meeting.phaseHistory = [
+                {
+                  fromPhase: null,
+                  toPhase: meeting.phase,
+                  timestamp: new Date(),
+                  transitionedBy: 'system',
+                },
+              ];
 
             set({ currentMeeting: meeting });
 
@@ -2203,7 +2585,10 @@ export const useMeetingStore = create<MeetingStore>()(
 
         try {
           const recordId = meeting.zohoIntegration?.recordId;
-          console.log('[ZohoSync] Syncing to Zoho...', { recordId, fullSync: options.fullSync });
+          console.log('[ZohoSync] Syncing to Zoho...', {
+            recordId,
+            fullSync: options.fullSync,
+          });
 
           const response = await fetch('/api/zoho/potentials/sync-full', {
             method: 'POST',
@@ -2211,8 +2596,8 @@ export const useMeetingStore = create<MeetingStore>()(
             body: JSON.stringify({
               meeting,
               recordId,
-              fullSync: options.fullSync
-            })
+              fullSync: options.fullSync,
+            }),
           });
 
           if (!response.ok) {
@@ -2229,14 +2614,14 @@ export const useMeetingStore = create<MeetingStore>()(
                 ...meeting.zohoIntegration,
                 recordId: data.recordId || recordId,
                 lastSyncTime: new Date().toISOString(),
-                syncEnabled: true
-              }
+                syncEnabled: true,
+              },
             };
 
             set({
               currentMeeting: updatedMeeting,
               isSyncing: false,
-              lastSyncTime: new Date().toISOString()
+              lastSyncTime: new Date().toISOString(),
             });
 
             console.log('[ZohoSync] Sync successful');
@@ -2248,7 +2633,7 @@ export const useMeetingStore = create<MeetingStore>()(
           console.error('[ZohoSync] Sync error:', error);
           set({
             syncError: error instanceof Error ? error.message : 'Sync failed',
-            isSyncing: false
+            isSyncing: false,
           });
           return false;
         }
@@ -2260,7 +2645,9 @@ export const useMeetingStore = create<MeetingStore>()(
 
       searchClients: async (query: string) => {
         try {
-          const response = await fetch(`/api/zoho/potentials/search?q=${encodeURIComponent(query)}`);
+          const response = await fetch(
+            `/api/zoho/potentials/search?q=${encodeURIComponent(query)}`
+          );
           const data = await response.json();
 
           if (data.success && data.results) {
@@ -2277,7 +2664,7 @@ export const useMeetingStore = create<MeetingStore>()(
         // Zustand persist middleware handles localStorage automatically
         set({
           zohoClientsList: [],
-          zohoClientsCache: null
+          zohoClientsCache: null,
         });
         console.log('[ZohoClients] Cache cleared');
       },
@@ -2288,27 +2675,29 @@ export const useMeetingStore = create<MeetingStore>()(
 
       /**
        * Resets all meeting data while preserving Zoho identity information
-       * 
+       *
        * This function clears all discovery data (modules, painPoints, notes, etc.)
        * while keeping client identity info from Zoho (name, phone, email, recordId).
-       * 
+       *
        * What is preserved:
        * - clientName, meetingId, date
        * - zohoIntegration (recordId, contactInfo, lastSyncTime)
        * - phase, status (current state)
        * - dataVersion, supabaseId
-       * 
+       *
        * What is reset:
        * - modules (all 9 modules)
        * - painPoints, notes, timer
        * - customFieldValues, wizardState
        * - implementationSpec, developmentTracking
        * - phaseHistory (reset to current phase only)
-       * 
+       *
        * @param createBackup - Whether to create a backup before reset (default: true)
        * @returns Promise<boolean> - true if successful, false otherwise
        */
-      resetMeetingData: async (createBackup: boolean = true): Promise<boolean> => {
+      resetMeetingData: async (
+        createBackup: boolean = true
+      ): Promise<boolean> => {
         const state = get();
         const meeting = state.currentMeeting;
 
@@ -2320,14 +2709,22 @@ export const useMeetingStore = create<MeetingStore>()(
         try {
           // Step 1: Create backup if requested
           if (createBackup) {
-            const { createBackup: createBackupFn } = await import('../services/meetingBackupService');
+            const { createBackup: createBackupFn } = await import(
+              '../services/meetingBackupService'
+            );
             const backupResult = createBackupFn(meeting, 'pre_reset');
-            
+
             if (!backupResult.success) {
-              console.error('[ResetMeeting] Failed to create backup:', backupResult.error);
+              console.error(
+                '[ResetMeeting] Failed to create backup:',
+                backupResult.error
+              );
               // Continue anyway - user explicitly requested reset
             } else {
-              console.log('[ResetMeeting] ✓ Backup created:', backupResult.backupId);
+              console.log(
+                '[ResetMeeting] ✓ Backup created:',
+                backupResult.backupId
+              );
             }
           }
 
@@ -2339,27 +2736,30 @@ export const useMeetingStore = create<MeetingStore>()(
             clientName: meeting.clientName,
             date: meeting.date,
             dataVersion: meeting.dataVersion || 2,
-            
+
             // Preserve Zoho integration
             zohoIntegration: meeting.zohoIntegration,
-            
+
             // Preserve current phase/status
             phase: meeting.phase,
             status: meeting.status,
-            
+
             // Reset phaseHistory to current state only
-            phaseHistory: [{
-              fromPhase: null,
-              toPhase: meeting.phase,
-              timestamp: new Date(),
-              transitionedBy: meeting.zohoIntegration?.contactInfo?.email || 'system',
-              notes: 'Meeting data reset'
-            }],
-            
+            phaseHistory: [
+              {
+                fromPhase: null,
+                toPhase: meeting.phase,
+                timestamp: new Date(),
+                transitionedBy:
+                  meeting.zohoIntegration?.contactInfo?.email || 'system',
+                notes: 'Meeting data reset',
+              },
+            ],
+
             // Preserve database IDs
             supabaseId: meeting.supabaseId,
             updatedAt: new Date().toISOString(),
-            
+
             // Reset all discovery data
             modules: {
               overview: {},
@@ -2370,18 +2770,18 @@ export const useMeetingStore = create<MeetingStore>()(
               aiAgents: {},
               systems: {},
               roi: {},
-              planning: {}
+              planning: {},
             },
             painPoints: [],
             notes: '',
             timer: 0,
-            
+
             // Reset optional fields
             totalROI: undefined,
             customFieldValues: undefined,
             wizardState: undefined,
             implementationSpec: undefined,
-            developmentTracking: undefined
+            developmentTracking: undefined,
           };
 
           // Step 3: Update state
@@ -2389,7 +2789,7 @@ export const useMeetingStore = create<MeetingStore>()(
             currentMeeting: resetMeeting,
             meetings: state.meetings.map((m: Meeting) =>
               m.meetingId === resetMeeting.meetingId ? resetMeeting : m
-            )
+            ),
           }));
 
           // Step 5: Sync to Zoho if enabled
@@ -2416,7 +2816,6 @@ export const useMeetingStore = create<MeetingStore>()(
 
           console.log('[ResetMeeting] ✓ Meeting data reset successfully');
           return true;
-
         } catch (error) {
           console.error('[ResetMeeting] Failed to reset meeting data:', error);
           return false;
@@ -2425,13 +2824,15 @@ export const useMeetingStore = create<MeetingStore>()(
 
       /**
        * Restores a meeting from a backup
-       * 
+       *
        * @param backupId - The ID of the backup to restore
        * @returns Promise<boolean> - true if successful, false otherwise
        */
       restoreFromBackup: async (backupId: string): Promise<boolean> => {
         try {
-          const { restoreFromBackup: restoreBackupFn } = await import('../services/meetingBackupService');
+          const { restoreFromBackup: restoreBackupFn } = await import(
+            '../services/meetingBackupService'
+          );
           const result = restoreBackupFn(backupId);
 
           if (!result.success || !result.meeting) {
@@ -2446,7 +2847,7 @@ export const useMeetingStore = create<MeetingStore>()(
             currentMeeting: restoredMeeting,
             meetings: state.meetings.map((m: Meeting) =>
               m.meetingId === restoredMeeting.meetingId ? restoredMeeting : m
-            )
+            ),
           }));
 
           // Sync to Supabase if configured
@@ -2461,7 +2862,6 @@ export const useMeetingStore = create<MeetingStore>()(
 
           console.log('[RestoreBackup] ✓ Meeting restored successfully');
           return true;
-
         } catch (error) {
           console.error('[RestoreBackup] Failed to restore backup:', error);
           return false;
@@ -2470,7 +2870,7 @@ export const useMeetingStore = create<MeetingStore>()(
 
       /**
        * Gets available backups for the current meeting
-       * 
+       *
        * @returns Array of backup metadata
        */
       getAvailableBackups: () => {
@@ -2483,7 +2883,7 @@ export const useMeetingStore = create<MeetingStore>()(
           console.error('[GetBackups] Failed to get backups:', error);
           return [];
         }
-      }
+      },
     }),
     {
       name: 'discovery-assistant-storage',
@@ -2545,28 +2945,39 @@ export const useMeetingStore = create<MeetingStore>()(
 
         // Re-initialize transient caches (excluded from persistence)
         // These are runtime optimizations that don't survive serialization
-        state._validationCache = new Map<string, { result: boolean; timestamp: number }>();
+        state._validationCache = new Map<
+          string,
+          { result: boolean; timestamp: number }
+        >();
         state._lastLoggedState = {} as Record<string, boolean>;
         console.log('[Store] ✓ Transient caches reinitialized');
 
         // Migrate current meeting if needed
         if (state.currentMeeting && needsMigration(state.currentMeeting)) {
-          console.log(`[Store] Migrating current meeting (${state.currentMeeting.meetingId})...`);
+          console.log(
+            `[Store] Migrating current meeting (${state.currentMeeting.meetingId})...`
+          );
           const result = migrateMeetingData(state.currentMeeting);
 
           if (result.migrated) {
-            console.log(`[Store] ✓ Migration successful. Applied: ${result.migrationsApplied.join(', ')}`);
+            console.log(
+              `[Store] ✓ Migration successful. Applied: ${result.migrationsApplied.join(', ')}`
+            );
             state.currentMeeting = result.meeting;
           } else if (result.errors.length > 0) {
             console.error(`[Store] ✗ Migration failed:`, result.errors);
           }
         } else if (state.currentMeeting) {
-          console.log(`[Store] Current meeting is up to date (v${state.currentMeeting.dataVersion || 1})`);
+          console.log(
+            `[Store] Current meeting is up to date (v${state.currentMeeting.dataVersion || 1})`
+          );
         }
 
         // Migrate all meetings in the list
         if (state.meetings && state.meetings.length > 0) {
-          console.log(`[Store] Checking ${state.meetings.length} meetings for migration...`);
+          console.log(
+            `[Store] Checking ${state.meetings.length} meetings for migration...`
+          );
           let migratedCount = 0;
 
           state.meetings = state.meetings.map((meeting: any) => {
@@ -2576,7 +2987,10 @@ export const useMeetingStore = create<MeetingStore>()(
                 migratedCount++;
                 return result.meeting;
               } else if (result.errors.length > 0) {
-                console.error(`[Store] Migration failed for meeting ${meeting.meetingId}:`, result.errors);
+                console.error(
+                  `[Store] Migration failed for meeting ${meeting.meetingId}:`,
+                  result.errors
+                );
               }
             }
             return meeting;
@@ -2588,7 +3002,7 @@ export const useMeetingStore = create<MeetingStore>()(
         }
 
         console.log('[Store] Rehydration complete');
-      }
+      },
     }
   )
 );

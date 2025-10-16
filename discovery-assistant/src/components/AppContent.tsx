@@ -65,7 +65,8 @@ export const AppContent = () => {
   useSkipToContent();
 
   // Determine language for phase guard (English for Phase 3, Hebrew otherwise)
-  const phaseGuardLanguage = currentMeeting?.phase === 'development' ? 'en' : 'he';
+  const phaseGuardLanguage =
+    currentMeeting?.phase === 'development' ? 'en' : 'he';
 
   // Enable phase-based route guards
   usePhaseGuard(phaseGuardLanguage);
@@ -75,7 +76,9 @@ export const AppContent = () => {
     const meeting = currentMeeting;
 
     if (meeting?.zohoIntegration?.syncEnabled) {
-      logger.info('Starting auto-sync for meeting', { clientName: meeting.clientName });
+      logger.info('Starting auto-sync for meeting', {
+        clientName: meeting.clientName,
+      });
       autoSyncService.start();
     } else {
       logger.info('Stopping auto-sync');
@@ -90,33 +93,34 @@ export const AppContent = () => {
   // Mobile redirect logic
   useEffect(() => {
     // אם משתמש מובייל ולא נמצא כבר במובייל
-    if (isMobile && 
-        currentMeeting && 
-        !location.pathname.includes('/mobile/') &&
-        !location.pathname.includes('/login')) {
+    if (
+      isMobile &&
+      currentMeeting &&
+      !location.pathname.includes('/mobile/') &&
+      !location.pathname.includes('/login')
+    ) {
       logger.info('Mobile user detected, redirecting to mobile quick form');
       navigate('/mobile/quick');
     }
   }, [isMobile, currentMeeting, location.pathname, navigate]);
 
   // Determine if we should show the phase navigator
-  const showPhaseNavigator = currentMeeting &&
+  const showPhaseNavigator =
+    currentMeeting &&
     !location.pathname.includes('/login') &&
     !location.pathname.includes('/clients') &&
     !location.pathname.includes('/mobile/') &&
     !isMobile;
 
   // Determine language for phase navigator (English for Phase 3, Hebrew otherwise)
-  const phaseNavigatorLanguage = currentMeeting?.phase === 'development' ? 'en' : 'he';
+  const phaseNavigatorLanguage =
+    currentMeeting?.phase === 'development' ? 'en' : 'he';
 
   return (
     <AppLayout>
       {/* Phase Navigator - shown on all pages except login and clients list */}
       {showPhaseNavigator && (
-        <PhaseNavigator
-          language={phaseNavigatorLanguage}
-          showProgress={true}
-        />
+        <PhaseNavigator language={phaseNavigatorLanguage} showProgress={true} />
       )}
 
       {/* Developer Feedback Button - shown on all pages except login and clients list */}
@@ -134,30 +138,38 @@ export const AppContent = () => {
         <Route path="/wizard/:stepId" element={<WizardMode />} />
         <Route path="/settings/ai" element={<AISettings />} />
         <Route path="/module/overview" element={<OverviewModule />} />
-        <Route path="/module/essentialDetails" element={<EssentialDetailsModule />} />
+        <Route
+          path="/module/essentialDetails"
+          element={<EssentialDetailsModule />}
+        />
         <Route path="/module/leadsAndSales" element={<LeadsAndSalesModule />} />
-        <Route path="/module/customerService" element={<CustomerServiceModule />} />
+        <Route
+          path="/module/customerService"
+          element={<CustomerServiceModule />}
+        />
         <Route path="/module/operations" element={<OperationsModule />} />
         <Route path="/module/reporting" element={<ReportingModule />} />
         <Route path="/module/aiAgents" element={<AIAgentsModule />} />
         <Route path="/module/systems" element={<SystemsModuleEnhanced />} />
         <Route path="/module/roi" element={<ROIModule />} />
         <Route path="/module/proposal" element={<ProposalModule />} />
-        <Route path="/module/planning" element={<ProposalModule />} /> {/* Keep for backward compatibility */}
-
+        <Route path="/module/planning" element={<ProposalModule />} />{' '}
+        {/* Keep for backward compatibility */}
         {/* Mobile Quick Form - גרסת מובייל מיני */}
         <Route path="/mobile/quick" element={<MobileQuickForm />} />
-
         {/* Requirements Flow - Protected: Discovery phase, complete status */}
         <Route
           path="/requirements"
           element={
             <ProtectedRoute
               requiredPhase="discovery"
-              allowedStatuses={['discovery_complete', 'awaiting_client_decision']}
+              allowedStatuses={[
+                'discovery_complete',
+                'awaiting_client_decision',
+              ]}
               errorMessage={{
                 he: 'יש להשלים את שלב הגילוי לפני איסוף דרישות',
-                en: 'Complete discovery phase before requirements collection'
+                en: 'Complete discovery phase before requirements collection',
               }}
               language={phaseGuardLanguage}
             >
@@ -165,7 +177,6 @@ export const AppContent = () => {
             </ProtectedRoute>
           }
         />
-
         {/* Client Approval - Protected: Discovery phase, awaiting decision */}
         <Route
           path="/approval"
@@ -175,7 +186,7 @@ export const AppContent = () => {
               allowedStatuses={['awaiting_client_decision', 'client_approved']}
               errorMessage={{
                 he: 'דף אישור לקוח זמין רק לאחר השלמת הגילוי',
-                en: 'Client approval page available only after discovery completion'
+                en: 'Client approval page available only after discovery completion',
               }}
               language={phaseGuardLanguage}
             >
@@ -183,7 +194,6 @@ export const AppContent = () => {
             </ProtectedRoute>
           }
         />
-
         {/* Phase 2 Routes - Protected: Implementation Spec phase */}
         <Route
           path="/phase2"
@@ -192,7 +202,7 @@ export const AppContent = () => {
               requiredPhase="implementation_spec"
               errorMessage={{
                 he: 'יש לקבל אישור לקוח ולעבור לשלב מפרט היישום',
-                en: 'Client approval required to access implementation spec phase'
+                en: 'Client approval required to access implementation spec phase',
               }}
               language={phaseGuardLanguage}
             >
@@ -203,7 +213,10 @@ export const AppContent = () => {
         <Route
           path="/phase2/systems"
           element={
-            <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
+            <ProtectedRoute
+              requiredPhase="implementation_spec"
+              language={phaseGuardLanguage}
+            >
               <SystemDeepDiveSelection />
             </ProtectedRoute>
           }
@@ -211,7 +224,10 @@ export const AppContent = () => {
         <Route
           path="/phase2/systems/:systemId/dive"
           element={
-            <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
+            <ProtectedRoute
+              requiredPhase="implementation_spec"
+              language={phaseGuardLanguage}
+            >
               <SystemDeepDive />
             </ProtectedRoute>
           }
@@ -219,7 +235,10 @@ export const AppContent = () => {
         <Route
           path="/phase2/integrations/new"
           element={
-            <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
+            <ProtectedRoute
+              requiredPhase="implementation_spec"
+              language={phaseGuardLanguage}
+            >
               <IntegrationFlowBuilder />
             </ProtectedRoute>
           }
@@ -227,7 +246,10 @@ export const AppContent = () => {
         <Route
           path="/phase2/integrations/:flowId"
           element={
-            <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
+            <ProtectedRoute
+              requiredPhase="implementation_spec"
+              language={phaseGuardLanguage}
+            >
               <IntegrationFlowBuilder />
             </ProtectedRoute>
           }
@@ -235,7 +257,10 @@ export const AppContent = () => {
         <Route
           path="/phase2/agents/new"
           element={
-            <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
+            <ProtectedRoute
+              requiredPhase="implementation_spec"
+              language={phaseGuardLanguage}
+            >
               <AIAgentDetailedSpec />
             </ProtectedRoute>
           }
@@ -243,7 +268,10 @@ export const AppContent = () => {
         <Route
           path="/phase2/agents/:agentId"
           element={
-            <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
+            <ProtectedRoute
+              requiredPhase="implementation_spec"
+              language={phaseGuardLanguage}
+            >
               <AIAgentDetailedSpec />
             </ProtectedRoute>
           }
@@ -251,7 +279,10 @@ export const AppContent = () => {
         <Route
           path="/phase2/automations/auto-crm-update"
           element={
-            <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
+            <ProtectedRoute
+              requiredPhase="implementation_spec"
+              language={phaseGuardLanguage}
+            >
               <AutoCRMUpdateSpec />
             </ProtectedRoute>
           }
@@ -259,7 +290,10 @@ export const AppContent = () => {
         <Route
           path="/phase2/automations/ai-triage"
           element={
-            <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
+            <ProtectedRoute
+              requiredPhase="implementation_spec"
+              language={phaseGuardLanguage}
+            >
               <AITriageSpec />
             </ProtectedRoute>
           }
@@ -267,7 +301,10 @@ export const AppContent = () => {
         <Route
           path="/phase2/acceptance"
           element={
-            <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
+            <ProtectedRoute
+              requiredPhase="implementation_spec"
+              language={phaseGuardLanguage}
+            >
               <AcceptanceCriteriaBuilder />
             </ProtectedRoute>
           }
@@ -275,7 +312,10 @@ export const AppContent = () => {
         <Route
           path="/phase2/service-requirements"
           element={
-            <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
+            <ProtectedRoute
+              requiredPhase="implementation_spec"
+              language={phaseGuardLanguage}
+            >
               <ServiceRequirementsRouter />
             </ProtectedRoute>
           }
@@ -283,12 +323,14 @@ export const AppContent = () => {
         <Route
           path="/phase2/service-requirements/:serviceId"
           element={
-            <ProtectedRoute requiredPhase="implementation_spec" language={phaseGuardLanguage}>
+            <ProtectedRoute
+              requiredPhase="implementation_spec"
+              language={phaseGuardLanguage}
+            >
               <ServiceRequirementsRouter />
             </ProtectedRoute>
           }
         />
-
         {/* Phase 3 Routes - Protected: Development phase */}
         <Route
           path="/phase3"
@@ -297,7 +339,7 @@ export const AppContent = () => {
               requiredPhase="development"
               errorMessage={{
                 he: 'יש להשלים את מפרט היישום לפני גישה לשלב הפיתוח',
-                en: 'Implementation spec must be complete to access development phase'
+                en: 'Implementation spec must be complete to access development phase',
               }}
               language="en"
             >
@@ -337,10 +379,8 @@ export const AppContent = () => {
             </ProtectedRoute>
           }
         />
-
         {/* Developer Feedback Admin */}
         <Route path="/dev/feedback" element={<FeedbackViewer />} />
-
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 

@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react';
 import { User } from '@supabase/supabase-js';
 import {
   supabase,
@@ -9,7 +15,7 @@ import {
   resetPassword as supabaseResetPassword,
   getSession,
   getUser,
-  onAuthStateChange
+  onAuthStateChange,
 } from '../lib/supabase';
 import type { Profile } from '../types/database';
 
@@ -19,11 +25,23 @@ interface AuthContextType {
   loading: boolean;
   isAuthenticated: boolean;
   isSupabaseEnabled: boolean;
-  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signUp: (email: string, password: string, fullName?: string, company?: string) => Promise<{ success: boolean; error?: string }>;
+  signIn: (
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; error?: string }>;
+  signUp: (
+    email: string,
+    password: string,
+    fullName?: string,
+    company?: string
+  ) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
-  updateProfile: (updates: Partial<Profile>) => Promise<{ success: boolean; error?: string }>;
+  resetPassword: (
+    email: string
+  ) => Promise<{ success: boolean; error?: string }>;
+  updateProfile: (
+    updates: Partial<Profile>
+  ) => Promise<{ success: boolean; error?: string }>;
   refreshSession: () => Promise<void>;
 }
 
@@ -48,27 +66,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isSupabaseEnabled] = useState(() => isSupabaseConfigured());
 
   // Fetch user profile from database
-  const fetchProfile = useCallback(async (userId: string) => {
-    if (!isSupabaseEnabled) return null;
+  const fetchProfile = useCallback(
+    async (userId: string) => {
+      if (!isSupabaseEnabled) return null;
 
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single();
 
-      if (error) {
+        if (error) {
+          console.error('Error fetching profile:', error);
+          return null;
+        }
+
+        return data as Profile;
+      } catch (error) {
         console.error('Error fetching profile:', error);
         return null;
       }
-
-      return data as Profile;
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      return null;
-    }
-  }, [isSupabaseEnabled]);
+    },
+    [isSupabaseEnabled]
+  );
 
   // Initialize auth state
   useEffect(() => {
@@ -118,76 +139,80 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [isSupabaseEnabled, fetchProfile]);
 
   // Sign in
-  const signIn = useCallback(async (email: string, password: string) => {
-    if (!isSupabaseEnabled) {
-      // Fallback for local development
-      const mockUser = {
-        id: 'local-user',
-        email,
-        created_at: new Date().toISOString(),
-        app_metadata: {},
-        user_metadata: { full_name: 'Local User' },
-        aud: 'authenticated',
-        role: 'authenticated'
-      } as User;
+  const signIn = useCallback(
+    async (email: string, password: string) => {
+      if (!isSupabaseEnabled) {
+        // Fallback for local development
+        const mockUser = {
+          id: 'local-user',
+          email,
+          created_at: new Date().toISOString(),
+          app_metadata: {},
+          user_metadata: { full_name: 'Local User' },
+          aud: 'authenticated',
+          role: 'authenticated',
+        } as User;
 
-      setUser(mockUser);
-      return { success: true };
-    }
+        setUser(mockUser);
+        return { success: true };
+      }
 
-    const result = await supabaseSignIn(email, password);
+      const result = await supabaseSignIn(email, password);
 
-    if (result.success && result.user) {
-      setUser(result.user);
-      const profileData = await fetchProfile(result.user.id);
-      setProfile(profileData);
-    }
+      if (result.success && result.user) {
+        setUser(result.user);
+        const profileData = await fetchProfile(result.user.id);
+        setProfile(profileData);
+      }
 
-    return result;
-  }, [isSupabaseEnabled, fetchProfile]);
+      return result;
+    },
+    [isSupabaseEnabled, fetchProfile]
+  );
 
   // Sign up
-  const signUp = useCallback(async (
-    email: string,
-    password: string,
-    fullName?: string,
-    company?: string
-  ) => {
-    if (!isSupabaseEnabled) {
-      return { success: false, error: 'Supabase is not configured' };
-    }
+  const signUp = useCallback(
+    async (
+      email: string,
+      password: string,
+      fullName?: string,
+      company?: string
+    ) => {
+      if (!isSupabaseEnabled) {
+        return { success: false, error: 'Supabase is not configured' };
+      }
 
-    const metadata = {
-      full_name: fullName,
-      company_name: company
-    };
+      const metadata = {
+        full_name: fullName,
+        company_name: company,
+      };
 
-    const result = await supabaseSignUp(email, password, metadata);
+      const result = await supabaseSignUp(email, password, metadata);
 
-    if (result.success && result.user) {
-      // Create profile record
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert([
+      if (result.success && result.user) {
+        // Create profile record
+        const { error: profileError } = await supabase.from('profiles').insert([
           {
             id: result.user.id,
             email: result.user.email!,
             full_name: fullName || null,
-            company_name: company || null
-          }
+            company_name: company || null,
+          },
         ]);
 
-      if (profileError) {
-        console.error('Error creating profile:', profileError);
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+        }
+
+        setUser(result.user);
+        const profileData = await fetchProfile(result.user.id);
+        setProfile(profileData);
       }
 
-      setUser(result.user);
-      const profileData = await fetchProfile(result.user.id);
-      setProfile(profileData);
-    }
-
-    return result;
-  }, [isSupabaseEnabled, fetchProfile]);
+      return result;
+    },
+    [isSupabaseEnabled, fetchProfile]
+  );
 
   // Sign out
   const signOut = useCallback(async () => {
@@ -203,41 +228,47 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [isSupabaseEnabled]);
 
   // Reset password
-  const resetPassword = useCallback(async (email: string) => {
-    if (!isSupabaseEnabled) {
-      return { success: false, error: 'Supabase is not configured' };
-    }
-
-    return await supabaseResetPassword(email);
-  }, [isSupabaseEnabled]);
-
-  // Update profile
-  const updateProfile = useCallback(async (updates: Partial<Profile>) => {
-    if (!isSupabaseEnabled || !user) {
-      return { success: false, error: 'Not authenticated' };
-    }
-
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id)
-        .select()
-        .single();
-
-      if (error) {
-        return { success: false, error: error.message };
+  const resetPassword = useCallback(
+    async (email: string) => {
+      if (!isSupabaseEnabled) {
+        return { success: false, error: 'Supabase is not configured' };
       }
 
-      setProfile(data as Profile);
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: 'Failed to update profile' };
-    }
-  }, [isSupabaseEnabled, user]);
+      return await supabaseResetPassword(email);
+    },
+    [isSupabaseEnabled]
+  );
+
+  // Update profile
+  const updateProfile = useCallback(
+    async (updates: Partial<Profile>) => {
+      if (!isSupabaseEnabled || !user) {
+        return { success: false, error: 'Not authenticated' };
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .update({
+            ...updates,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', user.id)
+          .select()
+          .single();
+
+        if (error) {
+          return { success: false, error: error.message };
+        }
+
+        setProfile(data as Profile);
+        return { success: true };
+      } catch (error) {
+        return { success: false, error: 'Failed to update profile' };
+      }
+    },
+    [isSupabaseEnabled, user]
+  );
 
   // Refresh session
   const refreshSession = useCallback(async () => {
@@ -262,7 +293,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signOut,
     resetPassword,
     updateProfile,
-    refreshSession
+    refreshSession,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

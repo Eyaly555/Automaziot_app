@@ -30,7 +30,10 @@ export class AppErrorBoundary extends React.Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4" dir="rtl">
+        <div
+          className="min-h-screen bg-gray-50 flex items-center justify-center p-4"
+          dir="rtl"
+        >
           <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
             <div className="flex items-center justify-center mb-4">
               <AlertCircle className="w-16 h-16 text-red-500" />
@@ -56,7 +59,7 @@ export class AppErrorBoundary extends React.Component<Props, State> {
                 טען מחדש
               </button>
               <button
-                onClick={() => window.location.href = '/dashboard'}
+                onClick={() => (window.location.href = '/dashboard')}
                 className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
               >
                 חזור לדשבורד

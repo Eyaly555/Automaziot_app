@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { Check, Circle, SkipForward, ChevronDown, ChevronLeft } from 'lucide-react';
+import {
+  Check,
+  Circle,
+  SkipForward,
+  ChevronDown,
+  ChevronLeft,
+} from 'lucide-react';
 import { WIZARD_STEPS } from '../../config/wizardSteps';
 
 interface WizardSidebarProps {
@@ -13,18 +19,23 @@ export const WizardSidebar: React.FC<WizardSidebarProps> = ({
   currentStep,
   completedSteps,
   skippedSteps,
-  onStepClick
+  onStepClick,
 }) => {
-  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(
+    new Set()
+  );
 
   // Group steps by module
-  const moduleGroups = WIZARD_STEPS.reduce((acc, step) => {
-    if (!acc[step.moduleId]) {
-      acc[step.moduleId] = [];
-    }
-    acc[step.moduleId].push(step);
-    return acc;
-  }, {} as Record<string, typeof WIZARD_STEPS>);
+  const moduleGroups = WIZARD_STEPS.reduce(
+    (acc, step) => {
+      if (!acc[step.moduleId]) {
+        acc[step.moduleId] = [];
+      }
+      acc[step.moduleId].push(step);
+      return acc;
+    },
+    {} as Record<string, typeof WIZARD_STEPS>
+  );
 
   const moduleNames: Record<string, string> = {
     overview: 'סקירה כללית',
@@ -35,7 +46,7 @@ export const WizardSidebar: React.FC<WizardSidebarProps> = ({
     aiAgents: 'סוכני AI',
     systems: 'מערכות',
     roi: 'החזר השקעה',
-    planning: 'תכנון'
+    planning: 'תכנון',
   };
 
   const getStepStatus = (stepId: string) => {
@@ -72,7 +83,7 @@ export const WizardSidebar: React.FC<WizardSidebarProps> = ({
   };
 
   const toggleModule = (moduleId: string) => {
-    setExpandedModules(prev => {
+    setExpandedModules((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(moduleId)) {
         newSet.delete(moduleId);
@@ -85,9 +96,11 @@ export const WizardSidebar: React.FC<WizardSidebarProps> = ({
 
   // Auto-expand module with current step
   React.useEffect(() => {
-    const currentStepData = WIZARD_STEPS.find(s => s.id === currentStep);
+    const currentStepData = WIZARD_STEPS.find((s) => s.id === currentStep);
     if (currentStepData) {
-      setExpandedModules(prev => new Set([...prev, currentStepData.moduleId]));
+      setExpandedModules(
+        (prev) => new Set([...prev, currentStepData.moduleId])
+      );
     }
   }, [currentStep]);
 
@@ -104,12 +117,18 @@ export const WizardSidebar: React.FC<WizardSidebarProps> = ({
         <div className="space-y-2">
           {Object.entries(moduleGroups).map(([moduleId, steps]) => {
             const isExpanded = expandedModules.has(moduleId);
-            const moduleCompleted = steps.every(step =>
-              completedSteps.includes(step.id) || skippedSteps.includes(step.id)
+            const moduleCompleted = steps.every(
+              (step) =>
+                completedSteps.includes(step.id) ||
+                skippedSteps.includes(step.id)
             );
-            const moduleInProgress = steps.some(step => step.id === currentStep);
-            const moduleCompletedCount = steps.filter(step =>
-              completedSteps.includes(step.id) || skippedSteps.includes(step.id)
+            const moduleInProgress = steps.some(
+              (step) => step.id === currentStep
+            );
+            const moduleCompletedCount = steps.filter(
+              (step) =>
+                completedSteps.includes(step.id) ||
+                skippedSteps.includes(step.id)
             ).length;
 
             return (
@@ -120,11 +139,12 @@ export const WizardSidebar: React.FC<WizardSidebarProps> = ({
                   className={`
                     w-full flex items-center justify-between p-3 rounded-lg
                     transition-all duration-200 hover:shadow-md
-                    ${moduleCompleted
-                      ? 'bg-green-50 border border-green-200 hover:bg-green-100'
-                      : moduleInProgress
-                        ? 'bg-blue-50 border-2 border-blue-400'
-                        : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
+                    ${
+                      moduleCompleted
+                        ? 'bg-green-50 border border-green-200 hover:bg-green-100'
+                        : moduleInProgress
+                          ? 'bg-blue-50 border-2 border-blue-400'
+                          : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
                     }
                   `}
                 >
@@ -154,13 +174,18 @@ export const WizardSidebar: React.FC<WizardSidebarProps> = ({
                     )}
 
                     {/* Module Name */}
-                    <span className={`
+                    <span
+                      className={`
                       text-sm font-semibold text-right flex-1
-                      ${moduleCompleted ? 'text-green-700' :
-                        moduleInProgress ? 'text-blue-700' :
-                        'text-gray-700'
+                      ${
+                        moduleCompleted
+                          ? 'text-green-700'
+                          : moduleInProgress
+                            ? 'text-blue-700'
+                            : 'text-gray-700'
                       }
-                    `}>
+                    `}
+                    >
                       {moduleNames[moduleId]}
                     </span>
                   </div>
@@ -188,32 +213,46 @@ export const WizardSidebar: React.FC<WizardSidebarProps> = ({
                             transition-all duration-200
                             ${isClickable ? 'cursor-pointer hover:shadow-sm' : 'cursor-not-allowed opacity-50'}
                             ${status === 'current' ? 'ring-2 ring-blue-500 bg-blue-50' : ''}
-                            ${status === 'completed' ? 'bg-green-50 hover:bg-green-100' :
-                              status === 'skipped' ? 'bg-yellow-50 hover:bg-yellow-100' :
-                              status === 'current' ? 'bg-blue-50' :
-                              'bg-gray-50 hover:bg-gray-100'
+                            ${
+                              status === 'completed'
+                                ? 'bg-green-50 hover:bg-green-100'
+                                : status === 'skipped'
+                                  ? 'bg-yellow-50 hover:bg-yellow-100'
+                                  : status === 'current'
+                                    ? 'bg-blue-50'
+                                    : 'bg-gray-50 hover:bg-gray-100'
                             }
                           `}
                           title={step.sectionName}
                         >
-                          <span className={`
+                          <span
+                            className={`
                             flex items-center justify-center w-5 h-5 rounded-full flex-shrink-0
                             ${getStepColor(status)}
-                          `}>
+                          `}
+                          >
                             {getStepIcon(status)}
                           </span>
-                          <span className={`
+                          <span
+                            className={`
                             text-right flex-1
-                            ${status === 'completed' ? 'text-green-700' :
-                              status === 'skipped' ? 'text-yellow-700' :
-                              status === 'current' ? 'text-blue-700 font-semibold' :
-                              'text-gray-600'
+                            ${
+                              status === 'completed'
+                                ? 'text-green-700'
+                                : status === 'skipped'
+                                  ? 'text-yellow-700'
+                                  : status === 'current'
+                                    ? 'text-blue-700 font-semibold'
+                                    : 'text-gray-600'
                             }
-                          `}>
+                          `}
+                          >
                             {step.sectionName}
                           </span>
                           {step.isOptional && status === 'pending' && (
-                            <span className="text-gray-400 text-xs flex-shrink-0">(אופ׳)</span>
+                            <span className="text-gray-400 text-xs flex-shrink-0">
+                              (אופ׳)
+                            </span>
                           )}
                         </button>
                       );
@@ -233,14 +272,16 @@ export const WizardSidebar: React.FC<WizardSidebarProps> = ({
           className={`
             w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg
             transition-all duration-200 hover:shadow-md font-medium
-            ${currentStep === 'summary'
-              ? 'bg-blue-500 text-white ring-2 ring-blue-500 ring-offset-2'
-              : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50'
+            ${
+              currentStep === 'summary'
+                ? 'bg-blue-500 text-white ring-2 ring-blue-500 ring-offset-2'
+                : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50'
             }
           `}
         >
           <span>סיכום וסקירה</span>
-          {completedSteps.length === WIZARD_STEPS.filter(s => !s.isOptional).length && (
+          {completedSteps.length ===
+            WIZARD_STEPS.filter((s) => !s.isOptional).length && (
             <Check className="w-5 h-5" />
           )}
         </button>

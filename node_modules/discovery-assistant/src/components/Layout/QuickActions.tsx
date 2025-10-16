@@ -5,7 +5,7 @@ import { useMeetingStore } from '../../store/useMeetingStore';
 import {
   exportDiscoveryPDF,
   exportImplementationSpecPDF,
-  exportDevelopmentPDF
+  exportDevelopmentPDF,
 } from '../../utils/exportTechnicalSpec';
 import { SendNoteButton } from '../Common/SendNoteButton';
 import { ZohoNoteComposer } from '../Common/ZohoNoteComposer';
@@ -18,18 +18,24 @@ import { useZohoNote } from '../../hooks/useZohoNote';
  */
 export const QuickActions: React.FC = () => {
   const { currentMeeting, syncMeeting } = useMeetingStore();
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
-  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'synced'>('idle');
-  const [exportStatus, setExportStatus] = useState<'idle' | 'exporting'>('idle');
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>(
+    'idle'
+  );
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'synced'>(
+    'idle'
+  );
+  const [exportStatus, setExportStatus] = useState<'idle' | 'exporting'>(
+    'idle'
+  );
 
   // Zoho Note functionality
-  const { 
-    isOpen: isNoteComposerOpen, 
-    suggestedTitle, 
-    suggestedContent, 
-    openComposer, 
+  const {
+    isOpen: isNoteComposerOpen,
+    suggestedTitle,
+    suggestedContent,
+    openComposer,
     closeComposer,
-    handleSuccess 
+    handleSuccess,
   } = useZohoNote('dashboard');
 
   const isEnglish = currentMeeting?.phase === 'development';
@@ -107,9 +113,12 @@ export const QuickActions: React.FC = () => {
           ariaLabel={isEnglish ? 'Save' : 'שמור'}
         >
           {saveStatus === 'saved'
-            ? (isEnglish ? 'Saved' : 'נשמר')
-            : (isEnglish ? 'Save' : 'שמור')
-          }
+            ? isEnglish
+              ? 'Saved'
+              : 'נשמר'
+            : isEnglish
+              ? 'Save'
+              : 'שמור'}
         </Button>
 
         {/* Vertical divider */}
@@ -125,9 +134,12 @@ export const QuickActions: React.FC = () => {
           ariaLabel={isEnglish ? 'Sync' : 'סנכרן'}
         >
           {syncStatus === 'synced'
-            ? (isEnglish ? 'Synced' : 'סונכרן')
-            : (isEnglish ? 'Sync' : 'סנכרן')
-          }
+            ? isEnglish
+              ? 'Synced'
+              : 'סונכרן'
+            : isEnglish
+              ? 'Sync'
+              : 'סנכרן'}
         </Button>
 
         {/* Vertical divider */}

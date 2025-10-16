@@ -12,7 +12,12 @@
 
 import React from 'react';
 import { useFormValidation } from '../../hooks/useFormValidation';
-import { emailRules, phoneRules, numberRules, hebrewTextRules } from '../../utils/validation';
+import {
+  emailRules,
+  phoneRules,
+  numberRules,
+  hebrewTextRules,
+} from '../../utils/validation';
 import { Input } from '../Common/FormFields/Input';
 import { TextField } from '../Common/FormFields/TextField';
 import { SelectField } from '../Common/FormFields/SelectField';
@@ -48,7 +53,7 @@ export const ValidatedFormExample: React.FC = () => {
     handleChange,
     handleBlur,
     handleSubmit,
-    getFieldProps
+    getFieldProps,
   } = useFormValidation<ExampleFormValues>({
     initialValues: {
       clientName: '',
@@ -57,42 +62,40 @@ export const ValidatedFormExample: React.FC = () => {
       businessType: '',
       employees: 0,
       description: '',
-      website: ''
+      website: '',
     },
     validationRules: {
       clientName: [
         ...hebrewTextRules,
-        { type: 'required', message: 'שם לקוח הוא שדה חובה' }
+        { type: 'required', message: 'שם לקוח הוא שדה חובה' },
       ],
       email: [
         ...emailRules,
-        { type: 'required', message: 'כתובת אימייל היא שדה חובה' }
+        { type: 'required', message: 'כתובת אימייל היא שדה חובה' },
       ],
       phone: [
         ...phoneRules,
-        { type: 'required', message: 'מספר טלפון הוא שדה חובה' }
+        { type: 'required', message: 'מספר טלפון הוא שדה חובה' },
       ],
-      businessType: [
-        { type: 'required', message: 'סוג העסק הוא שדה חובה' }
-      ],
+      businessType: [{ type: 'required', message: 'סוג העסק הוא שדה חובה' }],
       employees: [
         { type: 'required', message: 'מספר עובדים הוא שדה חובה' },
         { type: 'min', value: 1, message: 'מספר עובדים חייב להיות לפחות 1' },
-        { type: 'max', value: 10000, message: 'מספר עובדים לא יכול להיות יותר מ-10000' }
+        {
+          type: 'max',
+          value: 10000,
+          message: 'מספר עובדים לא יכול להיות יותר מ-10000',
+        },
       ],
-      description: [
-        ...hebrewTextRules
-      ],
-      website: [
-        { type: 'url', message: 'כתובת אתר לא תקינה' }
-      ]
+      description: [...hebrewTextRules],
+      website: [{ type: 'url', message: 'כתובת אתר לא תקינה' }],
     },
     onSubmit: async (values) => {
       console.log('Form submitted with values:', values);
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       alert('טופס נשלח בהצלחה!');
-    }
+    },
   });
 
   return (
@@ -150,7 +153,7 @@ export const ValidatedFormExample: React.FC = () => {
               { value: 'b2b', label: 'B2B - עסק לעסק' },
               { value: 'b2c', label: 'B2C - עסק לצרכן' },
               { value: 'b2b2c', label: 'B2B2C - משולב' },
-              { value: 'saas', label: 'SaaS' }
+              { value: 'saas', label: 'SaaS' },
             ]}
             required
             error={!!errors.businessType}
@@ -196,9 +199,10 @@ export const ValidatedFormExample: React.FC = () => {
               disabled={!isValid || isSubmitting}
               className={`
                 flex-1 px-6 py-3 rounded-lg font-medium transition-all duration-200
-                ${isValid && !isSubmitting
-                  ? 'bg-primary text-white hover:bg-primary-dark shadow-lg hover:shadow-xl'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                ${
+                  isValid && !isSubmitting
+                    ? 'bg-primary text-white hover:bg-primary-dark shadow-lg hover:shadow-xl'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }
               `}
             >
@@ -216,7 +220,9 @@ export const ValidatedFormExample: React.FC = () => {
 
           {/* Validation Status */}
           <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-medium text-gray-700 mb-2">סטטוס Validation:</h3>
+            <h3 className="font-medium text-gray-700 mb-2">
+              סטטוס Validation:
+            </h3>
             <ul className="space-y-1 text-sm">
               <li className={isValid ? 'text-green-600' : 'text-red-600'}>
                 {isValid ? '✓ טופס תקין' : '✗ יש שגיאות בטופס'}
@@ -246,9 +252,7 @@ export const ValidatedFormExample: React.FC = () => {
 
       {/* Usage Instructions */}
       <div className="mt-8 bg-blue-50 rounded-lg p-6">
-        <h3 className="text-lg font-bold text-blue-900 mb-3">
-          הוראות שימוש
-        </h3>
+        <h3 className="text-lg font-bold text-blue-900 mb-3">הוראות שימוש</h3>
         <ol className="list-decimal list-inside space-y-2 text-sm text-blue-800">
           <li>מלא את כל השדות הנדרשים (מסומנים ב-*)</li>
           <li>Validation מתבצע בזמן אמת לאחר שנגעת בשדה</li>

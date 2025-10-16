@@ -14,7 +14,7 @@ export interface SendNoteButtonProps {
 
 /**
  * SendNoteButton - Reusable button for triggering Zoho note composer
- * 
+ *
  * Usage:
  * ```tsx
  * const { openComposer } = useZohoNote('dashboard');
@@ -28,7 +28,7 @@ export const SendNoteButton: React.FC<SendNoteButtonProps> = ({
   showIcon = true,
   label,
   disabled = false,
-  className = ''
+  className = '',
 }) => {
   return (
     <Button
@@ -44,4 +44,3 @@ export const SendNoteButton: React.FC<SendNoteButtonProps> = ({
     </Button>
   );
 };
-

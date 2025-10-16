@@ -16,7 +16,8 @@ export const IncompleteServicesAlert: React.FC = () => {
   const { currentMeeting } = useMeetingStore();
 
   // Get purchased services and validate completion
-  const purchasedServices = currentMeeting?.modules?.proposal?.purchasedServices || [];
+  const purchasedServices =
+    currentMeeting?.modules?.proposal?.purchasedServices || [];
   const validation = validateServiceRequirements(
     purchasedServices,
     currentMeeting?.implementationSpec || {}
@@ -28,7 +29,10 @@ export const IncompleteServicesAlert: React.FC = () => {
   }
 
   return (
-    <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg" dir="rtl">
+    <div
+      className="p-4 bg-orange-50 border border-orange-200 rounded-lg"
+      dir="rtl"
+    >
       <div className="flex items-start gap-3">
         <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
         <div className="flex-1">
@@ -36,10 +40,11 @@ export const IncompleteServicesAlert: React.FC = () => {
             יש שירותים שטרם הושלמו
           </h4>
           <p className="text-sm text-orange-800 mt-1">
-            לא ניתן לעבור לשלב הפיתוח לפני השלמת הפרטים הטכניים עבור כל השירותים:
+            לא ניתן לעבור לשלב הפיתוח לפני השלמת הפרטים הטכניים עבור כל
+            השירותים:
           </p>
           <ul className="list-disc list-inside mt-2 text-sm text-orange-800 space-y-1">
-            {validation.missingServices.map(service => (
+            {validation.missingServices.map((service) => (
               <li key={service}>{service}</li>
             ))}
           </ul>
@@ -49,7 +54,8 @@ export const IncompleteServicesAlert: React.FC = () => {
                 <CheckCircle className="w-4 h-4 text-green-600" />
               )}
               <span className="text-orange-700 font-medium">
-                התקדמות: {validation.completedCount} מתוך {validation.totalCount} שירותים הושלמו
+                התקדמות: {validation.completedCount} מתוך{' '}
+                {validation.totalCount} שירותים הושלמו
               </span>
             </div>
           </div>
@@ -68,7 +74,8 @@ export const IncompleteServicesAlert: React.FC = () => {
 export const CompletionProgressBar: React.FC = () => {
   const { currentMeeting } = useMeetingStore();
 
-  const purchasedServices = currentMeeting?.modules?.proposal?.purchasedServices || [];
+  const purchasedServices =
+    currentMeeting?.modules?.proposal?.purchasedServices || [];
   const validation = validateServiceRequirements(
     purchasedServices,
     currentMeeting?.implementationSpec || {}
@@ -78,9 +85,10 @@ export const CompletionProgressBar: React.FC = () => {
     return null;
   }
 
-  const percentage = validation.totalCount > 0
-    ? Math.round((validation.completedCount / validation.totalCount) * 100)
-    : 0;
+  const percentage =
+    validation.totalCount > 0
+      ? Math.round((validation.completedCount / validation.totalCount) * 100)
+      : 0;
 
   const isComplete = validation.isValid;
 
@@ -104,7 +112,9 @@ export const CompletionProgressBar: React.FC = () => {
       </div>
       <div className="mt-1 text-xs text-gray-600 text-right">
         {isComplete ? (
-          <span className="text-green-600 font-medium">✓ כל השירותים הושלמו</span>
+          <span className="text-green-600 font-medium">
+            ✓ כל השירותים הושלמו
+          </span>
         ) : (
           <span>נותרו {validation.missingServices.length} שירותים להשלמה</span>
         )}

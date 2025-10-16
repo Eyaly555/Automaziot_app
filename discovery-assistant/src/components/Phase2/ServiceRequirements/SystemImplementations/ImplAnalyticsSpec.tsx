@@ -25,35 +25,35 @@ export function ImplAnalyticsSpec() {
     platform: 'google_analytics_4',
     adminAccess: {
       email: '',
-      role: 'administrator'
+      role: 'administrator',
     },
     propertyConfig: {},
     integration: {
       websiteUrls: [],
       trackingCodeInstalled: false,
       useGoogleTagManager: false,
-      hasDeveloperAccess: false
+      hasDeveloperAccess: false,
     },
     eventTaxonomy: [],
     conversionEvents: [],
     dataRetention: {
-      retentionPeriod: '14_months'
+      retentionPeriod: '14_months',
     },
     configuration: {
       timeZone: 'Asia/Jerusalem',
-      currency: 'ILS'
+      currency: 'ILS',
     },
     privacyCompliance: {
-      cookieConsentBanner: false
+      cookieConsentBanner: false,
     },
     testing: {
       realtimeReportChecked: false,
-      testEventsVerified: false
+      testEventsVerified: false,
     },
     training: {
-      trainingRequired: true
+      trainingRequired: true,
     },
-    estimatedDays: 7
+    estimatedDays: 7,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -65,13 +65,16 @@ export function ImplAnalyticsSpec() {
   // Auto-save hook for immediate saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'impl-analytics',
-    category: 'systemImplementations'
+    category: 'systemImplementations',
   });
 
   // Load existing data
   useEffect(() => {
-    const systemImplementations = currentMeeting?.implementationSpec?.systemImplementations || [];
-    const existing = systemImplementations.find(item => item.serviceId === 'impl-analytics');
+    const systemImplementations =
+      currentMeeting?.implementationSpec?.systemImplementations || [];
+    const existing = systemImplementations.find(
+      (item) => item.serviceId === 'impl-analytics'
+    );
 
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
@@ -98,18 +101,21 @@ export function ImplAnalyticsSpec() {
   //   }
   // }, [config]);
 
-  const handleFieldChange = useCallback((field: keyof ImplAnalyticsRequirements, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = { ...updated }; // No smart fields in this component
-          saveData(completeConfig);
-        }
-      }, 0);
-      return updated;
-    });
-  }, [saveData]);
+  const handleFieldChange = useCallback(
+    (field: keyof ImplAnalyticsRequirements, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = { ...updated }; // No smart fields in this component
+            saveData(completeConfig);
+          }
+        }, 0);
+        return updated;
+      });
+    },
+    [saveData]
+  );
 
   // Validation function
   const validateForm = (): boolean => {
@@ -144,7 +150,9 @@ export function ImplAnalyticsSpec() {
   };
 
   const removeWebsiteUrl = (index: number) => {
-    const updatedUrls = config.integration.websiteUrls.filter((_, i) => i !== index);
+    const updatedUrls = config.integration.websiteUrls.filter(
+      (_, i) => i !== index
+    );
     handleFieldChange('integration.websiteUrls', updatedUrls);
   };
 
@@ -154,13 +162,16 @@ export function ImplAnalyticsSpec() {
       {
         eventName: '',
         description: '',
-        triggerCondition: ''
-      }
+        triggerCondition: '',
+      },
     ];
     handleFieldChange('eventTaxonomy', updatedEvents);
   };
 
-  const updateEvent = (index: number, field: Partial<typeof config.eventTaxonomy[0]>) => {
+  const updateEvent = (
+    index: number,
+    field: Partial<(typeof config.eventTaxonomy)[0]>
+  ) => {
     const updated = [...config.eventTaxonomy];
     updated[index] = { ...updated[index], ...field };
     handleFieldChange('eventTaxonomy', updated);
@@ -175,20 +186,25 @@ export function ImplAnalyticsSpec() {
     const updatedConversionEvents = [
       ...config.conversionEvents,
       {
-        eventName: ''
-      }
+        eventName: '',
+      },
     ];
     handleFieldChange('conversionEvents', updatedConversionEvents);
   };
 
-  const updateConversionEvent = (index: number, field: Partial<typeof config.conversionEvents[0]>) => {
+  const updateConversionEvent = (
+    index: number,
+    field: Partial<(typeof config.conversionEvents)[0]>
+  ) => {
     const updated = [...config.conversionEvents];
     updated[index] = { ...updated[index], ...field };
     handleFieldChange('conversionEvents', updated);
   };
 
   const removeConversionEvent = (index: number) => {
-    const updatedConversionEvents = config.conversionEvents.filter((_, i) => i !== index);
+    const updatedConversionEvents = config.conversionEvents.filter(
+      (_, i) => i !== index
+    );
     handleFieldChange('conversionEvents', updatedConversionEvents);
   };
 
@@ -198,8 +214,8 @@ export function ImplAnalyticsSpec() {
       {
         propertyName: '',
         type: 'string',
-        purpose: ''
-      }
+        purpose: '',
+      },
     ];
     handleFieldChange('userProperties', updatedUserProperties);
   };
@@ -211,14 +227,16 @@ export function ImplAnalyticsSpec() {
   };
 
   const removeUserProperty = (index: number) => {
-    const updatedUserProperties = (config.userProperties || []).filter((_, i) => i !== index);
+    const updatedUserProperties = (config.userProperties || []).filter(
+      (_, i) => i !== index
+    );
     handleFieldChange('userProperties', updatedUserProperties);
   };
 
   // Manual save handler (kept for compatibility, but auto-save is primary)
   const handleSave = useCallback(async () => {
     if (isLoadingRef.current) return; // Don't save during loading
-    
+
     if (!validateForm()) {
       alert('נא למלא את כל השדות הנדרשים');
       return;
@@ -234,8 +252,12 @@ export function ImplAnalyticsSpec() {
   return (
     <div className="space-y-6 p-8" dir="rtl">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">שירות #47: הטמעת Analytics</h2>
-        <p className="text-gray-600 mt-2">הטמעה מלאה של מערכת Analytics בארגון</p>
+        <h2 className="text-2xl font-bold text-gray-900">
+          שירות #47: הטמעת Analytics
+        </h2>
+        <p className="text-gray-600 mt-2">
+          הטמעה מלאה של מערכת Analytics בארגון
+        </p>
       </div>
 
       {/* Platform Selection */}
@@ -248,14 +270,18 @@ export function ImplAnalyticsSpec() {
             </label>
             <select
               value={config.platform || ''}
-              onChange={(e) => handleFieldChange('platform', e.target.value as any)}
+              onChange={(e) =>
+                handleFieldChange('platform', e.target.value as any)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             >
               <option value="google_analytics_4">Google Analytics 4</option>
               <option value="mixpanel">Mixpanel</option>
               <option value="amplitude">Amplitude</option>
             </select>
-            {errors.platform && <p className="text-red-500 text-sm mt-1">{errors.platform}</p>}
+            {errors.platform && (
+              <p className="text-red-500 text-sm mt-1">{errors.platform}</p>
+            )}
           </div>
         </div>
       </Card>
@@ -271,18 +297,26 @@ export function ImplAnalyticsSpec() {
             <input
               type="email"
               value={config.adminAccess.email}
-              onChange={(e) => handleFieldChange('adminAccess.email', e.target.value)}
+              onChange={(e) =>
+                handleFieldChange('adminAccess.email', e.target.value)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               placeholder="admin@company.com"
             />
-            {errors.adminEmail && <p className="text-red-500 text-sm mt-1">{errors.adminEmail}</p>}
+            {errors.adminEmail && (
+              <p className="text-red-500 text-sm mt-1">{errors.adminEmail}</p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">תפקיד</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              תפקיד
+            </label>
             <select
               value={config.adminAccess.role}
-              onChange={(e) => handleFieldChange('adminAccess.role', e.target.value as any)}
+              onChange={(e) =>
+                handleFieldChange('adminAccess.role', e.target.value as any)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             >
               <option value="editor">Editor</option>
@@ -326,14 +360,21 @@ export function ImplAnalyticsSpec() {
             </div>
           ))}
         </div>
-        {errors.websiteUrls && <p className="text-red-500 text-sm mt-1">{errors.websiteUrls}</p>}
+        {errors.websiteUrls && (
+          <p className="text-red-500 text-sm mt-1">{errors.websiteUrls}</p>
+        )}
 
         <div className="mt-4 space-y-3">
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={config.integration.trackingCodeInstalled}
-              onChange={(e) => handleFieldChange('integration.trackingCodeInstalled', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'integration.trackingCodeInstalled',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">קוד מעקב מותקן</span>
@@ -343,7 +384,12 @@ export function ImplAnalyticsSpec() {
             <input
               type="checkbox"
               checked={config.integration.useGoogleTagManager}
-              onChange={(e) => handleFieldChange('integration.useGoogleTagManager', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'integration.useGoogleTagManager',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">שימוש ב-Google Tag Manager (מומלץ)</span>
@@ -353,7 +399,12 @@ export function ImplAnalyticsSpec() {
             <input
               type="checkbox"
               checked={config.integration.hasDeveloperAccess}
-              onChange={(e) => handleFieldChange('integration.hasDeveloperAccess', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'integration.hasDeveloperAccess',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">יש גישה למפתח</span>
@@ -362,11 +413,15 @@ export function ImplAnalyticsSpec() {
 
         {config.integration.useGoogleTagManager && (
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">GTM Container ID</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              GTM Container ID
+            </label>
             <input
               type="text"
               value={config.integration.gtmContainerId || ''}
-              onChange={(e) => handleFieldChange('integration.gtmContainerId', e.target.value)}
+              onChange={(e) =>
+                handleFieldChange('integration.gtmContainerId', e.target.value)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               placeholder="GTM-XXXXXX"
             />
@@ -391,32 +446,44 @@ export function ImplAnalyticsSpec() {
             <div key={index} className="border border-gray-200 p-4 rounded-lg">
               <div className="grid grid-cols-2 gap-4 mb-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">שם אירוע</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    שם אירוע
+                  </label>
                   <input
                     type="text"
                     value={event.eventName}
-                    onChange={(e) => updateEvent(index, { eventName: e.target.value })}
+                    onChange={(e) =>
+                      updateEvent(index, { eventName: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                     placeholder="button_click, form_submit..."
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">תיאור</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    תיאור
+                  </label>
                   <input
                     type="text"
                     value={event.description}
-                    onChange={(e) => updateEvent(index, { description: e.target.value })}
+                    onChange={(e) =>
+                      updateEvent(index, { description: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                     placeholder="מה האירוע מודד"
                   />
                 </div>
               </div>
               <div className="mb-3">
-                <label className="block text-sm font-medium text-gray-700 mb-1">תנאי הפעלה</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  תנאי הפעלה
+                </label>
                 <input
                   type="text"
                   value={event.triggerCondition}
-                  onChange={(e) => updateEvent(index, { triggerCondition: e.target.value })}
+                  onChange={(e) =>
+                    updateEvent(index, { triggerCondition: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   placeholder="כאשר המשתמש לוחץ על כפתור ההרשמה"
                 />
@@ -450,21 +517,34 @@ export function ImplAnalyticsSpec() {
             <div key={index} className="border border-gray-200 p-4 rounded-lg">
               <div className="grid grid-cols-2 gap-4 mb-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">שם אירוע</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    שם אירוע
+                  </label>
                   <input
                     type="text"
                     value={conversion.eventName}
-                    onChange={(e) => updateConversionEvent(index, { eventName: e.target.value })}
+                    onChange={(e) =>
+                      updateConversionEvent(index, {
+                        eventName: e.target.value,
+                      })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                     placeholder="purchase, signup..."
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">ערך המרה</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    ערך המרה
+                  </label>
                   <input
                     type="number"
                     value={conversion.conversionValue || ''}
-                    onChange={(e) => updateConversionEvent(index, { conversionValue: parseFloat(e.target.value) || undefined })}
+                    onChange={(e) =>
+                      updateConversionEvent(index, {
+                        conversionValue:
+                          parseFloat(e.target.value) || undefined,
+                      })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                     placeholder="0"
                   />
@@ -499,19 +579,29 @@ export function ImplAnalyticsSpec() {
             <div key={index} className="border border-gray-200 p-4 rounded-lg">
               <div className="grid grid-cols-3 gap-4 mb-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">שם מאפיין</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    שם מאפיין
+                  </label>
                   <input
                     type="text"
                     value={prop.propertyName}
-                    onChange={(e) => updateUserProperty(index, { propertyName: e.target.value })}
+                    onChange={(e) =>
+                      updateUserProperty(index, {
+                        propertyName: e.target.value,
+                      })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">סוג</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    סוג
+                  </label>
                   <select
                     value={prop.type}
-                    onChange={(e) => updateUserProperty(index, { type: e.target.value as any })}
+                    onChange={(e) =>
+                      updateUserProperty(index, { type: e.target.value as any })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   >
                     <option value="string">טקסט</option>
@@ -520,11 +610,15 @@ export function ImplAnalyticsSpec() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">מטרה</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    מטרה
+                  </label>
                   <input
                     type="text"
                     value={prop.purpose}
-                    onChange={(e) => updateUserProperty(index, { purpose: e.target.value })}
+                    onChange={(e) =>
+                      updateUserProperty(index, { purpose: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   />
                 </div>
@@ -547,21 +641,29 @@ export function ImplAnalyticsSpec() {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">אזור זמן</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                אזור זמן
+              </label>
               <input
                 type="text"
                 value={config.configuration.timeZone}
-                onChange={(e) => handleFieldChange('configuration.timeZone', e.target.value)}
+                onChange={(e) =>
+                  handleFieldChange('configuration.timeZone', e.target.value)
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 placeholder="Asia/Jerusalem"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">מטבע</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                מטבע
+              </label>
               <input
                 type="text"
                 value={config.configuration.currency}
-                onChange={(e) => handleFieldChange('configuration.currency', e.target.value)}
+                onChange={(e) =>
+                  handleFieldChange('configuration.currency', e.target.value)
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 placeholder="ILS"
               />
@@ -569,10 +671,17 @@ export function ImplAnalyticsSpec() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">שמירת נתונים</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              שמירת נתונים
+            </label>
             <select
               value={config.dataRetention.retentionPeriod}
-              onChange={(e) => handleFieldChange('dataRetention.retentionPeriod', e.target.value as any)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'dataRetention.retentionPeriod',
+                  e.target.value as any
+                )
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             >
               <option value="14_months">14 חודשים</option>
@@ -586,7 +695,12 @@ export function ImplAnalyticsSpec() {
             <input
               type="checkbox"
               checked={config.dataRetention.bigQueryExport || false}
-              onChange={(e) => handleFieldChange('dataRetention.bigQueryExport', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'dataRetention.bigQueryExport',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">ייצוא ל-BigQuery (לאחסון ארוך טווח)</span>
@@ -602,7 +716,12 @@ export function ImplAnalyticsSpec() {
             <input
               type="checkbox"
               checked={config.privacyCompliance.cookieConsentBanner}
-              onChange={(e) => handleFieldChange('privacyCompliance.cookieConsentBanner', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'privacyCompliance.cookieConsentBanner',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">באנר הסכמה לעוגיות</span>
@@ -612,7 +731,12 @@ export function ImplAnalyticsSpec() {
             <input
               type="checkbox"
               checked={config.privacyCompliance.anonymizeIp || false}
-              onChange={(e) => handleFieldChange('privacyCompliance.anonymizeIp', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'privacyCompliance.anonymizeIp',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">אנונימיזציה של IP</span>
@@ -621,8 +745,15 @@ export function ImplAnalyticsSpec() {
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
-              checked={config.privacyCompliance.dataProcessingAmendment || false}
-              onChange={(e) => handleFieldChange('privacyCompliance.dataProcessingAmendment', e.target.checked)}
+              checked={
+                config.privacyCompliance.dataProcessingAmendment || false
+              }
+              onChange={(e) =>
+                handleFieldChange(
+                  'privacyCompliance.dataProcessingAmendment',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">תיקון עיבוד נתונים (DPA)</span>
@@ -638,7 +769,12 @@ export function ImplAnalyticsSpec() {
             <input
               type="checkbox"
               checked={config.testing.realtimeReportChecked}
-              onChange={(e) => handleFieldChange('testing.realtimeReportChecked', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'testing.realtimeReportChecked',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">דוח זמן אמת נבדק</span>
@@ -648,7 +784,9 @@ export function ImplAnalyticsSpec() {
             <input
               type="checkbox"
               checked={config.testing.debugModeUsed || false}
-              onChange={(e) => handleFieldChange('testing.debugModeUsed', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange('testing.debugModeUsed', e.target.checked)
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">שימוש במצב Debug</span>
@@ -658,7 +796,12 @@ export function ImplAnalyticsSpec() {
             <input
               type="checkbox"
               checked={config.testing.testEventsVerified}
-              onChange={(e) => handleFieldChange('testing.testEventsVerified', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'testing.testEventsVerified',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">אירועי בדיקה אומתו</span>
@@ -674,18 +817,27 @@ export function ImplAnalyticsSpec() {
             <input
               type="checkbox"
               checked={config.training.trainingRequired}
-              onChange={(e) => handleFieldChange('training.trainingRequired', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange('training.trainingRequired', e.target.checked)
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">נדרשת הדרכה</span>
           </label>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">משך הטמעה משוער (ימים)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              משך הטמעה משוער (ימים)
+            </label>
             <input
               type="number"
               value={config.estimatedDays}
-              onChange={(e) => handleFieldChange('estimatedDays', parseInt(e.target.value) || 0)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'estimatedDays',
+                  parseInt(e.target.value) || 0
+                )
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               min="1"
             />

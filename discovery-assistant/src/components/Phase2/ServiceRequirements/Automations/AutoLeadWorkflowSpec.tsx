@@ -27,14 +27,14 @@ export function AutoLeadWorkflowSpec() {
     fieldId: 'crm_system',
     localPath: 'crmSystem',
     serviceId: 'auto-lead-workflow',
-    autoSave: false
+    autoSave: false,
   });
 
   const primaryLeadSource = useSmartField<string>({
     fieldId: 'primary_lead_source',
     localPath: 'primaryLeadSource',
     serviceId: 'auto-lead-workflow',
-    autoSave: false
+    autoSave: false,
   });
 
   const [config, setConfig] = useState<Partial<AutoLeadWorkflowConfig>>({
@@ -49,7 +49,7 @@ export function AutoLeadWorkflowSpec() {
   // Auto-save hook
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-lead-workflow',
-    category: 'automations'
+    category: 'automations',
   });
 
   // Track if we're currently loading data to prevent save loops
@@ -59,7 +59,9 @@ export function AutoLeadWorkflowSpec() {
   // Load existing data ONCE on mount or when service data actually changes
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
-    const existing = automations.find((a: any) => a.serviceId === 'auto-lead-workflow');
+    const existing = automations.find(
+      (a: any) => a.serviceId === 'auto-lead-workflow'
+    );
 
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
@@ -89,7 +91,7 @@ export function AutoLeadWorkflowSpec() {
     const completeConfig = {
       ...config,
       crmSystem: crmSystem.value || config.crmSystem || 'zoho',
-      primaryLeadSource: primaryLeadSource.value
+      primaryLeadSource: primaryLeadSource.value,
     };
 
     // Only save if config has actual data
@@ -99,23 +101,26 @@ export function AutoLeadWorkflowSpec() {
   }, [config, crmSystem.value, primaryLeadSource.value, saveData]);
 
   // Handle field changes with auto-save
-  const handleFieldChange = useCallback((field: keyof AutoLeadWorkflowConfig, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
-      // Save after state update
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = {
-            ...updated,
-            crmSystem: crmSystem.value || updated.crmSystem || 'zoho',
-            primaryLeadSource: primaryLeadSource.value
-          };
-          saveData(completeConfig);
-        }
-      }, 0);
-      return updated;
-    });
-  }, [crmSystem.value, primaryLeadSource.value, saveData]);
+  const handleFieldChange = useCallback(
+    (field: keyof AutoLeadWorkflowConfig, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
+        // Save after state update
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = {
+              ...updated,
+              crmSystem: crmSystem.value || updated.crmSystem || 'zoho',
+              primaryLeadSource: primaryLeadSource.value,
+            };
+            saveData(completeConfig);
+          }
+        }, 0);
+        return updated;
+      });
+    },
+    [crmSystem.value, primaryLeadSource.value, saveData]
+  );
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -125,10 +130,12 @@ export function AutoLeadWorkflowSpec() {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
             <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+              <h4 className="font-semibold text-blue-900 mb-1">
+                נתונים מולאו אוטומטית משלב 1
+              </h4>
               <p className="text-sm text-blue-800">
-                חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-                תוכל לערוך אותם במידת הצורך.
+                חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל
+                לערוך אותם במידת הצורך.
               </p>
             </div>
           </div>
@@ -139,7 +146,9 @@ export function AutoLeadWorkflowSpec() {
           <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+              <h4 className="font-semibold text-orange-900 mb-1">
+                זוהה אי-התאמה בנתונים
+              </h4>
               <p className="text-sm text-orange-800">
                 נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
               </p>
@@ -160,10 +169,15 @@ export function AutoLeadWorkflowSpec() {
                 </span>
               )}
             </div>
-            <select value={crmSystem.value || 'zoho'} onChange={(e) => crmSystem.setValue(e.target.value)}
+            <select
+              value={crmSystem.value || 'zoho'}
+              onChange={(e) => crmSystem.setValue(e.target.value)}
               className={`w-full px-3 py-2 border rounded-md ${
-                crmSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
-              } ${crmSystem.hasConflict ? 'border-orange-300' : ''}`}>
+                crmSystem.isAutoPopulated
+                  ? 'border-green-300 bg-green-50'
+                  : 'border-gray-300'
+              } ${crmSystem.hasConflict ? 'border-orange-300' : ''}`}
+            >
               <option value="zoho">Zoho CRM</option>
               <option value="salesforce">Salesforce</option>
               <option value="hubspot">HubSpot</option>
@@ -176,7 +190,9 @@ export function AutoLeadWorkflowSpec() {
               <input
                 type="checkbox"
                 checked={config.scoringEnabled}
-                onChange={(e) => handleFieldChange('scoringEnabled', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange('scoringEnabled', e.target.checked)
+                }
                 className="mr-2"
               />
               <span className="text-sm">הפעל ניקוד לידים</span>
@@ -185,7 +201,9 @@ export function AutoLeadWorkflowSpec() {
               <input
                 type="checkbox"
                 checked={config.assignmentRules}
-                onChange={(e) => handleFieldChange('assignmentRules', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange('assignmentRules', e.target.checked)
+                }
                 className="mr-2"
               />
               <span className="text-sm">כללי הקצאה אוטומטיים</span>
@@ -194,7 +212,9 @@ export function AutoLeadWorkflowSpec() {
               <input
                 type="checkbox"
                 checked={config.notificationsEnabled}
-                onChange={(e) => handleFieldChange('notificationsEnabled', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange('notificationsEnabled', e.target.checked)
+                }
                 className="mr-2"
               />
               <span className="text-sm">התראות מופעלות</span>

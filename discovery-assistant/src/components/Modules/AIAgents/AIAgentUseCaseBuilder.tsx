@@ -17,7 +17,7 @@ interface AIAgentUseCaseBuilderProps {
 export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
   onSave,
   initialData,
-  onCancel
+  onCancel,
 }) => {
   const { updateModule, currentMeeting } = useMeetingStore();
   const moduleData = currentMeeting?.modules?.aiAgents || {};
@@ -29,20 +29,22 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
     debounceMs: 1500, // Slightly longer debounce for complex forms
     onError: (error) => {
       console.error('Auto-save error in AIAgentUseCaseBuilder:', error);
-    }
+    },
   });
 
   // State for use case builder
   const [useCaseName, setUseCaseName] = useState(initialData?.name || '');
   const [trigger, setTrigger] = useState<string>(initialData?.trigger || '');
-  const [customTrigger, setCustomTrigger] = useState(initialData?.customTrigger || '');
+  const [customTrigger, setCustomTrigger] = useState(
+    initialData?.customTrigger || ''
+  );
   const [objective, setObjective] = useState(initialData?.objective || '');
-  const [conversationFlow, setConversationFlow] = useState<ConversationFlowStep[]>(
-    initialData?.conversationFlow || []
-  );
-  const [knowledgeBaseRequirements, setKnowledgeBaseRequirements] = useState<string[]>(
-    initialData?.knowledgeBaseRequirements || []
-  );
+  const [conversationFlow, setConversationFlow] = useState<
+    ConversationFlowStep[]
+  >(initialData?.conversationFlow || []);
+  const [knowledgeBaseRequirements, setKnowledgeBaseRequirements] = useState<
+    string[]
+  >(initialData?.knowledgeBaseRequirements || []);
   const [fallbackStrategy, setFallbackStrategy] = useState<string>(
     initialData?.fallbackStrategy || ''
   );
@@ -53,7 +55,9 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
     initialData?.expectedVolume?.toString() || ''
   );
   const [priority, setPriority] = useState<string>(initialData?.priority || '');
-  const [department, setDepartment] = useState<string>(initialData?.department || '');
+  const [department, setDepartment] = useState<string>(
+    initialData?.department || ''
+  );
 
   // State for adding new items
   const [newFlowStep, setNewFlowStep] = useState('');
@@ -69,7 +73,7 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
         order: conversationFlow.length + 1,
         action: newFlowStep.trim(),
         expectedResponse: '',
-        nextStepCondition: ''
+        nextStepCondition: '',
       };
       setConversationFlow([...conversationFlow, newStep]);
       setNewFlowStep('');
@@ -78,13 +82,13 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
 
   const removeFlowStep = (id: string) => {
     const updatedFlow = conversationFlow
-      .filter(step => step.id !== id)
+      .filter((step) => step.id !== id)
       .map((step, index) => ({ ...step, order: index + 1 }));
     setConversationFlow(updatedFlow);
   };
 
   const moveFlowStep = (id: string, direction: 'up' | 'down') => {
-    const index = conversationFlow.findIndex(step => step.id === id);
+    const index = conversationFlow.findIndex((step) => step.id === id);
     if (
       (direction === 'up' && index === 0) ||
       (direction === 'down' && index === conversationFlow.length - 1)
@@ -97,7 +101,10 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
     [newFlow[index], newFlow[newIndex]] = [newFlow[newIndex], newFlow[index]];
 
     // Update order numbers
-    const reorderedFlow = newFlow.map((step, idx) => ({ ...step, order: idx + 1 }));
+    const reorderedFlow = newFlow.map((step, idx) => ({
+      ...step,
+      order: idx + 1,
+    }));
     setConversationFlow(reorderedFlow);
   };
 
@@ -127,19 +134,24 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
       successCriteria,
       expectedVolume: parseInt(expectedVolume) || 0,
       priority: priority as AIAgentUseCase['priority'],
-      department: department as AIAgentUseCase['department']
+      department: department as AIAgentUseCase['department'],
     };
 
     // Save to store using auto-save
     const existingSpecs = moduleData.agentSpecs || [];
     const updatedSpecs = initialData
-      ? existingSpecs.map(spec => spec.id === initialData.id ? useCase : spec)
+      ? existingSpecs.map((spec) =>
+          spec.id === initialData.id ? useCase : spec
+        )
       : [...existingSpecs, useCase];
 
-    await saveData({
-      ...moduleData,
-      agentSpecs: updatedSpecs
-    }, 'manual');
+    await saveData(
+      {
+        ...moduleData,
+        agentSpecs: updatedSpecs,
+      },
+      'manual'
+    );
 
     if (onSave) {
       onSave(useCase);
@@ -148,7 +160,8 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
 
   // Auto-save when state changes
   useEffect(() => {
-    if (useCaseName) { // Only auto-save if we have a name
+    if (useCaseName) {
+      // Only auto-save if we have a name
       const useCase: AIAgentUseCase = {
         id: initialData?.id || generateId(),
         name: useCaseName,
@@ -157,27 +170,41 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
         objective,
         conversationFlow,
         knowledgeBaseRequirements,
-        fallbackStrategy: fallbackStrategy as AIAgentUseCase['fallbackStrategy'],
+        fallbackStrategy:
+          fallbackStrategy as AIAgentUseCase['fallbackStrategy'],
         successCriteria,
         expectedVolume: parseInt(expectedVolume) || 0,
         priority: priority as AIAgentUseCase['priority'],
-        department: department as AIAgentUseCase['department']
+        department: department as AIAgentUseCase['department'],
       };
 
       const existingSpecs = moduleData.agentSpecs || [];
       const updatedSpecs = initialData
-        ? existingSpecs.map(spec => spec.id === initialData.id ? useCase : spec)
+        ? existingSpecs.map((spec) =>
+            spec.id === initialData.id ? useCase : spec
+          )
         : [...existingSpecs, useCase];
 
       saveData({
         ...moduleData,
-        agentSpecs: updatedSpecs
+        agentSpecs: updatedSpecs,
       });
     }
   }, [
-    useCaseName, trigger, customTrigger, objective, conversationFlow,
-    knowledgeBaseRequirements, fallbackStrategy, successCriteria,
-    expectedVolume, priority, department, initialData, moduleData, saveData
+    useCaseName,
+    trigger,
+    customTrigger,
+    objective,
+    conversationFlow,
+    knowledgeBaseRequirements,
+    fallbackStrategy,
+    successCriteria,
+    expectedVolume,
+    priority,
+    department,
+    initialData,
+    moduleData,
+    saveData,
   ]);
 
   return (
@@ -187,7 +214,9 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
           {/* Basic Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <span className="bg-blue-100 text-blue-700 rounded-full w-8 h-8 flex items-center justify-center text-sm">1</span>
+              <span className="bg-blue-100 text-blue-700 rounded-full w-8 h-8 flex items-center justify-center text-sm">
+                1
+              </span>
               מידע בסיסי
             </h3>
 
@@ -211,7 +240,7 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
                 { value: 'after_hours', label: 'פניה מחוץ לשעות העבודה' },
                 { value: 'appointment_booking', label: 'בקשה לקביעת פגישה' },
                 { value: 'follow_up', label: 'מעקב אחרי לקוח קיים' },
-                { value: 'custom', label: 'אחר (פרט)' }
+                { value: 'custom', label: 'אחר (פרט)' },
               ]}
             />
 
@@ -234,7 +263,7 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
                 { value: '', label: 'בחר...' },
                 { value: 'sales', label: 'מכירות' },
                 { value: 'service', label: 'שירות לקוחות' },
-                { value: 'operations', label: 'תפעול' }
+                { value: 'operations', label: 'תפעול' },
               ]}
             />
 
@@ -252,7 +281,9 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
           {/* Conversation Flow */}
           <div className="space-y-4 pt-6 border-t border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <span className="bg-green-100 text-green-700 rounded-full w-8 h-8 flex items-center justify-center text-sm">2</span>
+              <span className="bg-green-100 text-green-700 rounded-full w-8 h-8 flex items-center justify-center text-sm">
+                2
+              </span>
               תהליך השיחה
             </h3>
 
@@ -263,7 +294,9 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
                     key={step.id}
                     className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200"
                   >
-                    <span className="font-semibold text-gray-600 min-w-[30px]">{step.order}.</span>
+                    <span className="font-semibold text-gray-600 min-w-[30px]">
+                      {step.order}.
+                    </span>
                     <span className="flex-1 text-gray-800">{step.action}</span>
                     <div className="flex items-center gap-1">
                       <button
@@ -280,7 +313,9 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
                         onClick={() => moveFlowStep(step.id, 'down')}
                         disabled={index === conversationFlow.length - 1}
                         className={`p-1 rounded hover:bg-gray-200 transition-colors ${
-                          index === conversationFlow.length - 1 ? 'opacity-30 cursor-not-allowed' : ''
+                          index === conversationFlow.length - 1
+                            ? 'opacity-30 cursor-not-allowed'
+                            : ''
                         }`}
                         title="הזז למטה"
                       >
@@ -324,7 +359,9 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
           {/* Knowledge Base Requirements */}
           <div className="space-y-4 pt-6 border-t border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <span className="bg-purple-100 text-purple-700 rounded-full w-8 h-8 flex items-center justify-center text-sm">3</span>
+              <span className="bg-purple-100 text-purple-700 rounded-full w-8 h-8 flex items-center justify-center text-sm">
+                3
+              </span>
               דרישות מאגר ידע
             </h3>
 
@@ -337,7 +374,7 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
                 { value: 'policies', label: 'מדיניות ותקנון' },
                 { value: 'customer_history', label: 'היסטוריית לקוחות' },
                 { value: 'troubleshooting', label: 'מדריכי פתרון בעיות' },
-                { value: 'appointments', label: 'זמינות ותורים' }
+                { value: 'appointments', label: 'זמינות ותורים' },
               ]}
               values={knowledgeBaseRequirements}
               onChange={setKnowledgeBaseRequirements}
@@ -348,7 +385,9 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
           {/* Fallback Strategy */}
           <div className="space-y-4 pt-6 border-t border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <span className="bg-yellow-100 text-yellow-700 rounded-full w-8 h-8 flex items-center justify-center text-sm">4</span>
+              <span className="bg-yellow-100 text-yellow-700 rounded-full w-8 h-8 flex items-center justify-center text-sm">
+                4
+              </span>
               אסטרטגיית גיבוי
             </h3>
 
@@ -360,9 +399,12 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
               options={[
                 { value: '', label: 'בחר...' },
                 { value: 'human_handoff', label: 'העברה מיידית לנציג אנושי' },
-                { value: 'email_notification', label: 'שליחת התראה במייל לצוות' },
+                {
+                  value: 'email_notification',
+                  label: 'שליחת התראה במייל לצוות',
+                },
                 { value: 'scheduled_callback', label: 'קביעת חזרה ללקוח' },
-                { value: 'faq_redirect', label: 'הפניה למאגר שאלות נפוצות' }
+                { value: 'faq_redirect', label: 'הפניה למאגר שאלות נפוצות' },
               ]}
             />
           </div>
@@ -370,7 +412,9 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
           {/* Success Criteria */}
           <div className="space-y-4 pt-6 border-t border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <span className="bg-indigo-100 text-indigo-700 rounded-full w-8 h-8 flex items-center justify-center text-sm">5</span>
+              <span className="bg-indigo-100 text-indigo-700 rounded-full w-8 h-8 flex items-center justify-center text-sm">
+                5
+              </span>
               קריטריונים להצלחה
             </h3>
 
@@ -419,7 +463,9 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
           {/* Additional Details */}
           <div className="space-y-4 pt-6 border-t border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <span className="bg-orange-100 text-orange-700 rounded-full w-8 h-8 flex items-center justify-center text-sm">6</span>
+              <span className="bg-orange-100 text-orange-700 rounded-full w-8 h-8 flex items-center justify-center text-sm">
+                6
+              </span>
               פרטים נוספים
             </h3>
 
@@ -440,11 +486,10 @@ export const AIAgentUseCaseBuilder: React.FC<AIAgentUseCaseBuilderProps> = ({
                 { value: '', label: 'בחר...' },
                 { value: 'high', label: 'גבוהה - דחוף ליישם' },
                 { value: 'medium', label: 'בינונית - חשוב אך לא דחוף' },
-                { value: 'low', label: 'נמוכה - nice to have' }
+                { value: 'low', label: 'נמוכה - nice to have' },
               ]}
             />
           </div>
-
 
           {/* Auto-Save Status and Manual Save */}
           <div className="flex justify-between items-center gap-4 pt-4 border-t border-gray-200">

@@ -20,12 +20,25 @@
  * const errorColor: ColorToken = 'danger';
  * ```
  */
-export type ColorToken = 'primary' | 'success' | 'danger' | 'warning' | 'info' | 'neutral';
+export type ColorToken =
+  | 'primary'
+  | 'success'
+  | 'danger'
+  | 'warning'
+  | 'info'
+  | 'neutral';
 
 /**
  * Extended color palette including semantic and neutral colors
  */
-export type ColorPalette = ColorToken | 'gray' | 'blue' | 'green' | 'red' | 'yellow' | 'orange';
+export type ColorPalette =
+  | ColorToken
+  | 'gray'
+  | 'blue'
+  | 'green'
+  | 'red'
+  | 'yellow'
+  | 'orange';
 
 // ============================================================================
 // SIZE TOKENS
@@ -66,7 +79,20 @@ export type SizeToken = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
  * const margin: SpacingToken = 2;  // 8px
  * ```
  */
-export type SpacingToken = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | 16 | 20 | 24;
+export type SpacingToken =
+  | 0
+  | 1
+  | 2
+  | 3
+  | 4
+  | 5
+  | 6
+  | 8
+  | 10
+  | 12
+  | 16
+  | 20
+  | 24;
 
 // ============================================================================
 // COMPONENT VARIANTS
@@ -89,7 +115,13 @@ export type SpacingToken = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | 16 | 20 | 2
  * <Button variant="ghost">Cancel</Button>
  * ```
  */
-export type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'ghost' | 'link';
+export type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'success'
+  | 'danger'
+  | 'ghost'
+  | 'link';
 
 /**
  * Card component visual variants
@@ -121,7 +153,13 @@ export type CardVariant = 'default' | 'bordered' | 'elevated' | 'highlighted';
  * <Badge variant="warning">Pending</Badge>
  * ```
  */
-export type BadgeVariant = 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'neutral';
+export type BadgeVariant =
+  | 'primary'
+  | 'success'
+  | 'warning'
+  | 'danger'
+  | 'info'
+  | 'neutral';
 
 /**
  * Alert/Message component variants
@@ -140,7 +178,15 @@ export type FontWeight = 'normal' | 'medium' | 'semibold' | 'bold';
 /**
  * Text size variants
  */
-export type TextSize = 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
+export type TextSize =
+  | 'xs'
+  | 'sm'
+  | 'base'
+  | 'lg'
+  | 'xl'
+  | '2xl'
+  | '3xl'
+  | '4xl';
 
 /**
  * Heading level types
@@ -190,7 +236,12 @@ export type AnimationDuration = 150 | 200 | 300 | 500;
 /**
  * Animation easing functions
  */
-export type AnimationEasing = 'linear' | 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out';
+export type AnimationEasing =
+  | 'linear'
+  | 'ease'
+  | 'ease-in'
+  | 'ease-out'
+  | 'ease-in-out';
 
 /**
  * Animation configuration
@@ -208,7 +259,12 @@ export interface AnimationConfig {
 /**
  * Component interaction states
  */
-export type InteractionState = 'idle' | 'hover' | 'active' | 'focus' | 'disabled';
+export type InteractionState =
+  | 'idle'
+  | 'hover'
+  | 'active'
+  | 'focus'
+  | 'disabled';
 
 /**
  * Loading states
@@ -272,7 +328,13 @@ export type FlexAlign = 'start' | 'center' | 'end' | 'stretch' | 'baseline';
 /**
  * Flex justify options
  */
-export type FlexJustify = 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly';
+export type FlexJustify =
+  | 'start'
+  | 'center'
+  | 'end'
+  | 'between'
+  | 'around'
+  | 'evenly';
 
 // ============================================================================
 // ICONS

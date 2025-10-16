@@ -12,7 +12,7 @@ import {
   CheckCircle,
   Edit,
   FileText,
-  Download
+  Download,
 } from 'lucide-react';
 
 interface WizardSummaryProps {
@@ -22,7 +22,7 @@ interface WizardSummaryProps {
 
 export const WizardSummary: React.FC<WizardSummaryProps> = ({
   meeting,
-  onEdit
+  onEdit,
 }) => {
   // Calculate ROI
   const roiData = useMemo(() => calculateROI(meeting), [meeting]);
@@ -43,9 +43,12 @@ export const WizardSummary: React.FC<WizardSummaryProps> = ({
     const module = meeting.modules[moduleId as keyof typeof meeting.modules];
     if (!module) return 'empty';
 
-    const hasData = Object.values(module).some(value =>
-      value !== undefined && value !== null && value !== '' &&
-      !(Array.isArray(value) && value.length === 0)
+    const hasData = Object.values(module).some(
+      (value) =>
+        value !== undefined &&
+        value !== null &&
+        value !== '' &&
+        !(Array.isArray(value) && value.length === 0)
     );
 
     return hasData ? 'completed' : 'empty';
@@ -60,21 +63,21 @@ export const WizardSummary: React.FC<WizardSummaryProps> = ({
     aiAgents: 'סוכני AI',
     systems: 'מערכות',
     roi: 'החזר השקעה',
-    planning: 'תכנון'
+    planning: 'תכנון',
   };
 
   const severityColors = {
     low: 'bg-blue-100 text-blue-800',
     medium: 'bg-yellow-100 text-yellow-800',
     high: 'bg-orange-100 text-orange-800',
-    critical: 'bg-red-100 text-red-800'
+    critical: 'bg-red-100 text-red-800',
   };
 
   const severityLabels = {
     low: 'נמוכה',
     medium: 'בינונית',
     high: 'גבוהה',
-    critical: 'קריטית'
+    critical: 'קריטית',
   };
 
   return (
@@ -160,15 +163,21 @@ export const WizardSummary: React.FC<WizardSummaryProps> = ({
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <p className="text-sm text-gray-600">סוג עסק</p>
-                <p className="font-medium">{meeting.modules.overview.businessType || 'לא צוין'}</p>
+                <p className="font-medium">
+                  {meeting.modules.overview.businessType || 'לא צוין'}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">מספר עובדים</p>
-                <p className="font-medium">{meeting.modules.overview.employees || 'לא צוין'}</p>
+                <p className="font-medium">
+                  {meeting.modules.overview.employees || 'לא צוין'}
+                </p>
               </div>
               <div className="col-span-2">
                 <p className="text-sm text-gray-600">אתגר מרכזי</p>
-                <p className="font-medium">{meeting.modules.overview.mainChallenge || 'לא צוין'}</p>
+                <p className="font-medium">
+                  {meeting.modules.overview.mainChallenge || 'לא צוין'}
+                </p>
               </div>
             </div>
           </div>
@@ -183,16 +192,19 @@ export const WizardSummary: React.FC<WizardSummaryProps> = ({
             <div className="space-y-3">
               {meeting.painPoints.map((painPoint) => (
                 <div key={painPoint.id} className="flex items-start gap-3">
-                  <div className={`px-2 py-1 rounded text-xs font-medium ${
-                    severityColors[painPoint.severity]
-                  }`}>
+                  <div
+                    className={`px-2 py-1 rounded text-xs font-medium ${
+                      severityColors[painPoint.severity]
+                    }`}
+                  >
                     {severityLabels[painPoint.severity]}
                   </div>
                   <div className="flex-1">
                     <p className="text-gray-900">{painPoint.description}</p>
                     <p className="text-sm text-gray-600 mt-1">
                       מודול: {moduleNames[painPoint.module]}
-                      {painPoint.potentialHours && ` | פוטנציאל חיסכון: ${painPoint.potentialHours} שעות`}
+                      {painPoint.potentialHours &&
+                        ` | פוטנציאל חיסכון: ${painPoint.potentialHours} שעות`}
                     </p>
                   </div>
                 </div>
@@ -226,9 +238,13 @@ export const WizardSummary: React.FC<WizardSummaryProps> = ({
                   {status === 'completed' && (
                     <CheckCircle className="w-5 h-5 text-green-500 mx-auto mb-1" />
                   )}
-                  <p className={`text-sm ${
-                    status === 'completed' ? 'text-green-700 font-medium' : 'text-gray-600'
-                  }`}>
+                  <p
+                    className={`text-sm ${
+                      status === 'completed'
+                        ? 'text-green-700 font-medium'
+                        : 'text-gray-600'
+                    }`}
+                  >
                     {moduleName}
                   </p>
                 </div>
@@ -260,14 +276,23 @@ export const WizardSummary: React.FC<WizardSummaryProps> = ({
 
             {roiData.breakdown && (
               <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">פירוט חיסכון:</p>
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  פירוט חיסכון:
+                </p>
                 <ul className="space-y-2">
-                  {Object.entries(roiData.breakdown).map(([category, value]) => (
-                    <li key={category} className="flex justify-between text-sm">
-                      <span className="text-gray-600">{category}:</span>
-                      <span className="font-medium">{formatCurrency(value as number)}</span>
-                    </li>
-                  ))}
+                  {Object.entries(roiData.breakdown).map(
+                    ([category, value]) => (
+                      <li
+                        key={category}
+                        className="flex justify-between text-sm"
+                      >
+                        <span className="text-gray-600">{category}:</span>
+                        <span className="font-medium">
+                          {formatCurrency(value as number)}
+                        </span>
+                      </li>
+                    )
+                  )}
                 </ul>
               </div>
             )}
@@ -284,21 +309,37 @@ export const WizardSummary: React.FC<WizardSummaryProps> = ({
               {recommendations.slice(0, 5).map((rec, index) => (
                 <div key={index} className="border-l-4 border-blue-500 pl-4">
                   <h4 className="font-medium text-gray-900">{rec.title}</h4>
-                  <p className="text-sm text-gray-600 mt-1">{rec.description}</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {rec.description}
+                  </p>
                   <div className="flex gap-4 mt-2 text-xs">
-                    <span className={`px-2 py-1 rounded ${
-                      rec.priority === 'critical' ? 'bg-red-100 text-red-700' :
-                      rec.priority === 'high' ? 'bg-orange-100 text-orange-700' :
-                      rec.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-gray-100 text-gray-700'
-                    }`}>
-                      עדיפות: {rec.priority === 'critical' ? 'קריטית' :
-                               rec.priority === 'high' ? 'גבוהה' :
-                               rec.priority === 'medium' ? 'בינונית' : 'נמוכה'}
+                    <span
+                      className={`px-2 py-1 rounded ${
+                        rec.priority === 'critical'
+                          ? 'bg-red-100 text-red-700'
+                          : rec.priority === 'high'
+                            ? 'bg-orange-100 text-orange-700'
+                            : rec.priority === 'medium'
+                              ? 'bg-yellow-100 text-yellow-700'
+                              : 'bg-gray-100 text-gray-700'
+                      }`}
+                    >
+                      עדיפות:{' '}
+                      {rec.priority === 'critical'
+                        ? 'קריטית'
+                        : rec.priority === 'high'
+                          ? 'גבוהה'
+                          : rec.priority === 'medium'
+                            ? 'בינונית'
+                            : 'נמוכה'}
                     </span>
                     <span className="text-gray-500">
-                      מאמץ: {rec.effort === 'low' ? 'נמוך' :
-                             rec.effort === 'medium' ? 'בינוני' : 'גבוה'}
+                      מאמץ:{' '}
+                      {rec.effort === 'low'
+                        ? 'נמוך'
+                        : rec.effort === 'medium'
+                          ? 'בינוני'
+                          : 'גבוה'}
                     </span>
                   </div>
                 </div>
@@ -332,7 +373,8 @@ export const WizardSummary: React.FC<WizardSummaryProps> = ({
                     <p className="text-gray-900">{step.action}</p>
                     {step.deadline && (
                       <p className="text-sm text-gray-600">
-                        עד: {new Date(step.deadline).toLocaleDateString('he-IL')}
+                        עד:{' '}
+                        {new Date(step.deadline).toLocaleDateString('he-IL')}
                       </p>
                     )}
                   </div>
@@ -375,8 +417,9 @@ export const WizardSummary: React.FC<WizardSummaryProps> = ({
             סיום אשף הגילוי בהצלחה!
           </h3>
           <p className="text-gray-600">
-            כל הנתונים נשמרו ותוכל לגשת אליהם בכל עת מהדשבורד.
-            המערכת זיהתה {meeting.painPoints.length} נקודות כאב ויצרה {recommendations.length} המלצות מותאמות אישית.
+            כל הנתונים נשמרו ותוכל לגשת אליהם בכל עת מהדשבורד. המערכת זיהתה{' '}
+            {meeting.painPoints.length} נקודות כאב ויצרה{' '}
+            {recommendations.length} המלצות מותאמות אישית.
           </p>
         </div>
       </Card>

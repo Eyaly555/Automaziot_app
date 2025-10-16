@@ -42,34 +42,121 @@ interface NavigationItem {
 export const GlobalNavigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { currentMeeting, getModuleProgress, getPhaseProgress } = useMeetingStore();
+  const { currentMeeting, getModuleProgress, getPhaseProgress } =
+    useMeetingStore();
 
   const moduleProgress = getModuleProgress();
 
   // Phase 1 - Discovery navigation sub-items (without Dashboard and Proposal)
   const discoveryModuleItems: NavigationItem[] = [
-    { id: 'overview', label: 'סקירה כללית', path: '/module/overview', icon: <FileText />, moduleKey: 'overview' },
-    { id: 'essentialDetails', label: 'איפיון ממוקד', path: '/module/essentialDetails', icon: <Target />, moduleKey: 'essentialDetails' },
-    { id: 'leadsAndSales', label: 'לידים ומכירות', path: '/module/leadsAndSales', icon: <Users />, moduleKey: 'leadsAndSales' },
-    { id: 'customerService', label: 'שירות לקוחות', path: '/module/customerService', icon: <Package />, moduleKey: 'customerService' },
-    { id: 'operations', label: 'תפעול', path: '/module/operations', icon: <Settings />, moduleKey: 'operations' },
-    { id: 'reporting', label: 'דיווח', path: '/module/reporting', icon: <BarChart3 />, moduleKey: 'reporting' },
-    { id: 'aiAgents', label: 'סוכני AI', path: '/module/aiAgents', icon: <Bot />, moduleKey: 'aiAgents' },
-    { id: 'systems', label: 'מערכות', path: '/module/systems', icon: <Server />, moduleKey: 'systems' },
-    { id: 'roi', label: 'ROI', path: '/module/roi', icon: <TrendingUp />, moduleKey: 'roi' },
+    {
+      id: 'overview',
+      label: 'סקירה כללית',
+      path: '/module/overview',
+      icon: <FileText />,
+      moduleKey: 'overview',
+    },
+    {
+      id: 'essentialDetails',
+      label: 'איפיון ממוקד',
+      path: '/module/essentialDetails',
+      icon: <Target />,
+      moduleKey: 'essentialDetails',
+    },
+    {
+      id: 'leadsAndSales',
+      label: 'לידים ומכירות',
+      path: '/module/leadsAndSales',
+      icon: <Users />,
+      moduleKey: 'leadsAndSales',
+    },
+    {
+      id: 'customerService',
+      label: 'שירות לקוחות',
+      path: '/module/customerService',
+      icon: <Package />,
+      moduleKey: 'customerService',
+    },
+    {
+      id: 'operations',
+      label: 'תפעול',
+      path: '/module/operations',
+      icon: <Settings />,
+      moduleKey: 'operations',
+    },
+    {
+      id: 'reporting',
+      label: 'דיווח',
+      path: '/module/reporting',
+      icon: <BarChart3 />,
+      moduleKey: 'reporting',
+    },
+    {
+      id: 'aiAgents',
+      label: 'סוכני AI',
+      path: '/module/aiAgents',
+      icon: <Bot />,
+      moduleKey: 'aiAgents',
+    },
+    {
+      id: 'systems',
+      label: 'מערכות',
+      path: '/module/systems',
+      icon: <Server />,
+      moduleKey: 'systems',
+    },
+    {
+      id: 'roi',
+      label: 'ROI',
+      path: '/module/roi',
+      icon: <TrendingUp />,
+      moduleKey: 'roi',
+    },
   ];
 
   // Phase 2 - top-level static items inside the group
   const implementationStaticItems: NavigationItem[] = [
-    { id: 'phase2-dashboard', label: 'מפרט יישום – לוח', labelEn: 'Spec Dashboard', path: '/phase2', icon: <Briefcase />, phase: 'implementation_spec' },
-    { id: 'phase2-requirements', label: 'איסוף דרישות', labelEn: 'Requirements', path: '/phase2/service-requirements', icon: <FileText />, phase: 'implementation_spec' },
+    {
+      id: 'phase2-dashboard',
+      label: 'מפרט יישום – לוח',
+      labelEn: 'Spec Dashboard',
+      path: '/phase2',
+      icon: <Briefcase />,
+      phase: 'implementation_spec',
+    },
+    {
+      id: 'phase2-requirements',
+      label: 'איסוף דרישות',
+      labelEn: 'Requirements',
+      path: '/phase2/service-requirements',
+      icon: <FileText />,
+      phase: 'implementation_spec',
+    },
   ];
 
   // Phase 3 - Development navigation items
   const developmentItems: NavigationItem[] = [
-    { id: 'phase3-dashboard', label: 'Development Dashboard', path: '/phase3', icon: <Code />, phase: 'development' },
-    { id: 'phase3-sprints', label: 'Sprints', path: '/phase3/sprints', icon: <Rocket />, phase: 'development' },
-    { id: 'phase3-systems', label: 'Systems', path: '/phase3/systems', icon: <Server />, phase: 'development' },
+    {
+      id: 'phase3-dashboard',
+      label: 'Development Dashboard',
+      path: '/phase3',
+      icon: <Code />,
+      phase: 'development',
+    },
+    {
+      id: 'phase3-sprints',
+      label: 'Sprints',
+      path: '/phase3/sprints',
+      icon: <Rocket />,
+      phase: 'development',
+    },
+    {
+      id: 'phase3-systems',
+      label: 'Systems',
+      path: '/phase3/systems',
+      icon: <Server />,
+      phase: 'development',
+    },
   ];
 
   // Determine active phase and items
@@ -77,8 +164,12 @@ export const GlobalNavigation: React.FC = () => {
   const isEnglish = currentPhase === 'development';
 
   // Collapse state (defaults depend on phase)
-  const [discoveryOpen, setDiscoveryOpen] = React.useState(currentPhase === 'discovery');
-  const [specOpen, setSpecOpen] = React.useState(currentPhase === 'implementation_spec');
+  const [discoveryOpen, setDiscoveryOpen] = React.useState(
+    currentPhase === 'discovery'
+  );
+  const [specOpen, setSpecOpen] = React.useState(
+    currentPhase === 'implementation_spec'
+  );
 
   React.useEffect(() => {
     // Auto toggle groups when phase changes
@@ -89,21 +180,30 @@ export const GlobalNavigation: React.FC = () => {
   const getProgressIndicator = (moduleKey?: string) => {
     if (!moduleKey) return null;
 
-    const moduleData = moduleProgress.find(m => m.moduleId === moduleKey);
+    const moduleData = moduleProgress.find((m) => m.moduleId === moduleKey);
     if (!moduleData) return null;
 
     // Calculate percentage from completed and total
-    const progress = moduleData.total > 0 ? Math.round((moduleData.completed / moduleData.total) * 100) : 0;
+    const progress =
+      moduleData.total > 0
+        ? Math.round((moduleData.completed / moduleData.total) * 100)
+        : 0;
     if (progress === 100) {
       return <CheckCircle className="w-4 h-4 text-green-600" />;
     } else if (progress > 0) {
-      return <Badge variant="primary" size="sm">{progress}%</Badge>;
+      return (
+        <Badge variant="primary" size="sm">
+          {progress}%
+        </Badge>
+      );
     }
     return <Circle className="w-4 h-4 text-gray-300" />;
   };
 
   const isActive = (path: string) => {
-    return location.pathname === path || location.pathname.startsWith(path + '/');
+    return (
+      location.pathname === path || location.pathname.startsWith(path + '/')
+    );
   };
 
   // Phase progress badges for group headers
@@ -111,14 +211,18 @@ export const GlobalNavigation: React.FC = () => {
   const specProgress = getPhaseProgress('implementation_spec');
 
   // Phase 2 purchased services
-  const purchasedServices = currentMeeting?.modules?.proposal?.purchasedServices || [];
+  const purchasedServices =
+    currentMeeting?.modules?.proposal?.purchasedServices || [];
 
   // Build a set of completed service IDs from implementationSpec
   const completedServiceIds = React.useMemo(() => {
     const set = new Set<string>();
     const spec = currentMeeting?.implementationSpec as any;
     if (!spec) return set;
-    const collect = (arr?: any[]) => arr?.forEach((x) => { if (x?.serviceId) set.add(x.serviceId); });
+    const collect = (arr?: any[]) =>
+      arr?.forEach((x) => {
+        if (x?.serviceId) set.add(x.serviceId);
+      });
     collect(spec.automations);
     collect(spec.aiAgentServices);
     collect(spec.integrationServices);
@@ -139,7 +243,10 @@ export const GlobalNavigation: React.FC = () => {
           {isEnglish ? 'Discovery Assistant' : 'מנהל גילויים'}
         </h2>
         {currentMeeting && (
-          <p className="text-sm text-gray-600 mt-1 truncate" title={currentMeeting.clientName}>
+          <p
+            className="text-sm text-gray-600 mt-1 truncate"
+            title={currentMeeting.clientName}
+          >
             {currentMeeting.clientName}
           </p>
         )}
@@ -149,12 +256,20 @@ export const GlobalNavigation: React.FC = () => {
       {currentMeeting && (
         <div className="p-4 bg-blue-50 border-b border-blue-100">
           <div className="flex items-center gap-2">
-            {currentPhase === 'discovery' && <FileText className="w-4 h-4 text-blue-600" />}
-            {currentPhase === 'implementation_spec' && <Briefcase className="w-4 h-4 text-blue-600" />}
-            {currentPhase === 'development' && <Code className="w-4 h-4 text-blue-600" />}
+            {currentPhase === 'discovery' && (
+              <FileText className="w-4 h-4 text-blue-600" />
+            )}
+            {currentPhase === 'implementation_spec' && (
+              <Briefcase className="w-4 h-4 text-blue-600" />
+            )}
+            {currentPhase === 'development' && (
+              <Code className="w-4 h-4 text-blue-600" />
+            )}
             <span className="text-sm font-medium text-blue-900">
-              {currentPhase === 'discovery' && (isEnglish ? 'Phase 1: Discovery' : 'שלב 1: גילוי')}
-              {currentPhase === 'implementation_spec' && (isEnglish ? 'Phase 2: Spec' : 'שלב 2: מפרט')}
+              {currentPhase === 'discovery' &&
+                (isEnglish ? 'Phase 1: Discovery' : 'שלב 1: גילוי')}
+              {currentPhase === 'implementation_spec' &&
+                (isEnglish ? 'Phase 2: Spec' : 'שלב 2: מפרט')}
               {currentPhase === 'development' && 'Phase 3: Development'}
             </span>
           </div>
@@ -174,10 +289,14 @@ export const GlobalNavigation: React.FC = () => {
           `}
           aria-current={isActive('/dashboard') ? 'page' : undefined}
         >
-          <span className={`flex-shrink-0 ${isActive('/dashboard') ? 'text-blue-700' : 'text-gray-500'}`}>
+          <span
+            className={`flex-shrink-0 ${isActive('/dashboard') ? 'text-blue-700' : 'text-gray-500'}`}
+          >
             <Home />
           </span>
-          <span className="flex-1 truncate">{isEnglish ? 'Dashboard' : 'לוח בקרה'}</span>
+          <span className="flex-1 truncate">
+            {isEnglish ? 'Dashboard' : 'לוח בקרה'}
+          </span>
         </button>
 
         {/* Discovery group */}
@@ -189,16 +308,26 @@ export const GlobalNavigation: React.FC = () => {
               ${isEnglish ? 'text-left' : 'text-right'}
             `}
           >
-            <span className="flex-shrink-0 text-gray-600"><FileText /></span>
-            <span className="flex-1 truncate">{isEnglish ? 'Phase 1: Discovery' : 'שלב 1: גילוי'}</span>
+            <span className="flex-shrink-0 text-gray-600">
+              <FileText />
+            </span>
+            <span className="flex-1 truncate">
+              {isEnglish ? 'Phase 1: Discovery' : 'שלב 1: גילוי'}
+            </span>
             <span className="ml-2">
               {discoveryProgress >= 100 ? (
                 <CheckCircle className="w-4 h-4 text-green-600" />
               ) : (
-                <Badge variant="primary" size="sm">{discoveryProgress}%</Badge>
+                <Badge variant="primary" size="sm">
+                  {discoveryProgress}%
+                </Badge>
               )}
             </span>
-            {discoveryOpen ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+            {discoveryOpen ? (
+              <ChevronUp className="w-4 h-4 text-gray-500" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-gray-500" />
+            )}
           </button>
 
           {discoveryOpen && (
@@ -215,7 +344,11 @@ export const GlobalNavigation: React.FC = () => {
                     `}
                     aria-current={active ? 'page' : undefined}
                   >
-                    <span className={`flex-shrink-0 ${active ? 'text-blue-700' : 'text-gray-500'}`}>{item.icon}</span>
+                    <span
+                      className={`flex-shrink-0 ${active ? 'text-blue-700' : 'text-gray-500'}`}
+                    >
+                      {item.icon}
+                    </span>
                     <span className="flex-1 truncate">{item.label}</span>
                     {getProgressIndicator(item.moduleKey)}
                   </button>
@@ -234,8 +367,14 @@ export const GlobalNavigation: React.FC = () => {
               ${isEnglish ? 'text-left' : 'text-right'}
             `}
           >
-            <span className={`flex-shrink-0 ${isActive('/module/proposal') ? 'text-blue-700' : 'text-gray-500'}`}><FileCheck /></span>
-            <span className="flex-1 truncate">{isEnglish ? 'Proposal' : 'הצעה'}</span>
+            <span
+              className={`flex-shrink-0 ${isActive('/module/proposal') ? 'text-blue-700' : 'text-gray-500'}`}
+            >
+              <FileCheck />
+            </span>
+            <span className="flex-1 truncate">
+              {isEnglish ? 'Proposal' : 'הצעה'}
+            </span>
           </button>
         </div>
 
@@ -248,16 +387,26 @@ export const GlobalNavigation: React.FC = () => {
               ${isEnglish ? 'text-left' : 'text-right'}
             `}
           >
-            <span className="flex-shrink-0 text-gray-600"><Briefcase /></span>
-            <span className="flex-1 truncate">{isEnglish ? 'Phase 2: Implementation Spec' : 'שלב 2: מפרט יישום'}</span>
+            <span className="flex-shrink-0 text-gray-600">
+              <Briefcase />
+            </span>
+            <span className="flex-1 truncate">
+              {isEnglish ? 'Phase 2: Implementation Spec' : 'שלב 2: מפרט יישום'}
+            </span>
             <span className="ml-2">
               {specProgress >= 100 ? (
                 <CheckCircle className="w-4 h-4 text-green-600" />
               ) : (
-                <Badge variant="primary" size="sm">{specProgress}%</Badge>
+                <Badge variant="primary" size="sm">
+                  {specProgress}%
+                </Badge>
               )}
             </span>
-            {specOpen ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+            {specOpen ? (
+              <ChevronUp className="w-4 h-4 text-gray-500" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-gray-500" />
+            )}
           </button>
 
           {specOpen && (
@@ -276,8 +425,14 @@ export const GlobalNavigation: React.FC = () => {
                     aria-current={active ? 'page' : undefined}
                     title={disabled ? 'יש לקבל אישור לקוח' : undefined}
                   >
-                    <span className={`flex-shrink-0 ${active ? 'text-blue-700' : 'text-gray-500'}`}>{item.icon}</span>
-                    <span className="flex-1 truncate">{isEnglish && item.labelEn ? item.labelEn : item.label}</span>
+                    <span
+                      className={`flex-shrink-0 ${active ? 'text-blue-700' : 'text-gray-500'}`}
+                    >
+                      {item.icon}
+                    </span>
+                    <span className="flex-1 truncate">
+                      {isEnglish && item.labelEn ? item.labelEn : item.label}
+                    </span>
                   </button>
                 );
               })}
@@ -290,8 +445,14 @@ export const GlobalNavigation: React.FC = () => {
                     ${isEnglish ? 'text-left' : 'text-right'}
                   `}
                 >
-                  <span className="flex-shrink-0 text-gray-500"><AlertCircle /></span>
-                  <span className="flex-1 truncate">{isEnglish ? 'No purchased services – go to Proposal' : 'לא נרכשו שירותים – עבור להצעה'}</span>
+                  <span className="flex-shrink-0 text-gray-500">
+                    <AlertCircle />
+                  </span>
+                  <span className="flex-1 truncate">
+                    {isEnglish
+                      ? 'No purchased services – go to Proposal'
+                      : 'לא נרכשו שירותים – עבור להצעה'}
+                  </span>
                 </button>
               ) : (
                 purchasedServices.map((svc: any) => {
@@ -310,9 +471,19 @@ export const GlobalNavigation: React.FC = () => {
                       aria-current={active ? 'page' : undefined}
                       title={disabled ? 'יש לקבל אישור לקוח' : undefined}
                     >
-                      <span className={`flex-shrink-0 ${active ? 'text-blue-700' : 'text-gray-500'}`}><FileText /></span>
-                      <span className="flex-1 truncate">{svc.nameHe || svc.name}</span>
-                      {isDone ? <CheckCircle className="w-4 h-4 text-green-600" /> : <Circle className="w-4 h-4 text-gray-300" />}
+                      <span
+                        className={`flex-shrink-0 ${active ? 'text-blue-700' : 'text-gray-500'}`}
+                      >
+                        <FileText />
+                      </span>
+                      <span className="flex-1 truncate">
+                        {svc.nameHe || svc.name}
+                      </span>
+                      {isDone ? (
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                      ) : (
+                        <Circle className="w-4 h-4 text-gray-300" />
+                      )}
                     </button>
                   );
                 })
@@ -336,7 +507,11 @@ export const GlobalNavigation: React.FC = () => {
                   `}
                   aria-current={active ? 'page' : undefined}
                 >
-                  <span className={`flex-shrink-0 ${active ? 'text-blue-700' : 'text-gray-500'}`}>{item.icon}</span>
+                  <span
+                    className={`flex-shrink-0 ${active ? 'text-blue-700' : 'text-gray-500'}`}
+                  >
+                    {item.icon}
+                  </span>
                   <span className="flex-1 truncate">{item.label}</span>
                 </button>
               );

@@ -49,7 +49,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   allowedStatuses,
   requireMeeting = true,
   errorMessage,
-  language = 'he'
+  language = 'he',
 }) => {
   const { currentMeeting, canTransitionTo } = useMeetingStore();
   const navigate = useNavigate();
@@ -62,7 +62,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     const validateAccess = async () => {
       // Check if meeting is required but not loaded
       if (requireMeeting && !currentMeeting) {
-        console.warn('[ProtectedRoute] No meeting loaded, redirecting to dashboard');
+        console.warn(
+          '[ProtectedRoute] No meeting loaded, redirecting to dashboard'
+        );
         if (isMounted) {
           toast.error(
             language === 'he'
@@ -70,7 +72,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
               : 'Please load a meeting first',
             {
               duration: 3000,
-              icon: '⚠️'
+              icon: '⚠️',
             }
           );
           navigate('/dashboard');
@@ -96,11 +98,15 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         // Check if current phase matches required phase
         if (currentPhase !== requiredPhase) {
           // Special case: Allow access to Phase 2 if client has approved (auto-transition will happen inside)
-          if (requiredPhase === 'implementation_spec' &&
-              currentPhase === 'discovery' &&
-              currentStatus === 'client_approved') {
+          if (
+            requiredPhase === 'implementation_spec' &&
+            currentPhase === 'discovery' &&
+            currentStatus === 'client_approved'
+          ) {
             // Allow access - ImplementationSpecDashboard will handle the auto-transition
-            console.log('[ProtectedRoute] Allowing Phase 2 access with client_approved status');
+            console.log(
+              '[ProtectedRoute] Allowing Phase 2 access with client_approved status'
+            );
           } else {
             // Check if user can transition to this phase
             const canAccess = canTransitionTo(requiredPhase);
@@ -121,7 +127,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
                 toast.error(message, {
                   duration: 4000,
                   icon: '🔒',
-                  position: 'top-center'
+                  position: 'top-center',
                 });
 
                 // Redirect to appropriate route for current phase
@@ -141,7 +147,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         if (!allowedStatuses.includes(currentStatus)) {
           console.warn(
             `[ProtectedRoute] Access denied: Status must be one of [${allowedStatuses.join(', ')}], ` +
-            `current status is "${currentStatus}"`
+              `current status is "${currentStatus}"`
           );
 
           if (isMounted) {
@@ -154,7 +160,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
             toast.error(message, {
               duration: 4000,
               icon: '🔒',
-              position: 'top-center'
+              position: 'top-center',
             });
 
             navigateToPhaseRoute(currentMeeting.phase);
@@ -176,7 +182,16 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [currentMeeting, requiredPhase, allowedStatuses, requireMeeting, canTransitionTo, navigate, language, errorMessage]);
+  }, [
+    currentMeeting,
+    requiredPhase,
+    allowedStatuses,
+    requireMeeting,
+    canTransitionTo,
+    navigate,
+    language,
+    errorMessage,
+  ]);
 
   /**
    * Navigate to the default route for a given phase

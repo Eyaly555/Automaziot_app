@@ -5,7 +5,13 @@ import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import type { AutoAppointmentRemindersRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
-import { Plus, Trash2, Save, CheckCircle, Info as InfoIcon } from 'lucide-react';
+import {
+  Plus,
+  Trash2,
+  Save,
+  CheckCircle,
+  Info as InfoIcon,
+} from 'lucide-react';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -17,42 +23,42 @@ export function AutoAppointmentRemindersSpec() {
     fieldId: 'calendar_system',
     localPath: 'appointmentSources.calendarSystem',
     serviceId: 'auto-appointment-reminders',
-    autoSave: false
+    autoSave: false,
   });
 
   const businessHoursStart = useSmartField<string>({
     fieldId: 'business_hours_start',
     localPath: 'schedulingRules.businessHours.start',
     serviceId: 'auto-appointment-reminders',
-    autoSave: false
+    autoSave: false,
   });
 
   const businessHoursEnd = useSmartField<string>({
     fieldId: 'business_hours_end',
     localPath: 'schedulingRules.businessHours.end',
     serviceId: 'auto-appointment-reminders',
-    autoSave: false
+    autoSave: false,
   });
 
   const emailProvider = useSmartField<string>({
     fieldId: 'email_provider',
     localPath: 'emailServiceAccess.provider',
     serviceId: 'auto-appointment-reminders',
-    autoSave: false
+    autoSave: false,
   });
 
   const n8nInstanceUrl = useSmartField<string>({
     fieldId: 'n8n_instance_url',
     localPath: 'n8nWorkflow.instanceUrl',
     serviceId: 'auto-appointment-reminders',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'n8nWorkflow.errorHandling.alertEmail',
     serviceId: 'auto-appointment-reminders',
-    autoSave: false
+    autoSave: false,
   });
 
   const [config, setConfig] = useState<AutoAppointmentRemindersRequirements>({
@@ -60,13 +66,13 @@ export function AutoAppointmentRemindersSpec() {
       enabled: true,
       reminderTypes: ['email', 'sms'],
       leadTime: 24, // hours before appointment
-      maxReminders: 3
+      maxReminders: 3,
     },
     appointmentSources: {
       calendarSystem: '',
       calendarSystems: ['google_calendar', 'outlook'],
       crmIntegration: true,
-      manualEntry: false
+      manualEntry: false,
     },
     // Add emailServiceAccess if not present
     emailServiceAccess: {
@@ -75,8 +81,8 @@ export function AutoAppointmentRemindersSpec() {
       domainVerified: false,
       rateLimits: {
         daily: 0,
-        monthly: 0
-      }
+        monthly: 0,
+      },
     },
     // Add n8nWorkflow section
     n8nWorkflow: {
@@ -85,42 +91,48 @@ export function AutoAppointmentRemindersSpec() {
       httpsEnabled: true,
       errorHandling: {
         retryAttempts: 3,
-        alertEmail: ''
-      }
+        alertEmail: '',
+      },
     },
     notificationContent: {
       templates: {
         email: {
           subject: 'תזכורת פגישה - {clientName}',
-          body: 'שלום {clientName},\n\nזוהי תזכורת לפגישה שלנו ב-{appointmentTime}.\n\nפרטי הפגישה:\n{appointmentDetails}\n\nבברכה,\n{companyName}'
+          body: 'שלום {clientName},\n\nזוהי תזכורת לפגישה שלנו ב-{appointmentTime}.\n\nפרטי הפגישה:\n{appointmentDetails}\n\nבברכה,\n{companyName}',
         },
         sms: {
-          message: 'תזכורת: פגישה עם {clientName} ב-{appointmentTime}. פרטים: {appointmentDetails}'
-        }
+          message:
+            'תזכורת: פגישה עם {clientName} ב-{appointmentTime}. פרטים: {appointmentDetails}',
+        },
       },
-      personalizationFields: ['clientName', 'appointmentTime', 'appointmentDetails', 'companyName']
+      personalizationFields: [
+        'clientName',
+        'appointmentTime',
+        'appointmentDetails',
+        'companyName',
+      ],
     },
     schedulingRules: {
       businessHours: {
         start: '09:00',
         end: '18:00',
-        workDays: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday']
+        workDays: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'],
       },
       blackoutDates: [],
-      reschedulePolicy: 'manual_only'
+      reschedulePolicy: 'manual_only',
     },
     followUp: {
       postAppointment: {
         enabled: true,
         delay: 1, // hours after appointment
-        template: 'תודה שהשתתפת בפגישה. האם תרצה לקבוע פגישה נוספת?'
-      }
+        template: 'תודה שהשתתפת בפגישה. האם תרצה לקבוע פגישה נוספת?',
+      },
     },
     integration: {
       calendarSync: true,
       crmUpdates: true,
-      analyticsTracking: false
-    }
+      analyticsTracking: false,
+    },
   });
 
   // Track if we're currently loading data to prevent save loops
@@ -130,7 +142,7 @@ export function AutoAppointmentRemindersSpec() {
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-appointment-reminders',
-    category: 'automations'
+    category: 'automations',
   });
 
   useBeforeUnload(() => {
@@ -139,35 +151,40 @@ export function AutoAppointmentRemindersSpec() {
       ...config,
       appointmentSources: {
         ...config.appointmentSources,
-        calendarSystem: calendarSystem.value
+        calendarSystem: calendarSystem.value,
       },
       schedulingRules: {
         ...config.schedulingRules,
         businessHours: {
           ...config.schedulingRules.businessHours,
-          start: businessHoursStart.value || config.schedulingRules.businessHours.start,
-          end: businessHoursEnd.value || config.schedulingRules.businessHours.end
-        }
+          start:
+            businessHoursStart.value ||
+            config.schedulingRules.businessHours.start,
+          end:
+            businessHoursEnd.value || config.schedulingRules.businessHours.end,
+        },
       },
       emailServiceAccess: {
         ...config.emailServiceAccess,
-        provider: emailProvider.value
+        provider: emailProvider.value,
       },
       n8nWorkflow: {
         ...config.n8nWorkflow,
         instanceUrl: n8nInstanceUrl.value,
         errorHandling: {
           ...config.n8nWorkflow.errorHandling,
-          alertEmail: alertEmail.value
-        }
-      }
+          alertEmail: alertEmail.value,
+        },
+      },
     };
     saveData(completeConfig);
   });
 
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
-    const existing = automations.find((a: any) => a.serviceId === 'auto-appointment-reminders');
+    const existing = automations.find(
+      (a: any) => a.serviceId === 'auto-appointment-reminders'
+    );
 
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
@@ -176,7 +193,9 @@ export function AutoAppointmentRemindersSpec() {
       if (existingConfigJson !== lastLoadedConfigRef.current) {
         isLoadingRef.current = true;
         lastLoadedConfigRef.current = existingConfigJson;
-        setConfig(existing.requirements as AutoAppointmentRemindersRequirements);
+        setConfig(
+          existing.requirements as AutoAppointmentRemindersRequirements
+        );
 
         // Reset loading flag after state update completes
         setTimeout(() => {
@@ -191,47 +210,68 @@ export function AutoAppointmentRemindersSpec() {
   // Auto-save is now handled by handleFieldChange callback
 
   // ✅ handleFieldChange - שמירה חכמה כשמשתמש משנה שדות
-  const handleFieldChange = useCallback((field: string, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
+  const handleFieldChange = useCallback(
+    (field: string, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
 
-      // Save after state update (only if not loading)
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = {
-            ...updated,
-            appointmentSources: {
-              ...updated.appointmentSources,
-              calendarSystem: calendarSystem.value || updated.appointmentSources.calendarSystem
-            },
-            schedulingRules: {
-              ...updated.schedulingRules,
-              businessHours: {
-                ...updated.schedulingRules.businessHours,
-                start: businessHoursStart.value || updated.schedulingRules.businessHours.start,
-                end: businessHoursEnd.value || updated.schedulingRules.businessHours.end
-              }
-            },
-            emailServiceAccess: {
-              ...updated.emailServiceAccess,
-              provider: emailProvider.value || updated.emailServiceAccess.provider
-            },
-            n8nWorkflow: {
-              ...updated.n8nWorkflow,
-              instanceUrl: n8nInstanceUrl.value || updated.n8nWorkflow.instanceUrl,
-              errorHandling: {
-                ...updated.n8nWorkflow.errorHandling,
-                alertEmail: alertEmail.value || updated.n8nWorkflow.errorHandling.alertEmail
-              }
-            }
-          };
-          saveData(completeConfig);
-        }
-      }, 0);
+        // Save after state update (only if not loading)
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = {
+              ...updated,
+              appointmentSources: {
+                ...updated.appointmentSources,
+                calendarSystem:
+                  calendarSystem.value ||
+                  updated.appointmentSources.calendarSystem,
+              },
+              schedulingRules: {
+                ...updated.schedulingRules,
+                businessHours: {
+                  ...updated.schedulingRules.businessHours,
+                  start:
+                    businessHoursStart.value ||
+                    updated.schedulingRules.businessHours.start,
+                  end:
+                    businessHoursEnd.value ||
+                    updated.schedulingRules.businessHours.end,
+                },
+              },
+              emailServiceAccess: {
+                ...updated.emailServiceAccess,
+                provider:
+                  emailProvider.value || updated.emailServiceAccess.provider,
+              },
+              n8nWorkflow: {
+                ...updated.n8nWorkflow,
+                instanceUrl:
+                  n8nInstanceUrl.value || updated.n8nWorkflow.instanceUrl,
+                errorHandling: {
+                  ...updated.n8nWorkflow.errorHandling,
+                  alertEmail:
+                    alertEmail.value ||
+                    updated.n8nWorkflow.errorHandling.alertEmail,
+                },
+              },
+            };
+            saveData(completeConfig);
+          }
+        }, 0);
 
-      return updated;
-    });
-  }, [saveData, calendarSystem.value, businessHoursStart.value, businessHoursEnd.value, emailProvider.value, n8nInstanceUrl.value, alertEmail.value]);
+        return updated;
+      });
+    },
+    [
+      saveData,
+      calendarSystem.value,
+      businessHoursStart.value,
+      businessHoursEnd.value,
+      emailProvider.value,
+      n8nInstanceUrl.value,
+      alertEmail.value,
+    ]
+  );
 
   const handleSave = async () => {
     if (isLoadingRef.current) return;
@@ -240,28 +280,33 @@ export function AutoAppointmentRemindersSpec() {
       ...config,
       appointmentSources: {
         ...config.appointmentSources,
-        calendarSystem: calendarSystem.value || config.appointmentSources.calendarSystem
+        calendarSystem:
+          calendarSystem.value || config.appointmentSources.calendarSystem,
       },
       schedulingRules: {
         ...config.schedulingRules,
         businessHours: {
           ...config.schedulingRules.businessHours,
-          start: businessHoursStart.value || config.schedulingRules.businessHours.start,
-          end: businessHoursEnd.value || config.schedulingRules.businessHours.end
-        }
+          start:
+            businessHoursStart.value ||
+            config.schedulingRules.businessHours.start,
+          end:
+            businessHoursEnd.value || config.schedulingRules.businessHours.end,
+        },
       },
       emailServiceAccess: {
         ...config.emailServiceAccess,
-        provider: emailProvider.value || config.emailServiceAccess.provider
+        provider: emailProvider.value || config.emailServiceAccess.provider,
       },
       n8nWorkflow: {
         ...config.n8nWorkflow,
         instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow.instanceUrl,
         errorHandling: {
           ...config.n8nWorkflow.errorHandling,
-          alertEmail: alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail
-        }
-      }
+          alertEmail:
+            alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail,
+        },
+      },
     };
 
     await saveData(completeConfig, 'manual');
@@ -270,21 +315,30 @@ export function AutoAppointmentRemindersSpec() {
   return (
     <div className="space-y-6" dir="rtl">
       {/* Smart Fields Info Banner */}
-      {(calendarSystem.isAutoPopulated || businessHoursStart.isAutoPopulated || businessHoursEnd.isAutoPopulated || 
-        emailProvider.isAutoPopulated || n8nInstanceUrl.isAutoPopulated || alertEmail.isAutoPopulated) && (
+      {(calendarSystem.isAutoPopulated ||
+        businessHoursStart.isAutoPopulated ||
+        businessHoursEnd.isAutoPopulated ||
+        emailProvider.isAutoPopulated ||
+        n8nInstanceUrl.isAutoPopulated ||
+        alertEmail.isAutoPopulated) && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3">
           <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <h4 className="font-semibold text-blue-900 mb-1">
+              נתונים מולאו אוטומטית משלב 1
+            </h4>
             <p className="text-sm text-blue-800">
-              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-              תוכל לערוך אותם במידת הצורך.
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל לערוך
+              אותם במידת הצורך.
             </p>
           </div>
         </div>
       )}
 
-      <Card title="הגדרות הזכרות פגישות" subtitle="הגדר את אופן שליחת ההזכרות לפגישות">
+      <Card
+        title="הגדרות הזכרות פגישות"
+        subtitle="הגדר את אופן שליחת ההזכרות לפגישות"
+      >
         <div className="space-y-6">
           {/* הגדרות בסיסיות - add smart fields where applicable */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -305,7 +359,9 @@ export function AutoAppointmentRemindersSpec() {
                 value={calendarSystem.value || ''}
                 onChange={(e) => calendarSystem.setValue(e.target.value)}
                 className={`w-full p-2 border rounded-lg ${
-                  calendarSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  calendarSystem.isAutoPopulated
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-300'
                 }`}
               >
                 <option value="">בחר מערכת יומנים</option>
@@ -315,16 +371,25 @@ export function AutoAppointmentRemindersSpec() {
                 <option value="apple_calendar">Apple Calendar</option>
               </select>
               {calendarSystem.isAutoPopulated && calendarSystem.source && (
-                <p className="text-xs text-gray-500 mt-1">מקור: {calendarSystem.source.description}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  מקור: {calendarSystem.source.description}
+                </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">זמן התראה (שעות לפני)</label>
+              <label className="block text-sm font-medium mb-2">
+                זמן התראה (שעות לפני)
+              </label>
               <input
                 type="number"
                 value={config.reminderSettings.leadTime}
-                onChange={(e) => handleFieldChange('reminderSettings.leadTime', parseInt(e.target.value) || 24)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'reminderSettings.leadTime',
+                    parseInt(e.target.value) || 24
+                  )
+                }
                 className="w-full p-2 border rounded-lg"
                 min="1"
                 max="168"
@@ -332,11 +397,18 @@ export function AutoAppointmentRemindersSpec() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">מקסימום הזכרות</label>
+              <label className="block text-sm font-medium mb-2">
+                מקסימום הזכרות
+              </label>
               <input
                 type="number"
                 value={config.reminderSettings.maxReminders}
-                onChange={(e) => handleFieldChange('reminderSettings.maxReminders', parseInt(e.target.value) || 3)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'reminderSettings.maxReminders',
+                    parseInt(e.target.value) || 3
+                  )
+                }
                 className="w-full p-2 border rounded-lg"
                 min="1"
                 max="10"
@@ -361,13 +433,18 @@ export function AutoAppointmentRemindersSpec() {
                 value={businessHoursStart.value || ''}
                 onChange={(e) => businessHoursStart.setValue(e.target.value)}
                 className={`w-full p-2 border rounded-lg ${
-                  businessHoursStart.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  businessHoursStart.isAutoPopulated
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-300'
                 }`}
                 placeholder="09:00"
               />
-              {businessHoursStart.isAutoPopulated && businessHoursStart.source && (
-                <p className="text-xs text-gray-500 mt-1">מקור: {businessHoursStart.source.description}</p>
-              )}
+              {businessHoursStart.isAutoPopulated &&
+                businessHoursStart.source && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {businessHoursStart.source.description}
+                  </p>
+                )}
             </div>
 
             {/* Business Hours End Smart Field */}
@@ -388,33 +465,55 @@ export function AutoAppointmentRemindersSpec() {
                 value={businessHoursEnd.value || ''}
                 onChange={(e) => businessHoursEnd.setValue(e.target.value)}
                 className={`w-full p-2 border rounded-lg ${
-                  businessHoursEnd.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  businessHoursEnd.isAutoPopulated
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-300'
                 }`}
                 placeholder="18:00"
               />
               {businessHoursEnd.isAutoPopulated && businessHoursEnd.source && (
-                <p className="text-xs text-gray-500 mt-1">מקור: {businessHoursEnd.source.description}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  מקור: {businessHoursEnd.source.description}
+                </p>
               )}
             </div>
           </div>
 
           {/* ערוצי התראה - add email provider smart field if email enabled */}
           <div>
-            <label className="block text-sm font-medium mb-2">ערוצי התראה</label>
+            <label className="block text-sm font-medium mb-2">
+              ערוצי התראה
+            </label>
             <div className="space-y-2">
-              {['email', 'sms', 'whatsapp'].map(channel => (
+              {['email', 'sms', 'whatsapp'].map((channel) => (
                 <label key={channel} className="flex items-center gap-2">
                   <input
                     type="checkbox"
-                    checked={config.reminderSettings.reminderTypes.includes(channel as any)}
+                    checked={config.reminderSettings.reminderTypes.includes(
+                      channel as any
+                    )}
                     onChange={(e) => {
                       const types = e.target.checked
-                        ? [...config.reminderSettings.reminderTypes, channel as any]
-                        : config.reminderSettings.reminderTypes.filter(t => t !== channel);
-                      handleFieldChange('reminderSettings.reminderTypes', types);
+                        ? [
+                            ...config.reminderSettings.reminderTypes,
+                            channel as any,
+                          ]
+                        : config.reminderSettings.reminderTypes.filter(
+                            (t) => t !== channel
+                          );
+                      handleFieldChange(
+                        'reminderSettings.reminderTypes',
+                        types
+                      );
                     }}
                   />
-                  <span className="capitalize">{channel === 'email' ? 'אימייל' : channel === 'sms' ? 'SMS' : 'וואטסאפ'}</span>
+                  <span className="capitalize">
+                    {channel === 'email'
+                      ? 'אימייל'
+                      : channel === 'sms'
+                        ? 'SMS'
+                        : 'וואטסאפ'}
+                  </span>
                 </label>
               ))}
             </div>
@@ -437,12 +536,16 @@ export function AutoAppointmentRemindersSpec() {
                   value={emailProvider.value || ''}
                   onChange={(e) => emailProvider.setValue(e.target.value)}
                   className={`w-full p-2 border rounded-lg ${
-                    emailProvider.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    emailProvider.isAutoPopulated
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-300'
                   }`}
                   placeholder="SendGrid, Mailgun, SMTP"
                 />
                 {emailProvider.isAutoPopulated && emailProvider.source && (
-                  <p className="text-xs text-gray-500 mt-1">מקור: {emailProvider.source.description}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {emailProvider.source.description}
+                  </p>
                 )}
               </div>
             )}
@@ -469,21 +572,32 @@ export function AutoAppointmentRemindersSpec() {
                   value={n8nInstanceUrl.value || ''}
                   onChange={(e) => n8nInstanceUrl.setValue(e.target.value)}
                   className={`w-full p-2 border rounded-lg ${
-                    n8nInstanceUrl.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    n8nInstanceUrl.isAutoPopulated
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-300'
                   }`}
                   placeholder="https://n8n.example.com"
                 />
                 {n8nInstanceUrl.isAutoPopulated && n8nInstanceUrl.source && (
-                  <p className="text-xs text-gray-500 mt-1">מקור: {n8nInstanceUrl.source.description}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {n8nInstanceUrl.source.description}
+                  </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Webhook Endpoint</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Webhook Endpoint
+                </label>
                 <input
                   type="url"
                   value={config.n8nWorkflow.webhookEndpoint || ''}
-                  onChange={(e) => handleFieldChange('n8nWorkflow.webhookEndpoint', e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'n8nWorkflow.webhookEndpoint',
+                      e.target.value
+                    )
+                  }
                   className="w-full p-2 border rounded-lg"
                   placeholder="https://n8n.example.com/webhook/..."
                 />
@@ -491,11 +605,18 @@ export function AutoAppointmentRemindersSpec() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">ניסיונות חוזרים</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ניסיונות חוזרים
+                  </label>
                   <input
                     type="number"
                     value={config.n8nWorkflow.errorHandling.retryAttempts || 3}
-                    onChange={(e) => handleFieldChange('n8nWorkflow.errorHandling.retryAttempts', parseInt(e.target.value) || 3)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'n8nWorkflow.errorHandling.retryAttempts',
+                        parseInt(e.target.value) || 3
+                      )
+                    }
                     className="w-full p-2 border rounded-lg"
                     min="0"
                     max="10"
@@ -519,12 +640,16 @@ export function AutoAppointmentRemindersSpec() {
                     value={alertEmail.value || ''}
                     onChange={(e) => alertEmail.setValue(e.target.value)}
                     className={`w-full p-2 border rounded-lg ${
-                      alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                      alertEmail.isAutoPopulated
+                        ? 'border-green-300 bg-green-50'
+                        : 'border-gray-300'
                     }`}
                     placeholder="alerts@example.com"
                   />
                   {alertEmail.isAutoPopulated && alertEmail.source && (
-                    <p className="text-xs text-gray-500 mt-1">מקור: {alertEmail.source.description}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      מקור: {alertEmail.source.description}
+                    </p>
                   )}
                 </div>
               </div>
@@ -533,7 +658,12 @@ export function AutoAppointmentRemindersSpec() {
                 <input
                   type="checkbox"
                   checked={config.n8nWorkflow.httpsEnabled || true}
-                  onChange={(e) => handleFieldChange('n8nWorkflow.httpsEnabled', e.target.checked)}
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'n8nWorkflow.httpsEnabled',
+                      e.target.checked
+                    )
+                  }
                   className="rounded border-gray-300"
                 />
                 <span className="text-sm">HTTPS מופעל</span>
@@ -547,20 +677,34 @@ export function AutoAppointmentRemindersSpec() {
             {config.reminderSettings.reminderTypes.includes('email') && (
               <div className="space-y-3 p-4 border rounded-lg">
                 <div>
-                  <label className="block text-sm font-medium mb-1">נושא אימייל</label>
+                  <label className="block text-sm font-medium mb-1">
+                    נושא אימייל
+                  </label>
                   <input
                     type="text"
                     value={config.notificationContent.templates.email.subject}
-                    onChange={(e) => handleFieldChange('notificationContent.templates.email.subject', e.target.value)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'notificationContent.templates.email.subject',
+                        e.target.value
+                      )
+                    }
                     className="w-full p-2 border rounded-lg"
                     placeholder="תזכורת פגישה - {clientName}"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">תוכן אימייל</label>
+                  <label className="block text-sm font-medium mb-1">
+                    תוכן אימייל
+                  </label>
                   <textarea
                     value={config.notificationContent.templates.email.body}
-                    onChange={(e) => handleFieldChange('notificationContent.templates.email.body', e.target.value)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'notificationContent.templates.email.body',
+                        e.target.value
+                      )
+                    }
                     rows={4}
                     className="w-full p-2 border rounded-lg"
                     placeholder="שלום {clientName}, זוהי תזכורת לפגישה..."
@@ -572,10 +716,17 @@ export function AutoAppointmentRemindersSpec() {
             {config.reminderSettings.reminderTypes.includes('sms') && (
               <div className="space-y-3 p-4 border rounded-lg">
                 <div>
-                  <label className="block text-sm font-medium mb-1">תוכן SMS</label>
+                  <label className="block text-sm font-medium mb-1">
+                    תוכן SMS
+                  </label>
                   <textarea
                     value={config.notificationContent.templates.sms.message}
-                    onChange={(e) => handleFieldChange('notificationContent.templates.sms.message', e.target.value)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'notificationContent.templates.sms.message',
+                        e.target.value
+                      )
+                    }
                     rows={2}
                     className="w-full p-2 border rounded-lg"
                     placeholder="תזכורת: פגישה עם {clientName} ב-{appointmentTime}"
@@ -620,6 +771,3 @@ export function AutoAppointmentRemindersSpec() {
     </div>
   );
 }
-
-
-

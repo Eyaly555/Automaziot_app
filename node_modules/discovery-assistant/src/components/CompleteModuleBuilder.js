@@ -1,6 +1,6 @@
 // This is a builder script to create all remaining modules
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 // Module 6 - AI Agents
 const AIAgentsContent = `import React, { useState, useEffect } from 'react';
@@ -231,13 +231,13 @@ export const AIAgentsModule: React.FC = () => {
 
 // Write the file
 fs.writeFileSync(
-  path.join(__dirname, 'src/components/Modules/AIAgents/AIAgentsModule.tsx'),
-  AIAgentsContent
+  path.join(__dirname, "src/components/Modules/AIAgents/AIAgentsModule.tsx"),
+  AIAgentsContent,
 );
 
-console.log('✅ Module 6 - AI Agents created');
-console.log('✅ Module 7 - Systems (placeholder exists)');
-console.log('✅ Module 8 - ROI (placeholder exists)');
-console.log('✅ Module 9 - Planning (placeholder exists)');
-console.log('\n🎉 ALL MODULES COMPLETE!');
-console.log('The app is fully functional and running at http://localhost:5174');
+console.log("✅ Module 6 - AI Agents created");
+console.log("✅ Module 7 - Systems (placeholder exists)");
+console.log("✅ Module 8 - ROI (placeholder exists)");
+console.log("✅ Module 9 - Planning (placeholder exists)");
+console.log("\n🎉 ALL MODULES COMPLETE!");
+console.log("The app is fully functional and running at http://localhost:5174");

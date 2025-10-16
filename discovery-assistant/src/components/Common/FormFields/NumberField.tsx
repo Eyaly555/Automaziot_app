@@ -31,7 +31,7 @@ export const NumberField: React.FC<NumberFieldProps> = ({
   error = false,
   suffix,
   prefix,
-  className = ''
+  className = '',
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;

@@ -107,9 +107,7 @@ export const Button: React.FC<ButtonProps> = ({
       `}
     >
       {/* Loading spinner */}
-      {loading && (
-        <Loader2 className={`${iconSizes[size]} animate-spin`} />
-      )}
+      {loading && <Loader2 className={`${iconSizes[size]} animate-spin`} />}
 
       {/* Left icon */}
       {!loading && icon && iconPosition === 'left' && (

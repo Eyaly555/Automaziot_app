@@ -1,12 +1,17 @@
 /**
  * Meeting Backup Service
- * 
+ *
  * Handles backup and restore of meeting data to/from localStorage.
  * Automatically manages backup expiration and cleanup.
  */
 
 import { Meeting } from '../types';
-import { BackupEntry, BackupMetadata, BackupResult, RestoreResult } from '../types/backup';
+import {
+  BackupEntry,
+  BackupMetadata,
+  BackupResult,
+  RestoreResult,
+} from '../types/backup';
 
 const BACKUP_PREFIX = 'meeting_backup_';
 const BACKUP_LIST_KEY = 'meeting_backup_list';
@@ -18,13 +23,13 @@ const BACKUP_EXPIRATION_HOURS = 24;
  * Automatically deletes old backups if limit is reached
  */
 export function createBackup(
-  meeting: Meeting, 
+  meeting: Meeting,
   reason: BackupEntry['reason'] = 'manual_backup'
 ): BackupResult {
   try {
     const timestamp = new Date();
     const backupId = `${BACKUP_PREFIX}${meeting.meetingId}_${timestamp.getTime()}`;
-    
+
     const expiresAt = new Date(timestamp);
     expiresAt.setHours(expiresAt.getHours() + BACKUP_EXPIRATION_HOURS);
 
@@ -34,7 +39,7 @@ export function createBackup(
       timestamp,
       meeting,
       reason,
-      expiresAt
+      expiresAt,
     };
 
     // Save backup to localStorage
@@ -47,16 +52,16 @@ export function createBackup(
     deleteOldBackups(meeting.meetingId, MAX_BACKUPS_PER_MEETING);
 
     console.log(`[BackupService] ✓ Backup created: ${backupId}`);
-    
+
     return {
       success: true,
-      backupId
+      backupId,
     };
   } catch (error) {
     console.error('[BackupService] Failed to create backup:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to create backup'
+      error: error instanceof Error ? error.message : 'Failed to create backup',
     };
   }
 }
@@ -67,20 +72,20 @@ export function createBackup(
 export function getAvailableBackups(meetingId: string): BackupEntry[] {
   try {
     const backupList = getBackupList();
-    const meetingBackups = backupList.filter(id => id.includes(meetingId));
-    
+    const meetingBackups = backupList.filter((id) => id.includes(meetingId));
+
     const backups: BackupEntry[] = [];
-    
+
     for (const backupId of meetingBackups) {
       try {
         const data = localStorage.getItem(backupId);
         if (data) {
           const backup: BackupEntry = JSON.parse(data);
-          
+
           // Convert date strings back to Date objects
           backup.timestamp = new Date(backup.timestamp);
           backup.expiresAt = new Date(backup.expiresAt);
-          
+
           // Check if expired
           if (backup.expiresAt < new Date()) {
             // Delete expired backup
@@ -88,17 +93,20 @@ export function getAvailableBackups(meetingId: string): BackupEntry[] {
             removeFromBackupList(backupId);
             continue;
           }
-          
+
           backups.push(backup);
         }
       } catch (parseError) {
-        console.error(`[BackupService] Failed to parse backup ${backupId}:`, parseError);
+        console.error(
+          `[BackupService] Failed to parse backup ${backupId}:`,
+          parseError
+        );
       }
     }
-    
+
     // Sort by timestamp (newest first)
     backups.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-    
+
     return backups;
   } catch (error) {
     console.error('[BackupService] Failed to get backups:', error);
@@ -111,15 +119,15 @@ export function getAvailableBackups(meetingId: string): BackupEntry[] {
  */
 export function getBackupMetadata(meetingId: string): BackupMetadata[] {
   const backups = getAvailableBackups(meetingId);
-  
-  return backups.map(backup => ({
+
+  return backups.map((backup) => ({
     id: backup.id,
     meetingId: backup.meetingId,
     clientName: backup.meeting.clientName,
     timestamp: backup.timestamp,
     reason: backup.reason,
     overallProgress: calculateProgress(backup.meeting),
-    expiresAt: backup.expiresAt
+    expiresAt: backup.expiresAt,
   }));
 }
 
@@ -129,42 +137,43 @@ export function getBackupMetadata(meetingId: string): BackupMetadata[] {
 export function restoreFromBackup(backupId: string): RestoreResult {
   try {
     const data = localStorage.getItem(backupId);
-    
+
     if (!data) {
       return {
         success: false,
-        error: 'Backup not found'
+        error: 'Backup not found',
       };
     }
-    
+
     const backup: BackupEntry = JSON.parse(data);
-    
+
     // Convert date strings back to Date objects
     backup.timestamp = new Date(backup.timestamp);
     backup.expiresAt = new Date(backup.expiresAt);
     backup.meeting.date = new Date(backup.meeting.date);
-    
+
     // Check if expired
     if (backup.expiresAt < new Date()) {
       localStorage.removeItem(backupId);
       removeFromBackupList(backupId);
       return {
         success: false,
-        error: 'Backup has expired'
+        error: 'Backup has expired',
       };
     }
-    
+
     console.log(`[BackupService] ✓ Restored from backup: ${backupId}`);
-    
+
     return {
       success: true,
-      meeting: backup.meeting
+      meeting: backup.meeting,
     };
   } catch (error) {
     console.error('[BackupService] Failed to restore backup:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to restore backup'
+      error:
+        error instanceof Error ? error.message : 'Failed to restore backup',
     };
   }
 }
@@ -172,14 +181,17 @@ export function restoreFromBackup(backupId: string): RestoreResult {
 /**
  * Deletes old backups, keeping only the specified number of most recent backups
  */
-export function deleteOldBackups(meetingId: string, keepCount: number = MAX_BACKUPS_PER_MEETING): void {
+export function deleteOldBackups(
+  meetingId: string,
+  keepCount: number = MAX_BACKUPS_PER_MEETING
+): void {
   try {
     const backups = getAvailableBackups(meetingId);
-    
+
     // Already sorted by timestamp (newest first)
     if (backups.length > keepCount) {
       const backupsToDelete = backups.slice(keepCount);
-      
+
       for (const backup of backupsToDelete) {
         localStorage.removeItem(backup.id);
         removeFromBackupList(backup.id);
@@ -213,14 +225,14 @@ export function cleanupExpiredBackups(): number {
   try {
     const backupList = getBackupList();
     let deletedCount = 0;
-    
+
     for (const backupId of backupList) {
       try {
         const data = localStorage.getItem(backupId);
         if (data) {
           const backup: BackupEntry = JSON.parse(data);
           backup.expiresAt = new Date(backup.expiresAt);
-          
+
           if (backup.expiresAt < new Date()) {
             localStorage.removeItem(backupId);
             removeFromBackupList(backupId);
@@ -231,18 +243,21 @@ export function cleanupExpiredBackups(): number {
           removeFromBackupList(backupId);
         }
       } catch (parseError) {
-        console.error(`[BackupService] Failed to parse backup ${backupId}:`, parseError);
+        console.error(
+          `[BackupService] Failed to parse backup ${backupId}:`,
+          parseError
+        );
         // Remove corrupted backup
         localStorage.removeItem(backupId);
         removeFromBackupList(backupId);
         deletedCount++;
       }
     }
-    
+
     if (deletedCount > 0) {
       console.log(`[BackupService] Cleaned up ${deletedCount} expired backups`);
     }
-    
+
     return deletedCount;
   } catch (error) {
     console.error('[BackupService] Failed to cleanup expired backups:', error);
@@ -288,7 +303,7 @@ function addToBackupList(backupId: string, meetingId: string): void {
 function removeFromBackupList(backupId: string): void {
   try {
     const list = getBackupList();
-    const filtered = list.filter(id => id !== backupId);
+    const filtered = list.filter((id) => id !== backupId);
     localStorage.setItem(BACKUP_LIST_KEY, JSON.stringify(filtered));
   } catch (error) {
     console.error('[BackupService] Failed to remove from backup list:', error);
@@ -300,27 +315,28 @@ function removeFromBackupList(backupId: string): void {
  */
 function calculateProgress(meeting: Meeting): number {
   if (!meeting.modules) return 0;
-  
+
   let totalFields = 0;
   let filledFields = 0;
-  
+
   for (const moduleKey in meeting.modules) {
-    const moduleData = meeting.modules[moduleKey as keyof typeof meeting.modules];
+    const moduleData =
+      meeting.modules[moduleKey as keyof typeof meeting.modules];
     if (moduleData && typeof moduleData === 'object') {
       const fields = Object.values(moduleData);
       totalFields += fields.length;
-      filledFields += fields.filter(value => 
-        value !== undefined && 
-        value !== null && 
-        value !== '' && 
-        !(Array.isArray(value) && value.length === 0)
+      filledFields += fields.filter(
+        (value) =>
+          value !== undefined &&
+          value !== null &&
+          value !== '' &&
+          !(Array.isArray(value) && value.length === 0)
       ).length;
     }
   }
-  
+
   return totalFields > 0 ? Math.round((filledFields / totalFields) * 100) : 0;
 }
 
 // Auto-cleanup expired backups on service initialization
 cleanupExpiredBackups();
-

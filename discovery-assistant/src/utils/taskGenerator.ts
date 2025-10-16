@@ -4,16 +4,26 @@
  * Generates development tasks from Phase 2 implementation specs
  */
 
-import { Meeting, DevelopmentTask, DetailedSystemSpec, IntegrationFlow, DetailedAIAgentSpec, SystemModule, TestCase, SampleConversation, ImplementationSpecData } from '../types';
+import {
+  Meeting,
+  DevelopmentTask,
+  DetailedSystemSpec,
+  IntegrationFlow,
+  DetailedAIAgentSpec,
+  SystemModule,
+  TestCase,
+  SampleConversation,
+  ImplementationSpecData,
+} from '../types';
 import { AutomationServiceEntry } from '../types/automationServices';
 import { AIAgentServiceEntry } from '../types/aiAgentServices';
 import { IntegrationServiceEntry } from '../types/integrationServices';
 import { SystemImplementationServiceEntry } from '../types/systemImplementationServices';
 import { AdditionalServiceEntry } from '../types/additionalServices';
-import { 
-  generateAutoLeadResponseInstructions, 
+import {
+  generateAutoLeadResponseInstructions,
   generateAutoFormToCrmInstructions,
-  formatInstructionsAsMarkdown
+  formatInstructionsAsMarkdown,
 } from './requirementsToInstructions';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -21,15 +31,18 @@ const generateId = () => Math.random().toString(36).substr(2, 9);
 /**
  * Convert Phase 2 TestCase to Phase 3 TaskTestCase
  */
-function convertToTaskTestCase(testCase: TestCase): import('../types/phase3').TaskTestCase {
+function convertToTaskTestCase(
+  testCase: TestCase
+): import('../types/phase3').TaskTestCase {
   return {
     id: testCase.id,
-    description: testCase.description || testCase.scenario || testCase.name || 'Test case',
+    description:
+      testCase.description || testCase.scenario || testCase.name || 'Test case',
     steps: testCase.steps || ['Execute test'],
     expectedResult: testCase.expectedResult?.toString() || 'Pass',
     passed: testCase.passed || false,
     testedBy: undefined,
-    testedAt: undefined
+    testedAt: undefined,
   };
 }
 
@@ -75,7 +88,10 @@ export function generateTasksFromPhase2(meeting: Meeting): DevelopmentTask[] {
   return tasks;
 }
 
-function generateSystemTasks(meetingId: string, system: DetailedSystemSpec): DevelopmentTask[] {
+function generateSystemTasks(
+  meetingId: string,
+  system: DetailedSystemSpec
+): DevelopmentTask[] {
   const tasks: DevelopmentTask[] = [];
 
   // 1. Authentication setup
@@ -88,7 +104,7 @@ function generateSystemTasks(meetingId: string, system: DetailedSystemSpec): Dev
     relatedSpec: {
       type: 'system',
       specId: system.id,
-      specName: system.systemName
+      specName: system.systemName,
     },
     status: 'todo',
     estimatedHours: 4,
@@ -101,16 +117,20 @@ function generateSystemTasks(meetingId: string, system: DetailedSystemSpec): Dev
       {
         id: generateId(),
         description: 'Test authentication with valid credentials',
-        steps: ['Provide valid API credentials', 'Attempt authentication', 'Verify success response'],
+        steps: [
+          'Provide valid API credentials',
+          'Attempt authentication',
+          'Verify success response',
+        ],
         expectedResult: 'Authentication successful with valid token',
-        passed: false
-      }
+        passed: false,
+      },
     ],
     testStatus: 'not_started',
     technicalNotes: system.technicalNotes || '',
     createdAt: new Date(),
     updatedAt: new Date(),
-    createdBy: 'system'
+    createdBy: 'system',
   });
 
   // 2. Module integration tasks
@@ -124,7 +144,7 @@ function generateSystemTasks(meetingId: string, system: DetailedSystemSpec): Dev
       relatedSpec: {
         type: 'system',
         specId: system.id,
-        specName: `${system.systemName} - ${module.name}`
+        specName: `${system.systemName} - ${module.name}`,
       },
       status: 'todo',
       estimatedHours: 8,
@@ -138,7 +158,7 @@ function generateSystemTasks(meetingId: string, system: DetailedSystemSpec): Dev
       technicalNotes: `Module requires mapping: ${module.requiresMapping}`,
       createdAt: new Date(),
       updatedAt: new Date(),
-      createdBy: 'system'
+      createdBy: 'system',
     });
 
     // Field mapping task if required
@@ -152,7 +172,7 @@ function generateSystemTasks(meetingId: string, system: DetailedSystemSpec): Dev
         relatedSpec: {
           type: 'system',
           specId: system.id,
-          specName: `${system.systemName} - ${module.name} Mapping`
+          specName: `${system.systemName} - ${module.name} Mapping`,
         },
         status: 'todo',
         estimatedHours: 3,
@@ -166,7 +186,7 @@ function generateSystemTasks(meetingId: string, system: DetailedSystemSpec): Dev
         technicalNotes: '',
         createdAt: new Date(),
         updatedAt: new Date(),
-        createdBy: 'system'
+        createdBy: 'system',
       });
     }
   });
@@ -182,7 +202,7 @@ function generateSystemTasks(meetingId: string, system: DetailedSystemSpec): Dev
       relatedSpec: {
         type: 'system',
         specId: system.id,
-        specName: `${system.systemName} Migration`
+        specName: `${system.systemName} Migration`,
       },
       status: 'todo',
       estimatedHours: 16,
@@ -196,14 +216,17 @@ function generateSystemTasks(meetingId: string, system: DetailedSystemSpec): Dev
       technicalNotes: `Rollback plan: ${system.dataMigration.rollbackPlan}`,
       createdAt: new Date(),
       updatedAt: new Date(),
-      createdBy: 'system'
+      createdBy: 'system',
     });
   }
 
   return tasks;
 }
 
-function generateIntegrationTasks(meetingId: string, integration: IntegrationFlow): DevelopmentTask[] {
+function generateIntegrationTasks(
+  meetingId: string,
+  integration: IntegrationFlow
+): DevelopmentTask[] {
   const tasks: DevelopmentTask[] = [];
 
   // 1. Create n8n workflow
@@ -216,12 +239,15 @@ function generateIntegrationTasks(meetingId: string, integration: IntegrationFlo
     relatedSpec: {
       type: 'integration_flow',
       specId: integration.id,
-      specName: integration.name
+      specName: integration.name,
     },
     status: 'todo',
     estimatedHours: 10,
     actualHours: 0,
-    priority: integration.priority === 'critical' ? 'critical' : integration.priority as any,
+    priority:
+      integration.priority === 'critical'
+        ? 'critical'
+        : (integration.priority as any),
     dependencies: [],
     blocksOtherTasks: [],
     testingRequired: true,
@@ -230,13 +256,13 @@ function generateIntegrationTasks(meetingId: string, integration: IntegrationFlo
       description: tc.name || tc.scenario || tc.description || 'Test case',
       steps: [tc.description || tc.scenario || tc.name || 'Execute test'],
       expectedResult: JSON.stringify(tc.expectedOutput || {}),
-      passed: false
+      passed: false,
     })),
     testStatus: 'not_started',
     technicalNotes: integration.description,
     createdAt: new Date(),
     updatedAt: new Date(),
-    createdBy: 'system'
+    createdBy: 'system',
   });
 
   // 2. Error handling implementation
@@ -249,7 +275,7 @@ function generateIntegrationTasks(meetingId: string, integration: IntegrationFlo
     relatedSpec: {
       type: 'integration_flow',
       specId: integration.id,
-      specName: `${integration.name} - Error Handling`
+      specName: `${integration.name} - Error Handling`,
     },
     status: 'todo',
     estimatedHours: 4,
@@ -263,13 +289,16 @@ function generateIntegrationTasks(meetingId: string, integration: IntegrationFlo
     technicalNotes: '',
     createdAt: new Date(),
     updatedAt: new Date(),
-    createdBy: 'system'
+    createdBy: 'system',
   });
 
   return tasks;
 }
 
-function generateAIAgentTasks(meetingId: string, agent: DetailedAIAgentSpec): DevelopmentTask[] {
+function generateAIAgentTasks(
+  meetingId: string,
+  agent: DetailedAIAgentSpec
+): DevelopmentTask[] {
   const tasks: DevelopmentTask[] = [];
 
   // 1. Knowledge base setup
@@ -277,12 +306,12 @@ function generateAIAgentTasks(meetingId: string, agent: DetailedAIAgentSpec): De
     id: generateId(),
     meetingId,
     title: `Set up knowledge base for ${agent.name}`,
-    description: `Configure ${agent.knowledgeBase.sources.length} knowledge sources\n\nSources: ${agent.knowledgeBase.sources.map(s => s.name).join(', ')}\nUpdate frequency: ${agent.knowledgeBase.updateFrequency}`,
+    description: `Configure ${agent.knowledgeBase.sources.length} knowledge sources\n\nSources: ${agent.knowledgeBase.sources.map((s) => s.name).join(', ')}\nUpdate frequency: ${agent.knowledgeBase.updateFrequency}`,
     type: 'ai_agent',
     relatedSpec: {
       type: 'ai_agent',
       specId: agent.id,
-      specName: `${agent.name} - Knowledge Base`
+      specName: `${agent.name} - Knowledge Base`,
     },
     status: 'todo',
     estimatedHours: 8,
@@ -296,7 +325,7 @@ function generateAIAgentTasks(meetingId: string, agent: DetailedAIAgentSpec): De
     technicalNotes: '',
     createdAt: new Date(),
     updatedAt: new Date(),
-    createdBy: 'system'
+    createdBy: 'system',
   });
 
   // 2. Conversation flow implementation
@@ -309,7 +338,7 @@ function generateAIAgentTasks(meetingId: string, agent: DetailedAIAgentSpec): De
     relatedSpec: {
       type: 'ai_agent',
       specId: agent.id,
-      specName: `${agent.name} - Conversation Flow`
+      specName: `${agent.name} - Conversation Flow`,
     },
     status: 'todo',
     estimatedHours: 12,
@@ -323,7 +352,7 @@ function generateAIAgentTasks(meetingId: string, agent: DetailedAIAgentSpec): De
     technicalNotes: '',
     createdAt: new Date(),
     updatedAt: new Date(),
-    createdBy: 'system'
+    createdBy: 'system',
   });
 
   // 3. Integration setup
@@ -337,7 +366,7 @@ function generateAIAgentTasks(meetingId: string, agent: DetailedAIAgentSpec): De
       relatedSpec: {
         type: 'ai_agent',
         specId: agent.id,
-        specName: `${agent.name} - CRM Integration`
+        specName: `${agent.name} - CRM Integration`,
       },
       status: 'todo',
       estimatedHours: 6,
@@ -351,7 +380,7 @@ function generateAIAgentTasks(meetingId: string, agent: DetailedAIAgentSpec): De
       technicalNotes: '',
       createdAt: new Date(),
       updatedAt: new Date(),
-      createdBy: 'system'
+      createdBy: 'system',
     });
   }
 
@@ -365,7 +394,7 @@ function generateAIAgentTasks(meetingId: string, agent: DetailedAIAgentSpec): De
     relatedSpec: {
       type: 'ai_agent',
       specId: agent.id,
-      specName: `${agent.name} - Training`
+      specName: `${agent.name} - Training`,
     },
     status: 'todo',
     estimatedHours: 8,
@@ -374,24 +403,31 @@ function generateAIAgentTasks(meetingId: string, agent: DetailedAIAgentSpec): De
     dependencies: [],
     blocksOtherTasks: [],
     testingRequired: true,
-    testCases: (agent.training.sampleConversations ?? agent.training.conversationExamples ?? []).map((convo: SampleConversation) => ({
+    testCases: (
+      agent.training.sampleConversations ??
+      agent.training.conversationExamples ??
+      []
+    ).map((convo: SampleConversation) => ({
       id: generateId(),
       description: convo.scenario,
       steps: convo.userMessages,
       expectedResult: convo.agentResponses.join('\n'),
-      passed: false
+      passed: false,
     })),
     testStatus: 'not_started',
     technicalNotes: `Tone: ${agent.training.toneAndStyle}`,
     createdAt: new Date(),
     updatedAt: new Date(),
-    createdBy: 'system'
+    createdBy: 'system',
   });
 
   return tasks;
 }
 
-function generateTestingTasks(meetingId: string, _spec: ImplementationSpecData): DevelopmentTask[] {
+function generateTestingTasks(
+  meetingId: string,
+  _spec: ImplementationSpecData
+): DevelopmentTask[] {
   const tasks: DevelopmentTask[] = [];
 
   // Integration testing
@@ -404,7 +440,7 @@ function generateTestingTasks(meetingId: string, _spec: ImplementationSpecData):
     relatedSpec: {
       type: 'acceptance_criteria',
       specId: 'testing',
-      specName: 'Integration Tests'
+      specName: 'Integration Tests',
     },
     status: 'todo',
     estimatedHours: 12,
@@ -418,7 +454,7 @@ function generateTestingTasks(meetingId: string, _spec: ImplementationSpecData):
     technicalNotes: '',
     createdAt: new Date(),
     updatedAt: new Date(),
-    createdBy: 'system'
+    createdBy: 'system',
   });
 
   return tasks;
@@ -431,12 +467,13 @@ function generateDeploymentTasks(meetingId: string): DevelopmentTask[] {
     id: generateId(),
     meetingId,
     title: 'Deploy to production',
-    description: 'Deploy all integrations and workflows to production environment',
+    description:
+      'Deploy all integrations and workflows to production environment',
     type: 'deployment',
     relatedSpec: {
       type: 'system',
       specId: 'deployment',
-      specName: 'Production Deployment'
+      specName: 'Production Deployment',
     },
     status: 'todo',
     estimatedHours: 4,
@@ -450,7 +487,7 @@ function generateDeploymentTasks(meetingId: string): DevelopmentTask[] {
     technicalNotes: '',
     createdAt: new Date(),
     updatedAt: new Date(),
-    createdBy: 'system'
+    createdBy: 'system',
   });
 
   tasks.push({
@@ -462,7 +499,7 @@ function generateDeploymentTasks(meetingId: string): DevelopmentTask[] {
     relatedSpec: {
       type: 'system',
       specId: 'docs',
-      specName: 'Documentation'
+      specName: 'Documentation',
     },
     status: 'todo',
     estimatedHours: 8,
@@ -476,7 +513,7 @@ function generateDeploymentTasks(meetingId: string): DevelopmentTask[] {
     technicalNotes: '',
     createdAt: new Date(),
     updatedAt: new Date(),
-    createdBy: 'system'
+    createdBy: 'system',
   });
 
   return tasks;
@@ -484,12 +521,20 @@ function generateDeploymentTasks(meetingId: string): DevelopmentTask[] {
 
 function assignTaskDependencies(tasks: DevelopmentTask[]): void {
   // Auth tasks must complete before integration tasks
-  const authTasks = tasks.filter(t => t.title.toLowerCase().includes('authentication'));
-  const integrationTasks = tasks.filter(t => t.type === 'integration' && !t.title.toLowerCase().includes('authentication'));
+  const authTasks = tasks.filter((t) =>
+    t.title.toLowerCase().includes('authentication')
+  );
+  const integrationTasks = tasks.filter(
+    (t) =>
+      t.type === 'integration' &&
+      !t.title.toLowerCase().includes('authentication')
+  );
 
-  integrationTasks.forEach(intTask => {
-    const relatedAuthTask = authTasks.find(authTask =>
-      intTask.relatedSpec.specName.includes(authTask.relatedSpec.specName.split(' ')[0])
+  integrationTasks.forEach((intTask) => {
+    const relatedAuthTask = authTasks.find((authTask) =>
+      intTask.relatedSpec.specName.includes(
+        authTask.relatedSpec.specName.split(' ')[0]
+      )
     );
     if (relatedAuthTask) {
       intTask.dependencies.push(relatedAuthTask.id);
@@ -498,31 +543,37 @@ function assignTaskDependencies(tasks: DevelopmentTask[]): void {
   });
 
   // Migration depends on integration
-  const migrationTasks = tasks.filter(t => t.type === 'migration');
-  migrationTasks.forEach(migTask => {
-    const relatedIntTasks = integrationTasks.filter(intTask =>
-      migTask.relatedSpec.specName.split(' ')[0] === intTask.relatedSpec.specName.split(' ')[0]
+  const migrationTasks = tasks.filter((t) => t.type === 'migration');
+  migrationTasks.forEach((migTask) => {
+    const relatedIntTasks = integrationTasks.filter(
+      (intTask) =>
+        migTask.relatedSpec.specName.split(' ')[0] ===
+        intTask.relatedSpec.specName.split(' ')[0]
     );
-    relatedIntTasks.forEach(intTask => {
+    relatedIntTasks.forEach((intTask) => {
       migTask.dependencies.push(intTask.id);
       intTask.blocksOtherTasks.push(migTask.id);
     });
   });
 
   // Testing depends on everything
-  const testingTasks = tasks.filter(t => t.type === 'testing' && t.title.includes('End-to-end'));
-  const deploymentTasks = tasks.filter(t => t.type === 'deployment');
+  const testingTasks = tasks.filter(
+    (t) => t.type === 'testing' && t.title.includes('End-to-end')
+  );
+  const deploymentTasks = tasks.filter((t) => t.type === 'deployment');
 
-  testingTasks.forEach(testTask => {
-    tasks.filter(t => t.type !== 'testing' && t.type !== 'deployment').forEach(task => {
-      testTask.dependencies.push(task.id);
-      task.blocksOtherTasks.push(testTask.id);
-    });
+  testingTasks.forEach((testTask) => {
+    tasks
+      .filter((t) => t.type !== 'testing' && t.type !== 'deployment')
+      .forEach((task) => {
+        testTask.dependencies.push(task.id);
+        task.blocksOtherTasks.push(testTask.id);
+      });
   });
 
   // Deployment depends on testing
-  deploymentTasks.forEach(depTask => {
-    testingTasks.forEach(testTask => {
+  deploymentTasks.forEach((depTask) => {
+    testingTasks.forEach((testTask) => {
       depTask.dependencies.push(testTask.id);
       testTask.blocksOtherTasks.push(depTask.id);
     });
@@ -534,7 +585,9 @@ function assignToSprints(tasks: DevelopmentTask[]): void {
   const tasksPerSprint = 10;
 
   // Sort by dependencies (tasks with no deps first)
-  const sortedTasks = [...tasks].sort((a, b) => a.dependencies.length - b.dependencies.length);
+  const sortedTasks = [...tasks].sort(
+    (a, b) => a.dependencies.length - b.dependencies.length
+  );
 
   sortedTasks.forEach((task, index) => {
     task.sprint = `Sprint ${Math.ceil((index + 1) / tasksPerSprint)}`;
@@ -549,7 +602,11 @@ function assignToSprints(tasks: DevelopmentTask[]): void {
  * ENHANCED: Now uses actual collected requirements to generate detailed instructions
  * SMART: Intelligent time estimation based on service complexity and requirements
  */
-function generateServiceTasks(meetingId: string, spec: ImplementationSpecData, meeting: Meeting): DevelopmentTask[] {
+function generateServiceTasks(
+  meetingId: string,
+  spec: ImplementationSpecData,
+  meeting: Meeting
+): DevelopmentTask[] {
   const tasks: DevelopmentTask[] = [];
 
   // Process automation services with SMART INSTRUCTION GENERATION
@@ -561,16 +618,34 @@ function generateServiceTasks(meetingId: string, spec: ImplementationSpecData, m
 
       if (service.serviceId === 'auto-lead-response' && service.requirements) {
         // Use the smart instruction generator
-        const instructions = generateAutoLeadResponseInstructions(service.requirements, meeting);
+        const instructions = generateAutoLeadResponseInstructions(
+          service.requirements,
+          meeting
+        );
         detailedInstructions = formatInstructionsAsMarkdown(instructions);
-        estimatedHours = calculateSmartServiceHours(service, instructions.estimatedComplexity);
-      } else if (service.serviceId === 'auto-form-to-crm' && service.requirements) {
-        const instructions = generateAutoFormToCrmInstructions(service.requirements, meeting);
+        estimatedHours = calculateSmartServiceHours(
+          service,
+          instructions.estimatedComplexity
+        );
+      } else if (
+        service.serviceId === 'auto-form-to-crm' &&
+        service.requirements
+      ) {
+        const instructions = generateAutoFormToCrmInstructions(
+          service.requirements,
+          meeting
+        );
         detailedInstructions = formatInstructionsAsMarkdown(instructions);
-        estimatedHours = calculateSmartServiceHours(service, instructions.estimatedComplexity);
+        estimatedHours = calculateSmartServiceHours(
+          service,
+          instructions.estimatedComplexity
+        );
       } else {
         // Fallback to basic description for services without custom generators yet
-        detailedInstructions = generateBasicServiceDescription(service, meeting);
+        detailedInstructions = generateBasicServiceDescription(
+          service,
+          meeting
+        );
         estimatedHours = calculateSmartServiceHours(service, 'medium');
       }
 
@@ -589,7 +664,7 @@ function generateServiceTasks(meetingId: string, spec: ImplementationSpecData, m
         relatedSpec: {
           type: 'service',
           specId: service.serviceId,
-          specName: service.serviceNameHe || service.serviceName
+          specName: service.serviceNameHe || service.serviceName,
         },
         status: 'todo',
         estimatedHours,
@@ -603,7 +678,7 @@ function generateServiceTasks(meetingId: string, spec: ImplementationSpecData, m
         technicalNotes: service.notes || '',
         createdAt: new Date(),
         updatedAt: new Date(),
-        createdBy: 'system'
+        createdBy: 'system',
       });
     });
   }
@@ -614,7 +689,7 @@ function generateServiceTasks(meetingId: string, spec: ImplementationSpecData, m
       const requirements = service.requirements as any;
       const complexity = requirements?.complexity || 'medium';
       const department = requirements?.department || 'service';
-      
+
       tasks.push({
         id: generateId(),
         meetingId,
@@ -624,21 +699,24 @@ function generateServiceTasks(meetingId: string, spec: ImplementationSpecData, m
         relatedSpec: {
           type: 'service',
           specId: service.serviceId,
-          specName: service.serviceName
+          specName: service.serviceName,
         },
         status: 'todo',
-        estimatedHours: complexity === 'complex' ? 40 : complexity === 'medium' ? 24 : 16,
+        estimatedHours:
+          complexity === 'complex' ? 40 : complexity === 'medium' ? 24 : 16,
         actualHours: 0,
         priority: 'high',
         dependencies: [],
         blocksOtherTasks: [],
         testingRequired: true,
-        testCases: generateAIServiceTestCases(service).map(convertToTaskTestCase),
+        testCases: generateAIServiceTestCases(service).map(
+          convertToTaskTestCase
+        ),
         testStatus: 'not_started',
         technicalNotes: (service as any).notes || '',
         createdAt: new Date(),
         updatedAt: new Date(),
-        createdBy: 'system'
+        createdBy: 'system',
       });
     });
   }
@@ -650,7 +728,7 @@ function generateServiceTasks(meetingId: string, spec: ImplementationSpecData, m
       const complexity = requirements?.complexity || 'medium';
       const sourceSystem = requirements?.sourceSystem || 'System A';
       const targetSystem = requirements?.targetSystem || 'System B';
-      
+
       tasks.push({
         id: generateId(),
         meetingId,
@@ -660,58 +738,65 @@ function generateServiceTasks(meetingId: string, spec: ImplementationSpecData, m
         relatedSpec: {
           type: 'service',
           specId: service.serviceId,
-          specName: service.serviceName
+          specName: service.serviceName,
         },
         status: 'todo',
-        estimatedHours: complexity === 'complex' ? 32 : complexity === 'medium' ? 20 : 12,
+        estimatedHours:
+          complexity === 'complex' ? 32 : complexity === 'medium' ? 20 : 12,
         actualHours: 0,
         priority: 'medium',
         dependencies: [],
         blocksOtherTasks: [],
         testingRequired: true,
-        testCases: generateIntegrationServiceTestCases(service).map(convertToTaskTestCase),
+        testCases: generateIntegrationServiceTestCases(service).map(
+          convertToTaskTestCase
+        ),
         testStatus: 'not_started',
         technicalNotes: service.notes || '',
         createdAt: new Date(),
         updatedAt: new Date(),
-        createdBy: 'system'
+        createdBy: 'system',
       });
     });
   }
 
   // Process system implementation services
   if (spec.systemImplementations) {
-    spec.systemImplementations.forEach((service: SystemImplementationServiceEntry) => {
-      const requirements = service.requirements as any;
-      const platform = requirements?.platform || 'Unknown Platform';
-      const modules = requirements?.modules || [];
-      
-      tasks.push({
-        id: generateId(),
-        meetingId,
-        title: `Implement ${service.serviceName}`,
-        description: `Implement the ${service.serviceName} system.\n\nPlatform: ${platform}\nModules: ${modules.length || 0}`,
-        type: 'system_implementation',
-        relatedSpec: {
-          type: 'service',
-          specId: service.serviceId,
-          specName: service.serviceName
-        },
-        status: 'todo',
-        estimatedHours: (modules.length || 1) * 8,
-        actualHours: 0,
-        priority: 'high',
-        dependencies: [],
-        blocksOtherTasks: [],
-        testingRequired: true,
-        testCases: generateSystemImplementationTestCases(service).map(convertToTaskTestCase),
-        testStatus: 'not_started',
-        technicalNotes: service.notes || '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        createdBy: 'system'
-      });
-    });
+    spec.systemImplementations.forEach(
+      (service: SystemImplementationServiceEntry) => {
+        const requirements = service.requirements as any;
+        const platform = requirements?.platform || 'Unknown Platform';
+        const modules = requirements?.modules || [];
+
+        tasks.push({
+          id: generateId(),
+          meetingId,
+          title: `Implement ${service.serviceName}`,
+          description: `Implement the ${service.serviceName} system.\n\nPlatform: ${platform}\nModules: ${modules.length || 0}`,
+          type: 'system_implementation',
+          relatedSpec: {
+            type: 'service',
+            specId: service.serviceId,
+            specName: service.serviceName,
+          },
+          status: 'todo',
+          estimatedHours: (modules.length || 1) * 8,
+          actualHours: 0,
+          priority: 'high',
+          dependencies: [],
+          blocksOtherTasks: [],
+          testingRequired: true,
+          testCases: generateSystemImplementationTestCases(service).map(
+            convertToTaskTestCase
+          ),
+          testStatus: 'not_started',
+          technicalNotes: service.notes || '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          createdBy: 'system',
+        });
+      }
+    );
   }
 
   // Process additional services
@@ -720,7 +805,7 @@ function generateServiceTasks(meetingId: string, spec: ImplementationSpecData, m
       const requirements = service.requirements as any;
       const serviceType = requirements?.type || 'data';
       const scope = requirements?.scope || 'single_department';
-      
+
       tasks.push({
         id: generateId(),
         meetingId,
@@ -730,21 +815,24 @@ function generateServiceTasks(meetingId: string, spec: ImplementationSpecData, m
         relatedSpec: {
           type: 'service',
           specId: service.serviceId,
-          specName: service.serviceName
+          specName: service.serviceName,
         },
         status: 'todo',
-        estimatedHours: scope === 'enterprise' ? 40 : scope === 'multi_department' ? 24 : 16,
+        estimatedHours:
+          scope === 'enterprise' ? 40 : scope === 'multi_department' ? 24 : 16,
         actualHours: 0,
         priority: 'medium',
         dependencies: [],
         blocksOtherTasks: [],
         testingRequired: true,
-        testCases: generateAdditionalServiceTestCases(service).map(convertToTaskTestCase),
+        testCases: generateAdditionalServiceTestCases(service).map(
+          convertToTaskTestCase
+        ),
         testStatus: 'not_started',
         technicalNotes: service.notes || '',
         createdAt: new Date(),
         updatedAt: new Date(),
-        createdBy: 'system'
+        createdBy: 'system',
       });
     });
   }
@@ -755,9 +843,12 @@ function generateServiceTasks(meetingId: string, spec: ImplementationSpecData, m
 /**
  * Generate basic service description for services without custom generators
  */
-function generateBasicServiceDescription(service: AutomationServiceEntry, meeting: Meeting): string {
+function generateBasicServiceDescription(
+  service: AutomationServiceEntry,
+  meeting: Meeting
+): string {
   const businessCtx = require('./fieldMapper').extractBusinessContext(meeting);
-  
+
   return `
 ## Service: ${service.serviceNameHe || service.serviceName}
 
@@ -789,7 +880,10 @@ ${service.notes || 'No additional notes'}
 /**
  * SMART: Estimate hours for automation service based on complexity and requirements
  */
-function calculateSmartServiceHours(service: AutomationServiceEntry, complexity: 'simple' | 'medium' | 'complex'): number {
+function calculateSmartServiceHours(
+  service: AutomationServiceEntry,
+  complexity: 'simple' | 'medium' | 'complex'
+): number {
   // Base hours by category
   let baseHours: number;
   if (service.category === 'lead_management') baseHours = 12;
@@ -803,7 +897,7 @@ function calculateSmartServiceHours(service: AutomationServiceEntry, complexity:
   const complexityMultiplier = {
     simple: 0.7,
     medium: 1.0,
-    complex: 1.4
+    complex: 1.4,
   };
 
   // Adjust based on requirements completeness
@@ -811,27 +905,46 @@ function calculateSmartServiceHours(service: AutomationServiceEntry, complexity:
   let completenessFactor = 1.0;
 
   if (requirements) {
-    const requiredFields = ['formPlatformAccess', 'emailServiceAccess', 'crmAccess', 'n8nWorkflow'];
-    const completedFields = requiredFields.filter(field => requirements[field]);
-    completenessFactor = 1 + (completedFields.length / requiredFields.length) * 0.3; // Up to 30% more for complete requirements
+    const requiredFields = [
+      'formPlatformAccess',
+      'emailServiceAccess',
+      'crmAccess',
+      'n8nWorkflow',
+    ];
+    const completedFields = requiredFields.filter(
+      (field) => requirements[field]
+    );
+    completenessFactor =
+      1 + (completedFields.length / requiredFields.length) * 0.3; // Up to 30% more for complete requirements
   }
 
-  return Math.round(baseHours * complexityMultiplier[complexity] * completenessFactor);
+  return Math.round(
+    baseHours * complexityMultiplier[complexity] * completenessFactor
+  );
 }
 
 /**
  * SMART: Calculate priority based on business impact
  */
-function calculateSmartPriority(service: AutomationServiceEntry, meeting: Meeting): DevelopmentTask['priority'] {
+function calculateSmartPriority(
+  service: AutomationServiceEntry,
+  meeting: Meeting
+): DevelopmentTask['priority'] {
   const businessCtx = require('./fieldMapper').extractBusinessContext(meeting);
 
   // Critical if it affects lead response time
-  if (service.category === 'lead_management' && businessCtx.currentResponseTime === 'מעל 24 שעות') {
+  if (
+    service.category === 'lead_management' &&
+    businessCtx.currentResponseTime === 'מעל 24 שעות'
+  ) {
     return 'critical';
   }
 
   // High priority for revenue-impacting services
-  if (service.category === 'lead_management' || service.category === 'crm_sync') {
+  if (
+    service.category === 'lead_management' ||
+    service.category === 'crm_sync'
+  ) {
     return 'high';
   }
 
@@ -847,14 +960,20 @@ function calculateSmartPriority(service: AutomationServiceEntry, meeting: Meetin
 /**
  * SMART: Calculate task dependencies based on service relationships
  */
-function calculateSmartDependencies(service: AutomationServiceEntry, spec: ImplementationSpecData): string[] {
+function calculateSmartDependencies(
+  service: AutomationServiceEntry,
+  spec: ImplementationSpecData
+): string[] {
   const dependencies: string[] = [];
 
   // CRM setup must happen before CRM-dependent services
-  if (service.category === 'crm_sync' || service.serviceId === 'auto-form-to-crm') {
+  if (
+    service.category === 'crm_sync' ||
+    service.serviceId === 'auto-form-to-crm'
+  ) {
     const crmSystemTasks = spec.systems
-      .filter(sys => sys.authentication.method)
-      .map(sys => `system_auth_${sys.id}`);
+      .filter((sys) => sys.authentication.method)
+      .map((sys) => `system_auth_${sys.id}`);
     dependencies.push(...crmSystemTasks);
   }
 
@@ -874,24 +993,34 @@ function calculateSmartDependencies(service: AutomationServiceEntry, spec: Imple
 /**
  * Generate test cases for automation services
  */
-function generateServiceTestCases(_service: AutomationServiceEntry): TestCase[] {
+function generateServiceTestCases(
+  _service: AutomationServiceEntry
+): TestCase[] {
   return [
     {
       id: generateId(),
       description: `Test service functionality`,
-      steps: ['Configure service with provided settings', 'Trigger test scenario', 'Verify expected behavior'],
+      steps: [
+        'Configure service with provided settings',
+        'Trigger test scenario',
+        'Verify expected behavior',
+      ],
       expectedResult: 'Service operates according to specifications',
       status: 'not_tested',
-      passed: false
+      passed: false,
     },
     {
       id: generateId(),
       description: 'Test error handling',
-      steps: ['Simulate error conditions', 'Verify error handling', 'Check logging'],
+      steps: [
+        'Simulate error conditions',
+        'Verify error handling',
+        'Check logging',
+      ],
       expectedResult: 'Errors are properly handled and logged',
       status: 'not_tested',
-      passed: false
-    }
+      passed: false,
+    },
   ];
 }
 
@@ -903,83 +1032,117 @@ function generateAIServiceTestCases(_service: AIAgentServiceEntry): TestCase[] {
     {
       id: generateId(),
       description: 'Test AI agent responses',
-      steps: ['Configure AI agent', 'Test various conversation scenarios', 'Verify response quality'],
+      steps: [
+        'Configure AI agent',
+        'Test various conversation scenarios',
+        'Verify response quality',
+      ],
       expectedResult: 'AI agent provides accurate and helpful responses',
       status: 'not_tested',
-      passed: false
+      passed: false,
     },
     {
       id: generateId(),
       description: 'Test knowledge base integration',
-      steps: ['Verify knowledge base sources', 'Test information retrieval', 'Check response accuracy'],
+      steps: [
+        'Verify knowledge base sources',
+        'Test information retrieval',
+        'Check response accuracy',
+      ],
       expectedResult: 'AI agent correctly uses knowledge base information',
       status: 'not_tested',
-      passed: false
-    }
+      passed: false,
+    },
   ];
 }
 
 /**
  * Generate test cases for integration services
  */
-function generateIntegrationServiceTestCases(_service: IntegrationServiceEntry): TestCase[] {
+function generateIntegrationServiceTestCases(
+  _service: IntegrationServiceEntry
+): TestCase[] {
   return [
     {
       id: generateId(),
       description: 'Test data flow between systems',
-      steps: ['Configure integration', 'Send test data', 'Verify data arrives correctly'],
+      steps: [
+        'Configure integration',
+        'Send test data',
+        'Verify data arrives correctly',
+      ],
       expectedResult: 'Data flows correctly between systems',
       status: 'not_tested',
-      passed: false
+      passed: false,
     },
     {
       id: generateId(),
       description: 'Test error handling',
-      steps: ['Simulate connection failures', 'Verify retry logic', 'Check error notifications'],
+      steps: [
+        'Simulate connection failures',
+        'Verify retry logic',
+        'Check error notifications',
+      ],
       expectedResult: 'Integration handles errors gracefully',
       status: 'not_tested',
-      passed: false
-    }
+      passed: false,
+    },
   ];
 }
 
 /**
  * Generate test cases for system implementation services
  */
-function generateSystemImplementationTestCases(_service: SystemImplementationServiceEntry): TestCase[] {
+function generateSystemImplementationTestCases(
+  _service: SystemImplementationServiceEntry
+): TestCase[] {
   return [
     {
       id: generateId(),
       description: 'Test system setup and configuration',
-      steps: ['Install and configure system', 'Test basic functionality', 'Verify user access'],
+      steps: [
+        'Install and configure system',
+        'Test basic functionality',
+        'Verify user access',
+      ],
       expectedResult: 'System is properly installed and accessible',
       status: 'not_tested',
-      passed: false
+      passed: false,
     },
     {
       id: generateId(),
       description: 'Test module functionality',
-      steps: ['Test each configured module', 'Verify data flow', 'Check integrations'],
+      steps: [
+        'Test each configured module',
+        'Verify data flow',
+        'Check integrations',
+      ],
       expectedResult: 'All modules function correctly',
       status: 'not_tested',
-      passed: false
-    }
+      passed: false,
+    },
   ];
 }
 
 /**
  * Generate test cases for additional services
  */
-function generateAdditionalServiceTestCases(_service: AdditionalServiceEntry): TestCase[] {
+function generateAdditionalServiceTestCases(
+  _service: AdditionalServiceEntry
+): TestCase[] {
   return [
     {
       id: generateId(),
       description: `Test service delivery`,
-      steps: ['Deliver service according to specifications', 'Verify client satisfaction', 'Document outcomes'],
+      steps: [
+        'Deliver service according to specifications',
+        'Verify client satisfaction',
+        'Document outcomes',
+      ],
       expectedResult: 'Service delivered successfully',
       status: 'not_tested',
-      passed: false
-    }
+      passed: false,
+    },
   ];
 }
 
@@ -996,14 +1159,16 @@ export function updateTask(
   taskId: string,
   updates: Partial<DevelopmentTask>
 ): DevelopmentTask[] {
-  return tasks.map(task => {
+  return tasks.map((task) => {
     if (task.id === taskId) {
       const updatedTask = {
         ...task,
         ...updates,
         updatedAt: new Date(),
         // If description or requirements changed, regenerate instructions
-        ...(updates.description && { description: regenerateTaskInstructions(task, updates.description) })
+        ...(updates.description && {
+          description: regenerateTaskInstructions(task, updates.description),
+        }),
       };
 
       // Update dependencies if priority or status changed
@@ -1020,7 +1185,10 @@ export function updateTask(
 /**
  * Regenerate task instructions based on updated requirements
  */
-function regenerateTaskInstructions(task: DevelopmentTask, newDescription?: string): string {
+function regenerateTaskInstructions(
+  task: DevelopmentTask,
+  newDescription?: string
+): string {
   // For now, return the new description or existing one
   // In a full implementation, this would regenerate based on service requirements
   return newDescription || task.description;
@@ -1029,19 +1197,22 @@ function regenerateTaskInstructions(task: DevelopmentTask, newDescription?: stri
 /**
  * Update task dependencies when a task's priority or status changes
  */
-function updateTaskDependencies(updatedTask: DevelopmentTask, allTasks: DevelopmentTask[]): DevelopmentTask {
+function updateTaskDependencies(
+  updatedTask: DevelopmentTask,
+  allTasks: DevelopmentTask[]
+): DevelopmentTask {
   // If task becomes critical, ensure it has no dependencies that could block it
   if (updatedTask.priority === 'critical') {
-    updatedTask.dependencies = updatedTask.dependencies.filter(depId => {
-      const depTask = allTasks.find(t => t.id === depId);
+    updatedTask.dependencies = updatedTask.dependencies.filter((depId) => {
+      const depTask = allTasks.find((t) => t.id === depId);
       return depTask?.priority === 'critical';
     });
   }
 
   // Update blocksOtherTasks based on new dependencies
   updatedTask.blocksOtherTasks = allTasks
-    .filter(t => t.dependencies.includes(updatedTask.id))
-    .map(t => t.id);
+    .filter((t) => t.dependencies.includes(updatedTask.id))
+    .map((t) => t.id);
 
   return updatedTask;
 }
@@ -1058,8 +1229,10 @@ export function regenerateTaskPlan(
   const newTasks = generateTasksFromPhase2(meeting);
 
   // Preserve existing task data where possible
-  const mergedTasks = newTasks.map(newTask => {
-    const existingTask = existingTasks.find(et => et.relatedSpec.specId === newTask.relatedSpec.specId);
+  const mergedTasks = newTasks.map((newTask) => {
+    const existingTask = existingTasks.find(
+      (et) => et.relatedSpec.specId === newTask.relatedSpec.specId
+    );
 
     if (existingTask) {
       // Preserve actual hours, status, and manual edits
@@ -1070,8 +1243,10 @@ export function regenerateTaskPlan(
         assignedTo: existingTask.assignedTo,
         technicalNotes: existingTask.technicalNotes,
         // Keep custom description if it was manually edited
-        description: existingTask.description.includes('CUSTOM EDIT') ? existingTask.description : newTask.description,
-        updatedAt: new Date()
+        description: existingTask.description.includes('CUSTOM EDIT')
+          ? existingTask.description
+          : newTask.description,
+        updatedAt: new Date(),
       };
     }
 
@@ -1133,29 +1308,34 @@ export function validateTaskPlan(tasks: DevelopmentTask[]): {
   }
 
   // Check for orphaned tasks (no dependencies but not critical)
-  const orphanedTasks = tasks.filter(task =>
-    task.dependencies.length === 0 &&
-    task.priority !== 'critical' &&
-    !tasks.some(t => t.dependencies.includes(task.id))
+  const orphanedTasks = tasks.filter(
+    (task) =>
+      task.dependencies.length === 0 &&
+      task.priority !== 'critical' &&
+      !tasks.some((t) => t.dependencies.includes(task.id))
   );
 
   if (orphanedTasks.length > 0) {
-    warnings.push(`${orphanedTasks.length} tasks have no dependencies or dependents`);
+    warnings.push(
+      `${orphanedTasks.length} tasks have no dependencies or dependents`
+    );
   }
 
   // Check for unrealistic time estimates
-  const unrealisticTasks = tasks.filter(task =>
-    task.estimatedHours > 40 || task.estimatedHours < 1
+  const unrealisticTasks = tasks.filter(
+    (task) => task.estimatedHours > 40 || task.estimatedHours < 1
   );
 
   if (unrealisticTasks.length > 0) {
-    warnings.push(`${unrealisticTasks.length} tasks have unrealistic time estimates`);
+    warnings.push(
+      `${unrealisticTasks.length} tasks have unrealistic time estimates`
+    );
   }
 
   return {
     isValid: errors.length === 0,
     errors,
-    warnings
+    warnings,
   };
 }
 
@@ -1179,7 +1359,7 @@ function findCircularDependencies(tasks: DevelopmentTask[]): string[] {
     visited.add(taskId);
     recursionStack.add(taskId);
 
-    const task = tasks.find(t => t.id === taskId);
+    const task = tasks.find((t) => t.id === taskId);
     if (task) {
       for (const depId of task.dependencies) {
         if (hasCircularDependency(depId)) {
@@ -1193,7 +1373,7 @@ function findCircularDependencies(tasks: DevelopmentTask[]): string[] {
     return false;
   }
 
-  tasks.forEach(task => {
+  tasks.forEach((task) => {
     if (!visited.has(task.id)) {
       hasCircularDependency(task.id);
     }

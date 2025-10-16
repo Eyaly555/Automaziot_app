@@ -43,7 +43,11 @@ class ZohoRetryQueue {
   /**
    * Add a failed sync operation to the retry queue
    */
-  addToQueue(meeting: Meeting, operation: 'sync' | 'load' = 'sync', error?: any): void {
+  addToQueue(
+    meeting: Meeting,
+    operation: 'sync' | 'load' = 'sync',
+    error?: any
+  ): void {
     const item: QueueItem = {
       id: `${meeting.meetingId}_${Date.now()}`,
       meeting,
@@ -51,12 +55,13 @@ class ZohoRetryQueue {
       timestamp: new Date().toISOString(),
       attempts: 0,
       lastError: formatZohoError(error),
-      nextRetryAt: Date.now() + this.BASE_RETRY_DELAY
+      nextRetryAt: Date.now() + this.BASE_RETRY_DELAY,
     };
 
     // Check if similar item already exists
     const existingIndex = this.queue.findIndex(
-      q => q.meeting.meetingId === meeting.meetingId && q.operation === operation
+      (q) =>
+        q.meeting.meetingId === meeting.meetingId && q.operation === operation
     );
 
     if (existingIndex >= 0) {
@@ -65,7 +70,9 @@ class ZohoRetryQueue {
         ...this.queue[existingIndex],
         attempts: this.queue[existingIndex].attempts + 1,
         lastError: item.lastError,
-        nextRetryAt: this.calculateNextRetryTime(this.queue[existingIndex].attempts + 1)
+        nextRetryAt: this.calculateNextRetryTime(
+          this.queue[existingIndex].attempts + 1
+        ),
       };
     } else {
       // Add new item
@@ -88,14 +95,17 @@ class ZohoRetryQueue {
 
     // Find items ready to retry
     const readyItems = this.queue.filter(
-      item => !item.nextRetryAt || item.nextRetryAt <= now
+      (item) => !item.nextRetryAt || item.nextRetryAt <= now
     );
 
     for (const item of readyItems) {
       if (item.attempts >= this.MAX_ATTEMPTS) {
         // Max attempts reached, remove from queue
         this.removeFromQueue(item.id);
-        console.error(`Max retry attempts reached for ${item.operation}:`, item.lastError);
+        console.error(
+          `Max retry attempts reached for ${item.operation}:`,
+          item.lastError
+        );
         continue;
       }
 
@@ -104,14 +114,15 @@ class ZohoRetryQueue {
         if (item.operation === 'sync') {
           const success = await zohoSyncService.syncToZoho(item.meeting);
           if (success) {
-            console.log(`Successfully synced meeting ${item.meeting.meetingId}`);
+            console.log(
+              `Successfully synced meeting ${item.meeting.meetingId}`
+            );
             // Success - remove from queue
             this.removeFromQueue(item.id);
           } else {
             throw new Error('Sync failed');
           }
         }
-
       } catch (error: any) {
         // Failed - update retry info
         item.attempts++;
@@ -142,7 +153,7 @@ class ZohoRetryQueue {
    * Remove item from queue
    */
   removeFromQueue(itemId: string): void {
-    this.queue = this.queue.filter(item => item.id !== itemId);
+    this.queue = this.queue.filter((item) => item.id !== itemId);
     this.saveQueue();
     this.notifyListeners();
   }
@@ -166,20 +177,24 @@ class ZohoRetryQueue {
     nextRetryIn?: number;
   } {
     const now = Date.now();
-    const pending = this.queue.filter(item => item.attempts < this.MAX_ATTEMPTS);
-    const failed = this.queue.filter(item => item.attempts >= this.MAX_ATTEMPTS);
+    const pending = this.queue.filter(
+      (item) => item.attempts < this.MAX_ATTEMPTS
+    );
+    const failed = this.queue.filter(
+      (item) => item.attempts >= this.MAX_ATTEMPTS
+    );
 
     const nextRetry = Math.min(
       ...this.queue
-        .filter(item => item.nextRetryAt && item.nextRetryAt > now)
-        .map(item => item.nextRetryAt!)
+        .filter((item) => item.nextRetryAt && item.nextRetryAt > now)
+        .map((item) => item.nextRetryAt!)
     );
 
     return {
       total: this.queue.length,
       pending: pending.length,
       failed: failed.length,
-      nextRetryIn: nextRetry ? nextRetry - now : undefined
+      nextRetryIn: nextRetry ? nextRetry - now : undefined,
     };
   }
 
@@ -196,8 +211,8 @@ class ZohoRetryQueue {
     const now = Date.now();
     const nextRetry = Math.min(
       ...this.queue
-        .filter(item => item.nextRetryAt && item.attempts < this.MAX_ATTEMPTS)
-        .map(item => item.nextRetryAt!)
+        .filter((item) => item.nextRetryAt && item.attempts < this.MAX_ATTEMPTS)
+        .map((item) => item.nextRetryAt!)
     );
 
     if (nextRetry && nextRetry > now) {
@@ -283,14 +298,14 @@ class ZohoRetryQueue {
    * Notify all listeners of queue changes
    */
   private notifyListeners(): void {
-    this.listeners.forEach(listener => listener(this.queue));
+    this.listeners.forEach((listener) => listener(this.queue));
   }
 
   /**
    * Force retry all items now
    */
   retryAllNow(): void {
-    this.queue.forEach(item => {
+    this.queue.forEach((item) => {
       item.nextRetryAt = Date.now();
     });
     this.saveQueue();

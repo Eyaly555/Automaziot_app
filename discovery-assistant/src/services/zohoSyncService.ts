@@ -11,7 +11,7 @@ class ZohoSyncService {
 
       console.log('[ZohoSync] Syncing meeting to Zoho', {
         meetingId: meeting.meetingId,
-        recordId
+        recordId,
       });
 
       const result = await syncMeetingWithZoho(meeting, recordId);
@@ -25,7 +25,7 @@ class ZohoSyncService {
           meeting.zohoIntegration = {
             ...meeting.zohoIntegration,
             recordId: result.recordId,
-            lastSync: new Date().toISOString()
+            lastSync: new Date().toISOString(),
           };
         }
 
@@ -69,7 +69,7 @@ class ZohoSyncService {
     return {
       entity: urlParams.get('Entity') || undefined,
       entityId: urlParams.get('EntityId') || undefined,
-      isWidget: false
+      isWidget: false,
     };
   }
 }

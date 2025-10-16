@@ -11,7 +11,13 @@
  * Integrates with the phase guard system and wizard validation
  */
 
-import { Meeting, MeetingPhase, WizardStep, DevelopmentTask, Blocker } from '../types';
+import {
+  Meeting,
+  MeetingPhase,
+  WizardStep,
+  DevelopmentTask,
+  Blocker,
+} from '../types';
 import { WIZARD_STEPS } from '../config/wizardSteps';
 
 // ============================================================================
@@ -46,98 +52,128 @@ export interface PhaseTransitionValidation {
 /**
  * Check if Overview module is complete
  */
-export const validateOverviewModule = (meeting: Meeting): ModuleCompletionResult => {
+export const validateOverviewModule = (
+  meeting: Meeting
+): ModuleCompletionResult => {
   const overview = meeting?.modules?.overview;
   const requiredFieldsMissing: string[] = [];
   const optionalFieldsMissing: string[] = [];
 
   // Required fields
   if (!overview?.businessType) requiredFieldsMissing.push('סוג העסק');
-  if (!meeting.modules?.operations?.hr?.employeeCount) requiredFieldsMissing.push('מספר עובדים');
+  if (!meeting.modules?.operations?.hr?.employeeCount)
+    requiredFieldsMissing.push('מספר עובדים');
 
   // Optional but recommended
   if (!overview?.mainChallenge) optionalFieldsMissing.push('אתגר מרכזי');
-  if (!overview?.mainGoals || overview.mainGoals.length === 0) optionalFieldsMissing.push('מטרות עיקריות');
+  if (!overview?.mainGoals || overview.mainGoals.length === 0)
+    optionalFieldsMissing.push('מטרות עיקריות');
 
   const totalRequired = 2;
   const completedRequired = totalRequired - requiredFieldsMissing.length;
-  const completionPercentage = Math.round((completedRequired / totalRequired) * 100);
+  const completionPercentage = Math.round(
+    (completedRequired / totalRequired) * 100
+  );
 
   return {
     isComplete: requiredFieldsMissing.length === 0,
     completionPercentage,
     requiredFieldsMissing,
-    optionalFieldsMissing
+    optionalFieldsMissing,
   };
 };
 
 /**
  * Check if LeadsAndSales module is complete
  */
-export const validateLeadsAndSalesModule = (meeting: Meeting): ModuleCompletionResult => {
+export const validateLeadsAndSalesModule = (
+  meeting: Meeting
+): ModuleCompletionResult => {
   const leadsAndSales = meeting?.modules?.leadsAndSales;
   const requiredFieldsMissing: string[] = [];
   const optionalFieldsMissing: string[] = [];
 
   // Required: At least one lead source
-  if (!leadsAndSales?.leadSources || !Array.isArray(leadsAndSales.leadSources) || leadsAndSales.leadSources.length === 0) {
+  if (
+    !leadsAndSales?.leadSources ||
+    !Array.isArray(leadsAndSales.leadSources) ||
+    leadsAndSales.leadSources.length === 0
+  ) {
     requiredFieldsMissing.push('מקורות לידים');
   }
 
   // Optional but recommended
-  if (!leadsAndSales?.speedToLead) optionalFieldsMissing.push('מהירות טיפול בליד');
+  if (!leadsAndSales?.speedToLead)
+    optionalFieldsMissing.push('מהירות טיפול בליד');
   if (!leadsAndSales?.leadRouting) optionalFieldsMissing.push('ניתוב לידים');
 
   const totalRequired = 1;
   const completedRequired = totalRequired - requiredFieldsMissing.length;
-  const completionPercentage = Math.round((completedRequired / totalRequired) * 100);
+  const completionPercentage = Math.round(
+    (completedRequired / totalRequired) * 100
+  );
 
   return {
     isComplete: requiredFieldsMissing.length === 0,
     completionPercentage,
     requiredFieldsMissing,
-    optionalFieldsMissing
+    optionalFieldsMissing,
   };
 };
 
 /**
  * Check if CustomerService module is complete
  */
-export const validateCustomerServiceModule = (meeting: Meeting): ModuleCompletionResult => {
+export const validateCustomerServiceModule = (
+  meeting: Meeting
+): ModuleCompletionResult => {
   const customerService = meeting?.modules?.customerService;
   const requiredFieldsMissing: string[] = [];
   const optionalFieldsMissing: string[] = [];
 
   // Required: At least one support channel
-  if (!customerService?.channels || !Array.isArray(customerService.channels) || customerService.channels.length === 0) {
+  if (
+    !customerService?.channels ||
+    !Array.isArray(customerService.channels) ||
+    customerService.channels.length === 0
+  ) {
     requiredFieldsMissing.push('ערוצי תמיכה');
   }
 
   // Optional but recommended
-  if (!customerService?.autoResponse) optionalFieldsMissing.push('מענה אוטומטי');
+  if (!customerService?.autoResponse)
+    optionalFieldsMissing.push('מענה אוטומטי');
 
   const totalRequired = 1;
   const completedRequired = totalRequired - requiredFieldsMissing.length;
-  const completionPercentage = Math.round((completedRequired / totalRequired) * 100);
+  const completionPercentage = Math.round(
+    (completedRequired / totalRequired) * 100
+  );
 
   return {
     isComplete: requiredFieldsMissing.length === 0,
     completionPercentage,
     requiredFieldsMissing,
-    optionalFieldsMissing
+    optionalFieldsMissing,
   };
 };
 
 /**
  * Check if Systems module is complete
  */
-export const validateSystemsModule = (meeting: Meeting): ModuleCompletionResult => {
+export const validateSystemsModule = (
+  meeting: Meeting
+): ModuleCompletionResult => {
   const systems = meeting?.modules?.systems;
   const requiredFieldsMissing: string[] = [];
   const optionalFieldsMissing: string[] = [];
 
   // Required: At least one current system documented
-  if (!systems?.currentSystems || !Array.isArray(systems.currentSystems) || systems.currentSystems.length === 0) {
+  if (
+    !systems?.currentSystems ||
+    !Array.isArray(systems.currentSystems) ||
+    systems.currentSystems.length === 0
+  ) {
     requiredFieldsMissing.push('מערכות קיימות');
   }
 
@@ -146,13 +182,15 @@ export const validateSystemsModule = (meeting: Meeting): ModuleCompletionResult 
 
   const totalRequired = 1;
   const completedRequired = totalRequired - requiredFieldsMissing.length;
-  const completionPercentage = Math.round((completedRequired / totalRequired) * 100);
+  const completionPercentage = Math.round(
+    (completedRequired / totalRequired) * 100
+  );
 
   return {
     isComplete: requiredFieldsMissing.length === 0,
     completionPercentage,
     requiredFieldsMissing,
-    optionalFieldsMissing
+    optionalFieldsMissing,
   };
 };
 
@@ -167,27 +205,32 @@ export const validateROIModule = (meeting: Meeting): ModuleCompletionResult => {
   // Required: Cost analysis completed
   // Note: hourlyRate is in currentCosts, not costAnalysis (per ROIModule type definition)
   if (!roi?.currentCosts) requiredFieldsMissing.push('ניתוח עלויות');
-  if (roi?.currentCosts && !roi.currentCosts.hourlyCost) requiredFieldsMissing.push('תעריף שעתי');
+  if (roi?.currentCosts && !roi.currentCosts.hourlyCost)
+    requiredFieldsMissing.push('תעריף שעתי');
 
   // Optional but recommended
   if (!roi?.timeSavings) optionalFieldsMissing.push('חיסכון בזמן');
 
   const totalRequired = 2;
   const completedRequired = totalRequired - requiredFieldsMissing.length;
-  const completionPercentage = Math.round((completedRequired / totalRequired) * 100);
+  const completionPercentage = Math.round(
+    (completedRequired / totalRequired) * 100
+  );
 
   return {
     isComplete: requiredFieldsMissing.length === 0,
     completionPercentage,
     requiredFieldsMissing,
-    optionalFieldsMissing
+    optionalFieldsMissing,
   };
 };
 
 /**
  * Check if Proposal module is complete
  */
-export const validateProposalModule = (meeting: Meeting): ModuleCompletionResult => {
+export const validateProposalModule = (
+  meeting: Meeting
+): ModuleCompletionResult => {
   const proposal = meeting?.modules?.proposal;
   const requiredFieldsMissing: string[] = [];
   const optionalFieldsMissing: string[] = [];
@@ -203,20 +246,24 @@ export const validateProposalModule = (meeting: Meeting): ModuleCompletionResult
 
   const totalRequired = 1;
   const completedRequired = totalRequired - requiredFieldsMissing.length;
-  const completionPercentage = Math.round((completedRequired / totalRequired) * 100);
+  const completionPercentage = Math.round(
+    (completedRequired / totalRequired) * 100
+  );
 
   return {
     isComplete: requiredFieldsMissing.length === 0,
     completionPercentage,
     requiredFieldsMissing,
-    optionalFieldsMissing
+    optionalFieldsMissing,
   };
 };
 
 /**
  * Validate all modules and get overall completion
  */
-export const validateAllModules = (meeting: Meeting): {
+export const validateAllModules = (
+  meeting: Meeting
+): {
   overall: ModuleCompletionResult;
   modules: Record<string, ModuleCompletionResult>;
 } => {
@@ -226,7 +273,7 @@ export const validateAllModules = (meeting: Meeting): {
     customerService: validateCustomerServiceModule(meeting),
     systems: validateSystemsModule(meeting),
     roi: validateROIModule(meeting),
-    proposal: validateProposalModule(meeting)
+    proposal: validateProposalModule(meeting),
   };
 
   // Calculate overall completion
@@ -235,19 +282,25 @@ export const validateAllModules = (meeting: Meeting): {
     (sum, module) => sum + module.completionPercentage,
     0
   );
-  const overallPercentage = Math.round(totalCompletionPercentage / totalModules);
+  const overallPercentage = Math.round(
+    totalCompletionPercentage / totalModules
+  );
 
-  const allRequiredFields = Object.values(modules).flatMap(m => m.requiredFieldsMissing);
-  const allOptionalFields = Object.values(modules).flatMap(m => m.optionalFieldsMissing);
+  const allRequiredFields = Object.values(modules).flatMap(
+    (m) => m.requiredFieldsMissing
+  );
+  const allOptionalFields = Object.values(modules).flatMap(
+    (m) => m.optionalFieldsMissing
+  );
 
   return {
     overall: {
       isComplete: allRequiredFields.length === 0,
       completionPercentage: overallPercentage,
       requiredFieldsMissing: allRequiredFields,
-      optionalFieldsMissing: allOptionalFields
+      optionalFieldsMissing: allOptionalFields,
     },
-    modules
+    modules,
   };
 };
 
@@ -288,7 +341,10 @@ export const validateDiscoveryToImplementationSpec = (
   }
 
   // Client contact information required
-  if (!meeting.zohoIntegration?.contactInfo?.email && !meeting.zohoIntegration?.contactInfo?.phone) {
+  if (
+    !meeting.zohoIntegration?.contactInfo?.email &&
+    !meeting.zohoIntegration?.contactInfo?.phone
+  ) {
     reasons.push('יש להזין פרטי קשר של הלקוח');
     requiredActions.push('הזן אימייל או טלפון של הלקוח');
   }
@@ -297,7 +353,7 @@ export const validateDiscoveryToImplementationSpec = (
     canTransition: reasons.length === 0,
     reasons,
     requiredActions,
-    progress
+    progress,
   };
 };
 
@@ -318,7 +374,7 @@ export const validateImplementationSpecToDevelopment = (
       canTransition: false,
       reasons,
       requiredActions,
-      progress: 0
+      progress: 0,
     };
   }
 
@@ -344,7 +400,10 @@ export const validateImplementationSpecToDevelopment = (
   }
 
   // Team members should be assigned
-  if (!meeting.developmentTracking?.teamMembers || meeting.developmentTracking.teamMembers.length === 0) {
+  if (
+    !meeting.developmentTracking?.teamMembers ||
+    meeting.developmentTracking.teamMembers.length === 0
+  ) {
     reasons.push('מומלץ להקצות חברי צוות לפני תחילת הפיתוח');
     requiredActions.push('הקצה חברי צוות');
   }
@@ -353,7 +412,7 @@ export const validateImplementationSpecToDevelopment = (
     canTransition: reasons.length === 0,
     reasons,
     requiredActions,
-    progress
+    progress,
   };
 };
 
@@ -374,7 +433,7 @@ export const validateDevelopmentToCompleted = (
       canTransition: false,
       reasons,
       requiredActions,
-      progress: 0
+      progress: 0,
     };
   }
 
@@ -388,13 +447,17 @@ export const validateDevelopmentToCompleted = (
       canTransition: false,
       reasons,
       requiredActions,
-      progress: 0
+      progress: 0,
     };
   }
 
   // All tasks must be completed
-  const incompleteTasks = tasks.filter((t: DevelopmentTask) => t.status !== 'done');
-  const progress = Math.round(((tasks.length - incompleteTasks.length) / tasks.length) * 100);
+  const incompleteTasks = tasks.filter(
+    (t: DevelopmentTask) => t.status !== 'done'
+  );
+  const progress = Math.round(
+    ((tasks.length - incompleteTasks.length) / tasks.length) * 100
+  );
 
   if (incompleteTasks.length > 0) {
     reasons.push(`יש ${incompleteTasks.length} משימות שטרם הושלמו`);
@@ -403,7 +466,9 @@ export const validateDevelopmentToCompleted = (
 
   // No unresolved blockers
   const blockers = dev.blockers || [];
-  const unresolvedBlockers = blockers.filter((b: Blocker) => b.status !== 'resolved');
+  const unresolvedBlockers = blockers.filter(
+    (b: Blocker) => b.status !== 'resolved'
+  );
   if (unresolvedBlockers.length > 0) {
     reasons.push(`יש ${unresolvedBlockers.length} חסמים שטרם נפתרו`);
     requiredActions.push('פתר את כל החסמים');
@@ -413,7 +478,7 @@ export const validateDevelopmentToCompleted = (
     canTransition: reasons.length === 0,
     reasons,
     requiredActions,
-    progress
+    progress,
   };
 };
 
@@ -444,7 +509,7 @@ export const validatePhaseTransition = (
     canTransition: false,
     reasons: [`לא ניתן לעבור מ-${currentPhase} ל-${targetPhase}`],
     requiredActions: [],
-    progress: 0
+    progress: 0,
   };
 };
 
@@ -482,11 +547,12 @@ export const validateWizardStep = (
 
   return {
     canProceed: missingFields.length === 0,
-    reasons: missingFields.length > 0
-      ? [`יש למלא את השדות הבאים: ${missingFields.join(', ')}`]
-      : [],
+    reasons:
+      missingFields.length > 0
+        ? [`יש למלא את השדות הבאים: ${missingFields.join(', ')}`]
+        : [],
     missingFields,
-    warnings: step.isOptional ? ['סעיף זה הוא אופציונלי'] : []
+    warnings: step.isOptional ? ['סעיף זה הוא אופציונלי'] : [],
   };
 };
 
@@ -497,12 +563,15 @@ export const validateWizardSection = (
   sectionId: string,
   meeting: Meeting
 ): ValidationGuardResult => {
-  const sectionSteps = WIZARD_STEPS.filter(step => step.moduleId === sectionId);
+  const sectionSteps = WIZARD_STEPS.filter(
+    (step) => step.moduleId === sectionId
+  );
   const allMissingFields: string[] = [];
   const allReasons: string[] = [];
 
   for (const step of sectionSteps) {
-    const moduleData = meeting.modules[step.moduleId as keyof typeof meeting.modules];
+    const moduleData =
+      meeting.modules[step.moduleId as keyof typeof meeting.modules];
     const validation = validateWizardStep(step, moduleData);
 
     if (!validation.canProceed) {
@@ -514,7 +583,7 @@ export const validateWizardSection = (
   return {
     canProceed: allMissingFields.length === 0,
     reasons: allReasons,
-    missingFields: allMissingFields
+    missingFields: allMissingFields,
   };
 };
 
@@ -532,22 +601,20 @@ export const validateNavigationWithUnsavedChanges = (
   if (!isDirty) {
     return {
       canProceed: true,
-      reasons: []
+      reasons: [],
     };
   }
 
   return {
     canProceed: false,
     reasons: [
-      language === 'he'
-        ? 'יש שינויים שלא נשמרו'
-        : 'You have unsaved changes'
+      language === 'he' ? 'יש שינויים שלא נשמרו' : 'You have unsaved changes',
     ],
     warnings: [
       language === 'he'
         ? 'השינויים יאבדו אם תצא מהעמוד'
-        : 'Changes will be lost if you leave this page'
-    ]
+        : 'Changes will be lost if you leave this page',
+    ],
   };
 };
 
@@ -569,5 +636,5 @@ export default {
   validateDevelopmentToCompleted,
   validateWizardStep,
   validateWizardSection,
-  validateNavigationWithUnsavedChanges
+  validateNavigationWithUnsavedChanges,
 };

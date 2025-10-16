@@ -41,7 +41,7 @@ export const sanitizeZohoData = (meeting: Meeting): any => {
 
   // Remove any null or undefined values
   const clean = (obj: any): any => {
-    Object.keys(obj).forEach(key => {
+    Object.keys(obj).forEach((key) => {
       if (obj[key] === null || obj[key] === undefined) {
         delete obj[key];
       } else if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
@@ -87,7 +87,9 @@ export const formatZohoError = (error: any): string => {
 /**
  * Calculate sync priority based on data changes
  */
-export const getSyncPriority = (meeting: Meeting): 'high' | 'medium' | 'low' => {
+export const getSyncPriority = (
+  meeting: Meeting
+): 'high' | 'medium' | 'low' => {
   if (!meeting.zohoIntegration?.lastSyncTime) {
     return 'high'; // Never synced
   }
@@ -128,8 +130,13 @@ export const hasSignificantChanges = (oldData: any, newData: any): boolean => {
 /**
  * Build Zoho API URL
  */
-export const buildZohoApiUrl = (module: string, recordId?: string, action?: string): string => {
-  const baseUrl = import.meta.env.VITE_ZOHO_API_BASE || 'https://www.zohoapis.com/crm/v8';
+export const buildZohoApiUrl = (
+  module: string,
+  recordId?: string,
+  action?: string
+): string => {
+  const baseUrl =
+    import.meta.env.VITE_ZOHO_API_BASE || 'https://www.zohoapis.com/crm/v8';
   let url = `${baseUrl}/${module}`;
 
   if (recordId) {
@@ -156,7 +163,7 @@ export const getFieldMapping = () => {
     notes: 'Additional_Notes',
     progress: 'Discovery_Completion',
     lastUpdate: 'Discovery_Last_Update',
-    data: 'Discovery_Progress'
+    data: 'Discovery_Progress',
   };
 };
 
@@ -178,11 +185,14 @@ export const getTestModeIndicator = (): string => {
 /**
  * Validate Zoho OAuth scope
  */
-export const validateScope = (scope: string, requiredScopes: string[]): boolean => {
+export const validateScope = (
+  scope: string,
+  requiredScopes: string[]
+): boolean => {
   if (!scope) return false;
 
-  const grantedScopes = scope.split(',').map(s => s.trim());
-  return requiredScopes.every(required => grantedScopes.includes(required));
+  const grantedScopes = scope.split(',').map((s) => s.trim());
+  return requiredScopes.every((required) => grantedScopes.includes(required));
 };
 
 /**
@@ -195,10 +205,10 @@ export const formatForZoho = (meeting: Meeting): any => {
   // Calculate progress from phase and status (since Meeting doesn't have progress property)
   const calculateProgress = (): number => {
     const phaseProgress: Record<string, number> = {
-      'discovery': 25,
-      'implementation_spec': 50,
-      'development': 75,
-      'completed': 100
+      discovery: 25,
+      implementation_spec: 50,
+      development: 75,
+      completed: 100,
     };
     return phaseProgress[meeting.phase] || 0;
   };
@@ -247,7 +257,7 @@ export const chunkData = (data: any, maxSize: number = 30000): any[] => {
     chunks.push({
       ...data,
       modules: { [module]: data.modules[module] },
-      _chunk: chunks.length + 1
+      _chunk: chunks.length + 1,
     });
   }
 

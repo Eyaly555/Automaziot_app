@@ -10,11 +10,14 @@ import { AutomationSection } from './components/AutomationSection';
 import { SystemsDetailsSection } from './components/SystemsDetailsSection';
 import { ReportingSection } from './components/ReportingSection';
 import { AIDetailsSection } from './components/AIDetailsSection';
-import type { FocusArea, EssentialDetailsModule as EssentialDetailsType } from '../../../types';
+import type {
+  FocusArea,
+  EssentialDetailsModule as EssentialDetailsType,
+} from '../../../types';
 
 export const EssentialDetailsModule: React.FC = () => {
   console.log('[EssentialDetailsModule] 🟢 Component rendering/mounting');
-  
+
   const navigate = useNavigate();
   const { currentMeeting, updateModule } = useMeetingStore();
 
@@ -40,15 +43,18 @@ export const EssentialDetailsModule: React.FC = () => {
       ...prev,
       [section]: {
         ...prev[section],
-        ...updates
-      }
+        ...updates,
+      },
     }));
   };
 
   // If no focus areas selected, show message
   if (focusAreas.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir="rtl">
+      <div
+        className="min-h-screen bg-gray-50 flex items-center justify-center"
+        dir="rtl"
+      >
         <Card className="max-w-md">
           <div className="text-center py-8">
             <Circle className="w-16 h-16 mx-auto text-gray-400 mb-4" />
@@ -56,7 +62,10 @@ export const EssentialDetailsModule: React.FC = () => {
             <p className="text-gray-600 mb-6">
               חזור לסקירה הכללית ובחר לפחות תחום עניין אחד כדי להמשיך
             </p>
-            <Button onClick={() => navigate('/module/overview')} variant="primary">
+            <Button
+              onClick={() => navigate('/module/overview')}
+              variant="primary"
+            >
               חזור לסקירה הכללית
             </Button>
           </div>
@@ -74,7 +83,7 @@ export const EssentialDetailsModule: React.FC = () => {
           data={data.leadManagement}
           onChange={(updates) => updateSection('leadManagement', updates)}
         />
-      )
+      ),
     },
     {
       key: 'sales_process' as FocusArea,
@@ -84,7 +93,7 @@ export const EssentialDetailsModule: React.FC = () => {
           data={data.salesProcess}
           onChange={(updates) => updateSection('salesProcess', updates)}
         />
-      )
+      ),
     },
     {
       key: 'customer_service' as FocusArea,
@@ -92,9 +101,11 @@ export const EssentialDetailsModule: React.FC = () => {
       component: (
         <CustomerServiceSection
           data={data.customerServiceDetails}
-          onChange={(updates) => updateSection('customerServiceDetails', updates)}
+          onChange={(updates) =>
+            updateSection('customerServiceDetails', updates)
+          }
         />
-      )
+      ),
     },
     {
       key: 'automation' as FocusArea,
@@ -102,9 +113,11 @@ export const EssentialDetailsModule: React.FC = () => {
       component: (
         <AutomationSection
           data={data.automationOpportunities}
-          onChange={(updates) => updateSection('automationOpportunities', updates)}
+          onChange={(updates) =>
+            updateSection('automationOpportunities', updates)
+          }
         />
-      )
+      ),
     },
     {
       key: 'crm_upgrade' as FocusArea,
@@ -115,7 +128,7 @@ export const EssentialDetailsModule: React.FC = () => {
           onChange={(updates) => updateSection('systemsDetails', updates)}
           crmName={overview?.crmName}
         />
-      )
+      ),
     },
     {
       key: 'reporting' as FocusArea,
@@ -125,7 +138,7 @@ export const EssentialDetailsModule: React.FC = () => {
           data={data.reportingDetails}
           onChange={(updates) => updateSection('reportingDetails', updates)}
         />
-      )
+      ),
     },
     {
       key: 'ai_agents' as FocusArea,
@@ -135,8 +148,8 @@ export const EssentialDetailsModule: React.FC = () => {
           data={data.aiDetails}
           onChange={(updates) => updateSection('aiDetails', updates)}
         />
-      )
-    }
+      ),
+    },
   ];
 
   const visibleSections = sectionConfig.filter((section) =>
@@ -180,7 +193,10 @@ export const EssentialDetailsModule: React.FC = () => {
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center gap-2 overflow-x-auto">
             {visibleSections.map((section, index) => (
-              <div key={section.key} className="flex items-center gap-2 whitespace-nowrap">
+              <div
+                key={section.key}
+                className="flex items-center gap-2 whitespace-nowrap"
+              >
                 <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm">
                   <CheckCircle2 className="w-4 h-4" />
                   {section.title}
@@ -200,8 +216,9 @@ export const EssentialDetailsModule: React.FC = () => {
           {/* Info Banner */}
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-gray-700">
-              <strong>איפיון ממוקד - מה זה?</strong> על בסיס תחומי העניין שבחרת בסקירה הכללית,
-              אנחנו מציגים כאן רק את השאלות הרלוונטיות עבורך. זה חוסך זמן ומבטיח שנתמקד בדיוק במה שחשוב לך.
+              <strong>איפיון ממוקד - מה זה?</strong> על בסיס תחומי העניין שבחרת
+              בסקירה הכללית, אנחנו מציגים כאן רק את השאלות הרלוונטיות עבורך. זה
+              חוסך זמן ומבטיח שנתמקד בדיוק במה שחשוב לך.
             </p>
           </div>
 
@@ -212,7 +229,9 @@ export const EssentialDetailsModule: React.FC = () => {
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-sm">
                   {index + 1}
                 </div>
-                <h2 className="text-lg font-semibold text-gray-800">{section.title}</h2>
+                <h2 className="text-lg font-semibold text-gray-800">
+                  {section.title}
+                </h2>
               </div>
               {section.component}
             </div>
@@ -222,10 +241,12 @@ export const EssentialDetailsModule: React.FC = () => {
           <Card className="bg-gradient-to-br from-green-50 to-blue-50 border-2 border-green-200">
             <div className="text-center py-4">
               <CheckCircle2 className="w-12 h-12 mx-auto text-green-600 mb-3" />
-              <h3 className="text-lg font-semibold mb-2">סיימת את האיפיון הממוקד!</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                סיימת את האיפיון הממוקד!
+              </h3>
               <p className="text-sm text-gray-600 mb-4">
-                מלאת בהצלחה {visibleSections.length} תחומים.
-                כעת תוכל להמשיך למודולים המלאים לפרטים נוספים.
+                מלאת בהצלחה {visibleSections.length} תחומים. כעת תוכל להמשיך
+                למודולים המלאים לפרטים נוספים.
               </p>
               <Button
                 onClick={() => navigate('/module/leadsAndSales')}

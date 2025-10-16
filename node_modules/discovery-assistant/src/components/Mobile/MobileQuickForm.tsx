@@ -7,7 +7,10 @@ import { Button, Card } from '../Base';
 import { AISection } from './components/AISection';
 import { AutomationSection } from './components/AutomationSection';
 import { CRMSection } from './components/CRMSection';
-import { mobileToModules, validateMobileData } from '../../utils/mobileDataAdapter';
+import {
+  mobileToModules,
+  validateMobileData,
+} from '../../utils/mobileDataAdapter';
 import { generateProposal } from '../../utils/proposalEngine';
 import type { MobileFormData, MobileSectionType } from '../../types/mobile';
 
@@ -19,18 +22,18 @@ export const MobileQuickForm: React.FC = () => {
     ai_agents: {
       count: '1',
       channels: [],
-      domains: []
+      domains: [],
     },
     automations: {
       processes: [],
       time_wasted: 'under_1h',
       biggest_pain: 'things_fall',
-      most_important_process: ''
+      most_important_process: '',
     },
     crm: {
       exists: 'no',
-      data_quality: 'ok'
-    }
+      data_quality: 'ok',
+    },
   });
 
   const [currentSection, setCurrentSection] = useState<MobileSectionType>('ai');
@@ -54,7 +57,7 @@ export const MobileQuickForm: React.FC = () => {
       // Scroll error into view with margin for better visibility
       errorRef.current.scrollIntoView({
         behavior: 'smooth',
-        block: 'center'
+        block: 'center',
       });
 
       // Set focus for screen readers
@@ -67,7 +70,7 @@ export const MobileQuickForm: React.FC = () => {
     const sectionNames = {
       ai: 'סוכני AI',
       automation: 'אוטומציות עסקיות',
-      crm: 'CRM ואינטגרציות'
+      crm: 'CRM ואינטגרציות',
     };
 
     // Announce to screen readers
@@ -93,12 +96,14 @@ export const MobileQuickForm: React.FC = () => {
   }, [currentSection]);
 
   // Haptic feedback helper (vibration API for supported devices)
-  const triggerHapticFeedback = (type: 'light' | 'medium' | 'heavy' = 'light') => {
+  const triggerHapticFeedback = (
+    type: 'light' | 'medium' | 'heavy' = 'light'
+  ) => {
     if ('vibrate' in navigator) {
       const patterns = {
         light: 10,
         medium: 20,
-        heavy: 30
+        heavy: 30,
       };
       navigator.vibrate(patterns[type]);
     }
@@ -109,12 +114,12 @@ export const MobileQuickForm: React.FC = () => {
     section: K,
     updates: Partial<MobileFormData[K]>
   ) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [section]: {
         ...prev[section],
-        ...updates
-      }
+        ...updates,
+      },
     }));
     setErrors([]); // Clear errors on change
   };
@@ -212,11 +217,11 @@ export const MobileQuickForm: React.FC = () => {
       });
 
       // Generate proposal (simulate async operation with small delay for UX)
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       const proposalResult = generateProposal({
         ...currentMeeting,
-        modules: fullModules
+        modules: fullModules,
       });
 
       // Save proposal
@@ -227,7 +232,6 @@ export const MobileQuickForm: React.FC = () => {
 
       // Navigate to proposal
       navigate('/module/proposal');
-
     } catch (error) {
       console.error('Error generating proposal:', error);
       setErrors(['אירעה שגיאה ביצירת ההצעה. נסה שוב.']);
@@ -237,15 +241,14 @@ export const MobileQuickForm: React.FC = () => {
   };
 
   // Calculate progress
-  const progress = currentSection === 'ai' ? 33
-    : currentSection === 'automation' ? 66
-    : 100;
+  const progress =
+    currentSection === 'ai' ? 33 : currentSection === 'automation' ? 66 : 100;
 
   // Section metadata for accessibility
   const sectionInfo = {
     ai: { step: 1, name: 'סוכני AI', icon: '🤖' },
     automation: { step: 2, name: 'אוטומציות עסקיות', icon: '⚙️' },
-    crm: { step: 3, name: 'CRM ואינטגרציות', icon: '🔗' }
+    crm: { step: 3, name: 'CRM ואינטגרציות', icon: '🔗' },
   };
 
   const currentSectionInfo = sectionInfo[currentSection];
@@ -329,7 +332,9 @@ export const MobileQuickForm: React.FC = () => {
               tabIndex={-1}
             >
               <div className="flex items-start gap-3">
-                <span className="text-2xl flex-shrink-0" aria-hidden="true">⚠️</span>
+                <span className="text-2xl flex-shrink-0" aria-hidden="true">
+                  ⚠️
+                </span>
                 <div className="flex-1">
                   <p className="mobile-validation-error-text font-medium mb-2">
                     יש למלא את השדות הבאים:
@@ -374,7 +379,7 @@ export const MobileQuickForm: React.FC = () => {
         style={{
           paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
           paddingLeft: 'max(1rem, env(safe-area-inset-left))',
-          paddingRight: 'max(1rem, env(safe-area-inset-right))'
+          paddingRight: 'max(1rem, env(safe-area-inset-right))',
         }}
       >
         <div className="mobile-nav-buttons">
@@ -416,4 +421,3 @@ export const MobileQuickForm: React.FC = () => {
     </div>
   );
 };
-

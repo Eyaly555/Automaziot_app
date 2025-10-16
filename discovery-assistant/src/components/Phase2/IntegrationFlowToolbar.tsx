@@ -44,7 +44,7 @@ export const IntegrationFlowToolbar: React.FC<IntegrationFlowToolbarProps> = ({
   onTemplates,
   canUndo,
   canRedo,
-  unsavedChanges
+  unsavedChanges,
 }) => {
   return (
     <div
@@ -61,9 +61,9 @@ export const IntegrationFlowToolbar: React.FC<IntegrationFlowToolbarProps> = ({
             iconPosition="right"
             onClick={onUndo}
             disabled={!canUndo}
-            ariaLabel="ÑÙØÕÜ äâÕÜÔ Ð×èÕàÔ"
+            ariaLabel="ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
           >
-            ÑÙØÕÜ
+            ï¿½ï¿½ï¿½ï¿½ï¿½
           </Button>
 
           <Button
@@ -73,9 +73,9 @@ export const IntegrationFlowToolbar: React.FC<IntegrationFlowToolbarProps> = ({
             iconPosition="right"
             onClick={onRedo}
             disabled={!canRedo}
-            ariaLabel="×ÖèÔ âÜ äâÕÜÔ"
+            ariaLabel="ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½"
           >
-            ×ÖèÔ
+            ï¿½ï¿½ï¿½ï¿½
           </Button>
 
           {/* Divider */}
@@ -89,9 +89,9 @@ export const IntegrationFlowToolbar: React.FC<IntegrationFlowToolbarProps> = ({
               icon={<Zap className="w-4 h-4" />}
               iconPosition="right"
               onClick={onTemplates}
-              ariaLabel="äê× êÑàÙÕê ÖèÙÞÔ"
+              ariaLabel="ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½"
             >
-              êÑàÙÕê
+              ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             </Button>
           )}
         </div>
@@ -103,7 +103,7 @@ export const IntegrationFlowToolbar: React.FC<IntegrationFlowToolbarProps> = ({
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
               <span className="text-sm text-orange-600 font-medium">
-                éÙàÕÙÙÝ ÜÐ àéÞèÕ
+                ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
               </span>
             </div>
           )}
@@ -115,9 +115,9 @@ export const IntegrationFlowToolbar: React.FC<IntegrationFlowToolbarProps> = ({
             icon={<Download className="w-4 h-4" />}
             iconPosition="right"
             onClick={onExport}
-            ariaLabel="ÙÙæÕÐ ÖèÙÞÔ"
+            ariaLabel="ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½"
           >
-            ÙÙæÕÐ
+            ï¿½ï¿½ï¿½ï¿½ï¿½
           </Button>
 
           {/* Save Button */}
@@ -127,28 +127,28 @@ export const IntegrationFlowToolbar: React.FC<IntegrationFlowToolbarProps> = ({
             icon={<Save className="w-4 h-4" />}
             iconPosition="right"
             onClick={onSave}
-            ariaLabel="éÞÕè ÖèÙÞÔ"
+            ariaLabel="ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½"
           >
-            éÞÕè
+            ï¿½ï¿½ï¿½ï¿½
           </Button>
         </div>
       </div>
 
       {/* Keyboard Shortcuts Hint */}
       <div className="mt-2 text-xs text-gray-500 text-center">
-        <span>çÙæÕèÙ ÞçÜÓê: </span>
+        <span>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½: </span>
         <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs mx-1">
           Ctrl+Z
         </kbd>
-        <span>ÑÙØÕÜ " </span>
+        <span>ï¿½ï¿½ï¿½ï¿½ï¿½ " </span>
         <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs mx-1">
           Ctrl+Y
         </kbd>
-        <span>×ÖèÔ " </span>
+        <span>ï¿½ï¿½ï¿½ï¿½ " </span>
         <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs mx-1">
           Ctrl+S
         </kbd>
-        <span>éÞÙèÔ</span>
+        <span>ï¿½ï¿½ï¿½ï¿½ï¿½</span>
       </div>
     </div>
   );

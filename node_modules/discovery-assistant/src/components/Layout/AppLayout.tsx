@@ -22,24 +22,26 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   // Routes where we hide the sidebar (login, clients list, mobile)
   const hideSidebarRoutes = ['/login', '/clients', '/mobile'];
-  const shouldHideSidebar = hideSidebarRoutes.some(route =>
-    location.pathname === route || location.pathname.startsWith(route + '/')
+  const shouldHideSidebar = hideSidebarRoutes.some(
+    (route) =>
+      location.pathname === route || location.pathname.startsWith(route + '/')
   );
 
   // Routes where we hide breadcrumbs
   const hideBreadcrumbsRoutes = ['/login', '/clients', '/dashboard'];
-  const shouldHideBreadcrumbs = hideBreadcrumbsRoutes.includes(location.pathname);
+  const shouldHideBreadcrumbs = hideBreadcrumbsRoutes.includes(
+    location.pathname
+  );
 
   return (
-    <div
-      className="min-h-screen bg-gray-50"
-      dir={isEnglish ? 'ltr' : 'rtl'}
-    >
+    <div className="min-h-screen bg-gray-50" dir={isEnglish ? 'ltr' : 'rtl'}>
       {/* Main layout container */}
       <div className="flex">
         {/* Sidebar Navigation - Right side for RTL, Left for LTR */}
         {!shouldHideSidebar && (
-          <aside className={`flex-shrink-0 ${isEnglish ? 'order-first' : 'order-last'}`}>
+          <aside
+            className={`flex-shrink-0 ${isEnglish ? 'order-first' : 'order-last'}`}
+          >
             <GlobalNavigation />
           </aside>
         )}
@@ -50,9 +52,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           {!shouldHideBreadcrumbs && <Breadcrumbs />}
 
           {/* Page content */}
-          <div className="relative">
-            {children}
-          </div>
+          <div className="relative">{children}</div>
 
           {/* Quick Actions - floating bottom bar */}
           <QuickActions />

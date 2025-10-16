@@ -1,12 +1,18 @@
 import * as ExcelJS from 'exceljs';
 import { Meeting, PainPoint, ROIModule, SelectedService } from '../types';
 import type { DevelopmentTask, Sprint, Blocker } from '../types/phase3';
-import type { DetailedSystemSpec, IntegrationFlow, DetailedAIAgentSpec } from '../types/phase2';
+import type {
+  DetailedSystemSpec,
+  IntegrationFlow,
+  DetailedAIAgentSpec,
+} from '../types/phase2';
 
 /**
  * Calculate module completion percentage
  */
-function calculateModuleCompletion(moduleData: Record<string, unknown>): number {
+function calculateModuleCompletion(
+  moduleData: Record<string, unknown>
+): number {
   if (!moduleData) return 0;
 
   let filledFields = 0;
@@ -17,7 +23,11 @@ function calculateModuleCompletion(moduleData: Record<string, unknown>): number 
     if (value !== undefined && value !== null && value !== '') {
       if (Array.isArray(value) && value.length > 0) {
         filledFields++;
-      } else if (typeof value === 'object' && value !== null && Object.keys(value as Record<string, unknown>).length > 0) {
+      } else if (
+        typeof value === 'object' &&
+        value !== null &&
+        Object.keys(value as Record<string, unknown>).length > 0
+      ) {
         filledFields++;
       } else if (typeof value !== 'object') {
         filledFields++;
@@ -41,7 +51,7 @@ function getModuleName(moduleKey: string): string {
     aiAgents: 'סוכני AI',
     systems: 'מערכות',
     roi: 'ROI',
-    proposal: 'הצעת שירות'
+    proposal: 'הצעת שירות',
   };
   return names[moduleKey] || moduleKey;
 }
@@ -50,12 +60,16 @@ function getModuleName(moduleKey: string): string {
  * Calculate hours saved from ROI data
  */
 function calculateHoursSaved(roi: ROIModule | undefined): number {
-  if (!roi?.currentCosts?.manualHours || !roi?.timeSavings?.automationPotential) {
+  if (
+    !roi?.currentCosts?.manualHours ||
+    !roi?.timeSavings?.automationPotential
+  ) {
     return 0;
   }
 
   const manualHours = parseFloat(roi.currentCosts.manualHours);
-  const automationPercent = parseFloat(roi.timeSavings.automationPotential) / 100;
+  const automationPercent =
+    parseFloat(roi.timeSavings.automationPotential) / 100;
   const weeklyHoursSaved = manualHours * automationPercent;
 
   return Math.round(weeklyHoursSaved * 4.33); // Monthly
@@ -65,7 +79,11 @@ function calculateHoursSaved(roi: ROIModule | undefined): number {
  * Calculate monthly savings from ROI data
  */
 function calculateMonthlySavings(roi: ROIModule | undefined): number {
-  if (!roi?.currentCosts?.manualHours || !roi?.currentCosts?.hourlyCost || !roi?.timeSavings?.automationPotential) {
+  if (
+    !roi?.currentCosts?.manualHours ||
+    !roi?.currentCosts?.hourlyCost ||
+    !roi?.timeSavings?.automationPotential
+  ) {
     return 0;
   }
 
@@ -79,7 +97,9 @@ function calculateMonthlySavings(roi: ROIModule | undefined): number {
  * Calculate payback period in months
  */
 function calculatePaybackPeriod(roi: ROIModule | undefined): number {
-  const investment = roi?.investment?.budgetAvailable ? parseFloat(roi.investment.budgetAvailable) : 0;
+  const investment = roi?.investment?.budgetAvailable
+    ? parseFloat(roi.investment.budgetAvailable)
+    : 0;
   const monthlySavings = calculateMonthlySavings(roi);
 
   if (monthlySavings === 0) return 0;
@@ -91,7 +111,9 @@ function calculatePaybackPeriod(roi: ROIModule | undefined): number {
  * Calculate 12-month ROI percentage
  */
 function calculate12MonthROI(roi: ROIModule | undefined): number {
-  const investment = roi?.investment?.budgetAvailable ? parseFloat(roi.investment.budgetAvailable) : 0;
+  const investment = roi?.investment?.budgetAvailable
+    ? parseFloat(roi.investment.budgetAvailable)
+    : 0;
   const monthlySavings = calculateMonthlySavings(roi);
   const annualSavings = monthlySavings * 12;
 
@@ -125,8 +147,8 @@ export async function exportDiscoveryToExcel(meeting: Meeting): Promise<void> {
     ['מודול', 'אחוז השלמה'],
     ...Object.keys(meeting.modules).map((key: string) => [
       getModuleName(key),
-      `${calculateModuleCompletion(meeting.modules[key as keyof typeof meeting.modules] as Record<string, unknown>)}%`
-    ])
+      `${calculateModuleCompletion(meeting.modules[key as keyof typeof meeting.modules] as Record<string, unknown>)}%`,
+    ]),
   ];
 
   overviewData.forEach((row, rowIndex) => {
@@ -137,10 +159,7 @@ export async function exportDiscoveryToExcel(meeting: Meeting): Promise<void> {
   });
 
   // Set column widths
-  overviewSheet.columns = [
-    { width: 25 },
-    { width: 40 }
-  ];
+  overviewSheet.columns = [{ width: 25 }, { width: 40 }];
 
   // Sheet 2: Pain Points
   const painPointsSheet = workbook.addWorksheet('נקודות כאב');
@@ -153,9 +172,17 @@ export async function exportDiscoveryToExcel(meeting: Meeting): Promise<void> {
       getModuleName(pp.module),
       pp.subModule || '',
       pp.description,
-      pp.severity === 'critical' ? 'קריטי' : pp.severity === 'high' ? 'גבוה' : pp.severity === 'medium' ? 'בינוני' : 'נמוך',
-      pp.potentialSaving ? `₪${pp.potentialSaving.toLocaleString()}` : 'לא צוין'
-    ])
+      pp.severity === 'critical'
+        ? 'קריטי'
+        : pp.severity === 'high'
+          ? 'גבוה'
+          : pp.severity === 'medium'
+            ? 'בינוני'
+            : 'נמוך',
+      pp.potentialSaving
+        ? `₪${pp.potentialSaving.toLocaleString()}`
+        : 'לא צוין',
+    ]),
   ];
 
   if (painPoints.length === 0) {
@@ -174,15 +201,21 @@ export async function exportDiscoveryToExcel(meeting: Meeting): Promise<void> {
     { width: 20 },
     { width: 50 },
     { width: 15 },
-    { width: 20 }
+    { width: 20 },
   ];
 
   // Sheet 3: ROI Summary
   const roiSheet = workbook.addWorksheet('ניתוח ROI');
   const roi = meeting.modules.roi;
-  const manualHours = roi?.currentCosts?.manualHours ? parseFloat(roi.currentCosts.manualHours) : 0;
-  const hourlyCost = roi?.currentCosts?.hourlyCost ? parseFloat(roi.currentCosts.hourlyCost) : 0;
-  const automationPotential = roi?.timeSavings?.automationPotential ? parseFloat(roi.timeSavings.automationPotential) : 0;
+  const manualHours = roi?.currentCosts?.manualHours
+    ? parseFloat(roi.currentCosts.manualHours)
+    : 0;
+  const hourlyCost = roi?.currentCosts?.hourlyCost
+    ? parseFloat(roi.currentCosts.hourlyCost)
+    : 0;
+  const automationPotential = roi?.timeSavings?.automationPotential
+    ? parseFloat(roi.timeSavings.automationPotential)
+    : 0;
 
   const roiData = [
     ['ניתוח ROI'],
@@ -200,7 +233,7 @@ export async function exportDiscoveryToExcel(meeting: Meeting): Promise<void> {
     ['מדדי ROI'],
     ['טווח השקעה', roi?.investment?.range || 'לא צוין'],
     ['תקופת החזר (חודשים)', calculatePaybackPeriod(roi)],
-    ['ROI ל-12 חודשים (%)', calculate12MonthROI(roi)]
+    ['ROI ל-12 חודשים (%)', calculate12MonthROI(roi)],
   ];
 
   roiData.forEach((row, rowIndex) => {
@@ -210,10 +243,7 @@ export async function exportDiscoveryToExcel(meeting: Meeting): Promise<void> {
     });
   });
 
-  roiSheet.columns = [
-    { width: 30 },
-    { width: 25 }
-  ];
+  roiSheet.columns = [{ width: 30 }, { width: 25 }];
 
   // Sheet 4: Proposed Services
   const servicesSheet = workbook.addWorksheet('שירותים מוצעים');
@@ -225,17 +255,32 @@ export async function exportDiscoveryToExcel(meeting: Meeting): Promise<void> {
     ...services.map((service: SelectedService) => [
       service.name,
       service.category,
-      service.customPrice ? `₪${service.customPrice.toLocaleString()}` : service.basePrice ? `₪${service.basePrice.toLocaleString()}` : 'הצעת מחיר',
+      service.customPrice
+        ? `₪${service.customPrice.toLocaleString()}`
+        : service.basePrice
+          ? `₪${service.basePrice.toLocaleString()}`
+          : 'הצעת מחיר',
       service.customDuration || service.estimatedDays || 'TBD',
-      service.relevanceScore ? `${service.relevanceScore}/10` : 'בינוני'
-    ])
+      service.relevanceScore ? `${service.relevanceScore}/10` : 'בינוני',
+    ]),
   ];
 
   if (services.length === 0) {
     servicesData.push(['אין שירותים נבחרים', '', '', '', '']);
   } else {
-    servicesData.push([''], ['סה"כ השקעה', '', `₪${services.reduce((sum: number, s: SelectedService) => sum + (s.customPrice ?? s.basePrice ?? 0), 0).toLocaleString()}`]);
-    servicesData.push(['סה"כ משך', '', `${services.reduce((sum: number, s: SelectedService) => sum + (s.customDuration ?? s.estimatedDays ?? 0), 0)} ימים`]);
+    servicesData.push(
+      [''],
+      [
+        'סה"כ השקעה',
+        '',
+        `₪${services.reduce((sum: number, s: SelectedService) => sum + (s.customPrice ?? s.basePrice ?? 0), 0).toLocaleString()}`,
+      ]
+    );
+    servicesData.push([
+      'סה"כ משך',
+      '',
+      `${services.reduce((sum: number, s: SelectedService) => sum + (s.customDuration ?? s.estimatedDays ?? 0), 0)} ימים`,
+    ]);
   }
 
   servicesData.forEach((row, rowIndex) => {
@@ -250,14 +295,15 @@ export async function exportDiscoveryToExcel(meeting: Meeting): Promise<void> {
     { width: 25 },
     { width: 20 },
     { width: 20 },
-    { width: 15 }
+    { width: 15 },
   ];
 
   // Sheet 5: Systems Inventory
   const systemsSheet = workbook.addWorksheet('מערכות');
   const detailedSystems = meeting.modules.systems?.detailedSystems || [];
   const currentSystems = meeting.modules.systems?.currentSystems || [];
-  const systemsToExport = detailedSystems.length > 0 ? detailedSystems : currentSystems;
+  const systemsToExport =
+    detailedSystems.length > 0 ? detailedSystems : currentSystems;
 
   const systemsData: (string | number)[][] = [
     ['מלאי מערכות'],
@@ -269,13 +315,18 @@ export async function exportDiscoveryToExcel(meeting: Meeting): Promise<void> {
       }
       const systemObj = sys as Record<string, unknown>;
       return [
-        (systemObj.specificSystem as string) || (systemObj.systemName as string) || (systemObj.name as string) || 'לא ידוע',
+        (systemObj.specificSystem as string) ||
+          (systemObj.systemName as string) ||
+          (systemObj.name as string) ||
+          'לא ידוע',
         (systemObj.category as string) || 'לא צוין',
         (systemObj.version as string) || 'לא צוין',
         (systemObj.apiAccess as string) || 'לא ידוע',
-        systemObj.satisfactionScore ? `${systemObj.satisfactionScore}/5` : 'לא דורג'
+        systemObj.satisfactionScore
+          ? `${systemObj.satisfactionScore}/5`
+          : 'לא דורג',
       ];
-    })
+    }),
   ];
 
   if (systemsToExport.length === 0) {
@@ -294,13 +345,15 @@ export async function exportDiscoveryToExcel(meeting: Meeting): Promise<void> {
     { width: 20 },
     { width: 15 },
     { width: 20 },
-    { width: 15 }
+    { width: 15 },
   ];
 
   // Export file
   const timestamp = new Date().toISOString().split('T')[0];
   const buffer = await workbook.xlsx.writeBuffer();
-  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const blob = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
@@ -327,7 +380,7 @@ export function exportImplementationSpecToExcel(meeting: Meeting): void {
     [''],
     ['סיכום התקדמות'],
     ['סה"כ שעות משוערות', meeting.implementationSpec?.totalEstimatedHours || 0],
-    ['אחוז השלמה', `${meeting.implementationSpec?.completionPercentage || 0}%`]
+    ['אחוז השלמה', `${meeting.implementationSpec?.completionPercentage || 0}%`],
   ];
 
   const wsOverview = XLSX.utils.aoa_to_sheet(overviewData);
@@ -339,7 +392,14 @@ export function exportImplementationSpecToExcel(meeting: Meeting): void {
   const systemsData: (string | number)[][] = [
     ['Systems Deep Dive'],
     [''],
-    ['System Name', 'Authentication Method', 'API Endpoint', 'Modules Count', 'Migration Required', 'Estimated Hours']
+    [
+      'System Name',
+      'Authentication Method',
+      'API Endpoint',
+      'Modules Count',
+      'Migration Required',
+      'Estimated Hours',
+    ],
   ];
 
   systems.forEach((sys: DetailedSystemSpec) => {
@@ -349,7 +409,7 @@ export function exportImplementationSpecToExcel(meeting: Meeting): void {
       sys.authentication?.apiEndpoint || 'N/A',
       sys.modules?.length || 0,
       sys.dataMigration?.required ? 'Yes' : 'No',
-      0 // estimatedHours is not part of DetailedSystemSpec - would need to be calculated
+      0, // estimatedHours is not part of DetailedSystemSpec - would need to be calculated
     ]);
   });
 
@@ -364,7 +424,7 @@ export function exportImplementationSpecToExcel(meeting: Meeting): void {
     { wch: 40 },
     { wch: 15 },
     { wch: 18 },
-    { wch: 18 }
+    { wch: 18 },
   ];
 
   XLSX.utils.book_append_sheet(wb, wsSystems, 'Systems');
@@ -374,7 +434,15 @@ export function exportImplementationSpecToExcel(meeting: Meeting): void {
   const integrationsData: (string | number)[][] = [
     ['Integration Flows'],
     [''],
-    ['Flow Name', 'Source', 'Target', 'Trigger Type', 'Frequency', 'Steps Count', 'Estimated Hours']
+    [
+      'Flow Name',
+      'Source',
+      'Target',
+      'Trigger Type',
+      'Frequency',
+      'Steps Count',
+      'Estimated Hours',
+    ],
   ];
 
   integrations.forEach((flow: IntegrationFlow) => {
@@ -385,12 +453,20 @@ export function exportImplementationSpecToExcel(meeting: Meeting): void {
       flow.trigger?.type || 'N/A',
       flow.frequency || 'N/A',
       flow.steps?.length || 0,
-      flow.estimatedSetupTime ? Math.round(flow.estimatedSetupTime / 60) : 0 // Convert minutes to hours
+      flow.estimatedSetupTime ? Math.round(flow.estimatedSetupTime / 60) : 0, // Convert minutes to hours
     ]);
   });
 
   if (integrations.length === 0) {
-    integrationsData.push(['No integration flows defined', '', '', '', '', '', '']);
+    integrationsData.push([
+      'No integration flows defined',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+    ]);
   }
 
   const wsIntegrations = XLSX.utils.aoa_to_sheet(integrationsData);
@@ -401,7 +477,7 @@ export function exportImplementationSpecToExcel(meeting: Meeting): void {
     { wch: 15 },
     { wch: 15 },
     { wch: 15 },
-    { wch: 18 }
+    { wch: 18 },
   ];
 
   XLSX.utils.book_append_sheet(wb, wsIntegrations, 'Integrations');
@@ -411,7 +487,15 @@ export function exportImplementationSpecToExcel(meeting: Meeting): void {
   const aiAgentsData: (string | number)[][] = [
     ['AI Agents Specifications'],
     [''],
-    ['Agent Name', 'Department', 'Model', 'Provider', 'Knowledge Sources', 'Integrations', 'Estimated Hours']
+    [
+      'Agent Name',
+      'Department',
+      'Model',
+      'Provider',
+      'Knowledge Sources',
+      'Integrations',
+      'Estimated Hours',
+    ],
   ];
 
   aiAgents.forEach((agent: DetailedAIAgentSpec) => {
@@ -424,9 +508,11 @@ export function exportImplementationSpecToExcel(meeting: Meeting): void {
       [
         agent.integrations?.crmEnabled && 'CRM',
         agent.integrations?.emailEnabled && 'Email',
-        agent.integrations?.calendarEnabled && 'Calendar'
-      ].filter(Boolean).join(', ') || 'None',
-      0 // estimatedHours is not part of DetailedAIAgentSpec - would need to be calculated
+        agent.integrations?.calendarEnabled && 'Calendar',
+      ]
+        .filter(Boolean)
+        .join(', ') || 'None',
+      0, // estimatedHours is not part of DetailedAIAgentSpec - would need to be calculated
     ]);
   });
 
@@ -442,14 +528,17 @@ export function exportImplementationSpecToExcel(meeting: Meeting): void {
     { wch: 15 },
     { wch: 18 },
     { wch: 25 },
-    { wch: 18 }
+    { wch: 18 },
   ];
 
   XLSX.utils.book_append_sheet(wb, wsAIAgents, 'AI Agents');
 
   // Export file
   const timestamp = new Date().toISOString().split('T')[0];
-  XLSX.writeFile(wb, `Implementation_Spec_${meeting.clientName.replace(/\s+/g, '_')}_${timestamp}.xlsx`);
+  XLSX.writeFile(
+    wb,
+    `Implementation_Spec_${meeting.clientName.replace(/\s+/g, '_')}_${timestamp}.xlsx`
+  );
 }
 
 /**
@@ -465,7 +554,18 @@ export function exportDevelopmentToExcel(meeting: Meeting): void {
   const taskData: (string | number)[][] = [
     ['Development Task List'],
     [''],
-    ['ID', 'Title', 'Type', 'Status', 'Priority', 'Estimated Hours', 'Actual Hours', 'Assignee', 'Sprint', 'System']
+    [
+      'ID',
+      'Title',
+      'Type',
+      'Status',
+      'Priority',
+      'Estimated Hours',
+      'Actual Hours',
+      'Assignee',
+      'Sprint',
+      'System',
+    ],
   ];
 
   tasks.forEach((task: DevelopmentTask) => {
@@ -479,7 +579,7 @@ export function exportDevelopmentToExcel(meeting: Meeting): void {
       task.actualHours || 0,
       task.assignedTo || 'Unassigned',
       task.sprint || 'Backlog',
-      task.relatedSpec?.specName || 'N/A'
+      task.relatedSpec?.specName || 'N/A',
     ]);
   });
 
@@ -488,17 +588,35 @@ export function exportDevelopmentToExcel(meeting: Meeting): void {
   }
 
   // Add summary
-  const completedTasks = tasks.filter((t: DevelopmentTask) => t.status === 'done').length;
-  const totalEstimated = tasks.reduce((sum: number, t: DevelopmentTask) => sum + (t.estimatedHours || 0), 0);
-  const totalActual = tasks.reduce((sum: number, t: DevelopmentTask) => sum + (t.actualHours || 0), 0);
+  const completedTasks = tasks.filter(
+    (t: DevelopmentTask) => t.status === 'done'
+  ).length;
+  const totalEstimated = tasks.reduce(
+    (sum: number, t: DevelopmentTask) => sum + (t.estimatedHours || 0),
+    0
+  );
+  const totalActual = tasks.reduce(
+    (sum: number, t: DevelopmentTask) => sum + (t.actualHours || 0),
+    0
+  );
 
   taskData.push([]);
   taskData.push(['Summary']);
   taskData.push(['Total Tasks', tasks.length]);
-  taskData.push(['Completed', completedTasks, '', `${Math.round((completedTasks / (tasks.length || 1)) * 100)}%`]);
+  taskData.push([
+    'Completed',
+    completedTasks,
+    '',
+    `${Math.round((completedTasks / (tasks.length || 1)) * 100)}%`,
+  ]);
   taskData.push(['Total Estimated Hours', totalEstimated]);
   taskData.push(['Total Actual Hours', totalActual]);
-  taskData.push(['Variance', totalActual - totalEstimated, '', `${totalEstimated > 0 ? Math.round(((totalActual - totalEstimated) / totalEstimated) * 100) : 0}%`]);
+  taskData.push([
+    'Variance',
+    totalActual - totalEstimated,
+    '',
+    `${totalEstimated > 0 ? Math.round(((totalActual - totalEstimated) / totalEstimated) * 100) : 0}%`,
+  ]);
 
   const wsTasks = XLSX.utils.aoa_to_sheet(taskData);
   wsTasks['!cols'] = [
@@ -511,7 +629,7 @@ export function exportDevelopmentToExcel(meeting: Meeting): void {
     { wch: 15 },
     { wch: 20 },
     { wch: 15 },
-    { wch: 25 }
+    { wch: 25 },
   ];
 
   XLSX.utils.book_append_sheet(wb, wsTasks, 'Task List');
@@ -520,14 +638,32 @@ export function exportDevelopmentToExcel(meeting: Meeting): void {
   const sprintData: (string | number)[][] = [
     ['Sprint Summary'],
     [''],
-    ['Sprint Name', 'Start Date', 'End Date', 'Goal', 'Status', 'Total Tasks', 'Completed', 'In Progress', 'Blocked']
+    [
+      'Sprint Name',
+      'Start Date',
+      'End Date',
+      'Goal',
+      'Status',
+      'Total Tasks',
+      'Completed',
+      'In Progress',
+      'Blocked',
+    ],
   ];
 
   sprints.forEach((sprint: Sprint) => {
-    const sprintTasks = tasks.filter((t: DevelopmentTask) => t.sprint === sprint.name);
-    const completed = sprintTasks.filter((t: DevelopmentTask) => t.status === 'done').length;
-    const inProgress = sprintTasks.filter((t: DevelopmentTask) => t.status === 'in_progress').length;
-    const blocked = sprintTasks.filter((t: DevelopmentTask) => t.status === 'blocked').length;
+    const sprintTasks = tasks.filter(
+      (t: DevelopmentTask) => t.sprint === sprint.name
+    );
+    const completed = sprintTasks.filter(
+      (t: DevelopmentTask) => t.status === 'done'
+    ).length;
+    const inProgress = sprintTasks.filter(
+      (t: DevelopmentTask) => t.status === 'in_progress'
+    ).length;
+    const blocked = sprintTasks.filter(
+      (t: DevelopmentTask) => t.status === 'blocked'
+    ).length;
 
     sprintData.push([
       sprint.name,
@@ -538,7 +674,7 @@ export function exportDevelopmentToExcel(meeting: Meeting): void {
       sprintTasks.length,
       completed,
       inProgress,
-      blocked
+      blocked,
     ]);
   });
 
@@ -556,7 +692,7 @@ export function exportDevelopmentToExcel(meeting: Meeting): void {
     { wch: 15 },
     { wch: 12 },
     { wch: 15 },
-    { wch: 10 }
+    { wch: 10 },
   ];
 
   XLSX.utils.book_append_sheet(wb, wsSprints, 'Sprint Summary');
@@ -565,7 +701,15 @@ export function exportDevelopmentToExcel(meeting: Meeting): void {
   const blockerData: (string | number)[][] = [
     ['Active Blockers'],
     [''],
-    ['Blocker ID', 'Task ID', 'Reason', 'Severity', 'Reported Date', 'Status', 'Resolution']
+    [
+      'Blocker ID',
+      'Task ID',
+      'Reason',
+      'Severity',
+      'Reported Date',
+      'Status',
+      'Resolution',
+    ],
   ];
 
   blockers.forEach((blocker: Blocker) => {
@@ -574,9 +718,11 @@ export function exportDevelopmentToExcel(meeting: Meeting): void {
       blocker.taskId,
       blocker.description, // Fixed: Blocker has 'description', not 'reason'
       blocker.severity,
-      blocker.reportedAt ? new Date(blocker.reportedAt).toLocaleDateString('en-US') : 'N/A', // Fixed: Blocker has 'reportedAt', not 'reportedDate'
+      blocker.reportedAt
+        ? new Date(blocker.reportedAt).toLocaleDateString('en-US')
+        : 'N/A', // Fixed: Blocker has 'reportedAt', not 'reportedDate'
       blocker.resolved ? 'Resolved' : 'Active',
-      blocker.resolution || 'Pending'
+      blocker.resolution || 'Pending',
     ]);
   });
 
@@ -592,7 +738,7 @@ export function exportDevelopmentToExcel(meeting: Meeting): void {
     { wch: 12 },
     { wch: 18 },
     { wch: 12 },
-    { wch: 40 }
+    { wch: 40 },
   ];
 
   XLSX.utils.book_append_sheet(wb, wsBlockers, 'Blockers');
@@ -610,25 +756,43 @@ export function exportDevelopmentToExcel(meeting: Meeting): void {
   const systemTasksData: (string | number)[][] = [
     ['Tasks by System/Component'],
     [''],
-    ['System', 'Total Tasks', 'Completed', 'In Progress', 'Blocked', 'Todo', 'Completion %']
+    [
+      'System',
+      'Total Tasks',
+      'Completed',
+      'In Progress',
+      'Blocked',
+      'Todo',
+      'Completion %',
+    ],
   ];
 
-  Object.entries(tasksBySystem).forEach(([system, systemTasks]: [string, DevelopmentTask[]]) => {
-    const completed = systemTasks.filter((t: DevelopmentTask) => t.status === 'done').length;
-    const inProgress = systemTasks.filter((t: DevelopmentTask) => t.status === 'in_progress').length;
-    const blocked = systemTasks.filter((t: DevelopmentTask) => t.status === 'blocked').length;
-    const todo = systemTasks.filter((t: DevelopmentTask) => t.status === 'todo').length;
+  Object.entries(tasksBySystem).forEach(
+    ([system, systemTasks]: [string, DevelopmentTask[]]) => {
+      const completed = systemTasks.filter(
+        (t: DevelopmentTask) => t.status === 'done'
+      ).length;
+      const inProgress = systemTasks.filter(
+        (t: DevelopmentTask) => t.status === 'in_progress'
+      ).length;
+      const blocked = systemTasks.filter(
+        (t: DevelopmentTask) => t.status === 'blocked'
+      ).length;
+      const todo = systemTasks.filter(
+        (t: DevelopmentTask) => t.status === 'todo'
+      ).length;
 
-    systemTasksData.push([
-      system,
-      systemTasks.length,
-      completed,
-      inProgress,
-      blocked,
-      todo,
-      `${Math.round((completed / systemTasks.length) * 100)}%`
-    ]);
-  });
+      systemTasksData.push([
+        system,
+        systemTasks.length,
+        completed,
+        inProgress,
+        blocked,
+        todo,
+        `${Math.round((completed / systemTasks.length) * 100)}%`,
+      ]);
+    }
+  );
 
   const wsSystemTasks = XLSX.utils.aoa_to_sheet(systemTasksData);
   wsSystemTasks['!cols'] = [
@@ -638,12 +802,15 @@ export function exportDevelopmentToExcel(meeting: Meeting): void {
     { wch: 15 },
     { wch: 10 },
     { wch: 10 },
-    { wch: 15 }
+    { wch: 15 },
   ];
 
   XLSX.utils.book_append_sheet(wb, wsSystemTasks, 'Tasks by System');
 
   // Export file
   const timestamp = new Date().toISOString().split('T')[0];
-  XLSX.writeFile(wb, `Development_Tasks_${meeting.clientName.replace(/\s+/g, '_')}_${timestamp}.xlsx`);
+  XLSX.writeFile(
+    wb,
+    `Development_Tasks_${meeting.clientName.replace(/\s+/g, '_')}_${timestamp}.xlsx`
+  );
 }

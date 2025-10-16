@@ -22,7 +22,7 @@ export function backupPhaseHistory(
       meetingId,
       history: JSON.parse(JSON.stringify(history)), // Deep clone
       timestamp: new Date(),
-      checksum: generateChecksum(history)
+      checksum: generateChecksum(history),
     };
 
     const key = `phase_history_backup_${meetingId}`;
@@ -54,7 +54,9 @@ export function restorePhaseHistory(
     // Verify checksum
     const expectedChecksum = generateChecksum(backup.history);
     if (backup.checksum !== expectedChecksum) {
-      console.error('[Phase History] ⚠️ Checksum mismatch - backup may be corrupted');
+      console.error(
+        '[Phase History] ⚠️ Checksum mismatch - backup may be corrupted'
+      );
       return null;
     }
 
@@ -74,7 +76,7 @@ function generateChecksum(history: PhaseTransition[]): string {
   let hash = 0;
   for (let i = 0; i < data.length; i++) {
     const char = data.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32-bit integer
   }
   return hash.toString(36);
@@ -83,7 +85,10 @@ function generateChecksum(history: PhaseTransition[]): string {
 /**
  * List all backups (for debugging)
  */
-export function listAllBackups(): Array<{ meetingId: string; timestamp: Date }> {
+export function listAllBackups(): Array<{
+  meetingId: string;
+  timestamp: Date;
+}> {
   const backups: Array<{ meetingId: string; timestamp: Date }> = [];
 
   for (let i = 0; i < localStorage.length; i++) {
@@ -95,7 +100,7 @@ export function listAllBackups(): Array<{ meetingId: string; timestamp: Date }> 
           const backup: PhaseHistoryBackup = JSON.parse(data);
           backups.push({
             meetingId: backup.meetingId,
-            timestamp: backup.timestamp
+            timestamp: backup.timestamp,
           });
         }
       } catch (e) {

@@ -20,7 +20,7 @@ export function ImplMarketingAutomationSpec() {
     adminAccess: {
       email: '',
       role: 'admin',
-      hasApiAccess: false
+      hasApiAccess: false,
     },
     apiCredentials: {},
     domainAuthentication: {
@@ -28,26 +28,26 @@ export function ImplMarketingAutomationSpec() {
       spfRecordConfigured: false,
       dkimRecordConfigured: false,
       hasPhysicalAddress: false,
-      hasDnsAccess: false
+      hasDnsAccess: false,
     },
     websiteTracking: {
       hasWebsiteAccess: false,
       trackingCodeInstalled: false,
-      trackingDomains: []
+      trackingDomains: [],
     },
     automationWorkflows: [],
     segmentation: {
-      segments: []
+      segments: [],
     },
     customFields: [],
     compliance: {
       gdprCompliant: false,
       hasUnsubscribeLink: true,
       hasPhysicalAddress: false,
-      hasPrivacyPolicy: false
+      hasPrivacyPolicy: false,
     },
     trainingRequired: true,
-    estimatedWeeks: 3
+    estimatedWeeks: 3,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -59,12 +59,15 @@ export function ImplMarketingAutomationSpec() {
   // Auto-save hook for immediate saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'impl-marketing-automation',
-    category: 'systemImplementations'
+    category: 'systemImplementations',
   });
 
   useEffect(() => {
-    const systemImplementations = currentMeeting?.implementationSpec?.systemImplementations || [];
-    const existing = systemImplementations.find((s: any) => s.serviceId === 'impl-marketing-automation');
+    const systemImplementations =
+      currentMeeting?.implementationSpec?.systemImplementations || [];
+    const existing = systemImplementations.find(
+      (s: any) => s.serviceId === 'impl-marketing-automation'
+    );
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
 
@@ -90,18 +93,21 @@ export function ImplMarketingAutomationSpec() {
   //   }
   // }, [config]);
 
-  const handleFieldChange = useCallback((field: string, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = { ...updated }; // No smart fields in this component
-          saveData(completeConfig);
-        }
-      }, 0);
-      return updated;
-    });
-  }, [saveData]);
+  const handleFieldChange = useCallback(
+    (field: string, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = { ...updated }; // No smart fields in this component
+            saveData(completeConfig);
+          }
+        }, 0);
+        return updated;
+      });
+    },
+    [saveData]
+  );
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -128,14 +134,16 @@ export function ImplMarketingAutomationSpec() {
       {
         workflowName: '',
         trigger: 'form_submit',
-        actions: []
-      }
+        actions: [],
+      },
     ];
     handleFieldChange('automationWorkflows', updatedWorkflows);
   };
 
   const removeWorkflow = (index: number) => {
-    const updatedWorkflows = config.automationWorkflows.filter((_, i) => i !== index);
+    const updatedWorkflows = config.automationWorkflows.filter(
+      (_, i) => i !== index
+    );
     handleFieldChange('automationWorkflows', updatedWorkflows);
   };
 
@@ -144,14 +152,16 @@ export function ImplMarketingAutomationSpec() {
       ...config.segmentation.segments,
       {
         segmentName: '',
-        criteria: ''
-      }
+        criteria: '',
+      },
     ];
     handleFieldChange('segmentation.segments', updatedSegments);
   };
 
   const removeSegment = (index: number) => {
-    const updatedSegments = config.segmentation.segments.filter((_, i) => i !== index);
+    const updatedSegments = config.segmentation.segments.filter(
+      (_, i) => i !== index
+    );
     handleFieldChange('segmentation.segments', updatedSegments);
   };
 
@@ -162,45 +172,52 @@ export function ImplMarketingAutomationSpec() {
         fieldName: '',
         fieldType: 'text',
         purpose: '',
-        isRequired: false
-      }
+        isRequired: false,
+      },
     ];
     handleFieldChange('customFields', updatedCustomFields);
   };
 
   const removeCustomField = (index: number) => {
-    const updatedCustomFields = config.customFields.filter((_, i) => i !== index);
+    const updatedCustomFields = config.customFields.filter(
+      (_, i) => i !== index
+    );
     handleFieldChange('customFields', updatedCustomFields);
   };
 
   const addTrackingDomain = () => {
-    setConfig(prevConfig => ({
+    setConfig((prevConfig) => ({
       ...prevConfig,
       websiteTracking: {
         ...prevConfig.websiteTracking,
-        trackingDomains: [...prevConfig.websiteTracking.trackingDomains, '']
-      }
+        trackingDomains: [...prevConfig.websiteTracking.trackingDomains, ''],
+      },
     }));
   };
 
   const updateTrackingDomain = (index: number, value: string) => {
-    setConfig(prevConfig => {
+    setConfig((prevConfig) => {
       const updated = [...prevConfig.websiteTracking.trackingDomains];
       updated[index] = value;
       return {
         ...prevConfig,
-        websiteTracking: { ...prevConfig.websiteTracking, trackingDomains: updated }
+        websiteTracking: {
+          ...prevConfig.websiteTracking,
+          trackingDomains: updated,
+        },
       };
     });
   };
 
   const removeTrackingDomain = (index: number) => {
-    setConfig(prevConfig => ({
+    setConfig((prevConfig) => ({
       ...prevConfig,
       websiteTracking: {
         ...prevConfig.websiteTracking,
-        trackingDomains: prevConfig.websiteTracking.trackingDomains.filter((_, i) => i !== index)
-      }
+        trackingDomains: prevConfig.websiteTracking.trackingDomains.filter(
+          (_, i) => i !== index
+        ),
+      },
     }));
   };
 
@@ -222,8 +239,12 @@ export function ImplMarketingAutomationSpec() {
   return (
     <div className="space-y-6 p-8" dir="rtl">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">שירות #42: הטמעת מערכת אוטומציית שיווק</h2>
-        <p className="text-gray-600 mt-2">HubSpot Marketing / ActiveCampaign / Mailchimp</p>
+        <h2 className="text-2xl font-bold text-gray-900">
+          שירות #42: הטמעת מערכת אוטומציית שיווק
+        </h2>
+        <p className="text-gray-600 mt-2">
+          HubSpot Marketing / ActiveCampaign / Mailchimp
+        </p>
       </div>
 
       {/* Platform & Subscription */}
@@ -236,22 +257,30 @@ export function ImplMarketingAutomationSpec() {
             </label>
             <select
               value={config.platform}
-              onChange={(e) => handleFieldChange('platform', e.target.value as any)}
+              onChange={(e) =>
+                handleFieldChange('platform', e.target.value as any)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             >
               <option value="hubspot_marketing">HubSpot Marketing</option>
               <option value="activecampaign">ActiveCampaign</option>
               <option value="mailchimp">Mailchimp</option>
             </select>
-            {errors.platform && <p className="text-red-500 text-sm mt-1">{errors.platform}</p>}
+            {errors.platform && (
+              <p className="text-red-500 text-sm mt-1">{errors.platform}</p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">רמת מנוי</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              רמת מנוי
+            </label>
             <input
               type="text"
               value={config.subscriptionTier}
-              onChange={(e) => handleFieldChange('subscriptionTier', e.target.value)}
+              onChange={(e) =>
+                handleFieldChange('subscriptionTier', e.target.value)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               placeholder="Starter, Professional, Plus..."
             />
@@ -270,18 +299,26 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="email"
               value={config.adminAccess.email}
-              onChange={(e) => handleFieldChange('adminAccess.email', e.target.value)}
+              onChange={(e) =>
+                handleFieldChange('adminAccess.email', e.target.value)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               placeholder="admin@company.com"
             />
-            {errors.adminEmail && <p className="text-red-500 text-sm mt-1">{errors.adminEmail}</p>}
+            {errors.adminEmail && (
+              <p className="text-red-500 text-sm mt-1">{errors.adminEmail}</p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">תפקיד</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              תפקיד
+            </label>
             <select
               value={config.adminAccess.role}
-              onChange={(e) => handleFieldChange('adminAccess.role', e.target.value as any)}
+              onChange={(e) =>
+                handleFieldChange('adminAccess.role', e.target.value as any)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             >
               <option value="owner">Owner</option>
@@ -294,7 +331,9 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="checkbox"
               checked={config.adminAccess.hasApiAccess}
-              onChange={(e) => handleFieldChange('adminAccess.hasApiAccess', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange('adminAccess.hasApiAccess', e.target.checked)
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">יש גישה ל-API</span>
@@ -304,7 +343,9 @@ export function ImplMarketingAutomationSpec() {
 
       {/* Domain Authentication */}
       <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">אימות דומיין (חיוני לשליחה)</h3>
+        <h3 className="text-lg font-semibold mb-4">
+          אימות דומיין (חיוני לשליחה)
+        </h3>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -313,11 +354,15 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="text"
               value={config.domainAuthentication.domain}
-              onChange={(e) => handleFieldChange('domainAuthentication.domain', e.target.value)}
+              onChange={(e) =>
+                handleFieldChange('domainAuthentication.domain', e.target.value)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               placeholder="company.com"
             />
-            {errors.domain && <p className="text-red-500 text-sm mt-1">{errors.domain}</p>}
+            {errors.domain && (
+              <p className="text-red-500 text-sm mt-1">{errors.domain}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -325,7 +370,12 @@ export function ImplMarketingAutomationSpec() {
               <input
                 type="checkbox"
                 checked={config.domainAuthentication.spfRecordConfigured}
-                onChange={(e) => handleFieldChange('domainAuthentication.spfRecordConfigured', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'domainAuthentication.spfRecordConfigured',
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">SPF Record מוגדר</span>
@@ -335,7 +385,12 @@ export function ImplMarketingAutomationSpec() {
               <input
                 type="checkbox"
                 checked={config.domainAuthentication.dkimRecordConfigured}
-                onChange={(e) => handleFieldChange('domainAuthentication.dkimRecordConfigured', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'domainAuthentication.dkimRecordConfigured',
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">DKIM Record מוגדר</span>
@@ -345,7 +400,12 @@ export function ImplMarketingAutomationSpec() {
               <input
                 type="checkbox"
                 checked={config.domainAuthentication.hasDnsAccess}
-                onChange={(e) => handleFieldChange('domainAuthentication.hasDnsAccess', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'domainAuthentication.hasDnsAccess',
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">יש גישה ל-DNS</span>
@@ -355,10 +415,17 @@ export function ImplMarketingAutomationSpec() {
               <input
                 type="checkbox"
                 checked={config.domainAuthentication.hasPhysicalAddress}
-                onChange={(e) => handleFieldChange('domainAuthentication.hasPhysicalAddress', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'domainAuthentication.hasPhysicalAddress',
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300"
               />
-              <span className="text-sm">יש כתובת פיזית (נדרש לפי CAN-SPAM)</span>
+              <span className="text-sm">
+                יש כתובת פיזית (נדרש לפי CAN-SPAM)
+              </span>
             </label>
           </div>
         </div>
@@ -373,7 +440,12 @@ export function ImplMarketingAutomationSpec() {
               <input
                 type="checkbox"
                 checked={config.websiteTracking.hasWebsiteAccess}
-                onChange={(e) => handleFieldChange('websiteTracking.hasWebsiteAccess', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'websiteTracking.hasWebsiteAccess',
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">יש גישה לאתר</span>
@@ -383,7 +455,12 @@ export function ImplMarketingAutomationSpec() {
               <input
                 type="checkbox"
                 checked={config.websiteTracking.trackingCodeInstalled}
-                onChange={(e) => handleFieldChange('websiteTracking.trackingCodeInstalled', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'websiteTracking.trackingCodeInstalled',
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">קוד מעקב מותקן</span>
@@ -393,7 +470,12 @@ export function ImplMarketingAutomationSpec() {
               <input
                 type="checkbox"
                 checked={config.websiteTracking.useGoogleTagManager || false}
-                onChange={(e) => handleFieldChange('websiteTracking.useGoogleTagManager', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'websiteTracking.useGoogleTagManager',
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">שימוש ב-Google Tag Manager</span>
@@ -402,7 +484,9 @@ export function ImplMarketingAutomationSpec() {
 
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label className="block text-sm font-medium text-gray-700">דומיינים למעקב</label>
+              <label className="block text-sm font-medium text-gray-700">
+                דומיינים למעקב
+              </label>
               <button
                 type="button"
                 onClick={addTrackingDomain}
@@ -417,7 +501,9 @@ export function ImplMarketingAutomationSpec() {
                   <input
                     type="text"
                     value={domain}
-                    onChange={(e) => updateTrackingDomain(index, e.target.value)}
+                    onChange={(e) =>
+                      updateTrackingDomain(index, e.target.value)
+                    }
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
                     placeholder="www.company.com"
                   />
@@ -452,13 +538,18 @@ export function ImplMarketingAutomationSpec() {
             <div key={index} className="border border-gray-200 p-4 rounded-lg">
               <div className="grid grid-cols-2 gap-4 mb-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">שם תהליך</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    שם תהליך
+                  </label>
                   <input
                     type="text"
                     value={workflow.workflowName}
                     onChange={(e) => {
                       const updated = [...config.automationWorkflows];
-                      updated[index] = { ...updated[index], workflowName: e.target.value };
+                      updated[index] = {
+                        ...updated[index],
+                        workflowName: e.target.value,
+                      };
                       handleFieldChange('automationWorkflows', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
@@ -466,12 +557,17 @@ export function ImplMarketingAutomationSpec() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">טריגר</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    טריגר
+                  </label>
                   <select
                     value={workflow.trigger}
                     onChange={(e) => {
                       const updated = [...config.automationWorkflows];
-                      updated[index] = { ...updated[index], trigger: e.target.value as any };
+                      updated[index] = {
+                        ...updated[index],
+                        trigger: e.target.value as any,
+                      };
                       handleFieldChange('automationWorkflows', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
@@ -515,13 +611,18 @@ export function ImplMarketingAutomationSpec() {
             <div key={index} className="border border-gray-200 p-4 rounded-lg">
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">שם סגמנט</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    שם סגמנט
+                  </label>
                   <input
                     type="text"
                     value={segment.segmentName}
                     onChange={(e) => {
                       const updated = [...config.segmentation.segments];
-                      updated[index] = { ...updated[index], segmentName: e.target.value };
+                      updated[index] = {
+                        ...updated[index],
+                        segmentName: e.target.value,
+                      };
                       handleFieldChange('segmentation.segments', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
@@ -529,12 +630,17 @@ export function ImplMarketingAutomationSpec() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">קריטריונים</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    קריטריונים
+                  </label>
                   <textarea
                     value={segment.criteria}
                     onChange={(e) => {
                       const updated = [...config.segmentation.segments];
-                      updated[index] = { ...updated[index], criteria: e.target.value };
+                      updated[index] = {
+                        ...updated[index],
+                        criteria: e.target.value,
+                      };
                       handleFieldChange('segmentation.segments', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
@@ -572,13 +678,18 @@ export function ImplMarketingAutomationSpec() {
             <div key={index} className="border border-gray-200 p-4 rounded-lg">
               <div className="grid grid-cols-2 gap-4 mb-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">שם שדה</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    שם שדה
+                  </label>
                   <input
                     type="text"
                     value={field.fieldName}
                     onChange={(e) => {
                       const updated = [...config.customFields];
-                      updated[index] = { ...updated[index], fieldName: e.target.value };
+                      updated[index] = {
+                        ...updated[index],
+                        fieldName: e.target.value,
+                      };
                       handleFieldChange('customFields', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
@@ -586,12 +697,17 @@ export function ImplMarketingAutomationSpec() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">סוג שדה</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    סוג שדה
+                  </label>
                   <select
                     value={field.fieldType}
                     onChange={(e) => {
                       const updated = [...config.customFields];
-                      updated[index] = { ...updated[index], fieldType: e.target.value as any };
+                      updated[index] = {
+                        ...updated[index],
+                        fieldType: e.target.value as any,
+                      };
                       handleFieldChange('customFields', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
@@ -605,13 +721,18 @@ export function ImplMarketingAutomationSpec() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">מטרה</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  מטרה
+                </label>
                 <input
                   type="text"
                   value={field.purpose}
                   onChange={(e) => {
                     const updated = [...config.customFields];
-                    updated[index] = { ...updated[index], purpose: e.target.value };
+                    updated[index] = {
+                      ...updated[index],
+                      purpose: e.target.value,
+                    };
                     handleFieldChange('customFields', updated);
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
@@ -624,7 +745,10 @@ export function ImplMarketingAutomationSpec() {
                   checked={field.isRequired}
                   onChange={(e) => {
                     const updated = [...config.customFields];
-                    updated[index] = { ...updated[index], isRequired: e.target.checked };
+                    updated[index] = {
+                      ...updated[index],
+                      isRequired: e.target.checked,
+                    };
                     handleFieldChange('customFields', updated);
                   }}
                   className="rounded border-gray-300"
@@ -651,7 +775,9 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="checkbox"
               checked={config.compliance.gdprCompliant}
-              onChange={(e) => handleFieldChange('compliance.gdprCompliant', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange('compliance.gdprCompliant', e.target.checked)
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">עומד ב-GDPR</span>
@@ -661,7 +787,12 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="checkbox"
               checked={config.compliance.hasUnsubscribeLink}
-              onChange={(e) => handleFieldChange('compliance.hasUnsubscribeLink', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'compliance.hasUnsubscribeLink',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">יש קישור הסרה מרשימה (חובה)</span>
@@ -671,7 +802,12 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="checkbox"
               checked={config.compliance.hasPhysicalAddress}
-              onChange={(e) => handleFieldChange('compliance.hasPhysicalAddress', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'compliance.hasPhysicalAddress',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">יש כתובת פיזית (חובה לפי CAN-SPAM)</span>
@@ -681,7 +817,12 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="checkbox"
               checked={config.compliance.hasPrivacyPolicy}
-              onChange={(e) => handleFieldChange('compliance.hasPrivacyPolicy', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'compliance.hasPrivacyPolicy',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">יש מדיניות פרטיות</span>
@@ -691,7 +832,12 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="checkbox"
               checked={config.compliance.cookieConsentBanner || false}
-              onChange={(e) => handleFieldChange('compliance.cookieConsentBanner', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'compliance.cookieConsentBanner',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">באנר הסכמה לעוגיות</span>
@@ -707,18 +853,27 @@ export function ImplMarketingAutomationSpec() {
             <input
               type="checkbox"
               checked={config.trainingRequired}
-              onChange={(e) => handleFieldChange('trainingRequired', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange('trainingRequired', e.target.checked)
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">נדרשת הדרכה</span>
           </label>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">משך הטמעה משוער (שבועות)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              משך הטמעה משוער (שבועות)
+            </label>
             <input
               type="number"
               value={config.estimatedWeeks}
-              onChange={(e) => handleFieldChange('estimatedWeeks', parseInt(e.target.value) || 0)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'estimatedWeeks',
+                  parseInt(e.target.value) || 0
+                )
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               min="1"
             />

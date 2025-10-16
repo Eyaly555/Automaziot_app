@@ -28,7 +28,7 @@ export function generateAutoCompletions(
       suggestedValue: 60,
       confidence: 0.8,
       reason: 'עסקים B2B בדרך כלל מחזור מכירה ארוך יותר',
-      source: 'overview.businessType'
+      source: 'overview.businessType',
     });
   }
 
@@ -40,19 +40,19 @@ export function generateAutoCompletions(
       suggestedValue: 'auto-lead-response',
       confidence: 0.9,
       reason: `זוהו ${leadSources.length} מקורות לידים - מומלץ מענה אוטומטי`,
-      source: 'leadsAndSales.leadSources'
+      source: 'leadsAndSales.leadSources',
     });
   }
 
   // Example 3: If has WhatsApp, suggest WhatsApp API
   const channels = meeting.modules?.customerService?.channels || [];
-  if (channels.some(ch => ch.name === 'whatsapp')) {
+  if (channels.some((ch) => ch.name === 'whatsapp')) {
     suggestions.push({
       field: 'recommended_integration',
       suggestedValue: 'whatsapp-api-setup',
       confidence: 0.95,
       reason: 'נמצא ערוץ WhatsApp - מומלץ API Setup',
-      source: 'customerService.channels'
+      source: 'customerService.channels',
     });
   }
 
@@ -64,11 +64,11 @@ export function generateAutoCompletions(
       suggestedValue: 'impl-crm',
       confidence: 0.85,
       reason: `עם ${employees} עובדים מומלץ מערכת CRM`,
-      source: 'overview.employees'
+      source: 'overview.employees',
     });
   }
 
-  return suggestions.filter(s => s.confidence > 0.7);
+  return suggestions.filter((s) => s.confidence > 0.7);
 }
 
 /**
@@ -79,12 +79,14 @@ export function applyAutoCompletions(
   threshold: number = 0.85
 ): Meeting {
   const suggestions = generateAutoCompletions(meeting);
-  const highConfidence = suggestions.filter(s => s.confidence >= threshold);
+  const highConfidence = suggestions.filter((s) => s.confidence >= threshold);
 
   const updatedMeeting = { ...meeting };
 
-  highConfidence.forEach(suggestion => {
-    console.log(`[Auto-Complete] ✅ Applied: ${suggestion.field} = ${suggestion.suggestedValue}`);
+  highConfidence.forEach((suggestion) => {
+    console.log(
+      `[Auto-Complete] ✅ Applied: ${suggestion.field} = ${suggestion.suggestedValue}`
+    );
     console.log(`   Reason: ${suggestion.reason}`);
 
     // Apply the suggestion based on field type

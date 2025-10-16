@@ -7,7 +7,7 @@ import { Card } from '../../../Common/Card';
 export function ReportsAutomatedSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
   const [config, setConfig] = useState<any>({
-    ...{ frequency: 'weekly', recipients: [], estimatedDays: 3 }
+    ...{ frequency: 'weekly', recipients: [], estimatedDays: 3 },
   });
 
   // Track if we're currently loading data to prevent save loops
@@ -17,7 +17,7 @@ export function ReportsAutomatedSpec() {
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'reports-automated',
-    category: 'additionalServices'
+    category: 'additionalServices',
   });
 
   useBeforeUnload(() => {
@@ -26,8 +26,11 @@ export function ReportsAutomatedSpec() {
   });
 
   useEffect(() => {
-    const category = currentMeeting?.implementationSpec?.additionalServices || [];
-    const existing = category.find((s: any) => s.serviceId === 'reports-automated');
+    const category =
+      currentMeeting?.implementationSpec?.additionalServices || [];
+    const existing = category.find(
+      (s: any) => s.serviceId === 'reports-automated'
+    );
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
 
@@ -53,22 +56,25 @@ export function ReportsAutomatedSpec() {
   //   }
   // }, [config]);
 
-  const handleFieldChange = useCallback((field: keyof typeof config, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          // Add any smart field values here if needed
-          const completeConfig = {
-            ...updated,
-            // Example: smartField: smartFieldHook.value
-          };
-          saveData(completeConfig);
-        }
-      }, 0);
-      return updated;
-    });
-  }, [saveData]);
+  const handleFieldChange = useCallback(
+    (field: keyof typeof config, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            // Add any smart field values here if needed
+            const completeConfig = {
+              ...updated,
+              // Example: smartField: smartFieldHook.value
+            };
+            saveData(completeConfig);
+          }
+        }, 0);
+        return updated;
+      });
+    },
+    [saveData]
+  );
 
   const handleSave = useCallback(() => {
     if (isLoadingRef.current) return; // Don't save during loading
@@ -87,10 +93,17 @@ export function ReportsAutomatedSpec() {
       <Card title="שירות #54: דיווח אוטומטי">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">תדירות</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              תדירות
+            </label>
             <select
               value={config.frequency}
-              onChange={(e) => handleFieldChange('frequency', e.target.value as 'daily' | 'weekly' | 'monthly')}
+              onChange={(e) =>
+                handleFieldChange(
+                  'frequency',
+                  e.target.value as 'daily' | 'weekly' | 'monthly'
+                )
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="daily">יומי</option>
@@ -100,28 +113,44 @@ export function ReportsAutomatedSpec() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">נמענים</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              נמענים
+            </label>
             <input
               type="text"
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               placeholder="emails (comma separated)"
               value={config.recipients.join(', ')}
-              onChange={(e) => handleFieldChange('recipients', e.target.value.split(',').map((email: string) => email.trim()))}
+              onChange={(e) =>
+                handleFieldChange(
+                  'recipients',
+                  e.target.value.split(',').map((email: string) => email.trim())
+                )
+              }
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">ימים משוערים לפיתוח</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              ימים משוערים לפיתוח
+            </label>
             <input
               type="number"
               value={config.estimatedDays}
-              onChange={(e) => handleFieldChange('estimatedDays', parseInt(e.target.value))}
+              onChange={(e) =>
+                handleFieldChange('estimatedDays', parseInt(e.target.value))
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               min="1"
             />
           </div>
           <div className="flex justify-end pt-4 border-t">
-            <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">שמור הגדרות</button>
+            <button
+              onClick={handleSave}
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              שמור הגדרות
+            </button>
           </div>
         </div>
       </Card>

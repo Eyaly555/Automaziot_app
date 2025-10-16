@@ -1,7 +1,7 @@
 import type {
   ExtractedFields,
   FieldMergeResult,
-  MergeSummary
+  MergeSummary,
 } from '../types/conversation';
 import type {
   OverviewModule,
@@ -9,7 +9,7 @@ import type {
   CustomerServiceModule,
   AIAgentsModule,
   ROIModule,
-  Modules
+  Modules,
 } from '../types';
 
 /**
@@ -80,7 +80,7 @@ export function mergeExtractedFields(
       moduleName: 'overview',
       fieldsFilled,
       fieldsSkipped,
-      totalFields: fieldsFilled.length + fieldsSkipped.length
+      totalFields: fieldsFilled.length + fieldsSkipped.length,
     });
   }
 
@@ -101,7 +101,7 @@ export function mergeExtractedFields(
       moduleName: 'leadsAndSales',
       fieldsFilled,
       fieldsSkipped,
-      totalFields: fieldsFilled.length + fieldsSkipped.length
+      totalFields: fieldsFilled.length + fieldsSkipped.length,
     });
   }
 
@@ -122,7 +122,7 @@ export function mergeExtractedFields(
       moduleName: 'customerService',
       fieldsFilled,
       fieldsSkipped,
-      totalFields: fieldsFilled.length + fieldsSkipped.length
+      totalFields: fieldsFilled.length + fieldsSkipped.length,
     });
   }
 
@@ -143,7 +143,7 @@ export function mergeExtractedFields(
       moduleName: 'aiAgents',
       fieldsFilled,
       fieldsSkipped,
-      totalFields: fieldsFilled.length + fieldsSkipped.length
+      totalFields: fieldsFilled.length + fieldsSkipped.length,
     });
   }
 
@@ -164,19 +164,25 @@ export function mergeExtractedFields(
       moduleName: 'roi',
       fieldsFilled,
       fieldsSkipped,
-      totalFields: fieldsFilled.length + fieldsSkipped.length
+      totalFields: fieldsFilled.length + fieldsSkipped.length,
     });
   }
 
   // Calculate summary
-  const totalFieldsFilled = moduleResults.reduce((sum, m) => sum + m.fieldsFilled.length, 0);
-  const totalFieldsSkipped = moduleResults.reduce((sum, m) => sum + m.fieldsSkipped.length, 0);
+  const totalFieldsFilled = moduleResults.reduce(
+    (sum, m) => sum + m.fieldsFilled.length,
+    0
+  );
+  const totalFieldsSkipped = moduleResults.reduce(
+    (sum, m) => sum + m.fieldsSkipped.length,
+    0
+  );
 
   const summary: MergeSummary = {
     totalFieldsFilled,
     totalFieldsSkipped,
     moduleResults,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 
   return { updatedModules, summary };
@@ -192,13 +198,17 @@ export function getMergeDescription(summary: MergeSummary): string {
     return 'לא נמצאו שדות ריקים למילוי. כל השדות הרלוונטיים כבר מכילים מידע.';
   }
 
-  const modulesWithChanges = moduleResults.filter(m => m.fieldsFilled.length > 0);
+  const modulesWithChanges = moduleResults.filter(
+    (m) => m.fieldsFilled.length > 0
+  );
 
   if (modulesWithChanges.length === 0) {
     return 'לא בוצעו שינויים במודולים.';
   }
 
-  const moduleNames = modulesWithChanges.map(m => getModuleHebrewName(m.moduleName)).join(', ');
+  const moduleNames = modulesWithChanges
+    .map((m) => getModuleHebrewName(m.moduleName))
+    .join(', ');
 
   let description = `מולאו ${totalFieldsFilled} שדות ב-${modulesWithChanges.length} מודולים: ${moduleNames}.`;
 
@@ -218,7 +228,7 @@ export function getModuleHebrewName(moduleName: keyof ExtractedFields): string {
     leadsAndSales: 'לידים ומכירות',
     customerService: 'שירות לקוחות',
     aiAgents: 'סוכני AI',
-    roi: 'ROI'
+    roi: 'ROI',
   };
   return names[moduleName] || moduleName;
 }
@@ -255,7 +265,7 @@ export function getFieldHebrewName(fieldName: string): string {
     expectedOutcomes: 'תוצאות צפויות',
     successMetrics: 'מדדי הצלחה',
     timeline: 'ציר זמן',
-    currentCosts: 'עלויות נוכחיות'
+    currentCosts: 'עלויות נוכחיות',
   };
 
   return fieldNames[fieldName] || fieldName;

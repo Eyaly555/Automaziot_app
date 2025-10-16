@@ -30,7 +30,7 @@ export class CustomValuesService {
     // Check for duplicates (case insensitive)
     const normalizedValue = value.trim().toLowerCase();
     const isDuplicate = existingValues.some(
-      existing => existing.toLowerCase() === normalizedValue
+      (existing) => existing.toLowerCase() === normalizedValue
     );
 
     if (isDuplicate) {
@@ -206,13 +206,13 @@ export class CustomValuesService {
 
     switch (category) {
       case 'systems':
-        customValues.forEach(system => {
+        customValues.forEach((system) => {
           recommendations.push({
             title: `אינטגרציה עבור ${system.label}`,
             description: `המערכת "${system.label}" אינה מוכרת במאגר שלנו. מומלץ לבדוק אפשרויות אינטגרציה באמצעות API או Webhooks`,
             priority: 'medium',
             effort: 'high',
-            category: 'integration'
+            category: 'integration',
           });
 
           recommendations.push({
@@ -220,19 +220,19 @@ export class CustomValuesService {
             description: `יש למפות את התהליכים העסקיים הקשורים למערכת "${system.label}" כדי לזהות הזדמנויות לאוטומציה`,
             priority: 'high',
             effort: 'medium',
-            category: 'analysis'
+            category: 'analysis',
           });
         });
         break;
 
       case 'leadSources':
-        customValues.forEach(source => {
+        customValues.forEach((source) => {
           recommendations.push({
             title: `אוטומציה למקור לידים: ${source.label}`,
             description: `מקור הלידים "${source.label}" דורש הגדרת תהליך אוטומטי לקליטה וניתוב`,
             priority: 'high',
             effort: 'medium',
-            category: 'automation'
+            category: 'automation',
           });
 
           recommendations.push({
@@ -240,19 +240,19 @@ export class CustomValuesService {
             description: `הגדרת KPIs ומעקב אחר ביצועי מקור הלידים "${source.label}"`,
             priority: 'medium',
             effort: 'low',
-            category: 'analytics'
+            category: 'analytics',
           });
         });
         break;
 
       case 'serviceChannels':
-        customValues.forEach(channel => {
+        customValues.forEach((channel) => {
           recommendations.push({
             title: `הגדרת ערוץ שירות: ${channel.label}`,
             description: `יש להגדיר תהליכי עבודה ו-SLA עבור ערוץ השירות "${channel.label}"`,
             priority: 'high',
             effort: 'medium',
-            category: 'service'
+            category: 'service',
           });
 
           recommendations.push({
@@ -260,19 +260,19 @@ export class CustomValuesService {
             description: `בחינת אפשרויות למענה אוטומטי או חצי-אוטומטי בערוץ "${channel.label}"`,
             priority: 'medium',
             effort: 'high',
-            category: 'automation'
+            category: 'automation',
           });
         });
         break;
 
       case 'processes':
-        customValues.forEach(process => {
+        customValues.forEach((process) => {
           recommendations.push({
             title: `אוטומציית תהליך: ${process.label}`,
             description: `התהליך "${process.label}" זוהה כהזדמנות לאוטומציה. נדרש ניתוח מעמיק`,
             priority: 'high',
             effort: 'high',
-            category: 'automation'
+            category: 'automation',
           });
 
           recommendations.push({
@@ -280,19 +280,19 @@ export class CustomValuesService {
             description: `יש לתעד את התהליך "${process.label}" באופן מלא לפני אוטומציה`,
             priority: 'critical',
             effort: 'low',
-            category: 'documentation'
+            category: 'documentation',
           });
         });
         break;
 
       default:
-        customValues.forEach(value => {
+        customValues.forEach((value) => {
           recommendations.push({
             title: `ניתוח ערך מותאם: ${value.label}`,
             description: `הערך המותאם "${value.label}" דורש ניתוח נוסף להבנת ההשפעה העסקית`,
             priority: 'medium',
             effort: 'medium',
-            category: 'analysis'
+            category: 'analysis',
           });
         });
         break;
@@ -309,35 +309,43 @@ export class CustomValuesService {
     const lowerValue = value.toLowerCase();
 
     // System-related keywords
-    if (context === 'systems' ||
-        lowerValue.includes('crm') ||
-        lowerValue.includes('erp') ||
-        lowerValue.includes('system') ||
-        lowerValue.includes('מערכת')) {
+    if (
+      context === 'systems' ||
+      lowerValue.includes('crm') ||
+      lowerValue.includes('erp') ||
+      lowerValue.includes('system') ||
+      lowerValue.includes('מערכת')
+    ) {
       return 'system';
     }
 
     // Lead/Sales related
-    if (context === 'leadSources' ||
-        lowerValue.includes('lead') ||
-        lowerValue.includes('ליד') ||
-        lowerValue.includes('מכירה')) {
+    if (
+      context === 'leadSources' ||
+      lowerValue.includes('lead') ||
+      lowerValue.includes('ליד') ||
+      lowerValue.includes('מכירה')
+    ) {
       return 'lead';
     }
 
     // Service related
-    if (context === 'serviceChannels' ||
-        lowerValue.includes('service') ||
-        lowerValue.includes('שירות') ||
-        lowerValue.includes('תמיכה')) {
+    if (
+      context === 'serviceChannels' ||
+      lowerValue.includes('service') ||
+      lowerValue.includes('שירות') ||
+      lowerValue.includes('תמיכה')
+    ) {
       return 'service';
     }
 
     // Process related
-    if (context === 'processes' ||
-        lowerValue.includes('process') ||
-        lowerValue.includes('תהליך') ||
-        lowerValue.includes('workflow')) {
+    if (
+      context === 'processes' ||
+      lowerValue.includes('process') ||
+      lowerValue.includes('תהליך') ||
+      lowerValue.includes('workflow')
+    ) {
       return 'process';
     }
 
@@ -348,18 +356,15 @@ export class CustomValuesService {
   /**
    * Estimate automation potential for custom value
    */
-  static estimateAutomationPotential(
-    value: string,
-    category: string
-  ): number {
+  static estimateAutomationPotential(value: string, category: string): number {
     // Return a percentage (0-100) of automation potential
 
     const categoryPotentials: Record<string, number> = {
-      'system': 70,      // Systems can usually be integrated
-      'lead': 80,        // Lead processes are highly automatable
-      'service': 75,     // Service channels can be automated
-      'process': 85,     // Processes are prime for automation
-      'general': 50      // Unknown items have average potential
+      system: 70, // Systems can usually be integrated
+      lead: 80, // Lead processes are highly automatable
+      service: 75, // Service channels can be automated
+      process: 85, // Processes are prime for automation
+      general: 50, // Unknown items have average potential
     };
 
     const basePotential = categoryPotentials[category] || 50;
@@ -388,7 +393,10 @@ export class CustomValuesService {
     }
 
     // Calculate final potential (0-100)
-    const finalPotential = Math.max(0, Math.min(100, basePotential + adjustment));
+    const finalPotential = Math.max(
+      0,
+      Math.min(100, basePotential + adjustment)
+    );
 
     return finalPotential;
   }
@@ -404,12 +412,12 @@ export class CustomValuesService {
     const mergedMap = new Map<string, SelectOption>();
 
     // Add predefined first
-    predefined.forEach(option => {
+    predefined.forEach((option) => {
       mergedMap.set(option.value.toLowerCase(), option);
     });
 
     // Add custom, checking for duplicates
-    custom.forEach(option => {
+    custom.forEach((option) => {
       const key = option.value.toLowerCase();
       if (!mergedMap.has(key)) {
         mergedMap.set(key, { ...option, isCustom: true });

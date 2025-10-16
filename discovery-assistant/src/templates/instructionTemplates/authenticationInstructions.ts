@@ -1,6 +1,6 @@
 /**
  * Authentication Instructions Template Library
- * 
+ *
  * Generates detailed authentication setup instructions based on requirements
  */
 
@@ -12,8 +12,11 @@ export interface AuthenticationInstructionParams {
   testAccountAvailable?: boolean;
 }
 
-export function generateAuthenticationInstructions(params: AuthenticationInstructionParams): string {
-  const { system, authMethod, apiEndpoint, rateLimits, testAccountAvailable } = params;
+export function generateAuthenticationInstructions(
+  params: AuthenticationInstructionParams
+): string {
+  const { system, authMethod, apiEndpoint, rateLimits, testAccountAvailable } =
+    params;
 
   let instructions = `## Authentication Setup: ${system}\n\n`;
 
@@ -164,4 +167,3 @@ export function generateAuthenticationInstructions(params: AuthenticationInstruc
 
   return instructions.trim();
 }
-

@@ -14,7 +14,8 @@ export const useBeforeUnload = (callback: () => void) => {
 
       // Show confirmation dialog for unsaved changes
       e.preventDefault();
-      e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+      e.returnValue =
+        'You have unsaved changes. Are you sure you want to leave?';
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);

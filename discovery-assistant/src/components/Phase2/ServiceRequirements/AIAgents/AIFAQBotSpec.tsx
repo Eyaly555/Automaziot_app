@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Save,
@@ -14,7 +20,7 @@ import {
   DollarSign,
   Zap,
   BookOpen,
-  CheckCircle
+  CheckCircle,
 } from 'lucide-react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { AIFAQBotConfig } from '../../../../types/automationServices';
@@ -26,46 +32,49 @@ import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 
 const AI_PROVIDERS = [
   { value: 'openai', label: 'OpenAI' },
-  { value: 'anthropic', label: 'Anthropic (Claude)' }
+  { value: 'anthropic', label: 'Anthropic (Claude)' },
 ];
 
 const OPENAI_MODELS = [
   {
     value: 'gpt-4o-mini',
     label: 'GPT-4o Mini (מומלץ - זול ויעיל)',
-    cost: { input: 0.15, output: 0.60 }
+    cost: { input: 0.15, output: 0.6 },
   },
   {
     value: 'gpt-3.5-turbo',
     label: 'GPT-3.5 Turbo',
-    cost: { input: 0.50, output: 1.50 }
-  }
+    cost: { input: 0.5, output: 1.5 },
+  },
 ];
 
 const ANTHROPIC_MODELS = [
   {
     value: 'claude-3.5-sonnet',
     label: 'Claude 3.5 Sonnet (90% caching savings)',
-    cost: { input: 3.00, output: 15.00 }
+    cost: { input: 3.0, output: 15.0 },
   },
   {
     value: 'claude-3.5-haiku',
     label: 'Claude 3.5 Haiku',
-    cost: { input: 0.80, output: 4.00 }
-  }
+    cost: { input: 0.8, output: 4.0 },
+  },
 ];
 
 const VECTOR_DATABASES = [
   { value: 'supabase_pgvector', label: 'Supabase pgvector (חינם עד 500MB)' },
   { value: 'pinecone_starter', label: 'Pinecone Starter (1M reads חינם)' },
   { value: 'qdrant', label: 'Qdrant' },
-  { value: 'weaviate', label: 'Weaviate' }
+  { value: 'weaviate', label: 'Weaviate' },
 ];
 
 const EMBEDDING_MODELS = [
-  { value: 'text-embedding-3-small', label: 'text-embedding-3-small (מומלץ - $0.02/1M)' },
+  {
+    value: 'text-embedding-3-small',
+    label: 'text-embedding-3-small (מומלץ - $0.02/1M)',
+  },
   { value: 'text-embedding-3-large', label: 'text-embedding-3-large' },
-  { value: 'text-embedding-ada-002', label: 'text-embedding-ada-002' }
+  { value: 'text-embedding-ada-002', label: 'text-embedding-ada-002' },
 ];
 
 const FAQ_FORMATS = [
@@ -73,25 +82,25 @@ const FAQ_FORMATS = [
   { value: 'csv', label: 'CSV' },
   { value: 'excel', label: 'Excel' },
   { value: 'pdf', label: 'PDF' },
-  { value: 'google_docs', label: 'Google Docs' }
+  { value: 'google_docs', label: 'Google Docs' },
 ];
 
 const CHUNK_STRATEGIES = [
   { value: '500_tokens', label: '500 tokens (מומלץ)' },
   { value: '1000_tokens', label: '1000 tokens' },
-  { value: 'custom', label: 'מותאם אישית' }
+  { value: 'custom', label: 'מותאם אישית' },
 ];
 
 const CHAT_WIDGET_TYPES = [
   { value: 'javascript_sdk', label: 'JavaScript SDK' },
   { value: 'iframe', label: 'iframe embed' },
-  { value: 'api', label: 'API integration' }
+  { value: 'api', label: 'API integration' },
 ];
 
 const CHAT_WIDGET_POSITIONS = [
   { value: 'bottom_right', label: 'פינה ימנית תחתונה' },
   { value: 'bottom_left', label: 'פינה שמאלית תחתונה' },
-  { value: 'custom', label: 'מיקום מותאם' }
+  { value: 'custom', label: 'מיקום מותאם' },
 ];
 
 export const AIFAQBotSpec: React.FC = () => {
@@ -103,14 +112,14 @@ export const AIFAQBotSpec: React.FC = () => {
     fieldId: 'ai_model_preference',
     localPath: 'model',
     serviceId: 'ai-faq-bot',
-    autoSave: false
+    autoSave: false,
   });
 
   const vectorDatabasePreference = useSmartField<string>({
     fieldId: 'vector_database_preference',
     localPath: 'vectorDatabase',
     serviceId: 'ai-faq-bot',
-    autoSave: false
+    autoSave: false,
   });
 
   const [config, setConfig] = useState<AIFAQBotConfig>({
@@ -123,60 +132,68 @@ export const AIFAQBotSpec: React.FC = () => {
     knowledgeBase: {
       faqCount: 50,
       faqFormat: 'json',
-      documentChunkingStrategy: '500_tokens'
+      documentChunkingStrategy: '500_tokens',
     },
     messageTemplates: {
       greeting: 'שלום! אני כאן לעזור לך. איך אני יכול לסייע?',
-      fallback: 'מצטער, אני לא בטוח שאני מבין את השאלה. האם תוכל לנסח אותה אחרת?',
+      fallback:
+        'מצטער, אני לא בטוח שאני מבין את השאלה. האם תוכל לנסח אותה אחרת?',
       handoff: 'אעביר אותך לנציג אנושי שיוכל לעזור לך יותר טוב.',
-      privacyNotice: 'השיחה מוקלטת לצורך שיפור השירות. המידע נשמר למשך 30 יום.'
+      privacyNotice: 'השיחה מוקלטת לצורך שיפור השירות. המידע נשמר למשך 30 יום.',
     },
     escalationConfig: {
       failedAttemptsThreshold: 2,
-      escalationKeywords: ['דחוף', 'מנהל', 'תלונה', 'urgent', 'manager', 'complaint'],
+      escalationKeywords: [
+        'דחוף',
+        'מנהל',
+        'תלונה',
+        'urgent',
+        'manager',
+        'complaint',
+      ],
       businessHoursOnly: false,
-      humanAgentAvailable: false
+      humanAgentAvailable: false,
     },
     ragConfig: {
       hybridApproach: true,
       topKResults: 3,
       confidenceThreshold: 0.75,
-      contextWindow: 128000
+      contextWindow: 128000,
     },
     websiteIntegration: {
       websiteUrl: '',
       chatWidgetType: 'javascript_sdk',
       chatWidgetPosition: 'bottom_right',
-      mobileResponsive: true
+      mobileResponsive: true,
     },
     gdprCompliance: {
       conversationRetentionDays: 30,
       encryptAtRest: true,
       userDeletionRights: true,
       privacyPolicyLink: '',
-      cookieConsent: true
+      cookieConsent: true,
     },
     rateLimits: {
       requestsPerMinute: 30000,
       concurrentUsers: 500,
-      dailyConversations: 100
+      dailyConversations: 100,
     },
     monitoring: {
       resolutionRateTarget: 70,
       fallbackRateTarget: 20,
       trackUserSatisfaction: true,
-      analyticsEnabled: true
+      analyticsEnabled: true,
     },
     costEstimation: {
       estimatedConversationsPerDay: 100,
-      averageMessagesPerConversation: 6
+      averageMessagesPerConversation: 6,
     },
     testing: {
       testMode: true,
       testFAQsUploaded: false,
       vectorDbTested: false,
-      chatWidgetTested: false
-    }
+      chatWidgetTested: false,
+    },
   });
 
   // Track if we're currently loading data to prevent save loops
@@ -186,7 +203,7 @@ export const AIFAQBotSpec: React.FC = () => {
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'ai-faq-bot',
-    category: 'aiAgentServices'
+    category: 'aiAgentServices',
   });
 
   useBeforeUnload(() => {
@@ -194,17 +211,28 @@ export const AIFAQBotSpec: React.FC = () => {
     const completeConfig = {
       ...config,
       model: aiModelPreference.value,
-      vectorDatabase: vectorDatabasePreference.value
+      vectorDatabase: vectorDatabasePreference.value,
     };
     saveData(completeConfig);
   });
 
-  const [activeTab, setActiveTab] = useState<'basic' | 'knowledge' | 'templates' | 'rag' | 'integration' | 'gdpr' | 'cost'>('basic');
+  const [activeTab, setActiveTab] = useState<
+    | 'basic'
+    | 'knowledge'
+    | 'templates'
+    | 'rag'
+    | 'integration'
+    | 'gdpr'
+    | 'cost'
+  >('basic');
 
   // Load existing config from meeting store if available
   useEffect(() => {
-    const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
-    const existing = aiAgentServices.find((a: AIAgentServiceEntry) => a.serviceId === 'ai-faq-bot');
+    const aiAgentServices =
+      currentMeeting?.implementationSpec?.aiAgentServices || [];
+    const existing = aiAgentServices.find(
+      (a: AIAgentServiceEntry) => a.serviceId === 'ai-faq-bot'
+    );
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
 
@@ -242,8 +270,10 @@ export const AIFAQBotSpec: React.FC = () => {
 
   // Cost calculator
   const estimatedMonthlyCost = useMemo(() => {
-    const { estimatedConversationsPerDay, averageMessagesPerConversation } = config.costEstimation;
-    const totalMessagesPerMonth = estimatedConversationsPerDay * 30 * averageMessagesPerConversation;
+    const { estimatedConversationsPerDay, averageMessagesPerConversation } =
+      config.costEstimation;
+    const totalMessagesPerMonth =
+      estimatedConversationsPerDay * 30 * averageMessagesPerConversation;
 
     // Estimate tokens per message (input + output)
     const avgInputTokensPerMessage = 200; // User question + context
@@ -254,60 +284,87 @@ export const AIFAQBotSpec: React.FC = () => {
 
     let aiCost = 0;
     if (config.aiProvider === 'openai') {
-      const model = OPENAI_MODELS.find(m => m.value === config.model);
+      const model = OPENAI_MODELS.find((m) => m.value === config.model);
       if (model) {
-        aiCost = (totalInputTokens / 1000000 * model.cost.input) +
-                 (totalOutputTokens / 1000000 * model.cost.output);
+        aiCost =
+          (totalInputTokens / 1000000) * model.cost.input +
+          (totalOutputTokens / 1000000) * model.cost.output;
       }
     } else {
-      const model = ANTHROPIC_MODELS.find(m => m.value === config.model);
+      const model = ANTHROPIC_MODELS.find((m) => m.value === config.model);
       if (model) {
         // Apply 90% caching savings for Claude
-        const cachedInputCost = (totalInputTokens * 0.9) / 1000000 * (model.cost.input * 0.1);
-        const regularInputCost = (totalInputTokens * 0.1) / 1000000 * model.cost.input;
-        aiCost = cachedInputCost + regularInputCost + (totalOutputTokens / 1000000 * model.cost.output);
+        const cachedInputCost =
+          ((totalInputTokens * 0.9) / 1000000) * (model.cost.input * 0.1);
+        const regularInputCost =
+          ((totalInputTokens * 0.1) / 1000000) * model.cost.input;
+        aiCost =
+          cachedInputCost +
+          regularInputCost +
+          (totalOutputTokens / 1000000) * model.cost.output;
       }
     }
 
     // Add embedding cost
-    const embeddingCost = (config.knowledgeBase.faqCount * 100) / 1000000 * 0.02; // One-time cost for embeddings
+    const embeddingCost =
+      ((config.knowledgeBase.faqCount * 100) / 1000000) * 0.02; // One-time cost for embeddings
 
     // Add vector DB cost (if using paid tier)
-    const vectorDbCost = config.vectorDatabase === 'supabase_pgvector' && config.knowledgeBase.faqCount > 100 ? 25 : 0;
+    const vectorDbCost =
+      config.vectorDatabase === 'supabase_pgvector' &&
+      config.knowledgeBase.faqCount > 100
+        ? 25
+        : 0;
 
     return {
       aiCost: aiCost.toFixed(2),
       embeddingCost: embeddingCost.toFixed(2),
       vectorDbCost: vectorDbCost.toFixed(2),
       totalMonthlyCost: (aiCost + vectorDbCost).toFixed(2),
-      totalMessagesPerMonth
+      totalMessagesPerMonth,
     };
-  }, [config.costEstimation, config.aiProvider, config.model, config.knowledgeBase.faqCount, config.vectorDatabase]);
+  }, [
+    config.costEstimation,
+    config.aiProvider,
+    config.model,
+    config.knowledgeBase.faqCount,
+    config.vectorDatabase,
+  ]);
 
   // ✅ handleFieldChange - לשדות שמשתנים
-  const handleFieldChange = useCallback((field: string, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
+  const handleFieldChange = useCallback(
+    (field: string, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
 
-      // Save after state update
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = {
-            ...updated,
-            model: aiModelPreference.value,
-            vectorDatabase: vectorDatabasePreference.value,
-            costEstimation: {
-              ...updated.costEstimation,
-              estimatedMonthlyCost: parseFloat(estimatedMonthlyCost.totalMonthlyCost)
-            }
-          };
-          saveData(completeConfig);
-        }
-      }, 0);
+        // Save after state update
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = {
+              ...updated,
+              model: aiModelPreference.value,
+              vectorDatabase: vectorDatabasePreference.value,
+              costEstimation: {
+                ...updated.costEstimation,
+                estimatedMonthlyCost: parseFloat(
+                  estimatedMonthlyCost.totalMonthlyCost
+                ),
+              },
+            };
+            saveData(completeConfig);
+          }
+        }, 0);
 
-      return updated;
-    });
-  }, [saveData, aiModelPreference.value, vectorDatabasePreference.value, estimatedMonthlyCost]);
+        return updated;
+      });
+    },
+    [
+      saveData,
+      aiModelPreference.value,
+      vectorDatabasePreference.value,
+      estimatedMonthlyCost,
+    ]
+  );
 
   const handleSave = async () => {
     if (isLoadingRef.current) return;
@@ -319,8 +376,8 @@ export const AIFAQBotSpec: React.FC = () => {
       vectorDatabase: vectorDatabasePreference.value,
       costEstimation: {
         ...config.costEstimation,
-        estimatedMonthlyCost: parseFloat(estimatedMonthlyCost.totalMonthlyCost)
-      }
+        estimatedMonthlyCost: parseFloat(estimatedMonthlyCost.totalMonthlyCost),
+      },
     };
 
     // Save using auto-save (manual save trigger)
@@ -343,9 +400,7 @@ export const AIFAQBotSpec: React.FC = () => {
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 צ'אטבוט AI למענה על שאלות נפוצות
               </h1>
-              <p className="text-gray-600">
-                AI FAQ Chatbot - Service #21
-              </p>
+              <p className="text-gray-600">AI FAQ Chatbot - Service #21</p>
             </div>
             <Button
               onClick={handleSave}
@@ -371,10 +426,12 @@ export const AIFAQBotSpec: React.FC = () => {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3 mb-6">
               <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+                <h4 className="font-semibold text-blue-900 mb-1">
+                  נתונים מולאו אוטומטית משלב 1
+                </h4>
                 <p className="text-sm text-blue-800">
-                  חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-                  תוכל לערוך אותם במידת הצורך.
+                  חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל
+                  לערוך אותם במידת הצורך.
                 </p>
               </div>
             </div>
@@ -385,7 +442,9 @@ export const AIFAQBotSpec: React.FC = () => {
             <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3 mb-6">
               <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+                <h4 className="font-semibold text-orange-900 mb-1">
+                  זוהה אי-התאמה בנתונים
+                </h4>
                 <p className="text-sm text-orange-800">
                   נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
                 </p>
@@ -401,12 +460,16 @@ export const AIFAQBotSpec: React.FC = () => {
               {[
                 { id: 'basic', label: 'הגדרות בסיס', icon: Settings },
                 { id: 'knowledge', label: 'מאגר ידע', icon: BookOpen },
-                { id: 'templates', label: 'תבניות הודעות', icon: MessageSquare },
+                {
+                  id: 'templates',
+                  label: 'תבניות הודעות',
+                  icon: MessageSquare,
+                },
                 { id: 'rag', label: 'RAG וחיפוש', icon: Database },
                 { id: 'integration', label: 'אינטגרציה לאתר', icon: Globe },
                 { id: 'gdpr', label: 'GDPR ופרטיות', icon: Shield },
-                { id: 'cost', label: 'תכנון עלויות', icon: DollarSign }
-              ].map(tab => (
+                { id: 'cost', label: 'תכנון עלויות', icon: DollarSign },
+              ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
@@ -434,11 +497,16 @@ export const AIFAQBotSpec: React.FC = () => {
                     </label>
                     <Select
                       value={config.aiProvider}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        aiProvider: e.target.value as any,
-                        model: e.target.value === 'openai' ? 'gpt-4o-mini' : 'claude-3.5-sonnet'
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          aiProvider: e.target.value as any,
+                          model:
+                            e.target.value === 'openai'
+                              ? 'gpt-4o-mini'
+                              : 'claude-3.5-sonnet',
+                        })
+                      }
                       options={AI_PROVIDERS}
                     />
                   </div>
@@ -457,17 +525,22 @@ export const AIFAQBotSpec: React.FC = () => {
                     </div>
                     <Select
                       value={aiModelPreference.value || config.model}
-                      onChange={(e) => aiModelPreference.setValue(e.target.value)}
+                      onChange={(e) =>
+                        aiModelPreference.setValue(e.target.value)
+                      }
                       className={`w-full ${
-                        aiModelPreference.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                        aiModelPreference.isAutoPopulated
+                          ? 'border-green-300 bg-green-50'
+                          : 'border-gray-300'
                       } ${aiModelPreference.hasConflict ? 'border-orange-300' : ''}`}
                       options={getModelOptions()}
                     />
-                    {aiModelPreference.isAutoPopulated && aiModelPreference.source && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        מקור: {aiModelPreference.source.description}
-                      </p>
-                    )}
+                    {aiModelPreference.isAutoPopulated &&
+                      aiModelPreference.source && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          מקור: {aiModelPreference.source.description}
+                        </p>
+                      )}
                   </div>
 
                   <div>
@@ -476,7 +549,12 @@ export const AIFAQBotSpec: React.FC = () => {
                     </label>
                     <Select
                       value={config.vectorDatabase}
-                      onChange={(e) => setConfig({ ...config, vectorDatabase: e.target.value as any })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          vectorDatabase: e.target.value as any,
+                        })
+                      }
                       options={VECTOR_DATABASES}
                     />
                   </div>
@@ -487,7 +565,12 @@ export const AIFAQBotSpec: React.FC = () => {
                     </label>
                     <Select
                       value={config.embeddingModel}
-                      onChange={(e) => setConfig({ ...config, embeddingModel: e.target.value as any })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          embeddingModel: e.target.value as any,
+                        })
+                      }
                       options={EMBEDDING_MODELS}
                     />
                   </div>
@@ -498,7 +581,12 @@ export const AIFAQBotSpec: React.FC = () => {
                     <input
                       type="checkbox"
                       checked={config.apiKeyProvided}
-                      onChange={(e) => setConfig({ ...config, apiKeyProvided: e.target.checked })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          apiKeyProvided: e.target.checked,
+                        })
+                      }
                       className="rounded border-gray-300"
                     />
                     <span className="text-sm font-medium text-gray-700">
@@ -510,7 +598,12 @@ export const AIFAQBotSpec: React.FC = () => {
                     <input
                       type="checkbox"
                       checked={config.vectorDbCredentialsReady}
-                      onChange={(e) => setConfig({ ...config, vectorDbCredentialsReady: e.target.checked })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          vectorDbCredentialsReady: e.target.checked,
+                        })
+                      }
                       className="rounded border-gray-300"
                     />
                     <span className="text-sm font-medium text-gray-700">
@@ -524,10 +617,13 @@ export const AIFAQBotSpec: React.FC = () => {
                     <div className="flex items-start gap-3">
                       <Info className="w-5 h-5 text-blue-600 mt-0.5" />
                       <div>
-                        <h4 className="font-medium text-blue-900 mb-1">שימו לב - OpenAI</h4>
+                        <h4 className="font-medium text-blue-900 mb-1">
+                          שימו לב - OpenAI
+                        </h4>
                         <p className="text-sm text-blue-700">
-                          GPT-4o Mini זול פי 20 מ-GPT-4 Turbo ומספיק טוב ל-FAQ בסיסי.
-                          Prompt caching מוריד עלויות ב-75% על context חוזר.
+                          GPT-4o Mini זול פי 20 מ-GPT-4 Turbo ומספיק טוב ל-FAQ
+                          בסיסי. Prompt caching מוריד עלויות ב-75% על context
+                          חוזר.
                         </p>
                       </div>
                     </div>
@@ -539,10 +635,12 @@ export const AIFAQBotSpec: React.FC = () => {
                     <div className="flex items-start gap-3">
                       <Info className="w-5 h-5 text-purple-600 mt-0.5" />
                       <div>
-                        <h4 className="font-medium text-purple-900 mb-1">שימו לב - Claude</h4>
+                        <h4 className="font-medium text-purple-900 mb-1">
+                          שימו לב - Claude
+                        </h4>
                         <p className="text-sm text-purple-700">
-                          Claude 3.5 Sonnet עם prompt caching חוסך 90% מעלויות ה-input tokens.
-                          מומלץ לשיחות ארוכות עם הרבה context.
+                          Claude 3.5 Sonnet עם prompt caching חוסך 90% מעלויות
+                          ה-input tokens. מומלץ לשיחות ארוכות עם הרבה context.
                         </p>
                       </div>
                     </div>
@@ -562,10 +660,15 @@ export const AIFAQBotSpec: React.FC = () => {
                     <Input
                       type="number"
                       value={config.knowledgeBase.faqCount}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        knowledgeBase: { ...config.knowledgeBase, faqCount: parseInt(e.target.value) }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          knowledgeBase: {
+                            ...config.knowledgeBase,
+                            faqCount: parseInt(e.target.value),
+                          },
+                        })
+                      }
                       min="50"
                       max="200"
                     />
@@ -580,10 +683,15 @@ export const AIFAQBotSpec: React.FC = () => {
                     </label>
                     <Select
                       value={config.knowledgeBase.faqFormat}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        knowledgeBase: { ...config.knowledgeBase, faqFormat: e.target.value as any }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          knowledgeBase: {
+                            ...config.knowledgeBase,
+                            faqFormat: e.target.value as any,
+                          },
+                        })
+                      }
                       options={FAQ_FORMATS}
                     />
                   </div>
@@ -594,10 +702,15 @@ export const AIFAQBotSpec: React.FC = () => {
                     </label>
                     <Input
                       value={config.knowledgeBase.faqStorageLocation || ''}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        knowledgeBase: { ...config.knowledgeBase, faqStorageLocation: e.target.value }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          knowledgeBase: {
+                            ...config.knowledgeBase,
+                            faqStorageLocation: e.target.value,
+                          },
+                        })
+                      }
                       placeholder="Google Drive / Dropbox / URL"
                     />
                   </div>
@@ -608,10 +721,15 @@ export const AIFAQBotSpec: React.FC = () => {
                     </label>
                     <Select
                       value={config.knowledgeBase.documentChunkingStrategy}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        knowledgeBase: { ...config.knowledgeBase, documentChunkingStrategy: e.target.value as any }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          knowledgeBase: {
+                            ...config.knowledgeBase,
+                            documentChunkingStrategy: e.target.value as any,
+                          },
+                        })
+                      }
                       options={CHUNK_STRATEGIES}
                     />
                   </div>
@@ -625,10 +743,15 @@ export const AIFAQBotSpec: React.FC = () => {
                     <Input
                       type="number"
                       value={config.knowledgeBase.customChunkSize || 500}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        knowledgeBase: { ...config.knowledgeBase, customChunkSize: parseInt(e.target.value) }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          knowledgeBase: {
+                            ...config.knowledgeBase,
+                            customChunkSize: parseInt(e.target.value),
+                          },
+                        })
+                      }
                       min="100"
                       max="2000"
                     />
@@ -639,12 +762,19 @@ export const AIFAQBotSpec: React.FC = () => {
                   <div className="flex items-start gap-3">
                     <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-yellow-900 mb-1">דברים חשובים</h4>
+                      <h4 className="font-medium text-yellow-900 mb-1">
+                        דברים חשובים
+                      </h4>
                       <ul className="text-sm text-yellow-700 space-y-1 list-disc mr-5">
-                        <li>ודא שכל השאלות והתשובות מנוסחות בצורה ברורה וקצרה</li>
+                        <li>
+                          ודא שכל השאלות והתשובות מנוסחות בצורה ברורה וקצרה
+                        </li>
                         <li>כל FAQ צריך category לארגון נכון</li>
                         <li>אל תעלה מעל 100-200 FAQs - אחרת צריך delegation</li>
-                        <li>תבנית: question (שאלה), answer (תשובה), category (קטגוריה)</li>
+                        <li>
+                          תבנית: question (שאלה), answer (תשובה), category
+                          (קטגוריה)
+                        </li>
                       </ul>
                     </div>
                   </div>
@@ -661,10 +791,15 @@ export const AIFAQBotSpec: React.FC = () => {
                   </label>
                   <textarea
                     value={config.messageTemplates.greeting}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      messageTemplates: { ...config.messageTemplates, greeting: e.target.value }
-                    })}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        messageTemplates: {
+                          ...config.messageTemplates,
+                          greeting: e.target.value,
+                        },
+                      })
+                    }
                     rows={2}
                     className="w-full rounded-md border border-gray-300 p-2"
                   />
@@ -676,10 +811,15 @@ export const AIFAQBotSpec: React.FC = () => {
                   </label>
                   <textarea
                     value={config.messageTemplates.fallback}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      messageTemplates: { ...config.messageTemplates, fallback: e.target.value }
-                    })}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        messageTemplates: {
+                          ...config.messageTemplates,
+                          fallback: e.target.value,
+                        },
+                      })
+                    }
                     rows={2}
                     className="w-full rounded-md border border-gray-300 p-2"
                   />
@@ -691,10 +831,15 @@ export const AIFAQBotSpec: React.FC = () => {
                   </label>
                   <textarea
                     value={config.messageTemplates.handoff}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      messageTemplates: { ...config.messageTemplates, handoff: e.target.value }
-                    })}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        messageTemplates: {
+                          ...config.messageTemplates,
+                          handoff: e.target.value,
+                        },
+                      })
+                    }
                     rows={2}
                     className="w-full rounded-md border border-gray-300 p-2"
                   />
@@ -706,17 +851,24 @@ export const AIFAQBotSpec: React.FC = () => {
                   </label>
                   <textarea
                     value={config.messageTemplates.privacyNotice}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      messageTemplates: { ...config.messageTemplates, privacyNotice: e.target.value }
-                    })}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        messageTemplates: {
+                          ...config.messageTemplates,
+                          privacyNotice: e.target.value,
+                        },
+                      })
+                    }
                     rows={2}
                     className="w-full rounded-md border border-gray-300 p-2"
                   />
                 </div>
 
                 <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <h4 className="font-medium text-gray-900 mb-3">הגדרות Escalation</h4>
+                  <h4 className="font-medium text-gray-900 mb-3">
+                    הגדרות Escalation
+                  </h4>
 
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
@@ -726,10 +878,15 @@ export const AIFAQBotSpec: React.FC = () => {
                       <Input
                         type="number"
                         value={config.escalationConfig.failedAttemptsThreshold}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          escalationConfig: { ...config.escalationConfig, failedAttemptsThreshold: parseInt(e.target.value) }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            escalationConfig: {
+                              ...config.escalationConfig,
+                              failedAttemptsThreshold: parseInt(e.target.value),
+                            },
+                          })
+                        }
                         min="1"
                         max="5"
                       />
@@ -742,10 +899,15 @@ export const AIFAQBotSpec: React.FC = () => {
                       <Input
                         type="email"
                         value={config.escalationConfig.handoffEmail || ''}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          escalationConfig: { ...config.escalationConfig, handoffEmail: e.target.value }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            escalationConfig: {
+                              ...config.escalationConfig,
+                              handoffEmail: e.target.value,
+                            },
+                          })
+                        }
                         placeholder="support@company.com"
                       />
                     </div>
@@ -756,14 +918,21 @@ export const AIFAQBotSpec: React.FC = () => {
                       מילות מפתח להעברה (מופרדות בפסיק)
                     </label>
                     <Input
-                      value={config.escalationConfig.escalationKeywords.join(', ')}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        escalationConfig: {
-                          ...config.escalationConfig,
-                          escalationKeywords: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                        }
-                      })}
+                      value={config.escalationConfig.escalationKeywords.join(
+                        ', '
+                      )}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          escalationConfig: {
+                            ...config.escalationConfig,
+                            escalationKeywords: e.target.value
+                              .split(',')
+                              .map((s) => s.trim())
+                              .filter(Boolean),
+                          },
+                        })
+                      }
                       placeholder="דחוף, מנהל, תלונה, urgent, manager"
                     />
                   </div>
@@ -773,26 +942,40 @@ export const AIFAQBotSpec: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={config.escalationConfig.businessHoursOnly}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          escalationConfig: { ...config.escalationConfig, businessHoursOnly: e.target.checked }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            escalationConfig: {
+                              ...config.escalationConfig,
+                              businessHoursOnly: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
-                      <span className="text-sm text-gray-700">העברה רק בשעות עבודה</span>
+                      <span className="text-sm text-gray-700">
+                        העברה רק בשעות עבודה
+                      </span>
                     </label>
 
                     <label className="flex items-center gap-2">
                       <input
                         type="checkbox"
                         checked={config.escalationConfig.humanAgentAvailable}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          escalationConfig: { ...config.escalationConfig, humanAgentAvailable: e.target.checked }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            escalationConfig: {
+                              ...config.escalationConfig,
+                              humanAgentAvailable: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
-                      <span className="text-sm text-gray-700">נציג אנושי זמין</span>
+                      <span className="text-sm text-gray-700">
+                        נציג אנושי זמין
+                      </span>
                     </label>
                   </div>
                 </div>
@@ -810,10 +993,15 @@ export const AIFAQBotSpec: React.FC = () => {
                     <Input
                       type="number"
                       value={config.ragConfig.topKResults}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        ragConfig: { ...config.ragConfig, topKResults: parseInt(e.target.value) }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          ragConfig: {
+                            ...config.ragConfig,
+                            topKResults: parseInt(e.target.value),
+                          },
+                        })
+                      }
                       min="1"
                       max="10"
                     />
@@ -828,14 +1016,21 @@ export const AIFAQBotSpec: React.FC = () => {
                       type="number"
                       step="0.05"
                       value={config.ragConfig.confidenceThreshold}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        ragConfig: { ...config.ragConfig, confidenceThreshold: parseFloat(e.target.value) }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          ragConfig: {
+                            ...config.ragConfig,
+                            confidenceThreshold: parseFloat(e.target.value),
+                          },
+                        })
+                      }
                       min="0.5"
                       max="1.0"
                     />
-                    <p className="text-xs text-gray-500 mt-1">מומלץ: 0.70-0.80</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      מומלץ: 0.70-0.80
+                    </p>
                   </div>
 
                   <div>
@@ -845,13 +1040,20 @@ export const AIFAQBotSpec: React.FC = () => {
                     <Input
                       type="number"
                       value={config.ragConfig.contextWindow}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        ragConfig: { ...config.ragConfig, contextWindow: parseInt(e.target.value) }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          ragConfig: {
+                            ...config.ragConfig,
+                            contextWindow: parseInt(e.target.value),
+                          },
+                        })
+                      }
                       disabled
                     />
-                    <p className="text-xs text-gray-500 mt-1">128K tokens (GPT-4o)</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      128K tokens (GPT-4o)
+                    </p>
                   </div>
                 </div>
 
@@ -859,10 +1061,15 @@ export const AIFAQBotSpec: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={config.ragConfig.hybridApproach}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      ragConfig: { ...config.ragConfig, hybridApproach: e.target.checked }
-                    })}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        ragConfig: {
+                          ...config.ragConfig,
+                          hybridApproach: e.target.checked,
+                        },
+                      })
+                    }
                     className="rounded border-gray-300"
                   />
                   <span className="text-sm font-medium text-gray-700">
@@ -874,10 +1081,13 @@ export const AIFAQBotSpec: React.FC = () => {
                   <div className="flex items-start gap-3">
                     <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-red-900 mb-1">קריטי - Hybrid Approach</h4>
+                      <h4 className="font-medium text-red-900 mb-1">
+                        קריטי - Hybrid Approach
+                      </h4>
                       <p className="text-sm text-red-700">
-                        חובה להשתמש ב-Hybrid approach! FAQ-links (vetted answers) + RAG fallback.
-                        לא לגנרט תשובות לשאלות נפוצות - רק לחזור תשובות מאומתות.
+                        חובה להשתמש ב-Hybrid approach! FAQ-links (vetted
+                        answers) + RAG fallback. לא לגנרט תשובות לשאלות נפוצות -
+                        רק לחזור תשובות מאומתות.
                       </p>
                     </div>
                   </div>
@@ -895,10 +1105,15 @@ export const AIFAQBotSpec: React.FC = () => {
                     </label>
                     <Input
                       value={config.websiteIntegration.websiteUrl}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        websiteIntegration: { ...config.websiteIntegration, websiteUrl: e.target.value }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          websiteIntegration: {
+                            ...config.websiteIntegration,
+                            websiteUrl: e.target.value,
+                          },
+                        })
+                      }
                       placeholder="https://example.com"
                     />
                   </div>
@@ -909,10 +1124,15 @@ export const AIFAQBotSpec: React.FC = () => {
                     </label>
                     <Select
                       value={config.websiteIntegration.chatWidgetType}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        websiteIntegration: { ...config.websiteIntegration, chatWidgetType: e.target.value as any }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          websiteIntegration: {
+                            ...config.websiteIntegration,
+                            chatWidgetType: e.target.value as any,
+                          },
+                        })
+                      }
                       options={CHAT_WIDGET_TYPES}
                     />
                   </div>
@@ -923,10 +1143,15 @@ export const AIFAQBotSpec: React.FC = () => {
                     </label>
                     <Select
                       value={config.websiteIntegration.chatWidgetPosition}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        websiteIntegration: { ...config.websiteIntegration, chatWidgetPosition: e.target.value as any }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          websiteIntegration: {
+                            ...config.websiteIntegration,
+                            chatWidgetPosition: e.target.value as any,
+                          },
+                        })
+                      }
                       options={CHAT_WIDGET_POSITIONS}
                     />
                   </div>
@@ -937,11 +1162,18 @@ export const AIFAQBotSpec: React.FC = () => {
                     </label>
                     <Input
                       type="color"
-                      value={config.websiteIntegration.chatWidgetColor || '#3B82F6'}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        websiteIntegration: { ...config.websiteIntegration, chatWidgetColor: e.target.value }
-                      })}
+                      value={
+                        config.websiteIntegration.chatWidgetColor || '#3B82F6'
+                      }
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          websiteIntegration: {
+                            ...config.websiteIntegration,
+                            chatWidgetColor: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -950,10 +1182,15 @@ export const AIFAQBotSpec: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={config.websiteIntegration.mobileResponsive}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      websiteIntegration: { ...config.websiteIntegration, mobileResponsive: e.target.checked }
-                    })}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        websiteIntegration: {
+                          ...config.websiteIntegration,
+                          mobileResponsive: e.target.checked,
+                        },
+                      })
+                    }
                     className="rounded border-gray-300"
                   />
                   <span className="text-sm font-medium text-gray-700">
@@ -965,7 +1202,9 @@ export const AIFAQBotSpec: React.FC = () => {
                   <div className="flex items-start gap-3">
                     <Info className="w-5 h-5 text-blue-600 mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-blue-900 mb-1">טיפ חשוב</h4>
+                      <h4 className="font-medium text-blue-900 mb-1">
+                        טיפ חשוב
+                      </h4>
                       <p className="text-sm text-blue-700">
                         וודא שיש גישה לקוד האתר להטמעת JavaScript SDK או iframe.
                         בדוק שה-widget לא חוסם תוכן חשוב באתר (במיוחד במובייל).
@@ -987,14 +1226,21 @@ export const AIFAQBotSpec: React.FC = () => {
                     <Input
                       type="number"
                       value={config.gdprCompliance.conversationRetentionDays}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        gdprCompliance: { ...config.gdprCompliance, conversationRetentionDays: parseInt(e.target.value) }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          gdprCompliance: {
+                            ...config.gdprCompliance,
+                            conversationRetentionDays: parseInt(e.target.value),
+                          },
+                        })
+                      }
                       min="1"
                       max="90"
                     />
-                    <p className="text-xs text-gray-500 mt-1">מומלץ: מקסימום 30 יום</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      מומלץ: מקסימום 30 יום
+                    </p>
                   </div>
 
                   <div>
@@ -1003,10 +1249,15 @@ export const AIFAQBotSpec: React.FC = () => {
                     </label>
                     <Input
                       value={config.gdprCompliance.privacyPolicyLink}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        gdprCompliance: { ...config.gdprCompliance, privacyPolicyLink: e.target.value }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          gdprCompliance: {
+                            ...config.gdprCompliance,
+                            privacyPolicyLink: e.target.value,
+                          },
+                        })
+                      }
                       placeholder="https://example.com/privacy"
                     />
                   </div>
@@ -1017,10 +1268,15 @@ export const AIFAQBotSpec: React.FC = () => {
                     <input
                       type="checkbox"
                       checked={config.gdprCompliance.encryptAtRest}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        gdprCompliance: { ...config.gdprCompliance, encryptAtRest: e.target.checked }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          gdprCompliance: {
+                            ...config.gdprCompliance,
+                            encryptAtRest: e.target.checked,
+                          },
+                        })
+                      }
                       className="rounded border-gray-300"
                     />
                     <span className="text-sm font-medium text-gray-700">
@@ -1032,10 +1288,15 @@ export const AIFAQBotSpec: React.FC = () => {
                     <input
                       type="checkbox"
                       checked={config.gdprCompliance.userDeletionRights}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        gdprCompliance: { ...config.gdprCompliance, userDeletionRights: e.target.checked }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          gdprCompliance: {
+                            ...config.gdprCompliance,
+                            userDeletionRights: e.target.checked,
+                          },
+                        })
+                      }
                       className="rounded border-gray-300"
                     />
                     <span className="text-sm font-medium text-gray-700">
@@ -1047,10 +1308,15 @@ export const AIFAQBotSpec: React.FC = () => {
                     <input
                       type="checkbox"
                       checked={config.gdprCompliance.cookieConsent}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        gdprCompliance: { ...config.gdprCompliance, cookieConsent: e.target.checked }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          gdprCompliance: {
+                            ...config.gdprCompliance,
+                            cookieConsent: e.target.checked,
+                          },
+                        })
+                      }
                       className="rounded border-gray-300"
                     />
                     <span className="text-sm font-medium text-gray-700">
@@ -1063,7 +1329,9 @@ export const AIFAQBotSpec: React.FC = () => {
                   <div className="flex items-start gap-3">
                     <Shield className="w-5 h-5 text-red-600 mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-red-900 mb-1">דרישות GDPR</h4>
+                      <h4 className="font-medium text-red-900 mb-1">
+                        דרישות GDPR
+                      </h4>
                       <ul className="text-sm text-red-700 space-y-1 list-disc mr-5">
                         <li>שיחות מקסימום 30 יום שמירה</li>
                         <li>הצפנה של נתונים (encryption at rest)</li>
@@ -1088,10 +1356,17 @@ export const AIFAQBotSpec: React.FC = () => {
                     <Input
                       type="number"
                       value={config.costEstimation.estimatedConversationsPerDay}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        costEstimation: { ...config.costEstimation, estimatedConversationsPerDay: parseInt(e.target.value) }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          costEstimation: {
+                            ...config.costEstimation,
+                            estimatedConversationsPerDay: parseInt(
+                              e.target.value
+                            ),
+                          },
+                        })
+                      }
                       min="10"
                       max="1000"
                     />
@@ -1103,11 +1378,20 @@ export const AIFAQBotSpec: React.FC = () => {
                     </label>
                     <Input
                       type="number"
-                      value={config.costEstimation.averageMessagesPerConversation}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        costEstimation: { ...config.costEstimation, averageMessagesPerConversation: parseInt(e.target.value) }
-                      })}
+                      value={
+                        config.costEstimation.averageMessagesPerConversation
+                      }
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          costEstimation: {
+                            ...config.costEstimation,
+                            averageMessagesPerConversation: parseInt(
+                              e.target.value
+                            ),
+                          },
+                        })
+                      }
                       min="2"
                       max="20"
                     />
@@ -1120,13 +1404,20 @@ export const AIFAQBotSpec: React.FC = () => {
                     <Input
                       type="number"
                       value={config.rateLimits.requestsPerMinute}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        rateLimits: { ...config.rateLimits, requestsPerMinute: parseInt(e.target.value) }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          rateLimits: {
+                            ...config.rateLimits,
+                            requestsPerMinute: parseInt(e.target.value),
+                          },
+                        })
+                      }
                       disabled
                     />
-                    <p className="text-xs text-gray-500 mt-1">GPT-4o Mini Tier 1: 30K RPM</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      GPT-4o Mini Tier 1: 30K RPM
+                    </p>
                   </div>
 
                   <div>
@@ -1136,13 +1427,20 @@ export const AIFAQBotSpec: React.FC = () => {
                     <Input
                       type="number"
                       value={config.rateLimits.concurrentUsers}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        rateLimits: { ...config.rateLimits, concurrentUsers: parseInt(e.target.value) }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          rateLimits: {
+                            ...config.rateLimits,
+                            concurrentUsers: parseInt(e.target.value),
+                          },
+                        })
+                      }
                       disabled
                     />
-                    <p className="text-xs text-gray-500 mt-1">~500 concurrent users</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      ~500 concurrent users
+                    </p>
                   </div>
                 </div>
 
@@ -1150,34 +1448,54 @@ export const AIFAQBotSpec: React.FC = () => {
                 <div className="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
                   <div className="flex items-center gap-3 mb-4">
                     <DollarSign className="w-6 h-6 text-blue-600" />
-                    <h3 className="text-lg font-bold text-gray-900">הערכת עלויות חודשית</h3>
+                    <h3 className="text-lg font-bold text-gray-900">
+                      הערכת עלויות חודשית
+                    </h3>
                   </div>
 
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-700">עלות AI (API calls):</span>
-                      <span className="font-bold text-gray-900">${estimatedMonthlyCost.aiCost}</span>
+                      <span className="text-sm text-gray-700">
+                        עלות AI (API calls):
+                      </span>
+                      <span className="font-bold text-gray-900">
+                        ${estimatedMonthlyCost.aiCost}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-700">עלות Embeddings (חד פעמי):</span>
-                      <span className="font-bold text-gray-900">${estimatedMonthlyCost.embeddingCost}</span>
+                      <span className="text-sm text-gray-700">
+                        עלות Embeddings (חד פעמי):
+                      </span>
+                      <span className="font-bold text-gray-900">
+                        ${estimatedMonthlyCost.embeddingCost}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-700">Vector DB:</span>
-                      <span className="font-bold text-gray-900">${estimatedMonthlyCost.vectorDbCost}</span>
+                      <span className="font-bold text-gray-900">
+                        ${estimatedMonthlyCost.vectorDbCost}
+                      </span>
                     </div>
                     <div className="border-t border-gray-300 pt-3 flex justify-between items-center">
-                      <span className="text-base font-bold text-gray-900">סה"כ חודשי:</span>
-                      <span className="text-2xl font-bold text-blue-600">${estimatedMonthlyCost.totalMonthlyCost}</span>
+                      <span className="text-base font-bold text-gray-900">
+                        סה"כ חודשי:
+                      </span>
+                      <span className="text-2xl font-bold text-blue-600">
+                        ${estimatedMonthlyCost.totalMonthlyCost}
+                      </span>
                     </div>
                     <div className="text-xs text-gray-600">
-                      מבוסס על {estimatedMonthlyCost.totalMessagesPerMonth.toLocaleString()} הודעות/חודש
+                      מבוסס על{' '}
+                      {estimatedMonthlyCost.totalMessagesPerMonth.toLocaleString()}{' '}
+                      הודעות/חודש
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <h4 className="font-medium text-gray-900 mb-3">יעדי ביצועים</h4>
+                  <h4 className="font-medium text-gray-900 mb-3">
+                    יעדי ביצועים
+                  </h4>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -1187,14 +1505,21 @@ export const AIFAQBotSpec: React.FC = () => {
                       <Input
                         type="number"
                         value={config.monitoring.resolutionRateTarget}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          monitoring: { ...config.monitoring, resolutionRateTarget: parseInt(e.target.value) }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            monitoring: {
+                              ...config.monitoring,
+                              resolutionRateTarget: parseInt(e.target.value),
+                            },
+                          })
+                        }
                         min="50"
                         max="100"
                       />
-                      <p className="text-xs text-gray-500 mt-1">מומלץ: {'>'} 70%</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        מומלץ: {'>'} 70%
+                      </p>
                     </div>
 
                     <div>
@@ -1204,14 +1529,21 @@ export const AIFAQBotSpec: React.FC = () => {
                       <Input
                         type="number"
                         value={config.monitoring.fallbackRateTarget}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          monitoring: { ...config.monitoring, fallbackRateTarget: parseInt(e.target.value) }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            monitoring: {
+                              ...config.monitoring,
+                              fallbackRateTarget: parseInt(e.target.value),
+                            },
+                          })
+                        }
                         min="0"
                         max="50"
                       />
-                      <p className="text-xs text-gray-500 mt-1">מומלץ: {'<'} 20%</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        מומלץ: {'<'} 20%
+                      </p>
                     </div>
                   </div>
 
@@ -1220,26 +1552,40 @@ export const AIFAQBotSpec: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={config.monitoring.trackUserSatisfaction}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          monitoring: { ...config.monitoring, trackUserSatisfaction: e.target.checked }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            monitoring: {
+                              ...config.monitoring,
+                              trackUserSatisfaction: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
-                      <span className="text-sm text-gray-700">מעקב שביעות רצון משתמשים (CSAT)</span>
+                      <span className="text-sm text-gray-700">
+                        מעקב שביעות רצון משתמשים (CSAT)
+                      </span>
                     </label>
 
                     <label className="flex items-center gap-2">
                       <input
                         type="checkbox"
                         checked={config.monitoring.analyticsEnabled}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          monitoring: { ...config.monitoring, analyticsEnabled: e.target.checked }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            monitoring: {
+                              ...config.monitoring,
+                              analyticsEnabled: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
-                      <span className="text-sm text-gray-700">Analytics מופעל</span>
+                      <span className="text-sm text-gray-700">
+                        Analytics מופעל
+                      </span>
                     </label>
                   </div>
                 </div>
@@ -1248,10 +1594,13 @@ export const AIFAQBotSpec: React.FC = () => {
                   <div className="flex items-start gap-3">
                     <TrendingUp className="w-5 h-5 text-blue-600 mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-blue-900 mb-1">מעקב ביצועים</h4>
+                      <h4 className="font-medium text-blue-900 mb-1">
+                        מעקב ביצועים
+                      </h4>
                       <p className="text-sm text-blue-700">
-                        מעקב: resolution rate (target: {'>'} 70%), fallback rate ({'<'} 20%), user satisfaction (CSAT).
-                        חשוב לעקוב אחרי missed utterances - שאלות שהבוט לא הבין.
+                        מעקב: resolution rate (target: {'>'} 70%), fallback rate
+                        ({'<'} 20%), user satisfaction (CSAT). חשוב לעקוב אחרי
+                        missed utterances - שאלות שהבוט לא הבין.
                       </p>
                     </div>
                   </div>
@@ -1263,10 +1612,7 @@ export const AIFAQBotSpec: React.FC = () => {
 
         {/* Save Button at Bottom */}
         <div className="flex justify-end gap-4">
-          <Button
-            onClick={() => navigate('/phase2')}
-            variant="outline"
-          >
+          <Button onClick={() => navigate('/phase2')} variant="outline">
             ביטול
           </Button>
           <Button

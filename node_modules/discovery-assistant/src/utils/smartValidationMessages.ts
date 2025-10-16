@@ -41,14 +41,15 @@ export function getSmartValidationMessages(
         actionItems: [
           {
             text: `השלם ${moduleValidation.overall.requiredFieldsMissing.length} שדות חסרים`,
-            route: '/dashboard'
+            route: '/dashboard',
           },
           {
             text: 'הצג רשימת שדות חסרים',
-            action: () => console.table(moduleValidation.overall.requiredFieldsMissing)
-          }
+            action: () =>
+              console.table(moduleValidation.overall.requiredFieldsMissing),
+          },
         ],
-        estimatedTime: `${Math.ceil(moduleValidation.overall.requiredFieldsMissing.length * 2)} דקות`
+        estimatedTime: `${Math.ceil(moduleValidation.overall.requiredFieldsMissing.length * 2)} דקות`,
       });
     }
 
@@ -60,21 +61,25 @@ export function getSmartValidationMessages(
         actionItems: [
           {
             text: 'סקור הצעה מסחרית',
-            route: '/proposal'
+            route: '/proposal',
           },
           {
             text: 'שלח הצעה ללקוח',
-            route: '/proposal/send'
-          }
+            route: '/proposal/send',
+          },
         ],
-        estimatedTime: '1-2 ימי עסקים (בהמתנה ללקוח)'
+        estimatedTime: '1-2 ימי עסקים (בהמתנה ללקוח)',
       });
     }
   }
 
   // Phase 2 → 3 validation
-  if (meeting.phase === 'implementation_spec' && targetPhase === 'development') {
-    const purchasedServices = meeting.modules?.proposal?.purchasedServices || [];
+  if (
+    meeting.phase === 'implementation_spec' &&
+    targetPhase === 'development'
+  ) {
+    const purchasedServices =
+      meeting.modules?.proposal?.purchasedServices || [];
 
     if (purchasedServices.length === 0) {
       messages.push({
@@ -84,10 +89,10 @@ export function getSmartValidationMessages(
         actionItems: [
           {
             text: 'חזור להצעה ובחר שירותים',
-            route: '/proposal'
-          }
+            route: '/proposal',
+          },
         ],
-        estimatedTime: '30 דקות'
+        estimatedTime: '30 דקות',
       });
     } else {
       const serviceValidation = validateServiceRequirements(
@@ -100,11 +105,11 @@ export function getSmartValidationMessages(
           severity: 'error',
           title: 'דרישות טכניות חסרות',
           message: `${serviceValidation.missingServices.length} שירותים חסרים דרישות טכניות`,
-          actionItems: serviceValidation.missingServices.map(serviceName => ({
+          actionItems: serviceValidation.missingServices.map((serviceName) => ({
             text: `השלם דרישות עבור: ${serviceName}`,
-            route: '/phase2/service-requirements'
+            route: '/phase2/service-requirements',
           })),
-          estimatedTime: `${serviceValidation.missingServices.length * 15} דקות`
+          estimatedTime: `${serviceValidation.missingServices.length * 15} דקות`,
         });
       }
     }
@@ -118,10 +123,10 @@ export function getSmartValidationMessages(
         actionItems: [
           {
             text: 'עבור למפרט יישום',
-            route: '/phase2'
-          }
+            route: '/phase2',
+          },
         ],
-        estimatedTime: '1-2 שעות'
+        estimatedTime: '1-2 שעות',
       });
     }
   }
@@ -138,7 +143,12 @@ export function formatValidationMessagesForUI(
   let output = '';
 
   messages.forEach((msg, index) => {
-    const icon = msg.severity === 'error' ? '❌' : msg.severity === 'warning' ? '⚠️' : 'ℹ️';
+    const icon =
+      msg.severity === 'error'
+        ? '❌'
+        : msg.severity === 'warning'
+          ? '⚠️'
+          : 'ℹ️';
 
     output += `\n${icon} ${msg.title}\n`;
     output += `   ${msg.message}\n`;

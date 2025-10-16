@@ -22,19 +22,19 @@ const KEYBOARD_SHORTCUTS = {
   'Ctrl+D': 'delete',
   'Ctrl+P': 'print',
   'Ctrl+/': 'help',
-  'Escape': 'close-modal',
-  'Tab': 'next-field',
+  Escape: 'close-modal',
+  Tab: 'next-field',
   'Shift+Tab': 'previous-field',
-  'Enter': 'submit',
-  'Space': 'toggle',
-  'ArrowUp': 'previous-item',
-  'ArrowDown': 'next-item',
-  'ArrowLeft': 'previous-section',
-  'ArrowRight': 'next-section',
-  'Home': 'first-item',
-  'End': 'last-item',
-  'PageUp': 'previous-module',
-  'PageDown': 'next-module',
+  Enter: 'submit',
+  Space: 'toggle',
+  ArrowUp: 'previous-item',
+  ArrowDown: 'next-item',
+  ArrowLeft: 'previous-section',
+  ArrowRight: 'next-section',
+  Home: 'first-item',
+  End: 'last-item',
+  PageUp: 'previous-module',
+  PageDown: 'next-module',
 };
 
 // Focus trap for modals and dropdowns
@@ -70,7 +70,9 @@ export const useFocusTrap = (isActive: boolean) => {
 
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        const closeButton = container.querySelector<HTMLButtonElement>('[data-close-button]');
+        const closeButton = container.querySelector<HTMLButtonElement>(
+          '[data-close-button]'
+        );
         closeButton?.click();
       }
     };
@@ -95,7 +97,8 @@ export const useSkipToContent = () => {
   useEffect(() => {
     const skipLink = document.createElement('a');
     skipLink.href = '#main-content';
-    skipLink.className = 'sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-white px-4 py-2 rounded-lg z-50';
+    skipLink.className =
+      'sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-white px-4 py-2 rounded-lg z-50';
     skipLink.textContent = 'דלג לתוכן הראשי';
     skipLink.setAttribute('aria-label', 'דלג לתוכן הראשי');
 
@@ -144,83 +147,94 @@ export const useKeyboardNavigation = () => {
   const location = useLocation();
   const announce = useAnnounce();
 
-  const handleKeyboardShortcut = useCallback((e: KeyboardEvent) => {
-    // Build key combination string
-    let key = '';
-    if (e.ctrlKey || e.metaKey) key += 'Ctrl+';
-    if (e.altKey) key += 'Alt+';
-    if (e.shiftKey) key += 'Shift+';
+  const handleKeyboardShortcut = useCallback(
+    (e: KeyboardEvent) => {
+      // Build key combination string
+      let key = '';
+      if (e.ctrlKey || e.metaKey) key += 'Ctrl+';
+      if (e.altKey) key += 'Alt+';
+      if (e.shiftKey) key += 'Shift+';
 
-    // Special keys
-    if (e.key === ' ') key += 'Space';
-    else if (e.key === 'Escape') key += 'Escape';
-    else if (e.key === 'Enter') key += 'Enter';
-    else if (e.key === 'Tab') key += 'Tab';
-    else if (e.key.startsWith('Arrow')) key += e.key;
-    else if (e.key === 'Home' || e.key === 'End') key += e.key;
-    else if (e.key.startsWith('Page')) key += e.key;
-    else key += e.key.toUpperCase();
+      // Special keys
+      if (e.key === ' ') key += 'Space';
+      else if (e.key === 'Escape') key += 'Escape';
+      else if (e.key === 'Enter') key += 'Enter';
+      else if (e.key === 'Tab') key += 'Tab';
+      else if (e.key.startsWith('Arrow')) key += e.key;
+      else if (e.key === 'Home' || e.key === 'End') key += e.key;
+      else if (e.key.startsWith('Page')) key += e.key;
+      else key += e.key.toUpperCase();
 
-    const action = KEYBOARD_SHORTCUTS[key as keyof typeof KEYBOARD_SHORTCUTS];
+      const action = KEYBOARD_SHORTCUTS[key as keyof typeof KEYBOARD_SHORTCUTS];
 
-    if (!action) return;
+      if (!action) return;
 
-    // Navigation shortcuts
-    if (action.startsWith('/')) {
-      e.preventDefault();
-      navigate(action);
-      announce(`מעבר ל${getPageName(action)}`);
-      return;
-    }
-
-    // Action shortcuts
-    switch (action) {
-      case 'save':
+      // Navigation shortcuts
+      if (action.startsWith('/')) {
         e.preventDefault();
-        document.querySelector<HTMLButtonElement>('[data-action="save"]')?.click();
-        announce('נשמר');
-        break;
+        navigate(action);
+        announce(`מעבר ל${getPageName(action)}`);
+        return;
+      }
 
-      case 'export':
-        e.preventDefault();
-        document.querySelector<HTMLButtonElement>('[data-action="export"]')?.click();
-        announce('מייצא');
-        break;
-
-      case 'new-meeting':
-        e.preventDefault();
-        if (location.pathname === '/') {
-          document.querySelector<HTMLButtonElement>('[data-action="new-meeting"]')?.click();
-          announce('יצירת פגישה חדשה');
-        }
-        break;
-
-      case 'help':
-        e.preventDefault();
-        showHelp();
-        break;
-
-      case 'close-modal':
-        const modal = document.querySelector('[role="dialog"]');
-        if (modal) {
+      // Action shortcuts
+      switch (action) {
+        case 'save':
           e.preventDefault();
-          const closeButton = modal.querySelector<HTMLButtonElement>('[data-close-button]');
-          closeButton?.click();
-          announce('חלון נסגר');
-        }
-        break;
+          document
+            .querySelector<HTMLButtonElement>('[data-action="save"]')
+            ?.click();
+          announce('נשמר');
+          break;
 
-      case 'next-module':
-        e.preventDefault();
-        navigateToNextModule();
-        break;
+        case 'export':
+          e.preventDefault();
+          document
+            .querySelector<HTMLButtonElement>('[data-action="export"]')
+            ?.click();
+          announce('מייצא');
+          break;
 
-      case 'previous-module':
-        e.preventDefault();
-        navigateToPreviousModule();
-        break;
-    }
-  }, [navigate, location, announce]);
+        case 'new-meeting':
+          e.preventDefault();
+          if (location.pathname === '/') {
+            document
+              .querySelector<HTMLButtonElement>('[data-action="new-meeting"]')
+              ?.click();
+            announce('יצירת פגישה חדשה');
+          }
+          break;
+
+        case 'help':
+          e.preventDefault();
+          showHelp();
+          break;
+
+        case 'close-modal':
+          const modal = document.querySelector('[role="dialog"]');
+          if (modal) {
+            e.preventDefault();
+            const closeButton = modal.querySelector<HTMLButtonElement>(
+              '[data-close-button]'
+            );
+            closeButton?.click();
+            announce('חלון נסגר');
+          }
+          break;
+
+        case 'next-module':
+          e.preventDefault();
+          navigateToNextModule();
+          break;
+
+        case 'previous-module':
+          e.preventDefault();
+          navigateToPreviousModule();
+          break;
+      }
+    },
+    [navigate, location, announce]
+  );
 
   // Module navigation helpers
   const navigateToNextModule = useCallback(() => {
@@ -290,7 +304,8 @@ export const useKeyboardNavigation = () => {
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyboardShortcut);
-    return () => document.removeEventListener('keydown', handleKeyboardShortcut);
+    return () =>
+      document.removeEventListener('keydown', handleKeyboardShortcut);
   }, [handleKeyboardShortcut]);
 
   return {
@@ -323,9 +338,12 @@ export const useFocusManagement = () => {
   const [focusedIndex, setFocusedIndex] = useState(0);
   const itemRefs = useRef<(HTMLElement | null)[]>([]);
 
-  const registerItem = useCallback((index: number) => (ref: HTMLElement | null) => {
-    itemRefs.current[index] = ref;
-  }, []);
+  const registerItem = useCallback(
+    (index: number) => (ref: HTMLElement | null) => {
+      itemRefs.current[index] = ref;
+    },
+    []
+  );
 
   const focusItem = useCallback((index: number) => {
     const item = itemRefs.current[index];
@@ -436,7 +454,8 @@ export const useReducedMotion = () => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     setPrefersReducedMotion(mediaQuery.matches);
 
-    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    const handler = (e: MediaQueryListEvent) =>
+      setPrefersReducedMotion(e.matches);
     mediaQuery.addEventListener('change', handler);
 
     return () => mediaQuery.removeEventListener('change', handler);

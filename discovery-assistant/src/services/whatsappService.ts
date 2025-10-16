@@ -26,7 +26,10 @@ export const sendProposalViaWhatsApp = (
   let formattedPhone = cleanPhone;
   if (formattedPhone.startsWith('0')) {
     formattedPhone = '972' + formattedPhone.substring(1);
-  } else if (!formattedPhone.startsWith('972') && !formattedPhone.startsWith('+')) {
+  } else if (
+    !formattedPhone.startsWith('972') &&
+    !formattedPhone.startsWith('+')
+  ) {
     formattedPhone = '972' + formattedPhone;
   }
 
@@ -74,7 +77,9 @@ export const sendProposalViaWhatsApp = (
 
     // Show instruction to user
     setTimeout(() => {
-      alert('📄 הקובץ ירד למחשב שלך. אנא צרף אותו ידנית בשיחת WhatsApp שנפתחה.');
+      alert(
+        '📄 הקובץ ירד למחשב שלך. אנא צרף אותו ידנית בשיחת WhatsApp שנפתחה.'
+      );
     }, 500);
   }
 };

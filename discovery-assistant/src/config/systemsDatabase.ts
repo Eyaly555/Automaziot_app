@@ -29,7 +29,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Salesforce',
         versions: ['Essentials', 'Professional', 'Enterprise', 'Unlimited'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'hubspot',
@@ -37,23 +37,35 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'HubSpot CRM',
         versions: ['Free', 'Starter', 'Professional', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'zoho_crm',
         label: 'Zoho CRM',
         labelHebrew: 'Zoho CRM',
-        versions: ['Free', 'Standard', 'Professional', 'Enterprise', 'Ultimate'],
+        versions: [
+          'Free',
+          'Standard',
+          'Professional',
+          'Enterprise',
+          'Ultimate',
+        ],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
+        marketShare: 'medium',
       },
       {
         value: 'pipedrive',
         label: 'Pipedrive',
         labelHebrew: 'Pipedrive',
-        versions: ['Essential', 'Advanced', 'Professional', 'Power', 'Enterprise'],
+        versions: [
+          'Essential',
+          'Advanced',
+          'Professional',
+          'Power',
+          'Enterprise',
+        ],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
+        marketShare: 'medium',
       },
       {
         value: 'monday_crm',
@@ -61,7 +73,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'monday.com CRM',
         versions: ['Basic', 'Standard', 'Pro', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
+        marketShare: 'medium',
       },
       {
         value: 'dynamics365',
@@ -69,7 +81,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Microsoft Dynamics 365',
         versions: ['Sales Professional', 'Sales Enterprise', 'Sales Premium'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'freshsales',
@@ -77,7 +89,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Freshsales (Freshworks)',
         versions: ['Free', 'Growth', 'Pro', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
+        marketShare: 'medium',
       },
       {
         value: 'custom_crm',
@@ -85,9 +97,9 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'מערכת CRM מותאמת אישית',
         versions: ['In-house Development'],
         typicalApiAccess: 'limited',
-        marketShare: 'low'
-      }
-    ]
+        marketShare: 'low',
+      },
+    ],
   },
   {
     id: 'erp',
@@ -100,7 +112,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'SAP',
         versions: ['SAP Business One', 'SAP S/4HANA', 'SAP ECC'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'oracle_erp',
@@ -108,7 +120,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Oracle ERP Cloud',
         versions: ['Standard', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'netsuite',
@@ -116,7 +128,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'NetSuite',
         versions: ['Standard', 'Premium'],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
+        marketShare: 'medium',
       },
       {
         value: 'microsoft_dynamics_erp',
@@ -124,7 +136,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Microsoft Dynamics 365 Business Central',
         versions: ['Essentials', 'Premium'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'odoo',
@@ -132,7 +144,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Odoo',
         versions: ['Community', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
+        marketShare: 'medium',
       },
       {
         value: 'priority',
@@ -140,9 +152,9 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'פריוריטי',
         versions: ['Standard', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
-      }
-    ]
+        marketShare: 'high',
+      },
+    ],
   },
   {
     id: 'marketing_automation',
@@ -155,7 +167,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'HubSpot Marketing Hub',
         versions: ['Free', 'Starter', 'Professional', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'marketo',
@@ -163,7 +175,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Adobe Marketo',
         versions: ['Select', 'Prime', 'Ultimate'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'mailchimp',
@@ -171,7 +183,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Mailchimp',
         versions: ['Free', 'Essentials', 'Standard', 'Premium'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'activecampaign',
@@ -179,7 +191,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'ActiveCampaign',
         versions: ['Lite', 'Plus', 'Professional', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
+        marketShare: 'medium',
       },
       {
         value: 'pardot',
@@ -187,9 +199,9 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Salesforce Pardot',
         versions: ['Growth', 'Plus', 'Advanced', 'Premium'],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
-      }
-    ]
+        marketShare: 'medium',
+      },
+    ],
   },
   {
     id: 'helpdesk',
@@ -200,9 +212,14 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         value: 'zendesk',
         label: 'Zendesk',
         labelHebrew: 'Zendesk',
-        versions: ['Suite Team', 'Suite Growth', 'Suite Professional', 'Suite Enterprise'],
+        versions: [
+          'Suite Team',
+          'Suite Growth',
+          'Suite Professional',
+          'Suite Enterprise',
+        ],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'freshdesk',
@@ -210,7 +227,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Freshdesk',
         versions: ['Free', 'Growth', 'Pro', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
+        marketShare: 'medium',
       },
       {
         value: 'intercom',
@@ -218,7 +235,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Intercom',
         versions: ['Starter', 'Pro', 'Premium'],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
+        marketShare: 'medium',
       },
       {
         value: 'servicenow',
@@ -226,7 +243,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'ServiceNow',
         versions: ['Standard', 'Professional', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'jira_service_desk',
@@ -234,9 +251,9 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Jira Service Management',
         versions: ['Free', 'Standard', 'Premium', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
-      }
-    ]
+        marketShare: 'high',
+      },
+    ],
   },
   {
     id: 'accounting',
@@ -249,7 +266,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'QuickBooks',
         versions: ['Simple Start', 'Essentials', 'Plus', 'Advanced'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'xero',
@@ -257,7 +274,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Xero',
         versions: ['Starter', 'Standard', 'Premium'],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
+        marketShare: 'medium',
       },
       {
         value: 'sage',
@@ -265,7 +282,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Sage',
         versions: ['Sage 50', 'Sage 100', 'Sage Intacct'],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
+        marketShare: 'medium',
       },
       {
         value: 'hashavshevet',
@@ -273,7 +290,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'חשבשבת',
         versions: ['Standard', 'Pro'],
         typicalApiAccess: 'limited',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'meitav',
@@ -281,9 +298,9 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'מיטב דש',
         versions: ['Standard'],
         typicalApiAccess: 'limited',
-        marketShare: 'medium'
-      }
-    ]
+        marketShare: 'medium',
+      },
+    ],
   },
   {
     id: 'project_management',
@@ -296,7 +313,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Jira',
         versions: ['Free', 'Standard', 'Premium', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'asana',
@@ -304,7 +321,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Asana',
         versions: ['Basic', 'Premium', 'Business', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'monday',
@@ -312,7 +329,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'monday.com',
         versions: ['Basic', 'Standard', 'Pro', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'trello',
@@ -320,7 +337,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Trello',
         versions: ['Free', 'Standard', 'Premium', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'clickup',
@@ -328,9 +345,9 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'ClickUp',
         versions: ['Free', 'Unlimited', 'Business', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
-      }
-    ]
+        marketShare: 'medium',
+      },
+    ],
   },
   {
     id: 'hr_system',
@@ -343,7 +360,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Workday HCM',
         versions: ['Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'bamboohr',
@@ -351,7 +368,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'BambooHR',
         versions: ['Essentials', 'Advantage'],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
+        marketShare: 'medium',
       },
       {
         value: 'hibob',
@@ -359,7 +376,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'HiBob',
         versions: ['Standard', 'Premium'],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
+        marketShare: 'medium',
       },
       {
         value: 'adp',
@@ -367,9 +384,9 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'ADP Workforce',
         versions: ['Standard', 'Enterprise'],
         typicalApiAccess: 'limited',
-        marketShare: 'high'
-      }
-    ]
+        marketShare: 'high',
+      },
+    ],
   },
   {
     id: 'inventory',
@@ -382,7 +399,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'TradeGecko',
         versions: ['Standard', 'Professional', 'Premium'],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
+        marketShare: 'medium',
       },
       {
         value: 'cin7',
@@ -390,7 +407,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Cin7',
         versions: ['Core', 'Omni'],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
+        marketShare: 'medium',
       },
       {
         value: 'fishbowl',
@@ -398,9 +415,9 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Fishbowl',
         versions: ['Advanced', 'Warehouse'],
         typicalApiAccess: 'full',
-        marketShare: 'low'
-      }
-    ]
+        marketShare: 'low',
+      },
+    ],
   },
   {
     id: 'ecommerce',
@@ -413,7 +430,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Shopify',
         versions: ['Basic', 'Shopify', 'Advanced', 'Plus'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'woocommerce',
@@ -421,7 +438,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'WooCommerce',
         versions: ['Open Source'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'magento',
@@ -429,7 +446,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Magento (Adobe Commerce)',
         versions: ['Open Source', 'Commerce', 'Commerce Cloud'],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
+        marketShare: 'medium',
       },
       {
         value: 'bigcommerce',
@@ -437,9 +454,9 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'BigCommerce',
         versions: ['Standard', 'Plus', 'Pro', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
-      }
-    ]
+        marketShare: 'medium',
+      },
+    ],
   },
   {
     id: 'bi_analytics',
@@ -452,7 +469,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Tableau',
         versions: ['Creator', 'Explorer', 'Viewer'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'power_bi',
@@ -460,7 +477,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Microsoft Power BI',
         versions: ['Pro', 'Premium', 'Embedded'],
         typicalApiAccess: 'full',
-        marketShare: 'high'
+        marketShare: 'high',
       },
       {
         value: 'looker',
@@ -468,7 +485,7 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Looker (Google)',
         versions: ['Standard', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'medium'
+        marketShare: 'medium',
       },
       {
         value: 'metabase',
@@ -476,28 +493,38 @@ export const SYSTEM_CATEGORIES: SystemCategory[] = [
         labelHebrew: 'Metabase',
         versions: ['Open Source', 'Pro', 'Enterprise'],
         typicalApiAccess: 'full',
-        marketShare: 'low'
-      }
-    ]
-  }
+        marketShare: 'low',
+      },
+    ],
+  },
 ];
 
 // Helper function to get systems by category
 export const getSystemsByCategory = (categoryId: string): SystemOption[] => {
-  const category = SYSTEM_CATEGORIES.find(cat => cat.id === categoryId);
+  const category = SYSTEM_CATEGORIES.find((cat) => cat.id === categoryId);
   return category?.systems || [];
 };
 
 // Helper function to get system label
-export const getSystemLabel = (categoryId: string, hebrew: boolean = true): string => {
-  const category = SYSTEM_CATEGORIES.find(cat => cat.id === categoryId);
-  return category ? (hebrew ? category.labelHebrew : category.label) : categoryId;
+export const getSystemLabel = (
+  categoryId: string,
+  hebrew: boolean = true
+): string => {
+  const category = SYSTEM_CATEGORIES.find((cat) => cat.id === categoryId);
+  return category
+    ? hebrew
+      ? category.labelHebrew
+      : category.label
+    : categoryId;
 };
 
 // Helper to get specific system details
-export const getSystemDetails = (categoryId: string, systemValue: string): SystemOption | undefined => {
+export const getSystemDetails = (
+  categoryId: string,
+  systemValue: string
+): SystemOption | undefined => {
   const systems = getSystemsByCategory(categoryId);
-  return systems.find(sys => sys.value === systemValue);
+  return systems.find((sys) => sys.value === systemValue);
 };
 
 // Pain point templates per system type
@@ -509,7 +536,7 @@ export const COMMON_PAIN_POINTS: Record<string, string[]> = {
     'חסר אינטגרציה עם מערכות אחרות',
     'דוחות לא מספקים',
     'תהליך ידני למעקב אחר לידים',
-    'אין אוטומציה לפעולות חוזרות'
+    'אין אוטומציה לפעולות חוזרות',
   ],
   erp: [
     'תהליכים איטיים',
@@ -517,14 +544,14 @@ export const COMMON_PAIN_POINTS: Record<string, string[]> = {
     'דוחות כבדים ואיטיים',
     'קושי בהתאמה אישית',
     'עלויות תחזוקה גבוהות',
-    'ממשק משתמש מסורבל'
+    'ממשק משתמש מסורבל',
   ],
   marketing_automation: [
     'קמפיינים לא ממוקדים',
     'חסר אינטגרציה עם CRM',
     'נתוני תוצאות לא ברורים',
     'קושי ביצירת אוטומציות מורכבות',
-    'חסר פרסונליזציה'
+    'חסר פרסונליזציה',
   ],
   helpdesk: [
     'זמני מענה ארוכים',
@@ -532,15 +559,15 @@ export const COMMON_PAIN_POINTS: Record<string, string[]> = {
     'אין מעקב אחר SLA',
     'חסר אינטגרציה עם CRM',
     'דוחות לא מספקים',
-    'אין אוטומציה לפניות נפוצות'
+    'אין אוטומציה לפניות נפוצות',
   ],
   accounting: [
     'הזנה ידנית של חשבוניות',
     'טעויות בהתאמות בנק',
     'דוחות אורכים זמן רב להכנה',
     'חסר אינטגרציה עם מערכות אחרות',
-    'תהליכי אישור ידניים'
-  ]
+    'תהליכי אישור ידניים',
+  ],
 };
 
 export const CRITICAL_FEATURES_BY_CATEGORY: Record<string, string[]> = {
@@ -551,7 +578,7 @@ export const CRITICAL_FEATURES_BY_CATEGORY: Record<string, string[]> = {
     'דוחות ומעקבים',
     'אוטומציית תהליכים',
     'אינטגרציות',
-    'ניהול צינור מכירות'
+    'ניהול צינור מכירות',
   ],
   erp: [
     'ניהול כספים',
@@ -560,7 +587,7 @@ export const CRITICAL_FEATURES_BY_CATEGORY: Record<string, string[]> = {
     'דוחות פיננסיים',
     'ניהול ספקים',
     'ניהול לקוחות',
-    'תכנון משאבים'
+    'תכנון משאבים',
   ],
   marketing_automation: [
     'אוטומציית אימיילים',
@@ -569,6 +596,6 @@ export const CRITICAL_FEATURES_BY_CATEGORY: Record<string, string[]> = {
     'דירוג לידים',
     'דוחות וניתוח',
     'פילוח קהל',
-    'בדיקות A/B'
-  ]
+    'בדיקות A/B',
+  ],
 };

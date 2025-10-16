@@ -15,7 +15,16 @@ import { ReactNode } from 'react';
 /**
  * Standard HTML input types supported by the Input component
  */
-export type InputType = 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search' | 'date' | 'time';
+export type InputType =
+  | 'text'
+  | 'email'
+  | 'password'
+  | 'number'
+  | 'tel'
+  | 'url'
+  | 'search'
+  | 'date'
+  | 'time';
 
 /**
  * Input size variants
@@ -42,7 +51,13 @@ export type InputState = 'default' | 'error' | 'success' | 'warning';
  * - pattern: Must match regular expression
  * - custom: Custom validation function
  */
-export type ValidationRuleType = 'required' | 'email' | 'min' | 'max' | 'pattern' | 'custom';
+export type ValidationRuleType =
+  | 'required'
+  | 'email'
+  | 'min'
+  | 'max'
+  | 'pattern'
+  | 'custom';
 
 /**
  * Validation rule configuration
@@ -346,7 +361,8 @@ export interface SelectProps extends FormFieldProps<string> {
 /**
  * Props for multi-select components
  */
-export interface MultiSelectProps extends Omit<SelectProps, 'value' | 'onChange'> {
+export interface MultiSelectProps
+  extends Omit<SelectProps, 'value' | 'onChange'> {
   /** Selected values */
   value: string[];
 
@@ -391,7 +407,8 @@ export interface RadioGroupProps extends FormFieldProps<string> {
 /**
  * Props for number input
  */
-export interface NumberInputProps extends Omit<FormFieldProps<number>, 'value' | 'onChange'> {
+export interface NumberInputProps
+  extends Omit<FormFieldProps<number>, 'value' | 'onChange'> {
   /** Current numeric value */
   value: number | undefined;
 
@@ -488,7 +505,8 @@ export interface FormConfig<T extends Record<string, any>> {
  *
  * @template T - Shape of form values
  */
-export interface UseFormReturn<T extends Record<string, any>> extends FormActions<T> {
+export interface UseFormReturn<T extends Record<string, any>>
+  extends FormActions<T> {
   /** Current form state */
   state: FormState<T>;
 
@@ -526,7 +544,15 @@ export interface DynamicFormField {
   name: string;
 
   /** Field type */
-  type: 'text' | 'textarea' | 'number' | 'select' | 'multiselect' | 'checkbox' | 'radio' | 'date';
+  type:
+    | 'text'
+    | 'textarea'
+    | 'number'
+    | 'select'
+    | 'multiselect'
+    | 'checkbox'
+    | 'radio'
+    | 'date';
 
   /** Field label */
   label: string;

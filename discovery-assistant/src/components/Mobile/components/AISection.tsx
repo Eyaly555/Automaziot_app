@@ -34,11 +34,13 @@ export const AISection: React.FC<AISectionProps> = ({ data, onChange }) => {
         </label>
         <RadioGroup
           value={data.count}
-          onChange={(value) => onChange({ count: value as AIAgentsData['count'] })}
+          onChange={(value) =>
+            onChange({ count: value as AIAgentsData['count'] })
+          }
           options={[
             { value: '1', label: 'סוכן אחד' },
             { value: '2', label: 'שני סוכנים' },
-            { value: '3+', label: 'שלושה או יותר' }
+            { value: '3+', label: 'שלושה או יותר' },
           ]}
           orientation="vertical"
           className="mobile-radio-group"
@@ -58,12 +60,12 @@ export const AISection: React.FC<AISectionProps> = ({ data, onChange }) => {
           onChange={(value) => onChange({ channels: value })}
           options={[
             { value: 'whatsapp', label: '💬 WhatsApp' },
-            { value: 'website', label: '🌐 אתר (צ\'אט)' },
+            { value: 'website', label: "🌐 אתר (צ'אט)" },
             { value: 'facebook', label: '📘 Facebook' },
             { value: 'instagram', label: '📷 Instagram' },
             { value: 'phone', label: '📞 טלפון' },
             { value: 'email', label: '📧 אימייל' },
-            { value: 'other', label: '🎨 אחר' }
+            { value: 'other', label: '🎨 אחר' },
           ]}
           columns={2}
           className="mobile-checkbox-group"
@@ -114,7 +116,7 @@ export const AISection: React.FC<AISectionProps> = ({ data, onChange }) => {
             { value: 'lead_qualification', label: '✅ סיווג לידים' },
             { value: 'scheduling', label: '📅 קביעת פגישות' },
             { value: 'faq', label: '❓ שאלות נפוצות' },
-            { value: 'technical_support', label: '🔧 תמיכה טכנית' }
+            { value: 'technical_support', label: '🔧 תמיכה טכנית' },
           ]}
           columns={2}
           className="mobile-checkbox-group"
@@ -123,9 +125,7 @@ export const AISection: React.FC<AISectionProps> = ({ data, onChange }) => {
 
       {/* Q4: Notes - TextArea with mobile keyboard optimization */}
       <div className="mobile-field-group">
-        <label className="mobile-question">
-          הערות נוספות?
-        </label>
+        <label className="mobile-question">הערות נוספות?</label>
         <p className="mobile-helper-text mb-3">
           שפות, שעות פעילות, סוג תשובות... (אופציונלי)
         </p>

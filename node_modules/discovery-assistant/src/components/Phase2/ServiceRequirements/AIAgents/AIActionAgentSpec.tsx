@@ -15,14 +15,14 @@ export function AIActionAgentSpec() {
     fieldId: 'ai_model_preference',
     localPath: 'aiModel',
     serviceId: 'ai-action-agent',
-    autoSave: false
+    autoSave: false,
   });
 
   const crmSystem = useSmartField<string>({
     fieldId: 'crm_system',
     localPath: 'crmSystem',
     serviceId: 'ai-action-agent',
-    autoSave: false
+    autoSave: false,
   });
 
   const [config, setConfig] = useState<any>({
@@ -39,7 +39,7 @@ export function AIActionAgentSpec() {
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'ai-action-agent',
-    category: 'aiAgentServices'
+    category: 'aiAgentServices',
   });
 
   useBeforeUnload(() => {
@@ -47,14 +47,17 @@ export function AIActionAgentSpec() {
     const completeConfig = {
       ...config,
       aiModel: aiModelPreference.value,
-      crmSystem: crmSystem.value
+      crmSystem: crmSystem.value,
     };
     saveData(completeConfig);
   });
 
   useEffect(() => {
-    const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
-    const existing = aiAgentServices.find((a: AIAgentServiceEntry) => a.serviceId === 'ai-action-agent');
+    const aiAgentServices =
+      currentMeeting?.implementationSpec?.aiAgentServices || [];
+    const existing = aiAgentServices.find(
+      (a: AIAgentServiceEntry) => a.serviceId === 'ai-action-agent'
+    );
 
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
@@ -86,22 +89,25 @@ export function AIActionAgentSpec() {
   //   }
   // }, [config, aiModelPreference.value, crmSystem.value, saveData]);
 
-  const handleFieldChange = useCallback((field: keyof typeof config, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = {
-            ...updated,
-            aiModel: aiModelPreference.value,
-            crmSystem: crmSystem.value
-          };
-          saveData(completeConfig);
-        }
-      }, 0);
-      return updated;
-    });
-  }, [aiModelPreference.value, crmSystem.value, saveData]);
+  const handleFieldChange = useCallback(
+    (field: keyof typeof config, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = {
+              ...updated,
+              aiModel: aiModelPreference.value,
+              crmSystem: crmSystem.value,
+            };
+            saveData(completeConfig);
+          }
+        }, 0);
+        return updated;
+      });
+    },
+    [aiModelPreference.value, crmSystem.value, saveData]
+  );
 
   const handleSave = useCallback(async () => {
     if (isLoadingRef.current) return; // Don't save during loading
@@ -109,7 +115,7 @@ export function AIActionAgentSpec() {
     const completeConfig = {
       ...config,
       aiModel: aiModelPreference.value,
-      crmSystem: crmSystem.value
+      crmSystem: crmSystem.value,
     };
 
     await saveData(completeConfig, 'manual');
@@ -122,10 +128,12 @@ export function AIActionAgentSpec() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
           <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <h4 className="font-semibold text-blue-900 mb-1">
+              נתונים מולאו אוטומטית משלב 1
+            </h4>
             <p className="text-sm text-blue-800">
-              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-              תוכל לערוך אותם במידת הצורך.
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל לערוך
+              אותם במידת הצורך.
             </p>
           </div>
         </div>
@@ -136,7 +144,9 @@ export function AIActionAgentSpec() {
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+            <h4 className="font-semibold text-orange-900 mb-1">
+              זוהה אי-התאמה בנתונים
+            </h4>
             <p className="text-sm text-orange-800">
               נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
             </p>
@@ -162,7 +172,9 @@ export function AIActionAgentSpec() {
               value={aiModelPreference.value || 'gpt-4o'}
               onChange={(e) => aiModelPreference.setValue(e.target.value)}
               className={`w-full px-3 py-2 border rounded-md ${
-                aiModelPreference.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                aiModelPreference.isAutoPopulated
+                  ? 'border-green-300 bg-green-50'
+                  : 'border-gray-300'
               } ${aiModelPreference.hasConflict ? 'border-orange-300' : ''}`}
             >
               <option value="gpt-4o">GPT-4o</option>
@@ -194,7 +206,9 @@ export function AIActionAgentSpec() {
               value={crmSystem.value || 'zoho'}
               onChange={(e) => crmSystem.setValue(e.target.value)}
               className={`w-full px-3 py-2 border rounded-md ${
-                crmSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                crmSystem.isAutoPopulated
+                  ? 'border-green-300 bg-green-50'
+                  : 'border-gray-300'
               } ${crmSystem.hasConflict ? 'border-orange-300' : ''}`}
             >
               <option value="zoho">Zoho CRM</option>
@@ -212,8 +226,14 @@ export function AIActionAgentSpec() {
           </div>
           <div className="space-y-3">
             <label className="flex items-center">
-              <input type="checkbox" checked={config.requireApproval}
-                onChange={(e) => handleFieldChange('requireApproval', e.target.checked)} className="mr-2" />
+              <input
+                type="checkbox"
+                checked={config.requireApproval}
+                onChange={(e) =>
+                  handleFieldChange('requireApproval', e.target.checked)
+                }
+                className="mr-2"
+              />
               <span className="text-sm">דרוש אישור לפעולות</span>
             </label>
           </div>

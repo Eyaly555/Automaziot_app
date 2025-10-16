@@ -1,6 +1,6 @@
 /**
  * AI Agent Instructions Template Library
- * 
+ *
  * Generates detailed AI agent implementation instructions
  */
 
@@ -18,7 +18,9 @@ export interface AIAgentInstructionParams {
   tone: string;
 }
 
-export function generateAIAgentInstructions(params: AIAgentInstructionParams): string {
+export function generateAIAgentInstructions(
+  params: AIAgentInstructionParams
+): string {
   const {
     agentName,
     department,
@@ -30,7 +32,7 @@ export function generateAIAgentInstructions(params: AIAgentInstructionParams): s
     integrationsEmail,
     integrationsCalendar,
     language,
-    tone
+    tone,
   } = params;
 
   return `
@@ -119,29 +121,41 @@ export function generateAIAgentInstructions(params: AIAgentInstructionParams): s
 
 #### 3. System Integrations
 
-${integrationsCrm ? `
+${
+  integrationsCrm
+    ? `
 **CRM Integration:**
 - Read customer data (name, history, status)
 - Write conversation logs
 - Update customer record (last contact, sentiment)
 - Create follow-up tasks
-` : ''}
+`
+    : ''
+}
 
-${integrationsEmail ? `
+${
+  integrationsEmail
+    ? `
 **Email Integration:**
 - Send automated responses
 - Send conversation transcripts
 - Send follow-up sequences
 - Track email delivery status
-` : ''}
+`
+    : ''
+}
 
-${integrationsCalendar ? `
+${
+  integrationsCalendar
+    ? `
 **Calendar Integration:**
 - Check availability
 - Book appointments
 - Send calendar invites
 - Handle rescheduling
-` : ''}
+`
+    : ''
+}
 
 #### 4. Training & Fine-tuning
 
@@ -230,10 +244,15 @@ function estimateMonthlyTokens(type: 'input' | 'output'): number {
   }
 }
 
-function estimateMonthlyCost(model: string, provider: string, department: string): number {
+function estimateMonthlyCost(
+  model: string,
+  provider: string,
+  department: string
+): number {
   // Rough cost estimates
-  const baseMultiplier = department === 'sales' ? 1.5 : department === 'service' ? 2.0 : 1.0;
-  
+  const baseMultiplier =
+    department === 'sales' ? 1.5 : department === 'service' ? 2.0 : 1.0;
+
   if (model.includes('gpt-4')) {
     return Math.round(150 * baseMultiplier);
   } else if (model.includes('gpt-3.5')) {
@@ -278,7 +297,8 @@ function generateSourceSystemSetup(system: string, trigger: string): string {
 
 function generateErrorHandlingInstructions(errorHandling: any): string {
   const strategy = errorHandling?.onError || 'retry';
-  const retryCount = errorHandling?.retryCount || errorHandling?.retryAttempts || 3;
+  const retryCount =
+    errorHandling?.retryCount || errorHandling?.retryAttempts || 3;
   const alertRecipients = errorHandling?.alertRecipients || [];
 
   return `
@@ -300,4 +320,3 @@ ${alertRecipients.length > 0 ? `- Email alerts to: ${alertRecipients.join(', ')}
 - Automatic retry queue for transient failures
   `.trim();
 }
-

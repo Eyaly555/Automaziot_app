@@ -10,7 +10,12 @@
 import React, { useState, useEffect } from 'react';
 import { Download, Trash2, FileText, Filter } from 'lucide-react';
 import { feedbackService } from '../../services/feedbackService';
-import type { FeedbackEntry, FeedbackStatus, FeedbackCategory, FeedbackPriority } from '../../types/feedback';
+import type {
+  FeedbackEntry,
+  FeedbackStatus,
+  FeedbackCategory,
+  FeedbackPriority,
+} from '../../types/feedback';
 
 /**
  * Feedback Viewer
@@ -24,9 +29,15 @@ import type { FeedbackEntry, FeedbackStatus, FeedbackCategory, FeedbackPriority 
  */
 export const FeedbackViewer: React.FC = () => {
   const [feedbacks, setFeedbacks] = useState<FeedbackEntry[]>([]);
-  const [filterStatus, setFilterStatus] = useState<FeedbackStatus | 'all'>('all');
-  const [filterCategory, setFilterCategory] = useState<FeedbackCategory | 'all'>('all');
-  const [filterPriority, setFilterPriority] = useState<FeedbackPriority | 'all'>('all');
+  const [filterStatus, setFilterStatus] = useState<FeedbackStatus | 'all'>(
+    'all'
+  );
+  const [filterCategory, setFilterCategory] = useState<
+    FeedbackCategory | 'all'
+  >('all');
+  const [filterPriority, setFilterPriority] = useState<
+    FeedbackPriority | 'all'
+  >('all');
   const [showFilters, setShowFilters] = useState(false);
 
   // Load feedbacks
@@ -39,10 +50,11 @@ export const FeedbackViewer: React.FC = () => {
   };
 
   // Apply filters
-  const filtered = feedbacks.filter(f =>
-    (filterStatus === 'all' || f.status === filterStatus) &&
-    (filterCategory === 'all' || f.category === filterCategory) &&
-    (filterPriority === 'all' || f.priority === filterPriority)
+  const filtered = feedbacks.filter(
+    (f) =>
+      (filterStatus === 'all' || f.status === filterStatus) &&
+      (filterCategory === 'all' || f.category === filterCategory) &&
+      (filterPriority === 'all' || f.priority === filterPriority)
   );
 
   // Sort by priority and date
@@ -97,14 +109,14 @@ export const FeedbackViewer: React.FC = () => {
     ui_ux: '🎨',
     error: '❌',
     performance: '⚡',
-    note: '📝'
+    note: '📝',
   };
 
   const priorityColors: Record<FeedbackPriority, string> = {
     urgent: 'bg-red-100 text-red-800 border-red-300',
     high: 'bg-orange-100 text-orange-800 border-orange-300',
     medium: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-    low: 'bg-green-100 text-green-800 border-green-300'
+    low: 'bg-green-100 text-green-800 border-green-300',
   };
 
   return (
@@ -113,7 +125,9 @@ export const FeedbackViewer: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">📝 ניהול פידבקים</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              📝 ניהול פידבקים
+            </h1>
             <p className="text-gray-600 mt-1">
               ניהול וייצוא פידבקים לבדיקה עם Claude Code
             </p>
@@ -146,19 +160,27 @@ export const FeedbackViewer: React.FC = () => {
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white border-2 border-gray-200 rounded-lg p-4">
-            <div className="text-3xl font-bold text-gray-900">{stats.total}</div>
+            <div className="text-3xl font-bold text-gray-900">
+              {stats.total}
+            </div>
             <div className="text-sm text-gray-600 mt-1">סה"כ פידבקים</div>
           </div>
           <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-4">
-            <div className="text-3xl font-bold text-orange-900">{stats.byStatus.todo}</div>
+            <div className="text-3xl font-bold text-orange-900">
+              {stats.byStatus.todo}
+            </div>
             <div className="text-sm text-orange-700 mt-1">📋 TODO</div>
           </div>
           <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
-            <div className="text-3xl font-bold text-blue-900">{stats.byStatus.doing}</div>
+            <div className="text-3xl font-bold text-blue-900">
+              {stats.byStatus.doing}
+            </div>
             <div className="text-sm text-blue-700 mt-1">🔄 בטיפול</div>
           </div>
           <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
-            <div className="text-3xl font-bold text-green-900">{stats.byStatus.done}</div>
+            <div className="text-3xl font-bold text-green-900">
+              {stats.byStatus.done}
+            </div>
             <div className="text-sm text-green-700 mt-1">✅ הושלם</div>
           </div>
         </div>
@@ -171,10 +193,12 @@ export const FeedbackViewer: React.FC = () => {
             <div className="grid grid-cols-3 gap-4">
               {/* Status Filter */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">סטטוס</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  סטטוס
+                </label>
                 <select
                   value={filterStatus}
-                  onChange={e => setFilterStatus(e.target.value as any)}
+                  onChange={(e) => setFilterStatus(e.target.value as any)}
                   className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="all">הכל</option>
@@ -186,10 +210,12 @@ export const FeedbackViewer: React.FC = () => {
 
               {/* Category Filter */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">קטגוריה</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  קטגוריה
+                </label>
                 <select
                   value={filterCategory}
-                  onChange={e => setFilterCategory(e.target.value as any)}
+                  onChange={(e) => setFilterCategory(e.target.value as any)}
                   className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="all">הכל</option>
@@ -204,10 +230,12 @@ export const FeedbackViewer: React.FC = () => {
 
               {/* Priority Filter */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">עדיפות</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  עדיפות
+                </label>
                 <select
                   value={filterPriority}
-                  onChange={e => setFilterPriority(e.target.value as any)}
+                  onChange={(e) => setFilterPriority(e.target.value as any)}
                   className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="all">הכל</option>
@@ -231,33 +259,53 @@ export const FeedbackViewer: React.FC = () => {
           {sorted.length === 0 ? (
             <div className="bg-white border-2 border-gray-200 rounded-lg p-12 text-center">
               <div className="text-6xl mb-4">📝</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">אין פידבקים</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                אין פידבקים
+              </h3>
               <p className="text-gray-600">
                 לחץ על הכפתור הסגול בפינה השמאלית כדי להוסיף פידבק
               </p>
             </div>
           ) : (
-            sorted.map(feedback => (
-              <div key={feedback.id} className="bg-white border-2 border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+            sorted.map((feedback) => (
+              <div
+                key={feedback.id}
+                className="bg-white border-2 border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow"
+              >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="text-2xl">{categoryIcons[feedback.category]}</span>
-                      <h3 className="text-xl font-bold text-gray-900">{feedback.title}</h3>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${priorityColors[feedback.priority]}`}>
+                      <span className="text-2xl">
+                        {categoryIcons[feedback.category]}
+                      </span>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        {feedback.title}
+                      </h3>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium border ${priorityColors[feedback.priority]}`}
+                      >
                         {feedback.priority}
                       </span>
                     </div>
                     <div className="flex items-center gap-3 text-sm text-gray-600">
-                      <span className="font-mono">{feedback.componentName}</span>
+                      <span className="font-mono">
+                        {feedback.componentName}
+                      </span>
                       <span>•</span>
-                      <span>{new Date(feedback.timestamp).toLocaleString('he-IL')}</span>
+                      <span>
+                        {new Date(feedback.timestamp).toLocaleString('he-IL')}
+                      </span>
                     </div>
                   </div>
                   <div className="flex gap-2">
                     <select
                       value={feedback.status}
-                      onChange={e => handleStatusChange(feedback.id, e.target.value as FeedbackStatus)}
+                      onChange={(e) =>
+                        handleStatusChange(
+                          feedback.id,
+                          e.target.value as FeedbackStatus
+                        )
+                      }
                       className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium"
                     >
                       <option value="todo">📋 TODO</option>
@@ -275,7 +323,9 @@ export const FeedbackViewer: React.FC = () => {
                 </div>
 
                 {feedback.description && (
-                  <p className="text-gray-700 mb-4 whitespace-pre-wrap">{feedback.description}</p>
+                  <p className="text-gray-700 mb-4 whitespace-pre-wrap">
+                    {feedback.description}
+                  </p>
                 )}
 
                 <div className="flex items-center gap-4 text-sm">

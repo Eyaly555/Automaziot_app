@@ -6,7 +6,7 @@ import {
   RadioGroup,
   NumberField,
   TextAreaField,
-  RatingField
+  RatingField,
 } from '../components/Common/FormFields';
 
 export const WIZARD_STEPS: WizardStep[] = [
@@ -27,10 +27,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'b2b2c', label: 'B2B2C - משולב' },
             { value: 'marketplace', label: 'מרקטפלייס' },
             { value: 'saas', label: 'SaaS' },
-            { value: 'other', label: 'אחר' }
+            { value: 'other', label: 'אחר' },
           ],
-          required: true
-        }
+          required: true,
+        },
       },
       {
         name: 'employees',
@@ -42,13 +42,13 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: '11-50', label: '11-50' },
             { value: '51-200', label: '51-200' },
             { value: '200-500', label: '200-500' },
-            { value: '500+', label: '500+' }
+            { value: '500+', label: '500+' },
           ],
-          required: true
-        }
-      }
+          required: true,
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
   {
     id: 'overview-challenges',
@@ -60,8 +60,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         component: TextAreaField,
         props: {
           label: 'מהו האתגר המרכזי שלכם היום?',
-          rows: 3
-        }
+          rows: 3,
+        },
       },
       {
         name: 'processes',
@@ -74,10 +74,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'service', label: 'שירות לקוחות' },
             { value: 'operations', label: 'תפעול' },
             { value: 'finance', label: 'כספים' },
-            { value: 'hr', label: 'משאבי אנוש' }
+            { value: 'hr', label: 'משאבי אנוש' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'currentSystems',
@@ -91,10 +91,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'accounting', label: 'חשבונאות' },
             { value: 'marketing', label: 'שיווק' },
             { value: 'ecommerce', label: 'מסחר אלקטרוני' },
-            { value: 'none', label: 'אין' }
+            { value: 'none', label: 'אין' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'mainGoals',
@@ -107,10 +107,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'improve_service', label: 'שיפור שירות' },
             { value: 'increase_sales', label: 'הגדלת מכירות' },
             { value: 'better_data', label: 'נתונים טובים יותר' },
-            { value: 'scale', label: 'התרחבות' }
+            { value: 'scale', label: 'התרחבות' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'budget',
@@ -123,12 +123,12 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: '30k-50k', label: '30,000-50,000 ₪' },
             { value: '50k-100k', label: '50,000-100,000 ₪' },
             { value: 'over_100k', label: 'מעל 100,000 ₪' },
-            { value: 'flexible', label: 'גמיש' }
-          ]
-        }
-      }
+            { value: 'flexible', label: 'גמיש' },
+          ],
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // ==================== LEADS AND SALES MODULE ====================
@@ -156,10 +156,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'tiktok', label: 'טיקטוק' },
             { value: 'youtube', label: 'יוטיוב' },
             { value: 'events', label: 'תערוכות/אירועים' },
-            { value: 'partners', label: 'שותפים עסקיים' }
+            { value: 'partners', label: 'שותפים עסקיים' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'leadSources.centralizationSystem',
@@ -170,9 +170,9 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'crm', label: 'CRM' },
             { value: 'excel', label: 'Excel' },
             { value: 'manual', label: 'רישום ידני' },
-            { value: 'scattered', label: 'מפוזר במקומות שונים' }
-          ]
-        }
+            { value: 'scattered', label: 'מפוזר במקומות שונים' },
+          ],
+        },
       },
       {
         name: 'leadSources.commonIssues',
@@ -180,14 +180,20 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'בעיות נפוצות בקליטת לידים',
           options: [
-            { value: 'channels_miss', label: 'יש ערוצים שהלידים מהם נופלים בין הכיסאות' },
-            { value: 'duplicates', label: 'כפילויות - אותו ליד נכנס כמה פעמים' },
+            {
+              value: 'channels_miss',
+              label: 'יש ערוצים שהלידים מהם נופלים בין הכיסאות',
+            },
+            {
+              value: 'duplicates',
+              label: 'כפילויות - אותו ליד נכנס כמה פעמים',
+            },
             { value: 'incomplete_info', label: 'מידע חסר בהרבה לידים' },
             { value: 'slow_processing', label: 'זמן רב עד שליד מטופל' },
-            { value: 'lead_loss', label: 'לידים נופלים לגמרי' }
+            { value: 'lead_loss', label: 'לידים נופלים לגמרי' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'leadSources.processingTime',
@@ -195,8 +201,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'זמן ממוצע לעיבוד ליד חדש (דקות)',
           min: 0,
-          suffix: 'דקות'
-        }
+          suffix: 'דקות',
+        },
       },
       {
         name: 'leadSources.lostLeadCost',
@@ -204,11 +210,11 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'עלות ליד שנפל (₪)',
           min: 0,
-          suffix: '₪'
-        }
-      }
+          suffix: '₪',
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 2.2 Speed to Lead
@@ -227,9 +233,9 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'quick', label: 'מהיר (5-30 דקות)' },
             { value: 'moderate', label: 'בינוני (30-60 דקות)' },
             { value: 'slow', label: 'איטי (1-3 שעות)' },
-            { value: 'very_slow', label: 'איטי מאוד (מעל 3 שעות)' }
-          ]
-        }
+            { value: 'very_slow', label: 'איטי מאוד (מעל 3 שעות)' },
+          ],
+        },
       },
       {
         name: 'speedToLead.responseTimeUnit',
@@ -239,9 +245,9 @@ export const WIZARD_STEPS: WizardStep[] = [
           options: [
             { value: 'minutes', label: 'דקות' },
             { value: 'hours', label: 'שעות' },
-            { value: 'days', label: 'ימים' }
-          ]
-        }
+            { value: 'days', label: 'ימים' },
+          ],
+        },
       },
       {
         name: 'speedToLead.afterHours',
@@ -251,9 +257,9 @@ export const WIZARD_STEPS: WizardStep[] = [
           options: [
             { value: 'no_response', label: 'אין מענה' },
             { value: 'partial', label: 'מענה חלקי (בוט/הודעה אוטומטית)' },
-            { value: 'full', label: 'מענה מלא' }
-          ]
-        }
+            { value: 'full', label: 'מענה מלא' },
+          ],
+        },
       },
       {
         name: 'speedToLead.weekendHolidays',
@@ -263,9 +269,9 @@ export const WIZARD_STEPS: WizardStep[] = [
           options: [
             { value: 'no', label: 'לא' },
             { value: 'limited', label: 'מוגבל' },
-            { value: 'yes', label: 'כן' }
-          ]
-        }
+            { value: 'yes', label: 'כן' },
+          ],
+        },
       },
       {
         name: 'speedToLead.unansweredPercentage',
@@ -274,8 +280,8 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'אחוז לידים שלא זוכים למענה כלל',
           min: 0,
           max: 100,
-          suffix: '%'
-        }
+          suffix: '%',
+        },
       },
       {
         name: 'speedToLead.whenUnavailable',
@@ -283,8 +289,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'מה קורה כאשר אף אחד לא זמין?',
           rows: 2,
-          placeholder: 'תאר מה קורה ללידים כשאף אחד לא זמין...'
-        }
+          placeholder: 'תאר מה קורה ללידים כשאף אחד לא זמין...',
+        },
       },
       {
         name: 'speedToLead.urgentVsRegular',
@@ -293,9 +299,9 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'האם יש הבדלה בין לידים דחופים לרגילים?',
           options: [
             { value: 'yes', label: 'כן - יש תהליך להבדיל' },
-            { value: 'no', label: 'לא - כולם מטופלים אותו דבר' }
-          ]
-        }
+            { value: 'no', label: 'לא - כולם מטופלים אותו דבר' },
+          ],
+        },
       },
       {
         name: 'speedToLead.urgentHandling',
@@ -303,8 +309,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'איך מטפלים בלידים דחופים באופן שונה?',
           rows: 2,
-          placeholder: 'תאר את ההבדל בטיפול בלידים דחופים...'
-        }
+          placeholder: 'תאר את ההבדל בטיפול בלידים דחופים...',
+        },
       },
       {
         name: 'speedToLead.opportunity',
@@ -312,11 +318,11 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'הזדמנות לשיפור במהירות תגובה',
           rows: 2,
-          placeholder: 'איפה רואים הזדמנות לשפר את מהירות התגובה?'
-        }
-      }
+          placeholder: 'איפה רואים הזדמנות לשפר את מהירות התגובה?',
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 2.3 ניתוב וסיווג לידים
@@ -335,10 +341,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'expertise', label: 'לפי התמחות' },
             { value: 'territory', label: 'לפי טריטוריה' },
             { value: 'load_balancing', label: 'איזון עומסים' },
-            { value: 'manual', label: 'ידני' }
+            { value: 'manual', label: 'ידני' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'leadRouting.methodDetails',
@@ -346,16 +352,16 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'פירוט שיטת החלוקה',
           rows: 2,
-          placeholder: 'תאר בפירוט איך עובדת שיטת חלוקת הלידים...'
-        }
+          placeholder: 'תאר בפירוט איך עובדת שיטת חלוקת הלידים...',
+        },
       },
       {
         name: 'leadRouting.unavailableHandler',
         component: TextAreaField,
         props: {
           label: 'מה קורה כשהנציג הרלוונטי לא זמין?',
-          rows: 2
-        }
+          rows: 2,
+        },
       },
       {
         name: 'leadRouting.hotLeadCriteria',
@@ -368,10 +374,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'fit', label: 'התאמה מושלמת למוצר' },
             { value: 'decision_maker', label: 'מקבל החלטות' },
             { value: 'referral', label: 'הגיע מהמלצה' },
-            { value: 'large_org', label: 'ארגון גדול' }
+            { value: 'large_org', label: 'ארגון גדול' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'leadRouting.customHotLeadCriteria',
@@ -379,8 +385,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'קריטריונים נוספים ללידים חמים (אופציונלי)',
           rows: 2,
-          placeholder: 'תאר קריטריונים ספציפיים נוספים שלכם...'
-        }
+          placeholder: 'תאר קריטריונים ספציפיים נוספים שלכם...',
+        },
       },
       {
         name: 'leadRouting.hotLeadPriority',
@@ -388,8 +394,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'איך מתעדפים לידים חמים?',
           rows: 2,
-          placeholder: 'תאר את תהליך התעדוף והטיפול בלידים חמים...'
-        }
+          placeholder: 'תאר את תהליך התעדוף והטיפול בלידים חמים...',
+        },
       },
       {
         name: 'leadRouting.aiPotential',
@@ -397,11 +403,11 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'פוטנציאל ל-AI בניתוב לידים',
           rows: 2,
-          placeholder: 'איפה AI יכול לסייע בניתוב וסיווג הלידים?'
-        }
-      }
+          placeholder: 'איפה AI יכול לסייע בניתוב וסיווג הלידים?',
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 2.4 מעקבים (Follow-up)
@@ -416,8 +422,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'כמה ניסיונות מעקב בממוצע?',
           min: 1,
-          max: 20
-        }
+          max: 20,
+        },
       },
       {
         name: 'followUp.day1Interval',
@@ -427,10 +433,10 @@ export const WIZARD_STEPS: WizardStep[] = [
           options: [
             { value: 'immediate', label: 'מיד אחרי הפנייה' },
             { value: 'same_day', label: 'באותו יום' },
-            { value: 'next_day', label: 'יום למחרת' }
+            { value: 'next_day', label: 'יום למחרת' },
           ],
-          orientation: 'horizontal'
-        }
+          orientation: 'horizontal',
+        },
       },
       {
         name: 'followUp.day3Interval',
@@ -441,10 +447,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'twice_daily', label: 'פעמיים ביום' },
             { value: 'daily', label: 'פעם ביום' },
             { value: 'every_two_days', label: 'כל יומיים' },
-            { value: 'none', label: 'לא עושים מעקב ביום 3' }
+            { value: 'none', label: 'לא עושים מעקב ביום 3' },
           ],
-          orientation: 'horizontal'
-        }
+          orientation: 'horizontal',
+        },
       },
       {
         name: 'followUp.day7Interval',
@@ -455,10 +461,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'daily', label: 'יומי' },
             { value: 'every_few_days', label: 'כל כמה ימים' },
             { value: 'weekly', label: 'שבועי' },
-            { value: 'none', label: 'לא עושים מעקב ביום 7' }
+            { value: 'none', label: 'לא עושים מעקב ביום 7' },
           ],
-          orientation: 'horizontal'
-        }
+          orientation: 'horizontal',
+        },
       },
       {
         name: 'followUp.channels',
@@ -471,10 +477,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'email', label: 'אימייל' },
             { value: 'phone', label: 'טלפון' },
             { value: 'linkedin', label: 'LinkedIn' },
-            { value: 'facebook', label: 'Facebook Messenger' }
+            { value: 'facebook', label: 'Facebook Messenger' },
           ],
-          columns: 3
-        }
+          columns: 3,
+        },
       },
       {
         name: 'followUp.dropoffRate',
@@ -483,8 +489,8 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'אחוז נשירה מחוסר מעקב',
           min: 0,
           max: 100,
-          suffix: '%'
-        }
+          suffix: '%',
+        },
       },
       {
         name: 'followUp.notNowHandling',
@@ -492,8 +498,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'איך מטפלים בלידים ש"לא עכשיו"?',
           rows: 2,
-          placeholder: 'תאר את תהליך הטיפול בלידים שלא מוכנים כרגע...'
-        }
+          placeholder: 'תאר את תהליך הטיפול בלידים שלא מוכנים כרגע...',
+        },
       },
       {
         name: 'followUp.nurturing',
@@ -503,9 +509,9 @@ export const WIZARD_STEPS: WizardStep[] = [
           options: [
             { value: 'yes', label: 'כן - יש תהליך מסודר' },
             { value: 'partial', label: 'חלקי - עושים קצת' },
-            { value: 'no', label: 'לא - אין תהליך' }
-          ]
-        }
+            { value: 'no', label: 'לא - אין תהליך' },
+          ],
+        },
       },
       {
         name: 'followUp.nurturingDescription',
@@ -513,8 +519,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'תיאור תהליך הנרטורינג',
           rows: 2,
-          placeholder: 'תאר את תהליך חימום הלידים (אם קיים)...'
-        }
+          placeholder: 'תאר את תהליך חימום הלידים (אם קיים)...',
+        },
       },
       {
         name: 'followUp.customerJourneyOpportunity',
@@ -522,11 +528,11 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'הזדמנות לשיפור במסע הלקוח',
           rows: 2,
-          placeholder: 'איפה רואים הזדמנות לשפר את מסע הלקוח?'
-        }
-      }
+          placeholder: 'איפה רואים הזדמנות לשפר את מסע הלקוח?',
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 2.5 קביעת פגישות וזימונים
@@ -542,8 +548,8 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'זמן ממוצע לתיאום פגישה (בדקות)',
           min: 1,
           max: 120,
-          suffix: 'דקות'
-        }
+          suffix: 'דקות',
+        },
       },
       {
         name: 'appointments.messagesPerScheduling',
@@ -551,8 +557,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'כמה הודעות/שיחות לתיאום בממוצע?',
           min: 1,
-          max: 50
-        }
+          max: 50,
+        },
       },
       {
         name: 'appointments.cancellationRate',
@@ -561,8 +567,8 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'אחוז ביטולים',
           min: 0,
           max: 100,
-          suffix: '%'
-        }
+          suffix: '%',
+        },
       },
       {
         name: 'appointments.noShowRate',
@@ -571,8 +577,8 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'אחוז No-Show (לא הגיעו)',
           min: 0,
           max: 100,
-          suffix: '%'
-        }
+          suffix: '%',
+        },
       },
       {
         name: 'appointments.multipleParticipants',
@@ -582,17 +588,17 @@ export const WIZARD_STEPS: WizardStep[] = [
           options: [
             { value: 'yes', label: 'כן - לעיתים קרובות' },
             { value: 'sometimes', label: 'לפעמים' },
-            { value: 'no', label: 'לא' }
-          ]
-        }
+            { value: 'no', label: 'לא' },
+          ],
+        },
       },
       {
         name: 'appointments.changesPerWeek',
         component: NumberField,
         props: {
           label: 'כמה שינויים/דחיות בשבוע?',
-          min: 0
-        }
+          min: 0,
+        },
       },
       {
         name: 'appointments.reminders',
@@ -603,10 +609,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'day_before', label: 'יום לפני' },
             { value: 'hour_before', label: 'שעה לפני' },
             { value: 'morning_of', label: 'בבוקר של היום' },
-            { value: 'other', label: 'אחר' }
+            { value: 'other', label: 'אחר' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'appointments.reminderChannels',
@@ -617,18 +623,18 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'sms', label: 'SMS' },
             { value: 'whatsapp', label: 'WhatsApp' },
             { value: 'email', label: 'אימייל' },
-            { value: 'phone', label: 'שיחת טלפון' }
+            { value: 'phone', label: 'שיחת טלפון' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'appointments.reminders.customTime',
         component: TextField,
         props: {
           label: 'זמן תזכורת מותאם אישית (אופציונלי)',
-          placeholder: 'לדוגמה: שעתיים לפני, 30 דקות לפני...'
-        }
+          placeholder: 'לדוגמה: שעתיים לפני, 30 דקות לפני...',
+        },
       },
       {
         name: 'appointments.criticalPain',
@@ -638,12 +644,12 @@ export const WIZARD_STEPS: WizardStep[] = [
           options: [
             { value: 'yes', label: 'כן - זה מאתגר מאוד' },
             { value: 'somewhat', label: 'במידה מסוימת' },
-            { value: 'no', label: 'לא - זה זורם טוב' }
-          ]
-        }
-      }
+            { value: 'no', label: 'לא - זה זורם טוב' },
+          ],
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // ==================== CUSTOMER SERVICE MODULE ====================
@@ -664,15 +670,15 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'email', label: 'אימייל' },
             { value: 'facebook', label: 'פייסבוק' },
             { value: 'instagram', label: 'אינסטגרם' },
-            { value: 'chat', label: 'צ\'אט באתר' },
+            { value: 'chat', label: "צ'אט באתר" },
             { value: 'sms', label: 'SMS' },
             { value: 'inperson', label: 'פרונטלי' },
             { value: 'telegram', label: 'טלגרם' },
             { value: 'tiktok', label: 'טיקטוק' },
-            { value: 'linkedin', label: 'לינקדאין' }
+            { value: 'linkedin', label: 'לינקדאין' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'channels.crossChannelIssue',
@@ -682,9 +688,9 @@ export const WIZARD_STEPS: WizardStep[] = [
           options: [
             { value: 'critical', label: 'כן, זו בעיה קריטית' },
             { value: 'minor', label: 'קורה, אבל לא משהו קריטי' },
-            { value: 'no', label: 'לא, אין כזו בעיה' }
-          ]
-        }
+            { value: 'no', label: 'לא, אין כזו בעיה' },
+          ],
+        },
       },
       {
         name: 'multiChannelIssue',
@@ -692,8 +698,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'תיאור בעיית ריבוי ערוצים',
           rows: 2,
-          placeholder: 'תאר מה קורה כשלקוח פונה בכמה ערוצים על אותו נושא...'
-        }
+          placeholder: 'תאר מה קורה כשלקוח פונה בכמה ערוצים על אותו נושא...',
+        },
       },
       {
         name: 'channels.unificationMethod',
@@ -703,12 +709,12 @@ export const WIZARD_STEPS: WizardStep[] = [
           options: [
             { value: 'unified_system', label: 'מערכת מאוחדת - הכל במקום אחד' },
             { value: 'manual', label: 'ידני - עוברים בין מערכות' },
-            { value: 'none', label: 'לא מאחדים - כל ערוץ עובד בנפרד' }
-          ]
-        }
-      }
+            { value: 'none', label: 'לא מאחדים - כל ערוץ עובד בנפרד' },
+          ],
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 3.2 מענה אוטומטי ושאלות נפוצות
@@ -730,10 +736,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'schedule', label: 'קביעת תור' },
             { value: 'payment_inquiry', label: 'בירור תשלום' },
             { value: 'technical_support', label: 'תמיכה טכנית' },
-            { value: 'refund', label: 'בקשת החזר כספי' }
+            { value: 'refund', label: 'בקשת החזר כספי' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'autoResponse.automationPotential',
@@ -742,11 +748,11 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'אחוז שאלות שחוזרות על עצמן',
           min: 0,
           max: 100,
-          suffix: '%'
-        }
-      }
+          suffix: '%',
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 3.3 תקשורת יזומה ועדכונים
@@ -766,10 +772,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'before_completion', label: 'לפני סיום' },
             { value: 'periodic', label: 'תקופתי' },
             { value: 'milestones', label: 'באבני דרך' },
-            { value: 'post_resolution', label: 'אחרי פתרון בעיה' }
+            { value: 'post_resolution', label: 'אחרי פתרון בעיה' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'proactiveCommunication.updateChannelMapping',
@@ -777,8 +783,9 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'איזה עדכון באיזה ערוץ?',
           rows: 3,
-          placeholder: 'תאר איזה סוג עדכונים שולחים באיזה ערוץ (SMS, WhatsApp, Email, וכו...)...'
-        }
+          placeholder:
+            'תאר איזה סוג עדכונים שולחים באיזה ערוץ (SMS, WhatsApp, Email, וכו...)...',
+        },
       },
       {
         name: 'proactiveCommunication.whatMattersToCustomers',
@@ -786,8 +793,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'מה באמת חשוב ללקוחות לדעת?',
           rows: 3,
-          placeholder: 'תאר את המידע הכי חשוב שלקוחות רוצים לקבל...'
-        }
+          placeholder: 'תאר את המידע הכי חשוב שלקוחות רוצים לקבל...',
+        },
       },
       {
         name: 'proactiveCommunication.customerNeeds',
@@ -795,8 +802,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'מה חשוב ללקוחות לדעת?',
           rows: 3,
-          placeholder: 'תאר מה הלקוחות רוצים לדעת בכל שלב...'
-        }
+          placeholder: 'תאר מה הלקוחות רוצים לדעת בכל שלב...',
+        },
       },
       {
         name: 'proactiveCommunication.frequency',
@@ -809,9 +816,9 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'monthly', label: 'חודשי' },
             { value: 'quarterly', label: 'רבעוני' },
             { value: 'rarely', label: 'נדיר' },
-            { value: 'never', label: 'אף פעם' }
-          ]
-        }
+            { value: 'never', label: 'אף פעם' },
+          ],
+        },
       },
       {
         name: 'proactiveCommunication.contentType',
@@ -823,10 +830,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'value', label: 'ערך מוסף' },
             { value: 'updates', label: 'עדכונים' },
             { value: 'educational', label: 'חינוכי' },
-            { value: 'seasonal', label: 'עונתי' }
+            { value: 'seasonal', label: 'עונתי' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'proactiveCommunication.preparationHours',
@@ -834,11 +841,11 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'שעות הכנת עדכונים בשבוע',
           min: 0,
-          suffix: 'שעות'
-        }
-      }
+          suffix: 'שעות',
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 3.4 ניהול קהילות ואירועים
@@ -854,18 +861,19 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'האם יש לכם קהילת לקוחות?',
           options: [
             { value: 'yes', label: 'כן' },
-            { value: 'no', label: 'לא' }
-          ]
-        }
+            { value: 'no', label: 'לא' },
+          ],
+        },
       },
       {
         name: 'communityManagement.size',
         component: NumberField,
         props: {
           label: 'גודל הקהילה',
-          min: 0
+          min: 0,
         },
-        skipCondition: (data) => data.modules.customerService?.communityManagement?.exists !== 'yes'
+        skipCondition: (data) =>
+          data.modules.customerService?.communityManagement?.exists !== 'yes',
       },
       {
         name: 'communityManagement.platforms',
@@ -880,11 +888,12 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'slack', label: 'Slack' },
             { value: 'forum', label: 'פורום' },
             { value: 'instagram', label: 'Instagram' },
-            { value: 'youtube', label: 'YouTube' }
+            { value: 'youtube', label: 'YouTube' },
           ],
-          columns: 2
+          columns: 2,
         },
-        skipCondition: (data) => data.modules.customerService?.communityManagement?.exists !== 'yes'
+        skipCondition: (data) =>
+          data.modules.customerService?.communityManagement?.exists !== 'yes',
       },
       {
         name: 'communityManagement.challenges',
@@ -897,19 +906,20 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'low_engagement', label: 'Engagement נמוך' },
             { value: 'moderation', label: 'מודרציה' },
             { value: 'spam', label: 'ספאם' },
-            { value: 'multiple_platforms', label: 'ניהול מספר פלטפורמות' }
+            { value: 'multiple_platforms', label: 'ניהול מספר פלטפורמות' },
           ],
-          columns: 2
+          columns: 2,
         },
-        skipCondition: (data) => data.modules.customerService?.communityManagement?.exists !== 'yes'
+        skipCondition: (data) =>
+          data.modules.customerService?.communityManagement?.exists !== 'yes',
       },
       {
         name: 'communityManagement.eventsPerMonth',
         component: NumberField,
         props: {
           label: 'אירועים/וובינרים לחודש',
-          min: 0
-        }
+          min: 0,
+        },
       },
       {
         name: 'communityManagement.registrationManagement',
@@ -919,9 +929,9 @@ export const WIZARD_STEPS: WizardStep[] = [
           options: [
             { value: 'manual', label: 'ידני' },
             { value: 'system', label: 'מערכת' },
-            { value: 'mixed', label: 'משולב' }
-          ]
-        }
+            { value: 'mixed', label: 'משולב' },
+          ],
+        },
       },
       {
         name: 'communityManagement.attendanceRate',
@@ -930,11 +940,11 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'אחוז הגעה בפועל',
           min: 0,
           max: 100,
-          suffix: '%'
-        }
-      }
+          suffix: '%',
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 3.5 ניהול מוניטין ומשוב
@@ -953,10 +963,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'periodic', label: 'תקופתי' },
             { value: 'post_service', label: 'אחרי שירות' },
             { value: 'post_complaint', label: 'אחרי תלונה' },
-            { value: 'random', label: 'אקראי' }
+            { value: 'random', label: 'אקראי' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'reputationManagement.collectionMethod',
@@ -969,10 +979,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'sms', label: 'SMS' },
             { value: 'email', label: 'אימייל' },
             { value: 'whatsapp', label: 'WhatsApp' },
-            { value: 'app', label: 'אפליקציה' }
+            { value: 'app', label: 'אפליקציה' },
           ],
-          columns: 3
-        }
+          columns: 3,
+        },
       },
       {
         name: 'reputationManagement.responseRate',
@@ -981,8 +991,8 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'אחוז תגובה למשוב',
           min: 0,
           max: 100,
-          suffix: '%'
-        }
+          suffix: '%',
+        },
       },
       {
         name: 'reputationManagement.actionTaken',
@@ -990,16 +1000,16 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'מה עושים עם המשוב?',
           rows: 2,
-          placeholder: 'תאר איך משתמשים במשוב שנאסף...'
-        }
+          placeholder: 'תאר איך משתמשים במשוב שנאסף...',
+        },
       },
       {
         name: 'reputationManagement.reviewsPerMonth',
         component: NumberField,
         props: {
           label: 'כמה ביקורות מקבלים בחודש?',
-          min: 0
-        }
+          min: 0,
+        },
       },
       {
         name: 'reputationManagement.platforms',
@@ -1012,29 +1022,29 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'website', label: 'אתר' },
             { value: 'tripadvisor', label: 'TripAdvisor' },
             { value: 'yelp', label: 'Yelp' },
-            { value: 'zap', label: 'זאפ' }
+            { value: 'zap', label: 'זאפ' },
           ],
-          columns: 3
-        }
+          columns: 3,
+        },
       },
       {
         name: 'reputationManagement.encouragementStrategy',
         component: TextAreaField,
         props: {
           label: 'אסטרטגיה לעידוד ביקורות חיוביות',
-          rows: 2
-        }
+          rows: 2,
+        },
       },
       {
         name: 'reputationManagement.negativeHandling',
         component: TextAreaField,
         props: {
           label: 'איך מטפלים בביקורות שליליות?',
-          rows: 2
-        }
-      }
+          rows: 2,
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 3.6 Onboarding לקוחות חדשים
@@ -1049,8 +1059,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'תאר את תהליך ההטמעה של לקוחות חדשים',
           rows: 3,
-          placeholder: 'תאר את השלבים מרגע שלקוח חדש מצטרף...'
-        }
+          placeholder: 'תאר את השלבים מרגע שלקוח חדש מצטרף...',
+        },
       },
       {
         name: 'onboarding.followUpChecks',
@@ -1063,10 +1073,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: '2_weeks', label: 'אחרי שבועיים' },
             { value: '1_month', label: 'אחרי חודש' },
             { value: '3_months', label: 'אחרי 3 חודשים' },
-            { value: '6_months', label: 'אחרי חצי שנה' }
+            { value: '6_months', label: 'אחרי חצי שנה' },
           ],
-          columns: 3
-        }
+          columns: 3,
+        },
       },
       {
         name: 'onboarding.missingDataAlerts',
@@ -1075,9 +1085,9 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'האם יש התראות על חוסרים בתהליך?',
           options: [
             { value: 'yes', label: 'כן - יש מערכת התראות' },
-            { value: 'no', label: 'לא - אין התראות' }
-          ]
-        }
+            { value: 'no', label: 'לא - אין התראות' },
+          ],
+        },
       },
       {
         name: 'onboarding.commonIssues',
@@ -1085,11 +1095,11 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'בעיות נפוצות בקליטה',
           rows: 2,
-          placeholder: 'תאר בעיות נפוצות שמתעוררות בתהליך הקליטה...'
-        }
-      }
+          placeholder: 'תאר בעיות נפוצות שמתעוררות בתהליך הקליטה...',
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // ==================== OPERATIONS MODULE ====================
@@ -1110,10 +1120,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'missing_info', label: 'מידע חסר' },
             { value: 'communication', label: 'תקשורת לקויה' },
             { value: 'approval_delays', label: 'עיכובי אישורים' },
-            { value: 'resource_shortage', label: 'מחסור במשאבים' }
+            { value: 'resource_shortage', label: 'מחסור במשאבים' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'workProcesses.errorTrackingSystem',
@@ -1125,9 +1135,9 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'manual', label: 'רישום ידני' },
             { value: 'excel', label: 'Excel' },
             { value: 'system', label: 'מערכת ייעודית' },
-            { value: 'crm', label: 'ב-CRM' }
-          ]
-        }
+            { value: 'crm', label: 'ב-CRM' },
+          ],
+        },
       },
       {
         name: 'workProcesses.processDocumentation',
@@ -1135,8 +1145,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'תיעוד תהליכים',
           rows: 3,
-          placeholder: 'איך מתועדים התהליכים בארגון? האם יש נהלי עבודה כתובים?'
-        }
+          placeholder: 'איך מתועדים התהליכים בארגון? האם יש נהלי עבודה כתובים?',
+        },
       },
       {
         name: 'workProcesses.automationReadiness',
@@ -1145,11 +1155,11 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'בשלות לאוטומציה (0-100%)',
           min: 0,
           max: 100,
-          suffix: '%'
-        }
-      }
+          suffix: '%',
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 4.2 ניהול מסמכים
@@ -1169,10 +1179,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'sharepoint', label: 'SharePoint' },
             { value: 'local_server', label: 'שרת מקומי' },
             { value: 'physical', label: 'ארכיב פיזי' },
-            { value: 'cloud', label: 'ענן אחר' }
+            { value: 'cloud', label: 'ענן אחר' },
           ],
-          columns: 3
-        }
+          columns: 3,
+        },
       },
       {
         name: 'documentManagement.searchDifficulties',
@@ -1180,8 +1190,9 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'קשיים באיתור מסמכים',
           rows: 3,
-          placeholder: 'תאר קשיים באיתור מסמכים, זמן חיפוש ממוצע, בעיות בארגון התיקיות...'
-        }
+          placeholder:
+            'תאר קשיים באיתור מסמכים, זמן חיפוש ממוצע, בעיות בארגון התיקיות...',
+        },
       },
       {
         name: 'documentManagement.versionControlMethod',
@@ -1193,9 +1204,9 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'manual_naming', label: 'שמות ידניים (v1, v2)' },
             { value: 'system', label: 'מערכת אוטומטית' },
             { value: 'sharepoint', label: 'SharePoint versions' },
-            { value: 'git', label: 'Git או דומה' }
-          ]
-        }
+            { value: 'git', label: 'Git או דומה' },
+          ],
+        },
       },
       {
         name: 'documentManagement.approvalWorkflow',
@@ -1203,8 +1214,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'תהליכי אישור',
           rows: 2,
-          placeholder: 'תאר את שרשרת האישורים הנדרשת למסמכים שונים'
-        }
+          placeholder: 'תאר את שרשרת האישורים הנדרשת למסמכים שונים',
+        },
       },
       {
         name: 'documentManagement.documentRetention',
@@ -1212,11 +1223,11 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'תקופת שמירת מסמכים (שנים)',
           min: 0,
-          suffix: 'שנים'
-        }
-      }
+          suffix: 'שנים',
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 4.3 ניהול פרויקטים
@@ -1237,10 +1248,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'jira', label: 'Jira' },
             { value: 'notion', label: 'Notion' },
             { value: 'excel', label: 'Excel' },
-            { value: 'ms_project', label: 'MS Project' }
+            { value: 'ms_project', label: 'MS Project' },
           ],
-          columns: 3
-        }
+          columns: 3,
+        },
       },
       {
         name: 'projectManagement.taskCreationSources',
@@ -1254,10 +1265,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'whatsapp', label: 'WhatsApp' },
             { value: 'crm', label: 'CRM' },
             { value: 'customers', label: 'פניות לקוחות' },
-            { value: 'internal', label: 'יוזמות פנימיות' }
+            { value: 'internal', label: 'יוזמות פנימיות' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'projectManagement.resourceAllocationMethod',
@@ -1269,9 +1280,9 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'manual', label: 'ידני לפי זמינות' },
             { value: 'rotation', label: 'תורנות' },
             { value: 'skills', label: 'לפי כישורים' },
-            { value: 'automated', label: 'אוטומטי במערכת' }
-          ]
-        }
+            { value: 'automated', label: 'אוטומטי במערכת' },
+          ],
+        },
       },
       {
         name: 'projectManagement.timelineAccuracy',
@@ -1280,8 +1291,8 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'דיוק בהערכת זמנים (0-100%)',
           min: 0,
           max: 100,
-          suffix: '%'
-        }
+          suffix: '%',
+        },
       },
       {
         name: 'projectManagement.projectVisibility',
@@ -1292,10 +1303,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'none', label: 'אין שקיפות' },
             { value: 'meetings', label: 'רק בישיבות' },
             { value: 'dashboard', label: 'דשבורד משותף' },
-            { value: 'realtime', label: 'עדכון בזמן אמת' }
+            { value: 'realtime', label: 'עדכון בזמן אמת' },
           ],
-          orientation: 'horizontal'
-        }
+          orientation: 'horizontal',
+        },
       },
       {
         name: 'projectManagement.deadlineMissRate',
@@ -1304,11 +1315,11 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'אחוז פרויקטים שחורגים מלוח הזמנים',
           min: 0,
           max: 100,
-          suffix: '%'
-        }
-      }
+          suffix: '%',
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 4.4 משאבי אנוש
@@ -1322,8 +1333,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         component: NumberField,
         props: {
           label: 'מספר שלבים בקליטת עובד',
-          min: 0
-        }
+          min: 0,
+        },
       },
       {
         name: 'hr.onboardingDuration',
@@ -1331,8 +1342,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'משך קליטת עובד (ימים)',
           min: 0,
-          suffix: 'ימים'
-        }
+          suffix: 'ימים',
+        },
       },
       {
         name: 'hr.trainingRequirements',
@@ -1346,10 +1357,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'safety', label: 'בטיחות' },
             { value: 'compliance', label: 'ציות ורגולציה' },
             { value: 'soft_skills', label: 'מיומנויות רכות' },
-            { value: 'technical', label: 'הכשרה טכנית' }
+            { value: 'technical', label: 'הכשרה טכנית' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'hr.performanceReviewFrequency',
@@ -1361,9 +1372,9 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'annual', label: 'שנתי' },
             { value: 'biannual', label: 'חצי שנתי' },
             { value: 'quarterly', label: 'רבעוני' },
-            { value: 'monthly', label: 'חודשי' }
-          ]
-        }
+            { value: 'monthly', label: 'חודשי' },
+          ],
+        },
       },
       {
         name: 'hr.employeeTurnoverRate',
@@ -1372,8 +1383,8 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'שיעור תחלופת עובדים שנתי',
           min: 0,
           max: 100,
-          suffix: '%'
-        }
+          suffix: '%',
+        },
       },
       {
         name: 'hr.hrSystemsInUse',
@@ -1386,13 +1397,13 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'sap', label: 'SAP' },
             { value: 'workday', label: 'Workday' },
             { value: 'excel', label: 'Excel' },
-            { value: 'paper', label: 'ידני/נייר' }
+            { value: 'paper', label: 'ידני/נייר' },
           ],
-          columns: 3
-        }
-      }
+          columns: 3,
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 4.5 לוגיסטיקה
@@ -1412,9 +1423,9 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'excel', label: 'Excel' },
             { value: 'erp', label: 'מערכת ERP' },
             { value: 'wms', label: 'מערכת WMS' },
-            { value: 'rfid', label: 'RFID/ברקוד' }
-          ]
-        }
+            { value: 'rfid', label: 'RFID/ברקוד' },
+          ],
+        },
       },
       {
         name: 'logistics.shippingProcesses',
@@ -1427,18 +1438,18 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'post', label: 'דואר ישראל' },
             { value: 'pickup', label: 'איסוף עצמי' },
             { value: 'dropshipping', label: 'Dropshipping' },
-            { value: 'third_party', label: 'צד שלישי' }
+            { value: 'third_party', label: 'צד שלישי' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'logistics.supplierCount',
         component: NumberField,
         props: {
           label: 'מספר ספקים פעילים',
-          min: 0
-        }
+          min: 0,
+        },
       },
       {
         name: 'logistics.orderFulfillmentTime',
@@ -1446,8 +1457,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'זמן ממוצע למימוש הזמנה (ימים)',
           min: 0,
-          suffix: 'ימים'
-        }
+          suffix: 'ימים',
+        },
       },
       {
         name: 'logistics.warehouseOperations',
@@ -1461,10 +1472,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'picking', label: 'ליקוט' },
             { value: 'packing', label: 'אריזה' },
             { value: 'shipping', label: 'משלוח' },
-            { value: 'returns', label: 'החזרות' }
+            { value: 'returns', label: 'החזרות' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'logistics.deliveryIssues',
@@ -1472,8 +1483,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'בעיות במשלוחים',
           rows: 3,
-          placeholder: 'תאר בעיות נפוצות במשלוחים, איחורים, נזקים...'
-        }
+          placeholder: 'תאר בעיות נפוצות במשלוחים, איחורים, נזקים...',
+        },
       },
       {
         name: 'logistics.returnProcessTime',
@@ -1481,8 +1492,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'זמן טיפול בהחזרה (ימים)',
           min: 0,
-          suffix: 'ימים'
-        }
+          suffix: 'ימים',
+        },
       },
       {
         name: 'logistics.inventoryAccuracy',
@@ -1491,11 +1502,11 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'דיוק מלאי (0-100%)',
           min: 0,
           max: 100,
-          suffix: '%'
-        }
-      }
+          suffix: '%',
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // ==================== REPORTING MODULE ====================
@@ -1517,13 +1528,13 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'system_error', label: 'תקלת מערכת' },
             { value: 'customer_complaint', label: 'תלונת לקוח' },
             { value: 'stock_low', label: 'מלאי נמוך' },
-            { value: 'deadline_approaching', label: 'דדליין מתקרב' }
+            { value: 'deadline_approaching', label: 'דדליין מתקרב' },
           ],
-          columns: 2
-        }
-      }
+          columns: 2,
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 5.2 דוחות מתוזמנים
@@ -1542,13 +1553,13 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'marketing', label: 'דוח שיווק' },
             { value: 'service', label: 'דוח שירות' },
             { value: 'financial', label: 'דוח פיננסי' },
-            { value: 'operations', label: 'דוח תפעולי' }
+            { value: 'operations', label: 'דוח תפעולי' },
           ],
-          columns: 2
-        }
-      }
+          columns: 2,
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 5.3 KPIs ודשבורדים
@@ -1563,8 +1574,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'מהם ה-KPIs העיקריים שאתם מודדים?',
           rows: 3,
-          placeholder: 'רשום את המדדים המרכזיים...'
-        }
+          placeholder: 'רשום את המדדים המרכזיים...',
+        },
       },
       {
         name: 'dashboards.exists',
@@ -1573,9 +1584,9 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'האם יש לכם דשבורדים?',
           options: [
             { value: 'yes', label: 'כן' },
-            { value: 'no', label: 'לא' }
-          ]
-        }
+            { value: 'no', label: 'לא' },
+          ],
+        },
       },
       {
         name: 'dashboards.realTime',
@@ -1584,10 +1595,11 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'האם הדשבורדים בזמן אמת?',
           options: [
             { value: 'yes', label: 'כן, מתעדכן אוטומטית' },
-            { value: 'no', label: 'לא, עדכון ידני' }
-          ]
+            { value: 'no', label: 'לא, עדכון ידני' },
+          ],
         },
-        skipCondition: (data) => data.modules.reporting?.dashboards?.exists !== 'yes'
+        skipCondition: (data) =>
+          data.modules.reporting?.dashboards?.exists !== 'yes',
       },
       {
         name: 'dashboards.anomalyDetection',
@@ -1597,14 +1609,15 @@ export const WIZARD_STEPS: WizardStep[] = [
           options: [
             { value: 'automatic', label: 'אוטומטי' },
             { value: 'manual', label: 'ידני' },
-            { value: 'none', label: 'אין' }
+            { value: 'none', label: 'אין' },
           ],
-          orientation: 'horizontal'
+          orientation: 'horizontal',
         },
-        skipCondition: (data) => data.modules.reporting?.dashboards?.exists !== 'yes'
-      }
+        skipCondition: (data) =>
+          data.modules.reporting?.dashboards?.exists !== 'yes',
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // ==================== AI AGENTS MODULE ====================
@@ -1629,26 +1642,26 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'sales_insights', label: 'ניתוח ותובנות מכירות' },
             { value: 'personalization', label: 'התאמה אישית ללקוחות' },
             { value: 'predictive', label: 'חיזוי סגירת עסקאות' },
-            { value: 'chatbot', label: 'בוט מכירות חכם' }
+            { value: 'chatbot', label: 'בוט מכירות חכם' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'sales.customUseCase',
         component: TextField,
         props: {
           label: 'מקרה שימוש נוסף',
-          placeholder: 'תאר מקרה שימוש ספציפי נוסף...'
-        }
+          placeholder: 'תאר מקרה שימוש ספציפי נוסף...',
+        },
       },
       {
         name: 'sales.potential',
         component: RatingField,
         props: {
           label: 'פוטנציאל השפעה על המכירות (1-5)',
-          helperText: 'עד כמה AI יכול להשפיע על תהליכי המכירות?'
-        }
+          helperText: 'עד כמה AI יכול להשפיע על תהליכי המכירות?',
+        },
       },
       {
         name: 'sales.readiness',
@@ -1661,12 +1674,12 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'short', label: 'טווח קצר - תוך 3 חודשים' },
             { value: 'medium', label: 'טווח בינוני - תוך 6 חודשים' },
             { value: 'long', label: 'טווח ארוך - מעל 6 חודשים' },
-            { value: 'not_ready', label: 'לא מוכנים כרגע' }
-          ]
-        }
-      }
+            { value: 'not_ready', label: 'לא מוכנים כרגע' },
+          ],
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 6.2 AI בשירות
@@ -1690,26 +1703,26 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'ticket_classification', label: 'סיווג פניות אוטומטי' },
             { value: 'priority', label: 'תעדוף אוטומטי' },
             { value: 'translation', label: 'תרגום אוטומטי' },
-            { value: 'summary', label: 'סיכום שיחות' }
+            { value: 'summary', label: 'סיכום שיחות' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'service.customUseCase',
         component: TextField,
         props: {
           label: 'מקרה שימוש נוסף',
-          placeholder: 'תאר מקרה שימוש ספציפי נוסף...'
-        }
+          placeholder: 'תאר מקרה שימוש ספציפי נוסף...',
+        },
       },
       {
         name: 'service.potential',
         component: RatingField,
         props: {
           label: 'פוטנציאל השפעה על השירות (1-5)',
-          helperText: 'עד כמה AI יכול לשפר את השירות?'
-        }
+          helperText: 'עד כמה AI יכול לשפר את השירות?',
+        },
       },
       {
         name: 'service.readiness',
@@ -1722,12 +1735,12 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'short', label: 'טווח קצר - תוך 3 חודשים' },
             { value: 'medium', label: 'טווח בינוני - תוך 6 חודשים' },
             { value: 'long', label: 'טווח ארוך - מעל 6 חודשים' },
-            { value: 'not_ready', label: 'לא מוכנים כרגע' }
-          ]
-        }
-      }
+            { value: 'not_ready', label: 'לא מוכנים כרגע' },
+          ],
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 6.3 AI בתפעול
@@ -1751,26 +1764,26 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'quality_control', label: 'בקרת איכות אוטומטית' },
             { value: 'inventory', label: 'ניהול מלאי חכם' },
             { value: 'predictive_maintenance', label: 'תחזוקה חזויה' },
-            { value: 'workflow_optimization', label: 'אופטימיזציה של תהליכים' }
+            { value: 'workflow_optimization', label: 'אופטימיזציה של תהליכים' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'operations.customUseCase',
         component: TextField,
         props: {
           label: 'מקרה שימוש נוסף',
-          placeholder: 'תאר מקרה שימוש ספציפי נוסף...'
-        }
+          placeholder: 'תאר מקרה שימוש ספציפי נוסף...',
+        },
       },
       {
         name: 'operations.potential',
         component: RatingField,
         props: {
           label: 'פוטנציאל השפעה על התפעול (1-5)',
-          helperText: 'עד כמה AI יכול לייעל את התפעול?'
-        }
+          helperText: 'עד כמה AI יכול לייעל את התפעול?',
+        },
       },
       {
         name: 'operations.readiness',
@@ -1783,12 +1796,12 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'short', label: 'טווח קצר - תוך 3 חודשים' },
             { value: 'medium', label: 'טווח בינוני - תוך 6 חודשים' },
             { value: 'long', label: 'טווח ארוך - מעל 6 חודשים' },
-            { value: 'not_ready', label: 'לא מוכנים כרגע' }
-          ]
-        }
-      }
+            { value: 'not_ready', label: 'לא מוכנים כרגע' },
+          ],
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 6.4 הגדרות AI כלליות
@@ -1807,17 +1820,17 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'service', label: 'AI בשירות - לשפר חווית לקוח' },
             { value: 'operations', label: 'AI בתפעול - לחסוך עלויות' },
             { value: 'all', label: 'כל התחומים במקביל' },
-            { value: 'pilot', label: 'פיילוט קטן בתחום אחד' }
-          ]
-        }
+            { value: 'pilot', label: 'פיילוט קטן בתחום אחד' },
+          ],
+        },
       },
       {
         name: 'naturalLanguageImportance',
         component: RatingField,
         props: {
           label: 'חשיבות שפה טבעית בעברית (1-5)',
-          helperText: 'עד כמה חשוב שה-AI יבין וידבר עברית טבעית?'
-        }
+          helperText: 'עד כמה חשוב שה-AI יבין וידבר עברית טבעית?',
+        },
       },
       {
         name: 'currentAITools',
@@ -1830,10 +1843,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'gemini', label: 'Google Gemini' },
             { value: 'copilot', label: 'Microsoft Copilot' },
             { value: 'custom', label: 'פתרון מותאם אישית' },
-            { value: 'none', label: 'אין שימוש כרגע' }
+            { value: 'none', label: 'אין שימוש כרגע' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'aiBarriers',
@@ -1848,21 +1861,21 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'resistance', label: 'התנגדות לשינוי' },
             { value: 'security', label: 'חששות אבטחה' },
             { value: 'regulation', label: 'רגולציה' },
-            { value: 'trust', label: 'חוסר אמון בטכנולוגיה' }
+            { value: 'trust', label: 'חוסר אמון בטכנולוגיה' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'teamSkillLevel',
         component: RatingField,
         props: {
           label: 'רמת מיומנות הצוות בטכנולוגיה (1-5)',
-          helperText: 'עד כמה הצוות מוכן טכנולוגית?'
-        }
-      }
+          helperText: 'עד כמה הצוות מוכן טכנולוגית?',
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // ==================== SYSTEMS MODULE ====================
@@ -1887,22 +1900,22 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'hr_system', label: 'מערכת משאבי אנוש' },
             { value: 'inventory', label: 'ניהול מלאי' },
             { value: 'ecommerce', label: 'מסחר אלקטרוני' },
-            { value: 'bi_analytics', label: 'BI וניתוח נתונים' }
+            { value: 'bi_analytics', label: 'BI וניתוח נתונים' },
           ],
           columns: 2,
-          allowCustom: true
-        }
+          allowCustom: true,
+        },
       },
       {
         name: 'customSystems',
         component: TextField,
         props: {
           label: 'מערכות נוספות (אם יש)',
-          placeholder: 'רשום מערכות נוספות מופרדות בפסיק...'
-        }
-      }
+          placeholder: 'רשום מערכות נוספות מופרדות בפסיק...',
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 7.2 אינטגרציות
@@ -1920,9 +1933,9 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'full', label: 'מלאה - הכל מסונכרן אוטומטית' },
             { value: 'partial', label: 'חלקית - חלק מהמערכות מחוברות' },
             { value: 'minimal', label: 'מינימלית - רוב המערכות נפרדות' },
-            { value: 'none', label: 'אין - כל מערכת עובדת בנפרד' }
-          ]
-        }
+            { value: 'none', label: 'אין - כל מערכת עובדת בנפרד' },
+          ],
+        },
       },
       {
         name: 'integrations.issues',
@@ -1935,10 +1948,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'duplicate_entry', label: 'הזנות כפולות' },
             { value: 'format_issues', label: 'בעיות פורמט/תאימות' },
             { value: 'limited_fields', label: 'העברת שדות מוגבלת' },
-            { value: 'manual_updates', label: 'צורך בעדכון ידני' }
+            { value: 'manual_updates', label: 'צורך בעדכון ידני' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'integrations.manualDataTransfer',
@@ -1950,12 +1963,12 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: '1-2_hours', label: '1-2 שעות בשבוע' },
             { value: '3-5_hours', label: '3-5 שעות בשבוע' },
             { value: '6-10_hours', label: '6-10 שעות בשבוע' },
-            { value: 'over_10', label: 'מעל 10 שעות בשבוע' }
-          ]
-        }
-      }
+            { value: 'over_10', label: 'מעל 10 שעות בשבוע' },
+          ],
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 7.3 איכות נתונים
@@ -1973,9 +1986,9 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'excellent', label: 'מצוינת - נתונים נקיים ומדויקים' },
             { value: 'good', label: 'טובה - בעיות מינוריות' },
             { value: 'average', label: 'בינונית - יש בעיות שצריך לטפל' },
-            { value: 'poor', label: 'גרועה - הרבה בעיות ואי דיוקים' }
-          ]
-        }
+            { value: 'poor', label: 'גרועה - הרבה בעיות ואי דיוקים' },
+          ],
+        },
       },
       {
         name: 'dataQuality.duplicates',
@@ -1986,9 +1999,9 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'none', label: 'אין כפילויות' },
             { value: 'minimal', label: 'מעט (פחות מ-5%)' },
             { value: 'moderate', label: 'בינוני (5-15%)' },
-            { value: 'high', label: 'הרבה (מעל 15%)' }
-          ]
-        }
+            { value: 'high', label: 'הרבה (מעל 15%)' },
+          ],
+        },
       },
       {
         name: 'dataQuality.completeness',
@@ -1999,12 +2012,12 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'complete', label: 'מלא - כל השדות החשובים מלאים' },
             { value: 'mostly_complete', label: 'רוב השדות מלאים' },
             { value: 'partial', label: 'חלקי - חסרים הרבה נתונים' },
-            { value: 'poor', label: 'חסר - רוב השדות ריקים' }
-          ]
-        }
-      }
+            { value: 'poor', label: 'חסר - רוב השדות ריקים' },
+          ],
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 7.4 ממשקי API ו-Webhooks
@@ -2022,9 +2035,9 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'extensive', label: 'נרחב - משתמשים בהרבה ממשקים' },
             { value: 'moderate', label: 'בינוני - כמה ממשקים פעילים' },
             { value: 'minimal', label: 'מינימלי - שימוש בסיסי' },
-            { value: 'none', label: 'אין שי��וש בכלל' }
-          ]
-        }
+            { value: 'none', label: 'אין שי��וש בכלל' },
+          ],
+        },
       },
       {
         name: 'apiWebhooks.webhooks',
@@ -2035,9 +2048,9 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'active', label: 'פעיל - מקבלים התראות בזמן אמת' },
             { value: 'limited', label: 'מוגבל - רק לדברים קריטיים' },
             { value: 'none', label: 'אין שימוש' },
-            { value: 'dont_know', label: 'לא יודע מה זה' }
-          ]
-        }
+            { value: 'dont_know', label: 'לא יודע מה זה' },
+          ],
+        },
       },
       {
         name: 'apiWebhooks.needs',
@@ -2047,16 +2060,19 @@ export const WIZARD_STEPS: WizardStep[] = [
           options: [
             { value: 'real_time_sync', label: 'סנכרון בזמן אמת' },
             { value: 'automated_workflows', label: 'תהליכי עבודה אוטומטיים' },
-            { value: 'external_integrations', label: 'חיבור לשירותים חיצוניים' },
+            {
+              value: 'external_integrations',
+              label: 'חיבור לשירותים חיצוניים',
+            },
             { value: 'data_export', label: 'ייצוא נתונים אוטומטי' },
             { value: 'event_triggers', label: 'טריגרים לאירועים' },
-            { value: 'custom_reports', label: 'דוחות מותאמים אישית' }
+            { value: 'custom_reports', label: 'דוחות מותאמים אישית' },
           ],
-          columns: 2
-        }
-      }
+          columns: 2,
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 7.5 תשתית ואבטחה
@@ -2074,9 +2090,9 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'cloud', label: 'ענן מלא (AWS, Azure, Google)' },
             { value: 'hybrid', label: 'היברידי - חלק ענן חלק מקומי' },
             { value: 'on_premise', label: 'מקומי - שרתים בארגון' },
-            { value: 'mixed_saas', label: 'שילוב של שירותי SaaS' }
-          ]
-        }
+            { value: 'mixed_saas', label: 'שילוב של שירותי SaaS' },
+          ],
+        },
       },
       {
         name: 'infrastructure.security',
@@ -2091,10 +2107,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'audit_logs', label: 'לוגים וביקורת' },
             { value: 'encryption', label: 'הצפנת נתונים' },
             { value: 'vpn', label: 'גישה דרך VPN' },
-            { value: 'firewall', label: 'חומת אש' }
+            { value: 'firewall', label: 'חומת אש' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'infrastructure.backup',
@@ -2107,12 +2123,12 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'daily', label: 'יומי' },
             { value: 'weekly', label: 'שבועי' },
             { value: 'monthly', label: 'חודשי' },
-            { value: 'none', label: 'אין גיבויים קבועים' }
-          ]
-        }
-      }
+            { value: 'none', label: 'אין גיבויים קבועים' },
+          ],
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // ==================== ROI MODULE ====================
@@ -2128,8 +2144,8 @@ export const WIZARD_STEPS: WizardStep[] = [
         props: {
           label: 'שעות עבודה ידנית בשבוע',
           min: 0,
-          placeholder: 'לדוגמה: 40'
-        }
+          placeholder: 'לדוגמה: 40',
+        },
       },
       {
         name: 'currentCosts.hourlyCost',
@@ -2138,8 +2154,8 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'עלות שעת עבודה ממוצעת (₪)',
           min: 0,
           suffix: '₪',
-          placeholder: 'לדוגמה: 100'
-        }
+          placeholder: 'לדוגמה: 100',
+        },
       },
       {
         name: 'currentCosts.toolsCost',
@@ -2148,8 +2164,8 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'עלות כלים וסופטוור חודשית (₪)',
           min: 0,
           suffix: '₪',
-          placeholder: 'לדוגמה: 5000'
-        }
+          placeholder: 'לדוגמה: 5000',
+        },
       },
       {
         name: 'currentCosts.errorCost',
@@ -2158,8 +2174,8 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'עלות טעויות וטיפול בהן לחודש (₪)',
           min: 0,
           suffix: '₪',
-          placeholder: 'לדוגמה: 2000'
-        }
+          placeholder: 'לדוגמה: 2000',
+        },
       },
       {
         name: 'currentCosts.lostOpportunities',
@@ -2168,11 +2184,11 @@ export const WIZARD_STEPS: WizardStep[] = [
           label: 'הערכת הפסדים מהחמצת הזדמנויות לחודש (₪)',
           min: 0,
           suffix: '₪',
-          placeholder: 'לקוחות שלא טופלו, עסקאות שלא נסגרו...'
-        }
-      }
+          placeholder: 'לקוחות שלא טופלו, עסקאות שלא נסגרו...',
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 8.2 פוטנציאל חיסכון בזמן
@@ -2186,10 +2202,11 @@ export const WIZARD_STEPS: WizardStep[] = [
         component: NumberField,
         props: {
           label: 'הערכה: כמה שעות עבודה בשבוע ניתן לחסוך באוטומציה?',
-          helperText: 'הערכה של סך השעות שניתן לחסוך מכל התהליכים המועמדים לאוטומציה',
+          helperText:
+            'הערכה של סך השעות שניתן לחסוך מכל התהליכים המועמדים לאוטומציה',
           min: 0,
-          suffix: 'שעות/שבוע'
-        }
+          suffix: 'שעות/שבוע',
+        },
       },
       {
         name: 'timeSavings.processes',
@@ -2206,10 +2223,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'appointment_scheduling', label: 'תיאום פגישות' },
             { value: 'document_processing', label: 'עיבוד מסמכים' },
             { value: 'inventory_management', label: 'ניהול מלאי' },
-            { value: 'hr_processes', label: 'תהליכי HR' }
+            { value: 'hr_processes', label: 'תהליכי HR' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'timeSavings.implementation',
@@ -2220,12 +2237,12 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'immediate', label: 'מיידי - תוך חודש' },
             { value: 'quick', label: 'מהיר - תוך 3 חודשים' },
             { value: 'moderate', label: 'מתון - תוך 6 חודשים' },
-            { value: 'gradual', label: 'הדרגתי - תוך שנה' }
-          ]
-        }
-      }
+            { value: 'gradual', label: 'הדרגתי - תוך שנה' },
+          ],
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 8.3 השקעה והחזר
@@ -2244,9 +2261,9 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: '10k_50k', label: '10,000 - 50,000 ₪' },
             { value: '50k_100k', label: '50,000 - 100,000 ₪' },
             { value: '100k_250k', label: '100,000 - 250,000 ₪' },
-            { value: 'over_250k', label: 'מעל 250,000 ₪' }
-          ]
-        }
+            { value: 'over_250k', label: 'מעל 250,000 ₪' },
+          ],
+        },
       },
       {
         name: 'investment.paybackExpectation',
@@ -2259,9 +2276,9 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: '12_months', label: 'עד שנה' },
             { value: '18_months', label: 'עד שנה וחצי' },
             { value: '24_months', label: 'עד שנתיים' },
-            { value: 'over_24', label: 'מעל שנתיים' }
-          ]
-        }
+            { value: 'over_24', label: 'מעל שנתיים' },
+          ],
+        },
       },
       {
         name: 'investment.budgetAvailable',
@@ -2273,12 +2290,12 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'next_quarter', label: 'ברבעון הבא' },
             { value: 'next_year', label: 'בשנה הבאה' },
             { value: 'needs_approval', label: 'דורש אישור מיוחד' },
-            { value: 'not_available', label: 'אין תקציב כרגע' }
-          ]
-        }
-      }
+            { value: 'not_available', label: 'אין תקציב כרגע' },
+          ],
+        },
+      },
     ],
-    isOptional: false
+    isOptional: false,
   },
 
   // 8.4 מדדי הצלחה
@@ -2302,10 +2319,10 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'process_speed', label: 'מהירות תהליכים' },
             { value: 'lead_conversion', label: 'המרת לידים' },
             { value: 'response_time', label: 'זמן תגובה' },
-            { value: 'data_quality', label: 'איכות נתונים' }
+            { value: 'data_quality', label: 'איכות נתונים' },
           ],
-          columns: 2
-        }
+          columns: 2,
+        },
       },
       {
         name: 'measurementFrequency',
@@ -2317,14 +2334,14 @@ export const WIZARD_STEPS: WizardStep[] = [
             { value: 'weekly', label: 'שבועי' },
             { value: 'monthly', label: 'חודשי' },
             { value: 'quarterly', label: 'רבעוני' },
-            { value: 'annually', label: 'שנתי' }
+            { value: 'annually', label: 'שנתי' },
           ],
-          orientation: 'horizontal'
-        }
-      }
+          orientation: 'horizontal',
+        },
+      },
     ],
-    isOptional: false
-  }
+    isOptional: false,
+  },
 
   // Note: Proposal module is handled separately in the ProposalModule component
   // It's not part of the wizard steps, but shown after all wizard steps are completed
@@ -2339,37 +2356,93 @@ export const WIZARD_FLOW = {
     'reporting',
     'aiAgents',
     'systems',
-    'roi'
+    'roi',
     // Note: 'proposal' is not in wizard - shown separately after completion
   ],
   conditional: {
-    'b2b': ['overview', 'leadsAndSales', 'operations', 'systems', 'reporting', 'aiAgents', 'roi'],
-    'b2c': ['overview', 'customerService', 'operations', 'systems', 'reporting', 'aiAgents', 'roi'],
-    'b2b2c': ['overview', 'leadsAndSales', 'customerService', 'operations', 'systems', 'reporting', 'aiAgents', 'roi'],
-    'marketplace': ['overview', 'leadsAndSales', 'customerService', 'operations', 'systems', 'reporting', 'aiAgents', 'roi'],
-    'saas': ['overview', 'customerService', 'operations', 'systems', 'reporting', 'aiAgents', 'roi']
-  }
+    b2b: [
+      'overview',
+      'leadsAndSales',
+      'operations',
+      'systems',
+      'reporting',
+      'aiAgents',
+      'roi',
+    ],
+    b2c: [
+      'overview',
+      'customerService',
+      'operations',
+      'systems',
+      'reporting',
+      'aiAgents',
+      'roi',
+    ],
+    b2b2c: [
+      'overview',
+      'leadsAndSales',
+      'customerService',
+      'operations',
+      'systems',
+      'reporting',
+      'aiAgents',
+      'roi',
+    ],
+    marketplace: [
+      'overview',
+      'leadsAndSales',
+      'customerService',
+      'operations',
+      'systems',
+      'reporting',
+      'aiAgents',
+      'roi',
+    ],
+    saas: [
+      'overview',
+      'customerService',
+      'operations',
+      'systems',
+      'reporting',
+      'aiAgents',
+      'roi',
+    ],
+  },
 };
 
-export const getWizardStepsByBusinessType = (businessType: string): WizardStep[] => {
+export const getWizardStepsByBusinessType = (
+  businessType: string
+): WizardStep[] => {
   const flow = WIZARD_FLOW.conditional[businessType] || WIZARD_FLOW.linear;
-  return WIZARD_STEPS.filter(step => flow.includes(step.moduleId));
+  return WIZARD_STEPS.filter((step) => flow.includes(step.moduleId));
 };
 
 export const getTotalSteps = (): number => WIZARD_STEPS.length;
 
 export const getStepById = (stepId: string): WizardStep | undefined => {
-  return WIZARD_STEPS.find(step => step.id === stepId);
+  return WIZARD_STEPS.find((step) => step.id === stepId);
 };
 
-export const getNextStep = (currentStepId: string, businessType?: string): WizardStep | undefined => {
-  const steps = businessType ? getWizardStepsByBusinessType(businessType) : WIZARD_STEPS;
-  const currentIndex = steps.findIndex(step => step.id === currentStepId);
-  return currentIndex >= 0 && currentIndex < steps.length - 1 ? steps[currentIndex + 1] : undefined;
+export const getNextStep = (
+  currentStepId: string,
+  businessType?: string
+): WizardStep | undefined => {
+  const steps = businessType
+    ? getWizardStepsByBusinessType(businessType)
+    : WIZARD_STEPS;
+  const currentIndex = steps.findIndex((step) => step.id === currentStepId);
+  return currentIndex >= 0 && currentIndex < steps.length - 1
+    ? steps[currentIndex + 1]
+    : undefined;
 };
 
-export const getPreviousStep = (currentStepId: string, businessType?: string): WizardStep | undefined => {
-  const steps = businessType ? getWizardStepsByBusinessType(businessType) : WIZARD_STEPS;
-  const currentIndex = steps.findIndex(step => step.id === currentStepId);
+export const getPreviousStep = (
+  currentStepId: string,
+  businessType?: string
+): WizardStep | undefined => {
+  const steps = businessType
+    ? getWizardStepsByBusinessType(businessType)
+    : WIZARD_STEPS;
+  const currentIndex = steps.findIndex((step) => step.id === currentStepId);
   return currentIndex > 0 ? steps[currentIndex - 1] : undefined;
 };

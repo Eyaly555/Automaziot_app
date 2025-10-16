@@ -589,7 +589,9 @@ export interface NotificationCenterState {
   isOpen: boolean;
 
   /** Add notification */
-  add: (notification: Omit<NotificationItem, 'id' | 'timestamp' | 'read'>) => void;
+  add: (
+    notification: Omit<NotificationItem, 'id' | 'timestamp' | 'read'>
+  ) => void;
 
   /** Mark as read */
   markAsRead: (id: string) => void;
@@ -719,7 +721,13 @@ export interface ComponentInfo {
 /**
  * Feedback entry categories
  */
-export type FeedbackCategory = 'bug' | 'feature' | 'ui_ux' | 'error' | 'performance' | 'note';
+export type FeedbackCategory =
+  | 'bug'
+  | 'feature'
+  | 'ui_ux'
+  | 'error'
+  | 'performance'
+  | 'note';
 
 /**
  * Feedback priority levels

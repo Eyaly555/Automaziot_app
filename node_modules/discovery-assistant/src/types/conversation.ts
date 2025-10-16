@@ -3,7 +3,7 @@ import type {
   LeadsAndSalesModule,
   CustomerServiceModule,
   AIAgentsModule,
-  ROIModule
+  ROIModule,
 } from './index';
 
 /**
@@ -29,12 +29,22 @@ export interface AudioValidationResult {
 /**
  * Supported audio formats for OpenAI transcription
  */
-export type SupportedAudioFormat = 'mp3' | 'mp4' | 'mpeg' | 'mpga' | 'm4a' | 'wav' | 'webm';
+export type SupportedAudioFormat =
+  | 'mp3'
+  | 'mp4'
+  | 'mpeg'
+  | 'mpga'
+  | 'm4a'
+  | 'wav'
+  | 'webm';
 
 /**
  * OpenAI transcription models
  */
-export type TranscriptionModel = 'whisper-1' | 'gpt-4o-mini-transcribe' | 'gpt-4o-transcribe';
+export type TranscriptionModel =
+  | 'whisper-1'
+  | 'gpt-4o-mini-transcribe'
+  | 'gpt-4o-transcribe';
 
 /**
  * Transcription request options

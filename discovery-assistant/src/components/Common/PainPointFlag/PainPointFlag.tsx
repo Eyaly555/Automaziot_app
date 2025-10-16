@@ -16,11 +16,13 @@ export const PainPointFlag: React.FC<PainPointFlagProps> = ({
   subModule,
   label = 'כאב נקודתי',
   autoDetect = false,
-  condition = false
+  condition = false,
 }) => {
   const [showModal, setShowModal] = useState(false);
   const [description, setDescription] = useState('');
-  const [severity, setSeverity] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
+  const [severity, setSeverity] = useState<
+    'low' | 'medium' | 'high' | 'critical'
+  >('medium');
   const [potentialHours, setPotentialHours] = useState<number>(0);
 
   const { addPainPoint } = useMeetingStore();
@@ -32,7 +34,7 @@ export const PainPointFlag: React.FC<PainPointFlagProps> = ({
         subModule,
         severity,
         description,
-        potentialHours
+        potentialHours,
       });
       setDescription('');
       setPotentialHours(0);
@@ -93,19 +95,23 @@ export const PainPointFlag: React.FC<PainPointFlagProps> = ({
                   חומרת הבעיה
                 </label>
                 <div className="grid grid-cols-4 gap-2">
-                  {(['low', 'medium', 'high', 'critical'] as const).map(level => (
-                    <button
-                      key={level}
-                      type="button"
-                      onClick={() => setSeverity(level)}
-                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors
-                        ${severity === level
-                          ? severityToColor(level)
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-                    >
-                      {severityToHebrew(level)}
-                    </button>
-                  ))}
+                  {(['low', 'medium', 'high', 'critical'] as const).map(
+                    (level) => (
+                      <button
+                        key={level}
+                        type="button"
+                        onClick={() => setSeverity(level)}
+                        className={`px-3 py-2 rounded-md text-sm font-medium transition-colors
+                        ${
+                          severity === level
+                            ? severityToColor(level)
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {severityToHebrew(level)}
+                      </button>
+                    )
+                  )}
                 </div>
               </div>
 
@@ -116,7 +122,9 @@ export const PainPointFlag: React.FC<PainPointFlagProps> = ({
                 <input
                   type="number"
                   value={potentialHours || ''}
-                  onChange={(e) => setPotentialHours(parseInt(e.target.value) || 0)}
+                  onChange={(e) =>
+                    setPotentialHours(parseInt(e.target.value) || 0)
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
                   placeholder="0"
                   min="0"

@@ -11,10 +11,7 @@ import {
   AutomationServiceEntry,
 } from './automationServices';
 
-import {
-  AIAgentServiceConfig,
-  AIAgentServiceEntry,
-} from './aiAgentServices';
+import { AIAgentServiceConfig, AIAgentServiceEntry } from './aiAgentServices';
 
 import {
   IntegrationServiceConfig,
@@ -75,7 +72,18 @@ export interface SystemField {
   id: string;
   fieldName: string;
   fieldLabel: string;
-  dataType: 'text' | 'number' | 'date' | 'datetime' | 'boolean' | 'picklist' | 'multi-picklist' | 'lookup' | 'email' | 'phone' | 'url';
+  dataType:
+    | 'text'
+    | 'number'
+    | 'date'
+    | 'datetime'
+    | 'boolean'
+    | 'picklist'
+    | 'multi-picklist'
+    | 'lookup'
+    | 'email'
+    | 'phone'
+    | 'url';
   required: boolean;
   maxLength?: number;
   picklistValues?: string[];
@@ -99,7 +107,13 @@ export interface DataMigration {
   recordCount: number;
   cleanupNeeded: boolean;
   historicalDataYears: number;
-  migrationMethod: 'api' | 'csv_export' | 'csv_import' | 'database_dump' | 'manual' | 'etl_tool';
+  migrationMethod:
+    | 'api'
+    | 'csv_export'
+    | 'csv_import'
+    | 'database_dump'
+    | 'manual'
+    | 'etl_tool';
   dataSanitizationNeeded: boolean;
   testMigrationFirst: boolean;
   rollbackPlan: string;
@@ -123,7 +137,14 @@ export interface IntegrationFlow {
   steps: FlowStep[];
 
   // Configuration
-  frequency: 'realtime' | 'every_5_min' | 'every_15_min' | 'hourly' | 'daily' | 'weekly' | 'manual';
+  frequency:
+    | 'realtime'
+    | 'every_5_min'
+    | 'every_15_min'
+    | 'hourly'
+    | 'daily'
+    | 'weekly'
+    | 'manual';
   direction: 'one_way' | 'bidirectional';
 
   // Error Handling
@@ -138,7 +159,15 @@ export interface IntegrationFlow {
 }
 
 export interface FlowTrigger {
-  type: 'webhook' | 'schedule' | 'manual' | 'watch_field' | 'new_record' | 'updated_record' | 'deleted_record' | 'event';
+  type:
+    | 'webhook'
+    | 'schedule'
+    | 'manual'
+    | 'watch_field'
+    | 'new_record'
+    | 'updated_record'
+    | 'deleted_record'
+    | 'event';
   configuration?: Record<string, any>;
   webhookUrl?: string;
   watchedField?: string;
@@ -152,9 +181,21 @@ export interface FlowStep {
   stepNumber?: number; // Alternative to 'order'
   order?: number; // Alternative to 'stepNumber'
   type?: 'fetch' | 'transform' | 'create' | 'update' | 'conditional' | 'delete'; // Alternative to 'action'
-  action?: 'get_data' | 'transform_data' | 'create_record' | 'update_record' | 'delete_record' |
-          'send_email' | 'send_whatsapp' | 'send_sms' | 'call_api' | 'conditional' | 'loop' |
-          'delay' | 'log' | 'error_handler'; // Alternative to 'type'
+  action?:
+    | 'get_data'
+    | 'transform_data'
+    | 'create_record'
+    | 'update_record'
+    | 'delete_record'
+    | 'send_email'
+    | 'send_whatsapp'
+    | 'send_sms'
+    | 'call_api'
+    | 'conditional'
+    | 'loop'
+    | 'delay'
+    | 'log'
+    | 'error_handler'; // Alternative to 'type'
   name?: string;
   description?: string;
   system?: string;
@@ -167,7 +208,17 @@ export interface FlowStep {
   // Advanced conditional logic (original structure)
   conditionalLogic?: {
     field: string;
-    operator: '==' | '!=' | '>' | '<' | '>=' | '<=' | 'contains' | 'not_contains' | 'in' | 'not_in';
+    operator:
+      | '=='
+      | '!='
+      | '>'
+      | '<'
+      | '>='
+      | '<='
+      | 'contains'
+      | 'not_contains'
+      | 'in'
+      | 'not_in';
     value: any;
     nextStepIfTrue?: string; // Step ID
     nextStepIfFalse?: string; // Step ID
@@ -242,7 +293,17 @@ export interface KnowledgeBase {
 
 export interface KnowledgeSource {
   id: string;
-  type: 'pdf' | 'website' | 'crm_field' | 'api_endpoint' | 'google_drive' | 'notion' | 'confluence' | 'sharepoint' | 'csv' | 'json';
+  type:
+    | 'pdf'
+    | 'website'
+    | 'crm_field'
+    | 'api_endpoint'
+    | 'google_drive'
+    | 'notion'
+    | 'confluence'
+    | 'sharepoint'
+    | 'csv'
+    | 'json';
   name: string;
   location: string;
   accessMethod: string;
@@ -311,7 +372,13 @@ export interface ConversationBranch {
 }
 
 export interface ConversationAction {
-  type: 'update_crm' | 'send_email' | 'send_sms' | 'create_ticket' | 'schedule_meeting' | 'call_api';
+  type:
+    | 'update_crm'
+    | 'send_email'
+    | 'send_sms'
+    | 'create_ticket'
+    | 'schedule_meeting'
+    | 'call_api';
   configuration: Record<string, any>;
   whenToExecute: 'before_response' | 'after_response' | 'on_condition';
 }
@@ -477,7 +544,13 @@ export interface FunctionalRequirement {
   id: string;
   category?: string;
   description: string;
-  priority: 'must_have' | 'should_have' | 'nice_to_have' | 'must' | 'should' | 'nice'; // Added short aliases
+  priority:
+    | 'must_have'
+    | 'should_have'
+    | 'nice_to_have'
+    | 'must'
+    | 'should'
+    | 'nice'; // Added short aliases
   testScenario?: string;
   acceptanceCriteria?: string;
   status: 'pending' | 'in_progress' | 'passed' | 'failed';
@@ -507,7 +580,12 @@ export interface PerformanceRequirement {
 export interface SecurityRequirement {
   id: string;
   requirement: string;
-  category?: 'authentication' | 'authorization' | 'data_encryption' | 'compliance' | 'audit';
+  category?:
+    | 'authentication'
+    | 'authorization'
+    | 'data_encryption'
+    | 'compliance'
+    | 'audit';
   implementation?: string;
   verified?: boolean; // Whether this security requirement has been verified
   implemented?: boolean; // Whether this security requirement has been implemented (alternative name)

@@ -5,19 +5,24 @@ import type { EssentialDetailsModule } from '../../../../types';
 
 interface AutomationSectionProps {
   data?: EssentialDetailsModule['automationOpportunities'];
-  onChange: (data: Partial<EssentialDetailsModule['automationOpportunities']>) => void;
+  onChange: (
+    data: Partial<EssentialDetailsModule['automationOpportunities']>
+  ) => void;
 }
 
 export const AutomationSection: React.FC<AutomationSectionProps> = ({
   data = {},
-  onChange
+  onChange,
 }) => {
   const [newProcessName, setNewProcessName] = useState('');
   const [newProcessFreq, setNewProcessFreq] = useState('');
   const [newProcessTime, setNewProcessTime] = useState('');
   const [newDataEntry, setNewDataEntry] = useState('');
 
-  const updateField = <K extends keyof typeof data>(field: K, value: typeof data[K]) => {
+  const updateField = <K extends keyof typeof data>(
+    field: K,
+    value: (typeof data)[K]
+  ) => {
     onChange({ [field]: value });
   };
 
@@ -28,8 +33,8 @@ export const AutomationSection: React.FC<AutomationSectionProps> = ({
       {
         name: newProcessName,
         frequency: newProcessFreq,
-        timePerExecution: newProcessTime ? parseInt(newProcessTime) : 0
-      }
+        timePerExecution: newProcessTime ? parseInt(newProcessTime) : 0,
+      },
     ];
     onChange({ repetitiveProcesses: processes });
     setNewProcessName('');
@@ -38,7 +43,9 @@ export const AutomationSection: React.FC<AutomationSectionProps> = ({
   };
 
   const removeProcess = (index: number) => {
-    const processes = (data.repetitiveProcesses || []).filter((_, i) => i !== index);
+    const processes = (data.repetitiveProcesses || []).filter(
+      (_, i) => i !== index
+    );
     onChange({ repetitiveProcesses: processes });
   };
 
@@ -65,14 +72,21 @@ export const AutomationSection: React.FC<AutomationSectionProps> = ({
           {(data.repetitiveProcesses || []).length > 0 && (
             <div className="space-y-2 mb-3">
               {(data.repetitiveProcesses || []).map((process, index) => (
-                <div key={index} className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                <div
+                  key={index}
+                  className="bg-orange-50 border border-orange-200 rounded-lg p-3"
+                >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <h4 className="font-medium">{process.name}</h4>
                       <div className="flex gap-4 mt-1 text-sm text-gray-600">
-                        {process.frequency && <span>תדירות: {process.frequency}</span>}
+                        {process.frequency && (
+                          <span>תדירות: {process.frequency}</span>
+                        )}
                         {process.timePerExecution > 0 && (
-                          <span>זמן ביצוע: {process.timePerExecution} דקות</span>
+                          <span>
+                            זמן ביצוע: {process.timePerExecution} דקות
+                          </span>
                         )}
                       </div>
                     </div>
@@ -133,7 +147,10 @@ export const AutomationSection: React.FC<AutomationSectionProps> = ({
           {(data.manualDataEntry || []).length > 0 && (
             <div className="space-y-2 mb-3">
               {(data.manualDataEntry || []).map((entry, index) => (
-                <div key={index} className="flex items-center justify-between bg-yellow-50 border border-yellow-200 rounded-lg p-2">
+                <div
+                  key={index}
+                  className="flex items-center justify-between bg-yellow-50 border border-yellow-200 rounded-lg p-2"
+                >
                   <span className="text-sm">{entry}</span>
                   <button
                     onClick={() => removeDataEntry(index)}

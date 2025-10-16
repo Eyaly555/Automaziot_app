@@ -6,7 +6,7 @@ import { Card } from '../../../Common/Card';
 export function ImplHelpdeskSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
   const [config, setConfig] = useState<any>({
-    ...{ platform: 'zendesk', estimatedWeeks: 3 }
+    ...{ platform: 'zendesk', estimatedWeeks: 3 },
   });
 
   // Track if we're currently loading data to prevent save loops
@@ -16,12 +16,15 @@ export function ImplHelpdeskSpec() {
   // Auto-save hook for immediate saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'impl-helpdesk',
-    category: 'systemImplementations'
+    category: 'systemImplementations',
   });
 
   useEffect(() => {
-    const systemImplementations = currentMeeting?.implementationSpec?.systemImplementations || [];
-    const existing = systemImplementations.find((s: any) => s.serviceId === 'impl-helpdesk');
+    const systemImplementations =
+      currentMeeting?.implementationSpec?.systemImplementations || [];
+    const existing = systemImplementations.find(
+      (s: any) => s.serviceId === 'impl-helpdesk'
+    );
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
 
@@ -47,18 +50,21 @@ export function ImplHelpdeskSpec() {
   //   }
   // }, [config]);
 
-  const handleFieldChange = useCallback((field: keyof typeof config, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = { ...updated }; // No smart fields in this component
-          saveData(completeConfig);
-        }
-      }, 0);
-      return updated;
-    });
-  }, [saveData]);
+  const handleFieldChange = useCallback(
+    (field: keyof typeof config, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = { ...updated }; // No smart fields in this component
+            saveData(completeConfig);
+          }
+        }, 0);
+        return updated;
+      });
+    },
+    [saveData]
+  );
 
   // Manual save handler (kept for compatibility, but auto-save is primary)
   const handleSave = useCallback(async () => {
@@ -75,7 +81,9 @@ export function ImplHelpdeskSpec() {
       <Card title="שירות #44: הטמעת Helpdesk">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">פלטפורמת Helpdesk</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              פלטפורמת Helpdesk
+            </label>
             <select
               value={config.platform || 'zendesk'}
               onChange={(e) => handleFieldChange('platform', e.target.value)}

@@ -1,13 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Plus, X, ChevronDown, MessageCircle, Calendar, Star, Info, Lightbulb, Sparkles, AlertTriangle } from 'lucide-react';
+import {
+  ArrowRight,
+  Plus,
+  X,
+  ChevronDown,
+  MessageCircle,
+  Calendar,
+  Star,
+  Info,
+  Lightbulb,
+  Sparkles,
+  AlertTriangle,
+} from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Card } from '../../Common/Card';
 import { Input, Select, TextArea, Button } from '../../Base';
-import {
-  CheckboxGroup,
-  RadioGroup
-} from '../../Common/FormFields';
+import { CheckboxGroup, RadioGroup } from '../../Common/FormFields';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 import { PhaseReadOnlyBanner } from '../../Common/PhaseReadOnlyBanner';
 import { ServiceChannel, FAQ } from '../../../types';
@@ -19,12 +28,12 @@ const channelOptions = [
   { value: 'email', label: 'אימייל' },
   { value: 'facebook', label: 'פייסבוק' },
   { value: 'instagram', label: 'אינסטגרם' },
-  { value: 'website_chat', label: 'צ\'אט באתר' },
+  { value: 'website_chat', label: "צ'אט באתר" },
   { value: 'sms', label: 'SMS' },
   { value: 'in_person', label: 'פרונטלי' },
   { value: 'telegram', label: 'טלגרם' },
   { value: 'tiktok', label: 'טיקטוק' },
-  { value: 'linkedin', label: 'לינקדאין' }
+  { value: 'linkedin', label: 'לינקדאין' },
 ];
 
 const platformOptions = [
@@ -35,7 +44,7 @@ const platformOptions = [
   { value: 'slack', label: 'Slack' },
   { value: 'forum', label: 'פורום' },
   { value: 'instagram', label: 'Instagram' },
-  { value: 'youtube', label: 'YouTube Community' }
+  { value: 'youtube', label: 'YouTube Community' },
 ];
 
 export const CustomerServiceModule: React.FC = () => {
@@ -44,66 +53,135 @@ export const CustomerServiceModule: React.FC = () => {
   const moduleData: any = currentMeeting?.modules?.customerService || {};
 
   // Section states
-  const [expandedSections, setExpandedSections] = useState<string[]>(['channels']);
+  const [expandedSections, setExpandedSections] = useState<string[]>([
+    'channels',
+  ]);
   const [tooltipVisible, setTooltipVisible] = useState<string | null>(null);
 
   // 3.1 Service Channels - Direct array format (migrated in v2)
   // Data migration handled by dataMigration.ts on load
-  const [channels, setChannels] = useState<ServiceChannel[]>(moduleData?.channels || []);
-  const [newChannel, setNewChannel] = useState({ type: '', volumePerDay: 0, responseTime: '', availability: '' });
+  const [channels, setChannels] = useState<ServiceChannel[]>(
+    moduleData?.channels || []
+  );
+  const [newChannel, setNewChannel] = useState({
+    type: '',
+    volumePerDay: 0,
+    responseTime: '',
+    availability: '',
+  });
   const [customChannelName, setCustomChannelName] = useState('');
 
   // Top-level properties (moved from nested object in v2 migration)
-  const [multiChannelIssue, setMultiChannelIssue] = useState(moduleData?.multiChannelIssue || '');
-  const [unificationMethod, setUnificationMethod] = useState(moduleData?.unificationMethod || '');
+  const [multiChannelIssue, setMultiChannelIssue] = useState(
+    moduleData?.multiChannelIssue || ''
+  );
+  const [unificationMethod, setUnificationMethod] = useState(
+    moduleData?.unificationMethod || ''
+  );
 
   // 3.2 Auto Response - Enhanced with Top 10 structure
   const [topQuestions, setTopQuestions] = useState<FAQ[]>(
     moduleData?.autoResponse?.topQuestions || []
   );
-  const [commonRequests, setCommonRequests] = useState<string[]>(moduleData?.autoResponse?.commonRequests || []);
+  const [commonRequests, setCommonRequests] = useState<string[]>(
+    moduleData?.autoResponse?.commonRequests || []
+  );
   const [customRequest, setCustomRequest] = useState('');
 
   // 3.3 Proactive Communication - Enhanced
-  const [updateTriggers, setUpdateTriggers] = useState<string[]>(moduleData?.proactiveCommunication?.updateTriggers || []);
-  const [updateChannelMapping, setUpdateChannelMapping] = useState<{[key: string]: string}>(
-    moduleData?.proactiveCommunication?.updateChannelMapping || {}
+  const [updateTriggers, setUpdateTriggers] = useState<string[]>(
+    moduleData?.proactiveCommunication?.updateTriggers || []
   );
-  const [whatMattersToCustomers, setWhatMattersToCustomers] = useState(moduleData?.proactiveCommunication?.whatMattersToCustomers || '');
-  const [communicationFrequency, setCommunicationFrequency] = useState(moduleData?.proactiveCommunication?.frequency || '');
-  const [communicationType, setCommunicationType] = useState<string[]>(moduleData?.proactiveCommunication?.type || []);
-  const [weeklyTimeSpent, setWeeklyTimeSpent] = useState(moduleData?.proactiveCommunication?.timeSpentWeekly || 0);
+  const [updateChannelMapping, setUpdateChannelMapping] = useState<{
+    [key: string]: string;
+  }>(moduleData?.proactiveCommunication?.updateChannelMapping || {});
+  const [whatMattersToCustomers, setWhatMattersToCustomers] = useState(
+    moduleData?.proactiveCommunication?.whatMattersToCustomers || ''
+  );
+  const [communicationFrequency, setCommunicationFrequency] = useState(
+    moduleData?.proactiveCommunication?.frequency || ''
+  );
+  const [communicationType, setCommunicationType] = useState<string[]>(
+    moduleData?.proactiveCommunication?.type || []
+  );
+  const [weeklyTimeSpent, setWeeklyTimeSpent] = useState(
+    moduleData?.proactiveCommunication?.timeSpentWeekly || 0
+  );
 
   // 3.4 Community Management - Enhanced
-  const [communityExists, setCommunityExists] = useState(moduleData?.communityManagement?.exists || false);
-  const [communitySize, setCommunitySize] = useState(moduleData?.communityManagement?.size || 0);
-  const [communityPlatforms, setCommunityPlatforms] = useState<string[]>(moduleData?.communityManagement?.platforms || []);
+  const [communityExists, setCommunityExists] = useState(
+    moduleData?.communityManagement?.exists || false
+  );
+  const [communitySize, setCommunitySize] = useState(
+    moduleData?.communityManagement?.size || 0
+  );
+  const [communityPlatforms, setCommunityPlatforms] = useState<string[]>(
+    moduleData?.communityManagement?.platforms || []
+  );
   const [customPlatform, setCustomPlatform] = useState('');
-  const [communityChallenges, setCommunityChallenges] = useState<string[]>(moduleData?.communityManagement?.challenges || []);
-  const [eventsPerMonth, setEventsPerMonth] = useState(moduleData?.communityManagement?.eventsPerMonth || 0);
-  const [registrationMethod, setRegistrationMethod] = useState(moduleData?.communityManagement?.registrationMethod || '');
-  const [actualAttendanceRate, setActualAttendanceRate] = useState(moduleData?.communityManagement?.actualAttendanceRate || 0);
-  const [eventAutomationOpportunity, setEventAutomationOpportunity] = useState(moduleData?.communityManagement?.eventAutomationOpportunity || '');
+  const [communityChallenges, setCommunityChallenges] = useState<string[]>(
+    moduleData?.communityManagement?.challenges || []
+  );
+  const [eventsPerMonth, setEventsPerMonth] = useState(
+    moduleData?.communityManagement?.eventsPerMonth || 0
+  );
+  const [registrationMethod, setRegistrationMethod] = useState(
+    moduleData?.communityManagement?.registrationMethod || ''
+  );
+  const [actualAttendanceRate, setActualAttendanceRate] = useState(
+    moduleData?.communityManagement?.actualAttendanceRate || 0
+  );
+  const [eventAutomationOpportunity, setEventAutomationOpportunity] = useState(
+    moduleData?.communityManagement?.eventAutomationOpportunity || ''
+  );
 
   // 3.5 Reputation Management - Enhanced
-  const [feedbackWhen, setFeedbackWhen] = useState<string[]>(moduleData?.reputationManagement?.feedbackCollection?.when || []);
-  const [feedbackHow, setFeedbackHow] = useState<string[]>(moduleData?.reputationManagement?.feedbackCollection?.how || []);
-  const [feedbackResponseRate, setFeedbackResponseRate] = useState(moduleData?.reputationManagement?.feedbackCollection?.responseRate || 0);
-  const [whatDoWithFeedback, setWhatDoWithFeedback] = useState(moduleData?.reputationManagement?.whatDoWithFeedback || '');
-  const [reviewsPerMonth, setReviewsPerMonth] = useState(moduleData?.reputationManagement?.reviewsPerMonth || 0);
-  const [reviewPlatforms, setReviewPlatforms] = useState<string[]>(moduleData?.reputationManagement?.platforms || []);
-  const [positiveReviewStrategy, setPositiveReviewStrategy] = useState(moduleData.reputationManagement?.positiveReviewStrategy || '');
-  const [negativeReviewStrategy, setNegativeReviewStrategy] = useState(moduleData.reputationManagement?.negativeReviewStrategy || '');
-  const [sentimentDetectionOpportunity, setSentimentDetectionOpportunity] = useState(moduleData.reputationManagement?.sentimentDetectionOpportunity || '');
+  const [feedbackWhen, setFeedbackWhen] = useState<string[]>(
+    moduleData?.reputationManagement?.feedbackCollection?.when || []
+  );
+  const [feedbackHow, setFeedbackHow] = useState<string[]>(
+    moduleData?.reputationManagement?.feedbackCollection?.how || []
+  );
+  const [feedbackResponseRate, setFeedbackResponseRate] = useState(
+    moduleData?.reputationManagement?.feedbackCollection?.responseRate || 0
+  );
+  const [whatDoWithFeedback, setWhatDoWithFeedback] = useState(
+    moduleData?.reputationManagement?.whatDoWithFeedback || ''
+  );
+  const [reviewsPerMonth, setReviewsPerMonth] = useState(
+    moduleData?.reputationManagement?.reviewsPerMonth || 0
+  );
+  const [reviewPlatforms, setReviewPlatforms] = useState<string[]>(
+    moduleData?.reputationManagement?.platforms || []
+  );
+  const [positiveReviewStrategy, setPositiveReviewStrategy] = useState(
+    moduleData.reputationManagement?.positiveReviewStrategy || ''
+  );
+  const [negativeReviewStrategy, setNegativeReviewStrategy] = useState(
+    moduleData.reputationManagement?.negativeReviewStrategy || ''
+  );
+  const [sentimentDetectionOpportunity, setSentimentDetectionOpportunity] =
+    useState(
+      moduleData.reputationManagement?.sentimentDetectionOpportunity || ''
+    );
 
   // 3.6 Onboarding - Enhanced
-  const [onboardingSteps, setOnboardingSteps] = useState<{name: string; time: string}[]>(
-    moduleData.onboarding?.steps || []
+  const [onboardingSteps, setOnboardingSteps] = useState<
+    { name: string; time: string }[]
+  >(moduleData.onboarding?.steps || []);
+  const [newOnboardingStep, setNewOnboardingStep] = useState({
+    name: '',
+    time: '',
+  });
+  const [followUpChecks, setFollowUpChecks] = useState<string[]>(
+    moduleData.onboarding?.followUpChecks || []
   );
-  const [newOnboardingStep, setNewOnboardingStep] = useState({ name: '', time: '' });
-  const [followUpChecks, setFollowUpChecks] = useState<string[]>(moduleData.onboarding?.followUpChecks || []);
-  const [missingAlerts, setMissingAlerts] = useState(moduleData.onboarding?.missingAlerts || false);
-  const [commonOnboardingIssues, setCommonOnboardingIssues] = useState(moduleData.onboarding?.commonIssues || '');
+  const [missingAlerts, setMissingAlerts] = useState(
+    moduleData.onboarding?.missingAlerts || false
+  );
+  const [commonOnboardingIssues, setCommonOnboardingIssues] = useState(
+    moduleData.onboarding?.commonIssues || ''
+  );
 
   const saveData = () => {
     updateModule('customerService', {
@@ -114,7 +192,7 @@ export const CustomerServiceModule: React.FC = () => {
       autoResponse: {
         topQuestions,
         commonRequests,
-        automationPotential: calculateAutomationPotential()
+        automationPotential: calculateAutomationPotential(),
       },
       proactiveCommunication: {
         updateTriggers,
@@ -122,7 +200,7 @@ export const CustomerServiceModule: React.FC = () => {
         whatMattersToCustomers,
         frequency: communicationFrequency,
         type: communicationType,
-        timeSpentWeekly: weeklyTimeSpent
+        timeSpentWeekly: weeklyTimeSpent,
       },
       communityManagement: {
         exists: communityExists,
@@ -132,27 +210,27 @@ export const CustomerServiceModule: React.FC = () => {
         eventsPerMonth,
         registrationMethod,
         actualAttendanceRate,
-        eventAutomationOpportunity
+        eventAutomationOpportunity,
       },
       reputationManagement: {
         feedbackCollection: {
           when: feedbackWhen,
           how: feedbackHow,
-          responseRate: feedbackResponseRate
+          responseRate: feedbackResponseRate,
         },
         whatDoWithFeedback,
         reviewsPerMonth,
         platforms: reviewPlatforms,
         positiveReviewStrategy,
         negativeReviewStrategy,
-        sentimentDetectionOpportunity
+        sentimentDetectionOpportunity,
       },
       onboarding: {
         steps: onboardingSteps,
         followUpChecks,
         missingAlerts,
-        commonIssues: commonOnboardingIssues
-      }
+        commonIssues: commonOnboardingIssues,
+      },
     });
   };
 
@@ -167,26 +245,53 @@ export const CustomerServiceModule: React.FC = () => {
 
     return () => clearTimeout(timer);
   }, [
-    channels, multiChannelIssue, unificationMethod, topQuestions, commonRequests,
-    updateTriggers, updateChannelMapping, whatMattersToCustomers, communicationFrequency,
-    communicationType, weeklyTimeSpent, communityExists, communitySize, communityPlatforms,
-    communityChallenges, eventsPerMonth, registrationMethod, actualAttendanceRate,
-    eventAutomationOpportunity, feedbackWhen, feedbackHow, feedbackResponseRate,
-    whatDoWithFeedback, reviewsPerMonth, reviewPlatforms, positiveReviewStrategy,
-    negativeReviewStrategy, sentimentDetectionOpportunity, onboardingSteps, followUpChecks,
-    missingAlerts, commonOnboardingIssues
+    channels,
+    multiChannelIssue,
+    unificationMethod,
+    topQuestions,
+    commonRequests,
+    updateTriggers,
+    updateChannelMapping,
+    whatMattersToCustomers,
+    communicationFrequency,
+    communicationType,
+    weeklyTimeSpent,
+    communityExists,
+    communitySize,
+    communityPlatforms,
+    communityChallenges,
+    eventsPerMonth,
+    registrationMethod,
+    actualAttendanceRate,
+    eventAutomationOpportunity,
+    feedbackWhen,
+    feedbackHow,
+    feedbackResponseRate,
+    whatDoWithFeedback,
+    reviewsPerMonth,
+    reviewPlatforms,
+    positiveReviewStrategy,
+    negativeReviewStrategy,
+    sentimentDetectionOpportunity,
+    onboardingSteps,
+    followUpChecks,
+    missingAlerts,
+    commonOnboardingIssues,
   ]);
 
   const toggleSection = (section: string) => {
-    setExpandedSections(prev =>
+    setExpandedSections((prev) =>
       prev.includes(section)
-        ? prev.filter(s => s !== section)
+        ? prev.filter((s) => s !== section)
         : [...prev, section]
     );
   };
 
   const calculateAutomationPotential = () => {
-    const totalFAQVolume = topQuestions.reduce((sum, faq) => sum + (faq.frequencyPerDay || 0), 0);
+    const totalFAQVolume = topQuestions.reduce(
+      (sum, faq) => sum + (faq.frequencyPerDay || 0),
+      0
+    );
     const potential = totalFAQVolume > 10 ? 80 : totalFAQVolume * 8;
     return Math.min(potential, 100);
   };
@@ -196,18 +301,30 @@ export const CustomerServiceModule: React.FC = () => {
     if (channelType) {
       // Defensive check: Ensure channels is an array before spreading
       const currentChannels = Array.isArray(channels) ? channels : [];
-      setChannels([...currentChannels, {
-        type: channelType,
-        volumePerDay: newChannel.volumePerDay,
-        responseTime: newChannel.responseTime,
-        availability: newChannel.availability
-      }]);
-      setNewChannel({ type: '', volumePerDay: 0, responseTime: '', availability: '' });
+      setChannels([
+        ...currentChannels,
+        {
+          type: channelType,
+          volumePerDay: newChannel.volumePerDay,
+          responseTime: newChannel.responseTime,
+          availability: newChannel.availability,
+        },
+      ]);
+      setNewChannel({
+        type: '',
+        volumePerDay: 0,
+        responseTime: '',
+        availability: '',
+      });
       setCustomChannelName('');
     }
   };
 
-  const handleUpdateQuestion = (index: number, field: 'question' | 'frequencyPerDay', value: any) => {
+  const handleUpdateQuestion = (
+    index: number,
+    field: 'question' | 'frequencyPerDay',
+    value: any
+  ) => {
     const updated = [...topQuestions];
     updated[index] = { ...updated[index], [field]: value };
     setTopQuestions(updated);
@@ -235,7 +352,10 @@ export const CustomerServiceModule: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-green-50 transition-all duration-500" dir="rtl">
+    <div
+      className="min-h-screen bg-gradient-to-br from-gray-50 to-green-50 transition-all duration-500"
+      dir="rtl"
+    >
       {/* Enhanced Header with Breadcrumbs */}
       <div className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-20">
         <div className="container mx-auto px-4 py-4">
@@ -249,7 +369,9 @@ export const CustomerServiceModule: React.FC = () => {
                 <ArrowRight className="w-5 h-5" />
               </button>
               {/* Module Title */}
-              <h1 className="text-2xl font-bold text-gray-800">💬 שירות לקוחות</h1>
+              <h1 className="text-2xl font-bold text-gray-800">
+                💬 שירות לקוחות
+              </h1>
             </div>
             <div className="flex items-center gap-3">
               {/* Module Progress */}
@@ -287,9 +409,13 @@ export const CustomerServiceModule: React.FC = () => {
                 <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
                   3.1 ערוצי שירות רב-ערוצי
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">ערוצי תקשורת, זמני תגובה וניהול multi-channel</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  ערוצי תקשורת, זמני תגובה וניהול multi-channel
+                </p>
               </div>
-              <div className={`transform transition-transform duration-300 ${expandedSections.includes('channels') ? 'rotate-180' : ''}`}>
+              <div
+                className={`transform transition-transform duration-300 ${expandedSections.includes('channels') ? 'rotate-180' : ''}`}
+              >
                 <ChevronDown className="w-5 h-5" />
               </div>
             </button>
@@ -303,7 +429,9 @@ export const CustomerServiceModule: React.FC = () => {
                     <div className="relative inline-block">
                       <Info
                         className="w-4 h-4 text-gray-400 cursor-help"
-                        onMouseEnter={() => setTooltipVisible('serviceChannels')}
+                        onMouseEnter={() =>
+                          setTooltipVisible('serviceChannels')
+                        }
                         onMouseLeave={() => setTooltipVisible(null)}
                       />
                       {tooltipVisible === 'serviceChannels' && (
@@ -316,31 +444,49 @@ export const CustomerServiceModule: React.FC = () => {
 
                   <div className="space-y-3">
                     {/* Defensive check: Ensure channels is an array before mapping */}
-                    {Array.isArray(channels) && channels.map((channel, index) => (
-                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                        <MessageCircle className="w-4 h-4 text-green-500" />
-                        <span className="font-medium min-w-[100px]">
-                          {channelOptions.find(o => o.value === channel.type)?.label || channel.type}
-                        </span>
-                        <span className="text-sm">נפח: {channel.volumePerDay}/יום</span>
-                        <span className="text-sm">זמן תגובה: {channel.responseTime}</span>
-                        <span className="text-sm">זמינות: {channel.availability}</span>
-                        <button
-                          onClick={() => setChannels(channels.filter((_, i) => i !== index))}
-                          className="mr-auto text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-all"
-                          aria-label="הסר ערוץ"
+                    {Array.isArray(channels) &&
+                      channels.map((channel, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                         >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
+                          <MessageCircle className="w-4 h-4 text-green-500" />
+                          <span className="font-medium min-w-[100px]">
+                            {channelOptions.find(
+                              (o) => o.value === channel.type
+                            )?.label || channel.type}
+                          </span>
+                          <span className="text-sm">
+                            נפח: {channel.volumePerDay}/יום
+                          </span>
+                          <span className="text-sm">
+                            זמן תגובה: {channel.responseTime}
+                          </span>
+                          <span className="text-sm">
+                            זמינות: {channel.availability}
+                          </span>
+                          <button
+                            onClick={() =>
+                              setChannels(
+                                channels.filter((_, i) => i !== index)
+                              )
+                            }
+                            className="mr-auto text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-all"
+                            aria-label="הסר ערוץ"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
                   </div>
 
                   {/* Add New Channel */}
                   <div className="mt-4 grid grid-cols-1 md:grid-cols-5 gap-2">
                     <Select
                       value={newChannel.type}
-                      onChange={(v) => setNewChannel({ ...newChannel, type: v })}
+                      onChange={(v) =>
+                        setNewChannel({ ...newChannel, type: v })
+                      }
                       options={channelOptions}
                       placeholder="בחר ערוץ"
                       dir="rtl"
@@ -354,20 +500,24 @@ export const CustomerServiceModule: React.FC = () => {
                     <Input
                       type="number"
                       value={newChannel.volumePerDay?.toString() || ''}
-                      onChange={(v) => setNewChannel({ ...newChannel, volumePerDay: v ? parseInt(v) : 0 })}
+                      onChange={(v) =>
+                        setNewChannel({
+                          ...newChannel,
+                          volumePerDay: v ? parseInt(v) : 0,
+                        })
+                      }
                       placeholder="נפח/יום"
                       dir="rtl"
                     />
                     <Input
                       value={newChannel.responseTime}
-                      onChange={(v) => setNewChannel({ ...newChannel, responseTime: v })}
+                      onChange={(v) =>
+                        setNewChannel({ ...newChannel, responseTime: v })
+                      }
                       placeholder="זמן תגובה"
                       dir="rtl"
                     />
-                    <Button
-                      onClick={handleAddChannel}
-                      variant="primary"
-                    >
+                    <Button onClick={handleAddChannel} variant="primary">
                       <Plus className="w-5 h-5" />
                     </Button>
                   </div>
@@ -375,7 +525,9 @@ export const CustomerServiceModule: React.FC = () => {
 
                 {/* Multi-Channel Management */}
                 <div className="bg-yellow-50 p-4 rounded-lg space-y-4">
-                  <h4 className="font-medium text-yellow-900">ניהול multi-channel</h4>
+                  <h4 className="font-medium text-yellow-900">
+                    ניהול multi-channel
+                  </h4>
 
                   <RadioGroup
                     label="פניה באותו נושא במספר ערוצים"
@@ -384,12 +536,14 @@ export const CustomerServiceModule: React.FC = () => {
                     options={[
                       { value: 'critical', label: 'בעיה קריטית' },
                       { value: 'minor', label: 'בעיה קלה' },
-                      { value: 'not_issue', label: 'לא בעיה' }
+                      { value: 'not_issue', label: 'לא בעיה' },
                     ]}
                   />
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">איך מאחדים פניות מערוצים שונים?</label>
+                    <label className="block text-sm font-medium mb-2">
+                      איך מאחדים פניות מערוצים שונים?
+                    </label>
                     <TextArea
                       value={unificationMethod}
                       onChange={setUnificationMethod}
@@ -402,15 +556,19 @@ export const CustomerServiceModule: React.FC = () => {
 
                 {/* Pain Point Detection */}
                 {/* Defensive check: Ensure channels is an array before using reduce */}
-                {(Array.isArray(channels) && channels.reduce((sum, ch) => sum + (ch.volumePerDay || 0), 0) > 100) && (
-                  <PainPointFlag
-                    module="customerService"
-                    subModule="channels"
-                    label="נפח פניות גבוה מאוד - צריך אוטומציה"
-                    autoDetect={true}
-                    condition={true}
-                  />
-                )}
+                {Array.isArray(channels) &&
+                  channels.reduce(
+                    (sum, ch) => sum + (ch.volumePerDay || 0),
+                    0
+                  ) > 100 && (
+                    <PainPointFlag
+                      module="customerService"
+                      subModule="channels"
+                      label="נפח פניות גבוה מאוד - צריך אוטומציה"
+                      autoDetect={true}
+                      condition={true}
+                    />
+                  )}
 
                 {multiChannelIssue === 'critical' && (
                   <PainPointFlag
@@ -435,9 +593,13 @@ export const CustomerServiceModule: React.FC = () => {
                 <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
                   3.2 מענה אוטומטי ושאלות נפוצות
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">Top 10 שאלות חוזרות ובקשות שירות</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  Top 10 שאלות חוזרות ובקשות שירות
+                </p>
               </div>
-              <div className={`transform transition-transform duration-300 ${expandedSections.includes('autoResponse') ? 'rotate-180' : ''}`}>
+              <div
+                className={`transform transition-transform duration-300 ${expandedSections.includes('autoResponse') ? 'rotate-180' : ''}`}
+              >
                 <ChevronDown className="w-5 h-5" />
               </div>
             </button>
@@ -446,16 +608,23 @@ export const CustomerServiceModule: React.FC = () => {
               <div className="mt-6 space-y-6 animate-slideDown">
                 {/* Top 10 Questions */}
                 <div>
-                  <label className="block text-sm font-medium mb-3">Top 10 שאלות חוזרות</label>
+                  <label className="block text-sm font-medium mb-3">
+                    Top 10 שאלות חוזרות
+                  </label>
                   <div className="space-y-2">
                     {topQuestions.map((q, index) => (
-                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div
+                        key={index}
+                        className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                      >
                         <span className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
                           {index + 1}
                         </span>
                         <Input
                           value={q.question}
-                          onChange={(v) => handleUpdateQuestion(index, 'question', v)}
+                          onChange={(v) =>
+                            handleUpdateQuestion(index, 'question', v)
+                          }
                           placeholder={`שאלה מספר ${index + 1}...`}
                           className="flex-1"
                           dir="rtl"
@@ -463,7 +632,13 @@ export const CustomerServiceModule: React.FC = () => {
                         <Input
                           type="number"
                           value={q.frequencyPerDay?.toString() || ''}
-                          onChange={(v) => handleUpdateQuestion(index, 'frequencyPerDay', v ? parseInt(v) : 0)}
+                          onChange={(v) =>
+                            handleUpdateQuestion(
+                              index,
+                              'frequencyPerDay',
+                              v ? parseInt(v) : 0
+                            )
+                          }
                           placeholder="תדירות/יום"
                           className="w-32"
                           dir="rtl"
@@ -475,7 +650,9 @@ export const CustomerServiceModule: React.FC = () => {
 
                 {/* Common Service Requests */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">בקשות שירות חוזרות</label>
+                  <label className="block text-sm font-medium mb-2">
+                    בקשות שירות חוזרות
+                  </label>
                   <CheckboxGroup
                     options={[
                       { value: 'status_check', label: 'בדיקת סטטוס' },
@@ -485,7 +662,7 @@ export const CustomerServiceModule: React.FC = () => {
                       { value: 'schedule_appointment', label: 'קביעת תור' },
                       { value: 'payment_query', label: 'בירור תשלום' },
                       { value: 'technical_support', label: 'תמיכה טכנית' },
-                      { value: 'refund_request', label: 'בקשת החזר' }
+                      { value: 'refund_request', label: 'בקשת החזר' },
                     ]}
                     values={commonRequests}
                     onChange={setCommonRequests}
@@ -501,10 +678,7 @@ export const CustomerServiceModule: React.FC = () => {
                       className="flex-1"
                       dir="rtl"
                     />
-                    <Button
-                      onClick={handleAddCustomRequest}
-                      variant="primary"
-                    >
+                    <Button onClick={handleAddCustomRequest} variant="primary">
                       <Plus className="w-4 h-4" />
                     </Button>
                   </div>
@@ -524,7 +698,13 @@ export const CustomerServiceModule: React.FC = () => {
                         </p>
                       </div>
                       <div className="text-3xl font-bold text-green-600">
-                        {Math.round(topQuestions.reduce((sum, q) => sum + (q.frequencyPerDay || 0), 0) * 2)} דק׳/יום
+                        {Math.round(
+                          topQuestions.reduce(
+                            (sum, q) => sum + (q.frequencyPerDay || 0),
+                            0
+                          ) * 2
+                        )}{' '}
+                        דק׳/יום
                       </div>
                     </div>
                   </div>
@@ -543,9 +723,13 @@ export const CustomerServiceModule: React.FC = () => {
                 <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
                   3.3 תקשורת יזומה ועדכונים 🆕
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">עדכונים יזומים, שמירת קשר וערוצים</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  עדכונים יזומים, שמירת קשר וערוצים
+                </p>
               </div>
-              <div className={`transform transition-transform duration-300 ${expandedSections.includes('proactive') ? 'rotate-180' : ''}`}>
+              <div
+                className={`transform transition-transform duration-300 ${expandedSections.includes('proactive') ? 'rotate-180' : ''}`}
+              >
                 <ChevronDown className="w-5 h-5" />
               </div>
             </button>
@@ -554,7 +738,9 @@ export const CustomerServiceModule: React.FC = () => {
               <div className="mt-6 space-y-6 animate-slideDown">
                 {/* Update Triggers */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">שלבי עדכון יזומים</label>
+                  <label className="block text-sm font-medium mb-2">
+                    שלבי עדכון יזומים
+                  </label>
                   <CheckboxGroup
                     options={[
                       { value: 'after_purchase', label: 'אחרי רכישה' },
@@ -562,7 +748,7 @@ export const CustomerServiceModule: React.FC = () => {
                       { value: 'before_completion', label: 'לפני סיום' },
                       { value: 'periodic', label: 'תקופתי' },
                       { value: 'milestone', label: 'באבני דרך' },
-                      { value: 'issue_resolved', label: 'אחרי פתרון בעיה' }
+                      { value: 'issue_resolved', label: 'אחרי פתרון בעיה' },
                     ]}
                     values={updateTriggers}
                     onChange={setUpdateTriggers}
@@ -571,25 +757,39 @@ export const CustomerServiceModule: React.FC = () => {
                   {/* Channel Mapping for Updates */}
                   {updateTriggers.length > 0 && (
                     <div className="mt-3 space-y-2">
-                      <label className="text-sm text-gray-600">ערוץ לכל שלב:</label>
-                      {updateTriggers.map(trigger => (
+                      <label className="text-sm text-gray-600">
+                        ערוץ לכל שלב:
+                      </label>
+                      {updateTriggers.map((trigger) => (
                         <div key={trigger} className="flex items-center gap-3">
                           <span className="text-sm min-w-[150px]">
-                            {trigger === 'after_purchase' ? 'אחרי רכישה' :
-                             trigger === 'during_process' ? 'במהלך תהליך' :
-                             trigger === 'before_completion' ? 'לפני סיום' :
-                             trigger === 'periodic' ? 'תקופתי' :
-                             trigger === 'milestone' ? 'באבני דרך' : 'אחרי פתרון בעיה'}:
+                            {trigger === 'after_purchase'
+                              ? 'אחרי רכישה'
+                              : trigger === 'during_process'
+                                ? 'במהלך תהליך'
+                                : trigger === 'before_completion'
+                                  ? 'לפני סיום'
+                                  : trigger === 'periodic'
+                                    ? 'תקופתי'
+                                    : trigger === 'milestone'
+                                      ? 'באבני דרך'
+                                      : 'אחרי פתרון בעיה'}
+                            :
                           </span>
                           <Select
                             value={updateChannelMapping[trigger] || ''}
-                            onChange={(v) => setUpdateChannelMapping({...updateChannelMapping, [trigger]: v})}
+                            onChange={(v) =>
+                              setUpdateChannelMapping({
+                                ...updateChannelMapping,
+                                [trigger]: v,
+                              })
+                            }
                             options={[
                               { value: 'email', label: 'אימייל' },
                               { value: 'whatsapp', label: 'WhatsApp' },
                               { value: 'sms', label: 'SMS' },
                               { value: 'phone', label: 'טלפון' },
-                              { value: 'app', label: 'אפליקציה' }
+                              { value: 'app', label: 'אפליקציה' },
                             ]}
                             placeholder="בחר ערוץ"
                             className="flex-1"
@@ -603,7 +803,9 @@ export const CustomerServiceModule: React.FC = () => {
 
                 {/* What Matters to Customers */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">מה חשוב ללקוחות לדעת?</label>
+                  <label className="block text-sm font-medium mb-2">
+                    מה חשוב ללקוחות לדעת?
+                  </label>
                   <TextArea
                     value={whatMattersToCustomers}
                     onChange={setWhatMattersToCustomers}
@@ -615,7 +817,9 @@ export const CustomerServiceModule: React.FC = () => {
 
                 {/* Keep in Touch */}
                 <div className="bg-blue-50 p-4 rounded-lg space-y-4">
-                  <h4 className="font-medium text-blue-900">שמירת קשר עם קיימים</h4>
+                  <h4 className="font-medium text-blue-900">
+                    שמירת קשר עם קיימים
+                  </h4>
 
                   <RadioGroup
                     label="תדירות קשר"
@@ -626,7 +830,7 @@ export const CustomerServiceModule: React.FC = () => {
                       { value: 'weekly', label: 'שבועי' },
                       { value: 'monthly', label: 'חודשי' },
                       { value: 'quarterly', label: 'רבעוני' },
-                      { value: 'none', label: 'לא' }
+                      { value: 'none', label: 'לא' },
                     ]}
                     orientation="horizontal"
                   />
@@ -638,7 +842,7 @@ export const CustomerServiceModule: React.FC = () => {
                       { value: 'value_added', label: 'ערך מוסף' },
                       { value: 'updates', label: 'עדכונים' },
                       { value: 'educational', label: 'חינוכי' },
-                      { value: 'seasonal', label: 'עונתי' }
+                      { value: 'seasonal', label: 'עונתי' },
                     ]}
                     values={communicationType}
                     onChange={setCommunicationType}
@@ -648,14 +852,18 @@ export const CustomerServiceModule: React.FC = () => {
 
                 {/* Time Investment */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">זמן הכנת עדכונים (שעות/שבוע)</label>
+                  <label className="block text-sm font-medium mb-2">
+                    זמן הכנת עדכונים (שעות/שבוע)
+                  </label>
                   <Input
                     type="number"
                     value={weeklyTimeSpent?.toString() || ''}
                     onChange={(v) => setWeeklyTimeSpent(v ? parseInt(v) : 0)}
                     dir="rtl"
                   />
-                  <p className="text-sm text-gray-500 mt-1">כמה זמן משקיעים בהכנת תוכן ועדכונים?</p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    כמה זמן משקיעים בהכנת תוכן ועדכונים?
+                  </p>
                 </div>
 
                 {/* Pain Point Detection */}
@@ -682,9 +890,13 @@ export const CustomerServiceModule: React.FC = () => {
                 <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
                   3.4 ניהול קהילות ואירועים 🆕
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">קהילה, אירועים, וובינרים והרשמות</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  קהילה, אירועים, וובינרים והרשמות
+                </p>
               </div>
-              <div className={`transform transition-transform duration-300 ${expandedSections.includes('community') ? 'rotate-180' : ''}`}>
+              <div
+                className={`transform transition-transform duration-300 ${expandedSections.includes('community') ? 'rotate-180' : ''}`}
+              >
                 <ChevronDown className="w-5 h-5" />
               </div>
             </button>
@@ -698,7 +910,7 @@ export const CustomerServiceModule: React.FC = () => {
                   onChange={(v) => setCommunityExists(v === 'yes')}
                   options={[
                     { value: 'yes', label: 'כן' },
-                    { value: 'no', label: 'לא' }
+                    { value: 'no', label: 'לא' },
                   ]}
                   orientation="horizontal"
                 />
@@ -707,19 +919,25 @@ export const CustomerServiceModule: React.FC = () => {
                   <>
                     {/* Community Size */}
                     <div>
-                      <label className="block text-sm font-medium mb-2">גודל הקהילה</label>
+                      <label className="block text-sm font-medium mb-2">
+                        גודל הקהילה
+                      </label>
                       <Input
                         type="number"
                         value={communitySize?.toString() || ''}
                         onChange={(v) => setCommunitySize(v ? parseInt(v) : 0)}
                         dir="rtl"
                       />
-                      <p className="text-sm text-gray-500 mt-1">כמה חברים פעילים בקהילה?</p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        כמה חברים פעילים בקהילה?
+                      </p>
                     </div>
 
                     {/* Platforms */}
                     <div>
-                      <label className="block text-sm font-medium mb-2">פלטפורמות</label>
+                      <label className="block text-sm font-medium mb-2">
+                        פלטפורמות
+                      </label>
                       <CheckboxGroup
                         options={platformOptions}
                         values={communityPlatforms}
@@ -749,12 +967,21 @@ export const CustomerServiceModule: React.FC = () => {
                     <CheckboxGroup
                       label="אתגרים"
                       options={[
-                        { value: 'managing_lists', label: 'ניהול רשימות תפוצה' },
-                        { value: 'personalized_communication', label: 'תקשורת מותאמת' },
+                        {
+                          value: 'managing_lists',
+                          label: 'ניהול רשימות תפוצה',
+                        },
+                        {
+                          value: 'personalized_communication',
+                          label: 'תקשורת מותאמת',
+                        },
                         { value: 'low_engagement', label: 'engagement נמוך' },
                         { value: 'moderation', label: 'מודרציה' },
                         { value: 'spam', label: 'ספאם ותוכן לא רצוי' },
-                        { value: 'multiple_platforms', label: 'ניהול מספר פלטפורמות' }
+                        {
+                          value: 'multiple_platforms',
+                          label: 'ניהול מספר פלטפורמות',
+                        },
                       ]}
                       values={communityChallenges}
                       onChange={setCommunityChallenges}
@@ -770,7 +997,9 @@ export const CustomerServiceModule: React.FC = () => {
                   </h4>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">תדירות</label>
+                    <label className="block text-sm font-medium mb-2">
+                      תדירות
+                    </label>
                     <Input
                       type="number"
                       value={eventsPerMonth?.toString() || ''}
@@ -788,17 +1017,21 @@ export const CustomerServiceModule: React.FC = () => {
                         options={[
                           { value: 'manual', label: 'ידני' },
                           { value: 'system', label: 'מערכת' },
-                          { value: 'mixed', label: 'משולב' }
+                          { value: 'mixed', label: 'משולב' },
                         ]}
                         orientation="horizontal"
                       />
 
                       <div>
-                        <label className="block text-sm font-medium mb-2">% הגעה בפועל</label>
+                        <label className="block text-sm font-medium mb-2">
+                          % הגעה בפועל
+                        </label>
                         <Input
                           type="number"
                           value={actualAttendanceRate?.toString() || ''}
-                          onChange={(v) => setActualAttendanceRate(v ? parseInt(v) : 0)}
+                          onChange={(v) =>
+                            setActualAttendanceRate(v ? parseInt(v) : 0)
+                          }
                           dir="rtl"
                         />
                       </div>
@@ -845,9 +1078,13 @@ export const CustomerServiceModule: React.FC = () => {
                 <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
                   3.5 ניהול מוניטין ומשוב 🆕
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">איסוף משוב, ביקורות ואסטרטגיה</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  איסוף משוב, ביקורות ואסטרטגיה
+                </p>
               </div>
-              <div className={`transform transition-transform duration-300 ${expandedSections.includes('reputation') ? 'rotate-180' : ''}`}>
+              <div
+                className={`transform transition-transform duration-300 ${expandedSections.includes('reputation') ? 'rotate-180' : ''}`}
+              >
                 <ChevronDown className="w-5 h-5" />
               </div>
             </button>
@@ -856,7 +1093,9 @@ export const CustomerServiceModule: React.FC = () => {
               <div className="mt-6 space-y-6 animate-slideDown">
                 {/* Feedback Collection */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">איסוף משוב</label>
+                  <label className="block text-sm font-medium mb-2">
+                    איסוף משוב
+                  </label>
 
                   <CheckboxGroup
                     label="מתי אוספים משוב?"
@@ -866,7 +1105,7 @@ export const CustomerServiceModule: React.FC = () => {
                       { value: 'after_service', label: 'אחרי שירות' },
                       { value: 'after_complaint', label: 'אחרי תלונה' },
                       { value: 'random', label: 'אקראי' },
-                      { value: 'never', label: 'לא אוספים' }
+                      { value: 'never', label: 'לא אוספים' },
                     ]}
                     values={feedbackWhen}
                     onChange={setFeedbackWhen}
@@ -880,7 +1119,7 @@ export const CustomerServiceModule: React.FC = () => {
                       { value: 'sms', label: 'SMS' },
                       { value: 'email', label: 'אימייל' },
                       { value: 'whatsapp', label: 'WhatsApp' },
-                      { value: 'app', label: 'אפליקציה' }
+                      { value: 'app', label: 'אפליקציה' },
                     ]}
                     values={feedbackHow}
                     onChange={setFeedbackHow}
@@ -888,17 +1127,23 @@ export const CustomerServiceModule: React.FC = () => {
                   />
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">% תגובה למשוב</label>
+                    <label className="block text-sm font-medium mb-2">
+                      % תגובה למשוב
+                    </label>
                     <Input
                       type="number"
                       value={feedbackResponseRate?.toString() || ''}
-                      onChange={(v) => setFeedbackResponseRate(v ? parseInt(v) : 0)}
+                      onChange={(v) =>
+                        setFeedbackResponseRate(v ? parseInt(v) : 0)
+                      }
                       dir="rtl"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">מה עושים עם המשוב?</label>
+                    <label className="block text-sm font-medium mb-2">
+                      מה עושים עם המשוב?
+                    </label>
                     <TextArea
                       value={whatDoWithFeedback}
                       onChange={setWhatDoWithFeedback}
@@ -917,7 +1162,9 @@ export const CustomerServiceModule: React.FC = () => {
                   </h4>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">כמות ביקורות בחודש</label>
+                    <label className="block text-sm font-medium mb-2">
+                      כמות ביקורות בחודש
+                    </label>
                     <Input
                       type="number"
                       value={reviewsPerMonth?.toString() || ''}
@@ -934,7 +1181,7 @@ export const CustomerServiceModule: React.FC = () => {
                       { value: 'website', label: 'אתר' },
                       { value: 'tripadvisor', label: 'TripAdvisor' },
                       { value: 'yelp', label: 'Yelp' },
-                      { value: 'zap', label: 'זאפ' }
+                      { value: 'zap', label: 'זאפ' },
                     ]}
                     values={reviewPlatforms}
                     onChange={setReviewPlatforms}
@@ -943,10 +1190,14 @@ export const CustomerServiceModule: React.FC = () => {
 
                   {/* Review Strategy */}
                   <div>
-                    <label className="block text-sm font-medium mb-2">אסטרטגיה</label>
+                    <label className="block text-sm font-medium mb-2">
+                      אסטרטגיה
+                    </label>
 
                     <div className="mb-3">
-                      <label className="block text-sm font-medium mb-2">עידוד ביקורות חיוביות</label>
+                      <label className="block text-sm font-medium mb-2">
+                        עידוד ביקורות חיוביות
+                      </label>
                       <TextArea
                         value={positiveReviewStrategy}
                         onChange={setPositiveReviewStrategy}
@@ -957,7 +1208,9 @@ export const CustomerServiceModule: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-2">טיפול בביקורות שליליות</label>
+                      <label className="block text-sm font-medium mb-2">
+                        טיפול בביקורות שליליות
+                      </label>
                       <TextArea
                         value={negativeReviewStrategy}
                         onChange={setNegativeReviewStrategy}
@@ -1008,9 +1261,13 @@ export const CustomerServiceModule: React.FC = () => {
                 <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
                   3.6 Onboarding לקוחות חדשים 🆕
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">תהליך קליטה, מעקב ובעיות נפוצות</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  תהליך קליטה, מעקב ובעיות נפוצות
+                </p>
               </div>
-              <div className={`transform transition-transform duration-300 ${expandedSections.includes('onboarding') ? 'rotate-180' : ''}`}>
+              <div
+                className={`transform transition-transform duration-300 ${expandedSections.includes('onboarding') ? 'rotate-180' : ''}`}
+              >
                 <ChevronDown className="w-5 h-5" />
               </div>
             </button>
@@ -1019,17 +1276,28 @@ export const CustomerServiceModule: React.FC = () => {
               <div className="mt-6 space-y-6 animate-slideDown">
                 {/* Onboarding Steps */}
                 <div>
-                  <label className="block text-sm font-medium mb-3">תהליך קליטה - שלבים</label>
+                  <label className="block text-sm font-medium mb-3">
+                    תהליך קליטה - שלבים
+                  </label>
                   <div className="space-y-2 mb-3">
                     {onboardingSteps.map((step, index) => (
-                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div
+                        key={index}
+                        className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                      >
                         <span className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-medium">
                           {index + 1}
                         </span>
                         <span className="flex-1 font-medium">{step.name}</span>
-                        <span className="text-sm text-gray-600">זמן: {step.time}</span>
+                        <span className="text-sm text-gray-600">
+                          זמן: {step.time}
+                        </span>
                         <button
-                          onClick={() => setOnboardingSteps(onboardingSteps.filter((_, i) => i !== index))}
+                          onClick={() =>
+                            setOnboardingSteps(
+                              onboardingSteps.filter((_, i) => i !== index)
+                            )
+                          }
                           className="text-red-500 hover:text-red-700"
                         >
                           <X className="w-4 h-4" />
@@ -1042,20 +1310,21 @@ export const CustomerServiceModule: React.FC = () => {
                   <div className="grid grid-cols-[2fr_1fr_auto] gap-2">
                     <Input
                       value={newOnboardingStep.name}
-                      onChange={(v) => setNewOnboardingStep({...newOnboardingStep, name: v})}
+                      onChange={(v) =>
+                        setNewOnboardingStep({ ...newOnboardingStep, name: v })
+                      }
                       placeholder="שם השלב..."
                       dir="rtl"
                     />
                     <Input
                       value={newOnboardingStep.time}
-                      onChange={(v) => setNewOnboardingStep({...newOnboardingStep, time: v})}
+                      onChange={(v) =>
+                        setNewOnboardingStep({ ...newOnboardingStep, time: v })
+                      }
                       placeholder="זמן (למשל: 5 דקות)"
                       dir="rtl"
                     />
-                    <Button
-                      onClick={handleAddOnboardingStep}
-                      variant="primary"
-                    >
+                    <Button onClick={handleAddOnboardingStep} variant="primary">
                       <Plus className="w-5 h-5" />
                     </Button>
                   </div>
@@ -1070,7 +1339,7 @@ export const CustomerServiceModule: React.FC = () => {
                     { value: '2_weeks', label: 'אחרי שבועיים' },
                     { value: '1_month', label: 'אחרי חודש' },
                     { value: '3_months', label: 'אחרי 3 חודשים' },
-                    { value: '6_months', label: 'אחרי חצי שנה' }
+                    { value: '6_months', label: 'אחרי חצי שנה' },
                   ]}
                   values={followUpChecks}
                   onChange={setFollowUpChecks}
@@ -1084,7 +1353,7 @@ export const CustomerServiceModule: React.FC = () => {
                   onChange={(v) => setMissingAlerts(v === 'yes')}
                   options={[
                     { value: 'yes', label: 'כן' },
-                    { value: 'no', label: 'לא' }
+                    { value: 'no', label: 'לא' },
                   ]}
                   orientation="horizontal"
                   helperText="האם יש התראות כשלקוח לא משלים שלב?"

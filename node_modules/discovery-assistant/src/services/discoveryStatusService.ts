@@ -28,15 +28,20 @@ export type DiscoveryStatusValue =
  * @param meeting - Complete meeting object
  * @returns Discovery status value
  */
-export function calculateDiscoveryStatus(meeting: Meeting): DiscoveryStatusValue {
+export function calculateDiscoveryStatus(
+  meeting: Meeting
+): DiscoveryStatusValue {
   if (!meeting) {
-    console.warn('[Discovery Status] No meeting provided, defaulting to discovery_started');
+    console.warn(
+      '[Discovery Status] No meeting provided, defaulting to discovery_started'
+    );
     return 'discovery_started';
   }
 
   // RULE 5: Phase 2 completed → implementation_started
   // Check if all purchased services have completed requirements
-  const phase2Complete = meeting.implementationSpec?.completionPercentage === 100;
+  const phase2Complete =
+    meeting.implementationSpec?.completionPercentage === 100;
   const inDevelopment = meeting.phase === 'development';
 
   if (inDevelopment || phase2Complete) {
@@ -64,7 +69,7 @@ export function calculateDiscoveryStatus(meeting: Meeting): DiscoveryStatusValue
 
   // RULE 2: Services selected → proposal
   const selectedServices = meeting.modules?.proposal?.selectedServices || [];
-  const hasSelectedServices = selectedServices.some(s => s.selected === true);
+  const hasSelectedServices = selectedServices.some((s) => s.selected === true);
 
   if (hasSelectedServices) {
     console.log('[Discovery Status] Rule 2: proposal');
@@ -82,15 +87,15 @@ export function calculateDiscoveryStatus(meeting: Meeting): DiscoveryStatusValue
     'reporting',
     'aiAgents',
     'systems',
-    'roi'
+    'roi',
   ] as const;
 
-  const hasAnyModuleData = moduleNames.some(moduleName => {
+  const hasAnyModuleData = moduleNames.some((moduleName) => {
     const moduleData = modules[moduleName];
     if (!moduleData || typeof moduleData !== 'object') return false;
 
     // Check if module has any filled fields
-    return Object.values(moduleData).some(value => {
+    return Object.values(moduleData).some((value) => {
       if (value === null || value === undefined || value === '') return false;
       if (Array.isArray(value)) return value.length > 0;
       if (typeof value === 'object') return Object.keys(value).length > 0;
@@ -122,10 +127,13 @@ export async function markProposalAsSent(
   try {
     updateModule('proposal', {
       proposalSent: true,
-      proposalSentAt: new Date().toISOString()
+      proposalSentAt: new Date().toISOString(),
     });
 
-    console.log('[Discovery Status] Proposal marked as sent for meeting:', meetingId);
+    console.log(
+      '[Discovery Status] Proposal marked as sent for meeting:',
+      meetingId
+    );
   } catch (error) {
     console.error('[Discovery Status] Failed to mark proposal as sent:', error);
   }
@@ -150,7 +158,7 @@ export function getStatusInfo(status: DiscoveryStatusValue) {
       textColor: 'text-blue-800',
       borderColor: 'border-blue-300',
       icon: '🔍',
-      stage: 1
+      stage: 1,
     },
     proposal: {
       label: 'בניית הצעה',
@@ -163,7 +171,7 @@ export function getStatusInfo(status: DiscoveryStatusValue) {
       textColor: 'text-purple-800',
       borderColor: 'border-purple-300',
       icon: '📝',
-      stage: 2
+      stage: 2,
     },
     proposal_sent: {
       label: 'הצעה נשלחה',
@@ -176,34 +184,36 @@ export function getStatusInfo(status: DiscoveryStatusValue) {
       textColor: 'text-yellow-800',
       borderColor: 'border-yellow-300',
       icon: '📨',
-      stage: 3
+      stage: 3,
     },
     technical_details_collection: {
       label: 'איסוף פרטים טכניים',
       shortLabel: 'פרטים טכניים',
       labelEn: 'Technical Details Collection',
       description: 'הלקוח אישר, איסוף דרישות טכניות מפורטות',
-      descriptionEn: 'Client approved, collecting detailed technical requirements',
+      descriptionEn:
+        'Client approved, collecting detailed technical requirements',
       color: 'orange',
       bgColor: 'bg-orange-100',
       textColor: 'text-orange-800',
       borderColor: 'border-orange-300',
       icon: '⚙️',
-      stage: 4
+      stage: 4,
     },
     implementation_started: {
       label: 'יישום החל',
       shortLabel: 'יישום',
       labelEn: 'Implementation Started',
       description: 'הפרויקט בפיתוח, צוות הטכני עובד על היישום',
-      descriptionEn: 'Project in development, technical team working on implementation',
+      descriptionEn:
+        'Project in development, technical team working on implementation',
       color: 'green',
       bgColor: 'bg-green-100',
       textColor: 'text-green-800',
       borderColor: 'border-green-300',
       icon: '🚀',
-      stage: 5
-    }
+      stage: 5,
+    },
   };
 
   return statusConfig[status];
@@ -221,7 +231,7 @@ export function getAllStatuses(): DiscoveryStatusValue[] {
     'proposal',
     'proposal_sent',
     'technical_details_collection',
-    'implementation_started'
+    'implementation_started',
   ];
 }
 
@@ -242,7 +252,9 @@ export function isValidStatus(status: string): status is DiscoveryStatusValue {
  * @param currentStatus - Current status
  * @returns Next status or null if at end
  */
-export function getNextStatus(currentStatus: DiscoveryStatusValue): DiscoveryStatusValue | null {
+export function getNextStatus(
+  currentStatus: DiscoveryStatusValue
+): DiscoveryStatusValue | null {
   const workflow = getAllStatuses();
   const currentIndex = workflow.indexOf(currentStatus);
 
@@ -259,7 +271,9 @@ export function getNextStatus(currentStatus: DiscoveryStatusValue): DiscoverySta
  * @param currentStatus - Current status
  * @returns Previous status or null if at start
  */
-export function getPreviousStatus(currentStatus: DiscoveryStatusValue): DiscoveryStatusValue | null {
+export function getPreviousStatus(
+  currentStatus: DiscoveryStatusValue
+): DiscoveryStatusValue | null {
   const workflow = getAllStatuses();
   const currentIndex = workflow.indexOf(currentStatus);
 
@@ -277,13 +291,15 @@ export function getPreviousStatus(currentStatus: DiscoveryStatusValue): Discover
  * @param status - Current status
  * @returns Progress percentage (0-100)
  */
-export function getStatusProgressPercentage(status: DiscoveryStatusValue): number {
+export function getStatusProgressPercentage(
+  status: DiscoveryStatusValue
+): number {
   const progressMap = {
     discovery_started: 20,
     proposal: 40,
     proposal_sent: 60,
     technical_details_collection: 80,
-    implementation_started: 90
+    implementation_started: 90,
   };
 
   return progressMap[status] || 0;
@@ -297,7 +313,10 @@ export function getStatusProgressPercentage(status: DiscoveryStatusValue): numbe
  * @param language - Language ('he' or 'en')
  * @returns Formatted status string
  */
-export function formatStatus(status: DiscoveryStatusValue, language: 'he' | 'en' = 'he'): string {
+export function formatStatus(
+  status: DiscoveryStatusValue,
+  language: 'he' | 'en' = 'he'
+): string {
   const info = getStatusInfo(status);
   return language === 'en' ? info.labelEn : info.label;
 }

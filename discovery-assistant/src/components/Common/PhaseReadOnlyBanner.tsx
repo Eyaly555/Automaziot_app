@@ -24,7 +24,7 @@ interface PhaseReadOnlyBannerProps {
  */
 export const PhaseReadOnlyBanner: React.FC<PhaseReadOnlyBannerProps> = ({
   moduleName,
-  className = ''
+  className = '',
 }) => {
   const { currentMeeting } = useMeetingStore();
 
@@ -36,13 +36,15 @@ export const PhaseReadOnlyBanner: React.FC<PhaseReadOnlyBannerProps> = ({
   const phaseNames = {
     implementation_spec: 'מפרט יישום',
     development: 'פיתוח',
-    completed: 'הושלם'
+    completed: 'הושלם',
   };
 
   const phaseName = phaseNames[currentMeeting.phase] || currentMeeting.phase;
 
   return (
-    <div className={`mb-6 p-4 bg-amber-50 border-r-4 border-amber-500 rounded-lg ${className}`}>
+    <div
+      className={`mb-6 p-4 bg-amber-50 border-r-4 border-amber-500 rounded-lg ${className}`}
+    >
       <div className="flex items-start gap-3">
         <Lock className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
         <div className="flex-1">
@@ -50,9 +52,11 @@ export const PhaseReadOnlyBanner: React.FC<PhaseReadOnlyBannerProps> = ({
             מודול נעול לעריכה
           </h3>
           <p className="text-xs text-amber-800">
-            {moduleName && <span className="font-semibold">{moduleName}: </span>}
-            הפגישה נמצאת בשלב "{phaseName}". נתוני הגילוי נעולים לעריכה כדי למנוע שינויים לא מכוונים.
-            ניתן לצפות במידע אך לא לערוך אותו.
+            {moduleName && (
+              <span className="font-semibold">{moduleName}: </span>
+            )}
+            הפגישה נמצאת בשלב "{phaseName}". נתוני הגילוי נעולים לעריכה כדי
+            למנוע שינויים לא מכוונים. ניתן לצפות במידע אך לא לערוך אותו.
           </p>
         </div>
         <Info className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />

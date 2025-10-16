@@ -10,7 +10,7 @@ import {
   IntegrationFlow,
   FlowTrigger,
   ErrorHandlingStrategy,
-  TestCase
+  TestCase,
 } from '../types/phase2';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -18,22 +18,29 @@ const generateId = () => Math.random().toString(36).substr(2, 9);
 /**
  * Suggests integration flows based on Phase 1 integration needs
  */
-export const suggestIntegrationFlows = (meeting: Meeting): IntegrationFlow[] => {
+export const suggestIntegrationFlows = (
+  meeting: Meeting
+): IntegrationFlow[] => {
   const systems = meeting.modules?.systems?.detailedSystems || [];
   const flows: IntegrationFlow[] = [];
 
   // For each system with integration needs
-  systems.forEach(sourceSystem => {
-    if (!sourceSystem.integrationNeeds || sourceSystem.integrationNeeds.length === 0) {
+  systems.forEach((sourceSystem) => {
+    if (
+      !sourceSystem.integrationNeeds ||
+      sourceSystem.integrationNeeds.length === 0
+    ) {
       return;
     }
 
-    sourceSystem.integrationNeeds.forEach(need => {
+    sourceSystem.integrationNeeds.forEach((need) => {
       // Find target system
-      const targetSystem = systems.find(s => s.id === need.targetSystemId);
+      const targetSystem = systems.find((s) => s.id === need.targetSystemId);
 
       if (!targetSystem) {
-        console.warn(`Target system not found for integration need: ${need.targetSystemId}`);
+        console.warn(
+          `Target system not found for integration need: ${need.targetSystemId}`
+        );
         return;
       }
 
@@ -41,7 +48,9 @@ export const suggestIntegrationFlows = (meeting: Meeting): IntegrationFlow[] => 
       const flow: IntegrationFlow = {
         id: generateId(),
         name: `${sourceSystem.specificSystem} ↔ ${targetSystem.specificSystem}`,
-        description: need.specificNeeds || `סנכרון נתונים בין ${sourceSystem.specificSystem} ל-${targetSystem.specificSystem}`,
+        description:
+          need.specificNeeds ||
+          `סנכרון נתונים בין ${sourceSystem.specificSystem} ל-${targetSystem.specificSystem}`,
         sourceSystem: sourceSystem.id,
         targetSystem: targetSystem.id,
 
@@ -59,13 +68,20 @@ export const suggestIntegrationFlows = (meeting: Meeting): IntegrationFlow[] => 
         priority: mapCriticalityToPriority(need.criticalityLevel),
 
         // Estimate setup time based on integration type
-        estimatedSetupTime: estimateSetupTime(need.integrationType, need.frequency),
+        estimatedSetupTime: estimateSetupTime(
+          need.integrationType,
+          need.frequency
+        ),
 
         // Default error handling
         errorHandling: getDefaultErrorHandling(need.criticalityLevel),
 
         // Generate basic test cases
-        testCases: generateBasicTestCases(sourceSystem.specificSystem, targetSystem.specificSystem, need)
+        testCases: generateBasicTestCases(
+          sourceSystem.specificSystem,
+          targetSystem.specificSystem,
+          need
+        ),
       };
 
       flows.push(flow);
@@ -90,15 +106,15 @@ const mapFrequencyToTrigger = (
           type: 'webhook',
           configuration: {
             method: 'POST',
-            authentication: 'bearer_token'
-          }
+            authentication: 'bearer_token',
+          },
         };
       }
       return {
         type: 'watch_field',
         configuration: {
-          pollInterval: 60 // 1 minute
-        }
+          pollInterval: 60, // 1 minute
+        },
       };
 
     case 'hourly':
@@ -107,15 +123,15 @@ const mapFrequencyToTrigger = (
       return {
         type: 'schedule',
         configuration: {
-          schedule: getScheduleExpression(frequency)
-        }
+          schedule: getScheduleExpression(frequency),
+        },
       };
 
     case 'manual':
     default:
       return {
         type: 'manual',
-        configuration: {}
+        configuration: {},
       };
   }
 };
@@ -141,7 +157,14 @@ const getScheduleExpression = (frequency: string): string => {
  */
 const mapFrequencyToPhase2Frequency = (
   frequency: string
-): 'realtime' | 'every_5_min' | 'every_15_min' | 'hourly' | 'daily' | 'weekly' | 'manual' => {
+):
+  | 'realtime'
+  | 'every_5_min'
+  | 'every_15_min'
+  | 'hourly'
+  | 'daily'
+  | 'weekly'
+  | 'manual' => {
   switch (frequency) {
     case 'realtime':
       return 'realtime';
@@ -226,14 +249,16 @@ const estimateSetupTime = (
 /**
  * Get default error handling based on criticality
  */
-const getDefaultErrorHandling = (criticality: string): ErrorHandlingStrategy => {
+const getDefaultErrorHandling = (
+  criticality: string
+): ErrorHandlingStrategy => {
   if (criticality === 'critical') {
     return {
       retryCount: 5,
       retryDelay: 10, // 10 seconds
       fallbackAction: 'alert',
       notifyOnFailure: true,
-      failureEmail: ''
+      failureEmail: '',
       // Fix: Removed 'escalationTrigger' - not in ErrorHandlingStrategy interface
     };
   } else if (criticality === 'important') {
@@ -242,7 +267,7 @@ const getDefaultErrorHandling = (criticality: string): ErrorHandlingStrategy => 
       retryDelay: 5,
       fallbackAction: 'queue',
       notifyOnFailure: true,
-      failureEmail: ''
+      failureEmail: '',
     };
   } else {
     return {
@@ -250,7 +275,7 @@ const getDefaultErrorHandling = (criticality: string): ErrorHandlingStrategy => 
       retryDelay: 5,
       fallbackAction: 'log',
       notifyOnFailure: false,
-      failureEmail: ''
+      failureEmail: '',
     };
   }
 };
@@ -271,15 +296,16 @@ const generateBasicTestCases = (
     scenario: `יצירת רשומה ב-${sourceSystemName} ובדיקת סנכרון ל-${targetSystemName}`,
     input: {
       action: 'create_record',
-      system: sourceSystemName
+      system: sourceSystemName,
     },
     expectedOutput: {
       action: 'record_created',
       system: targetSystemName,
-      syncTime: need.frequency === 'realtime' ? '< 2 minutes' : 'according to schedule'
+      syncTime:
+        need.frequency === 'realtime' ? '< 2 minutes' : 'according to schedule',
     },
     actualOutput: {},
-    status: 'pending'
+    status: 'pending',
   });
 
   // Test 2: Error handling
@@ -288,15 +314,15 @@ const generateBasicTestCases = (
     scenario: `בדיקת טיפול בשגיאות - שדה חובה חסר`,
     input: {
       action: 'create_incomplete_record',
-      system: sourceSystemName
+      system: sourceSystemName,
     },
     expectedOutput: {
       action: 'error_logged',
       retry: true,
-      notification: need.criticalityLevel === 'critical'
+      notification: need.criticalityLevel === 'critical',
     },
     actualOutput: {},
-    status: 'pending'
+    status: 'pending',
   });
 
   // Test 3: Bidirectional sync (if applicable)
@@ -306,15 +332,18 @@ const generateBasicTestCases = (
       scenario: `עדכון רשומה ב-${targetSystemName} ובדיקת סנכרון חזרה ל-${sourceSystemName}`,
       input: {
         action: 'update_record',
-        system: targetSystemName
+        system: targetSystemName,
       },
       expectedOutput: {
         action: 'record_updated',
         system: sourceSystemName,
-        syncTime: need.frequency === 'realtime' ? '< 2 minutes' : 'according to schedule'
+        syncTime:
+          need.frequency === 'realtime'
+            ? '< 2 minutes'
+            : 'according to schedule',
       },
       actualOutput: {},
-      status: 'pending'
+      status: 'pending',
     });
   }
 
@@ -327,13 +356,16 @@ const generateBasicTestCases = (
 export const getIntegrationFlowStats = (flows: IntegrationFlow[]) => {
   return {
     total: flows.length,
-    critical: flows.filter(f => f.priority === 'critical').length,
-    high: flows.filter(f => f.priority === 'high').length,
-    medium: flows.filter(f => f.priority === 'medium').length,
-    low: flows.filter(f => f.priority === 'low').length,
-    realtime: flows.filter(f => f.frequency === 'realtime').length,
-    bidirectional: flows.filter(f => f.direction === 'bidirectional').length,
-    totalEstimatedSetupTime: flows.reduce((acc, f) => acc + f.estimatedSetupTime, 0)
+    critical: flows.filter((f) => f.priority === 'critical').length,
+    high: flows.filter((f) => f.priority === 'high').length,
+    medium: flows.filter((f) => f.priority === 'medium').length,
+    low: flows.filter((f) => f.priority === 'low').length,
+    realtime: flows.filter((f) => f.frequency === 'realtime').length,
+    bidirectional: flows.filter((f) => f.direction === 'bidirectional').length,
+    totalEstimatedSetupTime: flows.reduce(
+      (acc, f) => acc + f.estimatedSetupTime,
+      0
+    ),
   };
 };
 

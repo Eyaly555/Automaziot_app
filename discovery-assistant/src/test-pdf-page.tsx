@@ -3,7 +3,9 @@ import { generateProposalPDF } from './utils/exportProposalPDF';
 import { SelectedService, ProposalData } from './types/proposal';
 
 export const TestPDFPage: React.FC = () => {
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<
+    'idle' | 'loading' | 'success' | 'error'
+  >('idle');
   const [message, setMessage] = useState<string>('');
 
   const handleTest = async () => {
@@ -83,18 +85,20 @@ export const TestPDFPage: React.FC = () => {
   };
 
   return (
-    <div style={{ 
-      maxWidth: '600px', 
-      margin: '50px auto', 
-      padding: '30px',
-      background: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-    }}>
+    <div
+      style={{
+        maxWidth: '600px',
+        margin: '50px auto',
+        padding: '30px',
+        background: 'white',
+        borderRadius: '8px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+      }}
+    >
       <h1 style={{ textAlign: 'center', color: '#2563eb' }}>
         🔬 בדיקת יצירת PDF עברי
       </h1>
-      
+
       <p>בדיקה זו תיצור PDF עם:</p>
       <ul>
         <li>✅ פונט Rubik שתומך בעברית</li>
@@ -122,14 +126,26 @@ export const TestPDFPage: React.FC = () => {
       </button>
 
       {message && (
-        <div style={{
-          marginTop: '20px',
-          padding: '15px',
-          borderRadius: '6px',
-          background: status === 'success' ? '#d1fae5' : status === 'error' ? '#fee2e2' : '#dbeafe',
-          color: status === 'success' ? '#065f46' : status === 'error' ? '#991b1b' : '#1e40af',
-          border: `1px solid ${status === 'success' ? '#10b981' : status === 'error' ? '#ef4444' : '#3b82f6'}`,
-        }}>
+        <div
+          style={{
+            marginTop: '20px',
+            padding: '15px',
+            borderRadius: '6px',
+            background:
+              status === 'success'
+                ? '#d1fae5'
+                : status === 'error'
+                  ? '#fee2e2'
+                  : '#dbeafe',
+            color:
+              status === 'success'
+                ? '#065f46'
+                : status === 'error'
+                  ? '#991b1b'
+                  : '#1e40af',
+            border: `1px solid ${status === 'success' ? '#10b981' : status === 'error' ? '#ef4444' : '#3b82f6'}`,
+          }}
+        >
           {message}
         </div>
       )}

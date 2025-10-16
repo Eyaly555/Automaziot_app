@@ -11,39 +11,39 @@ import {
   ArrowLeft,
   ArrowRight,
   ClipboardCheck,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react';
 
 type RequirementsFlowState =
-  | 'not_started'      // No requirements selected yet
-  | 'in_progress'      // Currently collecting requirements
-  | 'review'           // All requirements collected, needs review
-  | 'complete';        // Ready to transition to approval phase
+  | 'not_started' // No requirements selected yet
+  | 'in_progress' // Currently collecting requirements
+  | 'review' // All requirements collected, needs review
+  | 'complete'; // Ready to transition to approval phase
 
 interface RequirementsFlowProps {
   language?: 'he' | 'en';
 }
 
 export const RequirementsFlow: React.FC<RequirementsFlowProps> = ({
-  language = 'he'
+  language = 'he',
 }) => {
   const navigate = useNavigate();
-  const {
-    currentMeeting,
-    updatePhaseStatus,
-    updateModule
-  } = useMeetingStore();
+  const { currentMeeting, updatePhaseStatus, updateModule } = useMeetingStore();
 
-  const [flowState, setFlowState] = useState<RequirementsFlowState>('not_started');
+  const [flowState, setFlowState] =
+    useState<RequirementsFlowState>('not_started');
   const [showReview, setShowReview] = useState(false);
 
   // Get selected services from proposal
-  const selectedServices = currentMeeting?.modules?.proposal?.selectedServices || [];
+  const selectedServices =
+    currentMeeting?.modules?.proposal?.selectedServices || [];
 
   // Filter only services that have requirement templates
-  const servicesWithRequirements = selectedServices.filter((serviceId: string) => {
-    return getRequirementsTemplate(serviceId) !== null;
-  });
+  const servicesWithRequirements = selectedServices.filter(
+    (serviceId: string) => {
+      return getRequirementsTemplate(serviceId) !== null;
+    }
+  );
 
   // Get collected requirements from meeting
   const collectedRequirements = currentMeeting?.modules?.requirements || [];
@@ -53,9 +53,10 @@ export const RequirementsFlow: React.FC<RequirementsFlowProps> = ({
   const completedServices = collectedRequirements.filter(
     (r: CollectedRequirements) => r.completedAt !== undefined
   ).length;
-  const progressPercentage = totalServices > 0
-    ? Math.round((completedServices / totalServices) * 100)
-    : 0;
+  const progressPercentage =
+    totalServices > 0
+      ? Math.round((completedServices / totalServices) * 100)
+      : 0;
 
   // Update flow state based on progress
   useEffect(() => {
@@ -80,7 +81,10 @@ export const RequirementsFlow: React.FC<RequirementsFlowProps> = ({
 
   // Handle requirements completion
   const handleAllComplete = (allRequirements: CollectedRequirements[]) => {
-    console.log('[RequirementsFlow] All requirements collected:', allRequirements);
+    console.log(
+      '[RequirementsFlow] All requirements collected:',
+      allRequirements
+    );
 
     // Save to meeting store
     updateModule('requirements', allRequirements);
@@ -108,17 +112,23 @@ export const RequirementsFlow: React.FC<RequirementsFlowProps> = ({
   // Check if a specific service is complete
   const isServiceComplete = (serviceId: string): boolean => {
     return collectedRequirements.some(
-      (r: CollectedRequirements) => r.serviceId === serviceId && r.completedAt !== undefined
+      (r: CollectedRequirements) =>
+        r.serviceId === serviceId && r.completedAt !== undefined
     );
   };
 
   if (!currentMeeting) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4" dir={language === 'he' ? 'rtl' : 'ltr'}>
+      <div
+        className="min-h-screen bg-gray-50 flex items-center justify-center p-4"
+        dir={language === 'he' ? 'rtl' : 'ltr'}
+      >
         <div className="bg-white rounded-lg shadow-md p-8 max-w-md text-center">
           <AlertCircle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-gray-900 mb-2">
-            {language === 'he' ? 'לא נמצא פגישה פעילה' : 'No Active Meeting Found'}
+            {language === 'he'
+              ? 'לא נמצא פגישה פעילה'
+              : 'No Active Meeting Found'}
           </h2>
           <p className="text-gray-600 mb-4">
             {language === 'he'
@@ -139,7 +149,10 @@ export const RequirementsFlow: React.FC<RequirementsFlowProps> = ({
   // If no requirements needed, show skip message
   if (totalServices === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4" dir={language === 'he' ? 'rtl' : 'ltr'}>
+      <div
+        className="min-h-screen bg-gray-50 flex items-center justify-center p-4"
+        dir={language === 'he' ? 'rtl' : 'ltr'}
+      >
         <div className="bg-white rounded-lg shadow-md p-8 max-w-2xl">
           <div className="text-center mb-6">
             <ClipboardCheck className="w-16 h-16 text-green-500 mx-auto mb-4" />
@@ -177,14 +190,19 @@ export const RequirementsFlow: React.FC<RequirementsFlowProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20" dir={language === 'he' ? 'rtl' : 'ltr'}>
+    <div
+      className="min-h-screen bg-gray-50 pb-20"
+      dir={language === 'he' ? 'rtl' : 'ltr'}
+    >
       {/* Header Section */}
       <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-1">
-                {language === 'he' ? 'איסוף דרישות טכניות' : 'Technical Requirements Gathering'}
+                {language === 'he'
+                  ? 'איסוף דרישות טכניות'
+                  : 'Technical Requirements Gathering'}
               </h1>
               <p className="text-gray-600">
                 {language === 'he'
@@ -249,9 +267,11 @@ export const RequirementsFlow: React.FC<RequirementsFlowProps> = ({
                       key={serviceId}
                       className={`
                         flex items-start gap-2 p-3 rounded-lg border transition-colors
-                        ${isComplete
-                          ? 'bg-green-50 border-green-200'
-                          : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}
+                        ${
+                          isComplete
+                            ? 'bg-green-50 border-green-200'
+                            : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                        }
                       `}
                     >
                       <div className="flex-shrink-0 mt-0.5">
@@ -263,7 +283,9 @@ export const RequirementsFlow: React.FC<RequirementsFlowProps> = ({
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <div className={`text-sm font-medium ${isComplete ? 'text-green-800' : 'text-gray-800'}`}>
+                        <div
+                          className={`text-sm font-medium ${isComplete ? 'text-green-800' : 'text-gray-800'}`}
+                        >
                           {language === 'he' ? service?.nameHe : service?.name}
                         </div>
 
@@ -290,7 +312,9 @@ export const RequirementsFlow: React.FC<RequirementsFlowProps> = ({
                   onClick={handleReview}
                   className="w-full mt-4 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-medium text-sm"
                 >
-                  {language === 'he' ? 'סקור דרישות שנאספו' : 'Review Collected Requirements'}
+                  {language === 'he'
+                    ? 'סקור דרישות שנאספו'
+                    : 'Review Collected Requirements'}
                 </button>
               )}
             </div>
@@ -318,7 +342,9 @@ export const RequirementsFlow: React.FC<RequirementsFlowProps> = ({
                   <CheckCircle className="w-8 h-8 text-green-600" />
                   <div>
                     <h3 className="font-semibold text-green-900">
-                      {language === 'he' ? 'כל הדרישות נאספו בהצלחה!' : 'All Requirements Collected Successfully!'}
+                      {language === 'he'
+                        ? 'כל הדרישות נאספו בהצלחה!'
+                        : 'All Requirements Collected Successfully!'}
                     </h3>
                     <p className="text-sm text-green-700">
                       {language === 'he'
@@ -332,7 +358,9 @@ export const RequirementsFlow: React.FC<RequirementsFlowProps> = ({
                   onClick={handleProceedToApproval}
                   className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium inline-flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
                 >
-                  {language === 'he' ? 'המשך לאישור לקוח' : 'Proceed to Client Approval'}
+                  {language === 'he'
+                    ? 'המשך לאישור לקוח'
+                    : 'Proceed to Client Approval'}
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </div>
@@ -348,14 +376,26 @@ export const RequirementsFlow: React.FC<RequirementsFlowProps> = ({
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {language === 'he' ? 'סקירת דרישות שנאספו' : 'Review Collected Requirements'}
+                  {language === 'he'
+                    ? 'סקירת דרישות שנאספו'
+                    : 'Review Collected Requirements'}
                 </h2>
                 <button
                   onClick={() => setShowReview(false)}
                   className="text-gray-400 hover:text-gray-600"
                 >
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
@@ -367,7 +407,10 @@ export const RequirementsFlow: React.FC<RequirementsFlowProps> = ({
                 const template = getRequirementsTemplate(req.serviceId);
 
                 return (
-                  <div key={req.serviceId} className="mb-6 pb-6 border-b border-gray-200 last:border-b-0">
+                  <div
+                    key={req.serviceId}
+                    className="mb-6 pb-6 border-b border-gray-200 last:border-b-0"
+                  >
                     <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
                       <CheckCircle className="w-5 h-5 text-green-600" />
                       {language === 'he' ? service?.nameHe : service?.name}
@@ -378,18 +421,22 @@ export const RequirementsFlow: React.FC<RequirementsFlowProps> = ({
                         {Object.entries(req.data).map(([fieldId, value]) => {
                           // Find field definition in template
                           const field = template?.sections
-                            .flatMap(s => s.fields)
-                            .find(f => f.id === fieldId);
+                            .flatMap((s) => s.fields)
+                            .find((f) => f.id === fieldId);
 
                           if (!field || !value) return null;
 
                           return (
                             <div key={fieldId} className="text-sm">
                               <div className="font-medium text-gray-700 mb-1">
-                                {language === 'he' ? field.labelHe : field.label}
+                                {language === 'he'
+                                  ? field.labelHe
+                                  : field.label}
                               </div>
                               <div className="text-gray-600">
-                                {Array.isArray(value) ? value.join(', ') : String(value)}
+                                {Array.isArray(value)
+                                  ? value.join(', ')
+                                  : String(value)}
                               </div>
                             </div>
                           );

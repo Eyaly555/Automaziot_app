@@ -43,12 +43,12 @@ export const buildDynamicProposalSchema = (hasROI: boolean) => {
   const financialSummaryProperties: any = {
     totalPrice: {
       type: 'number',
-      description: 'Total price in ILS (without VAT)'
+      description: 'Total price in ILS (without VAT)',
     },
     totalDays: {
       type: 'number',
-      description: 'Total estimated implementation days'
-    }
+      description: 'Total estimated implementation days',
+    },
   };
 
   const financialSummaryRequired: string[] = ['totalPrice', 'totalDays'];
@@ -56,11 +56,12 @@ export const buildDynamicProposalSchema = (hasROI: boolean) => {
   if (hasROI) {
     financialSummaryProperties.monthlySavings = {
       type: 'number',
-      description: 'Expected monthly savings in ILS (optional, based on ROI analysis)'
+      description:
+        'Expected monthly savings in ILS (optional, based on ROI analysis)',
     };
     financialSummaryProperties.expectedROIMonths = {
       type: 'number',
-      description: 'Expected ROI period in months (optional, based on savings)'
+      description: 'Expected ROI period in months (optional, based on savings)',
     };
     financialSummaryRequired.push('monthlySavings', 'expectedROIMonths');
   }
@@ -73,9 +74,10 @@ export const buildDynamicProposalSchema = (hasROI: boolean) => {
         executiveSummary: {
           type: 'array',
           items: {
-            type: 'string'
+            type: 'string',
           },
-          description: 'Executive summary paragraphs in Hebrew, 3-4 paragraphs explaining the business value and solution overview'
+          description:
+            'Executive summary paragraphs in Hebrew, 3-4 paragraphs explaining the business value and solution overview',
         },
         services: {
           type: 'array',
@@ -84,53 +86,66 @@ export const buildDynamicProposalSchema = (hasROI: boolean) => {
             properties: {
               serviceId: {
                 type: 'string',
-                description: 'Unique service identifier'
+                description: 'Unique service identifier',
               },
               titleHe: {
                 type: 'string',
-                description: 'Service title in Hebrew'
+                description: 'Service title in Hebrew',
               },
               whyRelevantHe: {
                 type: 'string',
-                description: 'Explanation in Hebrew why this service is relevant to the client'
+                description:
+                  'Explanation in Hebrew why this service is relevant to the client',
               },
               whatIncludedHe: {
                 type: 'string',
-                description: 'Detailed description in Hebrew of what is included in this service'
-              }
+                description:
+                  'Detailed description in Hebrew of what is included in this service',
+              },
             },
-            required: ['serviceId', 'titleHe', 'whyRelevantHe', 'whatIncludedHe'],
-            additionalProperties: false
+            required: [
+              'serviceId',
+              'titleHe',
+              'whyRelevantHe',
+              'whatIncludedHe',
+            ],
+            additionalProperties: false,
           },
-          description: 'Array of selected services with their detailed descriptions'
+          description:
+            'Array of selected services with their detailed descriptions',
         },
         financialSummary: {
           type: 'object',
           properties: financialSummaryProperties,
           required: financialSummaryRequired,
-          additionalProperties: false
+          additionalProperties: false,
         },
         terms: {
           type: 'array',
           items: {
-            type: 'string'
+            type: 'string',
           },
-          description: 'Array of contract terms and conditions in Hebrew'
+          description: 'Array of contract terms and conditions in Hebrew',
         },
         nextSteps: {
           type: 'array',
           items: {
-            type: 'string'
+            type: 'string',
           },
-          description: 'Array of next steps for the client in Hebrew'
-        }
+          description: 'Array of next steps for the client in Hebrew',
+        },
       },
-      required: ['executiveSummary', 'services', 'financialSummary', 'terms', 'nextSteps'],
-      additionalProperties: false
+      required: [
+        'executiveSummary',
+        'services',
+        'financialSummary',
+        'terms',
+        'nextSteps',
+      ],
+      additionalProperties: false,
     },
-    strict: true
+    strict: true,
   } as const;
 };
 
 export const AiProposalJsonSchema = buildDynamicProposalSchema(false);
-

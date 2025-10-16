@@ -41,7 +41,11 @@ export interface DataCleanupRequirements {
     matchFields: string[]; // e.g., ['email', 'phone', 'company', 'name']
     matchingAlgorithm: 'exact' | 'fuzzy' | 'ml_based'; // Levenshtein, Jaro-Winkler, AI
     fuzzyThreshold?: number; // 0-100, for fuzzy matching (default: 80)
-    mergeStrategy: 'keep_first' | 'keep_last' | 'keep_most_complete' | 'manual_review';
+    mergeStrategy:
+      | 'keep_first'
+      | 'keep_last'
+      | 'keep_most_complete'
+      | 'manual_review';
     conflictResolution?: {
       fieldName: string;
       rule: string; // e.g., "prefer non-empty", "take latest", "manual review"
@@ -144,7 +148,11 @@ export interface DataMigrationRequirements {
 
   // Data Transformation
   dataTransformation?: {
-    transformationType: 'format_change' | 'value_mapping' | 'calculation' | 'enrichment';
+    transformationType:
+      | 'format_change'
+      | 'value_mapping'
+      | 'calculation'
+      | 'enrichment';
     description: string;
     toolsRequired: string[]; // e.g., ["Python script", "Talend", "SSIS"]
   }[];
@@ -213,7 +221,13 @@ export interface DataMigrationRequirements {
 export interface AddDashboardRequirements {
   // Platform Selection
   platform: {
-    choice: 'power_bi' | 'tableau' | 'looker' | 'qlik' | 'custom_react' | 'superset';
+    choice:
+      | 'power_bi'
+      | 'tableau'
+      | 'looker'
+      | 'qlik'
+      | 'custom_react'
+      | 'superset';
     reason?: string; // Why this platform was chosen
     embeddedInExistingApp: boolean;
     standaloneUrl?: string;
@@ -223,7 +237,12 @@ export interface AddDashboardRequirements {
   dataSources: {
     sourceName: string; // e.g., "Zoho CRM", "MySQL Database", "Google Analytics"
     sourceType: 'database' | 'api' | 'spreadsheet' | 'cloud_service';
-    connectionMethod: 'direct_db' | 'api' | 'odbc' | 'jdbc' | 'native_connector';
+    connectionMethod:
+      | 'direct_db'
+      | 'api'
+      | 'odbc'
+      | 'jdbc'
+      | 'native_connector';
     refreshFrequency: 'real_time' | '15min' | '1hour' | 'daily' | 'weekly';
     requiresCredentials: boolean;
   }[];
@@ -245,7 +264,14 @@ export interface AddDashboardRequirements {
     hasWireframes: boolean;
     hasExampleDashboards: boolean; // Reference dashboards the client likes
     layout: 'single_page' | 'multi_page' | 'tabbed';
-    visualizationTypes: ('chart' | 'table' | 'card' | 'gauge' | 'map' | 'timeline')[];
+    visualizationTypes: (
+      | 'chart'
+      | 'table'
+      | 'card'
+      | 'gauge'
+      | 'map'
+      | 'timeline'
+    )[];
     colorScheme?: string; // e.g., "Corporate blue", "Viridis", "Custom"
     branding?: boolean; // Company logo, colors
   };
@@ -324,7 +350,12 @@ export interface AddCustomReportsRequirements {
   reportSpecifications: {
     reportName: string; // e.g., "Monthly Sales by Region", "Customer Service Performance"
     reportPurpose: string; // What business question does it answer?
-    reportType: 'summary' | 'detailed' | 'analytical' | 'operational' | 'dashboard_style';
+    reportType:
+      | 'summary'
+      | 'detailed'
+      | 'analytical'
+      | 'operational'
+      | 'dashboard_style';
     hasSampleReport: boolean; // Client provides example
     hasMockup: boolean; // Visual mockup of desired format
   }[];
@@ -376,7 +407,12 @@ export interface AddCustomReportsRequirements {
 
   // Report Generation
   generation: {
-    generationMethod: 'ssrs' | 'crystal_reports' | 'power_bi_builder' | 'python_custom' | 'nodejs_custom';
+    generationMethod:
+      | 'ssrs'
+      | 'crystal_reports'
+      | 'power_bi_builder'
+      | 'python_custom'
+      | 'nodejs_custom';
     generationFrequency: 'on_demand' | 'scheduled' | 'both';
     averageDataVolume: 'small' | 'medium' | 'large'; // <10K rows, 10K-100K, >100K
     performanceTarget: number; // Generation time in seconds (e.g., <60)
@@ -449,7 +485,14 @@ export interface ReportsAutomatedRequirements {
     dailyTime?: string; // e.g., "08:00" (24-hour format)
 
     // For weekly
-    weeklyDay?: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+    weeklyDay?:
+      | 'monday'
+      | 'tuesday'
+      | 'wednesday'
+      | 'thursday'
+      | 'friday'
+      | 'saturday'
+      | 'sunday';
     weeklyTime?: string;
 
     // For monthly
@@ -465,7 +508,12 @@ export interface ReportsAutomatedRequirements {
   // Dynamic Parameters
   dynamicParameters: {
     useDateRanges: boolean;
-    dateRangeType?: 'yesterday' | 'last_week' | 'last_month' | 'last_quarter' | 'custom';
+    dateRangeType?:
+      | 'yesterday'
+      | 'last_week'
+      | 'last_month'
+      | 'last_quarter'
+      | 'custom';
     customDateLogic?: string; // e.g., "Previous business week", "Rolling 30 days"
 
     useFilters: boolean;
@@ -496,7 +544,14 @@ export interface ReportsAutomatedRequirements {
 
   // Delivery Channels
   deliveryChannels: {
-    primaryChannel: 'email' | 'ftp' | 'sftp' | 'sharepoint' | 'onedrive' | 'dropbox' | 'network_drive';
+    primaryChannel:
+      | 'email'
+      | 'ftp'
+      | 'sftp'
+      | 'sharepoint'
+      | 'onedrive'
+      | 'dropbox'
+      | 'network_drive';
 
     // Email configuration
     emailConfig?: {
@@ -535,7 +590,11 @@ export interface ReportsAutomatedRequirements {
     notifyOnFailure: boolean;
     failureNotificationEmails?: string[];
 
-    fallbackBehavior: 'skip' | 'send_error_report' | 'send_last_successful' | 'manual_intervention';
+    fallbackBehavior:
+      | 'skip'
+      | 'send_error_report'
+      | 'send_last_successful'
+      | 'manual_intervention';
   };
 
   // Logging & Audit
@@ -551,7 +610,14 @@ export interface ReportsAutomatedRequirements {
 
   // Platform/Tool
   automationPlatform: {
-    tool: 'power_automate' | 'n8n' | 'power_bi_service' | 'crystal_distributor' | 'airflow' | 'windows_task_scheduler' | 'cron';
+    tool:
+      | 'power_automate'
+      | 'n8n'
+      | 'power_bi_service'
+      | 'crystal_distributor'
+      | 'airflow'
+      | 'windows_task_scheduler'
+      | 'cron';
     isCloudBased: boolean;
     requiresInfrastructure?: string; // e.g., "Windows Server", "Linux VM"
   };
@@ -642,7 +708,11 @@ export interface TrainingWorkshopsRequirements {
   // Hands-On Environment
   handsOnEnvironment: {
     required: boolean;
-    environmentType: 'demo_system' | 'sandbox' | 'production_with_test_data' | 'personal_accounts';
+    environmentType:
+      | 'demo_system'
+      | 'sandbox'
+      | 'production_with_test_data'
+      | 'personal_accounts';
     demoDataProvided: boolean;
     participantAccess: boolean; // Participants have login credentials
   };
@@ -730,7 +800,13 @@ export interface TrainingOngoingRequirements {
   // Content Scope
   contentScope: {
     initialTrainingCompleted: boolean; // Requires service #55 first
-    contentTypes: ('video_tutorials' | 'written_guides' | 'interactive_modules' | 'webinars' | 'live_sessions')[];
+    contentTypes: (
+      | 'video_tutorials'
+      | 'written_guides'
+      | 'interactive_modules'
+      | 'webinars'
+      | 'live_sessions'
+    )[];
     topicsCovered: string[]; // e.g., ["CRM Usage", "Automation Workflows", "Reporting", "Best Practices"]
     newContentFrequency: 'weekly' | 'biweekly' | 'monthly' | 'quarterly';
   };
@@ -752,9 +828,20 @@ export interface TrainingOngoingRequirements {
   // Knowledge Base
   knowledgeBase: {
     required: boolean;
-    platform?: 'zendesk_guide' | 'confluence' | 'notion' | 'helpjuice' | 'custom';
+    platform?:
+      | 'zendesk_guide'
+      | 'confluence'
+      | 'notion'
+      | 'helpjuice'
+      | 'custom';
     needsSetup: boolean;
-    contentTypes: ('articles' | 'faqs' | 'video_library' | 'troubleshooting_guides' | 'best_practices')[];
+    contentTypes: (
+      | 'articles'
+      | 'faqs'
+      | 'video_library'
+      | 'troubleshooting_guides'
+      | 'best_practices'
+    )[];
     searchEnabled: boolean;
     updateFrequency: 'weekly' | 'monthly' | 'as_needed';
   };
@@ -781,7 +868,11 @@ export interface TrainingOngoingRequirements {
     competencies: {
       competencyName: string; // e.g., "CRM Data Entry", "Workflow Creation", "Report Building"
       skillLevel: 'beginner' | 'intermediate' | 'advanced' | 'expert';
-      assessmentMethod: 'quiz' | 'practical' | 'observation' | 'self_assessment';
+      assessmentMethod:
+        | 'quiz'
+        | 'practical'
+        | 'observation'
+        | 'self_assessment';
     }[];
     progressReporting: boolean;
     skillsMatrix: boolean; // Track who knows what
@@ -816,7 +907,13 @@ export interface TrainingOngoingRequirements {
   // Gamification & Engagement
   gamification?: {
     enabled: boolean;
-    features?: ('badges' | 'points' | 'leaderboards' | 'challenges' | 'rewards')[];
+    features?: (
+      | 'badges'
+      | 'points'
+      | 'leaderboards'
+      | 'challenges'
+      | 'rewards'
+    )[];
     celebrateMilestones?: boolean;
   };
 
@@ -824,7 +921,13 @@ export interface TrainingOngoingRequirements {
   reporting: {
     monthlyReports: boolean;
     quarterlyReports: boolean;
-    metricsTracked: ('course_completion' | 'quiz_scores' | 'time_to_competency' | 'knowledge_base_usage' | 'support_tickets')[];
+    metricsTracked: (
+      | 'course_completion'
+      | 'quiz_scores'
+      | 'time_to_competency'
+      | 'knowledge_base_usage'
+      | 'support_tickets'
+    )[];
     stakeholderReports?: boolean; // For management
   };
 
@@ -906,7 +1009,12 @@ export interface SupportOngoingRequirements {
 
   // Ticketing System
   ticketingSystem: {
-    platform: 'zendesk' | 'freshdesk' | 'jira_service_desk' | 'hubspot_service' | 'custom';
+    platform:
+      | 'zendesk'
+      | 'freshdesk'
+      | 'jira_service_desk'
+      | 'hubspot_service'
+      | 'custom';
     needsSetup: boolean;
 
     features: {
@@ -1067,7 +1175,12 @@ export interface ConsultingProcessRequirements {
 
   // Analysis Methodology
   analysisMethodology: {
-    approach: 'lean_six_sigma' | 'value_stream_mapping' | 'bpmn' | 'process_mining' | 'hybrid';
+    approach:
+      | 'lean_six_sigma'
+      | 'value_stream_mapping'
+      | 'bpmn'
+      | 'process_mining'
+      | 'hybrid';
 
     // Lean Six Sigma: DMAIC
     dmaic?: {
@@ -1166,7 +1279,15 @@ export interface ConsultingProcessRequirements {
   wasteIdentification?: {
     // Lean principles: 8 types of waste (DOWNTIME)
     wasteTypes: {
-      type: 'defects' | 'overproduction' | 'waiting' | 'non_utilized_talent' | 'transportation' | 'inventory' | 'motion' | 'extra_processing';
+      type:
+        | 'defects'
+        | 'overproduction'
+        | 'waiting'
+        | 'non_utilized_talent'
+        | 'transportation'
+        | 'inventory'
+        | 'motion'
+        | 'extra_processing';
       description: string; // Where found in process
       estimatedImpact: 'high' | 'medium' | 'low';
     }[];
@@ -1261,7 +1382,13 @@ export interface ConsultingProcessRequirements {
   toolsAndFrameworks: {
     processMappingTools: string[]; // e.g., ["Lucidchart", "Miro"]
     dataAnalysisTools?: string[]; // e.g., ["Excel", "Minitab", "Tableau"]
-    methodologies: ('lean' | 'six_sigma' | 'dmaic' | 'kaizen' | 'theory_of_constraints')[];
+    methodologies: (
+      | 'lean'
+      | 'six_sigma'
+      | 'dmaic'
+      | 'kaizen'
+      | 'theory_of_constraints'
+    )[];
   };
 
   // Success Metrics
@@ -1306,7 +1433,14 @@ export interface ConsultingStrategyRequirements {
       decisionDeadline?: string;
     }[];
 
-    strategicFocus: ('digital_transformation' | 'operational_efficiency' | 'growth_acceleration' | 'cost_reduction' | 'innovation' | 'customer_experience')[];
+    strategicFocus: (
+      | 'digital_transformation'
+      | 'operational_efficiency'
+      | 'growth_acceleration'
+      | 'cost_reduction'
+      | 'innovation'
+      | 'customer_experience'
+    )[];
   };
 
   // Analysis Frameworks
@@ -1391,7 +1525,12 @@ export interface ConsultingStrategyRequirements {
   currentStateAssessment: {
     technologyStackReview: boolean; // What systems exist
     processMaturityAssessment: boolean; // How advanced are processes
-    automationMaturity?: 'none' | 'basic' | 'intermediate' | 'advanced' | 'optimized';
+    automationMaturity?:
+      | 'none'
+      | 'basic'
+      | 'intermediate'
+      | 'advanced'
+      | 'optimized';
 
     dataAccess: {
       financialData: boolean;
@@ -1472,7 +1611,11 @@ export interface ConsultingStrategyRequirements {
     aiUseCases: string[]; // e.g., ["Chatbot", "Predictive analytics", "Document processing"]
 
     automationRoadmap: {
-      automationType: 'rpa' | 'workflow_automation' | 'ai_ml' | 'intelligent_automation';
+      automationType:
+        | 'rpa'
+        | 'workflow_automation'
+        | 'ai_ml'
+        | 'intelligent_automation';
       useCases: string[];
       estimatedSavingsHours?: number; // Per month
       implementationPriority: 'high' | 'medium' | 'low';
@@ -1509,7 +1652,11 @@ export interface ConsultingStrategyRequirements {
       expectedResistance: 'low' | 'medium' | 'high';
     };
 
-    changeApproach?: 'prosci_adkar' | 'kotters_8_steps' | 'mckinsey_7s' | 'custom';
+    changeApproach?:
+      | 'prosci_adkar'
+      | 'kotters_8_steps'
+      | 'mckinsey_7s'
+      | 'custom';
   };
 
   // Deliverables

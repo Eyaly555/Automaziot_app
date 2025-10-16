@@ -10,7 +10,10 @@ interface AutomationSectionProps {
   onChange: (updates: Partial<AutomationsData>) => void;
 }
 
-export const AutomationSection: React.FC<AutomationSectionProps> = ({ data, onChange }) => {
+export const AutomationSection: React.FC<AutomationSectionProps> = ({
+  data,
+  onChange,
+}) => {
   return (
     <div className="space-y-8 p-6">
       {/* Icon & Title - Mobile optimized with responsive icon sizing */}
@@ -30,14 +33,17 @@ export const AutomationSection: React.FC<AutomationSectionProps> = ({ data, onCh
           value={data.processes}
           onChange={(value) => onChange({ processes: value })}
           options={[
-            { value: 'lead_management', label: '🎯 ניהול לידים (קליטה וחלוקה)' },
+            {
+              value: 'lead_management',
+              label: '🎯 ניהול לידים (קליטה וחלוקה)',
+            },
             { value: 'followup', label: '📞 מעקבים אוטומטיים' },
             { value: 'crm_updates', label: '💾 עדכון CRM מטפסים' },
             { value: 'reminders', label: '⏰ תזכורות לפגישות' },
             { value: 'customer_updates', label: '📧 עדכונים ללקוחות' },
             { value: 'reports', label: '📊 דוחות אוטומטיים' },
             { value: 'documents', label: '📄 יצירת מסמכים' },
-            { value: 'data_sync', label: '🔄 סנכרון מערכות' }
+            { value: 'data_sync', label: '🔄 סנכרון מערכות' },
           ]}
           columns={1}
           className="space-y-3"
@@ -47,7 +53,8 @@ export const AutomationSection: React.FC<AutomationSectionProps> = ({ data, onCh
       {/* Q2: Time Wasted - Mobile optimized radio group with vertical orientation */}
       <div className="mobile-field-group">
         <label className="mobile-question">
-          כמה זמן מבזבזים על תהליכים חוזרים ביום? <span className="text-red-500">*</span>
+          כמה זמן מבזבזים על תהליכים חוזרים ביום?{' '}
+          <span className="text-red-500">*</span>
         </label>
         <RadioGroup
           value={data.time_wasted}
@@ -56,7 +63,7 @@ export const AutomationSection: React.FC<AutomationSectionProps> = ({ data, onCh
             { value: 'under_1h', label: 'פחות משעה' },
             { value: '1-2h', label: '1-2 שעות' },
             { value: '3-4h', label: '3-4 שעות' },
-            { value: 'over_4h', label: 'מעל 4 שעות' }
+            { value: 'over_4h', label: 'מעל 4 שעות' },
           ]}
           orientation="vertical"
         />
@@ -65,7 +72,8 @@ export const AutomationSection: React.FC<AutomationSectionProps> = ({ data, onCh
       {/* Q3: Biggest Pain - Mobile optimized with smooth conditional field transition */}
       <div className="mobile-field-group">
         <label className="mobile-question">
-          מה הבעיה הכי מעצבנת בתהליכים הנוכחיים? <span className="text-red-500">*</span>
+          מה הבעיה הכי מעצבנת בתהליכים הנוכחיים?{' '}
+          <span className="text-red-500">*</span>
         </label>
         <RadioGroup
           value={data.biggest_pain}
@@ -75,7 +83,7 @@ export const AutomationSection: React.FC<AutomationSectionProps> = ({ data, onCh
             { value: 'human_errors', label: 'טעויות אנוש' },
             { value: 'takes_time', label: 'לוקח יותר מדי זמן' },
             { value: 'no_tracking', label: 'אין מעקב מסודר' },
-            { value: 'other', label: 'אחר' }
+            { value: 'other', label: 'אחר' },
           ]}
           orientation="vertical"
         />
@@ -89,9 +97,10 @@ export const AutomationSection: React.FC<AutomationSectionProps> = ({ data, onCh
           }`}
           style={{
             // Prevent touch actions during animation for better performance
-            touchAction: data.biggest_pain === 'other' ? 'manipulation' : 'none',
+            touchAction:
+              data.biggest_pain === 'other' ? 'manipulation' : 'none',
             // Use will-change for smoother animations on mobile
-            willChange: 'max-height, opacity'
+            willChange: 'max-height, opacity',
           }}
         >
           {/* Mobile optimized: Using mobile-input class for consistency, with proper touch target size */}
@@ -106,7 +115,7 @@ export const AutomationSection: React.FC<AutomationSectionProps> = ({ data, onCh
               // Prevent iOS auto-zoom by ensuring font size is 16px minimum
               fontSize: '16px',
               // Optimize for mobile touch interaction
-              touchAction: 'manipulation'
+              touchAction: 'manipulation',
             }}
             aria-label="תיאור הבעיה האחרת"
           />
@@ -130,4 +139,3 @@ export const AutomationSection: React.FC<AutomationSectionProps> = ({ data, onCh
     </div>
   );
 };
-

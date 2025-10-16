@@ -39,21 +39,21 @@ export function AutoSmartFollowupSpec() {
     fieldId: 'crm_system',
     localPath: 'crmSystem',
     serviceId: 'auto-smart-followup',
-    autoSave: false // We'll batch save
+    autoSave: false, // We'll batch save
   });
 
   const emailProvider = useSmartField<string>({
     fieldId: 'email_provider',
     localPath: 'emailService',
     serviceId: 'auto-smart-followup',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'alertEmail',
     serviceId: 'auto-smart-followup',
-    autoSave: false
+    autoSave: false,
   });
 
   // Regular state for other fields (not in registry yet)
@@ -68,7 +68,7 @@ export function AutoSmartFollowupSpec() {
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-smart-followup',
-    category: 'automations'
+    category: 'automations',
   });
 
   useBeforeUnload(() => {
@@ -77,14 +77,16 @@ export function AutoSmartFollowupSpec() {
       ...config,
       crmSystem: crmSystem.value,
       emailService: emailProvider.value,
-      alertEmail: alertEmail.value
+      alertEmail: alertEmail.value,
     };
     saveData(completeConfig);
   });
 
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
-    const existing = automations.find((a: any) => a.serviceId === 'auto-smart-followup');
+    const existing = automations.find(
+      (a: any) => a.serviceId === 'auto-smart-followup'
+    );
     if (existing?.requirements) {
       setConfig(existing.requirements);
     }
@@ -92,16 +94,26 @@ export function AutoSmartFollowupSpec() {
 
   // Auto-save on changes
   useEffect(() => {
-    if (config.followupSequences?.length || config.crmSystem || config.emailService) {
+    if (
+      config.followupSequences?.length ||
+      config.crmSystem ||
+      config.emailService
+    ) {
       const completeConfig = {
         ...config,
         crmSystem: crmSystem.value,
         emailService: emailProvider.value,
-        alertEmail: alertEmail.value
+        alertEmail: alertEmail.value,
       };
       saveData(completeConfig);
     }
-  }, [config, crmSystem.value, emailProvider.value, alertEmail.value, saveData]);
+  }, [
+    config,
+    crmSystem.value,
+    emailProvider.value,
+    alertEmail.value,
+    saveData,
+  ]);
 
   const handleSave = async () => {
     // Build complete config with smart field values
@@ -109,7 +121,7 @@ export function AutoSmartFollowupSpec() {
       ...config,
       crmSystem: crmSystem.value,
       emailService: emailProvider.value,
-      alertEmail: alertEmail.value
+      alertEmail: alertEmail.value,
     };
 
     // Save using auto-save (manual save trigger)
@@ -124,25 +136,33 @@ export function AutoSmartFollowupSpec() {
       <Card title="שירות #6: Follow-up חכם ואוטומטי">
         <div className="space-y-6">
           {/* Smart Fields Info Banner */}
-          {(crmSystem.isAutoPopulated || emailProvider.isAutoPopulated || alertEmail.isAutoPopulated) && (
+          {(crmSystem.isAutoPopulated ||
+            emailProvider.isAutoPopulated ||
+            alertEmail.isAutoPopulated) && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
               <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+                <h4 className="font-semibold text-blue-900 mb-1">
+                  נתונים מולאו אוטומטית משלב 1
+                </h4>
                 <p className="text-sm text-blue-800">
-                  חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-                  תוכל לערוך אותם במידת הצורך.
+                  חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל
+                  לערוך אותם במידת הצורך.
                 </p>
               </div>
             </div>
           )}
 
           {/* Conflict Warnings */}
-          {(crmSystem.hasConflict || emailProvider.hasConflict || alertEmail.hasConflict) && (
+          {(crmSystem.hasConflict ||
+            emailProvider.hasConflict ||
+            alertEmail.hasConflict) && (
             <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+                <h4 className="font-semibold text-orange-900 mb-1">
+                  זוהה אי-התאמה בנתונים
+                </h4>
                 <p className="text-sm text-orange-800">
                   נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
                 </p>
@@ -168,7 +188,9 @@ export function AutoSmartFollowupSpec() {
                 value={crmSystem.value || 'zoho'}
                 onChange={(e) => crmSystem.setValue(e.target.value)}
                 className={`w-full px-3 py-2 border rounded-md ${
-                  crmSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  crmSystem.isAutoPopulated
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-300'
                 } ${crmSystem.hasConflict ? 'border-orange-300' : ''}`}
               >
                 <option value="zoho">Zoho CRM</option>
@@ -201,7 +223,9 @@ export function AutoSmartFollowupSpec() {
                 value={emailProvider.value || 'sendgrid'}
                 onChange={(e) => emailProvider.setValue(e.target.value)}
                 className={`w-full px-3 py-2 border rounded-md ${
-                  emailProvider.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  emailProvider.isAutoPopulated
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-300'
                 } ${emailProvider.hasConflict ? 'border-orange-300' : ''}`}
               >
                 <option value="sendgrid">SendGrid</option>
@@ -238,7 +262,9 @@ export function AutoSmartFollowupSpec() {
               onChange={(e) => alertEmail.setValue(e.target.value)}
               placeholder="alerts@company.com"
               className={`w-full px-3 py-2 border rounded-md ${
-                alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                alertEmail.isAutoPopulated
+                  ? 'border-green-300 bg-green-50'
+                  : 'border-gray-300'
               } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
             />
             {alertEmail.isAutoPopulated && alertEmail.source && (
@@ -250,28 +276,57 @@ export function AutoSmartFollowupSpec() {
 
           <div className="space-y-3">
             <label className="flex items-center">
-              <input type="checkbox" checked={config.aiPersonalization}
-                onChange={(e) => setConfig({ ...config, aiPersonalization: e.target.checked })} className="mr-2" />
+              <input
+                type="checkbox"
+                checked={config.aiPersonalization}
+                onChange={(e) =>
+                  setConfig({ ...config, aiPersonalization: e.target.checked })
+                }
+                className="mr-2"
+              />
               <span className="text-sm">התאמה אישית מבוססת AI</span>
             </label>
             <label className="flex items-center">
-              <input type="checkbox" checked={config.stopOnReply}
-                onChange={(e) => setConfig({ ...config, stopOnReply: e.target.checked })} className="mr-2" />
+              <input
+                type="checkbox"
+                checked={config.stopOnReply}
+                onChange={(e) =>
+                  setConfig({ ...config, stopOnReply: e.target.checked })
+                }
+                className="mr-2"
+              />
               <span className="text-sm">עצור בקבלת תגובה</span>
             </label>
             <label className="flex items-center">
-              <input type="checkbox" checked={config.trackOpens}
-                onChange={(e) => setConfig({ ...config, trackOpens: e.target.checked })} className="mr-2" />
+              <input
+                type="checkbox"
+                checked={config.trackOpens}
+                onChange={(e) =>
+                  setConfig({ ...config, trackOpens: e.target.checked })
+                }
+                className="mr-2"
+              />
               <span className="text-sm">עקוב אחר פתיחות</span>
             </label>
             <label className="flex items-center">
-              <input type="checkbox" checked={config.trackClicks}
-                onChange={(e) => setConfig({ ...config, trackClicks: e.target.checked })} className="mr-2" />
+              <input
+                type="checkbox"
+                checked={config.trackClicks}
+                onChange={(e) =>
+                  setConfig({ ...config, trackClicks: e.target.checked })
+                }
+                className="mr-2"
+              />
               <span className="text-sm">עקוב אחר קליקים</span>
             </label>
           </div>
           <div className="flex justify-end pt-4 border-t">
-            <button onClick={handleSave} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">שמור הגדרות</button>
+            <button
+              onClick={handleSave}
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              שמור הגדרות
+            </button>
           </div>
         </div>
       </Card>

@@ -14,10 +14,13 @@ import {
   Link as LinkIcon,
   Lightbulb,
   CheckSquare,
-  Loader
+  Loader,
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
-import { expandAIAgents, hasAIAgentUseCases } from '../../utils/aiAgentExpander';
+import {
+  expandAIAgents,
+  hasAIAgentUseCases,
+} from '../../utils/aiAgentExpander';
 import {
   DetailedAIAgentSpec,
   KnowledgeSource,
@@ -27,25 +30,53 @@ import {
   AcceptanceCriteria,
   FunctionalRequirement,
   PerformanceRequirement,
-  UsabilityRequirement
+  UsabilityRequirement,
 } from '../../types/phase2';
 import { Input, TextArea, Button } from '../Base';
-import { generateAcceptanceCriteria, getAIAgentCriteria } from '../../utils/acceptanceCriteriaGenerator';
+import {
+  generateAcceptanceCriteria,
+  getAIAgentCriteria,
+} from '../../utils/acceptanceCriteriaGenerator';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
 const DEPARTMENTS = [
   { value: 'sales', label: 'מכירות', icon: '💼' },
   { value: 'service', label: 'שירות לקוחות', icon: '🎧' },
-  { value: 'operations', label: 'תפעול', icon: '⚙️' }
+  { value: 'operations', label: 'תפעול', icon: '⚙️' },
 ] as const;
 
 const AI_MODELS = [
-  { value: 'gpt-4', label: 'GPT-4', provider: 'OpenAI', description: 'המתקדם ביותר, מומלץ למשימות מורכבות' },
-  { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo', provider: 'OpenAI', description: 'מהיר וחסכוני, מתאים לרוב המשימות' },
-  { value: 'claude-3-opus', label: 'Claude 3 Opus', provider: 'Anthropic', description: 'מעולה לשיחות ארוכות ומורכבות' },
-  { value: 'claude-3-sonnet', label: 'Claude 3 Sonnet', provider: 'Anthropic', description: 'איזון בין ביצועים ומחיר' },
-  { value: 'gemini-pro', label: 'Gemini Pro', provider: 'Google', description: 'שילוב טקסט ומולטימדיה' }
+  {
+    value: 'gpt-4',
+    label: 'GPT-4',
+    provider: 'OpenAI',
+    description: 'המתקדם ביותר, מומלץ למשימות מורכבות',
+  },
+  {
+    value: 'gpt-3.5-turbo',
+    label: 'GPT-3.5 Turbo',
+    provider: 'OpenAI',
+    description: 'מהיר וחסכוני, מתאים לרוב המשימות',
+  },
+  {
+    value: 'claude-3-opus',
+    label: 'Claude 3 Opus',
+    provider: 'Anthropic',
+    description: 'מעולה לשיחות ארוכות ומורכבות',
+  },
+  {
+    value: 'claude-3-sonnet',
+    label: 'Claude 3 Sonnet',
+    provider: 'Anthropic',
+    description: 'איזון בין ביצועים ומחיר',
+  },
+  {
+    value: 'gemini-pro',
+    label: 'Gemini Pro',
+    provider: 'Google',
+    description: 'שילוב טקסט ומולטימדיה',
+  },
 ] as const;
 
 export const AIAgentDetailedSpec: React.FC = () => {
@@ -54,7 +85,7 @@ export const AIAgentDetailedSpec: React.FC = () => {
   const { currentMeeting, updateMeeting } = useMeetingStore();
 
   const existingAgent = agentId
-    ? currentMeeting?.implementationSpec?.aiAgents.find(a => a.id === agentId)
+    ? currentMeeting?.implementationSpec?.aiAgents.find((a) => a.id === agentId)
     : null;
 
   // Check if AI services were purchased (defensive fallback to selectedServices for backward compatibility)
@@ -62,57 +93,73 @@ export const AIAgentDetailedSpec: React.FC = () => {
     currentMeeting?.modules?.proposal?.purchasedServices?.length > 0
       ? currentMeeting.modules.proposal.purchasedServices
       : currentMeeting?.modules?.proposal?.selectedServices || [];
-  const hasAIServices = purchasedServices.some(s => s.category === 'ai_agents');
-  const aiServicesCount = purchasedServices.filter(s => s.category === 'ai_agents').length;
+  const hasAIServices = purchasedServices.some(
+    (s) => s.category === 'ai_agents'
+  );
+  const aiServicesCount = purchasedServices.filter(
+    (s) => s.category === 'ai_agents'
+  ).length;
 
-  const [agent, setAgent] = useState<DetailedAIAgentSpec>(existingAgent || {
-    id: generateId(),
-    agentId: generateId(),
-    name: '',
-    department: 'sales',
-    knowledgeBase: {
-      sources: [],
-      documentCount: 0,
-      totalTokens: 0,
-      updateFrequency: 'manual',
-      embeddingModel: 'text-embedding-ada-002'
-    },
-    conversationFlow: {
-      greeting: '',
-      intents: [],
-      fallbackResponse: '',
-      escalationTriggers: [],
-      maxTurns: 10,
-      contextWindow: 5
-    },
-    integrations: {
-      crmEnabled: false,
-      crmSystem: '',
-      emailEnabled: false,
-      emailProvider: '',
-      calendarEnabled: false,
-      customWebhooks: []
-    },
-    training: {
-      conversationExamples: [],
-      faqPairs: [],
-      prohibitedTopics: [],
-      tone: 'professional',
-      language: 'he'
-    },
-    model: {
-      provider: 'OpenAI',
-      modelName: 'gpt-4',
-      temperature: 0.7,
-      maxTokens: 2000,
-      topP: 1.0
+  const [agent, setAgent] = useState<DetailedAIAgentSpec>(
+    existingAgent || {
+      id: generateId(),
+      agentId: generateId(),
+      name: '',
+      department: 'sales',
+      knowledgeBase: {
+        sources: [],
+        documentCount: 0,
+        totalTokens: 0,
+        updateFrequency: 'manual',
+        embeddingModel: 'text-embedding-ada-002',
+      },
+      conversationFlow: {
+        greeting: '',
+        intents: [],
+        fallbackResponse: '',
+        escalationTriggers: [],
+        maxTurns: 10,
+        contextWindow: 5,
+      },
+      integrations: {
+        crmEnabled: false,
+        crmSystem: '',
+        emailEnabled: false,
+        emailProvider: '',
+        calendarEnabled: false,
+        customWebhooks: [],
+      },
+      training: {
+        conversationExamples: [],
+        faqPairs: [],
+        prohibitedTopics: [],
+        tone: 'professional',
+        language: 'he',
+      },
+      model: {
+        provider: 'OpenAI',
+        modelName: 'gpt-4',
+        temperature: 0.7,
+        maxTokens: 2000,
+        topP: 1.0,
+      },
     }
-  });
+  );
 
-  const [activeTab, setActiveTab] = useState<'basic' | 'knowledge' | 'conversation' | 'integrations' | 'training' | 'model' | 'acceptance'>('basic');
+  const [activeTab, setActiveTab] = useState<
+    | 'basic'
+    | 'knowledge'
+    | 'conversation'
+    | 'integrations'
+    | 'training'
+    | 'model'
+    | 'acceptance'
+  >('basic');
   const [expandedFromPhase1, setExpandedFromPhase1] = useState(false);
   const [isGeneratingCriteria, setIsGeneratingCriteria] = useState(false);
-  const [agentCriteria, setAgentCriteria] = useState<AcceptanceCriteria | null>(null);
+  const [agentCriteria, setAgentCriteria] = useState<AcceptanceCriteria | null>(
+    null
+  );
 
   // Auto-expand AI agents from Phase 1 on component mount
   useEffect(() => {
@@ -126,18 +173,26 @@ export const AIAgentDetailedSpec: React.FC = () => {
       currentMeeting?.modules?.proposal?.purchasedServices?.length > 0
         ? currentMeeting.modules.proposal.purchasedServices
         : currentMeeting?.modules?.proposal?.selectedServices || [];
-    const hasAIServices = purchasedServices.some(s => s.category === 'ai_agents');
+    const hasAIServices = purchasedServices.some(
+      (s) => s.category === 'ai_agents'
+    );
 
     console.log('[AIAgentDetailedSpec] AI Service Filtering:', {
       totalPurchasedServices: purchasedServices.length,
       hasAIServices,
-      aiServicesCount: purchasedServices.filter(s => s.category === 'ai_agents').length,
-      aiServiceIds: purchasedServices.filter(s => s.category === 'ai_agents').map(s => s.id)
+      aiServicesCount: purchasedServices.filter(
+        (s) => s.category === 'ai_agents'
+      ).length,
+      aiServiceIds: purchasedServices
+        .filter((s) => s.category === 'ai_agents')
+        .map((s) => s.id),
     });
 
     // If no AI services purchased, don't expand agents
     if (!hasAIServices) {
-      console.warn('[AIAgentDetailedSpec] No AI services purchased - skipping agent expansion');
+      console.warn(
+        '[AIAgentDetailedSpec] No AI services purchased - skipping agent expansion'
+      );
       return;
     }
 
@@ -153,7 +208,11 @@ export const AIAgentDetailedSpec: React.FC = () => {
       const expandedAgents = expandAIAgents(currentMeeting);
 
       if (expandedAgents.length > 0) {
-        console.log('[AIAgentDetailedSpec] Successfully expanded', expandedAgents.length, 'AI agents');
+        console.log(
+          '[AIAgentDetailedSpec] Successfully expanded',
+          expandedAgents.length,
+          'AI agents'
+        );
 
         // Save expanded agents to meeting
         updateMeeting({
@@ -161,8 +220,8 @@ export const AIAgentDetailedSpec: React.FC = () => {
             ...currentMeeting.implementationSpec!,
             aiAgents: expandedAgents,
             lastUpdated: new Date(),
-            updatedBy: 'system'
-          }
+            updatedBy: 'system',
+          },
         });
 
         setExpandedFromPhase1(true);
@@ -178,8 +237,12 @@ export const AIAgentDetailedSpec: React.FC = () => {
 
     // CRITICAL: Check if AI services were purchased before allowing save
     if (!hasAIServices) {
-      alert('לא ניתן לשמור סוכן AI - שירותי AI לא נכללו בהצעה המאושרת.\n\nאנא חזור לשלב Discovery ובחר שירותי AI רלוונטיים.');
-      console.warn('[AIAgentDetailedSpec] Attempted to save AI agent without purchased AI services');
+      alert(
+        'לא ניתן לשמור סוכן AI - שירותי AI לא נכללו בהצעה המאושרת.\n\nאנא חזור לשלב Discovery ובחר שירותי AI רלוונטיים.'
+      );
+      console.warn(
+        '[AIAgentDetailedSpec] Attempted to save AI agent without purchased AI services'
+      );
       return;
     }
 
@@ -197,16 +260,16 @@ export const AIAgentDetailedSpec: React.FC = () => {
     const updatedSpec = {
       ...currentMeeting.implementationSpec!,
       aiAgents: existingAgent
-        ? currentMeeting.implementationSpec!.aiAgents.map((a: DetailedAIAgentSpec) =>
-            a.id === agentId ? agent : a
+        ? currentMeeting.implementationSpec!.aiAgents.map(
+            (a: DetailedAIAgentSpec) => (a.id === agentId ? agent : a)
           )
         : [...(currentMeeting.implementationSpec!.aiAgents || []), agent],
       lastUpdated: new Date(),
-      updatedBy: 'user'
+      updatedBy: 'user',
     };
 
     updateMeeting({
-      implementationSpec: updatedSpec
+      implementationSpec: updatedSpec,
     });
 
     navigate('/phase2');
@@ -223,22 +286,25 @@ export const AIAgentDetailedSpec: React.FC = () => {
             type: 'document',
             name: '',
             path: '',
-            lastUpdated: new Date()
-          }
-        ]
-      }
+            lastUpdated: new Date(),
+          },
+        ],
+      },
     });
   };
 
-  const updateKnowledgeSource = (index: number, updates: Partial<KnowledgeSource>) => {
+  const updateKnowledgeSource = (
+    index: number,
+    updates: Partial<KnowledgeSource>
+  ) => {
     const updatedSources = [...agent.knowledgeBase.sources];
     updatedSources[index] = { ...updatedSources[index], ...updates };
     setAgent({
       ...agent,
       knowledgeBase: {
         ...agent.knowledgeBase,
-        sources: updatedSources
-      }
+        sources: updatedSources,
+      },
     });
   };
 
@@ -247,8 +313,10 @@ export const AIAgentDetailedSpec: React.FC = () => {
       ...agent,
       knowledgeBase: {
         ...agent.knowledgeBase,
-        sources: agent.knowledgeBase.sources.filter((_item: KnowledgeSource, i: number) => i !== index)
-      }
+        sources: agent.knowledgeBase.sources.filter(
+          (_item: KnowledgeSource, i: number) => i !== index
+        ),
+      },
     });
   };
 
@@ -263,10 +331,10 @@ export const AIAgentDetailedSpec: React.FC = () => {
             name: '',
             examples: [],
             response: '',
-            requiresData: false
-          }
-        ]
-      }
+            requiresData: false,
+          },
+        ],
+      },
     });
   };
 
@@ -277,8 +345,8 @@ export const AIAgentDetailedSpec: React.FC = () => {
       ...agent,
       conversationFlow: {
         ...agent.conversationFlow,
-        intents: updatedIntents
-      }
+        intents: updatedIntents,
+      },
     });
   };
 
@@ -287,8 +355,10 @@ export const AIAgentDetailedSpec: React.FC = () => {
       ...agent,
       conversationFlow: {
         ...agent.conversationFlow,
-        intents: agent.conversationFlow.intents.filter((_item: Intent, i: number) => i !== index)
-      }
+        intents: agent.conversationFlow.intents.filter(
+          (_item: Intent, i: number) => i !== index
+        ),
+      },
     });
   };
 
@@ -302,10 +372,10 @@ export const AIAgentDetailedSpec: React.FC = () => {
           {
             question: '',
             answer: '',
-            category: ''
-          }
-        ]
-      }
+            category: '',
+          },
+        ],
+      },
     });
   };
 
@@ -316,8 +386,8 @@ export const AIAgentDetailedSpec: React.FC = () => {
       ...agent,
       training: {
         ...agent.training,
-        faqPairs: updatedFAQs
-      }
+        faqPairs: updatedFAQs,
+      },
     });
   };
 
@@ -326,8 +396,10 @@ export const AIAgentDetailedSpec: React.FC = () => {
       ...agent,
       training: {
         ...agent.training,
-        faqPairs: agent.training.faqPairs.filter((_item: FAQPair, i: number) => i !== index)
-      }
+        faqPairs: agent.training.faqPairs.filter(
+          (_item: FAQPair, i: number) => i !== index
+        ),
+      },
     });
   };
 
@@ -342,10 +414,10 @@ export const AIAgentDetailedSpec: React.FC = () => {
             name: '',
             url: '',
             trigger: '',
-            headers: {}
-          }
-        ]
-      }
+            headers: {},
+          },
+        ],
+      },
     });
   };
 
@@ -354,8 +426,10 @@ export const AIAgentDetailedSpec: React.FC = () => {
       ...agent,
       integrations: {
         ...agent.integrations,
-        customWebhooks: agent.integrations.customWebhooks.filter((_item: Webhook, i: number) => i !== index)
-      }
+        customWebhooks: agent.integrations.customWebhooks.filter(
+          (_item: Webhook, i: number) => i !== index
+        ),
+      },
     });
   };
 
@@ -368,7 +442,11 @@ export const AIAgentDetailedSpec: React.FC = () => {
       const fullCriteria = generateAcceptanceCriteria(currentMeeting);
 
       // Filter to get only criteria for this AI agent
-      const filtered = getAIAgentCriteria(fullCriteria, agent.name, agent.department);
+      const filtered = getAIAgentCriteria(
+        fullCriteria,
+        agent.name,
+        agent.department
+      );
       setAgentCriteria(filtered);
 
       // Save the full criteria to meeting
@@ -377,8 +455,8 @@ export const AIAgentDetailedSpec: React.FC = () => {
           ...currentMeeting.implementationSpec!,
           acceptanceCriteria: fullCriteria,
           lastUpdated: new Date(),
-          updatedBy: 'user'
-        }
+          updatedBy: 'user',
+        },
       });
     } catch (error) {
       console.error('Failed to generate acceptance criteria:', error);
@@ -391,28 +469,43 @@ export const AIAgentDetailedSpec: React.FC = () => {
   const updateCriterion = (
     type: 'functional' | 'performance' | 'usability',
     id: string,
-    updates: Partial<FunctionalRequirement | PerformanceRequirement | UsabilityRequirement>
+    updates: Partial<
+      FunctionalRequirement | PerformanceRequirement | UsabilityRequirement
+    >
   ) => {
-    if (!currentMeeting?.implementationSpec?.acceptanceCriteria || !agentCriteria) return;
+    if (
+      !currentMeeting?.implementationSpec?.acceptanceCriteria ||
+      !agentCriteria
+    )
+      return;
 
     const fullCriteria = currentMeeting.implementationSpec.acceptanceCriteria;
     const updatedCriteria = {
       ...fullCriteria,
-      [type]: fullCriteria[type].map((item: FunctionalRequirement | PerformanceRequirement | UsabilityRequirement) =>
-        item.id === id ? { ...item, ...updates } : item
-      )
+      [type]: fullCriteria[type].map(
+        (
+          item:
+            | FunctionalRequirement
+            | PerformanceRequirement
+            | UsabilityRequirement
+        ) => (item.id === id ? { ...item, ...updates } : item)
+      ),
     };
 
     updateMeeting({
       implementationSpec: {
         ...currentMeeting.implementationSpec,
         acceptanceCriteria: updatedCriteria,
-        lastUpdated: new Date()
-      }
+        lastUpdated: new Date(),
+      },
     });
 
     // Update local state
-    const filtered = getAIAgentCriteria(updatedCriteria, agent.name, agent.department);
+    const filtered = getAIAgentCriteria(
+      updatedCriteria,
+      agent.name,
+      agent.department
+    );
     setAgentCriteria(filtered);
   };
 
@@ -445,14 +538,16 @@ export const AIAgentDetailedSpec: React.FC = () => {
                   {aiServicesCount} שירותי AI נרכשו
                 </span>
               )}
-              {existingAgent?.id && currentMeeting?.implementationSpec?.aiAgents?.find(
-                a => a.id === existingAgent.id
-              )?.id && expandedFromPhase1 && (
-                <span className="flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full">
-                  <Lightbulb className="w-4 h-4" />
-                  הורחב מ-Phase 1
-                </span>
-              )}
+              {existingAgent?.id &&
+                currentMeeting?.implementationSpec?.aiAgents?.find(
+                  (a) => a.id === existingAgent.id
+                )?.id &&
+                expandedFromPhase1 && (
+                  <span className="flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full">
+                    <Lightbulb className="w-4 h-4" />
+                    הורחב מ-Phase 1
+                  </span>
+                )}
             </div>
             <button
               onClick={() => navigate('/phase2')}
@@ -475,7 +570,9 @@ export const AIAgentDetailedSpec: React.FC = () => {
                   שירותי AI לא נכללו בהצעה המאושרת
                 </h3>
                 <p className="text-orange-800 mb-3">
-                  כרגע לא רכשת שירותי AI במסגרת ההצעה המאושרת. כדי להוסיף סוכני AI לפרויקט, יש לחזור לשלב Discovery ולבחור שירותי AI רלוונטיים.
+                  כרגע לא רכשת שירותי AI במסגרת ההצעה המאושרת. כדי להוסיף סוכני
+                  AI לפרויקט, יש לחזור לשלב Discovery ולבחור שירותי AI
+                  רלוונטיים.
                 </p>
                 <div className="flex gap-3">
                   <button
@@ -499,28 +596,58 @@ export const AIAgentDetailedSpec: React.FC = () => {
         {/* Tab Navigation */}
         <div className="bg-white rounded-lg shadow-sm mb-6">
           <div className="flex border-b overflow-x-auto">
-            {([
+            {[
               { key: 'basic' as const, label: 'פרטים בסיסיים', icon: Settings },
-              { key: 'knowledge' as const, label: `מקורות ידע (${agent.knowledgeBase.sources.length})`, icon: Database },
-              { key: 'conversation' as const, label: `שיחה (${agent.conversationFlow.intents.length})`, icon: MessageSquare },
-              { key: 'integrations' as const, label: 'אינטגרציות', icon: LinkIcon },
-              { key: 'training' as const, label: `אימון (${agent.training.faqPairs.length})`, icon: Brain },
+              {
+                key: 'knowledge' as const,
+                label: `מקורות ידע (${agent.knowledgeBase.sources.length})`,
+                icon: Database,
+              },
+              {
+                key: 'conversation' as const,
+                label: `שיחה (${agent.conversationFlow.intents.length})`,
+                icon: MessageSquare,
+              },
+              {
+                key: 'integrations' as const,
+                label: 'אינטגרציות',
+                icon: LinkIcon,
+              },
+              {
+                key: 'training' as const,
+                label: `אימון (${agent.training.faqPairs.length})`,
+                icon: Brain,
+              },
               { key: 'model' as const, label: 'מודל AI', icon: Sparkles },
-              { key: 'acceptance' as const, label: 'קריטריוני קבלה', icon: CheckSquare }
-            ]).map(({ key, label, icon: Icon }: { key: typeof activeTab; label: string; icon: React.FC<{ className?: string }> }) => (
-              <button
-                key={key}
-                onClick={() => setActiveTab(key as typeof activeTab)}
-                className={`flex items-center space-x-2 space-x-reverse py-4 px-6 text-center font-medium transition-colors whitespace-nowrap ${
-                  activeTab === key
-                    ? 'border-b-2 border-blue-600 text-blue-600'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{label}</span>
-              </button>
-            ))}
+              {
+                key: 'acceptance' as const,
+                label: 'קריטריוני קבלה',
+                icon: CheckSquare,
+              },
+            ].map(
+              ({
+                key,
+                label,
+                icon: Icon,
+              }: {
+                key: typeof activeTab;
+                label: string;
+                icon: React.FC<{ className?: string }>;
+              }) => (
+                <button
+                  key={key}
+                  onClick={() => setActiveTab(key as typeof activeTab)}
+                  className={`flex items-center space-x-2 space-x-reverse py-4 px-6 text-center font-medium transition-colors whitespace-nowrap ${
+                    activeTab === key
+                      ? 'border-b-2 border-blue-600 text-blue-600'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{label}</span>
+                </button>
+              )
+            )}
           </div>
 
           <div className="p-6">
@@ -540,20 +667,32 @@ export const AIAgentDetailedSpec: React.FC = () => {
                     מחלקה *
                   </label>
                   <div className="grid grid-cols-3 gap-3">
-                    {DEPARTMENTS.map(({ value, label, icon }: { value: DetailedAIAgentSpec['department']; label: string; icon: string }) => (
-                      <button
-                        key={value}
-                        onClick={() => setAgent({ ...agent, department: value })}
-                        className={`flex items-center justify-center space-x-2 space-x-reverse p-4 rounded-lg border-2 transition-all ${
-                          agent.department === value
-                            ? 'border-blue-600 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <span className="text-2xl">{icon}</span>
-                        <span className="font-medium">{label}</span>
-                      </button>
-                    ))}
+                    {DEPARTMENTS.map(
+                      ({
+                        value,
+                        label,
+                        icon,
+                      }: {
+                        value: DetailedAIAgentSpec['department'];
+                        label: string;
+                        icon: string;
+                      }) => (
+                        <button
+                          key={value}
+                          onClick={() =>
+                            setAgent({ ...agent, department: value })
+                          }
+                          className={`flex items-center justify-center space-x-2 space-x-reverse p-4 rounded-lg border-2 transition-all ${
+                            agent.department === value
+                              ? 'border-blue-600 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          <span className="text-2xl">{icon}</span>
+                          <span className="font-medium">{label}</span>
+                        </button>
+                      )
+                    )}
                   </div>
                 </div>
               </div>
@@ -566,9 +705,12 @@ export const AIAgentDetailedSpec: React.FC = () => {
                   <div className="flex items-start space-x-3 space-x-reverse">
                     <Database className="w-5 h-5 text-blue-600 mt-0.5" />
                     <div>
-                      <h3 className="font-medium text-blue-900 mb-1">מקורות ידע</h3>
+                      <h3 className="font-medium text-blue-900 mb-1">
+                        מקורות ידע
+                      </h3>
                       <p className="text-sm text-blue-700">
-                        הוסף מסמכים, דפי אינטרנט, או מקורות נתונים אחרים שהסוכן יוכל להשתמש בהם למתן מענה
+                        הוסף מסמכים, דפי אינטרנט, או מקורות נתונים אחרים שהסוכן
+                        יוכל להשתמש בהם למתן מענה
                       </p>
                     </div>
                   </div>
@@ -578,7 +720,9 @@ export const AIAgentDetailedSpec: React.FC = () => {
                   {agent.knowledgeBase.sources.length === 0 ? (
                     <div className="text-center py-12">
                       <Database className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600 mb-4">עדיין לא הוספת מקורות ידע</p>
+                      <p className="text-gray-600 mb-4">
+                        עדיין לא הוספת מקורות ידע
+                      </p>
                       <button
                         onClick={addKnowledgeSource}
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -589,56 +733,78 @@ export const AIAgentDetailedSpec: React.FC = () => {
                     </div>
                   ) : (
                     <>
-                      {agent.knowledgeBase.sources.map((source: KnowledgeSource, index: number) => (
-                        <div key={index} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
-                          <div className="flex items-start justify-between mb-4">
-                            <select
-                              value={source.type}
-                              onChange={(e) => updateKnowledgeSource(index, { type: e.target.value as KnowledgeSource['type'] })}
-                              className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
-                            >
-                              <option value="document">מסמך</option>
-                              <option value="website">אתר אינטרנט</option>
-                              <option value="database">מסד נתונים</option>
-                              <option value="api">API</option>
-                            </select>
-                            <button
-                              onClick={() => deleteKnowledgeSource(index)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-
-                          <div className="space-y-3">
-                            <div>
-                              <label className="block text-xs font-medium text-gray-600 mb-1">
-                                שם המקור
-                              </label>
-                              <input
-                                type="text"
-                                value={source.name}
-                                onChange={(e) => updateKnowledgeSource(index, { name: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                                placeholder="לדוגמה: מדריך משתמש - גרסה 2.0"
-                              />
+                      {agent.knowledgeBase.sources.map(
+                        (source: KnowledgeSource, index: number) => (
+                          <div
+                            key={index}
+                            className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200"
+                          >
+                            <div className="flex items-start justify-between mb-4">
+                              <select
+                                value={source.type}
+                                onChange={(e) =>
+                                  updateKnowledgeSource(index, {
+                                    type: e.target
+                                      .value as KnowledgeSource['type'],
+                                  })
+                                }
+                                className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
+                              >
+                                <option value="document">מסמך</option>
+                                <option value="website">אתר אינטרנט</option>
+                                <option value="database">מסד נתונים</option>
+                                <option value="api">API</option>
+                              </select>
+                              <button
+                                onClick={() => deleteKnowledgeSource(index)}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
                             </div>
 
-                            <div>
-                              <label className="block text-xs font-medium text-gray-600 mb-1">
-                                נתיב / URL
-                              </label>
-                              <input
-                                type="text"
-                                value={source.path}
-                                onChange={(e) => updateKnowledgeSource(index, { path: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
-                                placeholder={source.type === 'website' ? 'https://...' : '/path/to/file'}
-                              />
+                            <div className="space-y-3">
+                              <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">
+                                  שם המקור
+                                </label>
+                                <input
+                                  type="text"
+                                  value={source.name}
+                                  onChange={(e) =>
+                                    updateKnowledgeSource(index, {
+                                      name: e.target.value,
+                                    })
+                                  }
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                  placeholder="לדוגמה: מדריך משתמש - גרסה 2.0"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">
+                                  נתיב / URL
+                                </label>
+                                <input
+                                  type="text"
+                                  value={source.path}
+                                  onChange={(e) =>
+                                    updateKnowledgeSource(index, {
+                                      path: e.target.value,
+                                    })
+                                  }
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
+                                  placeholder={
+                                    source.type === 'website'
+                                      ? 'https://...'
+                                      : '/path/to/file'
+                                  }
+                                />
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      )}
 
                       <button
                         onClick={addKnowledgeSource}
@@ -658,13 +824,15 @@ export const AIAgentDetailedSpec: React.FC = () => {
                     </label>
                     <select
                       value={agent.knowledgeBase.updateFrequency}
-                      onChange={(e) => setAgent({
-                        ...agent,
-                        knowledgeBase: {
-                          ...agent.knowledgeBase,
-                          updateFrequency: e.target.value as any
-                        }
-                      })}
+                      onChange={(e) =>
+                        setAgent({
+                          ...agent,
+                          knowledgeBase: {
+                            ...agent.knowledgeBase,
+                            updateFrequency: e.target.value as any,
+                          },
+                        })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                     >
                       <option value="realtime">זמן אמת</option>
@@ -680,18 +848,26 @@ export const AIAgentDetailedSpec: React.FC = () => {
                     </label>
                     <select
                       value={agent.knowledgeBase.embeddingModel}
-                      onChange={(e) => setAgent({
-                        ...agent,
-                        knowledgeBase: {
-                          ...agent.knowledgeBase,
-                          embeddingModel: e.target.value
-                        }
-                      })}
+                      onChange={(e) =>
+                        setAgent({
+                          ...agent,
+                          knowledgeBase: {
+                            ...agent.knowledgeBase,
+                            embeddingModel: e.target.value,
+                          },
+                        })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                     >
-                      <option value="text-embedding-ada-002">Ada-002 (OpenAI)</option>
-                      <option value="text-embedding-3-small">Embedding-3-Small (OpenAI)</option>
-                      <option value="text-embedding-3-large">Embedding-3-Large (OpenAI)</option>
+                      <option value="text-embedding-ada-002">
+                        Ada-002 (OpenAI)
+                      </option>
+                      <option value="text-embedding-3-small">
+                        Embedding-3-Small (OpenAI)
+                      </option>
+                      <option value="text-embedding-3-large">
+                        Embedding-3-Large (OpenAI)
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -704,13 +880,15 @@ export const AIAgentDetailedSpec: React.FC = () => {
                 <TextArea
                   label="ברכה פותחת"
                   value={agent.conversationFlow.greeting}
-                  onChange={(e) => setAgent({
-                    ...agent,
-                    conversationFlow: {
-                      ...agent.conversationFlow,
-                      greeting: e.target.value
-                    }
-                  })}
+                  onChange={(e) =>
+                    setAgent({
+                      ...agent,
+                      conversationFlow: {
+                        ...agent.conversationFlow,
+                        greeting: e.target.value,
+                      },
+                    })
+                  }
                   rows={3}
                   placeholder="שלום! אני כאן לעזור לך. במה אוכל לסייע?"
                 />
@@ -730,63 +908,80 @@ export const AIAgentDetailedSpec: React.FC = () => {
                   </div>
 
                   <div className="space-y-3">
-                    {agent.conversationFlow.intents.map((intent: Intent, index: number) => (
-                      <div key={index} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
-                        <div className="flex items-start justify-between mb-3">
-                          <input
-                            type="text"
-                            value={intent.name}
-                            onChange={(e) => updateIntent(index, { name: e.target.value })}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium"
-                            placeholder="שם הכוונה (לדוגמה: בקשת מחיר)"
-                          />
-                          <button
-                            onClick={() => deleteIntent(index)}
-                            className="mr-2 text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                    {agent.conversationFlow.intents.map(
+                      (intent: Intent, index: number) => (
+                        <div
+                          key={index}
+                          className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <input
+                              type="text"
+                              value={intent.name}
+                              onChange={(e) =>
+                                updateIntent(index, { name: e.target.value })
+                              }
+                              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium"
+                              placeholder="שם הכוונה (לדוגמה: בקשת מחיר)"
+                            />
+                            <button
+                              onClick={() => deleteIntent(index)}
+                              className="mr-2 text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
 
-                        <div className="space-y-2">
-                          <label className="block text-xs font-medium text-gray-600">
-                            תגובה
+                          <div className="space-y-2">
+                            <label className="block text-xs font-medium text-gray-600">
+                              תגובה
+                            </label>
+                            <textarea
+                              value={intent.response}
+                              onChange={(e) =>
+                                updateIntent(index, {
+                                  response: e.target.value,
+                                })
+                              }
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                              rows={2}
+                              placeholder="מה הסוכן יענה?"
+                            />
+                          </div>
+
+                          <label className="flex items-center space-x-2 space-x-reverse mt-2">
+                            <input
+                              type="checkbox"
+                              checked={intent.requiresData}
+                              onChange={(e) =>
+                                updateIntent(index, {
+                                  requiresData: e.target.checked,
+                                })
+                              }
+                              className="rounded"
+                            />
+                            <span className="text-xs text-gray-600">
+                              דורש שליפת מידע מבסיס הידע
+                            </span>
                           </label>
-                          <textarea
-                            value={intent.response}
-                            onChange={(e) => updateIntent(index, { response: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                            rows={2}
-                            placeholder="מה הסוכן יענה?"
-                          />
                         </div>
-
-                        <label className="flex items-center space-x-2 space-x-reverse mt-2">
-                          <input
-                            type="checkbox"
-                            checked={intent.requiresData}
-                            onChange={(e) => updateIntent(index, { requiresData: e.target.checked })}
-                            className="rounded"
-                          />
-                          <span className="text-xs text-gray-600">
-                            דורש שליפת מידע מבסיס הידע
-                          </span>
-                        </label>
-                      </div>
-                    ))}
+                      )
+                    )}
                   </div>
                 </div>
 
                 <TextArea
                   label="תגובת ברירת מחדל"
                   value={agent.conversationFlow.fallbackResponse}
-                  onChange={(e) => setAgent({
-                    ...agent,
-                    conversationFlow: {
-                      ...agent.conversationFlow,
-                      fallbackResponse: e.target.value
-                    }
-                  })}
+                  onChange={(e) =>
+                    setAgent({
+                      ...agent,
+                      conversationFlow: {
+                        ...agent.conversationFlow,
+                        fallbackResponse: e.target.value,
+                      },
+                    })
+                  }
                   rows={2}
                   placeholder="סליחה, לא הבנתי. אוכל לעזור במשהו אחר?"
                 />
@@ -799,13 +994,15 @@ export const AIAgentDetailedSpec: React.FC = () => {
                     <input
                       type="number"
                       value={agent.conversationFlow.maxTurns}
-                      onChange={(e) => setAgent({
-                        ...agent,
-                        conversationFlow: {
-                          ...agent.conversationFlow,
-                          maxTurns: parseInt(e.target.value)
-                        }
-                      })}
+                      onChange={(e) =>
+                        setAgent({
+                          ...agent,
+                          conversationFlow: {
+                            ...agent.conversationFlow,
+                            maxTurns: parseInt(e.target.value),
+                          },
+                        })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                       min="1"
                       max="50"
@@ -819,13 +1016,15 @@ export const AIAgentDetailedSpec: React.FC = () => {
                     <input
                       type="number"
                       value={agent.conversationFlow.contextWindow}
-                      onChange={(e) => setAgent({
-                        ...agent,
-                        conversationFlow: {
-                          ...agent.conversationFlow,
-                          contextWindow: parseInt(e.target.value)
-                        }
-                      })}
+                      onChange={(e) =>
+                        setAgent({
+                          ...agent,
+                          conversationFlow: {
+                            ...agent.conversationFlow,
+                            contextWindow: parseInt(e.target.value),
+                          },
+                        })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                       min="1"
                       max="20"
@@ -841,20 +1040,26 @@ export const AIAgentDetailedSpec: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
                     <div>
-                      <h4 className="font-medium text-gray-900">אינטגרציה עם CRM</h4>
-                      <p className="text-sm text-gray-600">עדכון אוטומטי של פרטי לקוח</p>
+                      <h4 className="font-medium text-gray-900">
+                        אינטגרציה עם CRM
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        עדכון אוטומטי של פרטי לקוח
+                      </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
                         type="checkbox"
                         checked={agent.integrations.crmEnabled}
-                        onChange={(e) => setAgent({
-                          ...agent,
-                          integrations: {
-                            ...agent.integrations,
-                            crmEnabled: e.target.checked
-                          }
-                        })}
+                        onChange={(e) =>
+                          setAgent({
+                            ...agent,
+                            integrations: {
+                              ...agent.integrations,
+                              crmEnabled: e.target.checked,
+                            },
+                          })
+                        }
                         className="sr-only peer"
                       />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -865,33 +1070,41 @@ export const AIAgentDetailedSpec: React.FC = () => {
                     <Input
                       label="מערכת CRM"
                       value={agent.integrations.crmSystem}
-                      onChange={(e) => setAgent({
-                        ...agent,
-                        integrations: {
-                          ...agent.integrations,
-                          crmSystem: e.target.value
-                        }
-                      })}
+                      onChange={(e) =>
+                        setAgent({
+                          ...agent,
+                          integrations: {
+                            ...agent.integrations,
+                            crmSystem: e.target.value,
+                          },
+                        })
+                      }
                       placeholder="Zoho CRM / Salesforce / HubSpot"
                     />
                   )}
 
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
                     <div>
-                      <h4 className="font-medium text-gray-900">שליחת מיילים</h4>
-                      <p className="text-sm text-gray-600">שליחה אוטומטית של מיילים</p>
+                      <h4 className="font-medium text-gray-900">
+                        שליחת מיילים
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        שליחה אוטומטית של מיילים
+                      </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
                         type="checkbox"
                         checked={agent.integrations.emailEnabled}
-                        onChange={(e) => setAgent({
-                          ...agent,
-                          integrations: {
-                            ...agent.integrations,
-                            emailEnabled: e.target.checked
-                          }
-                        })}
+                        onChange={(e) =>
+                          setAgent({
+                            ...agent,
+                            integrations: {
+                              ...agent.integrations,
+                              emailEnabled: e.target.checked,
+                            },
+                          })
+                        }
                         className="sr-only peer"
                       />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -900,20 +1113,26 @@ export const AIAgentDetailedSpec: React.FC = () => {
 
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
                     <div>
-                      <h4 className="font-medium text-gray-900">אינטגרציה עם יומן</h4>
-                      <p className="text-sm text-gray-600">קביעת פגישות אוטומטית</p>
+                      <h4 className="font-medium text-gray-900">
+                        אינטגרציה עם יומן
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        קביעת פגישות אוטומטית
+                      </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
                         type="checkbox"
                         checked={agent.integrations.calendarEnabled}
-                        onChange={(e) => setAgent({
-                          ...agent,
-                          integrations: {
-                            ...agent.integrations,
-                            calendarEnabled: e.target.checked
-                          }
-                        })}
+                        onChange={(e) =>
+                          setAgent({
+                            ...agent,
+                            integrations: {
+                              ...agent.integrations,
+                              calendarEnabled: e.target.checked,
+                            },
+                          })
+                        }
                         className="sr-only peer"
                       />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -937,47 +1156,68 @@ export const AIAgentDetailedSpec: React.FC = () => {
 
                   {agent.integrations.customWebhooks.length > 0 && (
                     <div className="space-y-3">
-                      {agent.integrations.customWebhooks.map((webhook: Webhook, index: number) => (
-                        <div key={index} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
-                          <div className="flex items-start justify-between mb-3">
+                      {agent.integrations.customWebhooks.map(
+                        (webhook: Webhook, index: number) => (
+                          <div
+                            key={index}
+                            className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200"
+                          >
+                            <div className="flex items-start justify-between mb-3">
+                              <input
+                                type="text"
+                                value={webhook.name}
+                                onChange={(e) => {
+                                  const updated = [
+                                    ...agent.integrations.customWebhooks,
+                                  ];
+                                  updated[index] = {
+                                    ...webhook,
+                                    name: e.target.value,
+                                  };
+                                  setAgent({
+                                    ...agent,
+                                    integrations: {
+                                      ...agent.integrations,
+                                      customWebhooks: updated,
+                                    },
+                                  });
+                                }}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                placeholder="שם ה-Webhook"
+                              />
+                              <button
+                                onClick={() => deleteWebhook(index)}
+                                className="mr-2 text-red-600 hover:text-red-700"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+
                             <input
-                              type="text"
-                              value={webhook.name}
+                              type="url"
+                              value={webhook.url}
                               onChange={(e) => {
-                                const updated = [...agent.integrations.customWebhooks];
-                                updated[index] = { ...webhook, name: e.target.value };
+                                const updated = [
+                                  ...agent.integrations.customWebhooks,
+                                ];
+                                updated[index] = {
+                                  ...webhook,
+                                  url: e.target.value,
+                                };
                                 setAgent({
                                   ...agent,
-                                  integrations: { ...agent.integrations, customWebhooks: updated }
+                                  integrations: {
+                                    ...agent.integrations,
+                                    customWebhooks: updated,
+                                  },
                                 });
                               }}
-                              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                              placeholder="שם ה-Webhook"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
+                              placeholder="https://..."
                             />
-                            <button
-                              onClick={() => deleteWebhook(index)}
-                              className="mr-2 text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
                           </div>
-
-                          <input
-                            type="url"
-                            value={webhook.url}
-                            onChange={(e) => {
-                              const updated = [...agent.integrations.customWebhooks];
-                              updated[index] = { ...webhook, url: e.target.value };
-                              setAgent({
-                                ...agent,
-                                integrations: { ...agent.integrations, customWebhooks: updated }
-                              });
-                            }}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
-                            placeholder="https://..."
-                          />
-                        </div>
-                      ))}
+                        )
+                      )}
                     </div>
                   )}
                 </div>
@@ -1002,60 +1242,79 @@ export const AIAgentDetailedSpec: React.FC = () => {
                   </div>
 
                   <div className="space-y-3">
-                    {agent.training.faqPairs.map((faq: FAQPair, index: number) => (
-                      <div key={index} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
-                        <div className="flex items-start justify-between mb-3">
-                          <h4 className="font-medium text-gray-900">שאלה #{index + 1}</h4>
-                          <button
-                            onClick={() => deleteFAQPair(index)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                    {agent.training.faqPairs.map(
+                      (faq: FAQPair, index: number) => (
+                        <div
+                          key={index}
+                          className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <h4 className="font-medium text-gray-900">
+                              שאלה #{index + 1}
+                            </h4>
+                            <button
+                              onClick={() => deleteFAQPair(index)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">
+                                שאלה
+                              </label>
+                              <input
+                                type="text"
+                                value={faq.question}
+                                onChange={(e) =>
+                                  updateFAQPair(index, {
+                                    question: e.target.value,
+                                  })
+                                }
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                placeholder="מה השאלה?"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">
+                                תשובה
+                              </label>
+                              <textarea
+                                value={faq.answer}
+                                onChange={(e) =>
+                                  updateFAQPair(index, {
+                                    answer: e.target.value,
+                                  })
+                                }
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                rows={2}
+                                placeholder="מה התשובה?"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">
+                                קטגוריה
+                              </label>
+                              <input
+                                type="text"
+                                value={faq.category}
+                                onChange={(e) =>
+                                  updateFAQPair(index, {
+                                    category: e.target.value,
+                                  })
+                                }
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                placeholder="לדוגמה: תמחור, תמיכה טכנית"
+                              />
+                            </div>
+                          </div>
                         </div>
-
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">
-                              שאלה
-                            </label>
-                            <input
-                              type="text"
-                              value={faq.question}
-                              onChange={(e) => updateFAQPair(index, { question: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                              placeholder="מה השאלה?"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">
-                              תשובה
-                            </label>
-                            <textarea
-                              value={faq.answer}
-                              onChange={(e) => updateFAQPair(index, { answer: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                              rows={2}
-                              placeholder="מה התשובה?"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">
-                              קטגוריה
-                            </label>
-                            <input
-                              type="text"
-                              value={faq.category}
-                              onChange={(e) => updateFAQPair(index, { category: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                              placeholder="לדוגמה: תמחור, תמיכה טכנית"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    )}
 
                     {agent.training.faqPairs.length === 0 && (
                       <div className="text-center py-8 text-gray-500">
@@ -1073,13 +1332,15 @@ export const AIAgentDetailedSpec: React.FC = () => {
                     </label>
                     <select
                       value={agent.training.tone}
-                      onChange={(e) => setAgent({
-                        ...agent,
-                        training: {
-                          ...agent.training,
-                          tone: e.target.value as any
-                        }
-                      })}
+                      onChange={(e) =>
+                        setAgent({
+                          ...agent,
+                          training: {
+                            ...agent.training,
+                            tone: e.target.value as any,
+                          },
+                        })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                     >
                       <option value="professional">מקצועי</option>
@@ -1095,13 +1356,15 @@ export const AIAgentDetailedSpec: React.FC = () => {
                     </label>
                     <select
                       value={agent.training.language}
-                      onChange={(e) => setAgent({
-                        ...agent,
-                        training: {
-                          ...agent.training,
-                          language: e.target.value as any
-                        }
-                      })}
+                      onChange={(e) =>
+                        setAgent({
+                          ...agent,
+                          training: {
+                            ...agent.training,
+                            language: e.target.value as any,
+                          },
+                        })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                     >
                       <option value="he">עברית</option>
@@ -1121,37 +1384,52 @@ export const AIAgentDetailedSpec: React.FC = () => {
                     בחר מודל AI
                   </label>
                   <div className="space-y-3">
-                    {AI_MODELS.map((model: { value: string; label: string; provider: string; description: string }) => (
-                      <button
-                        key={model.value}
-                        onClick={() => setAgent({
-                          ...agent,
-                          model: {
-                            ...agent.model,
-                            provider: model.provider,
-                            modelName: model.value
+                    {AI_MODELS.map(
+                      (model: {
+                        value: string;
+                        label: string;
+                        provider: string;
+                        description: string;
+                      }) => (
+                        <button
+                          key={model.value}
+                          onClick={() =>
+                            setAgent({
+                              ...agent,
+                              model: {
+                                ...agent.model,
+                                provider: model.provider,
+                                modelName: model.value,
+                              },
+                            })
                           }
-                        })}
-                        className={`w-full text-right p-4 rounded-lg border-2 transition-all ${
-                          agent.model.modelName === model.value
-                            ? 'border-blue-600 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 space-x-reverse mb-1">
-                              <h4 className="font-medium text-gray-900">{model.label}</h4>
-                              <span className="text-xs text-gray-500">({model.provider})</span>
+                          className={`w-full text-right p-4 rounded-lg border-2 transition-all ${
+                            agent.model.modelName === model.value
+                              ? 'border-blue-600 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 space-x-reverse mb-1">
+                                <h4 className="font-medium text-gray-900">
+                                  {model.label}
+                                </h4>
+                                <span className="text-xs text-gray-500">
+                                  ({model.provider})
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600">
+                                {model.description}
+                              </p>
                             </div>
-                            <p className="text-sm text-gray-600">{model.description}</p>
+                            {agent.model.modelName === model.value && (
+                              <CheckCircle className="w-5 h-5 text-blue-600" />
+                            )}
                           </div>
-                          {agent.model.modelName === model.value && (
-                            <CheckCircle className="w-5 h-5 text-blue-600" />
-                          )}
-                        </div>
-                      </button>
-                    ))}
+                        </button>
+                      )
+                    )}
                   </div>
                 </div>
 
@@ -1159,18 +1437,22 @@ export const AIAgentDetailedSpec: React.FC = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Temperature
-                      <span className="text-xs text-gray-500 mr-2">(יצירתיות)</span>
+                      <span className="text-xs text-gray-500 mr-2">
+                        (יצירתיות)
+                      </span>
                     </label>
                     <input
                       type="number"
                       value={agent.model.temperature}
-                      onChange={(e) => setAgent({
-                        ...agent,
-                        model: {
-                          ...agent.model,
-                          temperature: parseFloat(e.target.value)
-                        }
-                      })}
+                      onChange={(e) =>
+                        setAgent({
+                          ...agent,
+                          model: {
+                            ...agent.model,
+                            temperature: parseFloat(e.target.value),
+                          },
+                        })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                       min="0"
                       max="2"
@@ -1181,18 +1463,22 @@ export const AIAgentDetailedSpec: React.FC = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Max Tokens
-                      <span className="text-xs text-gray-500 mr-2">(אורך תשובה)</span>
+                      <span className="text-xs text-gray-500 mr-2">
+                        (אורך תשובה)
+                      </span>
                     </label>
                     <input
                       type="number"
                       value={agent.model.maxTokens}
-                      onChange={(e) => setAgent({
-                        ...agent,
-                        model: {
-                          ...agent.model,
-                          maxTokens: parseInt(e.target.value)
-                        }
-                      })}
+                      onChange={(e) =>
+                        setAgent({
+                          ...agent,
+                          model: {
+                            ...agent.model,
+                            maxTokens: parseInt(e.target.value),
+                          },
+                        })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                       min="100"
                       max="4000"
@@ -1208,13 +1494,15 @@ export const AIAgentDetailedSpec: React.FC = () => {
                     <input
                       type="number"
                       value={agent.model.topP}
-                      onChange={(e) => setAgent({
-                        ...agent,
-                        model: {
-                          ...agent.model,
-                          topP: parseFloat(e.target.value)
-                        }
-                      })}
+                      onChange={(e) =>
+                        setAgent({
+                          ...agent,
+                          model: {
+                            ...agent.model,
+                            topP: parseFloat(e.target.value),
+                          },
+                        })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                       min="0"
                       max="1"
@@ -1230,7 +1518,9 @@ export const AIAgentDetailedSpec: React.FC = () => {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">קריטריוני קבלה לסוכן AI</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      קריטריוני קבלה לסוכן AI
+                    </h3>
                     <p className="text-sm text-gray-600 mt-1">
                       דרישות פונקציונליות, ביצועים ושימושיות לסוכן זה
                     </p>
@@ -1254,14 +1544,15 @@ export const AIAgentDetailedSpec: React.FC = () => {
                   </button>
                 </div>
 
-                {!agentCriteria || (
-                  agentCriteria.functional.length === 0 &&
+                {!agentCriteria ||
+                (agentCriteria.functional.length === 0 &&
                   agentCriteria.performance.length === 0 &&
-                  agentCriteria.usability.length === 0
-                ) ? (
+                  agentCriteria.usability.length === 0) ? (
                   <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                     <CheckSquare className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 mb-4">עדיין לא נוצרו קריטריוני קבלה</p>
+                    <p className="text-gray-600 mb-4">
+                      עדיין לא נוצרו קריטריוני קבלה
+                    </p>
                     <button
                       onClick={handleGenerateCriteria}
                       disabled={isGeneratingCriteria}
@@ -1276,20 +1567,32 @@ export const AIAgentDetailedSpec: React.FC = () => {
                     {agentCriteria.functional.length > 0 && (
                       <div>
                         <h4 className="font-semibold text-gray-900 mb-3">
-                          דרישות פונקציונליות ({agentCriteria.functional.length})
+                          דרישות פונקציונליות ({agentCriteria.functional.length}
+                          )
                         </h4>
                         <div className="space-y-2">
-                          {agentCriteria.functional.map((req: FunctionalRequirement) => (
-                            <div key={req.id} className="bg-white border border-gray-200 rounded-lg p-3">
-                              <input
-                                type="text"
-                                value={req.description}
-                                onChange={(e) => updateCriterion('functional', req.id, { description: e.target.value })}
-                                className="w-full font-medium text-gray-900 bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2"
-                              />
-                              <p className="text-sm text-gray-600 mt-1 px-2">{req.acceptanceCriteria}</p>
-                            </div>
-                          ))}
+                          {agentCriteria.functional.map(
+                            (req: FunctionalRequirement) => (
+                              <div
+                                key={req.id}
+                                className="bg-white border border-gray-200 rounded-lg p-3"
+                              >
+                                <input
+                                  type="text"
+                                  value={req.description}
+                                  onChange={(e) =>
+                                    updateCriterion('functional', req.id, {
+                                      description: e.target.value,
+                                    })
+                                  }
+                                  className="w-full font-medium text-gray-900 bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2"
+                                />
+                                <p className="text-sm text-gray-600 mt-1 px-2">
+                                  {req.acceptanceCriteria}
+                                </p>
+                              </div>
+                            )
+                          )}
                         </div>
                       </div>
                     )}
@@ -1300,19 +1603,30 @@ export const AIAgentDetailedSpec: React.FC = () => {
                           דרישות ביצועים ({agentCriteria.performance.length})
                         </h4>
                         <div className="space-y-2">
-                          {agentCriteria.performance.map((req: PerformanceRequirement) => (
-                            <div key={req.id} className="bg-green-50 border border-green-200 rounded-lg p-3">
-                              <div className="flex items-center justify-between">
-                                <span className="font-medium text-gray-900">{req.metric}</span>
-                                <input
-                                  type="text"
-                                  value={req.target}
-                                  onChange={(e) => updateCriterion('performance', req.id, { target: e.target.value })}
-                                  className="text-sm px-2 py-1 bg-white border border-green-300 rounded"
-                                />
+                          {agentCriteria.performance.map(
+                            (req: PerformanceRequirement) => (
+                              <div
+                                key={req.id}
+                                className="bg-green-50 border border-green-200 rounded-lg p-3"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <span className="font-medium text-gray-900">
+                                    {req.metric}
+                                  </span>
+                                  <input
+                                    type="text"
+                                    value={req.target}
+                                    onChange={(e) =>
+                                      updateCriterion('performance', req.id, {
+                                        target: e.target.value,
+                                      })
+                                    }
+                                    className="text-sm px-2 py-1 bg-white border border-green-300 rounded"
+                                  />
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            )
+                          )}
                         </div>
                       </div>
                     )}
@@ -1323,21 +1637,34 @@ export const AIAgentDetailedSpec: React.FC = () => {
                           דרישות שימושיות ({agentCriteria.usability.length})
                         </h4>
                         <div className="space-y-2">
-                          {agentCriteria.usability.map((req: UsabilityRequirement) => (
-                            <div key={req.id} className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                              <p className="font-medium text-gray-900">{req.requirement}</p>
-                              <p className="text-sm text-gray-600 mt-1">{req.successCriteria}</p>
-                              <label className="flex items-center gap-1 text-sm mt-2">
-                                <input
-                                  type="checkbox"
-                                  checked={req.tested}
-                                  onChange={(e) => updateCriterion('usability', req.id, { tested: e.target.checked })}
-                                  className="rounded"
-                                />
-                                נבדק
-                              </label>
-                            </div>
-                          ))}
+                          {agentCriteria.usability.map(
+                            (req: UsabilityRequirement) => (
+                              <div
+                                key={req.id}
+                                className="bg-purple-50 border border-purple-200 rounded-lg p-3"
+                              >
+                                <p className="font-medium text-gray-900">
+                                  {req.requirement}
+                                </p>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {req.successCriteria}
+                                </p>
+                                <label className="flex items-center gap-1 text-sm mt-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={req.tested}
+                                    onChange={(e) =>
+                                      updateCriterion('usability', req.id, {
+                                        tested: e.target.checked,
+                                      })
+                                    }
+                                    className="rounded"
+                                  />
+                                  נבדק
+                                </label>
+                              </div>
+                            )
+                          )}
                         </div>
                       </div>
                     )}
@@ -1350,10 +1677,7 @@ export const AIAgentDetailedSpec: React.FC = () => {
 
         {/* Actions */}
         <div className="flex justify-between">
-          <Button
-            variant="secondary"
-            onClick={() => navigate('/phase2')}
-          >
+          <Button variant="secondary" onClick={() => navigate('/phase2')}>
             ביטול
           </Button>
           <Button

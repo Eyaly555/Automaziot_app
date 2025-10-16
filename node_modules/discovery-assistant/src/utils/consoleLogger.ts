@@ -8,7 +8,7 @@ export enum LogLevel {
   INFO = 1,
   WARN = 2,
   ERROR = 3,
-  OFF = 4
+  OFF = 4,
 }
 
 interface LogEntry {
@@ -36,13 +36,18 @@ class Logger {
     return level >= this.logLevel;
   }
 
-  private createLogEntry(level: LogLevel, message: string, data?: any, source?: string): LogEntry {
+  private createLogEntry(
+    level: LogLevel,
+    message: string,
+    data?: any,
+    source?: string
+  ): LogEntry {
     return {
       level,
       message,
       data,
       timestamp: new Date(),
-      source
+      source,
     };
   }
 
@@ -116,16 +121,17 @@ class Logger {
 
   // Get recent logs for debugging
   getLogs(level?: LogLevel, limit = 100): LogEntry[] {
-    let filteredLogs = level !== undefined
-      ? this.logs.filter(log => log.level >= level)
-      : this.logs;
+    const filteredLogs =
+      level !== undefined
+        ? this.logs.filter((log) => log.level >= level)
+        : this.logs;
 
     return filteredLogs.slice(-limit);
   }
 
   // Get errors for error reporting
   getErrors(): LogEntry[] {
-    return this.logs.filter(log => log.level === LogLevel.ERROR);
+    return this.logs.filter((log) => log.level === LogLevel.ERROR);
   }
 
   // Clear logs
@@ -139,24 +145,36 @@ export const consoleLogger = new Logger();
 
 // Convenience functions for common logging patterns
 export const logger = {
-  debug: (message: string, data?: any) => consoleLogger.debug(message, data, 'APP'),
-  info: (message: string, data?: any) => consoleLogger.info(message, data, 'APP'),
-  warn: (message: string, data?: any) => consoleLogger.warn(message, data, 'APP'),
-  error: (message: string, data?: any) => consoleLogger.error(message, data, 'APP'),
+  debug: (message: string, data?: any) =>
+    consoleLogger.debug(message, data, 'APP'),
+  info: (message: string, data?: any) =>
+    consoleLogger.info(message, data, 'APP'),
+  warn: (message: string, data?: any) =>
+    consoleLogger.warn(message, data, 'APP'),
+  error: (message: string, data?: any) =>
+    consoleLogger.error(message, data, 'APP'),
 
   // Component-specific logging
   component: (componentName: string) => ({
-    debug: (message: string, data?: any) => consoleLogger.debug(message, data, componentName),
-    info: (message: string, data?: any) => consoleLogger.info(message, data, componentName),
-    warn: (message: string, data?: any) => consoleLogger.warn(message, data, componentName),
-    error: (message: string, data?: any) => consoleLogger.error(message, data, componentName),
+    debug: (message: string, data?: any) =>
+      consoleLogger.debug(message, data, componentName),
+    info: (message: string, data?: any) =>
+      consoleLogger.info(message, data, componentName),
+    warn: (message: string, data?: any) =>
+      consoleLogger.warn(message, data, componentName),
+    error: (message: string, data?: any) =>
+      consoleLogger.error(message, data, componentName),
   }),
 
   // Service-specific logging
   service: (serviceName: string) => ({
-    debug: (message: string, data?: any) => consoleLogger.debug(message, data, serviceName),
-    info: (message: string, data?: any) => consoleLogger.info(message, data, serviceName),
-    warn: (message: string, data?: any) => consoleLogger.warn(message, data, serviceName),
-    error: (message: string, data?: any) => consoleLogger.error(message, data, serviceName),
-  })
+    debug: (message: string, data?: any) =>
+      consoleLogger.debug(message, data, serviceName),
+    info: (message: string, data?: any) =>
+      consoleLogger.info(message, data, serviceName),
+    warn: (message: string, data?: any) =>
+      consoleLogger.warn(message, data, serviceName),
+    error: (message: string, data?: any) =>
+      consoleLogger.error(message, data, serviceName),
+  }),
 };

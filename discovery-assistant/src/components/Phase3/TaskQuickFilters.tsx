@@ -46,10 +46,12 @@ export interface TaskQuickFiltersProps {
 export const TaskQuickFilters: React.FC<TaskQuickFiltersProps> = ({
   filters,
   activeFilters,
-  onChange
+  onChange,
 }) => {
   // Count active filters
-  const activeFilterCount = Object.values(activeFilters).filter(v => v).length;
+  const activeFilterCount = Object.values(activeFilters).filter(
+    (v) => v
+  ).length;
   const hasActiveFilters = activeFilterCount > 0;
 
   // Clear all filters
@@ -58,7 +60,10 @@ export const TaskQuickFilters: React.FC<TaskQuickFiltersProps> = ({
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm" dir="ltr">
+    <div
+      className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
+      dir="ltr"
+    >
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -133,7 +138,7 @@ const FilterGroup: React.FC<FilterGroupProps> = ({
   label,
   options,
   value,
-  onChange
+  onChange,
 }) => {
   if (options.length === 0) {
     return null;
@@ -158,9 +163,10 @@ const FilterGroup: React.FC<FilterGroupProps> = ({
               className={`
                 px-2.5 py-1 text-xs rounded-full border transition-all
                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1
-                ${isActive
-                  ? 'bg-blue-100 border-blue-500 text-blue-700 font-medium shadow-sm'
-                  : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-100'
+                ${
+                  isActive
+                    ? 'bg-blue-100 border-blue-500 text-blue-700 font-medium shadow-sm'
+                    : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-100'
                 }
               `}
               aria-label={`${isActive ? 'Remove' : 'Apply'} ${label} filter: ${option.label}`}
@@ -168,7 +174,9 @@ const FilterGroup: React.FC<FilterGroupProps> = ({
             >
               {option.label}
               {option.count !== undefined && (
-                <span className={`ml-1 ${isActive ? 'text-blue-600' : 'text-gray-500'}`}>
+                <span
+                  className={`ml-1 ${isActive ? 'text-blue-600' : 'text-gray-500'}`}
+                >
                   ({option.count})
                 </span>
               )}

@@ -10,12 +10,15 @@ interface AIDetailsSectionProps {
 
 export const AIDetailsSection: React.FC<AIDetailsSectionProps> = ({
   data = {},
-  onChange
+  onChange,
 }) => {
   const [newUseCase, setNewUseCase] = useState('');
   const [newOutcome, setNewOutcome] = useState('');
 
-  const updateField = <K extends keyof typeof data>(field: K, value: typeof data[K]) => {
+  const updateField = <K extends keyof typeof data>(
+    field: K,
+    value: (typeof data)[K]
+  ) => {
     onChange({ [field]: value });
   };
 
@@ -39,7 +42,9 @@ export const AIDetailsSection: React.FC<AIDetailsSectionProps> = ({
   };
 
   const removeOutcome = (index: number) => {
-    const outcomes = (data.expectedOutcomes || []).filter((_, i) => i !== index);
+    const outcomes = (data.expectedOutcomes || []).filter(
+      (_, i) => i !== index
+    );
     onChange({ expectedOutcomes: outcomes });
   };
 
@@ -49,9 +54,12 @@ export const AIDetailsSection: React.FC<AIDetailsSectionProps> = ({
         <div className="bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-200 rounded-lg p-4 flex items-start gap-3">
           <Sparkles className="w-6 h-6 text-pink-600 flex-shrink-0 mt-0.5" />
           <div>
-            <h4 className="font-medium text-pink-900 mb-1">AI ואוטומציה חכמה</h4>
+            <h4 className="font-medium text-pink-900 mb-1">
+              AI ואוטומציה חכמה
+            </h4>
             <p className="text-sm text-pink-800">
-              בואו נבין איך AI יכול לעזור לכם - ממענה אוטומטי ללקוחות ועד ניתוח נתונים מתקדם
+              בואו נבין איך AI יכול לעזור לכם - ממענה אוטומטי ללקוחות ועד ניתוח
+              נתונים מתקדם
             </p>
           </div>
         </div>
@@ -64,7 +72,10 @@ export const AIDetailsSection: React.FC<AIDetailsSectionProps> = ({
           {(data.aiUseCases || []).length > 0 && (
             <div className="space-y-2 mb-3">
               {(data.aiUseCases || []).map((useCase, index) => (
-                <div key={index} className="flex items-center justify-between bg-purple-50 border border-purple-200 rounded-lg p-2">
+                <div
+                  key={index}
+                  className="flex items-center justify-between bg-purple-50 border border-purple-200 rounded-lg p-2"
+                >
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-purple-600" />
                     <span className="text-sm">{useCase}</span>
@@ -125,7 +136,10 @@ export const AIDetailsSection: React.FC<AIDetailsSectionProps> = ({
           {(data.expectedOutcomes || []).length > 0 && (
             <div className="space-y-2 mb-3">
               {(data.expectedOutcomes || []).map((outcome, index) => (
-                <div key={index} className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-2">
+                <div
+                  key={index}
+                  className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-2"
+                >
                   <span className="text-sm">{outcome}</span>
                   <button
                     onClick={() => removeOutcome(index)}

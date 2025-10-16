@@ -7,7 +7,7 @@ import { Card } from '../../../Common/Card';
 export function ImplWorkflowPlatformSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
   const [config, setConfig] = useState<any>({
-    ...{ platform: 'n8n_selfhosted', estimatedDays: 7 }
+    ...{ platform: 'n8n_selfhosted', estimatedDays: 7 },
   });
 
   // Track if we're currently loading data to prevent save loops
@@ -17,7 +17,7 @@ export function ImplWorkflowPlatformSpec() {
   // Auto-save hook for immediate saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'impl-workflow-platform',
-    category: 'systemImplementations'
+    category: 'systemImplementations',
   });
 
   useBeforeUnload(() => {
@@ -26,8 +26,11 @@ export function ImplWorkflowPlatformSpec() {
   });
 
   useEffect(() => {
-    const systemImplementations = currentMeeting?.implementationSpec?.systemImplementations || [];
-    const existing = systemImplementations.find((s: any) => s.serviceId === 'impl-workflow-platform');
+    const systemImplementations =
+      currentMeeting?.implementationSpec?.systemImplementations || [];
+    const existing = systemImplementations.find(
+      (s: any) => s.serviceId === 'impl-workflow-platform'
+    );
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
 
@@ -54,18 +57,21 @@ export function ImplWorkflowPlatformSpec() {
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [config]);
 
-  const handleFieldChange = useCallback((field: keyof typeof config, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = { ...updated }; // No smart fields in this component
-          saveData(completeConfig);
-        }
-      }, 0);
-      return updated;
-    });
-  }, [saveData]);
+  const handleFieldChange = useCallback(
+    (field: keyof typeof config, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = { ...updated }; // No smart fields in this component
+            saveData(completeConfig);
+          }
+        }, 0);
+        return updated;
+      });
+    },
+    [saveData]
+  );
 
   // Manual save handler (kept for compatibility, but auto-save is primary)
   const handleSave = useCallback(async () => {
@@ -82,7 +88,9 @@ export function ImplWorkflowPlatformSpec() {
       <Card title="שירות #48: הטמעת פלטפורמת Workflow">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">פלטפורמת Workflow</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              פלטפורמת Workflow
+            </label>
             <select
               value={config.platform || 'n8n_selfhosted'}
               onChange={(e) => handleFieldChange('platform', e.target.value)}
@@ -97,11 +105,15 @@ export function ImplWorkflowPlatformSpec() {
 
           {config.platform === 'n8n_selfhosted' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">ימים משוערים להטמעה</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ימים משוערים להטמעה
+              </label>
               <input
                 type="number"
                 value={config.estimatedDays || 7}
-                onChange={(e) => handleFieldChange('estimatedDays', parseInt(e.target.value))}
+                onChange={(e) =>
+                  handleFieldChange('estimatedDays', parseInt(e.target.value))
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               />
             </div>

@@ -1,6 +1,6 @@
 /**
  * Field Analyzer Utility
- * 
+ *
  * Analyzes which service requirement components could benefit most
  * from smart field integration.
  */
@@ -23,24 +23,27 @@ export interface ServiceFieldAnalysis {
  * Analyze all services to prioritize smart field implementation
  */
 export function analyzeServicesForSmartFields(): ServiceFieldAnalysis[] {
-  const serviceMap = new Map<string, {
-    registryFields: RegistryField[];
-    autofillCount: number;
-  }>();
+  const serviceMap = new Map<
+    string,
+    {
+      registryFields: RegistryField[];
+      autofillCount: number;
+    }
+  >();
 
   // Group fields by service
-  Object.values(FIELD_REGISTRY).forEach(field => {
-    field.usedBy.forEach(serviceId => {
+  Object.values(FIELD_REGISTRY).forEach((field) => {
+    field.usedBy.forEach((serviceId) => {
       if (!serviceMap.has(serviceId)) {
         serviceMap.set(serviceId, {
           registryFields: [],
-          autofillCount: 0
+          autofillCount: 0,
         });
       }
 
       const service = serviceMap.get(serviceId)!;
       service.registryFields.push(field);
-      
+
       if (field.autoPopulate) {
         service.autofillCount++;
       }
@@ -52,7 +55,7 @@ export function analyzeServicesForSmartFields(): ServiceFieldAnalysis[] {
 
   serviceMap.forEach((data, serviceId) => {
     const { registryFields, autofillCount } = data;
-    
+
     // Estimate time savings (30 seconds per auto-filled field)
     const estimatedTimeSavings = autofillCount * 0.5;
 
@@ -75,8 +78,8 @@ export function analyzeServicesForSmartFields(): ServiceFieldAnalysis[] {
       potentialAutofillCount: autofillCount,
       estimatedTimeSavings,
       priority,
-      registryFields: registryFields.map(f => f.id),
-      missingFields: []
+      registryFields: registryFields.map((f) => f.id),
+      missingFields: [],
     });
   });
 
@@ -101,10 +104,10 @@ export function generateFieldAnalysisReport(): string {
   report += `Total services analyzed: ${analyses.length}\n\n`;
 
   // Summary stats
-  const critical = analyses.filter(a => a.priority === 'critical');
-  const high = analyses.filter(a => a.priority === 'high');
-  const medium = analyses.filter(a => a.priority === 'medium');
-  const low = analyses.filter(a => a.priority === 'low');
+  const critical = analyses.filter((a) => a.priority === 'critical');
+  const high = analyses.filter((a) => a.priority === 'high');
+  const medium = analyses.filter((a) => a.priority === 'medium');
+  const low = analyses.filter((a) => a.priority === 'low');
 
   report += '## Priority Breakdown\n\n';
   report += `- **Critical Priority:** ${critical.length} services (5+ auto-fill fields)\n`;
@@ -113,7 +116,10 @@ export function generateFieldAnalysisReport(): string {
   report += `- **Low Priority:** ${low.length} services (0 auto-fill fields)\n\n`;
 
   // Total time savings potential
-  const totalSavings = analyses.reduce((sum, a) => sum + a.estimatedTimeSavings, 0);
+  const totalSavings = analyses.reduce(
+    (sum, a) => sum + a.estimatedTimeSavings,
+    0
+  );
   report += `## Time Savings Potential\n\n`;
   report += `**Total:** ${Math.round(totalSavings)} minutes saved across all services\n`;
   report += `**Per service average:** ${Math.round(totalSavings / analyses.length)} minutes\n\n`;
@@ -122,7 +128,7 @@ export function generateFieldAnalysisReport(): string {
   if (critical.length > 0) {
     report += '## Critical Priority Services (Implement First)\n\n';
     report += 'These services have 5+ fields that can be auto-filled:\n\n';
-    
+
     critical.forEach((analysis, idx) => {
       report += `### ${idx + 1}. ${analysis.serviceName} (\`${analysis.serviceId}\`)\n\n`;
       report += `- **Auto-fill potential:** ${analysis.potentialAutofillCount} fields\n`;
@@ -136,8 +142,8 @@ export function generateFieldAnalysisReport(): string {
   if (high.length > 0) {
     report += '## High Priority Services\n\n';
     report += 'These services have 3-4 fields that can be auto-filled:\n\n';
-    
-    high.forEach(analysis => {
+
+    high.forEach((analysis) => {
       report += `- **${analysis.serviceName}** (\`${analysis.serviceId}\`) - ${analysis.potentialAutofillCount} auto-fill, ~${Math.round(analysis.estimatedTimeSavings)}min savings\n`;
     });
     report += '\n';
@@ -155,7 +161,7 @@ export function generateFieldAnalysisReport(): string {
   const estimatedHours = totalServices * 0.5; // 30 min per service
   report += `**Total work:** ~${Math.round(estimatedHours)} hours to implement remaining services\n`;
   report += `**Benefit:** ~${Math.round(totalSavings)} minutes saved for EVERY client meeting\n`;
-  report += `**ROI:** Break-even after ~${Math.ceil(estimatedHours * 60 / totalSavings)} client meetings\n\n`;
+  report += `**ROI:** Break-even after ~${Math.ceil((estimatedHours * 60) / totalSavings)} client meetings\n\n`;
 
   return report;
 }
@@ -185,7 +191,7 @@ function getServiceName(serviceId: string): string {
     'int-crm-marketing': 'CRM-Marketing Integration',
     'int-calendar': 'Calendar Integration',
     'impl-crm': 'CRM Implementation',
-    'whatsapp-api-setup': 'WhatsApp API Setup'
+    'whatsapp-api-setup': 'WhatsApp API Setup',
   };
 
   return nameMap[serviceId] || serviceId;
@@ -203,8 +209,9 @@ export function logFieldAnalysis() {
 /**
  * Get specific service analysis
  */
-export function getServiceAnalysis(serviceId: string): ServiceFieldAnalysis | null {
+export function getServiceAnalysis(
+  serviceId: string
+): ServiceFieldAnalysis | null {
   const analyses = analyzeServicesForSmartFields();
-  return analyses.find(a => a.serviceId === serviceId) || null;
+  return analyses.find((a) => a.serviceId === serviceId) || null;
 }
-

@@ -134,7 +134,7 @@ describe('Module Data Handling Tests', () => {
         }
       };
 
-      let totalSavings = 0;
+      const totalSavings = 0;
 
       if (meeting.modules.leadsAndSales) {
         // No data, no savings

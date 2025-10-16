@@ -35,14 +35,16 @@ interface OpenAIRequest {
 /**
  * Call OpenAI Responses API through our server proxy
  */
-export async function callOpenAIThroughProxy(request: OpenAIRequest): Promise<OpenAIResponse> {
+export async function callOpenAIThroughProxy(
+  request: OpenAIRequest
+): Promise<OpenAIResponse> {
   try {
     // Build request body dynamically, excluding undefined optional parameters
     const requestBody: any = {
       model: request.model,
       messages: request.messages,
       max_output_tokens: request.max_output_tokens,
-      response_format: request.response_format
+      response_format: request.response_format,
     };
 
     // Add optional parameters only if provided
@@ -94,7 +96,10 @@ export async function callOpenAIThroughProxy(request: OpenAIRequest): Promise<Op
 /**
  * Test OpenAI connection through proxy
  */
-export async function testOpenAIConnection(): Promise<{ success: boolean; message: string }> {
+export async function testOpenAIConnection(): Promise<{
+  success: boolean;
+  message: string;
+}> {
   try {
     const response = await fetch('/api/openai/test', {
       method: 'POST',
@@ -122,7 +127,8 @@ export async function testOpenAIConnection(): Promise<{ success: boolean; messag
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Connection test failed',
+      message:
+        error instanceof Error ? error.message : 'Connection test failed',
     };
   }
 }

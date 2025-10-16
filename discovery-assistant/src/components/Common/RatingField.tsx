@@ -18,7 +18,7 @@ export const RatingField: React.FC<RatingFieldProps> = ({
   max = 5,
   required = false,
   helperText,
-  showLabels = true
+  showLabels = true,
 }) => {
   const labels = ['נמוך מאוד', 'נמוך', 'בינוני', 'גבוה', 'גבוה מאוד'];
 
@@ -54,19 +54,21 @@ export const RatingField: React.FC<RatingFieldProps> = ({
         </div>
 
         {showLabels && value > 0 && (
-          <span className={`text-sm font-medium ${
-            value <= 2 ? 'text-red-600' :
-            value === 3 ? 'text-yellow-600' :
-            'text-green-600'
-          }`}>
+          <span
+            className={`text-sm font-medium ${
+              value <= 2
+                ? 'text-red-600'
+                : value === 3
+                  ? 'text-yellow-600'
+                  : 'text-green-600'
+            }`}
+          >
             {labels[value - 1]}
           </span>
         )}
       </div>
 
-      {helperText && (
-        <p className="text-sm text-gray-500">{helperText}</p>
-      )}
+      {helperText && <p className="text-sm text-gray-500">{helperText}</p>}
     </div>
   );
 };

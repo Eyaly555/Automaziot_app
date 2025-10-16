@@ -1,7 +1,7 @@
 import type {
   AudioFile,
   AudioValidationResult,
-  SupportedAudioFormat
+  SupportedAudioFormat,
 } from '../types/conversation';
 
 // Maximum file size: 25MB (OpenAI's limit)
@@ -17,7 +17,7 @@ export const SUPPORTED_AUDIO_FORMATS: SupportedAudioFormat[] = [
   'wav',
   'webm',
   'ogg',
-  'flac'
+  'flac',
 ];
 
 // MIME types mapping
@@ -45,7 +45,7 @@ export function validateAudioFile(file: File): AudioValidationResult {
   if (file.size === 0) {
     return {
       isValid: false,
-      error: 'הקובץ ריק'
+      error: 'הקובץ ריק',
     };
   }
 
@@ -53,39 +53,48 @@ export function validateAudioFile(file: File): AudioValidationResult {
     const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
     return {
       isValid: false,
-      error: `הקובץ גדול מדי (${sizeMB}MB). הגודל המקסימלי המותר הוא 25MB`
+      error: `הקובץ גדול מדי (${sizeMB}MB). הגודל המקסימלי המותר הוא 25MB`,
     };
   }
 
   // Check file format by extension
   const extension = getFileExtension(file.name);
-  if (!extension || !SUPPORTED_AUDIO_FORMATS.includes(extension as SupportedAudioFormat)) {
+  if (
+    !extension ||
+    !SUPPORTED_AUDIO_FORMATS.includes(extension as SupportedAudioFormat)
+  ) {
     return {
       isValid: false,
-      error: `פורמט הקובץ .${extension || 'unknown'} אינו נתמך. פורמטים נתמכים: ${SUPPORTED_AUDIO_FORMATS.join(', ')}`
+      error: `פורמט הקובץ .${extension || 'unknown'} אינו נתמך. פורמטים נתמכים: ${SUPPORTED_AUDIO_FORMATS.join(', ')}`,
     };
   }
 
   // Check MIME type
   if (file.type && !AUDIO_MIME_TYPES[file.type]) {
-    warnings.push(`סוג MIME ${file.type} לא מוכר, אך הסיומת ${extension} נתמכת`);
+    warnings.push(
+      `סוג MIME ${file.type} לא מוכר, אך הסיומת ${extension} נתמכת`
+    );
   }
 
   // Info: File will be automatically converted if needed (>4MB)
   if (file.size > 4 * 1024 * 1024 && file.size <= 20 * 1024 * 1024) {
     const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-    warnings.push(`ℹ️ הקובץ גדול (${sizeMB}MB) - המערכת תמיר אותו אוטומטית לפורמט קל לפני העלאה (זמן המרה משוער: ~30-60 שניות).`);
+    warnings.push(
+      `ℹ️ הקובץ גדול (${sizeMB}MB) - המערכת תמיר אותו אוטומטית לפורמט קל לפני העלאה (זמן המרה משוער: ~30-60 שניות).`
+    );
   }
 
   // Warn if file is very large (>20MB)
   if (file.size > 20 * 1024 * 1024) {
     const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-    warnings.push(`⚠️ הקובץ גדול מאוד (${sizeMB}MB) - ההמרה והתמלול עשויים לקחת מספר דקות.`);
+    warnings.push(
+      `⚠️ הקובץ גדול מאוד (${sizeMB}MB) - ההמרה והתמלול עשויים לקחת מספר דקות.`
+    );
   }
 
   return {
     isValid: true,
-    warnings: warnings.length > 0 ? warnings : undefined
+    warnings: warnings.length > 0 ? warnings : undefined,
   };
 }
 
@@ -116,7 +125,7 @@ export function createAudioFile(file: File): AudioFile {
     file,
     fileName: file.name,
     fileSize: file.size,
-    mimeType: file.type
+    mimeType: file.type,
   };
 }
 
@@ -156,7 +165,9 @@ export function formatDuration(seconds: number): string {
  */
 export function isSupportedAudioFormat(filename: string): boolean {
   const extension = getFileExtension(filename);
-  return extension ? SUPPORTED_AUDIO_FORMATS.includes(extension as SupportedAudioFormat) : false;
+  return extension
+    ? SUPPORTED_AUDIO_FORMATS.includes(extension as SupportedAudioFormat)
+    : false;
 }
 
 /**

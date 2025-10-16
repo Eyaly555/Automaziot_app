@@ -6,16 +6,23 @@
 import { ZohoClientListItem, Meeting, ZohoSyncResult } from '../types';
 
 class ZohoClientsService {
-  private memoryCache: Map<string, { data: any; timestamp: number }> = new Map();
+  private memoryCache: Map<string, { data: any; timestamp: number }> =
+    new Map();
   private syncQueue: Set<string> = new Set();
-  private retryQueue: Map<string, { attempts: number; lastAttempt: number; data: any }> = new Map();
+  private retryQueue: Map<
+    string,
+    { attempts: number; lastAttempt: number; data: any }
+  > = new Map();
   private maxRetries = 3;
   private retryDelay = 5000; // 5 seconds
 
   /**
    * Fetch clients list with caching
    */
-  async fetchClientsList(filters: any = {}, useCache = true): Promise<ZohoClientListItem[]> {
+  async fetchClientsList(
+    filters: any = {},
+    useCache = true
+  ): Promise<ZohoClientListItem[]> {
     const cacheKey = `list_${JSON.stringify(filters)}`;
 
     // Check memory cache
@@ -23,7 +30,8 @@ class ZohoClientsService {
       const cached = this.memoryCache.get(cacheKey)!;
       const cacheAge = Date.now() - cached.timestamp;
 
-      if (cacheAge < 60000) { // 1 minute
+      if (cacheAge < 60000) {
+        // 1 minute
         console.log('[ZohoClientsService] Using memory cache');
         return cached.data;
       }
@@ -43,7 +51,7 @@ class ZohoClientsService {
         // Update memory cache
         this.memoryCache.set(cacheKey, {
           data: data.potentials,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
 
         return data.potentials;
@@ -59,7 +67,10 @@ class ZohoClientsService {
   /**
    * Get full client data
    */
-  async getClientFull(recordId: string, useCache = true): Promise<Meeting | null> {
+  async getClientFull(
+    recordId: string,
+    useCache = true
+  ): Promise<Meeting | null> {
     const cacheKey = `client_${recordId}`;
 
     // Check memory cache
@@ -67,7 +78,8 @@ class ZohoClientsService {
       const cached = this.memoryCache.get(cacheKey)!;
       const cacheAge = Date.now() - cached.timestamp;
 
-      if (cacheAge < 30000) { // 30 seconds
+      if (cacheAge < 30000) {
+        // 30 seconds
         console.log('[ZohoClientsService] Using memory cache for client');
         return cached.data;
       }
@@ -86,7 +98,7 @@ class ZohoClientsService {
         // Update memory cache
         this.memoryCache.set(cacheKey, {
           data: data.meetingData,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
 
         return data.meetingData;
@@ -102,7 +114,10 @@ class ZohoClientsService {
   /**
    * Sync client to Zoho with retry logic
    */
-  async syncClient(meeting: Meeting, recordId?: string): Promise<ZohoSyncResult> {
+  async syncClient(
+    meeting: Meeting,
+    recordId?: string
+  ): Promise<ZohoSyncResult> {
     try {
       const response = await fetch('/api/zoho/potentials/sync-full', {
         method: 'POST',
@@ -110,8 +125,8 @@ class ZohoClientsService {
         body: JSON.stringify({
           meeting,
           recordId,
-          fullSync: true
-        })
+          fullSync: true,
+        }),
       });
 
       if (!response.ok) {
@@ -133,7 +148,7 @@ class ZohoClientsService {
         return {
           success: true,
           recordId: data.recordId,
-          message: 'Sync successful'
+          message: 'Sync successful',
         };
       }
 
@@ -147,7 +162,7 @@ class ZohoClientsService {
 
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Sync failed'
+        error: error instanceof Error ? error.message : 'Sync failed',
       };
     }
   }
@@ -157,7 +172,9 @@ class ZohoClientsService {
    */
   async searchClients(query: string): Promise<ZohoClientListItem[]> {
     try {
-      const response = await fetch(`/api/zoho/potentials/search?q=${encodeURIComponent(query)}`);
+      const response = await fetch(
+        `/api/zoho/potentials/search?q=${encodeURIComponent(query)}`
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -179,12 +196,17 @@ class ZohoClientsService {
   /**
    * Update phase in Zoho
    */
-  async updatePhase(recordId: string, phase: string, status: string, notes?: string): Promise<boolean> {
+  async updatePhase(
+    recordId: string,
+    phase: string,
+    status: string,
+    notes?: string
+  ): Promise<boolean> {
     try {
       const response = await fetch(`/api/zoho/potentials/${recordId}/phase`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phase, status, notes })
+        body: JSON.stringify({ phase, status, notes }),
       });
 
       if (!response.ok) {
@@ -222,7 +244,7 @@ class ZohoClientsService {
     this.retryQueue.set(key, {
       attempts: existing ? existing.attempts + 1 : 1,
       lastAttempt: Date.now(),
-      data
+      data,
     });
 
     this.syncQueue.add(key);
@@ -240,10 +262,15 @@ class ZohoClientsService {
         continue;
       }
 
-      console.log(`[ZohoClientsService] Retrying sync for ${key} (attempt ${item.attempts})`);
+      console.log(
+        `[ZohoClientsService] Retrying sync for ${key} (attempt ${item.attempts})`
+      );
 
       try {
-        const result = await this.syncClient(item.data.meeting, item.data.recordId);
+        const result = await this.syncClient(
+          item.data.meeting,
+          item.data.recordId
+        );
 
         if (result.success) {
           this.retryQueue.delete(key);
@@ -262,7 +289,7 @@ class ZohoClientsService {
   getSyncQueueStatus(): { pending: number; failed: number } {
     return {
       pending: this.syncQueue.size,
-      failed: this.retryQueue.size
+      failed: this.retryQueue.size,
     };
   }
 
@@ -298,7 +325,7 @@ class ZohoClientsService {
   getCacheStats(): { size: number; keys: string[] } {
     return {
       size: this.memoryCache.size,
-      keys: Array.from(this.memoryCache.keys())
+      keys: Array.from(this.memoryCache.keys()),
     };
   }
 }

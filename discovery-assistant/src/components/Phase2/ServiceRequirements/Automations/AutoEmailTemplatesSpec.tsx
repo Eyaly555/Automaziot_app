@@ -4,7 +4,18 @@ import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useSmartField } from '../../../../hooks/useSmartField';
 import type { AutoEmailTemplatesRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
-import { Plus, Save, Mail, Settings, Code, TestTube, Palette, AlertCircle, CheckCircle, Info } from 'lucide-react';
+import {
+  Plus,
+  Save,
+  Mail,
+  Settings,
+  Code,
+  TestTube,
+  Palette,
+  AlertCircle,
+  CheckCircle,
+  Info,
+} from 'lucide-react';
 
 const generateId = () => Math.random().toString(36).substring(2, 11);
 
@@ -16,28 +27,28 @@ export function AutoEmailTemplatesSpec() {
     fieldId: 'email_provider',
     localPath: 'emailServiceAccess.provider',
     serviceId: 'auto-email-templates',
-    autoSave: false
+    autoSave: false,
   });
 
   const crmSystem = useSmartField<string>({
     fieldId: 'crm_system',
     localPath: 'crmAccess.system',
     serviceId: 'auto-email-templates',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'n8nWorkflow.errorHandling.alertEmail',
     serviceId: 'auto-email-templates',
-    autoSave: false
+    autoSave: false,
   });
 
   const n8nInstanceUrl = useSmartField<string>({
     fieldId: 'n8n_instance_url',
     localPath: 'n8nWorkflow.instanceUrl',
     serviceId: 'auto-email-templates',
-    autoSave: false
+    autoSave: false,
   });
 
   const [config, setConfig] = useState<AutoEmailTemplatesRequirements>({
@@ -48,8 +59,8 @@ export function AutoEmailTemplatesSpec() {
         spfRecord: '',
         dkimRecord: '',
         dmarcRecord: '',
-        verified: false
-      }
+        verified: false,
+      },
     },
     templateEngine: {
       engine: 'handlebars',
@@ -58,14 +69,14 @@ export function AutoEmailTemplatesSpec() {
         variables: true,
         conditionals: true,
         loops: true,
-        partials: true
-      }
+        partials: true,
+      },
     },
     crmAccess: {
       system: 'zoho',
       authMethod: 'oauth',
       credentials: {},
-      fieldsAvailable: []
+      fieldsAvailable: [],
     },
     n8nWorkflow: {
       instanceUrl: '',
@@ -73,17 +84,25 @@ export function AutoEmailTemplatesSpec() {
       httpsEnabled: true,
       templateRendering: {
         engine: 'handlebars',
-        renderNode: true
+        renderNode: true,
       },
       errorHandling: {
         retryAttempts: 3,
         alertEmail: '',
-        logErrors: true
-      }
-    }
+        logErrors: true,
+      },
+    },
   });
 
-  const [activeTab, setActiveTab] = useState<'service' | 'domain' | 'template' | 'crm' | 'workflow' | 'design' | 'testing'>('service');
+  const [activeTab, setActiveTab] = useState<
+    | 'service'
+    | 'domain'
+    | 'template'
+    | 'crm'
+    | 'workflow'
+    | 'design'
+    | 'testing'
+  >('service');
 
   // Track if we're currently loading data to prevent save loops
   const isLoadingRef = useRef(false);
@@ -92,12 +111,14 @@ export function AutoEmailTemplatesSpec() {
   // Auto-save hook for immediate saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-email-templates',
-    category: 'automations'
+    category: 'automations',
   });
 
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
-    const existing = automations.find((item: any) => item.serviceId === 'auto-email-templates');
+    const existing = automations.find(
+      (item: any) => item.serviceId === 'auto-email-templates'
+    );
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
 
@@ -119,36 +140,49 @@ export function AutoEmailTemplatesSpec() {
   // REMOVED THE FOLLOWING USE EFFECT DUE TO INFINITE LOOP
   // Auto-save is now handled by handleFieldChange callback
 
-  const handleFieldChange = useCallback((field: string, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = {
-            ...updated,
-            emailServiceAccess: {
-              ...updated.emailServiceAccess,
-              provider: emailProvider.value || updated.emailServiceAccess.provider
-            },
-            crmAccess: {
-              ...updated.crmAccess,
-              system: crmSystem.value || updated.crmAccess.system
-            },
-            n8nWorkflow: {
-              ...updated.n8nWorkflow,
-              instanceUrl: n8nInstanceUrl.value || updated.n8nWorkflow.instanceUrl,
-              errorHandling: {
-                ...updated.n8nWorkflow.errorHandling,
-                alertEmail: alertEmail.value || updated.n8nWorkflow.errorHandling.alertEmail
-              }
-            }
-          };
-          saveData(completeConfig);
-        }
-      }, 0);
-      return updated;
-    });
-  }, [saveData, emailProvider.value, crmSystem.value, n8nInstanceUrl.value, alertEmail.value]);
+  const handleFieldChange = useCallback(
+    (field: string, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = {
+              ...updated,
+              emailServiceAccess: {
+                ...updated.emailServiceAccess,
+                provider:
+                  emailProvider.value || updated.emailServiceAccess.provider,
+              },
+              crmAccess: {
+                ...updated.crmAccess,
+                system: crmSystem.value || updated.crmAccess.system,
+              },
+              n8nWorkflow: {
+                ...updated.n8nWorkflow,
+                instanceUrl:
+                  n8nInstanceUrl.value || updated.n8nWorkflow.instanceUrl,
+                errorHandling: {
+                  ...updated.n8nWorkflow.errorHandling,
+                  alertEmail:
+                    alertEmail.value ||
+                    updated.n8nWorkflow.errorHandling.alertEmail,
+                },
+              },
+            };
+            saveData(completeConfig);
+          }
+        }, 0);
+        return updated;
+      });
+    },
+    [
+      saveData,
+      emailProvider.value,
+      crmSystem.value,
+      n8nInstanceUrl.value,
+      alertEmail.value,
+    ]
+  );
 
   // Manual save handler (kept for compatibility, but auto-save is primary)
   const handleManualSave = async () => {
@@ -157,26 +191,27 @@ export function AutoEmailTemplatesSpec() {
       ...config,
       emailServiceAccess: {
         ...config.emailServiceAccess,
-        provider: emailProvider.value || config.emailServiceAccess?.provider
+        provider: emailProvider.value || config.emailServiceAccess?.provider,
       },
       crmAccess: {
         ...config.crmAccess,
-        system: crmSystem.value || config.crmAccess?.system
+        system: crmSystem.value || config.crmAccess?.system,
       },
       n8nWorkflow: {
         ...config.n8nWorkflow,
         instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow?.instanceUrl,
         errorHandling: {
           ...config.n8nWorkflow.errorHandling,
-          alertEmail: alertEmail.value || config.n8nWorkflow.errorHandling?.alertEmail
-        }
-      }
+          alertEmail:
+            alertEmail.value || config.n8nWorkflow.errorHandling?.alertEmail,
+        },
+      },
     };
     await saveData(completeConfig);
   };
 
   const addCrmField = () => {
-    setConfig(prev => ({
+    setConfig((prev) => ({
       ...prev,
       crmAccess: {
         ...prev.crmAccess,
@@ -185,35 +220,37 @@ export function AutoEmailTemplatesSpec() {
           {
             apiName: '',
             label: '',
-            type: ''
-          }
-        ]
-      }
+            type: '',
+          },
+        ],
+      },
     }));
   };
 
   const removeCrmField = (index: number) => {
-    setConfig(prev => ({
+    setConfig((prev) => ({
       ...prev,
       crmAccess: {
         ...prev.crmAccess,
-        fieldsAvailable: prev.crmAccess.fieldsAvailable.filter((_, i) => i !== index)
-      }
+        fieldsAvailable: prev.crmAccess.fieldsAvailable.filter(
+          (_, i) => i !== index
+        ),
+      },
     }));
   };
 
   const addDesignTemplate = () => {
     if (!config.designTools) {
-      setConfig(prev => ({
+      setConfig((prev) => ({
         ...prev,
         designTools: {
           tool: 'stripo',
-          templates: []
-        }
+          templates: [],
+        },
       }));
     }
 
-    setConfig(prev => ({
+    setConfig((prev) => ({
       ...prev,
       designTools: {
         ...prev.designTools!,
@@ -222,22 +259,22 @@ export function AutoEmailTemplatesSpec() {
           {
             id: generateId(),
             name: '',
-            category: ''
-          }
-        ]
-      }
+            category: '',
+          },
+        ],
+      },
     }));
   };
 
   const removeDesignTemplate = (index: number) => {
     if (!config.designTools) return;
 
-    setConfig(prev => ({
+    setConfig((prev) => ({
       ...prev,
       designTools: {
         ...prev.designTools,
-        templates: prev.designTools.templates?.filter((_, i) => i !== index)
-      }
+        templates: prev.designTools.templates?.filter((_, i) => i !== index),
+      },
     }));
   };
 
@@ -257,27 +294,38 @@ export function AutoEmailTemplatesSpec() {
             </div>
 
             {/* Smart Fields Info Banner */}
-            {(emailProvider.isAutoPopulated || crmSystem.isAutoPopulated || alertEmail.isAutoPopulated || n8nInstanceUrl.isAutoPopulated) && (
+            {(emailProvider.isAutoPopulated ||
+              crmSystem.isAutoPopulated ||
+              alertEmail.isAutoPopulated ||
+              n8nInstanceUrl.isAutoPopulated) && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
                 <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+                  <h4 className="font-semibold text-blue-900 mb-1">
+                    נתונים מולאו אוטומטית משלב 1
+                  </h4>
                   <p className="text-sm text-blue-800">
-                    חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-                    תוכל לערוך אותם במידת הצורך.
+                    חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל
+                    לערוך אותם במידת הצורך.
                   </p>
                 </div>
               </div>
             )}
 
             {/* Conflict Warnings */}
-            {(emailProvider.hasConflict || crmSystem.hasConflict || alertEmail.hasConflict || n8nInstanceUrl.hasConflict) && (
+            {(emailProvider.hasConflict ||
+              crmSystem.hasConflict ||
+              alertEmail.hasConflict ||
+              n8nInstanceUrl.hasConflict) && (
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+                  <h4 className="font-semibold text-orange-900 mb-1">
+                    זוהה אי-התאמה בנתונים
+                  </h4>
                   <p className="text-sm text-orange-800">
-                    נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
+                    נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק
+                    ותקן.
                   </p>
                 </div>
               </div>
@@ -294,12 +342,14 @@ export function AutoEmailTemplatesSpec() {
                   <span className="text-sm">שגיאה בשמירה</span>
                 </div>
               )}
-              {!isSaving && !saveError && config.emailServiceAccess?.provider && (
-                <div className="flex items-center gap-2 text-green-600">
-                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                  <span className="text-sm">נשמר אוטומטית</span>
-                </div>
-              )}
+              {!isSaving &&
+                !saveError &&
+                config.emailServiceAccess?.provider && (
+                  <div className="flex items-center gap-2 text-green-600">
+                    <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                    <span className="text-sm">נשמר אוטומטית</span>
+                  </div>
+                )}
               <button
                 onClick={handleManualSave}
                 disabled={isSaving}
@@ -323,8 +373,8 @@ export function AutoEmailTemplatesSpec() {
                 { id: 'crm', label: 'גישה ל-CRM', icon: Settings },
                 { id: 'workflow', label: 'n8n Workflow', icon: Settings },
                 { id: 'design', label: 'כלי עיצוב', icon: Palette },
-                { id: 'testing', label: 'כלי בדיקה', icon: TestTube }
-              ].map(tab => (
+                { id: 'testing', label: 'כלי בדיקה', icon: TestTube },
+              ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
@@ -346,7 +396,9 @@ export function AutoEmailTemplatesSpec() {
             {activeTab === 'service' && (
               <div className="space-y-6">
                 <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">ספק שירות Email</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    ספק שירות Email
+                  </h3>
                   <div className="space-y-4">
                     <div>
                       <div className="flex items-center justify-between mb-2">
@@ -364,7 +416,9 @@ export function AutoEmailTemplatesSpec() {
                         value={emailProvider.value || 'sendgrid'}
                         onChange={(e) => emailProvider.setValue(e.target.value)}
                         className={`w-full px-3 py-2 border rounded-lg ${
-                          emailProvider.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                          emailProvider.isAutoPopulated
+                            ? 'border-green-300 bg-green-50'
+                            : 'border-gray-300'
                         } ${emailProvider.hasConflict ? 'border-orange-300' : ''}`}
                       >
                         <option value="sendgrid">SendGrid</option>
@@ -386,8 +440,16 @@ export function AutoEmailTemplatesSpec() {
                           </label>
                           <input
                             type="password"
-                            value={config.emailServiceAccess.sendgridCredentials?.apiKey || ''}
-                            onChange={(e) => handleFieldChange('emailServiceAccess.sendgridCredentials.apiKey', e.target.value)}
+                            value={
+                              config.emailServiceAccess.sendgridCredentials
+                                ?.apiKey || ''
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'emailServiceAccess.sendgridCredentials.apiKey',
+                                e.target.value
+                              )
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="SG.xxxxxxxxxxxxx"
                           />
@@ -399,7 +461,10 @@ export function AutoEmailTemplatesSpec() {
                             </label>
                             <input
                               type="number"
-                              value={config.emailServiceAccess.sendgridCredentials?.rateLimits.free.daily || 100}
+                              value={
+                                config.emailServiceAccess.sendgridCredentials
+                                  ?.rateLimits.free.daily || 100
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                               disabled
                               readOnly
@@ -411,8 +476,16 @@ export function AutoEmailTemplatesSpec() {
                             </label>
                             <input
                               type="number"
-                              value={config.emailServiceAccess.sendgridCredentials?.rateLimits.paid.daily || 40000}
-                              onChange={(e) => handleFieldChange('emailServiceAccess.sendgridCredentials.rateLimits.paid.daily', parseInt(e.target.value) || 40000)}
+                              value={
+                                config.emailServiceAccess.sendgridCredentials
+                                  ?.rateLimits.paid.daily || 40000
+                              }
+                              onChange={(e) =>
+                                handleFieldChange(
+                                  'emailServiceAccess.sendgridCredentials.rateLimits.paid.daily',
+                                  parseInt(e.target.value) || 40000
+                                )
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             />
                           </div>
@@ -430,8 +503,16 @@ export function AutoEmailTemplatesSpec() {
                           </label>
                           <input
                             type="password"
-                            value={config.emailServiceAccess.mailgunCredentials?.apiKey || ''}
-                            onChange={(e) => handleFieldChange('emailServiceAccess.mailgunCredentials.apiKey', e.target.value)}
+                            value={
+                              config.emailServiceAccess.mailgunCredentials
+                                ?.apiKey || ''
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'emailServiceAccess.mailgunCredentials.apiKey',
+                                e.target.value
+                              )
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           />
                         </div>
@@ -441,8 +522,16 @@ export function AutoEmailTemplatesSpec() {
                           </label>
                           <input
                             type="text"
-                            value={config.emailServiceAccess.mailgunCredentials?.domain || ''}
-                            onChange={(e) => handleFieldChange('emailServiceAccess.mailgunCredentials.domain', e.target.value)}
+                            value={
+                              config.emailServiceAccess.mailgunCredentials
+                                ?.domain || ''
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'emailServiceAccess.mailgunCredentials.domain',
+                                e.target.value
+                              )
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="mg.example.com"
                           />
@@ -452,8 +541,16 @@ export function AutoEmailTemplatesSpec() {
                             Region
                           </label>
                           <select
-                            value={config.emailServiceAccess.mailgunCredentials?.region || 'us'}
-                            onChange={(e) => handleFieldChange('emailServiceAccess.mailgunCredentials.region', e.target.value as 'us' | 'eu')}
+                            value={
+                              config.emailServiceAccess.mailgunCredentials
+                                ?.region || 'us'
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'emailServiceAccess.mailgunCredentials.region',
+                                e.target.value as 'us' | 'eu'
+                              )
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           >
                             <option value="us">US</option>
@@ -467,7 +564,10 @@ export function AutoEmailTemplatesSpec() {
                             </label>
                             <input
                               type="number"
-                              value={config.emailServiceAccess.mailgunCredentials?.rateLimits.free.monthly || 5000}
+                              value={
+                                config.emailServiceAccess.mailgunCredentials
+                                  ?.rateLimits.free.monthly || 5000
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                               disabled
                             />
@@ -478,8 +578,16 @@ export function AutoEmailTemplatesSpec() {
                             </label>
                             <input
                               type="number"
-                              value={config.emailServiceAccess.mailgunCredentials?.rateLimits.paid.monthly || 50000}
-                              onChange={(e) => handleFieldChange('emailServiceAccess.mailgunCredentials.rateLimits.paid.monthly', parseInt(e.target.value) || 50000)}
+                              value={
+                                config.emailServiceAccess.mailgunCredentials
+                                  ?.rateLimits.paid.monthly || 50000
+                              }
+                              onChange={(e) =>
+                                handleFieldChange(
+                                  'emailServiceAccess.mailgunCredentials.rateLimits.paid.monthly',
+                                  parseInt(e.target.value) || 50000
+                                )
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             />
                           </div>
@@ -498,8 +606,16 @@ export function AutoEmailTemplatesSpec() {
                             </label>
                             <input
                               type="text"
-                              value={config.emailServiceAccess.smtpCredentials?.host || ''}
-                              onChange={(e) => handleFieldChange('emailServiceAccess.smtpCredentials.host', e.target.value)}
+                              value={
+                                config.emailServiceAccess.smtpCredentials
+                                  ?.host || ''
+                              }
+                              onChange={(e) =>
+                                handleFieldChange(
+                                  'emailServiceAccess.smtpCredentials.host',
+                                  e.target.value
+                                )
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                               placeholder="smtp.gmail.com"
                             />
@@ -510,8 +626,16 @@ export function AutoEmailTemplatesSpec() {
                             </label>
                             <input
                               type="number"
-                              value={config.emailServiceAccess.smtpCredentials?.port || 587}
-                              onChange={(e) => handleFieldChange('emailServiceAccess.smtpCredentials.port', parseInt(e.target.value) || 587)}
+                              value={
+                                config.emailServiceAccess.smtpCredentials
+                                  ?.port || 587
+                              }
+                              onChange={(e) =>
+                                handleFieldChange(
+                                  'emailServiceAccess.smtpCredentials.port',
+                                  parseInt(e.target.value) || 587
+                                )
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             />
                           </div>
@@ -521,8 +645,16 @@ export function AutoEmailTemplatesSpec() {
                             </label>
                             <input
                               type="text"
-                              value={config.emailServiceAccess.smtpCredentials?.username || ''}
-                              onChange={(e) => handleFieldChange('emailServiceAccess.smtpCredentials.username', e.target.value)}
+                              value={
+                                config.emailServiceAccess.smtpCredentials
+                                  ?.username || ''
+                              }
+                              onChange={(e) =>
+                                handleFieldChange(
+                                  'emailServiceAccess.smtpCredentials.username',
+                                  e.target.value
+                                )
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             />
                           </div>
@@ -532,8 +664,16 @@ export function AutoEmailTemplatesSpec() {
                             </label>
                             <input
                               type="password"
-                              value={config.emailServiceAccess.smtpCredentials?.password || ''}
-                              onChange={(e) => handleFieldChange('emailServiceAccess.smtpCredentials.password', e.target.value)}
+                              value={
+                                config.emailServiceAccess.smtpCredentials
+                                  ?.password || ''
+                              }
+                              onChange={(e) =>
+                                handleFieldChange(
+                                  'emailServiceAccess.smtpCredentials.password',
+                                  e.target.value
+                                )
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             />
                           </div>
@@ -541,8 +681,16 @@ export function AutoEmailTemplatesSpec() {
                         <label className="flex items-center gap-2">
                           <input
                             type="checkbox"
-                            checked={config.emailServiceAccess.smtpCredentials?.secure || true}
-                            onChange={(e) => handleFieldChange('emailServiceAccess.smtpCredentials.secure', e.target.checked)}
+                            checked={
+                              config.emailServiceAccess.smtpCredentials
+                                ?.secure || true
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'emailServiceAccess.smtpCredentials.secure',
+                                e.target.checked
+                              )
+                            }
                             className="rounded border-gray-300"
                           />
                           <span className="text-sm">Secure (TLS/SSL)</span>
@@ -566,8 +714,15 @@ export function AutoEmailTemplatesSpec() {
                       </label>
                       <input
                         type="text"
-                        value={config.emailServiceAccess.domainVerification.domain}
-                        onChange={(e) => handleFieldChange('emailServiceAccess.domainVerification.domain', e.target.value)}
+                        value={
+                          config.emailServiceAccess.domainVerification.domain
+                        }
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'emailServiceAccess.domainVerification.domain',
+                            e.target.value
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="example.com"
                       />
@@ -578,8 +733,15 @@ export function AutoEmailTemplatesSpec() {
                         SPF Record
                       </label>
                       <textarea
-                        value={config.emailServiceAccess.domainVerification.spfRecord}
-                        onChange={(e) => handleFieldChange('emailServiceAccess.domainVerification.spfRecord', e.target.value)}
+                        value={
+                          config.emailServiceAccess.domainVerification.spfRecord
+                        }
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'emailServiceAccess.domainVerification.spfRecord',
+                            e.target.value
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm"
                         rows={2}
                         placeholder="v=spf1 include:sendgrid.net ~all"
@@ -591,8 +753,16 @@ export function AutoEmailTemplatesSpec() {
                         DKIM Record
                       </label>
                       <textarea
-                        value={config.emailServiceAccess.domainVerification.dkimRecord}
-                        onChange={(e) => handleFieldChange('emailServiceAccess.domainVerification.dkimRecord', e.target.value)}
+                        value={
+                          config.emailServiceAccess.domainVerification
+                            .dkimRecord
+                        }
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'emailServiceAccess.domainVerification.dkimRecord',
+                            e.target.value
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm"
                         rows={3}
                         placeholder="v=DKIM1; k=rsa; p=..."
@@ -604,8 +774,16 @@ export function AutoEmailTemplatesSpec() {
                         DMARC Record
                       </label>
                       <textarea
-                        value={config.emailServiceAccess.domainVerification.dmarcRecord}
-                        onChange={(e) => handleFieldChange('emailServiceAccess.domainVerification.dmarcRecord', e.target.value)}
+                        value={
+                          config.emailServiceAccess.domainVerification
+                            .dmarcRecord
+                        }
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'emailServiceAccess.domainVerification.dmarcRecord',
+                            e.target.value
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm"
                         rows={2}
                         placeholder="v=DMARC1; p=quarantine; rua=mailto:dmarc@example.com"
@@ -616,23 +794,37 @@ export function AutoEmailTemplatesSpec() {
                       <div>
                         <h4 className="font-medium">סטטוס אימות</h4>
                         <p className="text-sm text-gray-600">
-                          {config.emailServiceAccess.domainVerification.verified ? 'דומיין מאומת' : 'דומיין לא מאומת'}
+                          {config.emailServiceAccess.domainVerification.verified
+                            ? 'דומיין מאומת'
+                            : 'דומיין לא מאומת'}
                         </p>
                       </div>
                       <label className="flex items-center gap-2">
                         <input
                           type="checkbox"
-                          checked={config.emailServiceAccess.domainVerification.verified}
-                          onChange={(e) => handleFieldChange('emailServiceAccess.domainVerification.verified', e.target.checked)}
+                          checked={
+                            config.emailServiceAccess.domainVerification
+                              .verified
+                          }
+                          onChange={(e) =>
+                            handleFieldChange(
+                              'emailServiceAccess.domainVerification.verified',
+                              e.target.checked
+                            )
+                          }
                           className="rounded border-gray-300"
                         />
                         <span className="text-sm font-medium">מאומת</span>
                       </label>
                     </div>
 
-                    {config.emailServiceAccess.domainVerification.verificationDate && (
+                    {config.emailServiceAccess.domainVerification
+                      .verificationDate && (
                       <div className="text-sm text-gray-600">
-                        תאריך אימות: {new Date(config.emailServiceAccess.domainVerification.verificationDate).toLocaleDateString('he-IL')}
+                        תאריך אימות:{' '}
+                        {new Date(
+                          config.emailServiceAccess.domainVerification.verificationDate
+                        ).toLocaleDateString('he-IL')}
                       </div>
                     )}
                   </div>
@@ -642,14 +834,23 @@ export function AutoEmailTemplatesSpec() {
                   <div className="flex items-start gap-3">
                     <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-red-900 mb-1">Email Deliverability - קריטי!</h4>
+                      <h4 className="font-medium text-red-900 mb-1">
+                        Email Deliverability - קריטי!
+                      </h4>
                       <p className="text-sm text-red-700 mb-2">
-                        ללא אימות דומיין תקין (SPF/DKIM/DMARC), האימיילים שלך יגיעו לספאם!
+                        ללא אימות דומיין תקין (SPF/DKIM/DMARC), האימיילים שלך
+                        יגיעו לספאם!
                       </p>
                       <ul className="text-sm text-red-700 space-y-1 list-disc mr-5">
-                        <li>SPF - מאשר שרק השרתים המורשים יכולים לשלוח מהדומיין</li>
-                        <li>DKIM - חתימה קריפטוגרפית שמוכיחה שהאימייל לא שונה</li>
-                        <li>DMARC - מגדיר מה לעשות עם אימיילים שנכשלו באימות</li>
+                        <li>
+                          SPF - מאשר שרק השרתים המורשים יכולים לשלוח מהדומיין
+                        </li>
+                        <li>
+                          DKIM - חתימה קריפטוגרפית שמוכיחה שהאימייל לא שונה
+                        </li>
+                        <li>
+                          DMARC - מגדיר מה לעשות עם אימיילים שנכשלו באימות
+                        </li>
                       </ul>
                     </div>
                   </div>
@@ -661,7 +862,9 @@ export function AutoEmailTemplatesSpec() {
             {activeTab === 'template' && (
               <div className="space-y-6">
                 <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">Template Engine</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Template Engine
+                  </h3>
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -669,13 +872,24 @@ export function AutoEmailTemplatesSpec() {
                       </label>
                       <select
                         value={config.templateEngine.engine}
-                        onChange={(e) => handleFieldChange('templateEngine.engine', e.target.value as any)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'templateEngine.engine',
+                            e.target.value as any
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
-                        <option value="handlebars">Handlebars ({"{{variable}}"})</option>
-                        <option value="liquid">Liquid ({"{{ variable }}"})</option>
-                        <option value="mustache">Mustache ({"{{variable}}"})</option>
-                        <option value="ejs">EJS ({"<%= variable %>"})</option>
+                        <option value="handlebars">
+                          Handlebars ({'{{variable}}'})
+                        </option>
+                        <option value="liquid">
+                          Liquid ({'{{ variable }}'})
+                        </option>
+                        <option value="mustache">
+                          Mustache ({'{{variable}}'})
+                        </option>
+                        <option value="ejs">EJS ({'<%= variable %>'})</option>
                       </select>
                     </div>
 
@@ -686,7 +900,12 @@ export function AutoEmailTemplatesSpec() {
                       <input
                         type="text"
                         value={config.templateEngine.version}
-                        onChange={(e) => handleFieldChange('templateEngine.version', e.target.value)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'templateEngine.version',
+                            e.target.value
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="4.7.7"
                       />
@@ -698,41 +917,75 @@ export function AutoEmailTemplatesSpec() {
                         <label className="flex items-center gap-2">
                           <input
                             type="checkbox"
-                            checked={config.templateEngine.syntaxSupport.variables}
-                            onChange={(e) => handleFieldChange('templateEngine.syntaxSupport.variables', e.target.checked)}
+                            checked={
+                              config.templateEngine.syntaxSupport.variables
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'templateEngine.syntaxSupport.variables',
+                                e.target.checked
+                              )
+                            }
                             className="rounded border-gray-300"
                           />
-                          <span className="text-sm">Variables ({"{{firstName}}"})</span>
+                          <span className="text-sm">
+                            Variables ({'{{firstName}}'})
+                          </span>
                         </label>
 
                         <label className="flex items-center gap-2">
                           <input
                             type="checkbox"
-                            checked={config.templateEngine.syntaxSupport.conditionals}
-                            onChange={(e) => handleFieldChange('templateEngine.syntaxSupport.conditionals', e.target.checked)}
+                            checked={
+                              config.templateEngine.syntaxSupport.conditionals
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'templateEngine.syntaxSupport.conditionals',
+                                e.target.checked
+                              )
+                            }
                             className="rounded border-gray-300"
                           />
-                          <span className="text-sm">Conditionals ({"{{#if}}...{{/if}}"})</span>
+                          <span className="text-sm">
+                            Conditionals ({'{{#if}}...{{/if}}'})
+                          </span>
                         </label>
 
                         <label className="flex items-center gap-2">
                           <input
                             type="checkbox"
                             checked={config.templateEngine.syntaxSupport.loops}
-                            onChange={(e) => handleFieldChange('templateEngine.syntaxSupport.loops', e.target.checked)}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'templateEngine.syntaxSupport.loops',
+                                e.target.checked
+                              )
+                            }
                             className="rounded border-gray-300"
                           />
-                          <span className="text-sm">Loops ({"{{#each}}...{{/each}}"})</span>
+                          <span className="text-sm">
+                            Loops ({'{{#each}}...{{/each}}'})
+                          </span>
                         </label>
 
                         <label className="flex items-center gap-2">
                           <input
                             type="checkbox"
-                            checked={config.templateEngine.syntaxSupport.partials}
-                            onChange={(e) => handleFieldChange('templateEngine.syntaxSupport.partials', e.target.checked)}
+                            checked={
+                              config.templateEngine.syntaxSupport.partials
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'templateEngine.syntaxSupport.partials',
+                                e.target.checked
+                              )
+                            }
                             className="rounded border-gray-300"
                           />
-                          <span className="text-sm">Partials ({"{{> header}}"})</span>
+                          <span className="text-sm">
+                            Partials ({'{{> header}}'})
+                          </span>
                         </label>
                       </div>
                     </div>
@@ -743,16 +996,21 @@ export function AutoEmailTemplatesSpec() {
                   <div className="flex items-start gap-3">
                     <Code className="w-5 h-5 text-blue-600 mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-blue-900 mb-1">Template Engine - דוגמאות</h4>
+                      <h4 className="font-medium text-blue-900 mb-1">
+                        Template Engine - דוגמאות
+                      </h4>
                       <div className="text-sm text-blue-700 space-y-2">
                         <div>
-                          <strong>Handlebars:</strong> {`שלום {{firstName}}, {{#if premium}}אתה לקוח VIP{{/if}}`}
+                          <strong>Handlebars:</strong>{' '}
+                          {`שלום {{firstName}}, {{#if premium}}אתה לקוח VIP{{/if}}`}
                         </div>
                         <div>
-                          <strong>Liquid:</strong> {`שלום {{ firstName }}, {% if premium %}אתה לקוח VIP{% endif %}`}
+                          <strong>Liquid:</strong>{' '}
+                          {`שלום {{ firstName }}, {% if premium %}אתה לקוח VIP{% endif %}`}
                         </div>
                         <div>
-                          <strong>EJS:</strong> {`שלום <%= firstName %>, <% if (premium) { %>אתה לקוח VIP<% } %>`}
+                          <strong>EJS:</strong>{' '}
+                          {`שלום <%= firstName %>, <% if (premium) { %>אתה לקוח VIP<% } %>`}
                         </div>
                       </div>
                     </div>
@@ -773,7 +1031,12 @@ export function AutoEmailTemplatesSpec() {
                       </label>
                       <select
                         value={config.crmAccess.system}
-                        onChange={(e) => handleFieldChange('crmAccess.system', e.target.value as any)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'crmAccess.system',
+                            e.target.value as any
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="zoho">Zoho CRM</option>
@@ -790,7 +1053,12 @@ export function AutoEmailTemplatesSpec() {
                       </label>
                       <select
                         value={config.crmAccess.authMethod}
-                        onChange={(e) => handleFieldChange('crmAccess.authMethod', e.target.value as any)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'crmAccess.authMethod',
+                            e.target.value as any
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="oauth">OAuth</option>
@@ -810,7 +1078,12 @@ export function AutoEmailTemplatesSpec() {
                           <input
                             type="text"
                             value={config.crmAccess.credentials.clientId || ''}
-                            onChange={(e) => handleFieldChange('crmAccess.credentials.clientId', e.target.value)}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'crmAccess.credentials.clientId',
+                                e.target.value
+                              )
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           />
                         </div>
@@ -820,8 +1093,15 @@ export function AutoEmailTemplatesSpec() {
                           </label>
                           <input
                             type="password"
-                            value={config.crmAccess.credentials.clientSecret || ''}
-                            onChange={(e) => handleFieldChange('crmAccess.credentials.clientSecret', e.target.value)}
+                            value={
+                              config.crmAccess.credentials.clientSecret || ''
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'crmAccess.credentials.clientSecret',
+                                e.target.value
+                              )
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           />
                         </div>
@@ -831,8 +1111,15 @@ export function AutoEmailTemplatesSpec() {
                           </label>
                           <input
                             type="password"
-                            value={config.crmAccess.credentials.refreshToken || ''}
-                            onChange={(e) => handleFieldChange('crmAccess.credentials.refreshToken', e.target.value)}
+                            value={
+                              config.crmAccess.credentials.refreshToken || ''
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'crmAccess.credentials.refreshToken',
+                                e.target.value
+                              )
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           />
                         </div>
@@ -847,7 +1134,12 @@ export function AutoEmailTemplatesSpec() {
                         <input
                           type="password"
                           value={config.crmAccess.credentials.apiKey || ''}
-                          onChange={(e) => handleFieldChange('crmAccess.credentials.apiKey', e.target.value)}
+                          onChange={(e) =>
+                            handleFieldChange(
+                              'crmAccess.credentials.apiKey',
+                              e.target.value
+                            )
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         />
                       </div>
@@ -886,9 +1178,14 @@ export function AutoEmailTemplatesSpec() {
                               type="text"
                               value={field.apiName}
                               onChange={(e) => {
-                                const updated = [...config.crmAccess.fieldsAvailable];
+                                const updated = [
+                                  ...config.crmAccess.fieldsAvailable,
+                                ];
                                 updated[index].apiName = e.target.value;
-                                handleFieldChange('crmAccess.fieldsAvailable', updated);
+                                handleFieldChange(
+                                  'crmAccess.fieldsAvailable',
+                                  updated
+                                );
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
                               placeholder="API Name (First_Name)"
@@ -897,9 +1194,14 @@ export function AutoEmailTemplatesSpec() {
                               type="text"
                               value={field.label}
                               onChange={(e) => {
-                                const updated = [...config.crmAccess.fieldsAvailable];
+                                const updated = [
+                                  ...config.crmAccess.fieldsAvailable,
+                                ];
                                 updated[index].label = e.target.value;
-                                handleFieldChange('crmAccess.fieldsAvailable', updated);
+                                handleFieldChange(
+                                  'crmAccess.fieldsAvailable',
+                                  updated
+                                );
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
                               placeholder="תווית (שם פרטי)"
@@ -908,9 +1210,14 @@ export function AutoEmailTemplatesSpec() {
                               type="text"
                               value={field.type}
                               onChange={(e) => {
-                                const updated = [...config.crmAccess.fieldsAvailable];
+                                const updated = [
+                                  ...config.crmAccess.fieldsAvailable,
+                                ];
                                 updated[index].type = e.target.value;
-                                handleFieldChange('crmAccess.fieldsAvailable', updated);
+                                handleFieldChange(
+                                  'crmAccess.fieldsAvailable',
+                                  updated
+                                );
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
                               placeholder="Type (string)"
@@ -943,7 +1250,12 @@ export function AutoEmailTemplatesSpec() {
                       <input
                         type="url"
                         value={config.n8nWorkflow.instanceUrl}
-                        onChange={(e) => handleFieldChange('n8nWorkflow.instanceUrl', e.target.value)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'n8nWorkflow.instanceUrl',
+                            e.target.value
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="https://n8n.example.com"
                       />
@@ -956,7 +1268,12 @@ export function AutoEmailTemplatesSpec() {
                       <input
                         type="url"
                         value={config.n8nWorkflow.webhookEndpoint}
-                        onChange={(e) => handleFieldChange('n8nWorkflow.webhookEndpoint', e.target.value)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'n8nWorkflow.webhookEndpoint',
+                            e.target.value
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="https://n8n.example.com/webhook/email-templates"
                       />
@@ -966,7 +1283,12 @@ export function AutoEmailTemplatesSpec() {
                       <input
                         type="checkbox"
                         checked={config.n8nWorkflow.httpsEnabled}
-                        onChange={(e) => handleFieldChange('n8nWorkflow.httpsEnabled', e.target.checked)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'n8nWorkflow.httpsEnabled',
+                            e.target.checked
+                          )
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium">HTTPS Enabled</span>
@@ -975,7 +1297,9 @@ export function AutoEmailTemplatesSpec() {
                 </Card>
 
                 <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">Template Rendering</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Template Rendering
+                  </h3>
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -984,7 +1308,12 @@ export function AutoEmailTemplatesSpec() {
                       <input
                         type="text"
                         value={config.n8nWorkflow.templateRendering.engine}
-                        onChange={(e) => handleFieldChange('n8nWorkflow.templateRendering.engine', e.target.value)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'n8nWorkflow.templateRendering.engine',
+                            e.target.value
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="handlebars"
                       />
@@ -993,8 +1322,15 @@ export function AutoEmailTemplatesSpec() {
                     <label className="flex items-center gap-2">
                       <input
                         type="checkbox"
-                        checked={config.n8nWorkflow.templateRendering.renderNode}
-                        onChange={(e) => handleFieldChange('n8nWorkflow.templateRendering.renderNode', e.target.checked)}
+                        checked={
+                          config.n8nWorkflow.templateRendering.renderNode
+                        }
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'n8nWorkflow.templateRendering.renderNode',
+                            e.target.checked
+                          )
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium">Render ב-Node</span>
@@ -1012,7 +1348,12 @@ export function AutoEmailTemplatesSpec() {
                       <input
                         type="number"
                         value={config.n8nWorkflow.errorHandling.retryAttempts}
-                        onChange={(e) => handleFieldChange('n8nWorkflow.errorHandling.retryAttempts', parseInt(e.target.value) || 3)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'n8nWorkflow.errorHandling.retryAttempts',
+                            parseInt(e.target.value) || 3
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         min="0"
                         max="10"
@@ -1026,7 +1367,12 @@ export function AutoEmailTemplatesSpec() {
                       <input
                         type="email"
                         value={config.n8nWorkflow.errorHandling.alertEmail}
-                        onChange={(e) => handleFieldChange('n8nWorkflow.errorHandling.alertEmail', e.target.value)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'n8nWorkflow.errorHandling.alertEmail',
+                            e.target.value
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         placeholder="admin@example.com"
                       />
@@ -1036,10 +1382,17 @@ export function AutoEmailTemplatesSpec() {
                       <input
                         type="checkbox"
                         checked={config.n8nWorkflow.errorHandling.logErrors}
-                        onChange={(e) => handleFieldChange('n8nWorkflow.errorHandling.logErrors', e.target.checked)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'n8nWorkflow.errorHandling.logErrors',
+                            e.target.checked
+                          )
+                        }
                         className="rounded border-gray-300"
                       />
-                      <span className="text-sm font-medium">רשום שגיאות ב-Log</span>
+                      <span className="text-sm font-medium">
+                        רשום שגיאות ב-Log
+                      </span>
                     </label>
                   </div>
                 </Card>
@@ -1050,7 +1403,9 @@ export function AutoEmailTemplatesSpec() {
             {activeTab === 'design' && (
               <div className="space-y-6">
                 <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">כלי עיצוב (אופציונלי)</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    כלי עיצוב (אופציונלי)
+                  </h3>
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1058,7 +1413,12 @@ export function AutoEmailTemplatesSpec() {
                       </label>
                       <select
                         value={config.designTools?.tool || 'stripo'}
-                        onChange={(e) => handleFieldChange('designTools.tool', e.target.value as any)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'designTools.tool',
+                            e.target.value as any
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="stripo">Stripo.email</option>
@@ -1068,19 +1428,25 @@ export function AutoEmailTemplatesSpec() {
                       </select>
                     </div>
 
-                    {config.designTools && config.designTools.tool !== 'custom' && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {config.designTools &&
+                      config.designTools.tool !== 'custom' && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
                             API Key
-                        </label>
-                        <input
+                          </label>
+                          <input
                             type="password"
                             value={config.designTools.apiKey || ''}
-                            onChange={(e) => handleFieldChange('designTools.apiKey', e.target.value)}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'designTools.apiKey',
+                                e.target.value
+                              )
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                        />
-                      </div>
-                    )}
+                          />
+                        </div>
+                      )}
                   </div>
                 </Card>
 
@@ -1096,7 +1462,8 @@ export function AutoEmailTemplatesSpec() {
                     </button>
                   </div>
 
-                  {(!config.designTools?.templates || config.designTools.templates.length === 0) ? (
+                  {!config.designTools?.templates ||
+                  config.designTools.templates.length === 0 ? (
                     <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                       <Palette className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                       <p className="text-gray-600 mb-3">אין תבניות עיצוב</p>
@@ -1116,9 +1483,14 @@ export function AutoEmailTemplatesSpec() {
                               type="text"
                               value={template.id}
                               onChange={(e) => {
-                                const updated = [...config.designTools!.templates!];
+                                const updated = [
+                                  ...config.designTools!.templates!,
+                                ];
                                 updated[index].id = e.target.value;
-                                handleFieldChange('designTools.templates', updated);
+                                handleFieldChange(
+                                  'designTools.templates',
+                                  updated
+                                );
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
                               placeholder="Template ID"
@@ -1127,9 +1499,14 @@ export function AutoEmailTemplatesSpec() {
                               type="text"
                               value={template.name}
                               onChange={(e) => {
-                                const updated = [...config.designTools!.templates!];
+                                const updated = [
+                                  ...config.designTools!.templates!,
+                                ];
                                 updated[index].name = e.target.value;
-                                handleFieldChange('designTools.templates', updated);
+                                handleFieldChange(
+                                  'designTools.templates',
+                                  updated
+                                );
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
                               placeholder="שם תבנית"
@@ -1138,9 +1515,14 @@ export function AutoEmailTemplatesSpec() {
                               type="text"
                               value={template.category}
                               onChange={(e) => {
-                                const updated = [...config.designTools!.templates!];
+                                const updated = [
+                                  ...config.designTools!.templates!,
+                                ];
                                 updated[index].category = e.target.value;
-                                handleFieldChange('designTools.templates', updated);
+                                handleFieldChange(
+                                  'designTools.templates',
+                                  updated
+                                );
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
                               placeholder="קטגוריה"
@@ -1164,7 +1546,9 @@ export function AutoEmailTemplatesSpec() {
             {activeTab === 'testing' && (
               <div className="space-y-6">
                 <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">כלי בדיקה (אופציונלי)</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    כלי בדיקה (אופציונלי)
+                  </h3>
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1172,7 +1556,12 @@ export function AutoEmailTemplatesSpec() {
                       </label>
                       <select
                         value={config.testingTools?.tool || 'litmus'}
-                        onChange={(e) => handleFieldChange('testingTools.tool', e.target.value as any)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'testingTools.tool',
+                            e.target.value as any
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="litmus">Litmus</option>
@@ -1190,7 +1579,12 @@ export function AutoEmailTemplatesSpec() {
                           <input
                             type="password"
                             value={config.testingTools.apiKey || ''}
-                            onChange={(e) => handleFieldChange('testingTools.apiKey', e.target.value)}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'testingTools.apiKey',
+                                e.target.value
+                              )
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           />
                         </div>
@@ -1202,7 +1596,12 @@ export function AutoEmailTemplatesSpec() {
                           <input
                             type="email"
                             value={config.testingTools.testAccountEmail || ''}
-                            onChange={(e) => handleFieldChange('testingTools.testAccountEmail', e.target.value)}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'testingTools.testAccountEmail',
+                                e.target.value
+                              )
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="test@example.com"
                           />
@@ -1216,11 +1615,19 @@ export function AutoEmailTemplatesSpec() {
                   <div className="flex items-start gap-3">
                     <TestTube className="w-5 h-5 text-blue-600 mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-blue-900 mb-1">למה צריך Email Testing?</h4>
+                      <h4 className="font-medium text-blue-900 mb-1">
+                        למה צריך Email Testing?
+                      </h4>
                       <ul className="text-sm text-blue-700 space-y-1 list-disc mr-5">
-                        <li>כל לקוח אימייל מציג HTML אחרת (Gmail, Outlook, Apple Mail)</li>
+                        <li>
+                          כל לקוח אימייל מציג HTML אחרת (Gmail, Outlook, Apple
+                          Mail)
+                        </li>
                         <li>60%+ פותחים במובייל - חובה לבדוק responsive</li>
-                        <li>Litmus/Email on Acid מראים איך האימייל נראה ב-90+ clients</li>
+                        <li>
+                          Litmus/Email on Acid מראים איך האימייל נראה ב-90+
+                          clients
+                        </li>
                         <li>Spam Score - בודק אם האימייל יגיע לספאם</li>
                       </ul>
                     </div>

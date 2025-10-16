@@ -5,7 +5,13 @@ import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import type { AutoWelcomeEmailRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
-import { Plus, Trash2, Save, CheckCircle, Info as InfoIcon } from 'lucide-react';
+import {
+  Plus,
+  Trash2,
+  Save,
+  CheckCircle,
+  Info as InfoIcon,
+} from 'lucide-react';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -17,49 +23,49 @@ export function AutoWelcomeEmailSpec() {
     fieldId: 'email_provider',
     localPath: 'emailServiceAccess.provider',
     serviceId: 'auto-welcome-email',
-    autoSave: false
+    autoSave: false,
   });
 
   const smtpHost = useSmartField<string>({
     fieldId: 'smtp_host',
     localPath: 'emailServiceAccess.smtpCredentials.host',
     serviceId: 'auto-welcome-email',
-    autoSave: false
+    autoSave: false,
   });
 
   const smtpPort = useSmartField<number>({
     fieldId: 'smtp_port',
     localPath: 'emailServiceAccess.smtpCredentials.port',
     serviceId: 'auto-welcome-email',
-    autoSave: false
+    autoSave: false,
   });
 
   const businessHoursStart = useSmartField<string>({
     fieldId: 'business_hours_start',
     localPath: 'scheduling.businessHours.start',
     serviceId: 'auto-welcome-email',
-    autoSave: false
+    autoSave: false,
   });
 
   const businessHoursEnd = useSmartField<string>({
     fieldId: 'business_hours_end',
     localPath: 'scheduling.businessHours.end',
     serviceId: 'auto-welcome-email',
-    autoSave: false
+    autoSave: false,
   });
 
   const n8nInstanceUrl = useSmartField<string>({
     fieldId: 'n8n_instance_url',
     localPath: 'n8nWorkflow.instanceUrl',
     serviceId: 'auto-welcome-email',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'n8nWorkflow.errorHandling.alertEmail',
     serviceId: 'auto-welcome-email',
-    autoSave: false
+    autoSave: false,
   });
 
   const [config, setConfig] = useState<AutoWelcomeEmailRequirements>({
@@ -67,21 +73,21 @@ export function AutoWelcomeEmailSpec() {
       newLead: true,
       newCustomer: true,
       appointmentBooked: false,
-      serviceCompleted: false
+      serviceCompleted: false,
     },
     emailSettings: {
       provider: 'gmail',
       fromName: '{companyName}',
       fromEmail: 'welcome@{companyDomain}.com',
-      replyTo: 'support@{companyDomain}.com'
+      replyTo: 'support@{companyDomain}.com',
     },
     // Add emailServiceAccess
     emailServiceAccess: {
       provider: '',
       smtpCredentials: {
         host: '',
-        port: 587
-      }
+        port: 587,
+      },
     },
     contentTemplates: {
       newLead: {
@@ -103,7 +109,7 @@ export function AutoWelcomeEmailSpec() {
 {companyName}
 {senderName}
 {contactPhone}
-{contactEmail}`
+{contactEmail}`,
       },
       newCustomer: {
         subject: 'ברוכים הבאים ל{companyName}! התחלנו לעבוד יחד',
@@ -119,7 +125,7 @@ export function AutoWelcomeEmailSpec() {
 צוות {companyName} עומד לרשותך לכל שאלה.
 
 בברכה,
-צוות {companyName}`
+צוות {companyName}`,
       },
       appointmentBooked: {
         subject: 'אישור פגישה - {appointmentDate}',
@@ -135,22 +141,29 @@ export function AutoWelcomeEmailSpec() {
 נשמח לראות אותך!
 
 בברכה,
-{companyName}`
-      }
+{companyName}`,
+      },
     },
     personalization: {
-      fields: ['clientName', 'companyName', 'senderName', 'companyDomain', 'contactPhone', 'contactEmail'],
-      dynamicContent: true
+      fields: [
+        'clientName',
+        'companyName',
+        'senderName',
+        'companyDomain',
+        'contactPhone',
+        'contactEmail',
+      ],
+      dynamicContent: true,
     },
     scheduling: {
       sendImmediately: true,
       delayHours: 0,
       businessHours: {
         start: '09:00',
-        end: '18:00'
+        end: '18:00',
       },
       businessHoursOnly: true,
-      skipWeekends: true
+      skipWeekends: true,
     },
     // Add n8nWorkflow
     n8nWorkflow: {
@@ -159,20 +172,20 @@ export function AutoWelcomeEmailSpec() {
       httpsEnabled: true,
       errorHandling: {
         retryAttempts: 3,
-        alertEmail: ''
-      }
+        alertEmail: '',
+      },
     },
     tracking: {
       openTracking: true,
       clickTracking: true,
-      unsubscribeLink: true
-    }
+      unsubscribeLink: true,
+    },
   });
 
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-welcome-email',
-    category: 'automations'
+    category: 'automations',
   });
 
   useBeforeUnload(() => {
@@ -184,26 +197,30 @@ export function AutoWelcomeEmailSpec() {
         provider: emailProvider.value || config.emailServiceAccess.provider,
         smtpCredentials: {
           ...config.emailServiceAccess.smtpCredentials,
-          host: smtpHost.value || config.emailServiceAccess.smtpCredentials.host,
-          port: smtpPort.value || config.emailServiceAccess.smtpCredentials.port
-        }
+          host:
+            smtpHost.value || config.emailServiceAccess.smtpCredentials.host,
+          port:
+            smtpPort.value || config.emailServiceAccess.smtpCredentials.port,
+        },
       },
       scheduling: {
         ...config.scheduling,
         businessHours: {
           ...config.scheduling.businessHours,
-          start: businessHoursStart.value || config.scheduling.businessHours.start,
-          end: businessHoursEnd.value || config.scheduling.businessHours.end
-        }
+          start:
+            businessHoursStart.value || config.scheduling.businessHours.start,
+          end: businessHoursEnd.value || config.scheduling.businessHours.end,
+        },
       },
       n8nWorkflow: {
         ...config.n8nWorkflow,
         instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow.instanceUrl,
         errorHandling: {
           ...config.n8nWorkflow.errorHandling,
-          alertEmail: alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail
-        }
-      }
+          alertEmail:
+            alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail,
+        },
+      },
     };
     saveData(completeConfig);
   });
@@ -228,26 +245,30 @@ export function AutoWelcomeEmailSpec() {
         provider: emailProvider.value || config.emailServiceAccess.provider,
         smtpCredentials: {
           ...config.emailServiceAccess.smtpCredentials,
-          host: smtpHost.value || config.emailServiceAccess.smtpCredentials.host,
-          port: smtpPort.value || config.emailServiceAccess.smtpCredentials.port
-        }
+          host:
+            smtpHost.value || config.emailServiceAccess.smtpCredentials.host,
+          port:
+            smtpPort.value || config.emailServiceAccess.smtpCredentials.port,
+        },
       },
       scheduling: {
         ...config.scheduling,
         businessHours: {
           ...config.scheduling.businessHours,
-          start: businessHoursStart.value || config.scheduling.businessHours.start,
-          end: businessHoursEnd.value || config.scheduling.businessHours.end
-        }
+          start:
+            businessHoursStart.value || config.scheduling.businessHours.start,
+          end: businessHoursEnd.value || config.scheduling.businessHours.end,
+        },
       },
       n8nWorkflow: {
         ...config.n8nWorkflow,
         instanceUrl: n8nInstanceUrl.value || config.n8nWorkflow.instanceUrl,
         errorHandling: {
           ...config.n8nWorkflow.errorHandling,
-          alertEmail: alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail
-        }
-      }
+          alertEmail:
+            alertEmail.value || config.n8nWorkflow.errorHandling.alertEmail,
+        },
+      },
     };
 
     await saveData(completeConfig);
@@ -256,22 +277,31 @@ export function AutoWelcomeEmailSpec() {
   return (
     <div className="space-y-6" dir="rtl">
       {/* Smart Fields Info Banner */}
-      {(emailProvider.isAutoPopulated || smtpHost.isAutoPopulated || smtpPort.isAutoPopulated || 
-        businessHoursStart.isAutoPopulated || businessHoursEnd.isAutoPopulated || 
-        n8nInstanceUrl.isAutoPopulated || alertEmail.isAutoPopulated) && (
+      {(emailProvider.isAutoPopulated ||
+        smtpHost.isAutoPopulated ||
+        smtpPort.isAutoPopulated ||
+        businessHoursStart.isAutoPopulated ||
+        businessHoursEnd.isAutoPopulated ||
+        n8nInstanceUrl.isAutoPopulated ||
+        alertEmail.isAutoPopulated) && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3">
           <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <h4 className="font-semibold text-blue-900 mb-1">
+              נתונים מולאו אוטומטית משלב 1
+            </h4>
             <p className="text-sm text-blue-800">
-              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-              תוכל לערוך אותם במידת הצורך.
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל לערוך
+              אותם במידת הצורך.
             </p>
           </div>
         </div>
       )}
 
-      <Card title="אימיילי קבלת פנים אוטומטיים" subtitle="הגדר אימיילים אוטומטיים לשלבים שונים במחזור חיי הלקוח">
+      <Card
+        title="אימיילי קבלת פנים אוטומטיים"
+        subtitle="הגדר אימיילים אוטומטיים לשלבים שונים במחזור חיי הלקוח"
+      >
         <div className="space-y-6">
           {/* אירועי טריגר - existing */}
           <div>
@@ -282,10 +312,15 @@ export function AutoWelcomeEmailSpec() {
                   <input
                     type="checkbox"
                     checked={enabled}
-                    onChange={(e) => setConfig(prev => ({
-                      ...prev,
-                      triggerEvents: { ...prev.triggerEvents, [event]: e.target.checked }
-                    }))}
+                    onChange={(e) =>
+                      setConfig((prev) => ({
+                        ...prev,
+                        triggerEvents: {
+                          ...prev.triggerEvents,
+                          [event]: e.target.checked,
+                        },
+                      }))
+                    }
                   />
                   <span>
                     {event === 'newLead' && 'ליד חדש'}
@@ -316,7 +351,9 @@ export function AutoWelcomeEmailSpec() {
                 value={emailProvider.value || ''}
                 onChange={(e) => emailProvider.setValue(e.target.value)}
                 className={`w-full p-2 border rounded-lg ${
-                  emailProvider.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  emailProvider.isAutoPopulated
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-300'
                 }`}
               >
                 <option value="">בחר ספק</option>
@@ -327,7 +364,9 @@ export function AutoWelcomeEmailSpec() {
                 <option value="outlook">Outlook/Office 365</option>
               </select>
               {emailProvider.isAutoPopulated && emailProvider.source && (
-                <p className="text-xs text-gray-500 mt-1">מקור: {emailProvider.source.description}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  מקור: {emailProvider.source.description}
+                </p>
               )}
             </div>
 
@@ -336,38 +375,57 @@ export function AutoWelcomeEmailSpec() {
               <input
                 type="text"
                 value={config.emailSettings.fromName}
-                onChange={(e) => setConfig(prev => ({
-                  ...prev,
-                  emailSettings: { ...prev.emailSettings, fromName: e.target.value }
-                }))}
+                onChange={(e) =>
+                  setConfig((prev) => ({
+                    ...prev,
+                    emailSettings: {
+                      ...prev.emailSettings,
+                      fromName: e.target.value,
+                    },
+                  }))
+                }
                 className="w-full p-2 border rounded-lg"
                 placeholder="{companyName}"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">כתובת אימייל לשליחה</label>
+              <label className="block text-sm font-medium mb-2">
+                כתובת אימייל לשליחה
+              </label>
               <input
                 type="email"
                 value={config.emailSettings.fromEmail}
-                onChange={(e) => setConfig(prev => ({
-                  ...prev,
-                  emailSettings: { ...prev.emailSettings, fromEmail: e.target.value }
-                }))}
+                onChange={(e) =>
+                  setConfig((prev) => ({
+                    ...prev,
+                    emailSettings: {
+                      ...prev.emailSettings,
+                      fromEmail: e.target.value,
+                    },
+                  }))
+                }
                 className="w-full p-2 border rounded-lg"
                 placeholder="welcome@{companyDomain}.com"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">כתובת מענה</label>
+              <label className="block text-sm font-medium mb-2">
+                כתובת מענה
+              </label>
               <input
                 type="email"
                 value={config.emailSettings.replyTo}
-                onChange={(e) => setConfig(prev => ({
-                  ...prev,
-                  emailSettings: { ...prev.emailSettings, replyTo: e.target.value }
-                }))}
+                onChange={(e) =>
+                  setConfig((prev) => ({
+                    ...prev,
+                    emailSettings: {
+                      ...prev.emailSettings,
+                      replyTo: e.target.value,
+                    },
+                  }))
+                }
                 className="w-full p-2 border rounded-lg"
                 placeholder="support@{companyDomain}.com"
               />
@@ -396,12 +454,16 @@ export function AutoWelcomeEmailSpec() {
                     value={smtpHost.value || ''}
                     onChange={(e) => smtpHost.setValue(e.target.value)}
                     className={`w-full p-2 border rounded-lg ${
-                      smtpHost.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                      smtpHost.isAutoPopulated
+                        ? 'border-green-300 bg-green-50'
+                        : 'border-gray-300'
                     }`}
                     placeholder="smtp.gmail.com"
                   />
                   {smtpHost.isAutoPopulated && smtpHost.source && (
-                    <p className="text-xs text-gray-500 mt-1">מקור: {smtpHost.source.description}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      מקור: {smtpHost.source.description}
+                    </p>
                   )}
                 </div>
 
@@ -420,16 +482,22 @@ export function AutoWelcomeEmailSpec() {
                   <input
                     type="number"
                     value={smtpPort.value || ''}
-                    onChange={(e) => smtpPort.setValue(parseInt(e.target.value) || 587)}
+                    onChange={(e) =>
+                      smtpPort.setValue(parseInt(e.target.value) || 587)
+                    }
                     className={`w-full p-2 border rounded-lg ${
-                      smtpPort.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                      smtpPort.isAutoPopulated
+                        ? 'border-green-300 bg-green-50'
+                        : 'border-gray-300'
                     }`}
                     placeholder="587"
                     min="1"
                     max="65535"
                   />
                   {smtpPort.isAutoPopulated && smtpPort.source && (
-                    <p className="text-xs text-gray-500 mt-1">מקור: {smtpPort.source.description}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      מקור: {smtpPort.source.description}
+                    </p>
                   )}
                 </div>
               </div>
@@ -445,31 +513,45 @@ export function AutoWelcomeEmailSpec() {
                 <h5 className="font-medium mb-3">ליד חדש</h5>
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-medium mb-1">נושא</label>
+                    <label className="block text-sm font-medium mb-1">
+                      נושא
+                    </label>
                     <input
                       type="text"
                       value={config.contentTemplates.newLead.subject}
-                      onChange={(e) => setConfig(prev => ({
-                        ...prev,
-                        contentTemplates: {
-                          ...prev.contentTemplates,
-                          newLead: { ...prev.contentTemplates.newLead, subject: e.target.value }
-                        }
-                      }))}
+                      onChange={(e) =>
+                        setConfig((prev) => ({
+                          ...prev,
+                          contentTemplates: {
+                            ...prev.contentTemplates,
+                            newLead: {
+                              ...prev.contentTemplates.newLead,
+                              subject: e.target.value,
+                            },
+                          },
+                        }))
+                      }
                       className="w-full p-2 border rounded-lg"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">תוכן</label>
+                    <label className="block text-sm font-medium mb-1">
+                      תוכן
+                    </label>
                     <textarea
                       value={config.contentTemplates.newLead.body}
-                      onChange={(e) => setConfig(prev => ({
-                        ...prev,
-                        contentTemplates: {
-                          ...prev.contentTemplates,
-                          newLead: { ...prev.contentTemplates.newLead, body: e.target.value }
-                        }
-                      }))}
+                      onChange={(e) =>
+                        setConfig((prev) => ({
+                          ...prev,
+                          contentTemplates: {
+                            ...prev.contentTemplates,
+                            newLead: {
+                              ...prev.contentTemplates.newLead,
+                              body: e.target.value,
+                            },
+                          },
+                        }))
+                      }
                       rows={8}
                       className="w-full p-2 border rounded-lg font-mono text-sm"
                     />
@@ -483,31 +565,45 @@ export function AutoWelcomeEmailSpec() {
                 <h5 className="font-medium mb-3">לקוח חדש</h5>
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-medium mb-1">נושא</label>
+                    <label className="block text-sm font-medium mb-1">
+                      נושא
+                    </label>
                     <input
                       type="text"
                       value={config.contentTemplates.newCustomer.subject}
-                      onChange={(e) => setConfig(prev => ({
-                        ...prev,
-                        contentTemplates: {
-                          ...prev.contentTemplates,
-                          newCustomer: { ...prev.contentTemplates.newCustomer, subject: e.target.value }
-                        }
-                      }))}
+                      onChange={(e) =>
+                        setConfig((prev) => ({
+                          ...prev,
+                          contentTemplates: {
+                            ...prev.contentTemplates,
+                            newCustomer: {
+                              ...prev.contentTemplates.newCustomer,
+                              subject: e.target.value,
+                            },
+                          },
+                        }))
+                      }
                       className="w-full p-2 border rounded-lg"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">תוכן</label>
+                    <label className="block text-sm font-medium mb-1">
+                      תוכן
+                    </label>
                     <textarea
                       value={config.contentTemplates.newCustomer.body}
-                      onChange={(e) => setConfig(prev => ({
-                        ...prev,
-                        contentTemplates: {
-                          ...prev.contentTemplates,
-                          newCustomer: { ...prev.contentTemplates.newCustomer, body: e.target.value }
-                        }
-                      }))}
+                      onChange={(e) =>
+                        setConfig((prev) => ({
+                          ...prev,
+                          contentTemplates: {
+                            ...prev.contentTemplates,
+                            newCustomer: {
+                              ...prev.contentTemplates.newCustomer,
+                              body: e.target.value,
+                            },
+                          },
+                        }))
+                      }
                       rows={6}
                       className="w-full p-2 border rounded-lg font-mono text-sm"
                     />
@@ -521,31 +617,45 @@ export function AutoWelcomeEmailSpec() {
                 <h5 className="font-medium mb-3">פגישה נקבעה</h5>
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-medium mb-1">נושא</label>
+                    <label className="block text-sm font-medium mb-1">
+                      נושא
+                    </label>
                     <input
                       type="text"
                       value={config.contentTemplates.appointmentBooked.subject}
-                      onChange={(e) => setConfig(prev => ({
-                        ...prev,
-                        contentTemplates: {
-                          ...prev.contentTemplates,
-                          appointmentBooked: { ...prev.contentTemplates.appointmentBooked, subject: e.target.value }
-                        }
-                      }))}
+                      onChange={(e) =>
+                        setConfig((prev) => ({
+                          ...prev,
+                          contentTemplates: {
+                            ...prev.contentTemplates,
+                            appointmentBooked: {
+                              ...prev.contentTemplates.appointmentBooked,
+                              subject: e.target.value,
+                            },
+                          },
+                        }))
+                      }
                       className="w-full p-2 border rounded-lg"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">תוכן</label>
+                    <label className="block text-sm font-medium mb-1">
+                      תוכן
+                    </label>
                     <textarea
                       value={config.contentTemplates.appointmentBooked.body}
-                      onChange={(e) => setConfig(prev => ({
-                        ...prev,
-                        contentTemplates: {
-                          ...prev.contentTemplates,
-                          appointmentBooked: { ...prev.contentTemplates.appointmentBooked, body: e.target.value }
-                        }
-                      }))}
+                      onChange={(e) =>
+                        setConfig((prev) => ({
+                          ...prev,
+                          contentTemplates: {
+                            ...prev.contentTemplates,
+                            appointmentBooked: {
+                              ...prev.contentTemplates.appointmentBooked,
+                              body: e.target.value,
+                            },
+                          },
+                        }))
+                      }
                       rows={5}
                       className="w-full p-2 border rounded-lg font-mono text-sm"
                     />
@@ -562,24 +672,36 @@ export function AutoWelcomeEmailSpec() {
                 <input
                   type="checkbox"
                   checked={config.scheduling.sendImmediately}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    scheduling: { ...prev.scheduling, sendImmediately: e.target.checked }
-                  }))}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      scheduling: {
+                        ...prev.scheduling,
+                        sendImmediately: e.target.checked,
+                      },
+                    }))
+                  }
                 />
                 <span className="text-sm">שלח מיידית</span>
               </label>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">עיכוב בשעות (אם לא מיידי)</label>
+              <label className="block text-sm font-medium mb-2">
+                עיכוב בשעות (אם לא מיידי)
+              </label>
               <input
                 type="number"
                 value={config.scheduling.delayHours}
-                onChange={(e) => setConfig(prev => ({
-                  ...prev,
-                  scheduling: { ...prev.scheduling, delayHours: parseInt(e.target.value) || 0 }
-                }))}
+                onChange={(e) =>
+                  setConfig((prev) => ({
+                    ...prev,
+                    scheduling: {
+                      ...prev.scheduling,
+                      delayHours: parseInt(e.target.value) || 0,
+                    },
+                  }))
+                }
                 className="w-full p-2 border rounded-lg"
                 min="0"
                 max="72"
@@ -603,13 +725,18 @@ export function AutoWelcomeEmailSpec() {
                 value={businessHoursStart.value || ''}
                 onChange={(e) => businessHoursStart.setValue(e.target.value)}
                 className={`w-full p-2 border rounded-lg ${
-                  businessHoursStart.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  businessHoursStart.isAutoPopulated
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-300'
                 }`}
                 placeholder="09:00"
               />
-              {businessHoursStart.isAutoPopulated && businessHoursStart.source && (
-                <p className="text-xs text-gray-500 mt-1">מקור: {businessHoursStart.source.description}</p>
-              )}
+              {businessHoursStart.isAutoPopulated &&
+                businessHoursStart.source && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {businessHoursStart.source.description}
+                  </p>
+                )}
             </div>
 
             <div>
@@ -629,12 +756,16 @@ export function AutoWelcomeEmailSpec() {
                 value={businessHoursEnd.value || ''}
                 onChange={(e) => businessHoursEnd.setValue(e.target.value)}
                 className={`w-full p-2 border rounded-lg ${
-                  businessHoursEnd.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  businessHoursEnd.isAutoPopulated
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-300'
                 }`}
                 placeholder="18:00"
               />
               {businessHoursEnd.isAutoPopulated && businessHoursEnd.source && (
-                <p className="text-xs text-gray-500 mt-1">מקור: {businessHoursEnd.source.description}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  מקור: {businessHoursEnd.source.description}
+                </p>
               )}
             </div>
 
@@ -643,10 +774,15 @@ export function AutoWelcomeEmailSpec() {
                 <input
                   type="checkbox"
                   checked={config.scheduling.businessHoursOnly}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    scheduling: { ...prev.scheduling, businessHoursOnly: e.target.checked }
-                  }))}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      scheduling: {
+                        ...prev.scheduling,
+                        businessHoursOnly: e.target.checked,
+                      },
+                    }))
+                  }
                 />
                 <span className="text-sm">שלח רק בשעות עבודה</span>
               </label>
@@ -657,10 +793,15 @@ export function AutoWelcomeEmailSpec() {
                 <input
                   type="checkbox"
                   checked={config.scheduling.skipWeekends}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    scheduling: { ...prev.scheduling, skipWeekends: e.target.checked }
-                  }))}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      scheduling: {
+                        ...prev.scheduling,
+                        skipWeekends: e.target.checked,
+                      },
+                    }))
+                  }
                 />
                 <span className="text-sm">דלג על סופי שבוע</span>
               </label>
@@ -688,43 +829,58 @@ export function AutoWelcomeEmailSpec() {
                   value={n8nInstanceUrl.value || ''}
                   onChange={(e) => n8nInstanceUrl.setValue(e.target.value)}
                   className={`w-full p-2 border rounded-lg ${
-                    n8nInstanceUrl.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    n8nInstanceUrl.isAutoPopulated
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-300'
                   }`}
                   placeholder="https://n8n.example.com"
                 />
                 {n8nInstanceUrl.isAutoPopulated && n8nInstanceUrl.source && (
-                  <p className="text-xs text-gray-500 mt-1">מקור: {n8nInstanceUrl.source.description}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    מקור: {n8nInstanceUrl.source.description}
+                  </p>
                 )}
               </div>
 
-              <label className="block text-sm font-medium text-gray-700 mb-2">Webhook Endpoint</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Webhook Endpoint
+              </label>
               <input
                 type="url"
                 value={config.n8nWorkflow.webhookEndpoint || ''}
-                onChange={(e) => setConfig(prev => ({
-                  ...prev,
-                  n8nWorkflow: { ...prev.n8nWorkflow, webhookEndpoint: e.target.value }
-                }))}
+                onChange={(e) =>
+                  setConfig((prev) => ({
+                    ...prev,
+                    n8nWorkflow: {
+                      ...prev.n8nWorkflow,
+                      webhookEndpoint: e.target.value,
+                    },
+                  }))
+                }
                 className="w-full p-2 border rounded-lg"
                 placeholder="https://n8n.example.com/webhook/..."
               />
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">ניסיונות חוזרים</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ניסיונות חוזרים
+                  </label>
                   <input
                     type="number"
                     value={config.n8nWorkflow.errorHandling.retryAttempts || 3}
-                    onChange={(e) => setConfig(prev => ({
-                      ...prev,
-                      n8nWorkflow: {
-                        ...prev.n8nWorkflow,
-                        errorHandling: {
-                          ...prev.n8nWorkflow.errorHandling,
-                          retryAttempts: parseInt(e.target.value) || 3
-                        }
-                      }
-                    }))}
+                    onChange={(e) =>
+                      setConfig((prev) => ({
+                        ...prev,
+                        n8nWorkflow: {
+                          ...prev.n8nWorkflow,
+                          errorHandling: {
+                            ...prev.n8nWorkflow.errorHandling,
+                            retryAttempts: parseInt(e.target.value) || 3,
+                          },
+                        },
+                      }))
+                    }
                     className="w-full p-2 border rounded-lg"
                     min="0"
                     max="10"
@@ -748,12 +904,16 @@ export function AutoWelcomeEmailSpec() {
                     value={alertEmail.value || ''}
                     onChange={(e) => alertEmail.setValue(e.target.value)}
                     className={`w-full p-2 border rounded-lg ${
-                      alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                      alertEmail.isAutoPopulated
+                        ? 'border-green-300 bg-green-50'
+                        : 'border-gray-300'
                     }`}
                     placeholder="alerts@example.com"
                   />
                   {alertEmail.isAutoPopulated && alertEmail.source && (
-                    <p className="text-xs text-gray-500 mt-1">מקור: {alertEmail.source.description}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      מקור: {alertEmail.source.description}
+                    </p>
                   )}
                 </div>
               </div>
@@ -762,10 +922,15 @@ export function AutoWelcomeEmailSpec() {
                 <input
                   type="checkbox"
                   checked={config.n8nWorkflow.httpsEnabled || true}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    n8nWorkflow: { ...prev.n8nWorkflow, httpsEnabled: e.target.checked }
-                  }))}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      n8nWorkflow: {
+                        ...prev.n8nWorkflow,
+                        httpsEnabled: e.target.checked,
+                      },
+                    }))
+                  }
                   className="rounded border-gray-300"
                 />
                 <span className="text-sm">HTTPS מופעל</span>
@@ -781,10 +946,15 @@ export function AutoWelcomeEmailSpec() {
                 <input
                   type="checkbox"
                   checked={config.tracking.openTracking}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    tracking: { ...prev.tracking, openTracking: e.target.checked }
-                  }))}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      tracking: {
+                        ...prev.tracking,
+                        openTracking: e.target.checked,
+                      },
+                    }))
+                  }
                 />
                 <span className="text-sm">מעקב פתיחת אימיילים</span>
               </label>
@@ -793,10 +963,15 @@ export function AutoWelcomeEmailSpec() {
                 <input
                   type="checkbox"
                   checked={config.tracking.clickTracking}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    tracking: { ...prev.tracking, clickTracking: e.target.checked }
-                  }))}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      tracking: {
+                        ...prev.tracking,
+                        clickTracking: e.target.checked,
+                      },
+                    }))
+                  }
                 />
                 <span className="text-sm">מעקב לחיצות על קישורים</span>
               </label>
@@ -805,10 +980,15 @@ export function AutoWelcomeEmailSpec() {
                 <input
                   type="checkbox"
                   checked={config.tracking.unsubscribeLink}
-                  onChange={(e) => setConfig(prev => ({
-                    ...prev,
-                    tracking: { ...prev.tracking, unsubscribeLink: e.target.checked }
-                  }))}
+                  onChange={(e) =>
+                    setConfig((prev) => ({
+                      ...prev,
+                      tracking: {
+                        ...prev.tracking,
+                        unsubscribeLink: e.target.checked,
+                      },
+                    }))
+                  }
                 />
                 <span className="text-sm">קישור ביטול מנוי</span>
               </label>
@@ -850,6 +1030,3 @@ export function AutoWelcomeEmailSpec() {
     </div>
   );
 }
-
-
-

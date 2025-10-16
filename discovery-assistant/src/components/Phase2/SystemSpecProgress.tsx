@@ -31,15 +31,16 @@ export interface SystemSpecProgressProps {
  */
 export const SystemSpecProgress: React.FC<SystemSpecProgressProps> = ({
   systemName,
-  sections
+  sections,
 }) => {
   // Calculate completion percentage
-  const completedCount = sections.filter(s => s.completed).length;
+  const completedCount = sections.filter((s) => s.completed).length;
   const totalCount = sections.length;
-  const progress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const progress =
+    totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   // Find missing required sections
-  const requiredIncomplete = sections.filter(s => s.required && !s.completed);
+  const requiredIncomplete = sections.filter((s) => s.required && !s.completed);
 
   // Determine progress variant
   const getVariant = () => {
@@ -54,24 +55,23 @@ export const SystemSpecProgress: React.FC<SystemSpecProgressProps> = ({
       <div className="flex items-center justify-between mb-4" dir="rtl">
         <h3 className="text-lg font-semibold text-gray-900">{systemName}</h3>
         <span className="text-sm text-gray-600">
-          {completedCount}/{totalCount} ÔÕéÜÞÕ
+          {completedCount}/{totalCount} ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         </span>
       </div>
 
       {/* Progress Bar */}
-      <ProgressBar
-        value={progress}
-        variant={getVariant()}
-        animated
-      />
+      <ProgressBar value={progress} variant={getVariant()} animated />
 
       {/* Required Fields Warning */}
       {requiredIncomplete.length > 0 && (
-        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg" dir="rtl">
+        <div
+          className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg"
+          dir="rtl"
+        >
           <div className="flex items-start gap-2">
             <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm text-yellow-800">
-              <p className="font-medium mb-1">éÓÕê ×ÕÑÔ ×áèÙÝ:</p>
+              <p className="font-medium mb-1">ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½:</p>
               <ul className="list-disc list-inside space-y-0.5">
                 {requiredIncomplete.map((section, i) => (
                   <li key={i}>{section.name}</li>
@@ -89,10 +89,12 @@ export const SystemSpecProgress: React.FC<SystemSpecProgressProps> = ({
             key={i}
             className="flex items-center justify-between text-sm py-1.5 px-2 rounded hover:bg-gray-50 transition-colors"
           >
-            <span className={`flex items-center gap-2 ${section.completed ? 'text-gray-900' : 'text-gray-500'}`}>
+            <span
+              className={`flex items-center gap-2 ${section.completed ? 'text-gray-900' : 'text-gray-500'}`}
+            >
               {section.name}
               {section.required && (
-                <span className="text-red-500 font-bold" title="éÓÔ ×ÕÑÔ">
+                <span className="text-red-500 font-bold" title="ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½">
                   *
                 </span>
               )}
@@ -110,11 +112,14 @@ export const SystemSpecProgress: React.FC<SystemSpecProgressProps> = ({
 
       {/* Completion Summary */}
       {progress === 100 && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg" dir="rtl">
+        <div
+          className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg"
+          dir="rtl"
+        >
           <div className="flex items-center gap-2 text-green-800">
             <CheckCircle className="w-5 h-5 text-green-600" />
             <span className="text-sm font-medium">
-              ÞäèØ ÔÞâèÛê ÔÕéÜÝ ÑÞÜÕÐÕ
+              ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             </span>
           </div>
         </div>

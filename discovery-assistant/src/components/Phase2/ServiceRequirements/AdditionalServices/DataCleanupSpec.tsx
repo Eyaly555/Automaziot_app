@@ -25,14 +25,14 @@ export function DataCleanupSpec() {
       fixDataQualityIssues: true,
       standardizeFormats: true,
       enrichData: false,
-      mergeAccounts: false
+      mergeAccounts: false,
     },
     deduplicationRules: {
       matchFields: [],
       matchingAlgorithm: 'fuzzy',
       fuzzyThreshold: 80,
       mergeStrategy: 'keep_most_complete',
-      conflictResolution: []
+      conflictResolution: [],
     },
     dataQualityRules: [],
     backupRequired: true,
@@ -45,15 +45,15 @@ export function DataCleanupSpec() {
       duplicatesList: true,
       cleanedData: true,
       validationReport: true,
-      documentedRules: true
+      documentedRules: true,
     },
     estimatedDays: 5,
     recordVolumeCategory: 'medium',
     successMetrics: {
       targetDuplicateReduction: 95,
       targetDataQualityScore: 90,
-      targetEmptyFieldReduction: 80
-    }
+      targetEmptyFieldReduction: 80,
+    },
   });
 
   // Track if we're currently loading data to prevent save loops
@@ -63,7 +63,7 @@ export function DataCleanupSpec() {
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'data-cleanup',
-    category: 'additionalServices'
+    category: 'additionalServices',
   });
 
   useBeforeUnload(() => {
@@ -78,9 +78,10 @@ export function DataCleanupSpec() {
 
   // Load existing data
   useEffect(() => {
-    const category = currentMeeting?.implementationSpec?.additionalServices || [];
+    const category =
+      currentMeeting?.implementationSpec?.additionalServices || [];
     const existing = Array.isArray(category)
-      ? category.find(item => item.serviceId === 'data-cleanup')
+      ? category.find((item) => item.serviceId === 'data-cleanup')
       : undefined;
 
     if (existing?.requirements) {
@@ -126,46 +127,52 @@ export function DataCleanupSpec() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleFieldChange = useCallback(<T extends keyof DataCleanupRequirements>(
-    field: T,
-    value: DataCleanupRequirements[T]
-  ) => {
-    setConfig(prevConfig => {
-      const updatedConfig = { ...prevConfig, [field]: value };
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = { ...updatedConfig }; // No smart fields in this component
-          saveData(completeConfig);
+  const handleFieldChange = useCallback(
+    <T extends keyof DataCleanupRequirements>(
+      field: T,
+      value: DataCleanupRequirements[T]
+    ) => {
+      setConfig((prevConfig) => {
+        const updatedConfig = { ...prevConfig, [field]: value };
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = { ...updatedConfig }; // No smart fields in this component
+            saveData(completeConfig);
+          }
+        }, 0);
+        return updatedConfig;
+      });
+    },
+    [saveData]
+  );
+
+  const handleNestedFieldChange = useCallback(
+    (
+      parentField: keyof DataCleanupRequirements,
+      nestedPath: string,
+      value: any
+    ) => {
+      setConfig((prevConfig) => {
+        const updatedConfig = { ...prevConfig };
+        let current = updatedConfig[parentField];
+        const pathParts = nestedPath.split('.');
+        for (let i = 0; i < pathParts.length - 1; i++) {
+          current = current[pathParts[i]];
         }
-      }, 0);
-      return updatedConfig;
-    });
-  }, [saveData]);
+        current[pathParts[pathParts.length - 1]] = value;
 
-  const handleNestedFieldChange = useCallback((
-    parentField: keyof DataCleanupRequirements,
-    nestedPath: string,
-    value: any
-  ) => {
-    setConfig(prevConfig => {
-      const updatedConfig = { ...prevConfig };
-      let current = updatedConfig[parentField];
-      const pathParts = nestedPath.split('.');
-      for (let i = 0; i < pathParts.length - 1; i++) {
-        current = current[pathParts[i]];
-      }
-      current[pathParts[pathParts.length - 1]] = value;
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = { ...updatedConfig }; // No smart fields in this component
+            saveData(completeConfig);
+          }
+        }, 0);
 
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = { ...updatedConfig }; // No smart fields in this component
-          saveData(completeConfig);
-        }
-      }, 0);
-
-      return updatedConfig;
-    });
-  }, [saveData]);
+        return updatedConfig;
+      });
+    },
+    [saveData]
+  );
 
   // Save handler
   const handleSave = useCallback(async () => {
@@ -183,7 +190,7 @@ export function DataCleanupSpec() {
 
   // Add data source
   const addDataSource = () => {
-    setConfig(prevConfig => ({
+    setConfig((prevConfig) => ({
       ...prevConfig,
       dataSources: [
         ...prevConfig.dataSources,
@@ -191,17 +198,17 @@ export function DataCleanupSpec() {
           systemName: '',
           accessType: 'api',
           recordCount: 0,
-          hasBackup: false
-        }
-      ]
+          hasBackup: false,
+        },
+      ],
     }));
   };
 
   // Remove data source
   const removeDataSource = (index: number) => {
-    setConfig(prevConfig => ({
+    setConfig((prevConfig) => ({
       ...prevConfig,
-      dataSources: prevConfig.dataSources.filter((_, i) => i !== index)
+      dataSources: prevConfig.dataSources.filter((_, i) => i !== index),
     }));
   };
 
@@ -209,30 +216,35 @@ export function DataCleanupSpec() {
   const addMatchField = () => {
     const field = prompt('הזן שם שדה להתאמה (לדוגמה: email, phone, name):');
     if (field && field.trim()) {
-      setConfig(prevConfig => ({
+      setConfig((prevConfig) => ({
         ...prevConfig,
         deduplicationRules: {
           ...prevConfig.deduplicationRules,
-          matchFields: [...prevConfig.deduplicationRules.matchFields, field.trim()]
-        }
+          matchFields: [
+            ...prevConfig.deduplicationRules.matchFields,
+            field.trim(),
+          ],
+        },
       }));
     }
   };
 
   // Remove match field
   const removeMatchField = (index: number) => {
-    setConfig(prevConfig => ({
+    setConfig((prevConfig) => ({
       ...prevConfig,
       deduplicationRules: {
         ...prevConfig.deduplicationRules,
-        matchFields: prevConfig.deduplicationRules.matchFields.filter((_, i) => i !== index)
-      }
+        matchFields: prevConfig.deduplicationRules.matchFields.filter(
+          (_, i) => i !== index
+        ),
+      },
     }));
   };
 
   // Add data quality rule
   const addDataQualityRule = () => {
-    setConfig(prevConfig => ({
+    setConfig((prevConfig) => ({
       ...prevConfig,
       dataQualityRules: [
         ...(prevConfig.dataQualityRules || []),
@@ -240,32 +252,40 @@ export function DataCleanupSpec() {
           ruleName: '',
           fieldName: '',
           validation: '',
-          action: 'flag'
-        }
-      ]
+          action: 'flag',
+        },
+      ],
     }));
   };
 
   // Remove data quality rule
   const removeDataQualityRule = (index: number) => {
-    setConfig(prevConfig => ({
+    setConfig((prevConfig) => ({
       ...prevConfig,
-      dataQualityRules: (prevConfig.dataQualityRules || []).filter((_, i) => i !== index)
+      dataQualityRules: (prevConfig.dataQualityRules || []).filter(
+        (_, i) => i !== index
+      ),
     }));
   };
 
   return (
     <div className="space-y-6 p-8" dir="rtl">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">שירות #50: ניקוי והסרת כפילויות בנתונים</h2>
-        <p className="text-gray-600 mt-2">הסרת כפילויות, איחוד נתונים, תיקון שגיאות ושיפור איכות הנתונים במערכות</p>
+        <h2 className="text-2xl font-bold text-gray-900">
+          שירות #50: ניקוי והסרת כפילויות בנתונים
+        </h2>
+        <p className="text-gray-600 mt-2">
+          הסרת כפילויות, איחוד נתונים, תיקון שגיאות ושיפור איכות הנתונים במערכות
+        </p>
       </div>
 
       {/* Data Sources */}
       <Card className="p-6">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">מקורות נתונים <span className="text-red-500">*</span></h3>
+            <h3 className="text-lg font-semibold">
+              מקורות נתונים <span className="text-red-500">*</span>
+            </h3>
             <button
               type="button"
               onClick={addDataSource}
@@ -274,10 +294,15 @@ export function DataCleanupSpec() {
               + הוסף מקור נתונים
             </button>
           </div>
-          {errors.dataSources && <p className="text-red-500 text-sm">{errors.dataSources}</p>}
+          {errors.dataSources && (
+            <p className="text-red-500 text-sm">{errors.dataSources}</p>
+          )}
 
           {config.dataSources.map((source, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+            <div
+              key={index}
+              className="border border-gray-200 rounded-lg p-4 space-y-3"
+            >
               <div className="flex justify-between items-center">
                 <h4 className="font-medium">מקור נתונים #{index + 1}</h4>
                 <button
@@ -290,7 +315,9 @@ export function DataCleanupSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">שם המערכת</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  שם המערכת
+                </label>
                 <input
                   type="text"
                   value={source.systemName}
@@ -305,12 +332,18 @@ export function DataCleanupSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">סוג גישה</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  סוג גישה
+                </label>
                 <select
                   value={source.accessType}
                   onChange={(e) => {
                     const updated = [...config.dataSources];
-                    updated[index].accessType = e.target.value as 'api' | 'export' | 'direct_db' | 'spreadsheet';
+                    updated[index].accessType = e.target.value as
+                      | 'api'
+                      | 'export'
+                      | 'direct_db'
+                      | 'spreadsheet';
                     handleFieldChange('dataSources', updated);
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -323,7 +356,9 @@ export function DataCleanupSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">מספר רשומות</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  מספר רשומות
+                </label>
                 <input
                   type="number"
                   value={source.recordCount}
@@ -363,7 +398,13 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.cleanupScope.removeDuplicates}
-              onChange={(e) => handleNestedFieldChange('cleanupScope', 'removeDuplicates', e.target.checked)}
+              onChange={(e) =>
+                handleNestedFieldChange(
+                  'cleanupScope',
+                  'removeDuplicates',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">הסרת כפילויות</span>
@@ -373,7 +414,13 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.cleanupScope.fixDataQualityIssues}
-              onChange={(e) => handleNestedFieldChange('cleanupScope', 'fixDataQualityIssues', e.target.checked)}
+              onChange={(e) =>
+                handleNestedFieldChange(
+                  'cleanupScope',
+                  'fixDataQualityIssues',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">תיקון בעיות איכות נתונים</span>
@@ -383,17 +430,31 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.cleanupScope.standardizeFormats}
-              onChange={(e) => handleNestedFieldChange('cleanupScope', 'standardizeFormats', e.target.checked)}
+              onChange={(e) =>
+                handleNestedFieldChange(
+                  'cleanupScope',
+                  'standardizeFormats',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
-            <span className="text-sm">סטנדרטיזציה של פורמטים (טלפונים, מיילים, כתובות)</span>
+            <span className="text-sm">
+              סטנדרטיזציה של פורמטים (טלפונים, מיילים, כתובות)
+            </span>
           </label>
 
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={config.cleanupScope.enrichData || false}
-              onChange={(e) => handleNestedFieldChange('cleanupScope', 'enrichData', e.target.checked)}
+              onChange={(e) =>
+                handleNestedFieldChange(
+                  'cleanupScope',
+                  'enrichData',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">העשרת נתונים (השלמת מידע חסר)</span>
@@ -403,7 +464,13 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.cleanupScope.mergeAccounts || false}
-              onChange={(e) => handleNestedFieldChange('cleanupScope', 'mergeAccounts', e.target.checked)}
+              onChange={(e) =>
+                handleNestedFieldChange(
+                  'cleanupScope',
+                  'mergeAccounts',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">איחוד חשבונות קשורים</span>
@@ -428,7 +495,9 @@ export function DataCleanupSpec() {
                 + הוסף שדה
               </button>
             </div>
-            {errors.matchFields && <p className="text-red-500 text-sm mb-2">{errors.matchFields}</p>}
+            {errors.matchFields && (
+              <p className="text-red-500 text-sm mb-2">{errors.matchFields}</p>
+            )}
             <div className="flex flex-wrap gap-2">
               {config.deduplicationRules.matchFields.map((field, index) => (
                 <span
@@ -449,10 +518,18 @@ export function DataCleanupSpec() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">אלגוריתם התאמה</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              אלגוריתם התאמה
+            </label>
             <select
               value={config.deduplicationRules.matchingAlgorithm}
-              onChange={(e) => handleNestedFieldChange('deduplicationRules', 'matchingAlgorithm', e.target.value as 'exact' | 'fuzzy' | 'ml_based')}
+              onChange={(e) =>
+                handleNestedFieldChange(
+                  'deduplicationRules',
+                  'matchingAlgorithm',
+                  e.target.value as 'exact' | 'fuzzy' | 'ml_based'
+                )
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="exact">התאמה מדויקת</option>
@@ -471,17 +548,35 @@ export function DataCleanupSpec() {
                 min="0"
                 max="100"
                 value={config.deduplicationRules.fuzzyThreshold || 80}
-                onChange={(e) => handleNestedFieldChange('deduplicationRules', 'fuzzyThreshold', parseInt(e.target.value))}
+                onChange={(e) =>
+                  handleNestedFieldChange(
+                    'deduplicationRules',
+                    'fuzzyThreshold',
+                    parseInt(e.target.value)
+                  )
+                }
                 className="w-full"
               />
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">אסטרטגיית איחוד</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              אסטרטגיית איחוד
+            </label>
             <select
               value={config.deduplicationRules.mergeStrategy}
-              onChange={(e) => handleNestedFieldChange('deduplicationRules', 'mergeStrategy', e.target.value as 'keep_first' | 'keep_last' | 'keep_most_complete' | 'manual_review')}
+              onChange={(e) =>
+                handleNestedFieldChange(
+                  'deduplicationRules',
+                  'mergeStrategy',
+                  e.target.value as
+                    | 'keep_first'
+                    | 'keep_last'
+                    | 'keep_most_complete'
+                    | 'manual_review'
+                )
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="keep_first">שמור ראשון</option>
@@ -508,7 +603,10 @@ export function DataCleanupSpec() {
           </div>
 
           {(config.dataQualityRules || []).map((rule, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+            <div
+              key={index}
+              className="border border-gray-200 rounded-lg p-4 space-y-3"
+            >
               <div className="flex justify-between items-center">
                 <h4 className="font-medium">כלל #{index + 1}</h4>
                 <button
@@ -522,7 +620,9 @@ export function DataCleanupSpec() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">שם הכלל</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    שם הכלל
+                  </label>
                   <input
                     type="text"
                     value={rule.ruleName}
@@ -537,7 +637,9 @@ export function DataCleanupSpec() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">שם השדה</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    שם השדה
+                  </label>
                   <input
                     type="text"
                     value={rule.fieldName}
@@ -553,7 +655,9 @@ export function DataCleanupSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">תיאור הוולידציה</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  תיאור הוולידציה
+                </label>
                 <input
                   type="text"
                   value={rule.validation}
@@ -568,12 +672,17 @@ export function DataCleanupSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">פעולה</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  פעולה
+                </label>
                 <select
                   value={rule.action}
                   onChange={(e) => {
                     const updated = [...(config.dataQualityRules || [])];
-                    updated[index].action = e.target.value as 'flag' | 'fix' | 'remove';
+                    updated[index].action = e.target.value as
+                      | 'flag'
+                      | 'fix'
+                      | 'remove';
                     handleFieldChange('dataQualityRules', updated);
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -596,7 +705,9 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.backupRequired}
-              onChange={(e) => handleNestedFieldChange('backupRequired', '', e.target.checked)}
+              onChange={(e) =>
+                handleNestedFieldChange('backupRequired', '', e.target.checked)
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">נדרש גיבוי לפני הניקוי</span>
@@ -606,7 +717,9 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.dryRunFirst}
-              onChange={(e) => handleNestedFieldChange('dryRunFirst', '', e.target.checked)}
+              onChange={(e) =>
+                handleNestedFieldChange('dryRunFirst', '', e.target.checked)
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">הרצת ניסוי ללא שינויים (Dry Run)</span>
@@ -616,7 +729,13 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.requiresApproval}
-              onChange={(e) => handleNestedFieldChange('requiresApproval', '', e.target.checked)}
+              onChange={(e) =>
+                handleNestedFieldChange(
+                  'requiresApproval',
+                  '',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">דרוש אישור ידני לפני ביצוע שינויים</span>
@@ -626,7 +745,13 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.stagingEnvironment || false}
-              onChange={(e) => handleNestedFieldChange('stagingEnvironment', '', e.target.checked)}
+              onChange={(e) =>
+                handleNestedFieldChange(
+                  'stagingEnvironment',
+                  '',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">ביצוע בסביבת Staging תחילה</span>
@@ -642,7 +767,13 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.deliverables.beforeAfterReport}
-              onChange={(e) => handleNestedFieldChange('deliverables', 'beforeAfterReport', e.target.checked)}
+              onChange={(e) =>
+                handleNestedFieldChange(
+                  'deliverables',
+                  'beforeAfterReport',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">דוח השוואה לפני/אחרי</span>
@@ -652,7 +783,13 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.deliverables.duplicatesList}
-              onChange={(e) => handleNestedFieldChange('deliverables', 'duplicatesList', e.target.checked)}
+              onChange={(e) =>
+                handleNestedFieldChange(
+                  'deliverables',
+                  'duplicatesList',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">רשימת כפילויות שזוהו (Excel)</span>
@@ -662,7 +799,13 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.deliverables.cleanedData}
-              onChange={(e) => handleNestedFieldChange('deliverables', 'cleanedData', e.target.checked)}
+              onChange={(e) =>
+                handleNestedFieldChange(
+                  'deliverables',
+                  'cleanedData',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">נתונים מנוקים חזרה למערכת</span>
@@ -672,7 +815,13 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.deliverables.validationReport || false}
-              onChange={(e) => handleNestedFieldChange('deliverables', 'validationReport', e.target.checked)}
+              onChange={(e) =>
+                handleNestedFieldChange(
+                  'deliverables',
+                  'validationReport',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">דוח וולידציה לאחר הניקוי</span>
@@ -682,7 +831,13 @@ export function DataCleanupSpec() {
             <input
               type="checkbox"
               checked={config.deliverables.documentedRules || false}
-              onChange={(e) => handleNestedFieldChange('deliverables', 'documentedRules', e.target.checked)}
+              onChange={(e) =>
+                handleNestedFieldChange(
+                  'deliverables',
+                  'documentedRules',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">תיעוד הכללים שהוחלו</span>
@@ -695,21 +850,35 @@ export function DataCleanupSpec() {
         <h3 className="text-lg font-semibold mb-4">לוח זמנים ומדדי הצלחה</h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">זמן משוער (ימים)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              זמן משוער (ימים)
+            </label>
             <input
               type="number"
               value={config.estimatedDays}
-              onChange={(e) => handleFieldChange('estimatedDays', parseInt(e.target.value) || 5)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'estimatedDays',
+                  parseInt(e.target.value) || 5
+                )
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               min="1"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">קטגוריית נפח רשומות</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              קטגוריית נפח רשומות
+            </label>
             <select
               value={config.recordVolumeCategory}
-              onChange={(e) => handleFieldChange('recordVolumeCategory', e.target.value as 'small' | 'medium' | 'large')}
+              onChange={(e) =>
+                handleFieldChange(
+                  'recordVolumeCategory',
+                  e.target.value as 'small' | 'medium' | 'large'
+                )
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="small">קטן (&lt;100K רשומות)</option>
@@ -720,42 +889,63 @@ export function DataCleanupSpec() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              יעד הפחתת כפילויות (%) - {config.successMetrics?.targetDuplicateReduction || 95}%
+              יעד הפחתת כפילויות (%) -{' '}
+              {config.successMetrics?.targetDuplicateReduction || 95}%
             </label>
             <input
               type="range"
               min="0"
               max="100"
               value={config.successMetrics?.targetDuplicateReduction || 95}
-              onChange={(e) => handleNestedFieldChange('successMetrics', 'targetDuplicateReduction', parseInt(e.target.value))}
+              onChange={(e) =>
+                handleNestedFieldChange(
+                  'successMetrics',
+                  'targetDuplicateReduction',
+                  parseInt(e.target.value)
+                )
+              }
               className="w-full"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              יעד ציון איכות נתונים (%) - {config.successMetrics?.targetDataQualityScore || 90}%
+              יעד ציון איכות נתונים (%) -{' '}
+              {config.successMetrics?.targetDataQualityScore || 90}%
             </label>
             <input
               type="range"
               min="0"
               max="100"
               value={config.successMetrics?.targetDataQualityScore || 90}
-              onChange={(e) => handleNestedFieldChange('successMetrics', 'targetDataQualityScore', parseInt(e.target.value))}
+              onChange={(e) =>
+                handleNestedFieldChange(
+                  'successMetrics',
+                  'targetDataQualityScore',
+                  parseInt(e.target.value)
+                )
+              }
               className="w-full"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              יעד הפחתת שדות ריקים (%) - {config.successMetrics?.targetEmptyFieldReduction || 80}%
+              יעד הפחתת שדות ריקים (%) -{' '}
+              {config.successMetrics?.targetEmptyFieldReduction || 80}%
             </label>
             <input
               type="range"
               min="0"
               max="100"
               value={config.successMetrics?.targetEmptyFieldReduction || 80}
-              onChange={(e) => handleNestedFieldChange('successMetrics', 'targetEmptyFieldReduction', parseInt(e.target.value))}
+              onChange={(e) =>
+                handleNestedFieldChange(
+                  'successMetrics',
+                  'targetEmptyFieldReduction',
+                  parseInt(e.target.value)
+                )
+              }
               className="w-full"
             />
           </div>

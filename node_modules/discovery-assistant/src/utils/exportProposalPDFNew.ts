@@ -379,11 +379,15 @@ export const generateProposalPDF = (options: ProposalPDFOptions): void => {
           <p>${service.descriptionHe}</p>
         </div>
 
-        ${service.notes ? `
+        ${
+          service.notes
+            ? `
         <div class="service-section">
           <p style="color: #666;">💬 הערה: ${service.notes}</p>
         </div>
-        ` : ''}
+        `
+            : ''
+        }
 
         <div class="service-footer">
           <span class="price-highlight">💰 השקעה: ${formatPrice(service.customPrice || service.basePrice)}</span>

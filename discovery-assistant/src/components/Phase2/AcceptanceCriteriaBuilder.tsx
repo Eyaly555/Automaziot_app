@@ -9,7 +9,7 @@ import {
   FileText,
   Users,
   Calendar,
-  Target
+  Target,
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import {
@@ -17,7 +17,7 @@ import {
   FunctionalRequirement,
   PerformanceRequirement,
   SecurityRequirement,
-  SignOffPerson
+  SignOffPerson,
 } from '../../types/phase2';
 import { Select, TextArea, Button } from '../Base';
 
@@ -27,23 +27,28 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
   const navigate = useNavigate();
   const { currentMeeting, updateMeeting } = useMeetingStore();
 
-  const existingCriteria = currentMeeting?.implementationSpec?.acceptanceCriteria;
+  const existingCriteria =
+    currentMeeting?.implementationSpec?.acceptanceCriteria;
 
-  const [criteria, setCriteria] = useState<AcceptanceCriteria>(existingCriteria || {
-    functionalCriteria: [],
-    performanceCriteria: [],
-    securityCriteria: [],
-    deploymentCriteria: {
-      approvers: [],
-      environment: 'staging',
-      rollbackPlan: '',
-      smokeTests: []
-    },
-    signOffRequired: true,
-    signOffBy: []
-  });
+  const [criteria, setCriteria] = useState<AcceptanceCriteria>(
+    existingCriteria || {
+      functionalCriteria: [],
+      performanceCriteria: [],
+      securityCriteria: [],
+      deploymentCriteria: {
+        approvers: [],
+        environment: 'staging',
+        rollbackPlan: '',
+        smokeTests: [],
+      },
+      signOffRequired: true,
+      signOffBy: [],
+    }
+  );
 
-  const [activeTab, setActiveTab] = useState<'functional' | 'performance' | 'security' | 'deployment'>('functional');
+  const [activeTab, setActiveTab] = useState<
+    'functional' | 'performance' | 'security' | 'deployment'
+  >('functional');
 
   const handleSave = () => {
     if (!currentMeeting) return;
@@ -63,11 +68,11 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
       ...currentMeeting.implementationSpec!,
       acceptanceCriteria: criteria,
       lastUpdated: new Date(),
-      updatedBy: 'user'
+      updatedBy: 'user',
     };
 
     updateMeeting({
-      implementationSpec: updatedSpec
+      implementationSpec: updatedSpec,
     });
 
     navigate('/phase2');
@@ -83,13 +88,16 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
           description: '',
           priority: 'must',
           testable: true,
-          status: 'pending'
-        }
-      ]
+          status: 'pending',
+        },
+      ],
     });
   };
 
-  const updateFunctionalCriteria = (index: number, updates: Partial<FunctionalRequirement>) => {
+  const updateFunctionalCriteria = (
+    index: number,
+    updates: Partial<FunctionalRequirement>
+  ) => {
     const updated = [...criteria.functionalCriteria];
     updated[index] = { ...updated[index], ...updates };
     setCriteria({ ...criteria, functionalCriteria: updated });
@@ -98,7 +106,9 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
   const deleteFunctionalCriteria = (index: number) => {
     setCriteria({
       ...criteria,
-      functionalCriteria: criteria.functionalCriteria.filter((_item: FunctionalRequirement, i: number) => i !== index)
+      functionalCriteria: criteria.functionalCriteria.filter(
+        (_item: FunctionalRequirement, i: number) => i !== index
+      ),
     });
   };
 
@@ -110,13 +120,16 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
         {
           metric: '',
           target: '',
-          measurement: ''
-        }
-      ]
+          measurement: '',
+        },
+      ],
     });
   };
 
-  const updatePerformanceCriteria = (index: number, updates: Partial<PerformanceRequirement>) => {
+  const updatePerformanceCriteria = (
+    index: number,
+    updates: Partial<PerformanceRequirement>
+  ) => {
     const updated = [...criteria.performanceCriteria];
     updated[index] = { ...updated[index], ...updates };
     setCriteria({ ...criteria, performanceCriteria: updated });
@@ -125,7 +138,9 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
   const deletePerformanceCriteria = (index: number) => {
     setCriteria({
       ...criteria,
-      performanceCriteria: criteria.performanceCriteria.filter((_item: PerformanceRequirement, i: number) => i !== index)
+      performanceCriteria: criteria.performanceCriteria.filter(
+        (_item: PerformanceRequirement, i: number) => i !== index
+      ),
     });
   };
 
@@ -137,13 +152,16 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
         {
           requirement: '',
           implemented: false,
-          verificationMethod: ''
-        }
-      ]
+          verificationMethod: '',
+        },
+      ],
     });
   };
 
-  const updateSecurityCriteria = (index: number, updates: Partial<SecurityRequirement>) => {
+  const updateSecurityCriteria = (
+    index: number,
+    updates: Partial<SecurityRequirement>
+  ) => {
     const updated = [...criteria.securityCriteria];
     updated[index] = { ...updated[index], ...updates };
     setCriteria({ ...criteria, securityCriteria: updated });
@@ -152,7 +170,9 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
   const deleteSecurityCriteria = (index: number) => {
     setCriteria({
       ...criteria,
-      securityCriteria: criteria.securityCriteria.filter((_item: SecurityRequirement, i: number) => i !== index)
+      securityCriteria: criteria.securityCriteria.filter(
+        (_item: SecurityRequirement, i: number) => i !== index
+      ),
     });
   };
 
@@ -161,8 +181,11 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
       ...criteria,
       deploymentCriteria: {
         ...criteria.deploymentCriteria,
-        approvers: [...criteria.deploymentCriteria.approvers, { name: '', role: '', email: '' }]
-      }
+        approvers: [
+          ...criteria.deploymentCriteria.approvers,
+          { name: '', role: '', email: '' },
+        ],
+      },
     });
   };
 
@@ -173,8 +196,8 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
       ...criteria,
       deploymentCriteria: {
         ...criteria.deploymentCriteria,
-        approvers: updated
-      }
+        approvers: updated,
+      },
     });
   };
 
@@ -183,8 +206,10 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
       ...criteria,
       deploymentCriteria: {
         ...criteria.deploymentCriteria,
-        approvers: criteria.deploymentCriteria.approvers.filter((_item: SignOffPerson, i: number) => i !== index)
-      }
+        approvers: criteria.deploymentCriteria.approvers.filter(
+          (_item: SignOffPerson, i: number) => i !== index
+        ),
+      },
     });
   };
 
@@ -193,8 +218,8 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
       ...criteria,
       deploymentCriteria: {
         ...criteria.deploymentCriteria,
-        smokeTests: [...criteria.deploymentCriteria.smokeTests, '']
-      }
+        smokeTests: [...criteria.deploymentCriteria.smokeTests, ''],
+      },
     });
   };
 
@@ -205,8 +230,8 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
       ...criteria,
       deploymentCriteria: {
         ...criteria.deploymentCriteria,
-        smokeTests: updated
-      }
+        smokeTests: updated,
+      },
     });
   };
 
@@ -215,19 +240,24 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
       ...criteria,
       deploymentCriteria: {
         ...criteria.deploymentCriteria,
-        smokeTests: criteria.deploymentCriteria.smokeTests.filter((_item: string, i: number) => i !== index)
-      }
+        smokeTests: criteria.deploymentCriteria.smokeTests.filter(
+          (_item: string, i: number) => i !== index
+        ),
+      },
     });
   };
 
   const addSignOffPerson = () => {
     setCriteria({
       ...criteria,
-      signOffBy: [...criteria.signOffBy, { name: '', role: '', email: '' }]
+      signOffBy: [...criteria.signOffBy, { name: '', role: '', email: '' }],
     });
   };
 
-  const updateSignOffPerson = (index: number, updates: Partial<SignOffPerson>) => {
+  const updateSignOffPerson = (
+    index: number,
+    updates: Partial<SignOffPerson>
+  ) => {
     const updated = [...criteria.signOffBy];
     updated[index] = { ...updated[index], ...updates };
     setCriteria({ ...criteria, signOffBy: updated });
@@ -236,7 +266,9 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
   const deleteSignOffPerson = (index: number) => {
     setCriteria({
       ...criteria,
-      signOffBy: criteria.signOffBy.filter((_item: SignOffPerson, i: number) => i !== index)
+      signOffBy: criteria.signOffBy.filter(
+        (_item: SignOffPerson, i: number) => i !== index
+      ),
     });
   };
 
@@ -248,7 +280,9 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3 space-x-reverse">
               <Target className="w-8 h-8 text-blue-600" />
-              <h1 className="text-2xl font-bold text-gray-900">קריטריוני קבלה</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                קריטריוני קבלה
+              </h1>
             </div>
             <button
               onClick={() => navigate('/phase2')}
@@ -266,25 +300,47 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
         {/* Tab Navigation */}
         <div className="bg-white rounded-lg shadow-sm mb-6">
           <div className="flex border-b">
-            {([
-              { key: 'functional' as const, label: `תפקודי (${criteria.functionalCriteria.length})`, icon: CheckCircle },
-              { key: 'performance' as const, label: `ביצועים (${criteria.performanceCriteria.length})`, icon: Target },
-              { key: 'security' as const, label: `אבטחה (${criteria.securityCriteria.length})`, icon: AlertCircle },
-              { key: 'deployment' as const, label: 'פריסה', icon: Calendar }
-            ]).map(({ key, label, icon: Icon }: { key: typeof activeTab; label: string; icon: React.FC<{ className?: string }> }) => (
-              <button
-                key={key}
-                onClick={() => setActiveTab(key as typeof activeTab)}
-                className={`flex-1 flex items-center justify-center space-x-2 space-x-reverse py-4 px-6 text-center font-medium transition-colors ${
-                  activeTab === key
-                    ? 'border-b-2 border-blue-600 text-blue-600'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{label}</span>
-              </button>
-            ))}
+            {[
+              {
+                key: 'functional' as const,
+                label: `תפקודי (${criteria.functionalCriteria.length})`,
+                icon: CheckCircle,
+              },
+              {
+                key: 'performance' as const,
+                label: `ביצועים (${criteria.performanceCriteria.length})`,
+                icon: Target,
+              },
+              {
+                key: 'security' as const,
+                label: `אבטחה (${criteria.securityCriteria.length})`,
+                icon: AlertCircle,
+              },
+              { key: 'deployment' as const, label: 'פריסה', icon: Calendar },
+            ].map(
+              ({
+                key,
+                label,
+                icon: Icon,
+              }: {
+                key: typeof activeTab;
+                label: string;
+                icon: React.FC<{ className?: string }>;
+              }) => (
+                <button
+                  key={key}
+                  onClick={() => setActiveTab(key as typeof activeTab)}
+                  className={`flex-1 flex items-center justify-center space-x-2 space-x-reverse py-4 px-6 text-center font-medium transition-colors ${
+                    activeTab === key
+                      ? 'border-b-2 border-blue-600 text-blue-600'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{label}</span>
+                </button>
+              )
+            )}
           </div>
 
           <div className="p-6">
@@ -295,9 +351,12 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                   <div className="flex items-start space-x-3 space-x-reverse">
                     <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5" />
                     <div>
-                      <h3 className="font-medium text-blue-900 mb-1">קריטריונים תפקודיים</h3>
+                      <h3 className="font-medium text-blue-900 mb-1">
+                        קריטריונים תפקודיים
+                      </h3>
                       <p className="text-sm text-blue-700">
-                        מה המערכת צריכה לעשות כדי להיחשב כמוצלחת? כל קריטריון צריך להיות ניתן למדידה
+                        מה המערכת צריכה לעשות כדי להיחשב כמוצלחת? כל קריטריון
+                        צריך להיות ניתן למדידה
                       </p>
                     </div>
                   </div>
@@ -306,7 +365,9 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                 {criteria.functionalCriteria.length === 0 ? (
                   <div className="text-center py-12">
                     <CheckCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 mb-4">עדיין לא הוספת קריטריונים תפקודיים</p>
+                    <p className="text-gray-600 mb-4">
+                      עדיין לא הוספת קריטריונים תפקודיים
+                    </p>
                     <button
                       onClick={addFunctionalCriteria}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -317,69 +378,92 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                   </div>
                 ) : (
                   <>
-                    {criteria.functionalCriteria.map((item: FunctionalRequirement, index: number) => (
-                      <div key={item.id} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center space-x-2 space-x-reverse">
-                            <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">
-                              {index + 1}
-                            </span>
-                            <select
-                              value={item.priority}
-                              onChange={(e) => updateFunctionalCriteria(index, { priority: e.target.value as FunctionalRequirement['priority'] })}
-                              className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
+                    {criteria.functionalCriteria.map(
+                      (item: FunctionalRequirement, index: number) => (
+                        <div
+                          key={item.id}
+                          className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center space-x-2 space-x-reverse">
+                              <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">
+                                {index + 1}
+                              </span>
+                              <select
+                                value={item.priority}
+                                onChange={(e) =>
+                                  updateFunctionalCriteria(index, {
+                                    priority: e.target
+                                      .value as FunctionalRequirement['priority'],
+                                  })
+                                }
+                                className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
+                              >
+                                <option value="must">חובה</option>
+                                <option value="should">רצוי</option>
+                                <option value="nice">נחמד לקבל</option>
+                              </select>
+                              <select
+                                value={item.status}
+                                onChange={(e) =>
+                                  updateFunctionalCriteria(index, {
+                                    status: e.target
+                                      .value as FunctionalRequirement['status'],
+                                  })
+                                }
+                                className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
+                              >
+                                <option value="pending">ממתין</option>
+                                <option value="in_progress">בתהליך</option>
+                                <option value="passed">עבר</option>
+                                <option value="failed">נכשל</option>
+                              </select>
+                            </div>
+                            <button
+                              onClick={() => deleteFunctionalCriteria(index)}
+                              className="text-red-600 hover:text-red-700"
                             >
-                              <option value="must">חובה</option>
-                              <option value="should">רצוי</option>
-                              <option value="nice">נחמד לקבל</option>
-                            </select>
-                            <select
-                              value={item.status}
-                              onChange={(e) => updateFunctionalCriteria(index, { status: e.target.value as FunctionalRequirement['status'] })}
-                              className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
-                            >
-                              <option value="pending">ממתין</option>
-                              <option value="in_progress">בתהליך</option>
-                              <option value="passed">עבר</option>
-                              <option value="failed">נכשל</option>
-                            </select>
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
-                          <button
-                            onClick={() => deleteFunctionalCriteria(index)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
 
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">
-                              תיאור הקריטריון
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">
+                                תיאור הקריטריון
+                              </label>
+                              <textarea
+                                value={item.description}
+                                onChange={(e) =>
+                                  updateFunctionalCriteria(index, {
+                                    description: e.target.value,
+                                  })
+                                }
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                rows={2}
+                                placeholder="לדוגמה: משתמש יכול להתחבר למערכת תוך פחות מ-3 שניות"
+                              />
+                            </div>
+
+                            <label className="flex items-center space-x-2 space-x-reverse">
+                              <input
+                                type="checkbox"
+                                checked={item.testable}
+                                onChange={(e) =>
+                                  updateFunctionalCriteria(index, {
+                                    testable: e.target.checked,
+                                  })
+                                }
+                                className="rounded"
+                              />
+                              <span className="text-xs text-gray-600">
+                                ניתן לבדיקה אוטומטית
+                              </span>
                             </label>
-                            <textarea
-                              value={item.description}
-                              onChange={(e) => updateFunctionalCriteria(index, { description: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                              rows={2}
-                              placeholder="לדוגמה: משתמש יכול להתחבר למערכת תוך פחות מ-3 שניות"
-                            />
                           </div>
-
-                          <label className="flex items-center space-x-2 space-x-reverse">
-                            <input
-                              type="checkbox"
-                              checked={item.testable}
-                              onChange={(e) => updateFunctionalCriteria(index, { testable: e.target.checked })}
-                              className="rounded"
-                            />
-                            <span className="text-xs text-gray-600">
-                              ניתן לבדיקה אוטומטית
-                            </span>
-                          </label>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    )}
 
                     <button
                       onClick={addFunctionalCriteria}
@@ -400,9 +484,12 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                   <div className="flex items-start space-x-3 space-x-reverse">
                     <Target className="w-5 h-5 text-green-600 mt-0.5" />
                     <div>
-                      <h3 className="font-medium text-green-900 mb-1">קריטריוני ביצועים</h3>
+                      <h3 className="font-medium text-green-900 mb-1">
+                        קריטריוני ביצועים
+                      </h3>
                       <p className="text-sm text-green-700">
-                        הגדר יעדי ביצועים מדידים - זמני תגובה, throughput, זמני טעינה וכו'
+                        הגדר יעדי ביצועים מדידים - זמני תגובה, throughput, זמני
+                        טעינה וכו'
                       </p>
                     </div>
                   </div>
@@ -411,7 +498,9 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                 {criteria.performanceCriteria.length === 0 ? (
                   <div className="text-center py-12">
                     <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 mb-4">עדיין לא הוספת קריטריוני ביצועים</p>
+                    <p className="text-gray-600 mb-4">
+                      עדיין לא הוספת קריטריוני ביצועים
+                    </p>
                     <button
                       onClick={addPerformanceCriteria}
                       className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
@@ -422,62 +511,81 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                   </div>
                 ) : (
                   <>
-                    {criteria.performanceCriteria.map((item: PerformanceRequirement, index: number) => (
-                      <div key={index} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
-                        <div className="flex items-start justify-between mb-3">
-                          <span className="text-sm font-medium text-gray-900">מדד #{index + 1}</span>
-                          <button
-                            onClick={() => deletePerformanceCriteria(index)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">
-                              שם המדד
-                            </label>
-                            <input
-                              type="text"
-                              value={item.metric}
-                              onChange={(e) => updatePerformanceCriteria(index, { metric: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                              placeholder="לדוגמה: זמן טעינת דף ראשי"
-                            />
+                    {criteria.performanceCriteria.map(
+                      (item: PerformanceRequirement, index: number) => (
+                        <div
+                          key={index}
+                          className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <span className="text-sm font-medium text-gray-900">
+                              מדד #{index + 1}
+                            </span>
+                            <button
+                              onClick={() => deletePerformanceCriteria(index)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-3">
                             <div>
                               <label className="block text-xs font-medium text-gray-600 mb-1">
-                                יעד
+                                שם המדד
                               </label>
                               <input
                                 type="text"
-                                value={item.target}
-                                onChange={(e) => updatePerformanceCriteria(index, { target: e.target.value })}
+                                value={item.metric}
+                                onChange={(e) =>
+                                  updatePerformanceCriteria(index, {
+                                    metric: e.target.value,
+                                  })
+                                }
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                                placeholder="< 2 שניות"
+                                placeholder="לדוגמה: זמן טעינת דף ראשי"
                               />
                             </div>
 
-                            <div>
-                              <label className="block text-xs font-medium text-gray-600 mb-1">
-                                שיטת מדידה
-                              </label>
-                              <input
-                                type="text"
-                                value={item.measurement}
-                                onChange={(e) => updatePerformanceCriteria(index, { measurement: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                                placeholder="Lighthouse / GTmetrix"
-                              />
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">
+                                  יעד
+                                </label>
+                                <input
+                                  type="text"
+                                  value={item.target}
+                                  onChange={(e) =>
+                                    updatePerformanceCriteria(index, {
+                                      target: e.target.value,
+                                    })
+                                  }
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                  placeholder="< 2 שניות"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">
+                                  שיטת מדידה
+                                </label>
+                                <input
+                                  type="text"
+                                  value={item.measurement}
+                                  onChange={(e) =>
+                                    updatePerformanceCriteria(index, {
+                                      measurement: e.target.value,
+                                    })
+                                  }
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                  placeholder="Lighthouse / GTmetrix"
+                                />
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    )}
 
                     <button
                       onClick={addPerformanceCriteria}
@@ -498,7 +606,9 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                   <div className="flex items-start space-x-3 space-x-reverse">
                     <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
                     <div>
-                      <h3 className="font-medium text-red-900 mb-1">דרישות אבטחה</h3>
+                      <h3 className="font-medium text-red-900 mb-1">
+                        דרישות אבטחה
+                      </h3>
                       <p className="text-sm text-red-700">
                         הגדר את דרישות האבטחה שצריכות להתקיים לפני פריסה לייצור
                       </p>
@@ -509,7 +619,9 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                 {criteria.securityCriteria.length === 0 ? (
                   <div className="text-center py-12">
                     <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 mb-4">עדיין לא הוספת דרישות אבטחה</p>
+                    <p className="text-gray-600 mb-4">
+                      עדיין לא הוספת דרישות אבטחה
+                    </p>
                     <button
                       onClick={addSecurityCriteria}
                       className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
@@ -520,58 +632,79 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                   </div>
                 ) : (
                   <>
-                    {criteria.securityCriteria.map((item: SecurityRequirement, index: number) => (
-                      <div key={index} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center space-x-2 space-x-reverse">
-                            <span className="text-sm font-medium text-gray-900">דרישה #{index + 1}</span>
-                            <label className="flex items-center space-x-1 space-x-reverse">
-                              <input
-                                type="checkbox"
-                                checked={item.implemented}
-                                onChange={(e) => updateSecurityCriteria(index, { implemented: e.target.checked })}
-                                className="rounded"
+                    {criteria.securityCriteria.map(
+                      (item: SecurityRequirement, index: number) => (
+                        <div
+                          key={index}
+                          className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center space-x-2 space-x-reverse">
+                              <span className="text-sm font-medium text-gray-900">
+                                דרישה #{index + 1}
+                              </span>
+                              <label className="flex items-center space-x-1 space-x-reverse">
+                                <input
+                                  type="checkbox"
+                                  checked={item.implemented}
+                                  onChange={(e) =>
+                                    updateSecurityCriteria(index, {
+                                      implemented: e.target.checked,
+                                    })
+                                  }
+                                  className="rounded"
+                                />
+                                <span className="text-xs text-gray-600">
+                                  מיושם
+                                </span>
+                              </label>
+                            </div>
+                            <button
+                              onClick={() => deleteSecurityCriteria(index)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">
+                                דרישת האבטחה
+                              </label>
+                              <textarea
+                                value={item.requirement}
+                                onChange={(e) =>
+                                  updateSecurityCriteria(index, {
+                                    requirement: e.target.value,
+                                  })
+                                }
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                rows={2}
+                                placeholder="לדוגמה: כל סיסמאות מוצפנות עם bcrypt"
                               />
-                              <span className="text-xs text-gray-600">מיושם</span>
-                            </label>
-                          </div>
-                          <button
-                            onClick={() => deleteSecurityCriteria(index)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                            </div>
 
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">
-                              דרישת האבטחה
-                            </label>
-                            <textarea
-                              value={item.requirement}
-                              onChange={(e) => updateSecurityCriteria(index, { requirement: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                              rows={2}
-                              placeholder="לדוגמה: כל סיסמאות מוצפנות עם bcrypt"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">
-                              שיטת אימות
-                            </label>
-                            <input
-                              type="text"
-                              value={item.verificationMethod}
-                              onChange={(e) => updateSecurityCriteria(index, { verificationMethod: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                              placeholder="איך נוודא שהדרישה מתקיימת?"
-                            />
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">
+                                שיטת אימות
+                              </label>
+                              <input
+                                type="text"
+                                value={item.verificationMethod}
+                                onChange={(e) =>
+                                  updateSecurityCriteria(index, {
+                                    verificationMethod: e.target.value,
+                                  })
+                                }
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                placeholder="איך נוודא שהדרישה מתקיימת?"
+                              />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    )}
 
                     <button
                       onClick={addSecurityCriteria}
@@ -591,13 +724,18 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                 <Select
                   label="סביבת פריסה ראשונית"
                   value={criteria.deploymentCriteria.environment}
-                  onChange={(e) => setCriteria({
-                    ...criteria,
-                    deploymentCriteria: {
-                      ...criteria.deploymentCriteria,
-                      environment: e.target.value as 'staging' | 'production' | 'dev'
-                    }
-                  })}
+                  onChange={(e) =>
+                    setCriteria({
+                      ...criteria,
+                      deploymentCriteria: {
+                        ...criteria.deploymentCriteria,
+                        environment: e.target.value as
+                          | 'staging'
+                          | 'production'
+                          | 'dev',
+                      },
+                    })
+                  }
                 >
                   <option value="staging">Staging</option>
                   <option value="production">Production</option>
@@ -619,73 +757,92 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                   </div>
 
                   <div className="space-y-3">
-                    {criteria.deploymentCriteria.approvers.map((approver: SignOffPerson, index: number) => (
-                      <div key={index} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
-                        <div className="flex items-start justify-between mb-3">
-                          <Users className="w-5 h-5 text-gray-600" />
-                          <button
-                            onClick={() => deleteApprover(index)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                    {criteria.deploymentCriteria.approvers.map(
+                      (approver: SignOffPerson, index: number) => (
+                        <div
+                          key={index}
+                          className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <Users className="w-5 h-5 text-gray-600" />
+                            <button
+                              onClick={() => deleteApprover(index)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-3">
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">
+                                שם
+                              </label>
+                              <input
+                                type="text"
+                                value={approver.name}
+                                onChange={(e) =>
+                                  updateApprover(index, {
+                                    name: e.target.value,
+                                  })
+                                }
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                placeholder="שם המאשר"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">
+                                תפקיד
+                              </label>
+                              <input
+                                type="text"
+                                value={approver.role}
+                                onChange={(e) =>
+                                  updateApprover(index, {
+                                    role: e.target.value,
+                                  })
+                                }
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                placeholder="CTO / מנהל פיתוח"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">
+                                אימייל
+                              </label>
+                              <input
+                                type="email"
+                                value={approver.email}
+                                onChange={(e) =>
+                                  updateApprover(index, {
+                                    email: e.target.value,
+                                  })
+                                }
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                placeholder="email@company.com"
+                              />
+                            </div>
+                          </div>
                         </div>
-
-                        <div className="grid grid-cols-3 gap-3">
-                          <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">
-                              שם
-                            </label>
-                            <input
-                              type="text"
-                              value={approver.name}
-                              onChange={(e) => updateApprover(index, { name: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                              placeholder="שם המאשר"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">
-                              תפקיד
-                            </label>
-                            <input
-                              type="text"
-                              value={approver.role}
-                              onChange={(e) => updateApprover(index, { role: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                              placeholder="CTO / מנהל פיתוח"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">
-                              אימייל
-                            </label>
-                            <input
-                              type="email"
-                              value={approver.email}
-                              onChange={(e) => updateApprover(index, { email: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                              placeholder="email@company.com"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    )}
                   </div>
                 </div>
 
                 <TextArea
                   label="תוכנית Rollback"
                   value={criteria.deploymentCriteria.rollbackPlan}
-                  onChange={(e) => setCriteria({
-                    ...criteria,
-                    deploymentCriteria: {
-                      ...criteria.deploymentCriteria,
-                      rollbackPlan: e.target.value
-                    }
-                  })}
+                  onChange={(e) =>
+                    setCriteria({
+                      ...criteria,
+                      deploymentCriteria: {
+                        ...criteria.deploymentCriteria,
+                        rollbackPlan: e.target.value,
+                      },
+                    })
+                  }
                   rows={4}
                   placeholder="מה עושים אם הפריסה נכשלת? כיצד חוזרים לגרסה הקודמת?"
                 />
@@ -705,23 +862,30 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                   </div>
 
                   <div className="space-y-2">
-                    {criteria.deploymentCriteria.smokeTests.map((test: string, index: number) => (
-                      <div key={index} className="flex items-center space-x-2 space-x-reverse">
-                        <input
-                          type="text"
-                          value={test}
-                          onChange={(e) => updateSmokeTest(index, e.target.value)}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                          placeholder="בדיקה לבצע מייד לאחר פריסה"
-                        />
-                        <button
-                          onClick={() => deleteSmokeTest(index)}
-                          className="text-red-600 hover:text-red-700"
+                    {criteria.deploymentCriteria.smokeTests.map(
+                      (test: string, index: number) => (
+                        <div
+                          key={index}
+                          className="flex items-center space-x-2 space-x-reverse"
                         >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
+                          <input
+                            type="text"
+                            value={test}
+                            onChange={(e) =>
+                              updateSmokeTest(index, e.target.value)
+                            }
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                            placeholder="בדיקה לבצע מייד לאחר פריסה"
+                          />
+                          <button
+                            onClick={() => deleteSmokeTest(index)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )
+                    )}
                   </div>
                 </div>
               </div>
@@ -734,15 +898,24 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
           <div className="flex items-start space-x-3 space-x-reverse mb-4">
             <FileText className="w-6 h-6 text-blue-600" />
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">אישור סופי</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                אישור סופי
+              </h3>
               <label className="flex items-center space-x-2 space-x-reverse mb-4">
                 <input
                   type="checkbox"
                   checked={criteria.signOffRequired}
-                  onChange={(e) => setCriteria({ ...criteria, signOffRequired: e.target.checked })}
+                  onChange={(e) =>
+                    setCriteria({
+                      ...criteria,
+                      signOffRequired: e.target.checked,
+                    })
+                  }
                   className="rounded"
                 />
-                <span className="text-sm text-gray-700">נדרש אישור פורמלי לפני פריסה</span>
+                <span className="text-sm text-gray-700">
+                  נדרש אישור פורמלי לפני פריסה
+                </span>
               </label>
 
               {criteria.signOffRequired && (
@@ -761,57 +934,74 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
                   </div>
 
                   <div className="space-y-3">
-                    {criteria.signOffBy.map((person: SignOffPerson, index: number) => (
-                      <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                        <div className="flex items-start justify-between mb-3">
-                          <Users className="w-5 h-5 text-gray-600" />
-                          <button
-                            onClick={() => deleteSignOffPerson(index)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                    {criteria.signOffBy.map(
+                      (person: SignOffPerson, index: number) => (
+                        <div
+                          key={index}
+                          className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <Users className="w-5 h-5 text-gray-600" />
+                            <button
+                              onClick={() => deleteSignOffPerson(index)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-3">
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">
+                                שם
+                              </label>
+                              <input
+                                type="text"
+                                value={person.name}
+                                onChange={(e) =>
+                                  updateSignOffPerson(index, {
+                                    name: e.target.value,
+                                  })
+                                }
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">
+                                תפקיד
+                              </label>
+                              <input
+                                type="text"
+                                value={person.role}
+                                onChange={(e) =>
+                                  updateSignOffPerson(index, {
+                                    role: e.target.value,
+                                  })
+                                }
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">
+                                אימייל
+                              </label>
+                              <input
+                                type="email"
+                                value={person.email}
+                                onChange={(e) =>
+                                  updateSignOffPerson(index, {
+                                    email: e.target.value,
+                                  })
+                                }
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                              />
+                            </div>
+                          </div>
                         </div>
-
-                        <div className="grid grid-cols-3 gap-3">
-                          <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">
-                              שם
-                            </label>
-                            <input
-                              type="text"
-                              value={person.name}
-                              onChange={(e) => updateSignOffPerson(index, { name: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">
-                              תפקיד
-                            </label>
-                            <input
-                              type="text"
-                              value={person.role}
-                              onChange={(e) => updateSignOffPerson(index, { role: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">
-                              אימייל
-                            </label>
-                            <input
-                              type="email"
-                              value={person.email}
-                              onChange={(e) => updateSignOffPerson(index, { email: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    )}
                   </div>
                 </>
               )}
@@ -821,10 +1011,7 @@ export const AcceptanceCriteriaBuilder: React.FC = () => {
 
         {/* Actions */}
         <div className="flex justify-between">
-          <Button
-            variant="secondary"
-            onClick={() => navigate('/phase2')}
-          >
+          <Button variant="secondary" onClick={() => navigate('/phase2')}>
             ביטול
           </Button>
           <Button

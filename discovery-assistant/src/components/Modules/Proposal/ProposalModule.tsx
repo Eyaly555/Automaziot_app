@@ -1,25 +1,53 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  ArrowRight, Check, FileText, DollarSign, Clock, Target,
-  Zap, Bot, Link, Database, Settings, ShoppingCart, X,
-  Search, BarChart, Sparkles, FileX,
-  Plus, Send, Pencil, Download, Edit3, Trash2, UserPlus
+  ArrowRight,
+  Check,
+  FileText,
+  DollarSign,
+  Clock,
+  Target,
+  Zap,
+  Bot,
+  Link,
+  Database,
+  Settings,
+  ShoppingCart,
+  X,
+  Search,
+  BarChart,
+  Sparkles,
+  FileX,
+  Plus,
+  Send,
+  Pencil,
+  Download,
+  Edit3,
+  Trash2,
+  UserPlus,
 } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Input, Select } from '../../Base';
 import { generateProposal } from '../../../utils/proposalEngine';
-import { ProposedService, SelectedService, ProposalData, ContractVersion } from '../../../types/proposal';
+import {
+  ProposedService,
+  SelectedService,
+  ProposalData,
+  ContractVersion,
+} from '../../../types/proposal';
 import { Modules } from '../../../types';
 import {
   SERVICE_CATEGORIES,
   getCategoryById,
   getServiceById,
-  ServiceCategoryId
+  ServiceCategoryId,
 } from '../../../config/servicesDatabase';
 import { getSmartRecommendations } from '../../../utils/smartRecommendationsEngine';
 import { printProposalPDF } from '../../../utils/printProposalPDF';
-import { ContactCompletionModal, ClientContact } from './ContactCompletionModal';
+import {
+  ContactCompletionModal,
+  ClientContact,
+} from './ContactCompletionModal';
 import { AddServicesModal } from './AddServicesModal';
 import { markProposalAsSent } from '../../../services/discoveryStatusService';
 import { aiProposalGenerator } from '../../../services/aiProposalGenerator';
@@ -79,17 +107,27 @@ export const ProposalModule: React.FC = () => {
   const navigate = useNavigate();
   const { currentMeeting, updateModule, updatePhaseStatus } = useMeetingStore();
 
-  const [proposedServices, setProposedServices] = useState<ProposedService[]>([]);
-  const [selectedServices, setSelectedServices] = useState<SelectedService[]>([]);
+  const [proposedServices, setProposedServices] = useState<ProposedService[]>(
+    []
+  );
+  const [selectedServices, setSelectedServices] = useState<SelectedService[]>(
+    []
+  );
   const [proposalSummary, setProposalSummary] = useState<any>(null);
-  const [editingPrices, setEditingPrices] = useState<{ [key: string]: number }>({});
+  const [editingPrices, setEditingPrices] = useState<{ [key: string]: number }>(
+    {}
+  );
 
   // NEW: Additional editing state
-  const [editingDurations, setEditingDurations] = useState<{ [key: string]: number }>({});
+  const [editingDurations, setEditingDurations] = useState<{
+    [key: string]: number;
+  }>({});
 
   // Track which fields are actively being edited
   const [activeEditPrice, setActiveEditPrice] = useState<string | null>(null);
-  const [activeEditDuration, setActiveEditDuration] = useState<string | null>(null);
+  const [activeEditDuration, setActiveEditDuration] = useState<string | null>(
+    null
+  );
 
   // NEW: Contact modal state
   const [showContactModal, setShowContactModal] = useState(false);
@@ -114,10 +152,12 @@ export const ProposalModule: React.FC = () => {
   const [isRegenerating, setIsRegenerating] = useState(false);
 
   // NEW: Contract version selection with persistence
-  const [contractVersion, setContractVersion] = useState<ContractVersion>(() => {
-    const saved = localStorage.getItem('proposalContractVersion');
-    return (saved as ContractVersion) || 'standard';
-  });
+  const [contractVersion, setContractVersion] = useState<ContractVersion>(
+    () => {
+      const saved = localStorage.getItem('proposalContractVersion');
+      return (saved as ContractVersion) || 'standard';
+    }
+  );
 
   // Save contract version to localStorage when changed
   const handleContractVersionChange = (version: ContractVersion) => {
@@ -131,21 +171,27 @@ export const ProposalModule: React.FC = () => {
     category: 'all',
     complexity: 'all',
     priceRange: 'all',
-    searchQuery: ''
+    searchQuery: '',
   });
   const [showComparison, setShowComparison] = useState(false);
 
   // NEW: Add services modal state
   const [showAddServicesModal, setShowAddServicesModal] = useState(false);
-  
+
   // NEW: Description editing state
-  const [editingDescriptions, setEditingDescriptions] = useState<{ [key: string]: string }>({});
-  const [activeEditDescription, setActiveEditDescription] = useState<string | null>(null);
-  
+  const [editingDescriptions, setEditingDescriptions] = useState<{
+    [key: string]: string;
+  }>({});
+  const [activeEditDescription, setActiveEditDescription] = useState<
+    string | null
+  >(null);
+
   // NEW: Name editing state
-  const [editingNames, setEditingNames] = useState<{ [key: string]: string }>({});
+  const [editingNames, setEditingNames] = useState<{ [key: string]: string }>(
+    {}
+  );
   const [activeEditName, setActiveEditName] = useState<string | null>(null);
-  
+
   // NEW: Quick edit mode
   const [quickEditMode, setQuickEditMode] = useState<string | null>(null);
 
@@ -156,7 +202,11 @@ export const ProposalModule: React.FC = () => {
       return;
     }
 
-    console.log('[ProposalModule] Current meeting:', currentMeeting.meetingId, currentMeeting.clientName);
+    console.log(
+      '[ProposalModule] Current meeting:',
+      currentMeeting.meetingId,
+      currentMeeting.clientName
+    );
 
     // Check if proposal already exists
     const existingProposal = currentMeeting.modules?.proposal;
@@ -166,30 +216,37 @@ export const ProposalModule: React.FC = () => {
       setProposalSummary(existingProposal.summary);
       setProposedServices(existingProposal.proposedServices);
       setSelectedServices(existingProposal.selectedServices);
-      
+
       // Load contract version from saved data
       if (existingProposal.contractVersion) {
         setContractVersion(existingProposal.contractVersion);
-        localStorage.setItem('proposalContractVersion', existingProposal.contractVersion);
+        localStorage.setItem(
+          'proposalContractVersion',
+          existingProposal.contractVersion
+        );
       }
     } else {
       console.log('[ProposalModule] Generating new proposal...');
       try {
-        const { summary, proposedServices: services } = generateProposal(currentMeeting);
+        const { summary, proposedServices: services } =
+          generateProposal(currentMeeting);
         console.log('[ProposalModule] Generated summary:', summary);
-        console.log('[ProposalModule] Generated services count:', services.length);
+        console.log(
+          '[ProposalModule] Generated services count:',
+          services.length
+        );
 
         setProposalSummary(summary);
         setProposedServices(services);
 
         // Initialize selected services (all selected by default, user can uncheck)
-        const initial: SelectedService[] = services.map(service => ({
+        const initial: SelectedService[] = services.map((service) => ({
           ...service,
           selected: service.relevanceScore >= 7,
           customPrice: undefined,
           customDescription: undefined,
           customDescriptionHe: undefined,
-          notes: undefined
+          notes: undefined,
         }));
         setSelectedServices(initial);
       } catch (error) {
@@ -201,7 +258,7 @@ export const ProposalModule: React.FC = () => {
           totalIntegrations: 0,
           identifiedProcesses: 0,
           potentialMonthlySavings: 0,
-          potentialWeeklySavingsHours: 0
+          potentialWeeklySavingsHours: 0,
         });
         setProposedServices([]);
         setSelectedServices([]);
@@ -227,18 +284,20 @@ export const ProposalModule: React.FC = () => {
 
     // Apply category filter
     if (activeTab !== 'all') {
-      services = services.filter(s => s.category === activeTab);
+      services = services.filter((s) => s.category === activeTab);
     }
 
     // Apply complexity filter
     if (filters.complexity !== 'all') {
-      services = services.filter(s => s.complexity === filters.complexity);
+      services = services.filter((s) => s.complexity === filters.complexity);
     }
 
     // Apply price range filter
     if (filters.priceRange !== 'all') {
-      const [min, max] = filters.priceRange.split('-').map(p => parseInt(p.replace('+', '')));
-      services = services.filter(s => {
+      const [min, max] = filters.priceRange
+        .split('-')
+        .map((p) => parseInt(p.replace('+', '')));
+      services = services.filter((s) => {
         const price = s.basePrice;
         if (max) {
           return price >= min && price <= max;
@@ -251,10 +310,11 @@ export const ProposalModule: React.FC = () => {
     // Apply search query
     if (filters.searchQuery) {
       const query = filters.searchQuery.toLowerCase();
-      services = services.filter(s =>
-        s.nameHe.toLowerCase().includes(query) ||
-        s.descriptionHe.toLowerCase().includes(query) ||
-        s.name.toLowerCase().includes(query)
+      services = services.filter(
+        (s) =>
+          s.nameHe.toLowerCase().includes(query) ||
+          s.descriptionHe.toLowerCase().includes(query) ||
+          s.name.toLowerCase().includes(query)
       );
     }
 
@@ -263,41 +323,54 @@ export const ProposalModule: React.FC = () => {
 
   // Get selected services for cart
   const cartServices = useMemo(() => {
-    return selectedServices.filter(s => s.selected);
+    return selectedServices.filter((s) => s.selected);
   }, [selectedServices]);
 
   const toggleServiceSelection = (serviceId: string) => {
-    setSelectedServices(prev =>
-      prev.map(s => s.id === serviceId ? { ...s, selected: !s.selected } : s)
+    setSelectedServices((prev) =>
+      prev.map((s) =>
+        s.id === serviceId ? { ...s, selected: !s.selected } : s
+      )
     );
   };
 
   const updateServicePrice = (serviceId: string, newPrice: number) => {
-    setEditingPrices(prev => ({ ...prev, [serviceId]: newPrice }));
-    setSelectedServices(prev =>
-      prev.map(s => s.id === serviceId ? { ...s, customPrice: newPrice } : s)
+    setEditingPrices((prev) => ({ ...prev, [serviceId]: newPrice }));
+    setSelectedServices((prev) =>
+      prev.map((s) =>
+        s.id === serviceId ? { ...s, customPrice: newPrice } : s
+      )
     );
   };
 
   // NEW: Update service duration
   const updateServiceDuration = (serviceId: string, newDuration: number) => {
-    setEditingDurations(prev => ({ ...prev, [serviceId]: newDuration }));
-    setSelectedServices(prev =>
-      prev.map(s => s.id === serviceId ? { ...s, customDuration: newDuration } : s)
+    setEditingDurations((prev) => ({ ...prev, [serviceId]: newDuration }));
+    setSelectedServices((prev) =>
+      prev.map((s) =>
+        s.id === serviceId ? { ...s, customDuration: newDuration } : s
+      )
     );
   };
 
   // NEW: Update service description
-  const updateServiceDescription = (serviceId: string, newDescription: string) => {
-    setSelectedServices(prev =>
-      prev.map(s => s.id === serviceId ? { ...s, customDescriptionHe: newDescription } : s)
+  const updateServiceDescription = (
+    serviceId: string,
+    newDescription: string
+  ) => {
+    setSelectedServices((prev) =>
+      prev.map((s) =>
+        s.id === serviceId ? { ...s, customDescriptionHe: newDescription } : s
+      )
     );
   };
 
   // NEW: Update service name
   const updateServiceName = (serviceId: string, newName: string) => {
-    setSelectedServices(prev =>
-      prev.map(s => s.id === serviceId ? { ...s, customNameHe: newName } : s)
+    setSelectedServices((prev) =>
+      prev.map((s) =>
+        s.id === serviceId ? { ...s, customNameHe: newName } : s
+      )
     );
   };
 
@@ -308,19 +381,19 @@ export const ProposalModule: React.FC = () => {
       console.error('[ProposalModule] Service not found:', serviceId);
       return;
     }
-    
+
     // Check if service already exists
-    const existingService = selectedServices.find(s => s.id === serviceId);
+    const existingService = selectedServices.find((s) => s.id === serviceId);
     if (existingService) {
       // If exists but not selected, just select it
       if (!existingService.selected) {
-        setSelectedServices(prev =>
-          prev.map(s => s.id === serviceId ? { ...s, selected: true } : s)
+        setSelectedServices((prev) =>
+          prev.map((s) => (s.id === serviceId ? { ...s, selected: true } : s))
         );
       }
       return;
     }
-    
+
     const newService: SelectedService = {
       ...service,
       selected: true,
@@ -331,22 +404,22 @@ export const ProposalModule: React.FC = () => {
       relatedData: undefined,
       manuallyAdded: true,
     };
-    
-    setSelectedServices(prev => [...prev, newService]);
-    setProposedServices(prev => {
+
+    setSelectedServices((prev) => [...prev, newService]);
+    setProposedServices((prev) => {
       // Only add if not already in proposedServices
-      const exists = prev.find(s => s.id === serviceId);
+      const exists = prev.find((s) => s.id === serviceId);
       if (exists) return prev;
       return [...prev, newService];
     });
-    
+
     console.log('[ProposalModule] Manual service added:', serviceId);
   };
 
   // NEW: Remove service
   const removeService = (serviceId: string) => {
-    setSelectedServices(prev =>
-      prev.map(s => s.id === serviceId ? { ...s, selected: false } : s)
+    setSelectedServices((prev) =>
+      prev.map((s) => (s.id === serviceId ? { ...s, selected: false } : s))
     );
   };
 
@@ -398,7 +471,7 @@ export const ProposalModule: React.FC = () => {
       printProposalPDF({
         clientName: contact.name,
         clientCompany: contact.company,
-        services: selectedServices.filter(s => s.selected),
+        services: selectedServices.filter((s) => s.selected),
         proposalData: {
           meetingId: currentMeeting?.meetingId || '',
           generatedAt: new Date(),
@@ -408,7 +481,10 @@ export const ProposalModule: React.FC = () => {
           totalPrice: calculateTotals().totalPrice,
           totalPriceWithVat: calculateTotals().totalPrice * 1.17,
           totalDays: calculateTotals().totalDays,
-          expectedROIMonths: Math.ceil(calculateTotals().totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
+          expectedROIMonths: Math.ceil(
+            calculateTotals().totalPrice /
+              (proposalSummary?.potentialMonthlySavings || 1)
+          ),
           monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
           contractVersion: contractVersion,
         },
@@ -420,15 +496,26 @@ export const ProposalModule: React.FC = () => {
 
       // ✅ Mark proposal as sent
       if (currentMeeting) {
-        await markProposalAsSent(currentMeeting.meetingId, updateModule as (moduleName: string, data: any) => void);
-        console.log('[ProposalModule] Proposal marked as sent (via Send button)');
+        await markProposalAsSent(
+          currentMeeting.meetingId,
+          updateModule as (moduleName: string, data: any) => void
+        );
+        console.log(
+          '[ProposalModule] Proposal marked as sent (via Send button)'
+        );
       }
 
       // Close modal if open
       setShowContactModal(false);
 
-      alert('✅ תיבת ההדפסה נפתחה!\n\n💡 שמור כ-PDF ושלח ללקוח דרך WhatsApp או Email\n\n📱 לקוח: ' + contact.name + '\n📞 טלפון: ' + contact.phone + '\n📧 אימייל: ' + contact.email);
-
+      alert(
+        '✅ תיבת ההדפסה נפתחה!\n\n💡 שמור כ-PDF ושלח ללקוח דרך WhatsApp או Email\n\n📱 לקוח: ' +
+          contact.name +
+          '\n📞 טלפון: ' +
+          contact.phone +
+          '\n📧 אימייל: ' +
+          contact.email
+      );
     } catch (error) {
       console.error('Error opening print dialog:', error);
       alert('❌ שגיאה בפתיחת תיבת ההדפסה. אנא נסה שוב.');
@@ -447,7 +534,7 @@ export const ProposalModule: React.FC = () => {
       printProposalPDF({
         clientName: contact.name || 'לקוח',
         clientCompany: contact.company,
-        services: selectedServices.filter(s => s.selected),
+        services: selectedServices.filter((s) => s.selected),
         proposalData: {
           meetingId: currentMeeting?.meetingId || '',
           generatedAt: new Date(),
@@ -457,7 +544,10 @@ export const ProposalModule: React.FC = () => {
           totalPrice: calculateTotals().totalPrice,
           totalPriceWithVat: calculateTotals().totalPrice * 1.17,
           totalDays: calculateTotals().totalDays,
-          expectedROIMonths: Math.ceil(calculateTotals().totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
+          expectedROIMonths: Math.ceil(
+            calculateTotals().totalPrice /
+              (proposalSummary?.potentialMonthlySavings || 1)
+          ),
           monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
           contractVersion: contractVersion,
         },
@@ -469,12 +559,16 @@ export const ProposalModule: React.FC = () => {
 
       // ✅ Mark proposal as sent
       if (currentMeeting) {
-        await markProposalAsSent(currentMeeting.meetingId, updateModule as (moduleName: string, data: any) => void);
-        console.log('[ProposalModule] Proposal marked as sent (via Download button)');
+        await markProposalAsSent(
+          currentMeeting.meetingId,
+          updateModule as (moduleName: string, data: any) => void
+        );
+        console.log(
+          '[ProposalModule] Proposal marked as sent (via Download button)'
+        );
       }
 
       alert('✅ תיבת ההדפסה נפתחה! בחר "שמור כ-PDF" כדי לשמור את הקובץ');
-
     } catch (error) {
       console.error('Error opening print dialog:', error);
       alert('❌ שגיאה בפתיחת תיבת ההדפסה. אנא נסה שוב.');
@@ -483,34 +577,49 @@ export const ProposalModule: React.FC = () => {
   };
 
   const calculateTotals = () => {
-    const selected = selectedServices.filter(s => s.selected);
-    const totalPrice = selected.reduce((sum, s) => sum + (s.customPrice || s.basePrice), 0);
+    const selected = selectedServices.filter((s) => s.selected);
+    const totalPrice = selected.reduce(
+      (sum, s) => sum + (s.customPrice || s.basePrice),
+      0
+    );
     // NEW: Use customDuration if available, otherwise use estimatedDays
-    const totalDays = selected.length > 0 ? Math.max(...selected.map(s => s.customDuration || s.estimatedDays)) : 0;
+    const totalDays =
+      selected.length > 0
+        ? Math.max(...selected.map((s) => s.customDuration || s.estimatedDays))
+        : 0;
 
     return {
       totalPrice,
       totalDays,
       totalServices: selected.length,
       byCategory: {
-        automations: selected.filter(s => s.category === 'automations').length,
-        aiAgents: selected.filter(s => s.category === 'ai_agents').length,
-        integrations: selected.filter(s => s.category === 'integrations').length,
-        systems: selected.filter(s => s.category === 'system_implementation').length,
-        additional: selected.filter(s => s.category === 'additional_services').length
+        automations: selected.filter((s) => s.category === 'automations')
+          .length,
+        aiAgents: selected.filter((s) => s.category === 'ai_agents').length,
+        integrations: selected.filter((s) => s.category === 'integrations')
+          .length,
+        systems: selected.filter((s) => s.category === 'system_implementation')
+          .length,
+        additional: selected.filter((s) => s.category === 'additional_services')
+          .length,
       },
       byPrice: {
-        automations: selected.filter(s => s.category === 'automations')
+        automations: selected
+          .filter((s) => s.category === 'automations')
           .reduce((sum, s) => sum + (s.customPrice || s.basePrice), 0),
-        aiAgents: selected.filter(s => s.category === 'ai_agents')
+        aiAgents: selected
+          .filter((s) => s.category === 'ai_agents')
           .reduce((sum, s) => sum + (s.customPrice || s.basePrice), 0),
-        integrations: selected.filter(s => s.category === 'integrations')
+        integrations: selected
+          .filter((s) => s.category === 'integrations')
           .reduce((sum, s) => sum + (s.customPrice || s.basePrice), 0),
-        systems: selected.filter(s => s.category === 'system_implementation')
+        systems: selected
+          .filter((s) => s.category === 'system_implementation')
           .reduce((sum, s) => sum + (s.customPrice || s.basePrice), 0),
-        additional: selected.filter(s => s.category === 'additional_services')
-          .reduce((sum, s) => sum + (s.customPrice || s.basePrice), 0)
-      }
+        additional: selected
+          .filter((s) => s.category === 'additional_services')
+          .reduce((sum, s) => sum + (s.customPrice || s.basePrice), 0),
+      },
     };
   };
 
@@ -525,16 +634,20 @@ export const ProposalModule: React.FC = () => {
       totalPrice: totals.totalPrice,
       totalPriceWithVat: totals.totalPrice * 1.17,
       totalDays: totals.totalDays,
-      expectedROIMonths: Math.ceil(totals.totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
+      expectedROIMonths: Math.ceil(
+        totals.totalPrice / (proposalSummary?.potentialMonthlySavings || 1)
+      ),
       monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
       pmNote: pmNote || undefined,
       contractVersion: contractVersion,
-      aiProposal: aiProposal ? {
-        createdAt: new Date().toISOString(),
-        model: 'gpt-5',
-        status: 'success',
-        sections: aiProposal
-      } : undefined
+      aiProposal: aiProposal
+        ? {
+            createdAt: new Date().toISOString(),
+            model: 'gpt-5',
+            status: 'success',
+            sections: aiProposal,
+          }
+        : undefined,
     };
 
     updateModule('proposal' as keyof Modules, proposalData);
@@ -555,7 +668,7 @@ export const ProposalModule: React.FC = () => {
       const result = await aiProposalGenerator.generateProposal({
         meeting: currentMeeting!,
         selectedServices: cartServices,
-        pmNote: pmNote || undefined
+        pmNote: pmNote || undefined,
       });
 
       if (result.success && result.sections) {
@@ -571,7 +684,10 @@ export const ProposalModule: React.FC = () => {
           totalPrice: calculateTotals().totalPrice,
           totalPriceWithVat: calculateTotals().totalPrice * 1.17,
           totalDays: calculateTotals().totalDays,
-          expectedROIMonths: Math.ceil(calculateTotals().totalPrice / (proposalSummary?.potentialMonthlySavings || 1)),
+          expectedROIMonths: Math.ceil(
+            calculateTotals().totalPrice /
+              (proposalSummary?.potentialMonthlySavings || 1)
+          ),
           monthlySavings: proposalSummary?.potentialMonthlySavings || 0,
           pmNote: pmNote || undefined,
           contractVersion: contractVersion,
@@ -582,13 +698,15 @@ export const ProposalModule: React.FC = () => {
             sections: result.sections,
             rawMarkdown: result.rawMarkdown,
             usage: result.usage,
-            instructions: pmNote || undefined
-          }
+            instructions: pmNote || undefined,
+          },
         };
 
         // Save to meeting data (this will auto-save to Supabase)
         updateModule('proposal' as keyof Modules, proposalData);
-        console.log('[ProposalModule] AI proposal saved to meeting and Supabase automatically');
+        console.log(
+          '[ProposalModule] AI proposal saved to meeting and Supabase automatically'
+        );
 
         setShowPreviewModal(true);
       } else {
@@ -617,11 +735,14 @@ export const ProposalModule: React.FC = () => {
     try {
       setIsRegenerating(true);
 
-      const result = await aiProposalGenerator.regenerateProposal({
-        meeting: currentMeeting!,
-        selectedServices: cartServices,
-        pmNote: pmNote || undefined
-      }, additionalInstructions);
+      const result = await aiProposalGenerator.regenerateProposal(
+        {
+          meeting: currentMeeting!,
+          selectedServices: cartServices,
+          pmNote: pmNote || undefined,
+        },
+        additionalInstructions
+      );
 
       if (result.success && result.sections) {
         setAiProposal(result.sections);
@@ -654,7 +775,7 @@ export const ProposalModule: React.FC = () => {
   };
 
   const updateFilters = (newFilters: Partial<Filters>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    setFilters((prev) => ({ ...prev, ...newFilters }));
   };
 
   const clearAllFilters = () => {
@@ -662,22 +783,27 @@ export const ProposalModule: React.FC = () => {
       category: 'all',
       complexity: 'all',
       priceRange: 'all',
-      searchQuery: ''
+      searchQuery: '',
     });
     setActiveTab('all');
   };
 
   const hasActiveFilters = useMemo(() => {
-    return filters.complexity !== 'all' ||
-           filters.priceRange !== 'all' ||
-           filters.searchQuery !== '';
+    return (
+      filters.complexity !== 'all' ||
+      filters.priceRange !== 'all' ||
+      filters.searchQuery !== ''
+    );
   }, [filters]);
 
   const totals = calculateTotals();
 
   if (!proposalSummary) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir="rtl">
+      <div
+        className="min-h-screen bg-gray-50 flex items-center justify-center"
+        dir="rtl"
+      >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">מייצר הצעת מחיר...</p>
@@ -720,7 +846,8 @@ export const ProposalModule: React.FC = () => {
             הערת מנהל פרויקט
           </h2>
           <p className="text-sm text-yellow-700 mb-3">
-            הערה זו תיכלל ביצירת הצעת המחיר AI ותעזור להתאים את ההצעה לצרכים הספציפיים של הלקוח
+            הערה זו תיכלל ביצירת הצעת המחיר AI ותעזור להתאים את ההצעה לצרכים
+            הספציפיים של הלקוח
           </p>
           <textarea
             value={pmNote}
@@ -733,8 +860,12 @@ export const ProposalModule: React.FC = () => {
 
         {/* Summary Box */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-6 border border-blue-200">
-          <h2 className="text-2xl font-bold mb-4 text-gray-800">סיכום מה זוהה</h2>
-          <div className={`grid gap-4 ${proposalSummary.potentialMonthlySavings > 0 ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-1 md:grid-cols-2'}`}>
+          <h2 className="text-2xl font-bold mb-4 text-gray-800">
+            סיכום מה זוהה
+          </h2>
+          <div
+            className={`grid gap-4 ${proposalSummary.potentialMonthlySavings > 0 ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-1 md:grid-cols-2'}`}
+          >
             <div className="bg-white rounded-lg p-4 shadow-sm">
               <div className="flex items-center gap-2 text-blue-600 mb-2">
                 <Target className="w-5 h-5" />
@@ -768,7 +899,9 @@ export const ProposalModule: React.FC = () => {
                   <div className="text-2xl font-bold text-gray-800">
                     ₪{proposalSummary.potentialMonthlySavings.toLocaleString()}
                   </div>
-                  <div className="text-sm text-gray-600 mt-1">לחודש (פוטנציאלי)</div>
+                  <div className="text-sm text-gray-600 mt-1">
+                    לחודש (פוטנציאלי)
+                  </div>
                 </div>
 
                 <div className="bg-white rounded-lg p-4 shadow-sm">
@@ -797,18 +930,22 @@ export const ProposalModule: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {recommendedServices.map(rec => (
+              {recommendedServices.map((rec) => (
                 <div
                   key={rec.id}
                   className="bg-white rounded-lg p-4 border-2 border-purple-300 shadow-sm hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-start justify-between mb-2">
-                    <h4 className="font-semibold text-gray-900">{rec.titleHebrew}</h4>
+                    <h4 className="font-semibold text-gray-900">
+                      {rec.titleHebrew}
+                    </h4>
                     <span className="bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full">
                       Quick Win
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 mb-3">{rec.description}</p>
+                  <p className="text-sm text-gray-600 mb-3">
+                    {rec.description}
+                  </p>
                   <div className="flex items-center gap-2">
                     <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
                       השפעה: {rec.impactScore}/10
@@ -843,7 +980,7 @@ export const ProposalModule: React.FC = () => {
                 { value: 'all', label: 'כל רמות המורכבות' },
                 { value: 'simple', label: 'נמוכה' },
                 { value: 'medium', label: 'בינונית' },
-                { value: 'complex', label: 'גבוהה' }
+                { value: 'complex', label: 'גבוהה' },
               ]}
               dir="rtl"
             />
@@ -856,7 +993,7 @@ export const ProposalModule: React.FC = () => {
                 { value: 'all', label: 'כל טווחי המחירים' },
                 { value: '0-10000', label: 'עד ₪10,000' },
                 { value: '10000-25000', label: '₪10,000 - ₪25,000' },
-                { value: '25000+', label: '₪25,000+' }
+                { value: '25000+', label: '₪25,000+' },
               ]}
               dir="rtl"
             />
@@ -944,8 +1081,10 @@ export const ProposalModule: React.FC = () => {
             >
               הכל ({proposedServices.length})
             </button>
-            {SERVICE_CATEGORIES.map(category => {
-              const count = proposedServices.filter(s => s.category === category.id).length;
+            {SERVICE_CATEGORIES.map((category) => {
+              const count = proposedServices.filter(
+                (s) => s.category === category.id
+              ).length;
               if (count === 0) return null;
 
               return (
@@ -969,14 +1108,23 @@ export const ProposalModule: React.FC = () => {
         {/* Services Grid */}
         {filteredServices.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
-            {filteredServices.map(service => {
-              const isSelected = selectedServices.find(s => s.id === service.id)?.selected || false;
-              const serviceData = selectedServices.find(s => s.id === service.id);
+            {filteredServices.map((service) => {
+              const isSelected =
+                selectedServices.find((s) => s.id === service.id)?.selected ||
+                false;
+              const serviceData = selectedServices.find(
+                (s) => s.id === service.id
+              );
               const categoryInfo = getCategoryById(service.category);
               const isManuallyAdded = serviceData?.manuallyAdded || false;
-              const hasCustomPrice = serviceData?.customPrice !== undefined && serviceData.customPrice !== service.basePrice;
-              const hasCustomDuration = serviceData?.customDuration !== undefined && serviceData.customDuration !== service.estimatedDays;
-              const hasCustomDescription = serviceData?.customDescriptionHe !== undefined;
+              const hasCustomPrice =
+                serviceData?.customPrice !== undefined &&
+                serviceData.customPrice !== service.basePrice;
+              const hasCustomDuration =
+                serviceData?.customDuration !== undefined &&
+                serviceData.customDuration !== service.estimatedDays;
+              const hasCustomDescription =
+                serviceData?.customDescriptionHe !== undefined;
               const hasCustomName = serviceData?.customNameHe !== undefined;
 
               return (
@@ -1015,7 +1163,9 @@ export const ProposalModule: React.FC = () => {
                       <div className="transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">
                         {getServiceIcon(service.category, 32)}
                       </div>
-                      <span className={`text-xs px-2 py-1 rounded-full border ${getCategoryBadgeColor(service.category)}`}>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full border ${getCategoryBadgeColor(service.category)}`}
+                      >
                         {categoryInfo?.nameHe}
                       </span>
                     </div>
@@ -1024,8 +1174,17 @@ export const ProposalModule: React.FC = () => {
                     {activeEditName === service.id ? (
                       <input
                         type="text"
-                        value={editingNames[service.id] || serviceData?.customNameHe || service.nameHe}
-                        onChange={(e) => setEditingNames(prev => ({ ...prev, [service.id]: e.target.value }))}
+                        value={
+                          editingNames[service.id] ||
+                          serviceData?.customNameHe ||
+                          service.nameHe
+                        }
+                        onChange={(e) =>
+                          setEditingNames((prev) => ({
+                            ...prev,
+                            [service.id]: e.target.value,
+                          }))
+                        }
                         onBlur={() => {
                           const newName = editingNames[service.id];
                           if (newName && newName.trim()) {
@@ -1050,19 +1209,32 @@ export const ProposalModule: React.FC = () => {
                       />
                     ) : (
                       <div className="flex items-center gap-2 group/name">
-                        <h3 className={`font-bold text-lg text-gray-900 mb-2 flex-1 ${hasCustomName ? 'text-green-700' : ''}`}>
+                        <h3
+                          className={`font-bold text-lg text-gray-900 mb-2 flex-1 ${hasCustomName ? 'text-green-700' : ''}`}
+                        >
                           {serviceData?.customNameHe || service.nameHe}
-                          {hasCustomName && <span className="text-xs text-green-600 mr-1">✏️</span>}
+                          {hasCustomName && (
+                            <span className="text-xs text-green-600 mr-1">
+                              ✏️
+                            </span>
+                          )}
                         </h3>
                         <button
                           onClick={() => {
                             setActiveEditName(service.id);
-                            setEditingNames(prev => ({ ...prev, [service.id]: serviceData?.customNameHe || service.nameHe }));
+                            setEditingNames((prev) => ({
+                              ...prev,
+                              [service.id]:
+                                serviceData?.customNameHe || service.nameHe,
+                            }));
                           }}
                           className="opacity-0 group-hover/name:opacity-100 transition-opacity"
                           title="ערוך שם"
                         >
-                          <Edit3 size={14} className="text-gray-500 hover:text-blue-600" />
+                          <Edit3
+                            size={14}
+                            className="text-gray-500 hover:text-blue-600"
+                          />
                         </button>
                       </div>
                     )}
@@ -1073,8 +1245,17 @@ export const ProposalModule: React.FC = () => {
                     {/* Editable Description */}
                     {activeEditDescription === service.id ? (
                       <textarea
-                        value={editingDescriptions[service.id] || serviceData?.customDescriptionHe || service.descriptionHe}
-                        onChange={(e) => setEditingDescriptions(prev => ({ ...prev, [service.id]: e.target.value }))}
+                        value={
+                          editingDescriptions[service.id] ||
+                          serviceData?.customDescriptionHe ||
+                          service.descriptionHe
+                        }
+                        onChange={(e) =>
+                          setEditingDescriptions((prev) => ({
+                            ...prev,
+                            [service.id]: e.target.value,
+                          }))
+                        }
                         onBlur={() => {
                           const newDesc = editingDescriptions[service.id];
                           if (newDesc && newDesc.trim()) {
@@ -1094,14 +1275,26 @@ export const ProposalModule: React.FC = () => {
                       />
                     ) : (
                       <div className="group/desc relative mb-4">
-                        <p className={`text-sm text-gray-600 line-clamp-3 ${hasCustomDescription ? 'text-green-700' : ''}`}>
-                          {serviceData?.customDescriptionHe || service.descriptionHe}
-                          {hasCustomDescription && <span className="text-xs text-green-600 mr-1">✏️</span>}
+                        <p
+                          className={`text-sm text-gray-600 line-clamp-3 ${hasCustomDescription ? 'text-green-700' : ''}`}
+                        >
+                          {serviceData?.customDescriptionHe ||
+                            service.descriptionHe}
+                          {hasCustomDescription && (
+                            <span className="text-xs text-green-600 mr-1">
+                              ✏️
+                            </span>
+                          )}
                         </p>
                         <button
                           onClick={() => {
                             setActiveEditDescription(service.id);
-                            setEditingDescriptions(prev => ({ ...prev, [service.id]: serviceData?.customDescriptionHe || service.descriptionHe }));
+                            setEditingDescriptions((prev) => ({
+                              ...prev,
+                              [service.id]:
+                                serviceData?.customDescriptionHe ||
+                                service.descriptionHe,
+                            }));
                           }}
                           className="absolute top-0 left-0 opacity-0 group-hover/desc:opacity-100 transition-opacity bg-blue-600 text-white p-1 rounded text-xs"
                           title="ערוך תיאור"
@@ -1114,26 +1307,43 @@ export const ProposalModule: React.FC = () => {
                     {/* Why Relevant */}
                     <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 mb-4">
                       <div className="flex items-start gap-2">
-                        <Sparkles size={14} className="text-amber-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-xs text-gray-700">{service.reasonSuggestedHe}</span>
+                        <Sparkles
+                          size={14}
+                          className="text-amber-600 mt-0.5 flex-shrink-0"
+                        />
+                        <span className="text-xs text-gray-700">
+                          {service.reasonSuggestedHe}
+                        </span>
                       </div>
                     </div>
 
                     {/* Metadata badges */}
                     <div className="flex flex-wrap gap-2 mb-4">
                       {/* Editable Duration */}
-                      <div className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded group ${
-                        hasCustomDuration ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                      }`}>
+                      <div
+                        className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded group ${
+                          hasCustomDuration
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-gray-100 text-gray-700'
+                        }`}
+                      >
                         <Clock size={12} />
                         {activeEditDuration === service.id ? (
                           <input
                             type="number"
                             min="1"
-                            value={editingDurations[service.id] !== undefined ? editingDurations[service.id] : (serviceData?.customDuration || service.estimatedDays)}
+                            value={
+                              editingDurations[service.id] !== undefined
+                                ? editingDurations[service.id]
+                                : serviceData?.customDuration ||
+                                  service.estimatedDays
+                            }
                             onChange={(e) => {
                               const value = parseInt(e.target.value) || 0;
-                              setEditingDurations(prev => ({ ...prev, [service.id]: value }));
+                              setEditingDurations((prev) => ({
+                                ...prev,
+                                [service.id]: value,
+                              }));
                             }}
                             onBlur={() => {
                               const value = editingDurations[service.id];
@@ -1158,28 +1368,44 @@ export const ProposalModule: React.FC = () => {
                           />
                         ) : (
                           <span className="flex items-center gap-1">
-                            {hasCustomDuration && service.estimatedDays !== serviceData?.customDuration && (
-                              <span className="line-through text-gray-400">{service.estimatedDays}</span>
-                            )}
-                            {serviceData?.customDuration || service.estimatedDays} ימים
+                            {hasCustomDuration &&
+                              service.estimatedDays !==
+                                serviceData?.customDuration && (
+                                <span className="line-through text-gray-400">
+                                  {service.estimatedDays}
+                                </span>
+                              )}
+                            {serviceData?.customDuration ||
+                              service.estimatedDays}{' '}
+                            ימים
                             <button
                               onClick={() => {
                                 setActiveEditDuration(service.id);
-                                setEditingDurations(prev => ({
+                                setEditingDurations((prev) => ({
                                   ...prev,
-                                  [service.id]: serviceData?.customDuration || service.estimatedDays
+                                  [service.id]:
+                                    serviceData?.customDuration ||
+                                    service.estimatedDays,
                                 }));
                               }}
                               className="opacity-0 group-hover:opacity-100 transition-opacity"
                             >
-                              <Pencil size={10} className="text-gray-500 hover:text-blue-600" />
+                              <Pencil
+                                size={10}
+                                className="text-gray-500 hover:text-blue-600"
+                              />
                             </button>
                           </span>
                         )}
                       </div>
-                      <span className={`text-xs px-2 py-1 rounded ${getComplexityBadgeColor(service.complexity)}`}>
-                        {service.complexity === 'simple' ? 'פשוט' :
-                         service.complexity === 'medium' ? 'בינוני' : 'מורכב'}
+                      <span
+                        className={`text-xs px-2 py-1 rounded ${getComplexityBadgeColor(service.complexity)}`}
+                      >
+                        {service.complexity === 'simple'
+                          ? 'פשוט'
+                          : service.complexity === 'medium'
+                            ? 'בינוני'
+                            : 'מורכב'}
                       </span>
                       <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
                         רלוונטיות: {service.relevanceScore}/10
@@ -1192,15 +1418,25 @@ export const ProposalModule: React.FC = () => {
                         <span className="text-sm text-gray-500">מחיר</span>
                         {activeEditPrice === service.id ? (
                           <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-blue-600">₪</span>
+                            <span className="text-lg font-bold text-blue-600">
+                              ₪
+                            </span>
                             <input
                               type="number"
                               min="0"
                               step="100"
-                              value={editingPrices[service.id] !== undefined ? editingPrices[service.id] : (serviceData?.customPrice || service.basePrice)}
+                              value={
+                                editingPrices[service.id] !== undefined
+                                  ? editingPrices[service.id]
+                                  : serviceData?.customPrice ||
+                                    service.basePrice
+                              }
                               onChange={(e) => {
                                 const value = parseInt(e.target.value) || 0;
-                                setEditingPrices(prev => ({ ...prev, [service.id]: value }));
+                                setEditingPrices((prev) => ({
+                                  ...prev,
+                                  [service.id]: value,
+                                }));
                               }}
                               onBlur={() => {
                                 const value = editingPrices[service.id];
@@ -1227,26 +1463,37 @@ export const ProposalModule: React.FC = () => {
                         ) : (
                           <div className="flex items-center gap-2">
                             <div className="flex flex-col items-end">
-                              {hasCustomPrice && service.basePrice !== serviceData?.customPrice && (
-                                <span className="text-sm line-through text-gray-400">
-                                  {formatPrice(service.basePrice)}
-                                </span>
-                              )}
-                              <span className={`text-2xl font-bold ${hasCustomPrice ? 'text-green-600' : 'text-blue-600'}`}>
-                                {formatPrice(serviceData?.customPrice || service.basePrice)}
+                              {hasCustomPrice &&
+                                service.basePrice !==
+                                  serviceData?.customPrice && (
+                                  <span className="text-sm line-through text-gray-400">
+                                    {formatPrice(service.basePrice)}
+                                  </span>
+                                )}
+                              <span
+                                className={`text-2xl font-bold ${hasCustomPrice ? 'text-green-600' : 'text-blue-600'}`}
+                              >
+                                {formatPrice(
+                                  serviceData?.customPrice || service.basePrice
+                                )}
                               </span>
                             </div>
                             <button
                               onClick={() => {
                                 setActiveEditPrice(service.id);
-                                setEditingPrices(prev => ({
+                                setEditingPrices((prev) => ({
                                   ...prev,
-                                  [service.id]: serviceData?.customPrice || service.basePrice
+                                  [service.id]:
+                                    serviceData?.customPrice ||
+                                    service.basePrice,
                                 }));
                               }}
                               className="opacity-0 group-hover:opacity-100 transition-opacity"
                             >
-                              <Pencil size={14} className="text-gray-500 hover:text-blue-600" />
+                              <Pencil
+                                size={14}
+                                className="text-gray-500 hover:text-blue-600"
+                              />
                             </button>
                           </div>
                         )}
@@ -1304,36 +1551,58 @@ export const ProposalModule: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             {/* Left: Breakdown */}
             <div>
-              <h3 className="font-semibold text-gray-700 mb-3">פילוח לפי קטגוריות:</h3>
+              <h3 className="font-semibold text-gray-700 mb-3">
+                פילוח לפי קטגוריות:
+              </h3>
               <div className="space-y-2">
                 {totals.byCategory.automations > 0 && (
                   <div className="flex justify-between items-center py-2 border-b">
-                    <span className="text-gray-600">⚡ אוטומציות ({totals.byCategory.automations})</span>
-                    <span className="font-semibold">{formatPrice(totals.byPrice.automations)}</span>
+                    <span className="text-gray-600">
+                      ⚡ אוטומציות ({totals.byCategory.automations})
+                    </span>
+                    <span className="font-semibold">
+                      {formatPrice(totals.byPrice.automations)}
+                    </span>
                   </div>
                 )}
                 {totals.byCategory.aiAgents > 0 && (
                   <div className="flex justify-between items-center py-2 border-b">
-                    <span className="text-gray-600">🤖 סוכני AI ({totals.byCategory.aiAgents})</span>
-                    <span className="font-semibold">{formatPrice(totals.byPrice.aiAgents)}</span>
+                    <span className="text-gray-600">
+                      🤖 סוכני AI ({totals.byCategory.aiAgents})
+                    </span>
+                    <span className="font-semibold">
+                      {formatPrice(totals.byPrice.aiAgents)}
+                    </span>
                   </div>
                 )}
                 {totals.byCategory.integrations > 0 && (
                   <div className="flex justify-between items-center py-2 border-b">
-                    <span className="text-gray-600">🔗 אינטגרציות ({totals.byCategory.integrations})</span>
-                    <span className="font-semibold">{formatPrice(totals.byPrice.integrations)}</span>
+                    <span className="text-gray-600">
+                      🔗 אינטגרציות ({totals.byCategory.integrations})
+                    </span>
+                    <span className="font-semibold">
+                      {formatPrice(totals.byPrice.integrations)}
+                    </span>
                   </div>
                 )}
                 {totals.byCategory.systems > 0 && (
                   <div className="flex justify-between items-center py-2 border-b">
-                    <span className="text-gray-600">💼 הטמעות ({totals.byCategory.systems})</span>
-                    <span className="font-semibold">{formatPrice(totals.byPrice.systems)}</span>
+                    <span className="text-gray-600">
+                      💼 הטמעות ({totals.byCategory.systems})
+                    </span>
+                    <span className="font-semibold">
+                      {formatPrice(totals.byPrice.systems)}
+                    </span>
                   </div>
                 )}
                 {totals.byCategory.additional > 0 && (
                   <div className="flex justify-between items-center py-2 border-b">
-                    <span className="text-gray-600">💡 שירותים נוספים ({totals.byCategory.additional})</span>
-                    <span className="font-semibold">{formatPrice(totals.byPrice.additional)}</span>
+                    <span className="text-gray-600">
+                      💡 שירותים נוספים ({totals.byCategory.additional})
+                    </span>
+                    <span className="font-semibold">
+                      {formatPrice(totals.byPrice.additional)}
+                    </span>
                   </div>
                 )}
               </div>
@@ -1344,19 +1613,27 @@ export const ProposalModule: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-700">סה"כ שירותים:</span>
-                  <span className="font-semibold text-lg">{totals.totalServices}</span>
+                  <span className="font-semibold text-lg">
+                    {totals.totalServices}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-700">זמן יישום משוער:</span>
-                  <span className="font-semibold text-lg">{totals.totalDays} ימים</span>
+                  <span className="font-semibold text-lg">
+                    {totals.totalDays} ימים
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-700">זמן יישום בשבועות:</span>
-                  <span className="font-semibold text-lg">{Math.ceil(totals.totalDays / 5)} שבועות</span>
+                  <span className="font-semibold text-lg">
+                    {Math.ceil(totals.totalDays / 5)} שבועות
+                  </span>
                 </div>
                 <div className="border-t-2 border-blue-300 pt-4 mt-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-xl font-bold text-gray-800">סה"כ השקעה:</span>
+                    <span className="text-xl font-bold text-gray-800">
+                      סה"כ השקעה:
+                    </span>
                     <span className="text-3xl font-bold text-blue-600">
                       {formatPrice(totals.totalPrice)}
                     </span>
@@ -1375,7 +1652,11 @@ export const ProposalModule: React.FC = () => {
                     <div className="flex justify-between items-center">
                       <span className="text-gray-700">החזר השקעה תוך:</span>
                       <span className="font-semibold text-orange-600 text-lg">
-                        {Math.ceil(totals.totalPrice / (proposalSummary.potentialMonthlySavings || 1))} חודשים
+                        {Math.ceil(
+                          totals.totalPrice /
+                            (proposalSummary.potentialMonthlySavings || 1)
+                        )}{' '}
+                        חודשים
                       </span>
                     </div>
                   </>
@@ -1418,7 +1699,9 @@ export const ProposalModule: React.FC = () => {
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
             >
               <FileText className="w-5 h-5" />
-              {currentMeeting?.modules?.proposal?.aiProposal?.sections ? 'ערוך הצעה שמורה' : 'היכנס להצעה שמורה'}
+              {currentMeeting?.modules?.proposal?.aiProposal?.sections
+                ? 'ערוך הצעה שמורה'
+                : 'היכנס להצעה שמורה'}
             </button>
 
             <button
@@ -1508,8 +1791,10 @@ export const ProposalModule: React.FC = () => {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-gray-50">
-                    <th className="text-right p-3 border font-semibold">תכונה</th>
-                    {cartServices.map(service => (
+                    <th className="text-right p-3 border font-semibold">
+                      תכונה
+                    </th>
+                    {cartServices.map((service) => (
                       <th key={service.id} className="p-3 border text-center">
                         <div className="font-semibold">{service.nameHe}</div>
                       </th>
@@ -1518,49 +1803,70 @@ export const ProposalModule: React.FC = () => {
                 </thead>
                 <tbody>
                   <tr>
-                    <td className="p-3 border font-semibold bg-gray-50">מחיר</td>
-                    {cartServices.map(service => (
+                    <td className="p-3 border font-semibold bg-gray-50">
+                      מחיר
+                    </td>
+                    {cartServices.map((service) => (
                       <td key={service.id} className="p-3 border text-center">
                         <span className="text-lg font-bold text-blue-600">
-                          {formatPrice(service.customPrice || service.basePrice)}
+                          {formatPrice(
+                            service.customPrice || service.basePrice
+                          )}
                         </span>
                       </td>
                     ))}
                   </tr>
                   <tr>
-                    <td className="p-3 border font-semibold bg-gray-50">משך זמן</td>
-                    {cartServices.map(service => (
+                    <td className="p-3 border font-semibold bg-gray-50">
+                      משך זמן
+                    </td>
+                    {cartServices.map((service) => (
                       <td key={service.id} className="p-3 border text-center">
                         {service.customDuration || service.estimatedDays} ימים
                       </td>
                     ))}
                   </tr>
                   <tr>
-                    <td className="p-3 border font-semibold bg-gray-50">מורכבות</td>
-                    {cartServices.map(service => (
+                    <td className="p-3 border font-semibold bg-gray-50">
+                      מורכבות
+                    </td>
+                    {cartServices.map((service) => (
                       <td key={service.id} className="p-3 border text-center">
-                        <span className={`px-3 py-1 rounded-full text-sm ${getComplexityBadgeColor(service.complexity)}`}>
-                          {service.complexity === 'simple' ? 'פשוט' :
-                           service.complexity === 'medium' ? 'בינוני' : 'מורכב'}
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm ${getComplexityBadgeColor(service.complexity)}`}
+                        >
+                          {service.complexity === 'simple'
+                            ? 'פשוט'
+                            : service.complexity === 'medium'
+                              ? 'בינוני'
+                              : 'מורכב'}
                         </span>
                       </td>
                     ))}
                   </tr>
                   <tr>
-                    <td className="p-3 border font-semibold bg-gray-50">רלוונטיות</td>
-                    {cartServices.map(service => (
+                    <td className="p-3 border font-semibold bg-gray-50">
+                      רלוונטיות
+                    </td>
+                    {cartServices.map((service) => (
                       <td key={service.id} className="p-3 border text-center">
-                        <span className="font-semibold">{service.relevanceScore}/10</span>
+                        <span className="font-semibold">
+                          {service.relevanceScore}/10
+                        </span>
                       </td>
                     ))}
                   </tr>
                   <tr>
-                    <td className="p-3 border font-semibold bg-gray-50">קטגוריה</td>
-                    {cartServices.map(service => {
+                    <td className="p-3 border font-semibold bg-gray-50">
+                      קטגוריה
+                    </td>
+                    {cartServices.map((service) => {
                       const cat = getCategoryById(service.category);
                       return (
                         <td key={service.id} className="p-3 border text-center">
-                          <span className={`px-3 py-1 rounded-full text-sm border ${getCategoryBadgeColor(service.category)}`}>
+                          <span
+                            className={`px-3 py-1 rounded-full text-sm border ${getCategoryBadgeColor(service.category)}`}
+                          >
                             {cat?.nameHe}
                           </span>
                         </td>
@@ -1568,8 +1874,10 @@ export const ProposalModule: React.FC = () => {
                     })}
                   </tr>
                   <tr>
-                    <td className="p-3 border font-semibold bg-gray-50">למה רלוונטי</td>
-                    {cartServices.map(service => (
+                    <td className="p-3 border font-semibold bg-gray-50">
+                      למה רלוונטי
+                    </td>
+                    {cartServices.map((service) => (
                       <td key={service.id} className="p-3 border text-sm">
                         {service.reasonSuggestedHe}
                       </td>
@@ -1606,7 +1914,7 @@ export const ProposalModule: React.FC = () => {
         <AddServicesModal
           onClose={() => setShowAddServicesModal(false)}
           onAddService={addManualService}
-          selectedServiceIds={selectedServices.map(s => s.id)}
+          selectedServiceIds={selectedServices.map((s) => s.id)}
         />
       )}
 
@@ -1630,10 +1938,15 @@ export const ProposalModule: React.FC = () => {
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
               {/* Executive Summary */}
               <div className="mb-8">
-                <h3 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">סיכום מנהלים</h3>
+                <h3 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">
+                  סיכום מנהלים
+                </h3>
                 <div className="prose prose-lg max-w-none" dir="rtl">
                   {aiProposal.executiveSummary.map((paragraph, index) => (
-                    <p key={index} className="mb-4 text-gray-700 leading-relaxed">
+                    <p
+                      key={index}
+                      className="mb-4 text-gray-700 leading-relaxed"
+                    >
                       {paragraph}
                     </p>
                   ))}
@@ -1642,21 +1955,34 @@ export const ProposalModule: React.FC = () => {
 
               {/* Services */}
               <div className="mb-8">
-                <h3 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">פירוט השירותים</h3>
+                <h3 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">
+                  פירוט השירותים
+                </h3>
                 <div className="space-y-6">
                   {aiProposal.services.map((service, index) => (
-                    <div key={index} className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                    <div
+                      key={index}
+                      className="bg-gray-50 rounded-lg p-6 border border-gray-200"
+                    >
                       <h4 className="text-lg font-semibold mb-3 text-gray-900">
                         {service.titleHe}
                       </h4>
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
-                          <h5 className="font-medium text-gray-800 mb-2">למה זה רלוונטי:</h5>
-                          <p className="text-gray-600">{service.whyRelevantHe}</p>
+                          <h5 className="font-medium text-gray-800 mb-2">
+                            למה זה רלוונטי:
+                          </h5>
+                          <p className="text-gray-600">
+                            {service.whyRelevantHe}
+                          </p>
                         </div>
                         <div>
-                          <h5 className="font-medium text-gray-800 mb-2">מה כלול:</h5>
-                          <p className="text-gray-600">{service.whatIncludedHe}</p>
+                          <h5 className="font-medium text-gray-800 mb-2">
+                            מה כלול:
+                          </h5>
+                          <p className="text-gray-600">
+                            {service.whatIncludedHe}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -1666,13 +1992,16 @@ export const ProposalModule: React.FC = () => {
 
               {/* Financial Summary */}
               <div className="mb-8">
-                <h3 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">סיכום פיננסי</h3>
+                <h3 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">
+                  סיכום פיננסי
+                </h3>
                 <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <p className="text-gray-700 mb-2">השקעה כוללת:</p>
                       <p className="text-3xl font-bold text-blue-600">
-                        ₪{aiProposal.financialSummary.totalPrice.toLocaleString()}
+                        ₪
+                        {aiProposal.financialSummary.totalPrice.toLocaleString()}
                       </p>
                     </div>
                     <div>
@@ -1686,16 +2015,22 @@ export const ProposalModule: React.FC = () => {
                     <div className="mt-4 pt-4 border-t border-blue-300">
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
-                          <p className="text-gray-700 mb-2">חיסכון חודשי צפוי:</p>
+                          <p className="text-gray-700 mb-2">
+                            חיסכון חודשי צפוי:
+                          </p>
                           <p className="text-2xl font-bold text-green-600">
-                            ₪{aiProposal.financialSummary.monthlySavings.toLocaleString()}
+                            ₪
+                            {aiProposal.financialSummary.monthlySavings.toLocaleString()}
                           </p>
                         </div>
                         {aiProposal.financialSummary.expectedROIMonths && (
                           <div>
-                            <p className="text-gray-700 mb-2">החזר השקעה תוך:</p>
+                            <p className="text-gray-700 mb-2">
+                              החזר השקעה תוך:
+                            </p>
                             <p className="text-2xl font-bold text-orange-600">
-                              {aiProposal.financialSummary.expectedROIMonths} חודשים
+                              {aiProposal.financialSummary.expectedROIMonths}{' '}
+                              חודשים
                             </p>
                           </div>
                         )}
@@ -1707,7 +2042,9 @@ export const ProposalModule: React.FC = () => {
 
               {/* Terms */}
               <div className="mb-8">
-                <h3 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">תנאים</h3>
+                <h3 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">
+                  תנאים
+                </h3>
                 <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
                   <ul className="space-y-2">
                     {aiProposal.terms.map((term, index) => (
@@ -1722,7 +2059,9 @@ export const ProposalModule: React.FC = () => {
 
               {/* Next Steps */}
               <div className="mb-8">
-                <h3 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">הצעדים הבאים</h3>
+                <h3 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">
+                  הצעדים הבאים
+                </h3>
                 <div className="bg-green-50 rounded-lg p-6 border border-green-200">
                   <ol className="space-y-2">
                     {aiProposal.nextSteps.map((step, index) => (
@@ -1776,7 +2115,9 @@ export const ProposalModule: React.FC = () => {
 
               {/* Contract Version Selection */}
               <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                <h3 className="text-lg font-semibold mb-3 text-gray-800">בחר סוג חוזה</h3>
+                <h3 className="text-lg font-semibold mb-3 text-gray-800">
+                  בחר סוג חוזה
+                </h3>
                 <div className="flex gap-4">
                   <label className="flex items-center cursor-pointer">
                     <input
@@ -1784,12 +2125,20 @@ export const ProposalModule: React.FC = () => {
                       name="contractVersion"
                       value="standard"
                       checked={contractVersion === 'standard'}
-                      onChange={(e) => handleContractVersionChange(e.target.value as ContractVersion)}
+                      onChange={(e) =>
+                        handleContractVersionChange(
+                          e.target.value as ContractVersion
+                        )
+                      }
                       className="mr-2"
                     />
                     <div className="flex flex-col">
-                      <span className="font-medium text-gray-800">חוזה סטנדרטי</span>
-                      <span className="text-sm text-gray-600">תשלום מקדמה + תשלום עם השלמה</span>
+                      <span className="font-medium text-gray-800">
+                        חוזה סטנדרטי
+                      </span>
+                      <span className="text-sm text-gray-600">
+                        תשלום מקדמה + תשלום עם השלמה
+                      </span>
                     </div>
                   </label>
                   <label className="flex items-center cursor-pointer">
@@ -1798,12 +2147,20 @@ export const ProposalModule: React.FC = () => {
                       name="contractVersion"
                       value="trial"
                       checked={contractVersion === 'trial'}
-                      onChange={(e) => handleContractVersionChange(e.target.value as ContractVersion)}
+                      onChange={(e) =>
+                        handleContractVersionChange(
+                          e.target.value as ContractVersion
+                        )
+                      }
                       className="mr-2"
                     />
                     <div className="flex flex-col">
-                      <span className="font-medium text-gray-800">חוזה ניסיון</span>
-                      <span className="text-sm text-gray-600">5 ימי ניסיון ללא תשלום</span>
+                      <span className="font-medium text-gray-800">
+                        חוזה ניסיון
+                      </span>
+                      <span className="text-sm text-gray-600">
+                        5 ימי ניסיון ללא תשלום
+                      </span>
                     </div>
                   </label>
                 </div>

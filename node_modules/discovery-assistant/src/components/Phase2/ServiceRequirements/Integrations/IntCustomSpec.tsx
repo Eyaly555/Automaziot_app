@@ -14,21 +14,21 @@ export function IntCustomSpec() {
     fieldId: 'api_auth_method',
     localPath: 'authType',
     serviceId: 'int-custom',
-    autoSave: false
+    autoSave: false,
   });
 
   const syncFrequency = useSmartField<string>({
     fieldId: 'sync_frequency',
     localPath: 'syncConfig.frequency',
     serviceId: 'int-custom',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'errorHandling.alertRecipients[0]',
     serviceId: 'int-custom',
-    autoSave: false
+    autoSave: false,
   });
 
   const [config, setConfig] = useState<any>({
@@ -38,23 +38,23 @@ export function IntCustomSpec() {
     bodySchema: '',
     authType: 'api_key',
     syncConfig: {
-      frequency: 'realtime'
+      frequency: 'realtime',
     },
     errorHandling: {
       retryAttempts: 3,
-      alertRecipients: []
+      alertRecipients: [],
     },
     metadata: {
       description: '',
       complexity: 'custom',
-      estimatedHours: 60
-    }
+      estimatedHours: 60,
+    },
   });
 
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'int-custom',
-    category: 'integrationServices'
+    category: 'integrationServices',
   });
 
   useBeforeUnload(() => {
@@ -64,19 +64,24 @@ export function IntCustomSpec() {
       authType: apiAuthMethod.value,
       syncConfig: {
         ...config.syncConfig,
-        frequency: syncFrequency.value
+        frequency: syncFrequency.value,
       },
       errorHandling: {
         ...config.errorHandling,
-        alertRecipients: alertEmail.value ? [alertEmail.value] : config.errorHandling?.alertRecipients || []
-      }
+        alertRecipients: alertEmail.value
+          ? [alertEmail.value]
+          : config.errorHandling?.alertRecipients || [],
+      },
     };
     saveData(completeConfig);
   });
 
   useEffect(() => {
-    const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
-    const existing = integrationServices.find(i => i.serviceId === 'int-custom');
+    const integrationServices =
+      currentMeeting?.implementationSpec?.integrationServices || [];
+    const existing = integrationServices.find(
+      (i) => i.serviceId === 'int-custom'
+    );
     if (existing?.requirements) {
       setConfig(existing.requirements);
     }
@@ -92,12 +97,14 @@ export function IntCustomSpec() {
       authType: apiAuthMethod.value,
       syncConfig: {
         ...config.syncConfig,
-        frequency: frequencyValue
+        frequency: frequencyValue,
       },
       errorHandling: {
         ...config.errorHandling,
-        alertRecipients: alertEmail.value ? [alertEmail.value] : config.errorHandling?.alertRecipients || []
-      }
+        alertRecipients: alertEmail.value
+          ? [alertEmail.value]
+          : config.errorHandling?.alertRecipients || [],
+      },
     };
 
     await saveData(completeConfig);
@@ -106,24 +113,32 @@ export function IntCustomSpec() {
   return (
     <div className="space-y-6 p-8" dir="rtl">
       {/* Banners */}
-      {(apiAuthMethod.isAutoPopulated || syncFrequency.isAutoPopulated || alertEmail.isAutoPopulated) && (
+      {(apiAuthMethod.isAutoPopulated ||
+        syncFrequency.isAutoPopulated ||
+        alertEmail.isAutoPopulated) && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
           <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <h4 className="font-semibold text-blue-900 mb-1">
+              נתונים מולאו אוטומטית משלב 1
+            </h4>
             <p className="text-sm text-blue-800">
-              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-              תוכל לערוך אותם במידת הצורך.
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל לערוך
+              אותם במידת הצורך.
             </p>
           </div>
         </div>
       )}
 
-      {(apiAuthMethod.hasConflict || syncFrequency.hasConflict || alertEmail.hasConflict) && (
+      {(apiAuthMethod.hasConflict ||
+        syncFrequency.hasConflict ||
+        alertEmail.hasConflict) && (
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+            <h4 className="font-semibold text-orange-900 mb-1">
+              זוהה אי-התאמה בנתונים
+            </h4>
             <p className="text-sm text-orange-800">
               נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
             </p>
@@ -138,20 +153,28 @@ export function IntCustomSpec() {
             <h3 className="text-lg font-semibold mb-4">פרטי API מותאם</h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Endpoint URL</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Endpoint URL
+                </label>
                 <input
                   type="url"
                   value={config.endpoint || ''}
-                  onChange={(e) => setConfig({ ...config, endpoint: e.target.value })}
+                  onChange={(e) =>
+                    setConfig({ ...config, endpoint: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="https://api.custom.com/endpoint"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Method</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Method
+                </label>
                 <select
                   value={config.method || 'POST'}
-                  onChange={(e) => setConfig({ ...config, method: e.target.value })}
+                  onChange={(e) =>
+                    setConfig({ ...config, method: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="GET">GET</option>
@@ -176,7 +199,9 @@ export function IntCustomSpec() {
                   value={apiAuthMethod.value || 'api_key'}
                   onChange={(e) => apiAuthMethod.setValue(e.target.value)}
                   className={`w-full px-3 py-2 border rounded-md ${
-                    apiAuthMethod.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    apiAuthMethod.isAutoPopulated
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-300'
                   } ${apiAuthMethod.hasConflict ? 'border-orange-300' : ''}`}
                 >
                   <option value="oauth">OAuth 2.0</option>
@@ -192,10 +217,14 @@ export function IntCustomSpec() {
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Body Schema (JSON)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Body Schema (JSON)
+                </label>
                 <textarea
                   value={config.bodySchema || ''}
-                  onChange={(e) => setConfig({ ...config, bodySchema: e.target.value })}
+                  onChange={(e) =>
+                    setConfig({ ...config, bodySchema: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   rows={4}
                   placeholder='{"key": "value", "nested": {"sub": "val"}}'
@@ -224,7 +253,9 @@ export function IntCustomSpec() {
                   value={syncFrequency.value || 'realtime'}
                   onChange={(e) => syncFrequency.setValue(e.target.value)}
                   className={`w-full px-3 py-2 border rounded-md ${
-                    syncFrequency.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    syncFrequency.isAutoPopulated
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-300'
                   } ${syncFrequency.hasConflict ? 'border-orange-300' : ''}`}
                 >
                   <option value="realtime">בזמן אמת</option>
@@ -262,7 +293,9 @@ export function IntCustomSpec() {
                   value={alertEmail.value || ''}
                   onChange={(e) => alertEmail.setValue(e.target.value)}
                   className={`w-full px-3 py-2 border rounded-md ${
-                    alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    alertEmail.isAutoPopulated
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-300'
                   } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
                   placeholder="alerts@company.com"
                 />
@@ -273,11 +306,21 @@ export function IntCustomSpec() {
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">ניסיונות חוזרים</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  ניסיונות חוזרים
+                </label>
                 <input
                   type="number"
                   value={config.errorHandling?.retryAttempts || 3}
-                  onChange={(e) => setConfig({ ...config, errorHandling: { ...config.errorHandling, retryAttempts: parseInt(e.target.value) } })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      errorHandling: {
+                        ...config.errorHandling,
+                        retryAttempts: parseInt(e.target.value),
+                      },
+                    })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
@@ -289,10 +332,20 @@ export function IntCustomSpec() {
             <h3 className="text-lg font-semibold mb-4">Metadata</h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">תיאור האינטגרציה</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  תיאור האינטגרציה
+                </label>
                 <textarea
                   value={config.metadata?.description || ''}
-                  onChange={(e) => setConfig({ ...config, metadata: { ...config.metadata, description: e.target.value } })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      metadata: {
+                        ...config.metadata,
+                        description: e.target.value,
+                      },
+                    })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   rows={3}
                   placeholder="תאר את האינטגרציה המותאמת אישית..."
@@ -300,10 +353,20 @@ export function IntCustomSpec() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">מורכבות</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    מורכבות
+                  </label>
                   <select
                     value={config.metadata?.complexity || 'custom'}
-                    onChange={(e) => setConfig({ ...config, metadata: { ...config.metadata, complexity: e.target.value } })}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        metadata: {
+                          ...config.metadata,
+                          complexity: e.target.value,
+                        },
+                      })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   >
                     <option value="custom">מותאם אישית</option>
@@ -313,11 +376,21 @@ export function IntCustomSpec() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">שעות משוערות</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    שעות משוערות
+                  </label>
                   <input
                     type="number"
                     value={config.metadata?.estimatedHours || 60}
-                    onChange={(e) => setConfig({ ...config, metadata: { ...config.metadata, estimatedHours: parseInt(e.target.value) } })}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        metadata: {
+                          ...config.metadata,
+                          estimatedHours: parseInt(e.target.value),
+                        },
+                      })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>

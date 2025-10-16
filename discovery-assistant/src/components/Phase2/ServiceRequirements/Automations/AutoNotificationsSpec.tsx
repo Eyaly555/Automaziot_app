@@ -5,7 +5,14 @@ import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import type { AutoNotificationsRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
-import { Plus, Trash2, Save, CheckCircle, AlertCircle, Info } from 'lucide-react';
+import {
+  Plus,
+  Trash2,
+  Save,
+  CheckCircle,
+  AlertCircle,
+  Info,
+} from 'lucide-react';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -17,21 +24,21 @@ export function AutoNotificationsSpec() {
     fieldId: 'email_provider',
     localPath: 'emailProvider',
     serviceId: 'auto-notifications',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'alertEmail',
     serviceId: 'auto-notifications',
-    autoSave: false
+    autoSave: false,
   });
 
   const n8nInstanceUrl = useSmartField<string>({
     fieldId: 'n8n_instance_url',
     localPath: 'n8nInstanceUrl',
     serviceId: 'auto-notifications',
-    autoSave: false
+    autoSave: false,
   });
 
   const [config, setConfig] = useState<AutoNotificationsRequirements>({
@@ -45,18 +52,18 @@ export function AutoNotificationsSpec() {
           itemId: '',
           status: '',
           currentApprover: '',
-          history: ''
-        }
-      }
+          history: '',
+        },
+      },
     },
     approvalHierarchy: {
       levels: [],
       requireAllApprovers: false,
-      parallelApproval: false
+      parallelApproval: false,
     },
     routingLogic: {
       routingStrategy: 'hierarchy',
-      routingRules: []
+      routingRules: [],
     },
     emailNotifications: {
       provider: 'sendgrid',
@@ -65,16 +72,16 @@ export function AutoNotificationsSpec() {
         approvalGranted: '',
         approvalDenied: '',
         escalation: '',
-        timeout: ''
-      }
+        timeout: '',
+      },
     },
     approvalMethods: {
       emailBased: true,
-      uiBased: false
+      uiBased: false,
     },
     escalation: {
       enabled: false,
-      escalationTiers: []
+      escalationTiers: [],
     },
     auditTrail: {
       enabled: true,
@@ -85,22 +92,24 @@ export function AutoNotificationsSpec() {
         decision: true,
         comments: true,
         ipAddress: false,
-        userAgent: false
+        userAgent: false,
       },
-      retentionDays: 365
+      retentionDays: 365,
     },
     multiLevelConfig: {
       enabled: false,
-      maxLevels: 3
+      maxLevels: 3,
     },
     sourceSystem: {
       system: 'crm',
       authMethod: 'oauth',
-      webhookEndpoint: ''
-    }
+      webhookEndpoint: '',
+    },
   });
 
-  const [activeTab, setActiveTab] = useState<'basic' | 'hierarchy' | 'notifications' | 'escalation' | 'audit'>('basic');
+  const [activeTab, setActiveTab] = useState<
+    'basic' | 'hierarchy' | 'notifications' | 'escalation' | 'audit'
+  >('basic');
 
   // Track if we're currently loading data to prevent save loops
   const isLoadingRef = useRef(false);
@@ -109,7 +118,7 @@ export function AutoNotificationsSpec() {
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-notifications',
-    category: 'automations'
+    category: 'automations',
   });
 
   useBeforeUnload(() => {
@@ -119,7 +128,9 @@ export function AutoNotificationsSpec() {
 
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
-    const existing = automations.find(a => a.serviceId === 'auto-notifications');
+    const existing = automations.find(
+      (a) => a.serviceId === 'auto-notifications'
+    );
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
 
@@ -145,29 +156,32 @@ export function AutoNotificationsSpec() {
   //   }
   // }, [config]);
 
-  const handleFieldChange = useCallback((field: string, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = {
-            ...updated,
-            emailNotifications: {
-              ...updated.emailNotifications,
-              provider: emailProvider.value
-            },
-            alertEmail: alertEmail.value,
-            n8nWorkflow: {
-              ...updated.n8nWorkflow,
-              instanceUrl: n8nInstanceUrl.value
-            }
-          };
-          saveData(completeConfig);
-        }
-      }, 0);
-      return updated;
-    });
-  }, [emailProvider.value, alertEmail.value, n8nInstanceUrl.value, saveData]);
+  const handleFieldChange = useCallback(
+    (field: string, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = {
+              ...updated,
+              emailNotifications: {
+                ...updated.emailNotifications,
+                provider: emailProvider.value,
+              },
+              alertEmail: alertEmail.value,
+              n8nWorkflow: {
+                ...updated.n8nWorkflow,
+                instanceUrl: n8nInstanceUrl.value,
+              },
+            };
+            saveData(completeConfig);
+          }
+        }, 0);
+        return updated;
+      });
+    },
+    [emailProvider.value, alertEmail.value, n8nInstanceUrl.value, saveData]
+  );
 
   const handleSave = async () => {
     // Build complete config with smart field values
@@ -175,13 +189,13 @@ export function AutoNotificationsSpec() {
       ...config,
       emailNotifications: {
         ...config.emailNotifications,
-        provider: emailProvider.value
+        provider: emailProvider.value,
       },
       alertEmail: alertEmail.value,
       n8nWorkflow: {
         ...config.n8nWorkflow,
-        instanceUrl: n8nInstanceUrl.value
-      }
+        instanceUrl: n8nInstanceUrl.value,
+      },
     };
 
     // Save using auto-save (manual save trigger)
@@ -201,10 +215,10 @@ export function AutoNotificationsSpec() {
             level: config.approvalHierarchy.levels.length + 1,
             name: '',
             nameHe: '',
-            approvers: []
-          }
-        ]
-      }
+            approvers: [],
+          },
+        ],
+      },
     });
   };
 
@@ -213,8 +227,8 @@ export function AutoNotificationsSpec() {
       ...config,
       approvalHierarchy: {
         ...config.approvalHierarchy,
-        levels: config.approvalHierarchy.levels.filter((_, i) => i !== index)
-      }
+        levels: config.approvalHierarchy.levels.filter((_, i) => i !== index),
+      },
     });
   };
 
@@ -224,26 +238,28 @@ export function AutoNotificationsSpec() {
       id: generateId(),
       name: '',
       email: '',
-      role: ''
+      role: '',
     });
     setConfig({
       ...config,
       approvalHierarchy: {
         ...config.approvalHierarchy,
-        levels: updatedLevels
-      }
+        levels: updatedLevels,
+      },
     });
   };
 
   const removeApprover = (levelIndex: number, approverIndex: number) => {
     const updatedLevels = [...config.approvalHierarchy.levels];
-    updatedLevels[levelIndex].approvers = updatedLevels[levelIndex].approvers.filter((_, i) => i !== approverIndex);
+    updatedLevels[levelIndex].approvers = updatedLevels[
+      levelIndex
+    ].approvers.filter((_, i) => i !== approverIndex);
     setConfig({
       ...config,
       approvalHierarchy: {
         ...config.approvalHierarchy,
-        levels: updatedLevels
-      }
+        levels: updatedLevels,
+      },
     });
   };
 
@@ -256,10 +272,10 @@ export function AutoNotificationsSpec() {
           ...config.routingLogic.routingRules,
           {
             itemType: '',
-            targetLevel: 1
-          }
-        ]
-      }
+            targetLevel: 1,
+          },
+        ],
+      },
     });
   };
 
@@ -268,8 +284,10 @@ export function AutoNotificationsSpec() {
       ...config,
       routingLogic: {
         ...config.routingLogic,
-        routingRules: config.routingLogic.routingRules.filter((_, i) => i !== index)
-      }
+        routingRules: config.routingLogic.routingRules.filter(
+          (_, i) => i !== index
+        ),
+      },
     });
   };
 
@@ -284,10 +302,10 @@ export function AutoNotificationsSpec() {
             tier: config.escalation.escalationTiers.length + 1,
             timeoutHours: 24,
             escalateTo: '',
-            notificationMethod: 'email'
-          }
-        ]
-      }
+            notificationMethod: 'email',
+          },
+        ],
+      },
     });
   };
 
@@ -296,8 +314,10 @@ export function AutoNotificationsSpec() {
       ...config,
       escalation: {
         ...config.escalation,
-        escalationTiers: config.escalation.escalationTiers.filter((_, i) => i !== index)
-      }
+        escalationTiers: config.escalation.escalationTiers.filter(
+          (_, i) => i !== index
+        ),
+      },
     });
   };
 
@@ -311,33 +331,40 @@ export function AutoNotificationsSpec() {
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 התראות אוטומטיות
               </h1>
-              <p className="text-gray-600">
-                Auto Notifications - Service #9
-              </p>
+              <p className="text-gray-600">Auto Notifications - Service #9</p>
             </div>
 
             {/* Smart Fields Info Banner */}
-            {(emailProvider.isAutoPopulated || alertEmail.isAutoPopulated || n8nInstanceUrl.isAutoPopulated) && (
+            {(emailProvider.isAutoPopulated ||
+              alertEmail.isAutoPopulated ||
+              n8nInstanceUrl.isAutoPopulated) && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
                 <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+                  <h4 className="font-semibold text-blue-900 mb-1">
+                    נתונים מולאו אוטומטית משלב 1
+                  </h4>
                   <p className="text-sm text-blue-800">
-                    חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-                    תוכל לערוך אותם במידת הצורך.
+                    חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל
+                    לערוך אותם במידת הצורך.
                   </p>
                 </div>
               </div>
             )}
 
             {/* Conflict Warnings */}
-            {(emailProvider.hasConflict || alertEmail.hasConflict || n8nInstanceUrl.hasConflict) && (
+            {(emailProvider.hasConflict ||
+              alertEmail.hasConflict ||
+              n8nInstanceUrl.hasConflict) && (
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+                  <h4 className="font-semibold text-orange-900 mb-1">
+                    זוהה אי-התאמה בנתונים
+                  </h4>
                   <p className="text-sm text-orange-800">
-                    נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
+                    נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק
+                    ותקן.
                   </p>
                 </div>
               </div>
@@ -354,12 +381,14 @@ export function AutoNotificationsSpec() {
                   <span className="text-sm">שגיאה בשמירה</span>
                 </div>
               )}
-              {!isSaving && !saveError && config.stateManagement?.storageType && (
-                <div className="flex items-center gap-2 text-green-600">
-                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                  <span className="text-sm">נשמר אוטומטית</span>
-                </div>
-              )}
+              {!isSaving &&
+                !saveError &&
+                config.stateManagement?.storageType && (
+                  <div className="flex items-center gap-2 text-green-600">
+                    <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                    <span className="text-sm">נשמר אוטומטית</span>
+                  </div>
+                )}
               <button
                 onClick={handleSave}
                 disabled={isSaving}
@@ -381,8 +410,8 @@ export function AutoNotificationsSpec() {
                 { id: 'hierarchy', label: 'היררכיית אישורים' },
                 { id: 'notifications', label: 'התראות' },
                 { id: 'escalation', label: 'הסלמה' },
-                { id: 'audit', label: 'Audit Trail' }
-              ].map(tab => (
+                { id: 'audit', label: 'Audit Trail' },
+              ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
@@ -403,7 +432,9 @@ export function AutoNotificationsSpec() {
             {activeTab === 'basic' && (
               <div className="space-y-6">
                 <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">ניהול מצב Workflow</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    ניהול מצב Workflow
+                  </h3>
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -411,7 +442,12 @@ export function AutoNotificationsSpec() {
                       </label>
                       <select
                         value={config.stateManagement.storageType}
-                        onChange={(e) => handleFieldChange('stateManagement.storageType', e.target.value as any)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'stateManagement.storageType',
+                            e.target.value as any
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="database">Database</option>
@@ -420,7 +456,8 @@ export function AutoNotificationsSpec() {
                       </select>
                     </div>
 
-                    {(config.stateManagement.storageType === 'database' || config.stateManagement.storageType === 'both') && (
+                    {(config.stateManagement.storageType === 'database' ||
+                      config.stateManagement.storageType === 'both') && (
                       <div className="bg-gray-50 p-4 rounded-lg space-y-4">
                         <h4 className="font-medium">הגדרות Database</h4>
                         <div>
@@ -429,8 +466,16 @@ export function AutoNotificationsSpec() {
                           </label>
                           <input
                             type="text"
-                            value={config.stateManagement.databaseConfig?.connectionString || ''}
-                            onChange={(e) => handleFieldChange('stateManagement.databaseConfig.connectionString', e.target.value)}
+                            value={
+                              config.stateManagement.databaseConfig
+                                ?.connectionString || ''
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'stateManagement.databaseConfig.connectionString',
+                                e.target.value
+                              )
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="postgresql://..."
                           />
@@ -441,8 +486,16 @@ export function AutoNotificationsSpec() {
                           </label>
                           <input
                             type="text"
-                            value={config.stateManagement.databaseConfig?.tableName || ''}
-                            onChange={(e) => handleFieldChange('stateManagement.databaseConfig.tableName', e.target.value)}
+                            value={
+                              config.stateManagement.databaseConfig
+                                ?.tableName || ''
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'stateManagement.databaseConfig.tableName',
+                                e.target.value
+                              )
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="approvals"
                           />
@@ -450,7 +503,8 @@ export function AutoNotificationsSpec() {
                       </div>
                     )}
 
-                    {(config.stateManagement.storageType === 'crm' || config.stateManagement.storageType === 'both') && (
+                    {(config.stateManagement.storageType === 'crm' ||
+                      config.stateManagement.storageType === 'both') && (
                       <div className="bg-gray-50 p-4 rounded-lg space-y-4">
                         <h4 className="font-medium">הגדרות CRM</h4>
                         <div className="grid grid-cols-2 gap-4">
@@ -460,8 +514,15 @@ export function AutoNotificationsSpec() {
                             </label>
                             <input
                               type="text"
-                              value={config.stateManagement.crmConfig?.system || ''}
-                              onChange={(e) => handleFieldChange('stateManagement.crmConfig.system', e.target.value)}
+                              value={
+                                config.stateManagement.crmConfig?.system || ''
+                              }
+                              onChange={(e) =>
+                                handleFieldChange(
+                                  'stateManagement.crmConfig.system',
+                                  e.target.value
+                                )
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                               placeholder="Zoho CRM"
                             />
@@ -472,8 +533,15 @@ export function AutoNotificationsSpec() {
                             </label>
                             <input
                               type="text"
-                              value={config.stateManagement.crmConfig?.module || ''}
-                              onChange={(e) => handleFieldChange('stateManagement.crmConfig.module', e.target.value)}
+                              value={
+                                config.stateManagement.crmConfig?.module || ''
+                              }
+                              onChange={(e) =>
+                                handleFieldChange(
+                                  'stateManagement.crmConfig.module',
+                                  e.target.value
+                                )
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                               placeholder="Approvals"
                             />
@@ -493,13 +561,20 @@ export function AutoNotificationsSpec() {
                       </label>
                       <select
                         value={config.sourceSystem.system}
-                        onChange={(e) => handleFieldChange('sourceSystem.system', e.target.value as any)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'sourceSystem.system',
+                            e.target.value as any
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="crm">CRM</option>
                         <option value="erp">ERP</option>
                         <option value="hrms">HRMS</option>
-                        <option value="document_management">Document Management</option>
+                        <option value="document_management">
+                          Document Management
+                        </option>
                         <option value="custom">Custom</option>
                       </select>
                     </div>
@@ -509,7 +584,12 @@ export function AutoNotificationsSpec() {
                       </label>
                       <select
                         value={config.sourceSystem.authMethod}
-                        onChange={(e) => handleFieldChange('sourceSystem.authMethod', e.target.value as any)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'sourceSystem.authMethod',
+                            e.target.value as any
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="oauth">OAuth</option>
@@ -525,7 +605,12 @@ export function AutoNotificationsSpec() {
                     <input
                       type="url"
                       value={config.sourceSystem.webhookEndpoint || ''}
-                      onChange={(e) => handleFieldChange('sourceSystem.webhookEndpoint', e.target.value)}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          'sourceSystem.webhookEndpoint',
+                          e.target.value
+                        )
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       placeholder="https://n8n.example.com/webhook/approvals"
                     />
@@ -539,7 +624,12 @@ export function AutoNotificationsSpec() {
                       <input
                         type="checkbox"
                         checked={config.multiLevelConfig.enabled}
-                        onChange={(e) => handleFieldChange('multiLevelConfig.enabled', e.target.checked)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'multiLevelConfig.enabled',
+                            e.target.checked
+                          )
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium text-gray-700">
@@ -554,7 +644,12 @@ export function AutoNotificationsSpec() {
                         <input
                           type="number"
                           value={config.multiLevelConfig.maxLevels}
-                          onChange={(e) => handleFieldChange('multiLevelConfig.maxLevels', parseInt(e.target.value) || 1)}
+                          onChange={(e) =>
+                            handleFieldChange(
+                              'multiLevelConfig.maxLevels',
+                              parseInt(e.target.value) || 1
+                            )
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           min="1"
                           max="10"
@@ -601,9 +696,14 @@ export function AutoNotificationsSpec() {
                           type="text"
                           value={level.name}
                           onChange={(e) => {
-                            const updatedLevels = [...config.approvalHierarchy.levels];
+                            const updatedLevels = [
+                              ...config.approvalHierarchy.levels,
+                            ];
                             updatedLevels[levelIndex].name = e.target.value;
-                            handleFieldChange('approvalHierarchy.levels', updatedLevels);
+                            handleFieldChange(
+                              'approvalHierarchy.levels',
+                              updatedLevels
+                            );
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           placeholder="Manager Approval"
@@ -617,9 +717,14 @@ export function AutoNotificationsSpec() {
                           type="text"
                           value={level.nameHe}
                           onChange={(e) => {
-                            const updatedLevels = [...config.approvalHierarchy.levels];
+                            const updatedLevels = [
+                              ...config.approvalHierarchy.levels,
+                            ];
                             updatedLevels[levelIndex].nameHe = e.target.value;
-                            handleFieldChange('approvalHierarchy.levels', updatedLevels);
+                            handleFieldChange(
+                              'approvalHierarchy.levels',
+                              updatedLevels
+                            );
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           placeholder="אישור מנהל"
@@ -640,15 +745,25 @@ export function AutoNotificationsSpec() {
                       </div>
 
                       {level.approvers.map((approver, approverIndex) => (
-                        <div key={approverIndex} className="bg-gray-50 p-3 rounded-lg mb-2">
+                        <div
+                          key={approverIndex}
+                          className="bg-gray-50 p-3 rounded-lg mb-2"
+                        >
                           <div className="grid grid-cols-3 gap-3 mb-2">
                             <input
                               type="text"
                               value={approver.name}
                               onChange={(e) => {
-                                const updatedLevels = [...config.approvalHierarchy.levels];
-                                updatedLevels[levelIndex].approvers[approverIndex].name = e.target.value;
-                                handleFieldChange('approvalHierarchy.levels', updatedLevels);
+                                const updatedLevels = [
+                                  ...config.approvalHierarchy.levels,
+                                ];
+                                updatedLevels[levelIndex].approvers[
+                                  approverIndex
+                                ].name = e.target.value;
+                                handleFieldChange(
+                                  'approvalHierarchy.levels',
+                                  updatedLevels
+                                );
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
                               placeholder="שם מלא"
@@ -657,9 +772,16 @@ export function AutoNotificationsSpec() {
                               type="email"
                               value={approver.email}
                               onChange={(e) => {
-                                const updatedLevels = [...config.approvalHierarchy.levels];
-                                updatedLevels[levelIndex].approvers[approverIndex].email = e.target.value;
-                                handleFieldChange('approvalHierarchy.levels', updatedLevels);
+                                const updatedLevels = [
+                                  ...config.approvalHierarchy.levels,
+                                ];
+                                updatedLevels[levelIndex].approvers[
+                                  approverIndex
+                                ].email = e.target.value;
+                                handleFieldChange(
+                                  'approvalHierarchy.levels',
+                                  updatedLevels
+                                );
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
                               placeholder="Email"
@@ -668,16 +790,25 @@ export function AutoNotificationsSpec() {
                               type="text"
                               value={approver.role}
                               onChange={(e) => {
-                                const updatedLevels = [...config.approvalHierarchy.levels];
-                                updatedLevels[levelIndex].approvers[approverIndex].role = e.target.value;
-                                handleFieldChange('approvalHierarchy.levels', updatedLevels);
+                                const updatedLevels = [
+                                  ...config.approvalHierarchy.levels,
+                                ];
+                                updatedLevels[levelIndex].approvers[
+                                  approverIndex
+                                ].role = e.target.value;
+                                handleFieldChange(
+                                  'approvalHierarchy.levels',
+                                  updatedLevels
+                                );
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
                               placeholder="תפקיד"
                             />
                           </div>
                           <button
-                            onClick={() => removeApprover(levelIndex, approverIndex)}
+                            onClick={() =>
+                              removeApprover(levelIndex, approverIndex)
+                            }
                             className="text-red-600 text-xs hover:text-red-700"
                           >
                             הסר מאשר
@@ -695,7 +826,12 @@ export function AutoNotificationsSpec() {
                       <input
                         type="checkbox"
                         checked={config.approvalHierarchy.requireAllApprovers}
-                        onChange={(e) => handleFieldChange('approvalHierarchy.requireAllApprovers', e.target.checked)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'approvalHierarchy.requireAllApprovers',
+                            e.target.checked
+                          )
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm">דרוש אישור מכל המאשרים</span>
@@ -704,7 +840,12 @@ export function AutoNotificationsSpec() {
                       <input
                         type="checkbox"
                         checked={config.approvalHierarchy.parallelApproval}
-                        onChange={(e) => handleFieldChange('approvalHierarchy.parallelApproval', e.target.checked)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'approvalHierarchy.parallelApproval',
+                            e.target.checked
+                          )
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm">אישורים במקביל (לא סדרתי)</span>
@@ -730,7 +871,12 @@ export function AutoNotificationsSpec() {
                     </label>
                     <select
                       value={config.routingLogic.routingStrategy}
-                      onChange={(e) => handleFieldChange('routingLogic.routingStrategy', e.target.value as any)}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          'routingLogic.routingStrategy',
+                          e.target.value as any
+                        )
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     >
                       <option value="hierarchy">Hierarchy</option>
@@ -747,9 +893,14 @@ export function AutoNotificationsSpec() {
                           type="text"
                           value={rule.itemType}
                           onChange={(e) => {
-                            const updatedRules = [...config.routingLogic.routingRules];
+                            const updatedRules = [
+                              ...config.routingLogic.routingRules,
+                            ];
                             updatedRules[index].itemType = e.target.value;
-                            handleFieldChange('routingLogic.routingRules', updatedRules);
+                            handleFieldChange(
+                              'routingLogic.routingRules',
+                              updatedRules
+                            );
                           }}
                           className="px-2 py-1 border border-gray-300 rounded text-sm"
                           placeholder="סוג פריט"
@@ -758,9 +909,15 @@ export function AutoNotificationsSpec() {
                           type="number"
                           value={rule.targetLevel}
                           onChange={(e) => {
-                            const updatedRules = [...config.routingLogic.routingRules];
-                            updatedRules[index].targetLevel = parseInt(e.target.value) || 1;
-                            handleFieldChange('routingLogic.routingRules', updatedRules);
+                            const updatedRules = [
+                              ...config.routingLogic.routingRules,
+                            ];
+                            updatedRules[index].targetLevel =
+                              parseInt(e.target.value) || 1;
+                            handleFieldChange(
+                              'routingLogic.routingRules',
+                              updatedRules
+                            );
                           }}
                           className="px-2 py-1 border border-gray-300 rounded text-sm"
                           placeholder="רמת יעד"
@@ -791,7 +948,12 @@ export function AutoNotificationsSpec() {
                       </label>
                       <select
                         value={config.emailNotifications.provider}
-                        onChange={(e) => handleFieldChange('emailNotifications.provider', e.target.value as any)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'emailNotifications.provider',
+                            e.target.value as any
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="sendgrid">SendGrid</option>
@@ -808,7 +970,12 @@ export function AutoNotificationsSpec() {
                         <input
                           type="password"
                           value={config.emailNotifications.apiKey || ''}
-                          onChange={(e) => handleFieldChange('emailNotifications.apiKey', e.target.value)}
+                          onChange={(e) =>
+                            handleFieldChange(
+                              'emailNotifications.apiKey',
+                              e.target.value
+                            )
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         />
                       </div>
@@ -820,29 +987,61 @@ export function AutoNotificationsSpec() {
                         <div className="grid grid-cols-2 gap-3">
                           <input
                             type="text"
-                            value={config.emailNotifications.smtpCredentials?.host || ''}
-                            onChange={(e) => handleFieldChange('emailNotifications.smtpCredentials.host', e.target.value)}
+                            value={
+                              config.emailNotifications.smtpCredentials?.host ||
+                              ''
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'emailNotifications.smtpCredentials.host',
+                                e.target.value
+                              )
+                            }
                             className="px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="SMTP Host"
                           />
                           <input
                             type="number"
-                            value={config.emailNotifications.smtpCredentials?.port || ''}
-                            onChange={(e) => handleFieldChange('emailNotifications.smtpCredentials.port', parseInt(e.target.value) || 587)}
+                            value={
+                              config.emailNotifications.smtpCredentials?.port ||
+                              ''
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'emailNotifications.smtpCredentials.port',
+                                parseInt(e.target.value) || 587
+                              )
+                            }
                             className="px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="Port"
                           />
                           <input
                             type="text"
-                            value={config.emailNotifications.smtpCredentials?.username || ''}
-                            onChange={(e) => handleFieldChange('emailNotifications.smtpCredentials.username', e.target.value)}
+                            value={
+                              config.emailNotifications.smtpCredentials
+                                ?.username || ''
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'emailNotifications.smtpCredentials.username',
+                                e.target.value
+                              )
+                            }
                             className="px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="Username"
                           />
                           <input
                             type="password"
-                            value={config.emailNotifications.smtpCredentials?.password || ''}
-                            onChange={(e) => handleFieldChange('emailNotifications.smtpCredentials.password', e.target.value)}
+                            value={
+                              config.emailNotifications.smtpCredentials
+                                ?.password || ''
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'emailNotifications.smtpCredentials.password',
+                                e.target.value
+                              )
+                            }
                             className="px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="Password"
                           />
@@ -853,7 +1052,9 @@ export function AutoNotificationsSpec() {
                     <div className="border-t pt-4">
                       <h4 className="font-medium mb-3">תבניות אימייל</h4>
                       <div className="space-y-3">
-                        {Object.entries(config.emailNotifications.templates).map(([key, value]) => (
+                        {Object.entries(
+                          config.emailNotifications.templates
+                        ).map(([key, value]) => (
                           <div key={key}>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                               {key === 'approvalRequest' && 'בקשת אישור'}
@@ -864,10 +1065,12 @@ export function AutoNotificationsSpec() {
                             </label>
                             <textarea
                               value={value}
-                              onChange={(e) => handleFieldChange(
-                                `emailNotifications.templates.${key}`,
-                                e.target.value
-                              )}
+                              onChange={(e) =>
+                                handleFieldChange(
+                                  `emailNotifications.templates.${key}`,
+                                  e.target.value
+                                )
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                               rows={3}
                               placeholder="תבנית אימייל..."
@@ -886,16 +1089,28 @@ export function AutoNotificationsSpec() {
                       <input
                         type="checkbox"
                         checked={config.approvalMethods.emailBased}
-                        onChange={(e) => handleFieldChange('approvalMethods.emailBased', e.target.checked)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'approvalMethods.emailBased',
+                            e.target.checked
+                          )
+                        }
                         className="rounded border-gray-300"
                       />
-                      <span className="text-sm">אישור דרך אימייל (Magic Links)</span>
+                      <span className="text-sm">
+                        אישור דרך אימייל (Magic Links)
+                      </span>
                     </label>
                     <label className="flex items-center gap-2">
                       <input
                         type="checkbox"
                         checked={config.approvalMethods.uiBased}
-                        onChange={(e) => handleFieldChange('approvalMethods.uiBased', e.target.checked)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'approvalMethods.uiBased',
+                            e.target.checked
+                          )
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm">ממשק אישורים ייעודי</span>
@@ -904,7 +1119,12 @@ export function AutoNotificationsSpec() {
                       <input
                         type="checkbox"
                         checked={config.approvalMethods.slackBased || false}
-                        onChange={(e) => handleFieldChange('approvalMethods.slackBased', e.target.checked)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'approvalMethods.slackBased',
+                            e.target.checked
+                          )
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm">אישור דרך Slack</span>
@@ -913,7 +1133,12 @@ export function AutoNotificationsSpec() {
                       <input
                         type="checkbox"
                         checked={config.approvalMethods.teamsBased || false}
-                        onChange={(e) => handleFieldChange('approvalMethods.teamsBased', e.target.checked)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'approvalMethods.teamsBased',
+                            e.target.checked
+                          )
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm">אישור דרך Microsoft Teams</span>
@@ -930,8 +1155,16 @@ export function AutoNotificationsSpec() {
                           </label>
                           <input
                             type="number"
-                            value={config.approvalMethods.magicLinkConfig?.expirationHours || 24}
-                            onChange={(e) => handleFieldChange('approvalMethods.magicLinkConfig.expirationHours', parseInt(e.target.value) || 24)}
+                            value={
+                              config.approvalMethods.magicLinkConfig
+                                ?.expirationHours || 24
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'approvalMethods.magicLinkConfig.expirationHours',
+                                parseInt(e.target.value) || 24
+                              )
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             min="1"
                           />
@@ -942,8 +1175,16 @@ export function AutoNotificationsSpec() {
                           </label>
                           <input
                             type="url"
-                            value={config.approvalMethods.magicLinkConfig?.baseUrl || ''}
-                            onChange={(e) => handleFieldChange('approvalMethods.magicLinkConfig.baseUrl', e.target.value)}
+                            value={
+                              config.approvalMethods.magicLinkConfig?.baseUrl ||
+                              ''
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'approvalMethods.magicLinkConfig.baseUrl',
+                                e.target.value
+                              )
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="https://approvals.example.com"
                           />
@@ -961,8 +1202,16 @@ export function AutoNotificationsSpec() {
                         </label>
                         <input
                           type="url"
-                          value={config.approvalMethods.uiConfig?.approvalPageUrl || ''}
-                          onChange={(e) => handleFieldChange('approvalMethods.uiConfig.approvalPageUrl', e.target.value)}
+                          value={
+                            config.approvalMethods.uiConfig?.approvalPageUrl ||
+                            ''
+                          }
+                          onChange={(e) =>
+                            handleFieldChange(
+                              'approvalMethods.uiConfig.approvalPageUrl',
+                              e.target.value
+                            )
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           placeholder="https://app.example.com/approvals"
                         />
@@ -970,8 +1219,16 @@ export function AutoNotificationsSpec() {
                       <label className="flex items-center gap-2">
                         <input
                           type="checkbox"
-                          checked={config.approvalMethods.uiConfig?.authenticationRequired || false}
-                          onChange={(e) => handleFieldChange('approvalMethods.uiConfig.authenticationRequired', e.target.checked)}
+                          checked={
+                            config.approvalMethods.uiConfig
+                              ?.authenticationRequired || false
+                          }
+                          onChange={(e) =>
+                            handleFieldChange(
+                              'approvalMethods.uiConfig.authenticationRequired',
+                              e.target.checked
+                            )
+                          }
                           className="rounded border-gray-300"
                         />
                         <span className="text-sm">דרוש אימות</span>
@@ -992,7 +1249,12 @@ export function AutoNotificationsSpec() {
                       <input
                         type="checkbox"
                         checked={config.escalation.enabled}
-                        onChange={(e) => handleFieldChange('escalation.enabled', e.target.checked)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'escalation.enabled',
+                            e.target.checked
+                          )
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium">הפעל הסלמה</span>
@@ -1013,7 +1275,10 @@ export function AutoNotificationsSpec() {
                       </div>
 
                       {config.escalation.escalationTiers.map((tier, index) => (
-                        <div key={index} className="bg-gray-50 p-4 rounded-lg mb-3">
+                        <div
+                          key={index}
+                          className="bg-gray-50 p-4 rounded-lg mb-3"
+                        >
                           <div className="grid grid-cols-3 gap-3 mb-3">
                             <div>
                               <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -1023,9 +1288,15 @@ export function AutoNotificationsSpec() {
                                 type="number"
                                 value={tier.timeoutHours}
                                 onChange={(e) => {
-                                  const updatedTiers = [...config.escalation.escalationTiers];
-                                  updatedTiers[index].timeoutHours = parseInt(e.target.value) || 24;
-                                  handleFieldChange('escalation.escalationTiers', updatedTiers);
+                                  const updatedTiers = [
+                                    ...config.escalation.escalationTiers,
+                                  ];
+                                  updatedTiers[index].timeoutHours =
+                                    parseInt(e.target.value) || 24;
+                                  handleFieldChange(
+                                    'escalation.escalationTiers',
+                                    updatedTiers
+                                  );
                                 }}
                                 className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                                 min="1"
@@ -1039,9 +1310,15 @@ export function AutoNotificationsSpec() {
                                 type="text"
                                 value={tier.escalateTo}
                                 onChange={(e) => {
-                                  const updatedTiers = [...config.escalation.escalationTiers];
-                                  updatedTiers[index].escalateTo = e.target.value;
-                                  handleFieldChange('escalation.escalationTiers', updatedTiers);
+                                  const updatedTiers = [
+                                    ...config.escalation.escalationTiers,
+                                  ];
+                                  updatedTiers[index].escalateTo =
+                                    e.target.value;
+                                  handleFieldChange(
+                                    'escalation.escalationTiers',
+                                    updatedTiers
+                                  );
                                 }}
                                 className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                                 placeholder="Email/User ID"
@@ -1054,9 +1331,15 @@ export function AutoNotificationsSpec() {
                               <select
                                 value={tier.notificationMethod}
                                 onChange={(e) => {
-                                  const updatedTiers = [...config.escalation.escalationTiers];
-                                  updatedTiers[index].notificationMethod = e.target.value as any;
-                                  handleFieldChange('escalation.escalationTiers', updatedTiers);
+                                  const updatedTiers = [
+                                    ...config.escalation.escalationTiers,
+                                  ];
+                                  updatedTiers[index].notificationMethod = e
+                                    .target.value as any;
+                                  handleFieldChange(
+                                    'escalation.escalationTiers',
+                                    updatedTiers
+                                  );
                                 }}
                                 className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                               >
@@ -1084,12 +1367,24 @@ export function AutoNotificationsSpec() {
                               פעולה
                             </label>
                             <select
-                              value={config.escalation.finalEscalation?.action || 'alert_admin'}
-                              onChange={(e) => handleFieldChange('escalation.finalEscalation.action', e.target.value as any)}
+                              value={
+                                config.escalation.finalEscalation?.action ||
+                                'alert_admin'
+                              }
+                              onChange={(e) =>
+                                handleFieldChange(
+                                  'escalation.finalEscalation.action',
+                                  e.target.value as any
+                                )
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             >
-                              <option value="auto_approve">אישור אוטומטי</option>
-                              <option value="auto_reject">דחייה אוטומטית</option>
+                              <option value="auto_approve">
+                                אישור אוטומטי
+                              </option>
+                              <option value="auto_reject">
+                                דחייה אוטומטית
+                              </option>
                               <option value="alert_admin">התרעה למנהל</option>
                             </select>
                           </div>
@@ -1099,8 +1394,16 @@ export function AutoNotificationsSpec() {
                             </label>
                             <input
                               type="email"
-                              value={config.escalation.finalEscalation?.adminEmail || ''}
-                              onChange={(e) => handleFieldChange('escalation.finalEscalation.adminEmail', e.target.value)}
+                              value={
+                                config.escalation.finalEscalation?.adminEmail ||
+                                ''
+                              }
+                              onChange={(e) =>
+                                handleFieldChange(
+                                  'escalation.finalEscalation.adminEmail',
+                                  e.target.value
+                                )
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                               placeholder="admin@example.com"
                             />
@@ -1123,10 +1426,17 @@ export function AutoNotificationsSpec() {
                       <input
                         type="checkbox"
                         checked={config.auditTrail.enabled}
-                        onChange={(e) => handleFieldChange('auditTrail.enabled', e.target.checked)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'auditTrail.enabled',
+                            e.target.checked
+                          )
+                        }
                         className="rounded border-gray-300"
                       />
-                      <span className="text-sm font-medium">הפעל Audit Trail</span>
+                      <span className="text-sm font-medium">
+                        הפעל Audit Trail
+                      </span>
                     </label>
                   </div>
 
@@ -1138,7 +1448,12 @@ export function AutoNotificationsSpec() {
                         </label>
                         <select
                           value={config.auditTrail.logStorage}
-                          onChange={(e) => handleFieldChange('auditTrail.logStorage', e.target.value as any)}
+                          onChange={(e) =>
+                            handleFieldChange(
+                              'auditTrail.logStorage',
+                              e.target.value as any
+                            )
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         >
                           <option value="database">Database</option>
@@ -1154,7 +1469,12 @@ export function AutoNotificationsSpec() {
                         <input
                           type="number"
                           value={config.auditTrail.retentionDays}
-                          onChange={(e) => handleFieldChange('auditTrail.retentionDays', parseInt(e.target.value) || 365)}
+                          onChange={(e) =>
+                            handleFieldChange(
+                              'auditTrail.retentionDays',
+                              parseInt(e.target.value) || 365
+                            )
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           min="1"
                         />
@@ -1163,24 +1483,34 @@ export function AutoNotificationsSpec() {
                       <div className="border-t pt-4">
                         <h4 className="font-medium mb-3">שדות לרישום</h4>
                         <div className="space-y-2">
-                          {Object.entries(config.auditTrail.logFields).map(([key, value]) => (
-                            <label key={key} className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                checked={value}
-                                onChange={(e) => handleFieldChange(`auditTrail.logFields.${key}`, e.target.checked)}
-                                className="rounded border-gray-300"
-                              />
-                              <span className="text-sm">
-                                {key === 'timestamp' && 'חותמת זמן'}
-                                {key === 'approverId' && 'מזהה מאשר'}
-                                {key === 'decision' && 'החלטה'}
-                                {key === 'comments' && 'הערות'}
-                                {key === 'ipAddress' && 'כתובת IP'}
-                                {key === 'userAgent' && 'User Agent'}
-                              </span>
-                            </label>
-                          ))}
+                          {Object.entries(config.auditTrail.logFields).map(
+                            ([key, value]) => (
+                              <label
+                                key={key}
+                                className="flex items-center gap-2"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={value}
+                                  onChange={(e) =>
+                                    handleFieldChange(
+                                      `auditTrail.logFields.${key}`,
+                                      e.target.checked
+                                    )
+                                  }
+                                  className="rounded border-gray-300"
+                                />
+                                <span className="text-sm">
+                                  {key === 'timestamp' && 'חותמת זמן'}
+                                  {key === 'approverId' && 'מזהה מאשר'}
+                                  {key === 'decision' && 'החלטה'}
+                                  {key === 'comments' && 'הערות'}
+                                  {key === 'ipAddress' && 'כתובת IP'}
+                                  {key === 'userAgent' && 'User Agent'}
+                                </span>
+                              </label>
+                            )
+                          )}
                         </div>
                       </div>
                     </div>

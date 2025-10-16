@@ -12,7 +12,7 @@ import {
   Users,
   TrendingUp,
   CheckCircle,
-  Clock
+  Clock,
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { ClientCard } from './ClientCard';
@@ -29,12 +29,14 @@ export const ClientsListView: React.FC = () => {
     clientsLoadError,
     fetchZohoClients,
     loadClientFromZoho,
-    refreshClientsList
+    refreshClientsList,
   } = useMeetingStore();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [phaseFilter, setPhaseFilter] = useState<MeetingPhase | 'all'>('all');
-  const [statusFilter, setStatusFilter] = useState<MeetingStatus | 'all'>('all');
+  const [statusFilter, setStatusFilter] = useState<MeetingStatus | 'all'>(
+    'all'
+  );
   const [sortBy, setSortBy] = useState<SortBy>('created');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
@@ -115,19 +117,25 @@ export const ClientsListView: React.FC = () => {
   // Calculate dashboard metrics
   const dashboardMetrics = useMemo(() => {
     const totalClients = zohoClientsList.length;
-    const activeClients = zohoClientsList.filter(c =>
+    const activeClients = zohoClientsList.filter((c) =>
       ['discovery', 'implementation_spec', 'development'].includes(c.phase)
     ).length;
-    const completedClients = zohoClientsList.filter(c => c.phase === 'completed').length;
-    const avgProgress = totalClients > 0
-      ? Math.round(zohoClientsList.reduce((sum, c) => sum + c.overallProgress, 0) / totalClients)
-      : 0;
+    const completedClients = zohoClientsList.filter(
+      (c) => c.phase === 'completed'
+    ).length;
+    const avgProgress =
+      totalClients > 0
+        ? Math.round(
+            zohoClientsList.reduce((sum, c) => sum + c.overallProgress, 0) /
+              totalClients
+          )
+        : 0;
 
     return {
       totalClients,
       activeClients,
       completedClients,
-      avgProgress
+      avgProgress,
     };
   }, [zohoClientsList]);
 
@@ -158,7 +166,9 @@ export const ClientsListView: React.FC = () => {
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`p-2 rounded transition-all ${
-                    viewMode === 'grid' ? 'bg-white shadow' : 'hover:bg-gray-200'
+                    viewMode === 'grid'
+                      ? 'bg-white shadow'
+                      : 'hover:bg-gray-200'
                   }`}
                   title="תצוגת רשת"
                 >
@@ -167,7 +177,9 @@ export const ClientsListView: React.FC = () => {
                 <button
                   onClick={() => setViewMode('list')}
                   className={`p-2 rounded transition-all ${
-                    viewMode === 'list' ? 'bg-white shadow' : 'hover:bg-gray-200'
+                    viewMode === 'list'
+                      ? 'bg-white shadow'
+                      : 'hover:bg-gray-200'
                   }`}
                   title="תצוגת רשימה"
                 >
@@ -197,22 +209,30 @@ export const ClientsListView: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
               <Users className="w-6 h-6 mx-auto mb-2 opacity-80" />
-              <div className="text-2xl font-bold">{dashboardMetrics.totalClients}</div>
+              <div className="text-2xl font-bold">
+                {dashboardMetrics.totalClients}
+              </div>
               <div className="text-sm opacity-80">סה"כ לקוחות</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
               <Clock className="w-6 h-6 mx-auto mb-2 opacity-80" />
-              <div className="text-2xl font-bold">{dashboardMetrics.activeClients}</div>
+              <div className="text-2xl font-bold">
+                {dashboardMetrics.activeClients}
+              </div>
               <div className="text-sm opacity-80">בפיתוח</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
               <CheckCircle className="w-6 h-6 mx-auto mb-2 opacity-80" />
-              <div className="text-2xl font-bold">{dashboardMetrics.completedClients}</div>
+              <div className="text-2xl font-bold">
+                {dashboardMetrics.completedClients}
+              </div>
               <div className="text-sm opacity-80">הושלמו</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
               <TrendingUp className="w-6 h-6 mx-auto mb-2 opacity-80" />
-              <div className="text-2xl font-bold">{dashboardMetrics.avgProgress}%</div>
+              <div className="text-2xl font-bold">
+                {dashboardMetrics.avgProgress}%
+              </div>
               <div className="text-sm opacity-80">התקדמות ממוצעת</div>
             </div>
           </div>
@@ -225,7 +245,9 @@ export const ClientsListView: React.FC = () => {
           <div className="flex flex-col lg:flex-row lg:items-center gap-4">
             {/* Search Section */}
             <div className="flex-1 min-w-[280px]">
-              <label className="block text-sm font-medium text-gray-700 mb-2">חיפוש לקוחות</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                חיפוש לקוחות
+              </label>
               <div className="relative">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -250,7 +272,9 @@ export const ClientsListView: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               {/* Phase Filter */}
               <div className="min-w-[180px]">
-                <label className="block text-sm font-medium text-gray-700 mb-2">שלב פרויקט</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  שלב פרויקט
+                </label>
                 <div className="relative">
                   <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                   <select
@@ -260,7 +284,9 @@ export const ClientsListView: React.FC = () => {
                   >
                     <option value="all">כל השלבים</option>
                     <option value="discovery">🔍 Discovery</option>
-                    <option value="implementation_spec">📋 Implementation Spec</option>
+                    <option value="implementation_spec">
+                      📋 Implementation Spec
+                    </option>
                     <option value="development">⚙️ Development</option>
                     <option value="completed">✅ Completed</option>
                   </select>
@@ -269,7 +295,9 @@ export const ClientsListView: React.FC = () => {
 
               {/* Sort */}
               <div className="min-w-[160px]">
-                <label className="block text-sm font-medium text-gray-700 mb-2">מיין לפי</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  מיין לפי
+                </label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortBy)}
@@ -306,8 +334,12 @@ export const ClientsListView: React.FC = () => {
                 <RefreshCw className="w-12 h-12 animate-spin text-blue-600 mx-auto" />
                 <div className="absolute inset-0 w-12 h-12 mx-auto border-4 border-blue-200 rounded-full"></div>
               </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">טוען לקוחות</h3>
-              <p className="text-gray-600 text-sm">אנא המתן בזמן שאנחנו טוענים את נתוני הלקוחות מ-Zoho CRM...</p>
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                טוען לקוחות
+              </h3>
+              <p className="text-gray-600 text-sm">
+                אנא המתן בזמן שאנחנו טוענים את נתוני הלקוחות מ-Zoho CRM...
+              </p>
             </div>
           </div>
         ) : clientsLoadError ? (
@@ -316,8 +348,12 @@ export const ClientsListView: React.FC = () => {
               <div className="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <AlertCircle className="w-8 h-8 text-red-600" />
               </div>
-              <h3 className="text-lg font-semibold text-red-800 mb-2">שגיאה בטעינת הלקוחות</h3>
-              <p className="text-red-700 text-sm mb-6 leading-relaxed">{clientsLoadError}</p>
+              <h3 className="text-lg font-semibold text-red-800 mb-2">
+                שגיאה בטעינת הלקוחות
+              </h3>
+              <p className="text-red-700 text-sm mb-6 leading-relaxed">
+                {clientsLoadError}
+              </p>
               <button
                 onClick={handleRefresh}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium shadow-md hover:shadow-lg"
@@ -332,13 +368,14 @@ export const ClientsListView: React.FC = () => {
             <div className="bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 rounded-2xl p-12 text-center shadow-lg">
               <div className="text-8xl mb-6">🔍</div>
               <h3 className="text-xl font-semibold text-gray-800 mb-3">
-                {hasActiveFilters ? 'לא נמצאו לקוחות התואמים לחיפוש' : 'אין לקוחות עדיין'}
+                {hasActiveFilters
+                  ? 'לא נמצאו לקוחות התואמים לחיפוש'
+                  : 'אין לקוחות עדיין'}
               </h3>
               <p className="text-gray-600 text-sm mb-6 leading-relaxed">
                 {hasActiveFilters
                   ? 'נסה לשנות את הפילטרים או להרחיב את חיפושך כדי למצוא לקוחות'
-                  : 'התחל ביצירת לקוח ראשון או ייבא נתונים מ-Zoho CRM'
-                }
+                  : 'התחל ביצירת לקוח ראשון או ייבא נתונים מ-Zoho CRM'}
               </p>
               {hasActiveFilters && (
                 <button

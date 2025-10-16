@@ -30,7 +30,7 @@ class ToastManager {
   }
 
   private notify() {
-    this.listeners.forEach(listener => listener([...this.toasts]));
+    this.listeners.forEach((listener) => listener([...this.toasts]));
   }
 
   show(type: ToastType, options: ToastOptions) {
@@ -56,7 +56,7 @@ class ToastManager {
   }
 
   remove(id: string) {
-    this.toasts = this.toasts.filter(t => t.id !== id);
+    this.toasts = this.toasts.filter((t) => t.id !== id);
     this.notify();
   }
 
@@ -79,7 +79,10 @@ export const toast = {
 };
 
 // Toast component
-const ToastItem: React.FC<{ toast: Toast; onDismiss: (id: string) => void }> = ({ toast, onDismiss }) => {
+const ToastItem: React.FC<{
+  toast: Toast;
+  onDismiss: (id: string) => void;
+}> = ({ toast, onDismiss }) => {
   const config = {
     success: {
       icon: <CheckCircle className="w-5 h-5" />,
@@ -123,9 +126,7 @@ const ToastItem: React.FC<{ toast: Toast; onDismiss: (id: string) => void }> = (
       <div className="p-4">
         <div className="flex items-start gap-3">
           {/* Icon */}
-          <div className={`flex-shrink-0 ${style.color}`}>
-            {style.icon}
-          </div>
+          <div className={`flex-shrink-0 ${style.color}`}>{style.icon}</div>
 
           {/* Content */}
           <div className="flex-1 min-w-0">
@@ -133,9 +134,7 @@ const ToastItem: React.FC<{ toast: Toast; onDismiss: (id: string) => void }> = (
               {toast.title}
             </p>
             {toast.message && (
-              <p className="mt-1 text-sm text-gray-600">
-                {toast.message}
-              </p>
+              <p className="mt-1 text-sm text-gray-600">{toast.message}</p>
             )}
           </div>
 
@@ -167,7 +166,7 @@ export const ToastContainer: React.FC = () => {
     <div className="fixed top-4 left-4 z-50 pointer-events-none" dir="ltr">
       <div className="flex flex-col gap-2">
         <AnimatePresence>
-          {toasts.map(toast => (
+          {toasts.map((toast) => (
             <ToastItem
               key={toast.id}
               toast={toast}

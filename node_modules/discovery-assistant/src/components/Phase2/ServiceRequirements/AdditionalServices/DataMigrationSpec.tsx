@@ -25,13 +25,13 @@ export function DataMigrationSpec() {
       approach: 'phased',
       phasePlan: [],
       pilotRecordCount: 100,
-      freezeSourceDuringMigration: false
+      freezeSourceDuringMigration: false,
     },
     fieldMapping: {
       hasMappingDocument: false,
       mappingComplexity: 'medium',
       requiresDataTransformation: false,
-      customCalculations: []
+      customCalculations: [],
     },
     dataTransformation: [],
     testingApproach: {
@@ -39,38 +39,38 @@ export function DataMigrationSpec() {
       pocRecordCount: 100,
       validationRules: [],
       userAcceptanceTesting: true,
-      rollbackPlan: true
+      rollbackPlan: true,
     },
     dataPreparation: {
       cleanupRequired: false,
       deduplicationNeeded: false,
       dataValidationNeeded: true,
-      enrichmentNeeded: false
+      enrichmentNeeded: false,
     },
     rollbackPlan: {
       hasBackup: true,
       backupLocation: '',
       rollbackProcedure: '',
-      snapshotBeforeMigration: true
+      snapshotBeforeMigration: true,
     },
     deliverables: {
       fieldMappingDocument: true,
       migrationScripts: true,
       validationReport: true,
       rollbackProcedure: true,
-      userDocumentation: false
+      userDocumentation: false,
     },
     timeline: {
       pocDays: 2,
       fullMigrationDays: 7,
-      postMigrationValidationDays: 2
+      postMigrationValidationDays: 2,
     },
     successCriteria: {
       targetCompletionRate: 100,
       maxErrorRate: 1,
       referentialIntegrityCheck: true,
-      userAcceptanceRequired: true
-    }
+      userAcceptanceRequired: true,
+    },
   });
 
   // Track if we're currently loading data to prevent save loops
@@ -80,7 +80,7 @@ export function DataMigrationSpec() {
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'data-migration',
-    category: 'additionalServices'
+    category: 'additionalServices',
   });
 
   useBeforeUnload(() => {
@@ -92,9 +92,10 @@ export function DataMigrationSpec() {
 
   // Load existing data
   useEffect(() => {
-    const category = currentMeeting?.implementationSpec?.additionalServices || [];
+    const category =
+      currentMeeting?.implementationSpec?.additionalServices || [];
     const existing = Array.isArray(category)
-      ? category.find(item => item.serviceId === 'data-migration')
+      ? category.find((item) => item.serviceId === 'data-migration')
       : undefined;
 
     if (existing?.requirements) {
@@ -121,7 +122,6 @@ export function DataMigrationSpec() {
   //     saveData(config);
   //   }
   // }, [config]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
 
   // Validation
   const validateForm = (): boolean => {
@@ -139,17 +139,20 @@ export function DataMigrationSpec() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleFieldChange = useCallback((field: string, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          saveData(updated);
-        }
-      }, 0);
-      return updated;
-    });
-  }, [saveData]);
+  const handleFieldChange = useCallback(
+    (field: string, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            saveData(updated);
+          }
+        }, 0);
+        return updated;
+      });
+    },
+    [saveData]
+  );
 
   // Save handler
   const handleSave = async () => {
@@ -177,9 +180,9 @@ export function DataMigrationSpec() {
           apiCredentials: false,
           exportFormat: 'csv',
           recordCount: 0,
-          dataQualityScore: 80
-        }
-      ]
+          dataQualityScore: 80,
+        },
+      ],
     });
   };
 
@@ -187,7 +190,7 @@ export function DataMigrationSpec() {
   const removeSourceSystem = (index: number) => {
     setConfig({
       ...config,
-      sourceSystems: config.sourceSystems.filter((_, i) => i !== index)
+      sourceSystems: config.sourceSystems.filter((_, i) => i !== index),
     });
   };
 
@@ -203,9 +206,9 @@ export function DataMigrationSpec() {
           importMethod: 'api',
           apiCredentials: false,
           hasAdminAccess: true,
-          requiresFieldMapping: true
-        }
-      ]
+          requiresFieldMapping: true,
+        },
+      ],
     });
   };
 
@@ -213,20 +216,25 @@ export function DataMigrationSpec() {
   const removeTargetSystem = (index: number) => {
     setConfig({
       ...config,
-      targetSystems: config.targetSystems.filter((_, i) => i !== index)
+      targetSystems: config.targetSystems.filter((_, i) => i !== index),
     });
   };
 
   // Add phase to migration plan
   const addPhase = () => {
-    const phase = prompt('הזן תיאור שלב (לדוגמה: Phase 1: Accounts, Phase 2: Contacts):');
+    const phase = prompt(
+      'הזן תיאור שלב (לדוגמה: Phase 1: Accounts, Phase 2: Contacts):'
+    );
     if (phase && phase.trim()) {
       setConfig({
         ...config,
         migrationStrategy: {
           ...config.migrationStrategy,
-          phasePlan: [...(config.migrationStrategy.phasePlan || []), phase.trim()]
-        }
+          phasePlan: [
+            ...(config.migrationStrategy.phasePlan || []),
+            phase.trim(),
+          ],
+        },
       });
     }
   };
@@ -237,8 +245,10 @@ export function DataMigrationSpec() {
       ...config,
       migrationStrategy: {
         ...config.migrationStrategy,
-        phasePlan: (config.migrationStrategy.phasePlan || []).filter((_, i) => i !== index)
-      }
+        phasePlan: (config.migrationStrategy.phasePlan || []).filter(
+          (_, i) => i !== index
+        ),
+      },
     });
   };
 
@@ -252,10 +262,10 @@ export function DataMigrationSpec() {
           ...(config.fieldMapping.customCalculations || []),
           {
             targetField: '',
-            formula: ''
-          }
-        ]
-      }
+            formula: '',
+          },
+        ],
+      },
     });
   };
 
@@ -265,21 +275,28 @@ export function DataMigrationSpec() {
       ...config,
       fieldMapping: {
         ...config.fieldMapping,
-        customCalculations: (config.fieldMapping.customCalculations || []).filter((_, i) => i !== index)
-      }
+        customCalculations: (
+          config.fieldMapping.customCalculations || []
+        ).filter((_, i) => i !== index),
+      },
     });
   };
 
   // Add validation rule
   const addValidationRule = () => {
-    const rule = prompt('הזן כלל אימות (לדוגמה: Record count match, Referential integrity):');
+    const rule = prompt(
+      'הזן כלל אימות (לדוגמה: Record count match, Referential integrity):'
+    );
     if (rule && rule.trim()) {
       setConfig({
         ...config,
         testingApproach: {
           ...config.testingApproach,
-          validationRules: [...config.testingApproach.validationRules, rule.trim()]
-        }
+          validationRules: [
+            ...config.testingApproach.validationRules,
+            rule.trim(),
+          ],
+        },
       });
     }
   };
@@ -290,23 +307,31 @@ export function DataMigrationSpec() {
       ...config,
       testingApproach: {
         ...config.testingApproach,
-        validationRules: config.testingApproach.validationRules.filter((_, i) => i !== index)
-      }
+        validationRules: config.testingApproach.validationRules.filter(
+          (_, i) => i !== index
+        ),
+      },
     });
   };
 
   return (
     <div className="space-y-6 p-8" dir="rtl">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">שירות #51: העברת נתונים בין מערכות</h2>
-        <p className="text-gray-600 mt-2">העברת נתונים בין מערכות (CRM ישן לחדש, Excel ל-CRM, איחוד מספר מקורות)</p>
+        <h2 className="text-2xl font-bold text-gray-900">
+          שירות #51: העברת נתונים בין מערכות
+        </h2>
+        <p className="text-gray-600 mt-2">
+          העברת נתונים בין מערכות (CRM ישן לחדש, Excel ל-CRM, איחוד מספר מקורות)
+        </p>
       </div>
 
       {/* Source Systems */}
       <Card className="p-6">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">מערכות מקור <span className="text-red-500">*</span></h3>
+            <h3 className="text-lg font-semibold">
+              מערכות מקור <span className="text-red-500">*</span>
+            </h3>
             <button
               type="button"
               onClick={addSourceSystem}
@@ -315,10 +340,15 @@ export function DataMigrationSpec() {
               + הוסף מערכת מקור
             </button>
           </div>
-          {errors.sourceSystems && <p className="text-red-500 text-sm">{errors.sourceSystems}</p>}
+          {errors.sourceSystems && (
+            <p className="text-red-500 text-sm">{errors.sourceSystems}</p>
+          )}
 
           {config.sourceSystems.map((system, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+            <div
+              key={index}
+              className="border border-gray-200 rounded-lg p-4 space-y-3"
+            >
               <div className="flex justify-between items-center">
                 <h4 className="font-medium">מערכת מקור #{index + 1}</h4>
                 <button
@@ -332,7 +362,9 @@ export function DataMigrationSpec() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">שם המערכת</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    שם המערכת
+                  </label>
                   <input
                     type="text"
                     value={system.systemName}
@@ -347,7 +379,9 @@ export function DataMigrationSpec() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">סוג מערכת</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    סוג מערכת
+                  </label>
                   <input
                     type="text"
                     value={system.systemType}
@@ -364,12 +398,19 @@ export function DataMigrationSpec() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">שיטת גישה</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    שיטת גישה
+                  </label>
                   <select
                     value={system.accessMethod}
                     onChange={(e) => {
                       const updated = [...config.sourceSystems];
-                      updated[index].accessMethod = e.target.value as 'api' | 'export' | 'direct_db' | 'ftp' | 'manual';
+                      updated[index].accessMethod = e.target.value as
+                        | 'api'
+                        | 'export'
+                        | 'direct_db'
+                        | 'ftp'
+                        | 'manual';
                       handleFieldChange('sourceSystems', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -383,12 +424,19 @@ export function DataMigrationSpec() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">פורמט ייצוא</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    פורמט ייצוא
+                  </label>
                   <select
                     value={system.exportFormat || 'csv'}
                     onChange={(e) => {
                       const updated = [...config.sourceSystems];
-                      updated[index].exportFormat = e.target.value as 'csv' | 'excel' | 'json' | 'sql' | 'xml';
+                      updated[index].exportFormat = e.target.value as
+                        | 'csv'
+                        | 'excel'
+                        | 'json'
+                        | 'sql'
+                        | 'xml';
                       handleFieldChange('sourceSystems', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -404,13 +452,16 @@ export function DataMigrationSpec() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">מספר רשומות</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    מספר רשומות
+                  </label>
                   <input
                     type="number"
                     value={system.recordCount}
                     onChange={(e) => {
                       const updated = [...config.sourceSystems];
-                      updated[index].recordCount = parseInt(e.target.value) || 0;
+                      updated[index].recordCount =
+                        parseInt(e.target.value) || 0;
                       handleFieldChange('sourceSystems', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -429,7 +480,9 @@ export function DataMigrationSpec() {
                     value={system.dataQualityScore || 80}
                     onChange={(e) => {
                       const updated = [...config.sourceSystems];
-                      updated[index].dataQualityScore = parseInt(e.target.value);
+                      updated[index].dataQualityScore = parseInt(
+                        e.target.value
+                      );
                       handleFieldChange('sourceSystems', updated);
                     }}
                     className="w-full"
@@ -445,7 +498,9 @@ export function DataMigrationSpec() {
       <Card className="p-6">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">מערכות יעד <span className="text-red-500">*</span></h3>
+            <h3 className="text-lg font-semibold">
+              מערכות יעד <span className="text-red-500">*</span>
+            </h3>
             <button
               type="button"
               onClick={addTargetSystem}
@@ -454,10 +509,15 @@ export function DataMigrationSpec() {
               + הוסף מערכת יעד
             </button>
           </div>
-          {errors.targetSystems && <p className="text-red-500 text-sm">{errors.targetSystems}</p>}
+          {errors.targetSystems && (
+            <p className="text-red-500 text-sm">{errors.targetSystems}</p>
+          )}
 
           {config.targetSystems.map((system, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+            <div
+              key={index}
+              className="border border-gray-200 rounded-lg p-4 space-y-3"
+            >
               <div className="flex justify-between items-center">
                 <h4 className="font-medium">מערכת יעד #{index + 1}</h4>
                 <button
@@ -471,7 +531,9 @@ export function DataMigrationSpec() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">שם המערכת</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    שם המערכת
+                  </label>
                   <input
                     type="text"
                     value={system.systemName}
@@ -486,7 +548,9 @@ export function DataMigrationSpec() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">סוג מערכת</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    סוג מערכת
+                  </label>
                   <input
                     type="text"
                     value={system.systemType}
@@ -502,12 +566,18 @@ export function DataMigrationSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">שיטת ייבוא</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  שיטת ייבוא
+                </label>
                 <select
                   value={system.importMethod}
                   onChange={(e) => {
                     const updated = [...config.targetSystems];
-                    updated[index].importMethod = e.target.value as 'api' | 'bulk_import' | 'direct_db' | 'etl_tool';
+                    updated[index].importMethod = e.target.value as
+                      | 'api'
+                      | 'bulk_import'
+                      | 'direct_db'
+                      | 'etl_tool';
                     handleFieldChange('targetSystems', updated);
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -558,13 +628,21 @@ export function DataMigrationSpec() {
         <h3 className="text-lg font-semibold mb-4">אסטרטגיית העברה</h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">גישה</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              גישה
+            </label>
             <select
               value={config.migrationStrategy.approach}
-              onChange={(e) => handleFieldChange(
-                'migrationStrategy.approach',
-                e.target.value as 'big_bang' | 'phased' | 'parallel' | 'pilot_first'
-              )}
+              onChange={(e) =>
+                handleFieldChange(
+                  'migrationStrategy.approach',
+                  e.target.value as
+                    | 'big_bang'
+                    | 'phased'
+                    | 'parallel'
+                    | 'pilot_first'
+                )
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="big_bang">Big Bang (העברה אחת גדולה)</option>
@@ -574,10 +652,13 @@ export function DataMigrationSpec() {
             </select>
           </div>
 
-          {(config.migrationStrategy.approach === 'phased' || config.migrationStrategy.approach === 'pilot_first') && (
+          {(config.migrationStrategy.approach === 'phased' ||
+            config.migrationStrategy.approach === 'pilot_first') && (
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="block text-sm font-medium text-gray-700">תוכנית שלבים</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  תוכנית שלבים
+                </label>
                 <button
                   type="button"
                   onClick={addPhase}
@@ -587,32 +668,41 @@ export function DataMigrationSpec() {
                 </button>
               </div>
               <div className="space-y-2">
-                {(config.migrationStrategy.phasePlan || []).map((phase, index) => (
-                  <div key={index} className="flex items-center gap-2 bg-gray-50 p-2 rounded">
-                    <span className="flex-1 text-sm">{phase}</span>
-                    <button
-                      type="button"
-                      onClick={() => removePhase(index)}
-                      className="text-red-600 hover:text-red-800 text-xs"
+                {(config.migrationStrategy.phasePlan || []).map(
+                  (phase, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 bg-gray-50 p-2 rounded"
                     >
-                      הסר
-                    </button>
-                  </div>
-                ))}
+                      <span className="flex-1 text-sm">{phase}</span>
+                      <button
+                        type="button"
+                        onClick={() => removePhase(index)}
+                        className="text-red-600 hover:text-red-800 text-xs"
+                      >
+                        הסר
+                      </button>
+                    </div>
+                  )
+                )}
               </div>
             </div>
           )}
 
           {config.migrationStrategy.approach === 'pilot_first' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">מספר רשומות בפיילוט</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                מספר רשומות בפיילוט
+              </label>
               <input
                 type="number"
                 value={config.migrationStrategy.pilotRecordCount || 100}
-                onChange={(e) => handleFieldChange(
-                  'migrationStrategy.pilotRecordCount',
-                  parseInt(e.target.value) || 100
-                )}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'migrationStrategy.pilotRecordCount',
+                    parseInt(e.target.value) || 100
+                  )
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 min="1"
               />
@@ -623,7 +713,12 @@ export function DataMigrationSpec() {
             <input
               type="checkbox"
               checked={config.migrationStrategy.freezeSourceDuringMigration}
-              onChange={(e) => handleFieldChange('migrationStrategy.freezeSourceDuringMigration', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'migrationStrategy.freezeSourceDuringMigration',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">הקפאת מערכת מקור במהלך ההעברה</span>
@@ -639,20 +734,29 @@ export function DataMigrationSpec() {
             <input
               type="checkbox"
               checked={config.fieldMapping.hasMappingDocument}
-              onChange={(e) => handleFieldChange('fieldMapping.hasMappingDocument', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'fieldMapping.hasMappingDocument',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">קיים מסמך מיפוי</span>
           </label>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">מורכבות מיפוי</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              מורכבות מיפוי
+            </label>
             <select
               value={config.fieldMapping.mappingComplexity}
-              onChange={(e) => handleFieldChange(
-                'fieldMapping.mappingComplexity',
-                e.target.value as 'simple' | 'medium' | 'complex'
-              )}
+              onChange={(e) =>
+                handleFieldChange(
+                  'fieldMapping.mappingComplexity',
+                  e.target.value as 'simple' | 'medium' | 'complex'
+                )
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="simple">פשוט (1-to-1)</option>
@@ -665,7 +769,12 @@ export function DataMigrationSpec() {
             <input
               type="checkbox"
               checked={config.fieldMapping.requiresDataTransformation}
-              onChange={(e) => handleFieldChange('fieldMapping.requiresDataTransformation', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'fieldMapping.requiresDataTransformation',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">דורש טרנספורמציית נתונים</span>
@@ -673,7 +782,9 @@ export function DataMigrationSpec() {
 
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label className="block text-sm font-medium text-gray-700">חישובים מותאמים</label>
+              <label className="block text-sm font-medium text-gray-700">
+                חישובים מותאמים
+              </label>
               <button
                 type="button"
                 onClick={addCustomCalculation}
@@ -683,44 +794,61 @@ export function DataMigrationSpec() {
               </button>
             </div>
 
-            {(config.fieldMapping.customCalculations || []).map((calc, index) => (
-              <div key={index} className="border border-gray-200 rounded p-3 space-y-2 mb-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">חישוב #{index + 1}</span>
-                  <button
-                    type="button"
-                    onClick={() => removeCustomCalculation(index)}
-                    className="text-red-600 hover:text-red-800 text-xs"
-                  >
-                    הסר
-                  </button>
+            {(config.fieldMapping.customCalculations || []).map(
+              (calc, index) => (
+                <div
+                  key={index}
+                  className="border border-gray-200 rounded p-3 space-y-2 mb-2"
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">
+                      חישוב #{index + 1}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeCustomCalculation(index)}
+                      className="text-red-600 hover:text-red-800 text-xs"
+                    >
+                      הסר
+                    </button>
+                  </div>
+
+                  <input
+                    type="text"
+                    value={calc.targetField}
+                    onChange={(e) => {
+                      const updated = [
+                        ...(config.fieldMapping.customCalculations || []),
+                      ];
+                      updated[index].targetField = e.target.value;
+                      handleFieldChange(
+                        'fieldMapping.customCalculations',
+                        updated
+                      );
+                    }}
+                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                    placeholder="שדה יעד"
+                  />
+
+                  <input
+                    type="text"
+                    value={calc.formula}
+                    onChange={(e) => {
+                      const updated = [
+                        ...(config.fieldMapping.customCalculations || []),
+                      ];
+                      updated[index].formula = e.target.value;
+                      handleFieldChange(
+                        'fieldMapping.customCalculations',
+                        updated
+                      );
+                    }}
+                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                    placeholder="נוסחה (לדוגמה: firstName + ' ' + lastName)"
+                  />
                 </div>
-
-                <input
-                  type="text"
-                  value={calc.targetField}
-                  onChange={(e) => {
-                    const updated = [...(config.fieldMapping.customCalculations || [])];
-                    updated[index].targetField = e.target.value;
-                    handleFieldChange('fieldMapping.customCalculations', updated);
-                  }}
-                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                  placeholder="שדה יעד"
-                />
-
-                <input
-                  type="text"
-                  value={calc.formula}
-                  onChange={(e) => {
-                    const updated = [...(config.fieldMapping.customCalculations || [])];
-                    updated[index].formula = e.target.value;
-                    handleFieldChange('fieldMapping.customCalculations', updated);
-                  }}
-                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                  placeholder="נוסחה (לדוגמה: firstName + ' ' + lastName)"
-                />
-              </div>
-            ))}
+              )
+            )}
           </div>
         </div>
       </Card>
@@ -733,7 +861,12 @@ export function DataMigrationSpec() {
             <input
               type="checkbox"
               checked={config.testingApproach.pocMigration}
-              onChange={(e) => handleFieldChange('testingApproach.pocMigration', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'testingApproach.pocMigration',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">POC Migration (הוכחת יכולת)</span>
@@ -741,14 +874,18 @@ export function DataMigrationSpec() {
 
           {config.testingApproach.pocMigration && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">מספר רשומות ב-POC</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                מספר רשומות ב-POC
+              </label>
               <input
                 type="number"
                 value={config.testingApproach.pocRecordCount || 100}
-                onChange={(e) => handleFieldChange(
-                  'testingApproach.pocRecordCount',
-                  parseInt(e.target.value) || 100
-                )}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'testingApproach.pocRecordCount',
+                    parseInt(e.target.value) || 100
+                  )
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 min="1"
               />
@@ -757,7 +894,9 @@ export function DataMigrationSpec() {
 
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label className="block text-sm font-medium text-gray-700">כללי אימות</label>
+              <label className="block text-sm font-medium text-gray-700">
+                כללי אימות
+              </label>
               <button
                 type="button"
                 onClick={addValidationRule}
@@ -789,7 +928,12 @@ export function DataMigrationSpec() {
             <input
               type="checkbox"
               checked={config.testingApproach.userAcceptanceTesting}
-              onChange={(e) => handleFieldChange('testingApproach.userAcceptanceTesting', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'testingApproach.userAcceptanceTesting',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">בדיקות קבלה משתמש (UAT)</span>
@@ -799,7 +943,12 @@ export function DataMigrationSpec() {
             <input
               type="checkbox"
               checked={config.testingApproach.rollbackPlan}
-              onChange={(e) => handleFieldChange('testingApproach.rollbackPlan', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'testingApproach.rollbackPlan',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">תוכנית Rollback</span>
@@ -817,7 +966,12 @@ export function DataMigrationSpec() {
               <input
                 type="checkbox"
                 checked={config.dataPreparation.cleanupRequired}
-                onChange={(e) => handleFieldChange('dataPreparation.cleanupRequired', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'dataPreparation.cleanupRequired',
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">נדרש ניקוי</span>
@@ -827,7 +981,12 @@ export function DataMigrationSpec() {
               <input
                 type="checkbox"
                 checked={config.dataPreparation.deduplicationNeeded}
-                onChange={(e) => handleFieldChange('dataPreparation.deduplicationNeeded', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'dataPreparation.deduplicationNeeded',
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">נדרש הסרת כפילויות</span>
@@ -837,7 +996,12 @@ export function DataMigrationSpec() {
               <input
                 type="checkbox"
                 checked={config.dataPreparation.dataValidationNeeded}
-                onChange={(e) => handleFieldChange('dataPreparation.dataValidationNeeded', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'dataPreparation.dataValidationNeeded',
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">נדרש אימות נתונים</span>
@@ -850,28 +1014,44 @@ export function DataMigrationSpec() {
               <input
                 type="checkbox"
                 checked={config.rollbackPlan.hasBackup}
-                onChange={(e) => handleFieldChange('rollbackPlan.hasBackup', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange('rollbackPlan.hasBackup', e.target.checked)
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">קיים גיבוי</span>
             </label>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">מיקום גיבוי</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                מיקום גיבוי
+              </label>
               <input
                 type="text"
                 value={config.rollbackPlan.backupLocation || ''}
-                onChange={(e) => handleFieldChange('rollbackPlan.backupLocation', e.target.value)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'rollbackPlan.backupLocation',
+                    e.target.value
+                  )
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 placeholder="\\server\backups, AWS S3 bucket"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">תהליך Rollback</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                תהליך Rollback
+              </label>
               <textarea
                 value={config.rollbackPlan.rollbackProcedure}
-                onChange={(e) => handleFieldChange('rollbackPlan.rollbackProcedure', e.target.value)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'rollbackPlan.rollbackProcedure',
+                    e.target.value
+                  )
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 rows={3}
                 placeholder="תיאור השלבים לביצוע Rollback"
@@ -882,7 +1062,12 @@ export function DataMigrationSpec() {
               <input
                 type="checkbox"
                 checked={config.rollbackPlan.snapshotBeforeMigration}
-                onChange={(e) => handleFieldChange('rollbackPlan.snapshotBeforeMigration', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'rollbackPlan.snapshotBeforeMigration',
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">Snapshot לפני ההעברה</span>
@@ -897,33 +1082,54 @@ export function DataMigrationSpec() {
         <div className="space-y-4">
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">ימי POC</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ימי POC
+              </label>
               <input
                 type="number"
                 value={config.timeline.pocDays}
-                onChange={(e) => handleFieldChange('timeline.pocDays', parseInt(e.target.value) || 2)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'timeline.pocDays',
+                    parseInt(e.target.value) || 2
+                  )
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 min="1"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">ימי העברה מלאה</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ימי העברה מלאה
+              </label>
               <input
                 type="number"
                 value={config.timeline.fullMigrationDays}
-                onChange={(e) => handleFieldChange('timeline.fullMigrationDays', parseInt(e.target.value) || 7)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'timeline.fullMigrationDays',
+                    parseInt(e.target.value) || 7
+                  )
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 min="1"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">ימי אימות</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ימי אימות
+              </label>
               <input
                 type="number"
                 value={config.timeline.postMigrationValidationDays}
-                onChange={(e) => handleFieldChange('timeline.postMigrationValidationDays', parseInt(e.target.value) || 2)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'timeline.postMigrationValidationDays',
+                    parseInt(e.target.value) || 2
+                  )
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 min="1"
               />
@@ -939,7 +1145,12 @@ export function DataMigrationSpec() {
               min="0"
               max="100"
               value={config.successCriteria.targetCompletionRate}
-              onChange={(e) => handleFieldChange('successCriteria.targetCompletionRate', parseInt(e.target.value))}
+              onChange={(e) =>
+                handleFieldChange(
+                  'successCriteria.targetCompletionRate',
+                  parseInt(e.target.value)
+                )
+              }
               className="w-full"
             />
           </div>
@@ -954,7 +1165,12 @@ export function DataMigrationSpec() {
               max="10"
               step="0.1"
               value={config.successCriteria.maxErrorRate}
-              onChange={(e) => handleFieldChange('successCriteria.maxErrorRate', parseFloat(e.target.value))}
+              onChange={(e) =>
+                handleFieldChange(
+                  'successCriteria.maxErrorRate',
+                  parseFloat(e.target.value)
+                )
+              }
               className="w-full"
             />
           </div>
@@ -963,7 +1179,12 @@ export function DataMigrationSpec() {
             <input
               type="checkbox"
               checked={config.successCriteria.referentialIntegrityCheck}
-              onChange={(e) => handleFieldChange('successCriteria.referentialIntegrityCheck', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'successCriteria.referentialIntegrityCheck',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">בדיקת שלמות התייחסותית</span>
@@ -973,7 +1194,12 @@ export function DataMigrationSpec() {
             <input
               type="checkbox"
               checked={config.successCriteria.userAcceptanceRequired}
-              onChange={(e) => handleFieldChange('successCriteria.userAcceptanceRequired', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'successCriteria.userAcceptanceRequired',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">נדרש אישור משתמש</span>

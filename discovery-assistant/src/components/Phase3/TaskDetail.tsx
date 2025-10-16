@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { X, Save, Clock, User, AlertCircle, CheckCircle, FileText, Plus, Trash2 } from 'lucide-react';
+import {
+  X,
+  Save,
+  Clock,
+  User,
+  AlertCircle,
+  CheckCircle,
+  FileText,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { DevelopmentTask } from '../../types/phase3';
 import { Button } from '../Base/Button';
@@ -15,7 +25,9 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
   const { updateTask, addTaskTestCase, addBlocker } = useMeetingStore();
 
   const [editedTask, setEditedTask] = useState<DevelopmentTask>(task);
-  const [activeTab, setActiveTab] = useState<'details' | 'tests' | 'blockers'>('details');
+  const [activeTab, setActiveTab] = useState<'details' | 'tests' | 'blockers'>(
+    'details'
+  );
 
   const handleSave = () => {
     updateTask(task.id, editedTask);
@@ -28,12 +40,12 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
       scenario: '',
       expectedResult: '',
       actualResult: '',
-      status: 'pending' as const
+      status: 'pending' as const,
     };
     addTaskTestCase(task.id, newTest);
     setEditedTask({
       ...editedTask,
-      testCases: [...(editedTask.testCases || []), newTest]
+      testCases: [...(editedTask.testCases || []), newTest],
     });
   };
 
@@ -44,7 +56,9 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
   };
 
   const handleDeleteTestCase = (index: number) => {
-    const updatedTests = (editedTask.testCases || []).filter((_, i) => i !== index);
+    const updatedTests = (editedTask.testCases || []).filter(
+      (_, i) => i !== index
+    );
     setEditedTask({ ...editedTask, testCases: updatedTests });
   };
 
@@ -56,7 +70,7 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
       taskId: task.id,
       description,
       severity: 'high',
-      reportedBy: 'user'
+      reportedBy: 'user',
     });
   };
 
@@ -64,7 +78,7 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
     critical: 'bg-red-100 text-red-800 border-red-300',
     high: 'bg-orange-100 text-orange-800 border-orange-300',
     medium: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-    low: 'bg-green-100 text-green-800 border-green-300'
+    low: 'bg-green-100 text-green-800 border-green-300',
   };
 
   const statusColors = {
@@ -72,11 +86,14 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
     in_progress: 'bg-blue-100 text-blue-800',
     in_review: 'bg-purple-100 text-purple-800',
     blocked: 'bg-red-100 text-red-800',
-    done: 'bg-green-100 text-green-800'
+    done: 'bg-green-100 text-green-800',
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      onClick={onClose}
+    >
       <div
         className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
@@ -88,14 +105,20 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
               <input
                 type="text"
                 value={editedTask.title}
-                onChange={(e) => setEditedTask({ ...editedTask, title: e.target.value })}
+                onChange={(e) =>
+                  setEditedTask({ ...editedTask, title: e.target.value })
+                }
                 className="w-full bg-white bg-opacity-20 text-white text-xl font-bold px-3 py-2 rounded border-2 border-white border-opacity-30 focus:border-opacity-100 focus:outline-none"
               />
               <div className="flex items-center space-x-3 mt-3">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${priorityColors[editedTask.priority]} border`}>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${priorityColors[editedTask.priority]} border`}
+                >
                   {editedTask.priority.toUpperCase()}
                 </span>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[editedTask.status]}`}>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[editedTask.status]}`}
+                >
                   {editedTask.status.replace('_', ' ').toUpperCase()}
                 </span>
                 <span className="text-sm opacity-90">
@@ -119,7 +142,12 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                 <input
                   type="number"
                   value={editedTask.estimatedHours}
-                  onChange={(e) => setEditedTask({ ...editedTask, estimatedHours: parseFloat(e.target.value) })}
+                  onChange={(e) =>
+                    setEditedTask({
+                      ...editedTask,
+                      estimatedHours: parseFloat(e.target.value),
+                    })
+                  }
                   className="w-16 bg-white bg-opacity-20 px-2 py-1 rounded"
                   min="0"
                   step="0.5"
@@ -134,7 +162,12 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                 <input
                   type="number"
                   value={editedTask.actualHours}
-                  onChange={(e) => setEditedTask({ ...editedTask, actualHours: parseFloat(e.target.value) })}
+                  onChange={(e) =>
+                    setEditedTask({
+                      ...editedTask,
+                      actualHours: parseFloat(e.target.value),
+                    })
+                  }
                   className="w-16 bg-white bg-opacity-20 px-2 py-1 rounded"
                   min="0"
                   step="0.5"
@@ -149,7 +182,9 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                 <input
                   type="text"
                   value={editedTask.assignedTo || ''}
-                  onChange={(e) => setEditedTask({ ...editedTask, assignedTo: e.target.value })}
+                  onChange={(e) =>
+                    setEditedTask({ ...editedTask, assignedTo: e.target.value })
+                  }
                   className="flex-1 bg-white bg-opacity-20 px-2 py-1 rounded"
                   placeholder="Unassigned"
                 />
@@ -163,8 +198,12 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
           <div className="flex">
             {[
               { key: 'details', label: 'Details', icon: FileText },
-              { key: 'tests', label: `Tests (${editedTask.testCases?.length || 0})`, icon: CheckCircle },
-              { key: 'blockers', label: 'Blockers', icon: AlertCircle }
+              {
+                key: 'tests',
+                label: `Tests (${editedTask.testCases?.length || 0})`,
+                icon: CheckCircle,
+              },
+              { key: 'blockers', label: 'Blockers', icon: AlertCircle },
             ].map(({ key, label, icon: Icon }) => (
               <button
                 key={key}
@@ -192,7 +231,12 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                 </label>
                 <textarea
                   value={editedTask.description}
-                  onChange={(e) => setEditedTask({ ...editedTask, description: e.target.value })}
+                  onChange={(e) =>
+                    setEditedTask({
+                      ...editedTask,
+                      description: e.target.value,
+                    })
+                  }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   rows={4}
                 />
@@ -205,7 +249,12 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                   </label>
                   <select
                     value={editedTask.status}
-                    onChange={(e) => setEditedTask({ ...editedTask, status: e.target.value as any })}
+                    onChange={(e) =>
+                      setEditedTask({
+                        ...editedTask,
+                        status: e.target.value as any,
+                      })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="todo">To Do</option>
@@ -222,7 +271,12 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                   </label>
                   <select
                     value={editedTask.priority}
-                    onChange={(e) => setEditedTask({ ...editedTask, priority: e.target.value as any })}
+                    onChange={(e) =>
+                      setEditedTask({
+                        ...editedTask,
+                        priority: e.target.value as any,
+                      })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="low">Low</option>
@@ -240,7 +294,9 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                 <input
                   type="text"
                   value={editedTask.sprint || ''}
-                  onChange={(e) => setEditedTask({ ...editedTask, sprint: e.target.value })}
+                  onChange={(e) =>
+                    setEditedTask({ ...editedTask, sprint: e.target.value })
+                  }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   placeholder="Sprint 1"
                 />
@@ -251,8 +307,12 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                   Related Spec
                 </label>
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <div className="text-sm text-gray-600">Type: {editedTask.relatedSpec.type}</div>
-                  <div className="font-medium">{editedTask.relatedSpec.specName}</div>
+                  <div className="text-sm text-gray-600">
+                    Type: {editedTask.relatedSpec.type}
+                  </div>
+                  <div className="font-medium">
+                    {editedTask.relatedSpec.specName}
+                  </div>
                 </div>
               </div>
 
@@ -262,26 +322,35 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                 </label>
                 <textarea
                   value={editedTask.technicalNotes}
-                  onChange={(e) => setEditedTask({ ...editedTask, technicalNotes: e.target.value })}
+                  onChange={(e) =>
+                    setEditedTask({
+                      ...editedTask,
+                      technicalNotes: e.target.value,
+                    })
+                  }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 font-mono text-sm"
                   rows={4}
                   placeholder="Add technical notes, code snippets, or implementation details..."
                 />
               </div>
 
-              {editedTask.dependencies && editedTask.dependencies.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Dependencies
-                  </label>
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <div className="flex items-center text-yellow-800 mb-2">
-                      <AlertCircle className="w-4 h-4 mr-2" />
-                      <span className="font-medium">This task depends on {editedTask.dependencies.length} other task(s)</span>
+              {editedTask.dependencies &&
+                editedTask.dependencies.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Dependencies
+                    </label>
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <div className="flex items-center text-yellow-800 mb-2">
+                        <AlertCircle className="w-4 h-4 mr-2" />
+                        <span className="font-medium">
+                          This task depends on {editedTask.dependencies.length}{' '}
+                          other task(s)
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           )}
 
@@ -291,10 +360,7 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                 <div className="text-center py-12">
                   <CheckCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-600 mb-4">No test cases yet</p>
-                  <Button
-                    onClick={handleAddTestCase}
-                    variant="primary"
-                  >
+                  <Button onClick={handleAddTestCase} variant="primary">
                     <Plus className="w-4 h-4 inline mr-2" />
                     Add First Test Case
                   </Button>
@@ -302,9 +368,14 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
               ) : (
                 <>
                   {editedTask.testCases.map((test, index) => (
-                    <div key={test.id} className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
+                    <div
+                      key={test.id}
+                      className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200"
+                    >
                       <div className="flex items-start justify-between mb-3">
-                        <h4 className="font-medium text-gray-900">Test Case #{index + 1}</h4>
+                        <h4 className="font-medium text-gray-900">
+                          Test Case #{index + 1}
+                        </h4>
                         <button
                           onClick={() => handleDeleteTestCase(index)}
                           className="text-red-600 hover:text-red-700"
@@ -321,7 +392,11 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                           <input
                             type="text"
                             value={test.scenario}
-                            onChange={(e) => handleUpdateTestCase(index, { scenario: e.target.value })}
+                            onChange={(e) =>
+                              handleUpdateTestCase(index, {
+                                scenario: e.target.value,
+                              })
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                             placeholder="What are you testing?"
                           />
@@ -334,7 +409,11 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                           <input
                             type="text"
                             value={test.expectedResult}
-                            onChange={(e) => handleUpdateTestCase(index, { expectedResult: e.target.value })}
+                            onChange={(e) =>
+                              handleUpdateTestCase(index, {
+                                expectedResult: e.target.value,
+                              })
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                             placeholder="What should happen?"
                           />
@@ -347,7 +426,11 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                           <input
                             type="text"
                             value={test.actualResult || ''}
-                            onChange={(e) => handleUpdateTestCase(index, { actualResult: e.target.value })}
+                            onChange={(e) =>
+                              handleUpdateTestCase(index, {
+                                actualResult: e.target.value,
+                              })
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                             placeholder="What actually happened?"
                           />
@@ -359,7 +442,11 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                           </label>
                           <select
                             value={test.status}
-                            onChange={(e) => handleUpdateTestCase(index, { status: e.target.value })}
+                            onChange={(e) =>
+                              handleUpdateTestCase(index, {
+                                status: e.target.value,
+                              })
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                           >
                             <option value="pending">Pending</option>
@@ -389,9 +476,12 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                 <div className="flex items-start space-x-3">
                   <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
                   <div>
-                    <h3 className="font-medium text-red-900 mb-1">Report a Blocker</h3>
+                    <h3 className="font-medium text-red-900 mb-1">
+                      Report a Blocker
+                    </h3>
                     <p className="text-sm text-red-700 mb-3">
-                      If this task is blocked, report it here so the team can help resolve it.
+                      If this task is blocked, report it here so the team can
+                      help resolve it.
                     </p>
                     <Button
                       onClick={handleAddBlocker}
@@ -409,7 +499,9 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                   <div className="flex items-center text-yellow-800">
                     <AlertCircle className="w-5 h-5 mr-2" />
-                    <span className="font-medium">This task is currently blocked</span>
+                    <span className="font-medium">
+                      This task is currently blocked
+                    </span>
                   </div>
                 </div>
               )}
@@ -420,19 +512,14 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
         {/* Footer */}
         <div className="border-t p-4 bg-gray-50 flex justify-between items-center">
           <div className="text-sm text-gray-500">
-            Last updated: {new Date(editedTask.updatedAt).toLocaleString('en-US')}
+            Last updated:{' '}
+            {new Date(editedTask.updatedAt).toLocaleString('en-US')}
           </div>
           <div className="flex space-x-3">
-            <Button
-              onClick={onClose}
-              variant="secondary"
-            >
+            <Button onClick={onClose} variant="secondary">
               Cancel
             </Button>
-            <Button
-              onClick={handleSave}
-              variant="primary"
-            >
+            <Button onClick={handleSave} variant="primary">
               <Save className="w-4 h-4 mr-2" />
               Save Changes
             </Button>

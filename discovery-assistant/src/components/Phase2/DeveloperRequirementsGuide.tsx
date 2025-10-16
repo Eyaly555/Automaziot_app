@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
 import { useMeetingStore } from '../../store/useMeetingStore';
-import { generateRequirementsDocumentation, validateServiceRequirements } from '../../utils/serviceRequirementsValidation';
+import {
+  generateRequirementsDocumentation,
+  validateServiceRequirements,
+} from '../../utils/serviceRequirementsValidation';
 import { Card } from '../Common/Card';
 import { Button } from '../Base';
-import { Download, Eye, EyeOff, FileText, CheckCircle, AlertCircle } from 'lucide-react';
+import {
+  Download,
+  Eye,
+  EyeOff,
+  FileText,
+  CheckCircle,
+  AlertCircle,
+} from 'lucide-react';
 
 /**
  * Developer Requirements Guide Component
@@ -15,7 +25,8 @@ export const DeveloperRequirementsGuide: React.FC = () => {
   const { currentMeeting } = useMeetingStore();
   const [showDetails, setShowDetails] = useState(false);
 
-  const purchasedServices = currentMeeting?.modules?.proposal?.purchasedServices || [];
+  const purchasedServices =
+    currentMeeting?.modules?.proposal?.purchasedServices || [];
   const validation = validateServiceRequirements(
     purchasedServices,
     currentMeeting?.implementationSpec || {}
@@ -40,7 +51,9 @@ export const DeveloperRequirementsGuide: React.FC = () => {
       <Card title="אין שירותים שנרכשו" subtitle="לא ניתן ליצור מדריך דרישות">
         <div className="text-center py-8">
           <FileText className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600">יש להשלים את שלב ההצעה לפני יצירת מדריך דרישות טכניות</p>
+          <p className="text-gray-600">
+            יש להשלים את שלב ההצעה לפני יצירת מדריך דרישות טכניות
+          </p>
         </div>
       </Card>
     );
@@ -49,20 +62,29 @@ export const DeveloperRequirementsGuide: React.FC = () => {
   return (
     <div className="space-y-6" dir="rtl">
       {/* Header */}
-      <Card title="מדריך דרישות טכניות למפתחים" subtitle="מפרט מלא של כל השדות לאיסוף עבור כל שירות">
+      <Card
+        title="מדריך דרישות טכניות למפתחים"
+        subtitle="מפרט מלא של כל השדות לאיסוף עבור כל שירות"
+      >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600">שירותים שנרכשו:</span>
-              <span className="font-semibold text-lg text-blue-600">{purchasedServices.length}</span>
+              <span className="font-semibold text-lg text-blue-600">
+                {purchasedServices.length}
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600">הושלמו:</span>
               <div className="flex items-center gap-1">
                 <CheckCircle className="w-4 h-4 text-green-600" />
-                <span className="font-semibold text-green-600">{validation.completedCount}</span>
+                <span className="font-semibold text-green-600">
+                  {validation.completedCount}
+                </span>
               </div>
-              <span className="text-sm text-gray-600">מתוך {validation.totalCount}</span>
+              <span className="text-sm text-gray-600">
+                מתוך {validation.totalCount}
+              </span>
             </div>
           </div>
 
@@ -70,7 +92,13 @@ export const DeveloperRequirementsGuide: React.FC = () => {
             <Button
               variant="outline"
               onClick={() => setShowDetails(!showDetails)}
-              icon={showDetails ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              icon={
+                showDetails ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )
+              }
             >
               {showDetails ? 'הסתר פרטים' : 'הצג פרטים'}
             </Button>
@@ -88,18 +116,29 @@ export const DeveloperRequirementsGuide: React.FC = () => {
         {/* Completion Status */}
         <div className="bg-gray-50 rounded-lg p-4 mb-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">סטטוס השלמת דרישות</span>
-            <span className={`text-sm font-semibold ${validation.isValid ? 'text-green-600' : 'text-orange-600'}`}>
-              {validation.isValid ? '✓ הושלם' : `${validation.missingServices.length} חסרים`}
+            <span className="text-sm font-medium text-gray-700">
+              סטטוס השלמת דרישות
+            </span>
+            <span
+              className={`text-sm font-semibold ${validation.isValid ? 'text-green-600' : 'text-orange-600'}`}
+            >
+              {validation.isValid
+                ? '✓ הושלם'
+                : `${validation.missingServices.length} חסרים`}
             </span>
           </div>
 
           {!validation.isValid && validation.missingServices.length > 0 && (
             <div className="mt-2">
-              <div className="text-xs text-orange-700 mb-1">שירותים שטרם הושלמו:</div>
+              <div className="text-xs text-orange-700 mb-1">
+                שירותים שטרם הושלמו:
+              </div>
               <div className="flex flex-wrap gap-1">
-                {validation.missingServices.map(service => (
-                  <span key={service} className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded">
+                {validation.missingServices.map((service) => (
+                  <span
+                    key={service}
+                    className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded"
+                  >
                     {service}
                   </span>
                 ))}
@@ -111,7 +150,9 @@ export const DeveloperRequirementsGuide: React.FC = () => {
         {/* Requirements Preview */}
         {showDetails && (
           <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="font-semibold text-gray-900 mb-3">תצוגה מקדימה של המדריך</h4>
+            <h4 className="font-semibold text-gray-900 mb-3">
+              תצוגה מקדימה של המדריך
+            </h4>
             <div className="bg-white rounded border p-4 max-h-96 overflow-y-auto">
               <pre className="text-sm whitespace-pre-wrap font-mono text-gray-800">
                 {documentation.substring(0, 2000)}
@@ -123,9 +164,16 @@ export const DeveloperRequirementsGuide: React.FC = () => {
 
         {/* Service-by-Service Breakdown */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {purchasedServices.map(service => {
-            const template = require('../../config/serviceRequirementsTemplates').getRequirementsTemplate(service.id);
-            const isCompleted = validation.completedCount > 0 && !validation.missingServices.includes(service.nameHe || service.name);
+          {purchasedServices.map((service) => {
+            const template =
+              require('../../config/serviceRequirementsTemplates').getRequirementsTemplate(
+                service.id
+              );
+            const isCompleted =
+              validation.completedCount > 0 &&
+              !validation.missingServices.includes(
+                service.nameHe || service.name
+              );
 
             return (
               <Card
@@ -141,7 +189,9 @@ export const DeveloperRequirementsGuide: React.FC = () => {
                     ) : (
                       <AlertCircle className="w-5 h-5 text-orange-600" />
                     )}
-                    <span className={`text-sm font-medium ${isCompleted ? 'text-green-700' : 'text-orange-700'}`}>
+                    <span
+                      className={`text-sm font-medium ${isCompleted ? 'text-green-700' : 'text-orange-700'}`}
+                    >
                       {isCompleted ? 'הושלם' : 'ממתין לאיסוף'}
                     </span>
                   </div>
@@ -149,7 +199,13 @@ export const DeveloperRequirementsGuide: React.FC = () => {
                   {template && (
                     <div className="text-xs text-gray-600">
                       <div>סעיפים: {template.sections.length}</div>
-                      <div>שדות: {template.sections.reduce((acc, section) => acc + section.fields.length, 0)}</div>
+                      <div>
+                        שדות:{' '}
+                        {template.sections.reduce(
+                          (acc, section) => acc + section.fields.length,
+                          0
+                        )}
+                      </div>
                     </div>
                   )}
 
@@ -173,7 +229,10 @@ export const DeveloperRequirementsGuide: React.FC = () => {
         </div>
 
         {/* Export Options */}
-        <Card title="אפשרויות ייצוא" subtitle="ייצוא המדריך בפורמטים שונים למפתחים">
+        <Card
+          title="אפשרויות ייצוא"
+          subtitle="ייצוא המדריך בפורמטים שונים למפתחים"
+        >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Button
               variant="outline"
@@ -202,9 +261,11 @@ export const DeveloperRequirementsGuide: React.FC = () => {
                 const jsonData = {
                   services: purchasedServices,
                   validation,
-                  generatedAt: new Date().toISOString()
+                  generatedAt: new Date().toISOString(),
                 };
-                const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+                const blob = new Blob([JSON.stringify(jsonData, null, 2)], {
+                  type: 'application/json',
+                });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;

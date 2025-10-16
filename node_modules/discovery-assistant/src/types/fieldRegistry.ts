@@ -1,13 +1,13 @@
 /**
  * Field Registry Type Definitions
- * 
+ *
  * Defines the structure for the central field registry that tracks
  * all fields across Phase 1, Phase 2, and Phase 3 of the discovery process.
  */
 
 export type Phase = 'phase1' | 'phase2' | 'phase3';
 
-export type FieldType = 
+export type FieldType =
   | 'text'
   | 'number'
   | 'email'
@@ -64,7 +64,7 @@ export interface FieldLocation {
 export interface RegistryField {
   // Identification
   id: string; // Unique identifier, e.g., 'crm_system'
-  
+
   // Display
   label: {
     he: string;
@@ -78,26 +78,26 @@ export interface RegistryField {
     he?: string;
     en?: string;
   };
-  
+
   // Field configuration
   type: FieldType;
   category: FieldCategory;
-  
+
   // Cross-phase tracking
   collectedIn: Phase[]; // Phases where this field is collected
   usedBy: string[]; // Service IDs or module names that use this field
-  
+
   // Data sources
   primarySource: FieldLocation; // Primary location where field is first collected
   secondarySources: FieldLocation[]; // Other locations where this field appears
-  
+
   // Auto-population settings
   autoPopulate: boolean; // Should this field auto-populate from primary source?
   syncBidirectional: boolean; // Should changes update all locations?
-  
+
   // Transformations
   transformations?: FieldTransformation[]; // How to transform value between locations
-  
+
   // Validation
   required?: boolean;
   validation?: {
@@ -108,13 +108,13 @@ export interface RegistryField {
     maxLength?: number;
     custom?: (value: any) => boolean;
   };
-  
+
   // Options for select/multiselect fields
   options?: Array<{
     value: string;
     label: { he: string; en: string };
   }>;
-  
+
   // Metadata
   importance: 'critical' | 'high' | 'medium' | 'low';
   businessContext?: string; // Why this field matters for the business
@@ -215,4 +215,3 @@ export interface SmartFieldValue<T = any> {
     required?: boolean;
   };
 }
-

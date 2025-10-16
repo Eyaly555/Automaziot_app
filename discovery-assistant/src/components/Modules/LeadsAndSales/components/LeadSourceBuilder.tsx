@@ -18,10 +18,13 @@ const channelOptions = [
   { value: 'phone', label: 'טלפון' },
   { value: 'email', label: 'אימייל' },
   { value: 'walk_in', label: 'כניסה ישירה' },
-  { value: 'other', label: 'אחר' }
+  { value: 'other', label: 'אחר' },
 ];
 
-export const LeadSourceBuilder: React.FC<LeadSourceBuilderProps> = ({ sources, onChange }) => {
+export const LeadSourceBuilder: React.FC<LeadSourceBuilderProps> = ({
+  sources,
+  onChange,
+}) => {
   const [newChannel, setNewChannel] = useState('');
   const [newVolume, setNewVolume] = useState('');
   const [newQuality, setNewQuality] = useState<number>(3);
@@ -32,7 +35,7 @@ export const LeadSourceBuilder: React.FC<LeadSourceBuilderProps> = ({ sources, o
     const newSource: LeadSource = {
       channel: newChannel,
       volumePerMonth: newVolume ? parseInt(newVolume) : undefined,
-      quality: newQuality as 1 | 2 | 3 | 4 | 5
+      quality: newQuality as 1 | 2 | 3 | 4 | 5,
     };
 
     onChange([...sources, newSource]);
@@ -58,30 +61,47 @@ export const LeadSourceBuilder: React.FC<LeadSourceBuilderProps> = ({ sources, o
       {sources.length > 0 && (
         <div className="space-y-3">
           {sources.map((source, index) => (
-            <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div
+              key={index}
+              className="bg-gray-50 border border-gray-200 rounded-lg p-4"
+            >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">מקור</label>
+                    <label className="block text-xs text-gray-600 mb-1">
+                      מקור
+                    </label>
                     <p className="text-sm font-medium">{source.channel}</p>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">נפח חודשי</label>
+                    <label className="block text-xs text-gray-600 mb-1">
+                      נפח חודשי
+                    </label>
                     <Input
                       type="number"
                       value={source.volumePerMonth?.toString() || ''}
-                      onChange={(val) => handleUpdate(index, { volumePerMonth: val ? parseInt(val) : undefined })}
+                      onChange={(val) =>
+                        handleUpdate(index, {
+                          volumePerMonth: val ? parseInt(val) : undefined,
+                        })
+                      }
                       placeholder="0"
                       dir="rtl"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">איכות (1-5)</label>
+                    <label className="block text-xs text-gray-600 mb-1">
+                      איכות (1-5)
+                    </label>
                     <div className="flex gap-1">
                       {[1, 2, 3, 4, 5].map((rating) => (
                         <button
                           key={rating}
-                          onClick={() => handleUpdate(index, { quality: rating as 1 | 2 | 3 | 4 | 5 })}
+                          onClick={() =>
+                            handleUpdate(index, {
+                              quality: rating as 1 | 2 | 3 | 4 | 5,
+                            })
+                          }
                           className={`px-2 py-1 text-xs rounded border transition-colors ${
                             source.quality === rating
                               ? 'border-blue-600 bg-blue-50 text-blue-700'
@@ -108,7 +128,9 @@ export const LeadSourceBuilder: React.FC<LeadSourceBuilderProps> = ({ sources, o
 
       {/* Add New Source */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="text-sm font-medium text-gray-700 mb-3">הוסף מקור לידים</h4>
+        <h4 className="text-sm font-medium text-gray-700 mb-3">
+          הוסף מקור לידים
+        </h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <Select
             label="מקור"
@@ -127,7 +149,9 @@ export const LeadSourceBuilder: React.FC<LeadSourceBuilderProps> = ({ sources, o
             dir="rtl"
           />
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">איכות (1-5)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              איכות (1-5)
+            </label>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((rating) => (
                 <button

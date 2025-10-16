@@ -24,7 +24,7 @@ export const PhaseStep: React.FC<PhaseStepProps> = ({
   compact = false,
   showProgress = true,
   onClick,
-  description
+  description,
 }) => {
   const isClickable = state === 'completed' || state === 'unlocked';
 
@@ -36,7 +36,7 @@ export const PhaseStep: React.FC<PhaseStepProps> = ({
       text: 'text-green-600',
       ring: 'ring-green-500',
       icon: 'text-white',
-      hover: 'hover:bg-green-600'
+      hover: 'hover:bg-green-600',
     },
     active: {
       bg: 'bg-blue-600',
@@ -44,7 +44,7 @@ export const PhaseStep: React.FC<PhaseStepProps> = ({
       text: 'text-blue-600',
       ring: 'ring-blue-600',
       icon: 'text-white',
-      hover: ''
+      hover: '',
     },
     unlocked: {
       bg: 'bg-blue-100',
@@ -52,7 +52,7 @@ export const PhaseStep: React.FC<PhaseStepProps> = ({
       text: 'text-blue-600',
       ring: 'ring-blue-400',
       icon: 'text-blue-600',
-      hover: 'hover:bg-blue-200'
+      hover: 'hover:bg-blue-200',
     },
     locked: {
       bg: 'bg-gray-200',
@@ -60,8 +60,8 @@ export const PhaseStep: React.FC<PhaseStepProps> = ({
       text: 'text-gray-400',
       ring: 'ring-gray-300',
       icon: 'text-gray-400',
-      hover: ''
-    }
+      hover: '',
+    },
   };
 
   const colors = colorSchemes[state];
@@ -104,11 +104,17 @@ export const PhaseStep: React.FC<PhaseStepProps> = ({
           `}
         >
           {state === 'completed' ? (
-            <CheckCircle className={`${compact ? 'w-7 h-7' : 'w-9 h-9'} ${colors.icon}`} />
+            <CheckCircle
+              className={`${compact ? 'w-7 h-7' : 'w-9 h-9'} ${colors.icon}`}
+            />
           ) : state === 'locked' ? (
-            <Lock className={`${compact ? 'w-5 h-5' : 'w-7 h-7'} ${colors.icon}`} />
+            <Lock
+              className={`${compact ? 'w-5 h-5' : 'w-7 h-7'} ${colors.icon}`}
+            />
           ) : (
-            <Icon className={`${compact ? 'w-6 h-6' : 'w-8 h-8'} ${colors.icon}`} />
+            <Icon
+              className={`${compact ? 'w-6 h-6' : 'w-8 h-8'} ${colors.icon}`}
+            />
           )}
         </div>
 
@@ -147,16 +153,16 @@ export const PhaseStep: React.FC<PhaseStepProps> = ({
             {label}
           </div>
           {state === 'active' && showProgress && progress > 0 && (
-            <div className="text-xs text-gray-500 mt-1">
-              {progress}% הושלם
-            </div>
+            <div className="text-xs text-gray-500 mt-1">{progress}% הושלם</div>
           )}
         </div>
       )}
 
       {/* Compact Label */}
       {compact && (
-        <div className={`text-xs font-medium ${colors.text} mt-1 text-center max-w-[60px] leading-tight`}>
+        <div
+          className={`text-xs font-medium ${colors.text} mt-1 text-center max-w-[60px] leading-tight`}
+        >
           {label}
         </div>
       )}

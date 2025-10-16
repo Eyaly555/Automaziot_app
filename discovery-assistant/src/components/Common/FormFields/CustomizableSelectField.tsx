@@ -21,7 +21,9 @@ interface CustomizableSelectFieldProps {
   maxCustomEntries?: number;
 }
 
-export const CustomizableSelectField: React.FC<CustomizableSelectFieldProps> = ({
+export const CustomizableSelectField: React.FC<
+  CustomizableSelectFieldProps
+> = ({
   label,
   value,
   options,
@@ -36,15 +38,17 @@ export const CustomizableSelectField: React.FC<CustomizableSelectFieldProps> = (
   moduleId,
   fieldName,
   validateCustom,
-  maxCustomEntries = 10
+  maxCustomEntries = 10,
 }) => {
-  const { getCustomValues, addCustomValue, removeCustomValue } = useMeetingStore();
+  const { getCustomValues, addCustomValue, removeCustomValue } =
+    useMeetingStore();
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [customInputValue, setCustomInputValue] = useState('');
   const [customError, setCustomError] = useState<string>('');
 
   // Get custom values from store
-  const customValues = (moduleId && fieldName) ? getCustomValues(moduleId, fieldName) : [];
+  const customValues =
+    moduleId && fieldName ? getCustomValues(moduleId, fieldName) : [];
 
   // Combine predefined options with custom values
   const allOptions = [...options, ...customValues];
@@ -60,7 +64,7 @@ export const CustomizableSelectField: React.FC<CustomizableSelectFieldProps> = (
     if (multiple) {
       const currentValues = Array.isArray(value) ? value : [];
       if (currentValues.includes(selectedValue)) {
-        onChange(currentValues.filter(v => v !== selectedValue));
+        onChange(currentValues.filter((v) => v !== selectedValue));
       } else {
         onChange([...currentValues, selectedValue]);
       }
@@ -77,8 +81,8 @@ export const CustomizableSelectField: React.FC<CustomizableSelectFieldProps> = (
     }
 
     // Check if already exists
-    const exists = allOptions.some(opt =>
-      opt.value.toLowerCase() === customInputValue.trim().toLowerCase()
+    const exists = allOptions.some(
+      (opt) => opt.value.toLowerCase() === customInputValue.trim().toLowerCase()
     );
 
     if (exists) {
@@ -108,7 +112,7 @@ export const CustomizableSelectField: React.FC<CustomizableSelectFieldProps> = (
     const newOption: SelectOption = {
       value: customInputValue.trim(),
       label: customInputValue.trim(),
-      isCustom: true
+      isCustom: true,
     };
 
     if (moduleId && fieldName) {
@@ -136,7 +140,7 @@ export const CustomizableSelectField: React.FC<CustomizableSelectFieldProps> = (
 
     // Update selection if this value was selected
     if (multiple && Array.isArray(value)) {
-      onChange(value.filter(v => v !== customValue));
+      onChange(value.filter((v) => v !== customValue));
     } else if (value === customValue) {
       onChange('');
     }
@@ -162,7 +166,7 @@ export const CustomizableSelectField: React.FC<CustomizableSelectFieldProps> = (
 
       {/* Main Select */}
       <select
-        value={multiple ? '' : (value || '')}
+        value={multiple ? '' : value || ''}
         onChange={handleSelectChange}
         disabled={disabled || showCustomInput}
         className={`
@@ -173,15 +177,13 @@ export const CustomizableSelectField: React.FC<CustomizableSelectFieldProps> = (
         `}
       >
         <option value="">{placeholder}</option>
-        {allOptions.map(option => (
+        {allOptions.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
             {option.isCustom && ' (מותאם אישית)'}
           </option>
         ))}
-        {allowCustom && (
-          <option value="__custom__">➕ הוסף ערך חדש...</option>
-        )}
+        {allowCustom && <option value="__custom__">➕ הוסף ערך חדש...</option>}
       </select>
 
       {/* Custom Input */}
@@ -234,8 +236,8 @@ export const CustomizableSelectField: React.FC<CustomizableSelectFieldProps> = (
       {/* Selected Values (for multiple) */}
       {multiple && Array.isArray(value) && value.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-2">
-          {value.map(val => {
-            const option = allOptions.find(opt => opt.value === val);
+          {value.map((val) => {
+            const option = allOptions.find((opt) => opt.value === val);
             if (!option) return null;
 
             return (
@@ -251,7 +253,7 @@ export const CustomizableSelectField: React.FC<CustomizableSelectFieldProps> = (
                     if (option.isCustom) {
                       handleRemoveCustom(val);
                     } else {
-                      onChange(value.filter(v => v !== val));
+                      onChange(value.filter((v) => v !== val));
                     }
                   }}
                   className="hover:text-blue-900 transition-colors"
@@ -269,7 +271,7 @@ export const CustomizableSelectField: React.FC<CustomizableSelectFieldProps> = (
         <div className="mt-2">
           <p className="text-xs text-gray-600 mb-1">ערכים מותאמים אישית:</p>
           <div className="flex flex-wrap gap-2">
-            {customValues.map(custom => (
+            {customValues.map((custom) => (
               <div
                 key={custom.value}
                 className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs"
@@ -290,9 +292,7 @@ export const CustomizableSelectField: React.FC<CustomizableSelectFieldProps> = (
       )}
 
       {/* Error Message */}
-      {error && (
-        <p className="text-sm text-red-600 mt-1">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
     </div>
   );
 };

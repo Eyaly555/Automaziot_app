@@ -38,16 +38,16 @@ export const Select = ({
   clearable,
   dir = 'rtl',
   loading,
-  className = ''
+  className = '',
 }: SelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const selectedOption = options.find(opt => opt.value === value);
+  const selectedOption = options.find((opt) => opt.value === value);
 
   const filteredOptions = searchTerm
-    ? options.filter(opt =>
+    ? options.filter((opt) =>
         opt.label.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : options;
@@ -55,7 +55,10 @@ export const Select = ({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
         setSearchTerm('');
         onBlur?.();
@@ -64,7 +67,8 @@ export const Select = ({
 
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      return () =>
+        document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [isOpen, onBlur]);
 
@@ -139,7 +143,9 @@ export const Select = ({
                 onClick={handleClear}
               />
             )}
-            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown
+              className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+            />
           </div>
         </button>
 
@@ -150,7 +156,9 @@ export const Select = ({
             {searchable && (
               <div className="p-2 border-b">
                 <div className="relative">
-                  <Search className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 ${dir === 'rtl' ? 'right-3' : 'left-3'}`} />
+                  <Search
+                    className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 ${dir === 'rtl' ? 'right-3' : 'left-3'}`}
+                  />
                   <input
                     type="text"
                     value={searchTerm}
@@ -198,9 +206,7 @@ export const Select = ({
       </div>
 
       {/* Error Message */}
-      {error && (
-        <p className="mt-1 text-sm text-red-600">{error}</p>
-      )}
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
     </div>
   );
 };

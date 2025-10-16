@@ -36,7 +36,7 @@ export const Input = ({
   helpText,
   icon,
   dir = 'rtl',
-  className = ''
+  className = '',
 }: InputProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -66,7 +66,9 @@ export const Input = ({
       <div className="relative">
         {/* Icon (right side for RTL, left for LTR) */}
         {icon && !error && !success && (
-          <div className={`absolute top-1/2 -translate-y-1/2 text-gray-400 ${dir === 'rtl' ? 'right-3' : 'left-3'}`}>
+          <div
+            className={`absolute top-1/2 -translate-y-1/2 text-gray-400 ${dir === 'rtl' ? 'right-3' : 'left-3'}`}
+          >
             {icon}
           </div>
         )}
@@ -85,16 +87,17 @@ export const Input = ({
             w-full px-3 py-2
             ${icon ? (dir === 'rtl' ? 'pr-10' : 'pl-10') : ''}
             ${type === 'password' ? (dir === 'rtl' ? 'pl-10' : 'pr-10') : ''}
-            ${(error || success) ? (dir === 'rtl' ? 'pl-10' : 'pr-10') : ''}
+            ${error || success ? (dir === 'rtl' ? 'pl-10' : 'pr-10') : ''}
             border rounded-lg
             transition-all duration-200
-            ${error
-              ? 'border-red-500 focus:ring-2 focus:ring-red-200'
-              : success
-              ? 'border-green-500 focus:ring-2 focus:ring-green-200'
-              : isFocused
-              ? 'border-blue-500 ring-2 ring-blue-200'
-              : 'border-gray-300'
+            ${
+              error
+                ? 'border-red-500 focus:ring-2 focus:ring-red-200'
+                : success
+                  ? 'border-green-500 focus:ring-2 focus:ring-green-200'
+                  : isFocused
+                    ? 'border-blue-500 ring-2 ring-blue-200'
+                    : 'border-gray-300'
             }
             ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
             focus:outline-none
@@ -109,13 +112,19 @@ export const Input = ({
             className={`absolute top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors ${dir === 'rtl' ? 'left-3' : 'right-3'}`}
             tabIndex={-1}
           >
-            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            {showPassword ? (
+              <EyeOff className="w-4 h-4" />
+            ) : (
+              <Eye className="w-4 h-4" />
+            )}
           </button>
         )}
 
         {/* Success/Error Icons */}
         {(error || success) && (
-          <div className={`absolute top-1/2 -translate-y-1/2 ${dir === 'rtl' ? 'left-3' : 'right-3'}`}>
+          <div
+            className={`absolute top-1/2 -translate-y-1/2 ${dir === 'rtl' ? 'left-3' : 'right-3'}`}
+          >
             {error && <AlertCircle className="w-4 h-4 text-red-500" />}
             {success && <Check className="w-4 h-4 text-green-500" />}
           </div>
@@ -137,7 +146,9 @@ export const Input = ({
         </div>
 
         {showCharCount && maxLength && (
-          <span className={`text-xs ${value.length > maxLength * 0.9 ? 'text-orange-600' : 'text-gray-400'}`}>
+          <span
+            className={`text-xs ${value.length > maxLength * 0.9 ? 'text-orange-600' : 'text-gray-400'}`}
+          >
             {value.length}/{maxLength}
           </span>
         )}

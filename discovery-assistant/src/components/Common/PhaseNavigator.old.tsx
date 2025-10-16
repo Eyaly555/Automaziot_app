@@ -9,35 +9,41 @@ const PHASE_CONFIG = {
     number: 1,
     nameHe: 'גילוי ואיתור צרכים',
     nameEn: 'Discovery',
-    description: 'איסוף מידע ראשוני מהלקוח'
+    description: 'איסוף מידע ראשוני מהלקוח',
   },
   implementation_spec: {
     number: 2,
     nameHe: 'מפרט טכני',
     nameEn: 'Implementation Spec',
-    description: 'פירוט טכני מלא לפיתוח'
+    description: 'פירוט טכני מלא לפיתוח',
   },
   development: {
     number: 3,
     nameHe: 'פיתוח ומעקב',
     nameEn: 'Development',
-    description: 'ניהול משימות וקוד'
+    description: 'ניהול משימות וקוד',
   },
   completed: {
     number: 4,
     nameHe: 'הושלם',
     nameEn: 'Completed',
-    description: 'הפרויקט הושלם'
-  }
+    description: 'הפרויקט הושלם',
+  },
 };
 
 export const PhaseNavigator: React.FC = () => {
-  const { currentMeeting, transitionPhase, canTransitionTo, getPhaseProgress } = useMeetingStore();
+  const { currentMeeting, transitionPhase, canTransitionTo, getPhaseProgress } =
+    useMeetingStore();
 
   if (!currentMeeting) return null;
 
   const currentPhase = currentMeeting.phase || 'discovery'; // Fallback to 'discovery' if phase is undefined
-  const phases: MeetingPhase[] = ['discovery', 'implementation_spec', 'development', 'completed'];
+  const phases: MeetingPhase[] = [
+    'discovery',
+    'implementation_spec',
+    'development',
+    'completed',
+  ];
 
   const getPhaseStatus = (phase: MeetingPhase) => {
     const phaseIndex = phases.indexOf(phase);
@@ -53,7 +59,11 @@ export const PhaseNavigator: React.FC = () => {
     if (phase === currentPhase) return;
 
     if (canTransitionTo(phase)) {
-      if (confirm(`האם אתה בטוח שברצונך לעבור לשלב "${PHASE_CONFIG[phase]?.nameHe || phase}"?`)) {
+      if (
+        confirm(
+          `האם אתה בטוח שברצונך לעבור לשלב "${PHASE_CONFIG[phase]?.nameHe || phase}"?`
+        )
+      ) {
         // Transition phase in local store
         transitionPhase(phase);
 
@@ -69,7 +79,10 @@ export const PhaseNavigator: React.FC = () => {
             );
             console.log('[PhaseNavigator] Phase synced successfully');
           } catch (error) {
-            console.error('[PhaseNavigator] Failed to sync phase to Zoho:', error);
+            console.error(
+              '[PhaseNavigator] Failed to sync phase to Zoho:',
+              error
+            );
             // Don't block the UI - the auto-sync will retry later
           }
         }
@@ -103,12 +116,16 @@ export const PhaseNavigator: React.FC = () => {
                     )}
                     {status === 'current' && config && (
                       <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-lg animate-pulse">
-                        <span className="text-lg font-bold">{config.number}</span>
+                        <span className="text-lg font-bold">
+                          {config.number}
+                        </span>
                       </div>
                     )}
                     {status === 'next' && config && (
                       <div className="w-12 h-12 rounded-full bg-blue-100 border-2 border-blue-600 flex items-center justify-center text-blue-600">
-                        <span className="text-lg font-bold">{config.number}</span>
+                        <span className="text-lg font-bold">
+                          {config.number}
+                        </span>
                       </div>
                     )}
                     {status === 'locked' && (
@@ -137,12 +154,17 @@ export const PhaseNavigator: React.FC = () => {
                   {/* Label */}
                   {config && (
                     <div className="mt-2 text-center">
-                      <div className={`text-sm font-semibold ${
-                        status === 'current' ? 'text-blue-600' :
-                        status === 'completed' ? 'text-green-600' :
-                        status === 'next' ? 'text-gray-700' :
-                        'text-gray-400'
-                      }`}>
+                      <div
+                        className={`text-sm font-semibold ${
+                          status === 'current'
+                            ? 'text-blue-600'
+                            : status === 'completed'
+                              ? 'text-green-600'
+                              : status === 'next'
+                                ? 'text-gray-700'
+                                : 'text-gray-400'
+                        }`}
+                      >
                         {config.nameHe}
                       </div>
                       {status === 'current' && progress > 0 && (
@@ -156,16 +178,22 @@ export const PhaseNavigator: React.FC = () => {
 
                 {/* Arrow Between Phases */}
                 {index < phases.length - 1 && (
-                  <div className={`flex-1 h-0.5 mx-4 ${
-                    getPhaseStatus(phases[index + 1]) === 'completed' || getPhaseStatus(phases[index + 1]) === 'current'
-                      ? 'bg-green-500'
-                      : 'bg-gray-300'
-                  }`}>
-                    <ArrowRight className={`w-5 h-5 -mt-2.5 ml-auto mr-auto ${
-                      getPhaseStatus(phases[index + 1]) === 'completed' || getPhaseStatus(phases[index + 1]) === 'current'
-                        ? 'text-green-500'
-                        : 'text-gray-300'
-                    }`} />
+                  <div
+                    className={`flex-1 h-0.5 mx-4 ${
+                      getPhaseStatus(phases[index + 1]) === 'completed' ||
+                      getPhaseStatus(phases[index + 1]) === 'current'
+                        ? 'bg-green-500'
+                        : 'bg-gray-300'
+                    }`}
+                  >
+                    <ArrowRight
+                      className={`w-5 h-5 -mt-2.5 ml-auto mr-auto ${
+                        getPhaseStatus(phases[index + 1]) === 'completed' ||
+                        getPhaseStatus(phases[index + 1]) === 'current'
+                          ? 'text-green-500'
+                          : 'text-gray-300'
+                      }`}
+                    />
                   </div>
                 )}
               </React.Fragment>

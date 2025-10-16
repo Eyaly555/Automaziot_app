@@ -25,7 +25,7 @@ export function TrainingWorkshopsSpec() {
       format: 'onsite',
       platform: 'zoom',
       location: '',
-      timezone: 'Asia/Jerusalem'
+      timezone: 'Asia/Jerusalem',
     },
     language: 'he',
     culturalConsiderations: '',
@@ -34,7 +34,7 @@ export function TrainingWorkshopsSpec() {
       demonstration: true,
       handsOnPractice: true,
       qaSession: true,
-      assessment: false
+      assessment: false,
     },
     materials: {
       presentationSlides: true,
@@ -42,39 +42,39 @@ export function TrainingWorkshopsSpec() {
       recordedSessions: true,
       practiceExercises: true,
       cheatSheets: true,
-      faqDocument: true
+      faqDocument: true,
     },
     handsOnEnvironment: {
       required: true,
       environmentType: 'demo_system',
       demoDataProvided: true,
-      participantAccess: true
+      participantAccess: true,
     },
     schedule: {
       preferredDates: [],
       preferredTimeSlots: [],
       totalSessions: 1,
       sessionSpacing: 'Same day',
-      breaksBetweenSessions: true
+      breaksBetweenSessions: true,
     },
     participants: {
       preWorkRequired: false,
       preWorkDescription: '',
       prerequisiteSkills: [],
-      accommodationsNeeded: []
+      accommodationsNeeded: [],
     },
     followUpSupport: {
       enabled: true,
       duration: '2 weeks',
       channels: ['email', 'chat'],
-      additionalSessionsAvailable: true
+      additionalSessionsAvailable: true,
     },
     assessment: {
       required: false,
       assessmentType: 'quiz',
       passingScore: 80,
       certificateProvided: false,
-      certificationLevel: ''
+      certificationLevel: '',
     },
     deliverables: {
       recordedVideos: true,
@@ -82,19 +82,19 @@ export function TrainingWorkshopsSpec() {
       exerciseFiles: true,
       faqDocument: true,
       certificatesOfCompletion: false,
-      attendanceReport: true
+      attendanceReport: true,
     },
     timeline: {
       preparationDays: 3,
       deliveryDays: 1,
-      followUpDays: 7
+      followUpDays: 7,
     },
     successMetrics: {
       targetAttendanceRate: 90,
       targetCompletionRate: 85,
       targetSatisfactionScore: 4.5,
-      postTrainingQuizScore: 80
-    }
+      postTrainingQuizScore: 80,
+    },
   });
 
   // Track if we're currently loading data to prevent save loops
@@ -104,7 +104,7 @@ export function TrainingWorkshopsSpec() {
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'training-workshops',
-    category: 'additionalServices'
+    category: 'additionalServices',
   });
 
   useBeforeUnload(() => {
@@ -116,9 +116,10 @@ export function TrainingWorkshopsSpec() {
 
   // Load existing data
   useEffect(() => {
-    const category = currentMeeting?.implementationSpec?.additionalServices || [];
+    const category =
+      currentMeeting?.implementationSpec?.additionalServices || [];
     const existing = Array.isArray(category)
-      ? category.find(item => item.serviceId === 'training-workshops')
+      ? category.find((item) => item.serviceId === 'training-workshops')
       : undefined;
 
     if (existing?.requirements) {
@@ -146,22 +147,25 @@ export function TrainingWorkshopsSpec() {
   //   }
   // }, [config]);
 
-  const handleFieldChange = useCallback((field: keyof TrainingWorkshopsRequirements, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          // Add any smart field values here if needed
-          const completeConfig = {
-            ...updated,
-            // Example: smartField: smartFieldHook.value
-          };
-          saveData(completeConfig);
-        }
-      }, 0);
-      return updated;
-    });
-  }, [saveData]);
+  const handleFieldChange = useCallback(
+    (field: keyof TrainingWorkshopsRequirements, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            // Add any smart field values here if needed
+            const completeConfig = {
+              ...updated,
+              // Example: smartField: smartFieldHook.value
+            };
+            saveData(completeConfig);
+          }
+        }, 0);
+        return updated;
+      });
+    },
+    [saveData]
+  );
 
   // Validation
   const validateForm = (): boolean => {
@@ -204,8 +208,8 @@ export function TrainingWorkshopsSpec() {
         targetAudience: '',
         participantCount: 10,
         durationHours: 4,
-        skillLevel: 'beginner'
-      }
+        skillLevel: 'beginner',
+      },
     ];
     handleFieldChange('workshops', updatedWorkshops);
   };
@@ -223,30 +227,38 @@ export function TrainingWorkshopsSpec() {
       {
         workshopTopic: '',
         objectives: [],
-        successCriteria: ''
-      }
+        successCriteria: '',
+      },
     ];
     handleFieldChange('learningObjectives', updatedLearningObjectives);
   };
 
   // Remove learning objective
   const removeLearningObjective = (index: number) => {
-    const updatedLearningObjectives = config.learningObjectives.filter((_, i) => i !== index);
+    const updatedLearningObjectives = config.learningObjectives.filter(
+      (_, i) => i !== index
+    );
     handleFieldChange('learningObjectives', updatedLearningObjectives);
   };
 
   return (
     <div className="space-y-6 p-8" dir="rtl">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">שירות #55: הדרכות וסדנאות למשתמשים</h2>
-        <p className="text-gray-600 mt-2">הדרכות מעשיות למשתמשים על מערכות, תהליכים ואוטומציות חדשות</p>
+        <h2 className="text-2xl font-bold text-gray-900">
+          שירות #55: הדרכות וסדנאות למשתמשים
+        </h2>
+        <p className="text-gray-600 mt-2">
+          הדרכות מעשיות למשתמשים על מערכות, תהליכים ואוטומציות חדשות
+        </p>
       </div>
 
       {/* Workshops */}
       <Card className="p-6">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">סדנאות <span className="text-red-500">*</span></h3>
+            <h3 className="text-lg font-semibold">
+              סדנאות <span className="text-red-500">*</span>
+            </h3>
             <button
               type="button"
               onClick={addWorkshop}
@@ -255,10 +267,15 @@ export function TrainingWorkshopsSpec() {
               + הוסף סדנה
             </button>
           </div>
-          {errors.workshops && <p className="text-red-500 text-sm">{errors.workshops}</p>}
+          {errors.workshops && (
+            <p className="text-red-500 text-sm">{errors.workshops}</p>
+          )}
 
           {config.workshops.map((workshop, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+            <div
+              key={index}
+              className="border border-gray-200 rounded-lg p-4 space-y-3"
+            >
               <div className="flex justify-between items-center">
                 <h4 className="font-medium">סדנה #{index + 1}</h4>
                 <button
@@ -271,7 +288,9 @@ export function TrainingWorkshopsSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">נושא</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  נושא
+                </label>
                 <input
                   type="text"
                   value={workshop.topic}
@@ -286,7 +305,9 @@ export function TrainingWorkshopsSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">קהל יעד</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  קהל יעד
+                </label>
                 <input
                   type="text"
                   value={workshop.targetAudience}
@@ -302,13 +323,16 @@ export function TrainingWorkshopsSpec() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">מספר משתתפים</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    מספר משתתפים
+                  </label>
                   <input
                     type="number"
                     value={workshop.participantCount}
                     onChange={(e) => {
                       const updated = [...config.workshops];
-                      updated[index].participantCount = parseInt(e.target.value) || 10;
+                      updated[index].participantCount =
+                        parseInt(e.target.value) || 10;
                       handleFieldChange('workshops', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -317,13 +341,16 @@ export function TrainingWorkshopsSpec() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">משך (שעות)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    משך (שעות)
+                  </label>
                   <input
                     type="number"
                     value={workshop.durationHours}
                     onChange={(e) => {
                       const updated = [...config.workshops];
-                      updated[index].durationHours = parseInt(e.target.value) || 4;
+                      updated[index].durationHours =
+                        parseInt(e.target.value) || 4;
                       handleFieldChange('workshops', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -333,12 +360,17 @@ export function TrainingWorkshopsSpec() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">רמת מיומנות</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    רמת מיומנות
+                  </label>
                   <select
                     value={workshop.skillLevel}
                     onChange={(e) => {
                       const updated = [...config.workshops];
-                      updated[index].skillLevel = e.target.value as 'beginner' | 'intermediate' | 'advanced';
+                      updated[index].skillLevel = e.target.value as
+                        | 'beginner'
+                        | 'intermediate'
+                        | 'advanced';
                       handleFieldChange('workshops', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -369,7 +401,10 @@ export function TrainingWorkshopsSpec() {
           </div>
 
           {config.learningObjectives.map((objective, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+            <div
+              key={index}
+              className="border border-gray-200 rounded-lg p-4 space-y-3"
+            >
               <div className="flex justify-between items-center">
                 <h4 className="font-medium">יעד למידה #{index + 1}</h4>
                 <button
@@ -382,7 +417,9 @@ export function TrainingWorkshopsSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">נושא הסדנה</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  נושא הסדנה
+                </label>
                 <input
                   type="text"
                   value={objective.workshopTopic}
@@ -396,7 +433,9 @@ export function TrainingWorkshopsSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">קריטריוני הצלחה</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  קריטריוני הצלחה
+                </label>
                 <textarea
                   value={objective.successCriteria}
                   onChange={(e) => {
@@ -419,10 +458,17 @@ export function TrainingWorkshopsSpec() {
         <h3 className="text-lg font-semibold mb-4">שיטת אספקה</h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">פורמט</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              פורמט
+            </label>
             <select
               value={config.deliveryMethod.format}
-              onChange={(e) => handleFieldChange('deliveryMethod.format', e.target.value as 'onsite' | 'remote' | 'hybrid')}
+              onChange={(e) =>
+                handleFieldChange(
+                  'deliveryMethod.format',
+                  e.target.value as 'onsite' | 'remote' | 'hybrid'
+                )
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="onsite">באתר הלקוח</option>
@@ -431,12 +477,24 @@ export function TrainingWorkshopsSpec() {
             </select>
           </div>
 
-          {(config.deliveryMethod.format === 'remote' || config.deliveryMethod.format === 'hybrid') && (
+          {(config.deliveryMethod.format === 'remote' ||
+            config.deliveryMethod.format === 'hybrid') && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">פלטפורמה</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                פלטפורמה
+              </label>
               <select
                 value={config.deliveryMethod.platform || 'zoom'}
-                onChange={(e) => handleFieldChange('deliveryMethod.platform', e.target.value as 'zoom' | 'teams' | 'google_meet' | 'in_person')}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'deliveryMethod.platform',
+                    e.target.value as
+                      | 'zoom'
+                      | 'teams'
+                      | 'google_meet'
+                      | 'in_person'
+                  )
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
                 <option value="zoom">Zoom</option>
@@ -446,13 +504,18 @@ export function TrainingWorkshopsSpec() {
             </div>
           )}
 
-          {(config.deliveryMethod.format === 'onsite' || config.deliveryMethod.format === 'hybrid') && (
+          {(config.deliveryMethod.format === 'onsite' ||
+            config.deliveryMethod.format === 'hybrid') && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">מיקום</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                מיקום
+              </label>
               <input
                 type="text"
                 value={config.deliveryMethod.location || ''}
-                onChange={(e) => handleFieldChange('deliveryMethod.location', e.target.value)}
+                onChange={(e) =>
+                  handleFieldChange('deliveryMethod.location', e.target.value)
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 placeholder="כתובת מלאה"
               />
@@ -460,11 +523,15 @@ export function TrainingWorkshopsSpec() {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">אזור זמן</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              אזור זמן
+            </label>
             <input
               type="text"
               value={config.deliveryMethod.timezone || 'Asia/Jerusalem'}
-              onChange={(e) => handleFieldChange('deliveryMethod.timezone', e.target.value)}
+              onChange={(e) =>
+                handleFieldChange('deliveryMethod.timezone', e.target.value)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             />
           </div>
@@ -476,10 +543,17 @@ export function TrainingWorkshopsSpec() {
         <h3 className="text-lg font-semibold mb-4">שפה ומבנה סדנה</h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">שפה</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              שפה
+            </label>
             <select
               value={config.language}
-              onChange={(e) => handleFieldChange('language', e.target.value as 'he' | 'en' | 'both')}
+              onChange={(e) =>
+                handleFieldChange(
+                  'language',
+                  e.target.value as 'he' | 'en' | 'both'
+                )
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="he">עברית</option>
@@ -489,10 +563,14 @@ export function TrainingWorkshopsSpec() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">שיקולים תרבותיים</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              שיקולים תרבותיים
+            </label>
             <textarea
               value={config.culturalConsiderations || ''}
-              onChange={(e) => handleFieldChange('culturalConsiderations', e.target.value)}
+              onChange={(e) =>
+                handleFieldChange('culturalConsiderations', e.target.value)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               rows={2}
               placeholder="ממשק מימין לשמאל, דוגמאות עסקיות מקומיות"
@@ -505,7 +583,12 @@ export function TrainingWorkshopsSpec() {
               <input
                 type="checkbox"
                 checked={config.workshopStructure.introduction}
-                onChange={(e) => handleFieldChange('workshopStructure.introduction', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'workshopStructure.introduction',
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">הקדמה וסקירת סדר יום (15-30 דקות)</span>
@@ -515,7 +598,12 @@ export function TrainingWorkshopsSpec() {
               <input
                 type="checkbox"
                 checked={config.workshopStructure.demonstration}
-                onChange={(e) => handleFieldChange('workshopStructure.demonstration', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'workshopStructure.demonstration',
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">הדגמה על ידי המדריך (30-60 דקות)</span>
@@ -525,7 +613,12 @@ export function TrainingWorkshopsSpec() {
               <input
                 type="checkbox"
                 checked={config.workshopStructure.handsOnPractice}
-                onChange={(e) => handleFieldChange('workshopStructure.handsOnPractice', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'workshopStructure.handsOnPractice',
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">תרגול מעשי (60-120 דקות)</span>
@@ -535,7 +628,12 @@ export function TrainingWorkshopsSpec() {
               <input
                 type="checkbox"
                 checked={config.workshopStructure.qaSession}
-                onChange={(e) => handleFieldChange('workshopStructure.qaSession', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'workshopStructure.qaSession',
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">שאלות ותשובות (30-60 דקות)</span>
@@ -545,7 +643,12 @@ export function TrainingWorkshopsSpec() {
               <input
                 type="checkbox"
                 checked={config.workshopStructure.assessment || false}
-                onChange={(e) => handleFieldChange('workshopStructure.assessment', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'workshopStructure.assessment',
+                    e.target.checked
+                  )
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">מבחן או מטלה מעשית</span>
@@ -562,7 +665,12 @@ export function TrainingWorkshopsSpec() {
             <input
               type="checkbox"
               checked={config.materials.presentationSlides}
-              onChange={(e) => handleFieldChange('materials.presentationSlides', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'materials.presentationSlides',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">מצגת (PowerPoint/Google Slides)</span>
@@ -572,7 +680,9 @@ export function TrainingWorkshopsSpec() {
             <input
               type="checkbox"
               checked={config.materials.handouts}
-              onChange={(e) => handleFieldChange('materials.handouts', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange('materials.handouts', e.target.checked)
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">חוברות מודפסות או PDF</span>
@@ -582,7 +692,12 @@ export function TrainingWorkshopsSpec() {
             <input
               type="checkbox"
               checked={config.materials.recordedSessions}
-              onChange={(e) => handleFieldChange('materials.recordedSessions', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'materials.recordedSessions',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">הקלטות וידאו של המפגשים</span>
@@ -592,7 +707,12 @@ export function TrainingWorkshopsSpec() {
             <input
               type="checkbox"
               checked={config.materials.practiceExercises}
-              onChange={(e) => handleFieldChange('materials.practiceExercises', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'materials.practiceExercises',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">תרגילים מעשיים</span>
@@ -602,7 +722,9 @@ export function TrainingWorkshopsSpec() {
             <input
               type="checkbox"
               checked={config.materials.cheatSheets || false}
-              onChange={(e) => handleFieldChange('materials.cheatSheets', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange('materials.cheatSheets', e.target.checked)
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">כרטיסי עזר (Cheat Sheets)</span>
@@ -612,7 +734,9 @@ export function TrainingWorkshopsSpec() {
             <input
               type="checkbox"
               checked={config.materials.faqDocument || false}
-              onChange={(e) => handleFieldChange('materials.faqDocument', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange('materials.faqDocument', e.target.checked)
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">מסמך שאלות נפוצות</span>
@@ -628,7 +752,12 @@ export function TrainingWorkshopsSpec() {
             <input
               type="checkbox"
               checked={config.handsOnEnvironment.required}
-              onChange={(e) => handleFieldChange('handsOnEnvironment.required', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'handsOnEnvironment.required',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">נדרשת סביבת תרגול</span>
@@ -637,15 +766,28 @@ export function TrainingWorkshopsSpec() {
           {config.handsOnEnvironment.required && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">סוג סביבה</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  סוג סביבה
+                </label>
                 <select
                   value={config.handsOnEnvironment.environmentType}
-                  onChange={(e) => handleFieldChange('handsOnEnvironment.environmentType', e.target.value as 'demo_system' | 'sandbox' | 'production_with_test_data' | 'personal_accounts')}
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'handsOnEnvironment.environmentType',
+                      e.target.value as
+                        | 'demo_system'
+                        | 'sandbox'
+                        | 'production_with_test_data'
+                        | 'personal_accounts'
+                    )
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="demo_system">מערכת הדגמה</option>
                   <option value="sandbox">Sandbox</option>
-                  <option value="production_with_test_data">ייצור עם נתוני בדיקה</option>
+                  <option value="production_with_test_data">
+                    ייצור עם נתוני בדיקה
+                  </option>
                   <option value="personal_accounts">חשבונות אישיים</option>
                 </select>
               </div>
@@ -654,7 +796,12 @@ export function TrainingWorkshopsSpec() {
                 <input
                   type="checkbox"
                   checked={config.handsOnEnvironment.demoDataProvided}
-                  onChange={(e) => handleFieldChange('handsOnEnvironment.demoDataProvided', e.target.checked)}
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'handsOnEnvironment.demoDataProvided',
+                      e.target.checked
+                    )
+                  }
                   className="rounded border-gray-300"
                 />
                 <span className="text-sm">נתוני הדגמה מסופקים</span>
@@ -664,10 +811,17 @@ export function TrainingWorkshopsSpec() {
                 <input
                   type="checkbox"
                   checked={config.handsOnEnvironment.participantAccess}
-                  onChange={(e) => handleFieldChange('handsOnEnvironment.participantAccess', e.target.checked)}
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'handsOnEnvironment.participantAccess',
+                      e.target.checked
+                    )
+                  }
                   className="rounded border-gray-300"
                 />
-                <span className="text-sm">למשתתפים יש גישה עם פרטי התחברות</span>
+                <span className="text-sm">
+                  למשתתפים יש גישה עם פרטי התחברות
+                </span>
               </label>
             </>
           )}
@@ -679,22 +833,33 @@ export function TrainingWorkshopsSpec() {
         <h3 className="text-lg font-semibold mb-4">לוח זמנים</h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">סה"כ מפגשים</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              סה"כ מפגשים
+            </label>
             <input
               type="number"
               value={config.schedule.totalSessions}
-              onChange={(e) => handleFieldChange('schedule.totalSessions', parseInt(e.target.value) || 1)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'schedule.totalSessions',
+                  parseInt(e.target.value) || 1
+                )
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               min="1"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">מרווח בין מפגשים</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              מרווח בין מפגשים
+            </label>
             <input
               type="text"
               value={config.schedule.sessionSpacing || ''}
-              onChange={(e) => handleFieldChange('schedule.sessionSpacing', e.target.value)}
+              onChange={(e) =>
+                handleFieldChange('schedule.sessionSpacing', e.target.value)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               placeholder="אחד לשבוע, ימים רצופים, באותו היום"
             />
@@ -704,7 +869,12 @@ export function TrainingWorkshopsSpec() {
             <input
               type="checkbox"
               checked={config.schedule.breaksBetweenSessions}
-              onChange={(e) => handleFieldChange('schedule.breaksBetweenSessions', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'schedule.breaksBetweenSessions',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">הפסקות בין מפגשים</span>
@@ -720,7 +890,9 @@ export function TrainingWorkshopsSpec() {
             <input
               type="checkbox"
               checked={config.followUpSupport.enabled}
-              onChange={(e) => handleFieldChange('followUpSupport.enabled', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange('followUpSupport.enabled', e.target.checked)
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">תמיכת המשך מופעלת</span>
@@ -729,11 +901,18 @@ export function TrainingWorkshopsSpec() {
           {config.followUpSupport.enabled && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">משך זמן</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  משך זמן
+                </label>
                 <input
                   type="text"
                   value={config.followUpSupport.duration || ''}
-                  onChange={(e) => handleFieldChange('followUpSupport.duration', e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'followUpSupport.duration',
+                      e.target.value
+                    )
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="2 שבועות, חודש אחד"
                 />
@@ -742,8 +921,15 @@ export function TrainingWorkshopsSpec() {
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
-                  checked={config.followUpSupport.additionalSessionsAvailable || false}
-                  onChange={(e) => handleFieldChange('followUpSupport.additionalSessionsAvailable', e.target.checked)}
+                  checked={
+                    config.followUpSupport.additionalSessionsAvailable || false
+                  }
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'followUpSupport.additionalSessionsAvailable',
+                      e.target.checked
+                    )
+                  }
                   className="rounded border-gray-300"
                 />
                 <span className="text-sm">אפשרות למפגשי המשך נוספים</span>
@@ -761,7 +947,9 @@ export function TrainingWorkshopsSpec() {
             <input
               type="checkbox"
               checked={config.assessment.required}
-              onChange={(e) => handleFieldChange('assessment.required', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange('assessment.required', e.target.checked)
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">הערכה נדרשת</span>
@@ -769,22 +957,36 @@ export function TrainingWorkshopsSpec() {
 
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">ימי הכנה</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ימי הכנה
+              </label>
               <input
                 type="number"
                 value={config.timeline.preparationDays}
-                onChange={(e) => handleFieldChange('timeline.preparationDays', parseInt(e.target.value) || 3)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'timeline.preparationDays',
+                    parseInt(e.target.value) || 3
+                  )
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 min="1"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">ימי אספקה</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ימי אספקה
+              </label>
               <input
                 type="number"
                 value={config.timeline.deliveryDays}
-                onChange={(e) => handleFieldChange('timeline.deliveryDays', parseInt(e.target.value) || 1)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'timeline.deliveryDays',
+                    parseInt(e.target.value) || 1
+                  )
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 min="0.5"
                 step="0.5"
@@ -792,11 +994,18 @@ export function TrainingWorkshopsSpec() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">ימי תמיכה</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ימי תמיכה
+              </label>
               <input
                 type="number"
                 value={config.timeline.followUpDays || 7}
-                onChange={(e) => handleFieldChange('timeline.followUpDays', parseInt(e.target.value) || 7)}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'timeline.followUpDays',
+                    parseInt(e.target.value) || 7
+                  )
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 min="0"
               />
@@ -818,7 +1027,12 @@ export function TrainingWorkshopsSpec() {
               min="0"
               max="100"
               value={config.successMetrics.targetAttendanceRate}
-              onChange={(e) => handleFieldChange('successMetrics.targetAttendanceRate', parseInt(e.target.value))}
+              onChange={(e) =>
+                handleFieldChange(
+                  'successMetrics.targetAttendanceRate',
+                  parseInt(e.target.value)
+                )
+              }
               className="w-full"
             />
           </div>
@@ -832,14 +1046,20 @@ export function TrainingWorkshopsSpec() {
               min="0"
               max="100"
               value={config.successMetrics.targetCompletionRate}
-              onChange={(e) => handleFieldChange('successMetrics.targetCompletionRate', parseInt(e.target.value))}
+              onChange={(e) =>
+                handleFieldChange(
+                  'successMetrics.targetCompletionRate',
+                  parseInt(e.target.value)
+                )
+              }
               className="w-full"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              יעד ציון שביעות רצון - {config.successMetrics.targetSatisfactionScore}/5
+              יעד ציון שביעות רצון -{' '}
+              {config.successMetrics.targetSatisfactionScore}/5
             </label>
             <input
               type="range"
@@ -847,21 +1067,32 @@ export function TrainingWorkshopsSpec() {
               max="5"
               step="0.5"
               value={config.successMetrics.targetSatisfactionScore}
-              onChange={(e) => handleFieldChange('successMetrics.targetSatisfactionScore', parseFloat(e.target.value))}
+              onChange={(e) =>
+                handleFieldChange(
+                  'successMetrics.targetSatisfactionScore',
+                  parseFloat(e.target.value)
+                )
+              }
               className="w-full"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              יעד ציון מבחן לאחר הדרכה - {config.successMetrics.postTrainingQuizScore || 80}%
+              יעד ציון מבחן לאחר הדרכה -{' '}
+              {config.successMetrics.postTrainingQuizScore || 80}%
             </label>
             <input
               type="range"
               min="0"
               max="100"
               value={config.successMetrics.postTrainingQuizScore || 80}
-              onChange={(e) => handleFieldChange('successMetrics.postTrainingQuizScore', parseInt(e.target.value))}
+              onChange={(e) =>
+                handleFieldChange(
+                  'successMetrics.postTrainingQuizScore',
+                  parseInt(e.target.value)
+                )
+              }
               className="w-full"
             />
           </div>
@@ -876,7 +1107,12 @@ export function TrainingWorkshopsSpec() {
             <input
               type="checkbox"
               checked={config.deliverables.recordedVideos}
-              onChange={(e) => handleFieldChange('deliverables.recordedVideos', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'deliverables.recordedVideos',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">הקלטות וידאו של מפגשים</span>
@@ -886,7 +1122,12 @@ export function TrainingWorkshopsSpec() {
             <input
               type="checkbox"
               checked={config.deliverables.documentationPDF}
-              onChange={(e) => handleFieldChange('deliverables.documentationPDF', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'deliverables.documentationPDF',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">תיעוד (PDF)</span>
@@ -896,7 +1137,12 @@ export function TrainingWorkshopsSpec() {
             <input
               type="checkbox"
               checked={config.deliverables.exerciseFiles}
-              onChange={(e) => handleFieldChange('deliverables.exerciseFiles', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'deliverables.exerciseFiles',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">קבצי תרגול</span>
@@ -906,7 +1152,9 @@ export function TrainingWorkshopsSpec() {
             <input
               type="checkbox"
               checked={config.deliverables.faqDocument}
-              onChange={(e) => handleFieldChange('deliverables.faqDocument', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange('deliverables.faqDocument', e.target.checked)
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">מסמך שאלות נפוצות</span>
@@ -915,8 +1163,13 @@ export function TrainingWorkshopsSpec() {
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
-            checked={config.deliverables.certificatesOfCompletion}
-              onChange={(e) => handleFieldChange('deliverables.certificatesOfCompletion', e.target.checked)}
+              checked={config.deliverables.certificatesOfCompletion}
+              onChange={(e) =>
+                handleFieldChange(
+                  'deliverables.certificatesOfCompletion',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">תעודות השלמה</span>
@@ -926,7 +1179,12 @@ export function TrainingWorkshopsSpec() {
             <input
               type="checkbox"
               checked={config.deliverables.attendanceReport}
-              onChange={(e) => handleFieldChange('deliverables.attendanceReport', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'deliverables.attendanceReport',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">דוח נוכחות</span>

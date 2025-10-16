@@ -3,7 +3,7 @@ import type {
   TranscriptionResult,
   TranscriptionOptions,
   AnalysisResult,
-  ConversationAnalysisResult
+  ConversationAnalysisResult,
 } from '../types/conversation';
 
 /**
@@ -32,17 +32,21 @@ export async function transcribeAudio(
 
   const response = await fetch('/api/audio/transcribe', {
     method: 'POST',
-    body: formData
+    body: formData,
   });
 
   if (!response.ok) {
     // Special handling for 413 (Content Too Large)
     if (response.status === 413) {
-      throw new Error('הקובץ גדול מדי לעיבוד בשרת. אנא השתמש בקובץ קטן מ-4MB או דחוס את הקובץ לפורמט MP3 באיכות נמוכה יותר.');
+      throw new Error(
+        'הקובץ גדול מדי לעיבוד בשרת. אנא השתמש בקובץ קטן מ-4MB או דחוס את הקובץ לפורמט MP3 באיכות נמוכה יותר.'
+      );
     }
 
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || `Transcription failed: ${response.statusText}`);
+    throw new Error(
+      errorData.error || `Transcription failed: ${response.statusText}`
+    );
   }
 
   const result = await response.json();
@@ -59,17 +63,19 @@ export async function analyzeConversation(
   const response = await fetch('/api/conversation/analyze', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       transcript,
-      language
-    })
+      language,
+    }),
   });
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || `Analysis failed: ${response.statusText}`);
+    throw new Error(
+      errorData.error || `Analysis failed: ${response.statusText}`
+    );
   }
 
   const result = await response.json();
@@ -90,12 +96,18 @@ export async function analyzeAudioConversation(
   try {
     // Step 1: Transcribe audio
     onProgress?.('transcribing', 0);
-    const transcription = await transcribeAudio(audioFile, transcriptionOptions);
+    const transcription = await transcribeAudio(
+      audioFile,
+      transcriptionOptions
+    );
     onProgress?.('transcribing', 100);
 
     // Step 2: Analyze transcript
     onProgress?.('analyzing', 0);
-    const analysis = await analyzeConversation(transcription.text, transcription.language);
+    const analysis = await analyzeConversation(
+      transcription.text,
+      transcription.language
+    );
     onProgress?.('analyzing', 100);
 
     // Return complete result
@@ -103,7 +115,7 @@ export async function analyzeAudioConversation(
       audioFile,
       transcription,
       analysis,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   } catch (error) {
     console.error('Conversation analysis pipeline error:', error);
@@ -132,10 +144,11 @@ export async function validateAPIConfiguration(): Promise<{
 
     const openaiResponse = await fetch('/api/audio/transcribe', {
       method: 'POST',
-      body: testFormData
+      body: testFormData,
     });
 
-    if (openaiResponse.status !== 400) { // 400 is expected for invalid audio, but confirms API is configured
+    if (openaiResponse.status !== 400) {
+      // 400 is expected for invalid audio, but confirms API is configured
       const data = await openaiResponse.json();
       if (data.error && data.error.includes('not configured')) {
         errors.push('OpenAI API key not configured');
@@ -154,11 +167,11 @@ export async function validateAPIConfiguration(): Promise<{
     const anthropicResponse = await fetch('/api/conversation/analyze', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        transcript: 'test'
-      })
+        transcript: 'test',
+      }),
     });
 
     if (anthropicResponse.status !== 500) {
@@ -183,7 +196,7 @@ export async function validateAPIConfiguration(): Promise<{
   return {
     openai: openaiConfigured,
     anthropic: anthropicConfigured,
-    errors
+    errors,
   };
 }
 
@@ -203,6 +216,6 @@ export function getEstimatedProcessingTime(fileSizeMB: number): {
   return {
     transcription,
     analysis,
-    total
+    total,
   };
 }

@@ -18,7 +18,7 @@ export const getTestZohoParams = () => {
     phone: '+972-50-1234567',
     budgetRange: '100,000 - 500,000 ₪',
     requestedServices: 'CRM Integration, Process Automation, AI Agents',
-    additionalNotes: 'This is a test mode for Zoho integration'
+    additionalNotes: 'This is a test mode for Zoho integration',
   };
 };
 
@@ -35,6 +35,6 @@ export const testZohoSync = (data: any) => {
   console.log('📤 Data that would be sent:', data);
   return Promise.resolve({
     success: true,
-    message: 'Test sync completed'
+    message: 'Test sync completed',
   });
 };

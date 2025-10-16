@@ -2,11 +2,7 @@ import React from 'react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { calculateROI } from '../../utils/roiCalculator';
 import { getSmartRecommendations } from '../../utils/smartRecommendationsEngine';
-import {
-  MeetingPhase,
-  PainPoint,
-  Meeting
-} from '../../types';
+import { MeetingPhase, PainPoint, Meeting } from '../../types';
 import {
   Download,
   AlertCircle,
@@ -22,7 +18,7 @@ import {
   Calendar,
   FileText,
   Zap,
-  DollarSign
+  DollarSign,
 } from 'lucide-react';
 
 // ============================================================================
@@ -37,7 +33,7 @@ function getPhaseLabel(phase: MeetingPhase): string {
     discovery: 'גילוי',
     implementation_spec: 'מפרט טכני',
     development: 'Development',
-    completed: 'הושלם'
+    completed: 'הושלם',
   };
   return labels[phase] || 'לא ידוע';
 }
@@ -48,9 +44,10 @@ function getPhaseLabel(phase: MeetingPhase): string {
 function getPhaseSummaryDescription(phase: MeetingPhase): string {
   const descriptions: Record<MeetingPhase, string> = {
     discovery: 'סיכום שלב הגילוי - איסוף דרישות עסקיות וניתוח צרכים',
-    implementation_spec: 'סיכום מפרט הטכני - פירוט מערכות, אינטגרציות וקריטריונים',
+    implementation_spec:
+      'סיכום מפרט הטכני - פירוט מערכות, אינטגרציות וקריטריונים',
     development: 'Development Summary - Sprint progress and task tracking',
-    completed: 'סיכום פרויקט מושלם - תוצאות והישגים'
+    completed: 'סיכום פרויקט מושלם - תוצאות והישגים',
   };
   return descriptions[phase] || '';
 }
@@ -63,7 +60,7 @@ function getPhaseVariant(phase: MeetingPhase): string {
     discovery: 'bg-blue-100 text-blue-800',
     implementation_spec: 'bg-purple-100 text-purple-800',
     development: 'bg-green-100 text-green-800',
-    completed: 'bg-gray-100 text-gray-800'
+    completed: 'bg-gray-100 text-gray-800',
   };
   return variants[phase] || 'bg-gray-100 text-gray-800';
 }
@@ -74,13 +71,13 @@ function getPhaseVariant(phase: MeetingPhase): string {
 function calculateModuleCompletion(moduleData: any): number {
   if (!moduleData || typeof moduleData !== 'object') return 0;
 
-  const fields = Object.keys(moduleData).filter(key =>
-    key !== 'painPoints' && key !== 'customFields'
+  const fields = Object.keys(moduleData).filter(
+    (key) => key !== 'painPoints' && key !== 'customFields'
   );
 
   if (fields.length === 0) return 0;
 
-  const filledFields = fields.filter(key => {
+  const filledFields = fields.filter((key) => {
     const value = moduleData[key];
     if (value === null || value === undefined || value === '') return false;
     if (Array.isArray(value) && value.length === 0) return false;
@@ -95,10 +92,10 @@ function calculateModuleCompletion(moduleData: any): number {
  */
 function groupPainPointsBySeverity(painPoints: PainPoint[]) {
   return {
-    critical: painPoints.filter(p => p.severity === 'critical').length,
-    high: painPoints.filter(p => p.severity === 'high').length,
-    medium: painPoints.filter(p => p.severity === 'medium').length,
-    low: painPoints.filter(p => p.severity === 'low').length
+    critical: painPoints.filter((p) => p.severity === 'critical').length,
+    high: painPoints.filter((p) => p.severity === 'high').length,
+    medium: painPoints.filter((p) => p.severity === 'medium').length,
+    low: painPoints.filter((p) => p.severity === 'low').length,
   };
 }
 
@@ -116,10 +113,11 @@ function calculateAutomationOpportunities(meeting: Meeting) {
   try {
     const recommendations = getSmartRecommendations(meeting);
     return {
-      quickWins: recommendations.filter(r => r.quickWin).length,
-      highImpact: recommendations.filter(r => r.impactScore >= 8).length,
-      integrations: recommendations.filter(r => r.category === 'integration').length,
-      total: recommendations.length
+      quickWins: recommendations.filter((r) => r.quickWin).length,
+      highImpact: recommendations.filter((r) => r.impactScore >= 8).length,
+      integrations: recommendations.filter((r) => r.category === 'integration')
+        .length,
+      total: recommendations.length,
     };
   } catch (error) {
     console.error('Error calculating automation opportunities:', error);
@@ -127,7 +125,7 @@ function calculateAutomationOpportunities(meeting: Meeting) {
       quickWins: 0,
       highImpact: 0,
       integrations: 0,
-      total: 0
+      total: 0,
     };
   }
 }
@@ -161,7 +159,12 @@ interface StatCardProps {
   color?: string;
 }
 
-function StatCard({ label, value, icon, color = 'text-blue-600' }: StatCardProps) {
+function StatCard({
+  label,
+  value,
+  icon,
+  color = 'text-blue-600',
+}: StatCardProps) {
   return (
     <div className="bg-white rounded-lg p-4 border border-gray-200">
       {icon && <div className={`mb-2 ${color}`}>{icon}</div>}
@@ -191,68 +194,109 @@ function DiscoverySummary({ meeting }: PhaseSummaryProps) {
 
   // Calculate module completion
   const moduleCompletionData = [
-    { name: 'סקירה כללית', completion: calculateModuleCompletion(meeting.modules.overview) },
-    { name: 'לידים ומכירות', completion: calculateModuleCompletion(meeting.modules.leadsAndSales) },
-    { name: 'שירות לקוחות', completion: calculateModuleCompletion(meeting.modules.customerService) },
-    { name: 'תפעול', completion: calculateModuleCompletion(meeting.modules.operations) },
-    { name: 'דוחות', completion: calculateModuleCompletion(meeting.modules.reporting) },
-    { name: 'סוכני AI', completion: calculateModuleCompletion(meeting.modules.aiAgents) },
-    { name: 'מערכות', completion: calculateModuleCompletion(meeting.modules.systems) },
-    { name: 'ROI', completion: calculateModuleCompletion(meeting.modules.roi) }
+    {
+      name: 'סקירה כללית',
+      completion: calculateModuleCompletion(meeting.modules.overview),
+    },
+    {
+      name: 'לידים ומכירות',
+      completion: calculateModuleCompletion(meeting.modules.leadsAndSales),
+    },
+    {
+      name: 'שירות לקוחות',
+      completion: calculateModuleCompletion(meeting.modules.customerService),
+    },
+    {
+      name: 'תפעול',
+      completion: calculateModuleCompletion(meeting.modules.operations),
+    },
+    {
+      name: 'דוחות',
+      completion: calculateModuleCompletion(meeting.modules.reporting),
+    },
+    {
+      name: 'סוכני AI',
+      completion: calculateModuleCompletion(meeting.modules.aiAgents),
+    },
+    {
+      name: 'מערכות',
+      completion: calculateModuleCompletion(meeting.modules.systems),
+    },
+    { name: 'ROI', completion: calculateModuleCompletion(meeting.modules.roi) },
   ];
 
   return (
     <div className="space-y-6">
       {/* Business Overview */}
-      <SummaryCard title="סקירה עסקית" icon={<Target size={24} className="text-blue-600" />}>
+      <SummaryCard
+        title="סקירה עסקית"
+        icon={<Target size={24} className="text-blue-600" />}
+      >
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {meeting.modules.overview?.businessType && (
             <div>
               <span className="text-gray-600 text-sm">סוג עסק:</span>
-              <p className="font-medium">{meeting.modules.overview.businessType}</p>
+              <p className="font-medium">
+                {meeting.modules.overview.businessType}
+              </p>
             </div>
           )}
           {meeting.modules.overview?.employees && (
             <div>
               <span className="text-gray-600 text-sm">עובדים:</span>
-              <p className="font-medium">{meeting.modules.overview.employees}</p>
+              <p className="font-medium">
+                {meeting.modules.overview.employees}
+              </p>
             </div>
           )}
           {meeting.modules.overview?.mainChallenge && (
             <div className="col-span-2">
               <span className="text-gray-600 text-sm">אתגר עיקרי:</span>
-              <p className="font-medium">{meeting.modules.overview.mainChallenge}</p>
+              <p className="font-medium">
+                {meeting.modules.overview.mainChallenge}
+              </p>
             </div>
           )}
-          {meeting.modules.overview?.mainGoals && meeting.modules.overview.mainGoals.length > 0 && (
-            <div className="col-span-2">
-              <span className="text-gray-600 text-sm">מטרות:</span>
-              <ul className="list-disc list-inside mt-1">
-                {meeting.modules.overview.mainGoals.map((goal, idx) => (
-                  <li key={idx} className="text-sm">{goal}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+          {meeting.modules.overview?.mainGoals &&
+            meeting.modules.overview.mainGoals.length > 0 && (
+              <div className="col-span-2">
+                <span className="text-gray-600 text-sm">מטרות:</span>
+                <ul className="list-disc list-inside mt-1">
+                  {meeting.modules.overview.mainGoals.map((goal, idx) => (
+                    <li key={idx} className="text-sm">
+                      {goal}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
         </div>
       </SummaryCard>
 
       {/* Module Completion Grid */}
-      <SummaryCard title="התקדמות מודולים" icon={<Layers size={24} className="text-blue-600" />}>
+      <SummaryCard
+        title="התקדמות מודולים"
+        icon={<Layers size={24} className="text-blue-600" />}
+      >
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {moduleCompletionData.map((module, idx) => (
             <div key={idx} className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">{module.name}</span>
-                <span className="text-xs text-gray-500">{module.completion}%</span>
+                <span className="text-xs text-gray-500">
+                  {module.completion}%
+                </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
                   className={`h-2 rounded-full transition-all ${
-                    module.completion === 100 ? 'bg-green-500' :
-                    module.completion >= 50 ? 'bg-blue-500' :
-                    module.completion > 0 ? 'bg-yellow-500' :
-                    'bg-gray-300'
+                    module.completion === 100
+                      ? 'bg-green-500'
+                      : module.completion >= 50
+                        ? 'bg-blue-500'
+                        : module.completion > 0
+                          ? 'bg-yellow-500'
+                          : 'bg-gray-300'
                   }`}
                   style={{ width: `${module.completion}%` }}
                 />
@@ -264,7 +308,10 @@ function DiscoverySummary({ meeting }: PhaseSummaryProps) {
 
       {/* Pain Points Section */}
       {painPoints.length > 0 && (
-        <SummaryCard title="נקודות כאב" icon={<AlertCircle size={24} className="text-red-600" />}>
+        <SummaryCard
+          title="נקודות כאב"
+          icon={<AlertCircle size={24} className="text-red-600" />}
+        >
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
             <StatCard
               label="סה״כ נקודות כאב"
@@ -296,18 +343,30 @@ function DiscoverySummary({ meeting }: PhaseSummaryProps) {
           </div>
           <div className="space-y-2 max-h-60 overflow-y-auto">
             {painPoints.slice(0, 5).map((point, idx) => (
-              <div key={point.id || idx} className="border-r-4 border-red-500 pr-3 py-2">
+              <div
+                key={point.id || idx}
+                className="border-r-4 border-red-500 pr-3 py-2"
+              >
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-gray-800">{point.description}</p>
-                  <span className={`px-2 py-1 text-xs rounded ${
-                    point.severity === 'critical' ? 'bg-red-100 text-red-700' :
-                    point.severity === 'high' ? 'bg-orange-100 text-orange-700' :
-                    point.severity === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                    'bg-gray-100 text-gray-700'
-                  }`}>
-                    {point.severity === 'critical' ? 'קריטי' :
-                     point.severity === 'high' ? 'גבוה' :
-                     point.severity === 'medium' ? 'בינוני' : 'נמוך'}
+                  <span
+                    className={`px-2 py-1 text-xs rounded ${
+                      point.severity === 'critical'
+                        ? 'bg-red-100 text-red-700'
+                        : point.severity === 'high'
+                          ? 'bg-orange-100 text-orange-700'
+                          : point.severity === 'medium'
+                            ? 'bg-yellow-100 text-yellow-700'
+                            : 'bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    {point.severity === 'critical'
+                      ? 'קריטי'
+                      : point.severity === 'high'
+                        ? 'גבוה'
+                        : point.severity === 'medium'
+                          ? 'בינוני'
+                          : 'נמוך'}
                   </span>
                 </div>
               </div>
@@ -323,7 +382,10 @@ function DiscoverySummary({ meeting }: PhaseSummaryProps) {
 
       {/* Automation Opportunities */}
       {automation.total > 0 && (
-        <SummaryCard title="הזדמנויות אוטומציה" icon={<Zap size={24} className="text-yellow-600" />}>
+        <SummaryCard
+          title="הזדמנויות אוטומציה"
+          icon={<Zap size={24} className="text-yellow-600" />}
+        >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard
               label="Quick Wins"
@@ -355,7 +417,10 @@ function DiscoverySummary({ meeting }: PhaseSummaryProps) {
 
       {/* ROI Summary */}
       {roiData && roiData.totalMonthlySavings > 0 && (
-        <SummaryCard title="תחזית ROI" icon={<TrendingUp size={24} className="text-green-600" />}>
+        <SummaryCard
+          title="תחזית ROI"
+          icon={<TrendingUp size={24} className="text-green-600" />}
+        >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {roiData.totalMonthlySavings > 0 && (
               <StatCard
@@ -414,12 +479,16 @@ function ImplementationSpecSummary({ meeting }: PhaseSummaryProps) {
   const performanceCount = acceptanceCriteria?.performance?.length || 0;
   const securityCount = acceptanceCriteria?.security?.length || 0;
   const usabilityCount = acceptanceCriteria?.usability?.length || 0;
-  const totalCriteria = functionalCount + performanceCount + securityCount + usabilityCount;
+  const totalCriteria =
+    functionalCount + performanceCount + securityCount + usabilityCount;
 
   return (
     <div className="space-y-6">
       {/* Overview Stats */}
-      <SummaryCard title="סקירת מפרט טכני" icon={<FileText size={24} className="text-purple-600" />}>
+      <SummaryCard
+        title="סקירת מפרט טכני"
+        icon={<FileText size={24} className="text-purple-600" />}
+      >
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <StatCard
             label="מערכות מתועדות"
@@ -449,7 +518,10 @@ function ImplementationSpecSummary({ meeting }: PhaseSummaryProps) {
       </SummaryCard>
 
       {/* Completion Progress */}
-      <SummaryCard title="התקדמות איסוף דרישות" icon={<Activity size={24} className="text-blue-600" />}>
+      <SummaryCard
+        title="התקדמות איסוף דרישות"
+        icon={<Activity size={24} className="text-blue-600" />}
+      >
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm text-gray-600">השלמה כוללת</span>
@@ -464,7 +536,10 @@ function ImplementationSpecSummary({ meeting }: PhaseSummaryProps) {
         </div>
         {completionPercentage < 100 && (
           <div className="bg-yellow-50 border border-yellow-200 rounded p-3 flex items-start gap-2">
-            <AlertCircle size={20} className="text-yellow-600 flex-shrink-0 mt-0.5" />
+            <AlertCircle
+              size={20}
+              className="text-yellow-600 flex-shrink-0 mt-0.5"
+            />
             <p className="text-sm text-yellow-800">
               יש להשלים את איסוף הדרישות לפני מעבר לשלב הפיתוח
             </p>
@@ -474,14 +549,21 @@ function ImplementationSpecSummary({ meeting }: PhaseSummaryProps) {
 
       {/* Systems Inventory */}
       {systemsCount > 0 && (
-        <SummaryCard title="מערכות" icon={<Layers size={24} className="text-blue-600" />}>
+        <SummaryCard
+          title="מערכות"
+          icon={<Layers size={24} className="text-blue-600" />}
+        >
           <div className="space-y-2">
             {spec?.systems?.slice(0, 5).map((system) => (
-              <div key={system.id} className="flex items-center justify-between border-b pb-2">
+              <div
+                key={system.id}
+                className="flex items-center justify-between border-b pb-2"
+              >
                 <div>
                   <p className="font-medium">{system.systemName}</p>
                   <p className="text-sm text-gray-600">
-                    {system.modules?.length || 0} מודולים • {system.authentication?.method}
+                    {system.modules?.length || 0} מודולים •{' '}
+                    {system.authentication?.method}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -509,10 +591,16 @@ function ImplementationSpecSummary({ meeting }: PhaseSummaryProps) {
 
       {/* Integration Flows */}
       {integrationsCount > 0 && (
-        <SummaryCard title="זרימות אינטגרציה" icon={<GitBranch size={24} className="text-green-600" />}>
+        <SummaryCard
+          title="זרימות אינטגרציה"
+          icon={<GitBranch size={24} className="text-green-600" />}
+        >
           <div className="space-y-2">
             {spec?.integrations?.slice(0, 5).map((integration) => (
-              <div key={integration.id} className="flex items-center gap-3 border-b pb-2">
+              <div
+                key={integration.id}
+                className="flex items-center gap-3 border-b pb-2"
+              >
                 <GitBranch size={16} className="text-green-600" />
                 <div className="flex-1">
                   <p className="font-medium text-sm">{integration.name}</p>
@@ -536,7 +624,10 @@ function ImplementationSpecSummary({ meeting }: PhaseSummaryProps) {
 
       {/* Acceptance Criteria */}
       {totalCriteria > 0 && (
-        <SummaryCard title="קריטריוני קבלה" icon={<CheckCircle size={24} className="text-green-600" />}>
+        <SummaryCard
+          title="קריטריוני קבלה"
+          icon={<CheckCircle size={24} className="text-green-600" />}
+        >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard
               label="פונקציונלי"
@@ -566,7 +657,9 @@ function ImplementationSpecSummary({ meeting }: PhaseSummaryProps) {
       {systemsCount === 0 && integrationsCount === 0 && aiAgentsCount === 0 && (
         <div className="bg-gray-50 rounded-lg p-8 text-center">
           <AlertCircle size={48} className="text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">טרם נוסף מפרט טכני</h3>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            טרם נוסף מפרט טכני
+          </h3>
           <p className="text-gray-600 mb-4">
             התחל בתיעוד המערכות, אינטגרציות וסוכני AI
           </p>
@@ -592,34 +685,43 @@ function DevelopmentSummary({ meeting }: PhaseSummaryProps) {
 
   // Task breakdown
   const tasksByStatus = {
-    todo: tasks.filter(t => t.status === 'todo').length,
-    in_progress: tasks.filter(t => t.status === 'in_progress').length,
-    in_review: tasks.filter(t => t.status === 'in_review').length,
-    blocked: tasks.filter(t => t.status === 'blocked').length,
-    done: tasks.filter(t => t.status === 'done').length
+    todo: tasks.filter((t) => t.status === 'todo').length,
+    in_progress: tasks.filter((t) => t.status === 'in_progress').length,
+    in_review: tasks.filter((t) => t.status === 'in_review').length,
+    blocked: tasks.filter((t) => t.status === 'blocked').length,
+    done: tasks.filter((t) => t.status === 'done').length,
   };
 
   const totalTasks = tasks.length;
   const completedTasks = tasksByStatus.done;
-  const overallCompletion = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const overallCompletion =
+    totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   // Current sprint
-  const currentSprint = sprints.find(s => s.status === 'active');
+  const currentSprint = sprints.find((s) => s.status === 'active');
   const sprintProgress = currentSprint?.progressPercentage || 0;
 
   // Blocker stats
-  const activeBlockers = blockers?.filter(b => b.status === 'active').length || 0;
-  const criticalBlockers = blockers?.filter(b => b.status === 'active' && b.severity === 'critical').length || 0;
+  const activeBlockers =
+    blockers?.filter((b) => b.status === 'active').length || 0;
+  const criticalBlockers =
+    blockers?.filter((b) => b.status === 'active' && b.severity === 'critical')
+      .length || 0;
 
   return (
     <div className="space-y-6" dir="ltr">
       {/* Current Sprint */}
       {currentSprint && (
-        <SummaryCard title="Current Sprint" icon={<Activity size={24} className="text-green-600" />}>
+        <SummaryCard
+          title="Current Sprint"
+          icon={<Activity size={24} className="text-green-600" />}
+        >
           <div className="mb-4">
             <div className="flex justify-between items-center mb-2">
               <span className="font-medium">{currentSprint.name}</span>
-              <span className="text-sm text-gray-600">{sprintProgress}% complete</span>
+              <span className="text-sm text-gray-600">
+                {sprintProgress}% complete
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-4">
               <div
@@ -652,7 +754,10 @@ function DevelopmentSummary({ meeting }: PhaseSummaryProps) {
       )}
 
       {/* Overall Progress */}
-      <SummaryCard title="Overall Progress" icon={<TrendingUp size={24} className="text-blue-600" />}>
+      <SummaryCard
+        title="Overall Progress"
+        icon={<TrendingUp size={24} className="text-blue-600" />}
+      >
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm text-gray-600">Project Completion</span>
@@ -696,7 +801,10 @@ function DevelopmentSummary({ meeting }: PhaseSummaryProps) {
 
       {/* Velocity Metrics */}
       {velocity && (
-        <SummaryCard title="Velocity Metrics" icon={<Activity size={24} className="text-purple-600" />}>
+        <SummaryCard
+          title="Velocity Metrics"
+          icon={<Activity size={24} className="text-purple-600" />}
+        >
           <div className="grid grid-cols-3 gap-4">
             <StatCard
               label="Average Velocity"
@@ -722,7 +830,10 @@ function DevelopmentSummary({ meeting }: PhaseSummaryProps) {
 
       {/* Blockers */}
       {activeBlockers > 0 && (
-        <SummaryCard title="Active Blockers" icon={<AlertCircle size={24} className="text-red-600" />}>
+        <SummaryCard
+          title="Active Blockers"
+          icon={<AlertCircle size={24} className="text-red-600" />}
+        >
           <div className="grid grid-cols-2 gap-4 mb-4">
             <StatCard
               label="Total Blockers"
@@ -738,9 +849,13 @@ function DevelopmentSummary({ meeting }: PhaseSummaryProps) {
             />
           </div>
           <div className="bg-red-50 border border-red-200 rounded p-3 flex items-start gap-2">
-            <AlertCircle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+            <AlertCircle
+              size={20}
+              className="text-red-600 flex-shrink-0 mt-0.5"
+            />
             <p className="text-sm text-red-800">
-              There are {activeBlockers} active blockers requiring immediate attention
+              There are {activeBlockers} active blockers requiring immediate
+              attention
             </p>
           </div>
         </SummaryCard>
@@ -750,9 +865,12 @@ function DevelopmentSummary({ meeting }: PhaseSummaryProps) {
       {totalTasks === 0 && (
         <div className="bg-gray-50 rounded-lg p-8 text-center">
           <Code size={48} className="text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">No Development Tasks Yet</h3>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            No Development Tasks Yet
+          </h3>
           <p className="text-gray-600 mb-4">
-            Generate tasks from implementation specs to begin development tracking
+            Generate tasks from implementation specs to begin development
+            tracking
           </p>
           <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
             Generate Tasks
@@ -771,19 +889,32 @@ function CompletedSummary({ meeting }: PhaseSummaryProps) {
   const spec = meeting.implementationSpec;
 
   const tasks = tracking?.tasks || [];
-  const completedTasks = tasks.filter(t => t.status === 'done').length;
+  const completedTasks = tasks.filter((t) => t.status === 'done').length;
   const totalHours = tasks.reduce((sum, t) => sum + (t.actualHours || 0), 0);
 
   // Timeline
   const phaseHistory = meeting.phaseHistory || [];
-  const discoveryStart = phaseHistory.find(p => p.toPhase === 'discovery')?.timestamp;
-  const specStart = phaseHistory.find(p => p.toPhase === 'implementation_spec')?.timestamp;
-  const devStart = phaseHistory.find(p => p.toPhase === 'development')?.timestamp;
-  const completedDate = phaseHistory.find(p => p.toPhase === 'completed')?.timestamp;
+  const discoveryStart = phaseHistory.find(
+    (p) => p.toPhase === 'discovery'
+  )?.timestamp;
+  const specStart = phaseHistory.find(
+    (p) => p.toPhase === 'implementation_spec'
+  )?.timestamp;
+  const devStart = phaseHistory.find(
+    (p) => p.toPhase === 'development'
+  )?.timestamp;
+  const completedDate = phaseHistory.find(
+    (p) => p.toPhase === 'completed'
+  )?.timestamp;
 
-  const totalDuration = discoveryStart && completedDate
-    ? Math.round((new Date(completedDate).getTime() - new Date(discoveryStart).getTime()) / (1000 * 60 * 60 * 24))
-    : 0;
+  const totalDuration =
+    discoveryStart && completedDate
+      ? Math.round(
+          (new Date(completedDate).getTime() -
+            new Date(discoveryStart).getTime()) /
+            (1000 * 60 * 60 * 24)
+        )
+      : 0;
 
   // Deliverables
   const systemsImplemented = spec?.systems?.length || 0;
@@ -793,7 +924,10 @@ function CompletedSummary({ meeting }: PhaseSummaryProps) {
   return (
     <div className="space-y-6">
       {/* Project Timeline */}
-      <SummaryCard title="ציר זמן הפרויקט" icon={<Calendar size={24} className="text-blue-600" />}>
+      <SummaryCard
+        title="ציר זמן הפרויקט"
+        icon={<Calendar size={24} className="text-blue-600" />}
+      >
         <div className="space-y-3">
           {discoveryStart && (
             <div className="flex items-center gap-3">
@@ -843,14 +977,18 @@ function CompletedSummary({ meeting }: PhaseSummaryProps) {
         {totalDuration > 0 && (
           <div className="mt-4 p-3 bg-blue-50 rounded">
             <p className="text-sm text-blue-800">
-              <span className="font-semibold">משך כולל:</span> {totalDuration} ימים
+              <span className="font-semibold">משך כולל:</span> {totalDuration}{' '}
+              ימים
             </p>
           </div>
         )}
       </SummaryCard>
 
       {/* Deliverables */}
-      <SummaryCard title="מסירות" icon={<Award size={24} className="text-green-600" />}>
+      <SummaryCard
+        title="מסירות"
+        icon={<Award size={24} className="text-green-600" />}
+      >
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <StatCard
             label="מערכות"
@@ -880,7 +1018,10 @@ function CompletedSummary({ meeting }: PhaseSummaryProps) {
       </SummaryCard>
 
       {/* Final Metrics */}
-      <SummaryCard title="מדדים סופיים" icon={<TrendingUp size={24} className="text-purple-600" />}>
+      <SummaryCard
+        title="מדדים סופיים"
+        icon={<TrendingUp size={24} className="text-purple-600" />}
+      >
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <StatCard
             label="סה״כ משימות"
@@ -909,9 +1050,7 @@ function CompletedSummary({ meeting }: PhaseSummaryProps) {
         <h3 className="text-xl font-semibold text-green-800 mb-2">
           פרויקט הושלם בהצלחה!
         </h3>
-        <p className="text-green-700">
-          כל המשימות הושלמו והפרויקט נמסר ללקוח
-        </p>
+        <p className="text-green-700">כל המשימות הושלמו והפרויקט נמסר ללקוח</p>
       </div>
     </div>
   );
@@ -943,14 +1082,18 @@ export function SummaryTab() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
-              {isEnglish ? 'Project Summary' : `סיכום ${getPhaseLabel(currentPhase)}`}
+              {isEnglish
+                ? 'Project Summary'
+                : `סיכום ${getPhaseLabel(currentPhase)}`}
             </h1>
             <p className="text-gray-600 mt-2">
               {getPhaseSummaryDescription(currentPhase)}
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${getPhaseVariant(currentPhase)}`}>
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-medium ${getPhaseVariant(currentPhase)}`}
+            >
               {getPhaseLabel(currentPhase)}
             </span>
             <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
@@ -962,22 +1105,35 @@ export function SummaryTab() {
       </div>
 
       {/* Phase-Specific Content */}
-      {currentPhase === 'discovery' && <DiscoverySummary meeting={currentMeeting} />}
-      {currentPhase === 'implementation_spec' && <ImplementationSpecSummary meeting={currentMeeting} />}
-      {currentPhase === 'development' && <DevelopmentSummary meeting={currentMeeting} />}
-      {currentPhase === 'completed' && <CompletedSummary meeting={currentMeeting} />}
+      {currentPhase === 'discovery' && (
+        <DiscoverySummary meeting={currentMeeting} />
+      )}
+      {currentPhase === 'implementation_spec' && (
+        <ImplementationSpecSummary meeting={currentMeeting} />
+      )}
+      {currentPhase === 'development' && (
+        <DevelopmentSummary meeting={currentMeeting} />
+      )}
+      {currentPhase === 'completed' && (
+        <CompletedSummary meeting={currentMeeting} />
+      )}
 
       {/* Client Info Footer */}
       {currentMeeting.zohoIntegration && (
         <div className="mt-8 pt-6 border-t border-gray-200">
-          <div className={`text-center text-sm text-gray-500 ${isEnglish ? 'text-left' : 'text-right'}`}>
+          <div
+            className={`text-center text-sm text-gray-500 ${isEnglish ? 'text-left' : 'text-right'}`}
+          >
             <p>
-              {isEnglish ? 'Synced with' : 'מסונכרן עם'} Zoho CRM - Record ID: {currentMeeting.zohoIntegration.recordId}
+              {isEnglish ? 'Synced with' : 'מסונכרן עם'} Zoho CRM - Record ID:{' '}
+              {currentMeeting.zohoIntegration.recordId}
             </p>
             {currentMeeting.zohoIntegration.lastSyncTime && (
               <p>
                 {isEnglish ? 'Last updated:' : 'עדכון אחרון:'}{' '}
-                {new Date(currentMeeting.zohoIntegration.lastSyncTime).toLocaleString(isEnglish ? 'en-US' : 'he-IL')}
+                {new Date(
+                  currentMeeting.zohoIntegration.lastSyncTime
+                ).toLocaleString(isEnglish ? 'en-US' : 'he-IL')}
               </p>
             )}
           </div>

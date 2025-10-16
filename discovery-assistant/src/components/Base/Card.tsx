@@ -49,9 +49,10 @@ export const Card: React.FC<CardProps> = ({
   };
 
   // Hover effect if clickable or hoverable
-  const hoverStyles = (onClick || hoverable)
-    ? 'cursor-pointer hover:shadow-lg hover:border-blue-400 transition-all duration-200'
-    : '';
+  const hoverStyles =
+    onClick || hoverable
+      ? 'cursor-pointer hover:shadow-lg hover:border-blue-400 transition-all duration-200'
+      : '';
 
   const handleClick = () => {
     if (onClick) {
@@ -67,19 +68,20 @@ export const Card: React.FC<CardProps> = ({
   };
 
   // Auto-generate header if title/subtitle/icon provided
-  const autoHeader = (title || subtitle || icon) && !header ? (
-    <div className="flex items-start gap-3">
-      {icon && (
-        <div className="flex-shrink-0 mt-1">
-          {icon}
+  const autoHeader =
+    (title || subtitle || icon) && !header ? (
+      <div className="flex items-start gap-3">
+        {icon && <div className="flex-shrink-0 mt-1">{icon}</div>}
+        <div className="flex-1">
+          {title && (
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">
+              {title}
+            </h3>
+          )}
+          {subtitle && <p className="text-sm text-gray-600">{subtitle}</p>}
         </div>
-      )}
-      <div className="flex-1">
-        {title && <h3 className="text-lg font-semibold text-gray-900 mb-1">{title}</h3>}
-        {subtitle && <p className="text-sm text-gray-600">{subtitle}</p>}
       </div>
-    </div>
-  ) : null;
+    ) : null;
 
   return (
     <div
@@ -105,7 +107,15 @@ export const Card: React.FC<CardProps> = ({
       {padding === 'none' && !header && !autoHeader && !footer ? (
         children
       ) : (
-        <div className={(!header && !autoHeader && !footer) ? paddingStyles[padding] : padding === 'none' ? '' : 'p-4'}>
+        <div
+          className={
+            !header && !autoHeader && !footer
+              ? paddingStyles[padding]
+              : padding === 'none'
+                ? ''
+                : 'p-4'
+          }
+        >
           {children}
         </div>
       )}

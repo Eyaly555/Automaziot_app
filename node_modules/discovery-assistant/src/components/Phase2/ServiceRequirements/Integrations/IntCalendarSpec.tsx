@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { Card } from '../../../Common/Card';
-import type { IntCalendarRequirements, SystemConfig } from '../../../../types/integrationServices';
+import type {
+  IntCalendarRequirements,
+  SystemConfig,
+} from '../../../../types/integrationServices';
 import { useSmartField } from '../../../../hooks/useSmartField';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
@@ -20,10 +23,10 @@ export function IntCalendarSpec() {
           apiVersion: 'v3',
           quotas: {
             queriesPerDay: 1000000,
-            perUserQuotas: true
+            perUserQuotas: true,
           },
-          cloudProjectId: ''
-        }
+          cloudProjectId: '',
+        },
       },
       microsoft: {
         enabled: false,
@@ -34,9 +37,9 @@ export function IntCalendarSpec() {
           apiVersion: 'v1.0',
           graphEndpoint: 'https://graph.microsoft.com',
           azureAppId: '',
-          permissions: ['Calendar.ReadWrite']
-        }
-      }
+          permissions: ['Calendar.ReadWrite'],
+        },
+      },
     },
     crmIntegration: {
       system: '',
@@ -44,8 +47,8 @@ export function IntCalendarSpec() {
       config: {
         name: '',
         authType: 'oauth2',
-        credentials: {}
-      }
+        credentials: {},
+      },
     },
     syncConfig: {
       direction: 'bi-directional',
@@ -54,33 +57,33 @@ export function IntCalendarSpec() {
         enabled: true,
         triggerEvents: [],
         defaultCalendar: 'primary',
-        conflictCheck: true
+        conflictCheck: true,
       },
       calendarToCrm: {
         enabled: true,
         updateEvents: [],
-        createMeetingInCrm: true
-      }
+        createMeetingInCrm: true,
+      },
     },
     webhookConfig: {
       google: {
         enabled: false,
         pushNotifications: true,
         renewalFrequencyHours: 20,
-        verificationToken: ''
+        verificationToken: '',
       },
       microsoft: {
         enabled: false,
         subscriptions: true,
         expirationMinutes: 4230,
         renewalFrequencyDays: 3,
-        validationToken: ''
-      }
+        validationToken: '',
+      },
     },
     webhookRenewal: {
       enabled: true,
       cronSchedule: '0 */12 * * *',
-      alertOnFailure: true
+      alertOnFailure: true,
     },
     eventMappings: {
       summary: { crmField: '', calendarField: 'summary' },
@@ -92,62 +95,62 @@ export function IntCalendarSpec() {
         enabled: true,
         crmField: '',
         calendarField: 'attendees',
-        externalAttendeesAllowed: true
-      }
+        externalAttendeesAllowed: true,
+      },
     },
     timezoneConfig: {
       defaultTimezone: 'Asia/Jerusalem',
       convertUserTimezones: true,
-      alwaysUseIanaFormat: true
+      alwaysUseIanaFormat: true,
     },
     recurringEvents: {
       enabled: true,
       useRruleFormat: true,
-      syncIndividualOccurrences: false
+      syncIndividualOccurrences: false,
     },
     meetingTypes: {
       crmMeetingTypes: [],
       calendarCategories: [],
-      mapping: []
+      mapping: [],
     },
     reminders: {
       syncEnabled: true,
       defaultReminder: {
         google: { method: 'popup', minutes: 30 },
-        microsoft: { minutes: 15 }
+        microsoft: { minutes: 15 },
       },
-      syncCrmTasksToReminders: false
+      syncCrmTasksToReminders: false,
     },
     privacySettings: {
       respectPrivateEvents: true,
-      defaultVisibility: 'default'
+      defaultVisibility: 'default',
     },
     videoConferencing: {
       google: {
-        autoAddGoogleMeet: false
+        autoAddGoogleMeet: false,
       },
       microsoft: {
-        autoAddTeams: false
-      }
+        autoAddTeams: false,
+      },
     },
     availabilityCheck: {
       enabled: true,
       freeBusyQuery: true,
-      conflictResolution: 'prefer-calendar'
+      conflictResolution: 'prefer-calendar',
     },
     allDayEvents: {
       enabled: true,
-      handleWithoutTimezone: true
+      handleWithoutTimezone: true,
     },
     attachments: {
       google: {
         enabled: false,
-        syncAttachments: false
+        syncAttachments: false,
       },
       microsoft: {
         enabled: false,
-        useOneDriveLinks: false
-      }
+        useOneDriveLinks: false,
+      },
     },
     errorHandling: {
       retryAttempts: 3,
@@ -157,17 +160,17 @@ export function IntCalendarSpec() {
       rateLimitHandling: {
         googleDailyLimit: true,
         microsoftThrottling: true,
-        exponentialBackoff: [1, 2, 4, 8]
+        exponentialBackoff: [1, 2, 4, 8],
       },
-      http429Handling: true
+      http429Handling: true,
     },
     metadata: {
       complexity: 'medium',
       estimatedHours: 30,
       prerequisites: [],
       monthlyApiCalls: 10000,
-      monthlyCost: 0
-    }
+      monthlyCost: 0,
+    },
   });
 
   // Track if we're currently loading data to prevent save loops
@@ -177,7 +180,7 @@ export function IntCalendarSpec() {
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'int-calendar',
-    category: 'integrationServices'
+    category: 'integrationServices',
   });
 
   useBeforeUnload(() => {
@@ -189,9 +192,9 @@ export function IntCalendarSpec() {
         system: crmSystem.value,
         config: {
           ...config.crmIntegration?.config,
-          authType: apiAuthMethod.value
-        }
-      }
+          authType: apiAuthMethod.value,
+        },
+      },
     };
     saveData(completeConfig);
   });
@@ -200,27 +203,30 @@ export function IntCalendarSpec() {
     fieldId: 'crm_system',
     localPath: 'crmIntegration.system',
     serviceId: 'int-calendar',
-    autoSave: false
+    autoSave: false,
   });
 
   const apiAuthMethod = useSmartField<string>({
     fieldId: 'api_auth_method',
     localPath: 'crmIntegration.config.authType',
     serviceId: 'int-calendar',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'errorHandling.alertRecipients[0]',
     serviceId: 'int-calendar',
-    autoSave: false
+    autoSave: false,
   });
 
   // Load existing data ONCE on mount or when service data actually changes
   useEffect(() => {
-    const integrationServices = currentMeeting?.implementationSpec?.integrationServices || [];
-    const existing = integrationServices.find((i: any) => i.serviceId === 'int-calendar');
+    const integrationServices =
+      currentMeeting?.implementationSpec?.integrationServices || [];
+    const existing = integrationServices.find(
+      (i: any) => i.serviceId === 'int-calendar'
+    );
 
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
@@ -259,32 +265,37 @@ export function IntCalendarSpec() {
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [config, crmSystem.value, apiAuthMethod.value, saveData]);
 
-  const handleFieldChange = useCallback((field: keyof Partial<IntCalendarRequirements>, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = {
-            ...updated,
-            crmIntegration: {
-              ...updated.crmIntegration,
-              system: crmSystem.value,
-              config: {
-                ...updated.crmIntegration?.config,
-                authType: apiAuthMethod.value
-              }
-            },
-            errorHandling: {
-              ...updated.errorHandling,
-              alertRecipients: alertEmail.value ? [alertEmail.value] : updated.errorHandling?.alertRecipients || []
-            }
-          };
-          saveData(completeConfig);
-        }
-      }, 0);
-      return updated;
-    });
-  }, [crmSystem.value, apiAuthMethod.value, alertEmail.value, saveData]);
+  const handleFieldChange = useCallback(
+    (field: keyof Partial<IntCalendarRequirements>, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = {
+              ...updated,
+              crmIntegration: {
+                ...updated.crmIntegration,
+                system: crmSystem.value,
+                config: {
+                  ...updated.crmIntegration?.config,
+                  authType: apiAuthMethod.value,
+                },
+              },
+              errorHandling: {
+                ...updated.errorHandling,
+                alertRecipients: alertEmail.value
+                  ? [alertEmail.value]
+                  : updated.errorHandling?.alertRecipients || [],
+              },
+            };
+            saveData(completeConfig);
+          }
+        }, 0);
+        return updated;
+      });
+    },
+    [crmSystem.value, apiAuthMethod.value, alertEmail.value, saveData]
+  );
 
   const handleSave = useCallback(async () => {
     // Build complete config with smart field values
@@ -295,41 +306,57 @@ export function IntCalendarSpec() {
         system: crmSystem.value,
         config: {
           ...config.crmIntegration!.config!,
-          authType: apiAuthMethod.value
-        }
+          authType: apiAuthMethod.value,
+        },
       },
       errorHandling: {
         ...config.errorHandling!,
-        alertRecipients: alertEmail.value ? [alertEmail.value] : config.errorHandling?.alertRecipients || []
-      }
+        alertRecipients: alertEmail.value
+          ? [alertEmail.value]
+          : config.errorHandling?.alertRecipients || [],
+      },
     };
 
     // Save using auto-save (manual save trigger)
     await saveData(completeConfig, 'manual');
 
     alert('הגדרות נשמרו בהצלחה!');
-  }, [config, crmSystem.value, apiAuthMethod.value, alertEmail.value, saveData]);
+  }, [
+    config,
+    crmSystem.value,
+    apiAuthMethod.value,
+    alertEmail.value,
+    saveData,
+  ]);
 
   return (
     <div className="space-y-6 p-8" dir="rtl">
-      {(crmSystem.isAutoPopulated || apiAuthMethod.isAutoPopulated || alertEmail.isAutoPopulated) && (
+      {(crmSystem.isAutoPopulated ||
+        apiAuthMethod.isAutoPopulated ||
+        alertEmail.isAutoPopulated) && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
           <InfoIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <h4 className="font-semibold text-blue-900 mb-1">
+              נתונים מולאו אוטומטית משלב 1
+            </h4>
             <p className="text-sm text-blue-800">
-              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-              תוכל לערוך אותם במידת הצורך.
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל לערוך
+              אותם במידת הצורך.
             </p>
           </div>
         </div>
       )}
 
-      {(crmSystem.hasConflict || apiAuthMethod.hasConflict || alertEmail.hasConflict) && (
+      {(crmSystem.hasConflict ||
+        apiAuthMethod.hasConflict ||
+        alertEmail.hasConflict) && (
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+            <h4 className="font-semibold text-orange-900 mb-1">
+              זוהה אי-התאמה בנתונים
+            </h4>
             <p className="text-sm text-orange-800">
               נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
             </p>
@@ -338,7 +365,6 @@ export function IntCalendarSpec() {
       )}
       <Card title="שירות #38: אינטגרציית Calendar APIs">
         <div className="space-y-6">
-
           {/* Calendar Providers */}
           <div className="border-b pb-4">
             <h3 className="text-lg font-semibold mb-4">ספקי יומן</h3>
@@ -349,7 +375,12 @@ export function IntCalendarSpec() {
                 <input
                   type="checkbox"
                   checked={config.calendarProviders?.google?.enabled || false}
-                  onChange={(e) => handleFieldChange('calendarProviders.google.enabled', e.target.checked)}
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'calendarProviders.google.enabled',
+                      e.target.checked
+                    )
+                  }
                   className="rounded"
                 />
                 <span className="font-medium">Google Calendar</span>
@@ -358,21 +389,41 @@ export function IntCalendarSpec() {
               {config.calendarProviders?.google?.enabled && (
                 <div className="mr-6 space-y-3 bg-gray-50 p-4 rounded">
                   <div>
-                    <label className="block text-sm text-gray-700 mb-1">Cloud Project ID</label>
+                    <label className="block text-sm text-gray-700 mb-1">
+                      Cloud Project ID
+                    </label>
                     <input
                       type="text"
-                      value={config.calendarProviders?.google?.config?.cloudProjectId || ''}
-                      onChange={(e) => handleFieldChange('calendarProviders.google.config.cloudProjectId', e.target.value)}
+                      value={
+                        config.calendarProviders?.google?.config
+                          ?.cloudProjectId || ''
+                      }
+                      onChange={(e) =>
+                        handleFieldChange(
+                          'calendarProviders.google.config.cloudProjectId',
+                          e.target.value
+                        )
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm text-gray-700 mb-1">Queries Per Day</label>
+                      <label className="block text-sm text-gray-700 mb-1">
+                        Queries Per Day
+                      </label>
                       <input
                         type="number"
-                        value={config.calendarProviders?.google?.config?.quotas?.queriesPerDay || 1000000}
-                        onChange={(e) => handleFieldChange('calendarProviders.google.config.quotas.queriesPerDay', parseInt(e.target.value))}
+                        value={
+                          config.calendarProviders?.google?.config?.quotas
+                            ?.queriesPerDay || 1000000
+                        }
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'calendarProviders.google.config.quotas.queriesPerDay',
+                            parseInt(e.target.value)
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                       />
                     </div>
@@ -380,8 +431,16 @@ export function IntCalendarSpec() {
                       <label className="flex items-center space-x-2">
                         <input
                           type="checkbox"
-                          checked={config.calendarProviders?.google?.config?.quotas?.perUserQuotas || false}
-                          onChange={(e) => handleFieldChange('calendarProviders.google.config.quotas.perUserQuotas', e.target.checked)}
+                          checked={
+                            config.calendarProviders?.google?.config?.quotas
+                              ?.perUserQuotas || false
+                          }
+                          onChange={(e) =>
+                            handleFieldChange(
+                              'calendarProviders.google.config.quotas.perUserQuotas',
+                              e.target.checked
+                            )
+                          }
                           className="rounded"
                         />
                         <span>Per User Quotas</span>
@@ -397,30 +456,59 @@ export function IntCalendarSpec() {
               <label className="flex items-center space-x-2 mb-3">
                 <input
                   type="checkbox"
-                  checked={config.calendarProviders?.microsoft?.enabled || false}
-                  onChange={(e) => handleFieldChange('calendarProviders.microsoft.enabled', e.target.checked)}
+                  checked={
+                    config.calendarProviders?.microsoft?.enabled || false
+                  }
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'calendarProviders.microsoft.enabled',
+                      e.target.checked
+                    )
+                  }
                   className="rounded"
                 />
-                <span className="font-medium">Microsoft Calendar / Outlook</span>
+                <span className="font-medium">
+                  Microsoft Calendar / Outlook
+                </span>
               </label>
 
               {config.calendarProviders?.microsoft?.enabled && (
                 <div className="mr-6 space-y-3 bg-gray-50 p-4 rounded">
                   <div>
-                    <label className="block text-sm text-gray-700 mb-1">Azure App ID</label>
+                    <label className="block text-sm text-gray-700 mb-1">
+                      Azure App ID
+                    </label>
                     <input
                       type="text"
-                      value={config.calendarProviders?.microsoft?.config?.azureAppId || ''}
-                      onChange={(e) => handleFieldChange('calendarProviders.microsoft.config.azureAppId', e.target.value)}
+                      value={
+                        config.calendarProviders?.microsoft?.config
+                          ?.azureAppId || ''
+                      }
+                      onChange={(e) =>
+                        handleFieldChange(
+                          'calendarProviders.microsoft.config.azureAppId',
+                          e.target.value
+                        )
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-700 mb-1">Graph Endpoint</label>
+                    <label className="block text-sm text-gray-700 mb-1">
+                      Graph Endpoint
+                    </label>
                     <input
                       type="url"
-                      value={config.calendarProviders?.microsoft?.config?.graphEndpoint || 'https://graph.microsoft.com'}
-                      onChange={(e) => handleFieldChange('calendarProviders.microsoft.config.graphEndpoint', e.target.value)}
+                      value={
+                        config.calendarProviders?.microsoft?.config
+                          ?.graphEndpoint || 'https://graph.microsoft.com'
+                      }
+                      onChange={(e) =>
+                        handleFieldChange(
+                          'calendarProviders.microsoft.config.graphEndpoint',
+                          e.target.value
+                        )
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     />
                   </div>
@@ -450,7 +538,9 @@ export function IntCalendarSpec() {
                     value={crmSystem.value || ''}
                     onChange={(e) => crmSystem.setValue(e.target.value)}
                     className={`w-full px-3 py-2 border rounded-md ${
-                      crmSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                      crmSystem.isAutoPopulated
+                        ? 'border-green-300 bg-green-50'
+                        : 'border-gray-300'
                     } ${crmSystem.hasConflict ? 'border-orange-300' : ''}`}
                   >
                     <option value="zoho">Zoho CRM</option>
@@ -482,7 +572,9 @@ export function IntCalendarSpec() {
                     value={apiAuthMethod.value || 'oauth2'}
                     onChange={(e) => apiAuthMethod.setValue(e.target.value)}
                     className={`w-full px-3 py-2 border rounded-md ${
-                      apiAuthMethod.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                      apiAuthMethod.isAutoPopulated
+                        ? 'border-green-300 bg-green-50'
+                        : 'border-gray-300'
                     } ${apiAuthMethod.hasConflict ? 'border-orange-300' : ''}`}
                   >
                     <option value="oauth">OAuth 2.0</option>
@@ -500,10 +592,17 @@ export function IntCalendarSpec() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">CRM Module</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    CRM Module
+                  </label>
                   <select
                     value={config.crmIntegration?.module || 'events'}
-                    onChange={(e) => handleFieldChange('crmIntegration.module', e.target.value as any)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'crmIntegration.module',
+                        e.target.value as any
+                      )
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   >
                     <option value="events">Events</option>
@@ -524,7 +623,12 @@ export function IntCalendarSpec() {
                   <input
                     type="checkbox"
                     checked={config.syncConfig?.crmToCalendar?.enabled || false}
-                    onChange={(e) => handleFieldChange('syncConfig.crmToCalendar.enabled', e.target.checked)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'syncConfig.crmToCalendar.enabled',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>CRM → Calendar</span>
@@ -533,7 +637,12 @@ export function IntCalendarSpec() {
                   <input
                     type="checkbox"
                     checked={config.syncConfig?.calendarToCrm?.enabled || false}
-                    onChange={(e) => handleFieldChange('syncConfig.calendarToCrm.enabled', e.target.checked)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'syncConfig.calendarToCrm.enabled',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>Calendar → CRM</span>
@@ -545,11 +654,21 @@ export function IntCalendarSpec() {
                   <h4 className="font-medium">CRM → Calendar</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm text-gray-700 mb-1">Default Calendar</label>
+                      <label className="block text-sm text-gray-700 mb-1">
+                        Default Calendar
+                      </label>
                       <input
                         type="text"
-                        value={config.syncConfig?.crmToCalendar?.defaultCalendar || 'primary'}
-                        onChange={(e) => handleFieldChange('syncConfig.crmToCalendar.defaultCalendar', e.target.value)}
+                        value={
+                          config.syncConfig?.crmToCalendar?.defaultCalendar ||
+                          'primary'
+                        }
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'syncConfig.crmToCalendar.defaultCalendar',
+                            e.target.value
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                       />
                     </div>
@@ -557,8 +676,16 @@ export function IntCalendarSpec() {
                       <label className="flex items-center space-x-2">
                         <input
                           type="checkbox"
-                          checked={config.syncConfig?.crmToCalendar?.conflictCheck || false}
-                          onChange={(e) => handleFieldChange('syncConfig.crmToCalendar.conflictCheck', e.target.checked)}
+                          checked={
+                            config.syncConfig?.crmToCalendar?.conflictCheck ||
+                            false
+                          }
+                          onChange={(e) =>
+                            handleFieldChange(
+                              'syncConfig.crmToCalendar.conflictCheck',
+                              e.target.checked
+                            )
+                          }
                           className="rounded"
                         />
                         <span>בדיקת קונפליקטים</span>
@@ -573,8 +700,16 @@ export function IntCalendarSpec() {
                   <label className="flex items-center space-x-2">
                     <input
                       type="checkbox"
-                      checked={config.syncConfig?.calendarToCrm?.createMeetingInCrm || false}
-                      onChange={(e) => handleFieldChange('syncConfig.calendarToCrm.createMeetingInCrm', e.target.checked)}
+                      checked={
+                        config.syncConfig?.calendarToCrm?.createMeetingInCrm ||
+                        false
+                      }
+                      onChange={(e) =>
+                        handleFieldChange(
+                          'syncConfig.calendarToCrm.createMeetingInCrm',
+                          e.target.checked
+                        )
+                      }
                       className="rounded"
                     />
                     <span>צור פגישה ב-CRM</span>
@@ -590,21 +725,35 @@ export function IntCalendarSpec() {
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-gray-700 mb-1">Summary / Title (CRM Field)</label>
+                  <label className="block text-sm text-gray-700 mb-1">
+                    Summary / Title (CRM Field)
+                  </label>
                   <input
                     type="text"
                     value={config.eventMappings?.summary?.crmField || ''}
-                    onChange={(e) => handleFieldChange('eventMappings.summary.crmField', e.target.value)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'eventMappings.summary.crmField',
+                        e.target.value
+                      )
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     placeholder="Subject"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-700 mb-1">Description (CRM Field)</label>
+                  <label className="block text-sm text-gray-700 mb-1">
+                    Description (CRM Field)
+                  </label>
                   <input
                     type="text"
                     value={config.eventMappings?.description?.crmField || ''}
-                    onChange={(e) => handleFieldChange('eventMappings.description.crmField', e.target.value)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'eventMappings.description.crmField',
+                        e.target.value
+                      )
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     placeholder="Description"
                   />
@@ -612,29 +761,50 @@ export function IntCalendarSpec() {
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm text-gray-700 mb-1">Start Time (CRM Field)</label>
+                  <label className="block text-sm text-gray-700 mb-1">
+                    Start Time (CRM Field)
+                  </label>
                   <input
                     type="text"
                     value={config.eventMappings?.startTime?.crmField || ''}
-                    onChange={(e) => handleFieldChange('eventMappings.startTime.crmField', e.target.value)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'eventMappings.startTime.crmField',
+                        e.target.value
+                      )
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-700 mb-1">End Time (CRM Field)</label>
+                  <label className="block text-sm text-gray-700 mb-1">
+                    End Time (CRM Field)
+                  </label>
                   <input
                     type="text"
                     value={config.eventMappings?.endTime?.crmField || ''}
-                    onChange={(e) => handleFieldChange('eventMappings.endTime.crmField', e.target.value)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'eventMappings.endTime.crmField',
+                        e.target.value
+                      )
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-700 mb-1">Location (CRM Field)</label>
+                  <label className="block text-sm text-gray-700 mb-1">
+                    Location (CRM Field)
+                  </label>
                   <input
                     type="text"
                     value={config.eventMappings?.location?.crmField || ''}
-                    onChange={(e) => handleFieldChange('eventMappings.location.crmField', e.target.value)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'eventMappings.location.crmField',
+                        e.target.value
+                      )
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -644,7 +814,12 @@ export function IntCalendarSpec() {
                   <input
                     type="checkbox"
                     checked={config.eventMappings?.attendees?.enabled || false}
-                    onChange={(e) => handleFieldChange('eventMappings.attendees.enabled', e.target.checked)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'eventMappings.attendees.enabled',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>סנכרן משתתפים</span>
@@ -655,18 +830,33 @@ export function IntCalendarSpec() {
 
           {/* Timezone Configuration */}
           <div className="border-b pb-4">
-            <h3 className="text-lg font-semibold mb-4">Timezone Configuration</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              Timezone Configuration
+            </h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Default Timezone</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Default Timezone
+                </label>
                 <select
-                  value={config.timezoneConfig?.defaultTimezone || 'Asia/Jerusalem'}
-                  onChange={(e) => handleFieldChange('timezoneConfig.defaultTimezone', e.target.value)}
+                  value={
+                    config.timezoneConfig?.defaultTimezone || 'Asia/Jerusalem'
+                  }
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'timezoneConfig.defaultTimezone',
+                      e.target.value
+                    )
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="Asia/Jerusalem">Asia/Jerusalem (IL)</option>
-                  <option value="America/New_York">America/New_York (EST/EDT)</option>
-                  <option value="America/Los_Angeles">America/Los_Angeles (PST/PDT)</option>
+                  <option value="America/New_York">
+                    America/New_York (EST/EDT)
+                  </option>
+                  <option value="America/Los_Angeles">
+                    America/Los_Angeles (PST/PDT)
+                  </option>
                   <option value="Europe/London">Europe/London (GMT/BST)</option>
                   <option value="UTC">UTC</option>
                 </select>
@@ -675,8 +865,15 @@ export function IntCalendarSpec() {
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    checked={config.timezoneConfig?.convertUserTimezones || false}
-                    onChange={(e) => handleFieldChange('timezoneConfig.convertUserTimezones', e.target.checked)}
+                    checked={
+                      config.timezoneConfig?.convertUserTimezones || false
+                    }
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'timezoneConfig.convertUserTimezones',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>המר אזורי זמן של משתמשים</span>
@@ -684,8 +881,15 @@ export function IntCalendarSpec() {
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    checked={config.timezoneConfig?.alwaysUseIanaFormat || false}
-                    onChange={(e) => handleFieldChange('timezoneConfig.alwaysUseIanaFormat', e.target.checked)}
+                    checked={
+                      config.timezoneConfig?.alwaysUseIanaFormat || false
+                    }
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'timezoneConfig.alwaysUseIanaFormat',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>השתמש תמיד בפורמט IANA</span>
@@ -701,8 +905,15 @@ export function IntCalendarSpec() {
               <label className="flex items-center space-x-2">
                 <input
                   type="checkbox"
-                  checked={config.videoConferencing?.google?.autoAddGoogleMeet || false}
-                  onChange={(e) => handleFieldChange('videoConferencing.google.autoAddGoogleMeet', e.target.checked)}
+                  checked={
+                    config.videoConferencing?.google?.autoAddGoogleMeet || false
+                  }
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'videoConferencing.google.autoAddGoogleMeet',
+                      e.target.checked
+                    )
+                  }
                   className="rounded"
                 />
                 <span>הוסף אוטומטית Google Meet</span>
@@ -710,8 +921,15 @@ export function IntCalendarSpec() {
               <label className="flex items-center space-x-2">
                 <input
                   type="checkbox"
-                  checked={config.videoConferencing?.microsoft?.autoAddTeams || false}
-                  onChange={(e) => handleFieldChange('videoConferencing.microsoft.autoAddTeams', e.target.checked)}
+                  checked={
+                    config.videoConferencing?.microsoft?.autoAddTeams || false
+                  }
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'videoConferencing.microsoft.autoAddTeams',
+                      e.target.checked
+                    )
+                  }
                   className="rounded"
                 />
                 <span>הוסף אוטומטית Microsoft Teams</span>
@@ -728,7 +946,12 @@ export function IntCalendarSpec() {
                   <input
                     type="checkbox"
                     checked={config.recurringEvents?.enabled || false}
-                    onChange={(e) => handleFieldChange('recurringEvents.enabled', e.target.checked)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'recurringEvents.enabled',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>אירועים חוזרים</span>
@@ -737,7 +960,12 @@ export function IntCalendarSpec() {
                   <input
                     type="checkbox"
                     checked={config.allDayEvents?.enabled || false}
-                    onChange={(e) => handleFieldChange('allDayEvents.enabled', e.target.checked)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'allDayEvents.enabled',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>אירועי יום שלם</span>
@@ -746,17 +974,32 @@ export function IntCalendarSpec() {
                   <input
                     type="checkbox"
                     checked={config.reminders?.syncEnabled || false}
-                    onChange={(e) => handleFieldChange('reminders.syncEnabled', e.target.checked)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'reminders.syncEnabled',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>סנכרן תזכורות</span>
                 </label>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">פתרון קונפליקטים</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  פתרון קונפליקטים
+                </label>
                 <select
-                  value={config.availabilityCheck?.conflictResolution || 'prefer-calendar'}
-                  onChange={(e) => handleFieldChange('availabilityCheck.conflictResolution', e.target.value as any)}
+                  value={
+                    config.availabilityCheck?.conflictResolution ||
+                    'prefer-calendar'
+                  }
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'availabilityCheck.conflictResolution',
+                      e.target.value as any
+                    )
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="prefer-calendar">Prefer Calendar</option>
@@ -776,7 +1019,12 @@ export function IntCalendarSpec() {
                   <input
                     type="checkbox"
                     checked={config.attachments?.google?.enabled || false}
-                    onChange={(e) => handleFieldChange('attachments.google.enabled', e.target.checked)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'attachments.google.enabled',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>הפעל סנכרון קבצים (Google)</span>
@@ -784,8 +1032,15 @@ export function IntCalendarSpec() {
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    checked={config.attachments?.google?.syncAttachments || false}
-                    onChange={(e) => handleFieldChange('attachments.google.syncAttachments', e.target.checked)}
+                    checked={
+                      config.attachments?.google?.syncAttachments || false
+                    }
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'attachments.google.syncAttachments',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>סנכרן קבצים מצורפים (Google)</span>
@@ -796,7 +1051,12 @@ export function IntCalendarSpec() {
                   <input
                     type="checkbox"
                     checked={config.attachments?.microsoft?.enabled || false}
-                    onChange={(e) => handleFieldChange('attachments.microsoft.enabled', e.target.checked)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'attachments.microsoft.enabled',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>הפעל סנכרון קבצים (Microsoft)</span>
@@ -804,8 +1064,15 @@ export function IntCalendarSpec() {
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    checked={config.attachments?.microsoft?.useOneDriveLinks || false}
-                    onChange={(e) => handleFieldChange('attachments.microsoft.useOneDriveLinks', e.target.checked)}
+                    checked={
+                      config.attachments?.microsoft?.useOneDriveLinks || false
+                    }
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'attachments.microsoft.useOneDriveLinks',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>השתמש בקישורי OneDrive</span>
@@ -820,12 +1087,19 @@ export function IntCalendarSpec() {
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-gray-700 mb-1">ניסיונות חוזרים</label>
+                  <label className="block text-sm text-gray-700 mb-1">
+                    ניסיונות חוזרים
+                  </label>
                   <input
                     type="number"
                     min="0"
                     value={config.errorHandling?.retryAttempts || 3}
-                    onChange={(e) => handleFieldChange('errorHandling.retryAttempts', parseInt(e.target.value))}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'errorHandling.retryAttempts',
+                        parseInt(e.target.value)
+                      )
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -846,7 +1120,9 @@ export function IntCalendarSpec() {
                     value={alertEmail.value || ''}
                     onChange={(e) => alertEmail.setValue(e.target.value)}
                     className={`w-full px-3 py-2 border rounded-md ${
-                      alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                      alertEmail.isAutoPopulated
+                        ? 'border-green-300 bg-green-50'
+                        : 'border-gray-300'
                     } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
                     placeholder="error@company.com"
                   />
@@ -861,8 +1137,16 @@ export function IntCalendarSpec() {
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    checked={config.errorHandling?.rateLimitHandling?.googleDailyLimit || false}
-                    onChange={(e) => handleFieldChange('errorHandling.rateLimitHandling.googleDailyLimit', e.target.checked)}
+                    checked={
+                      config.errorHandling?.rateLimitHandling
+                        ?.googleDailyLimit || false
+                    }
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'errorHandling.rateLimitHandling.googleDailyLimit',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>Google Daily Limit Handling</span>
@@ -870,8 +1154,16 @@ export function IntCalendarSpec() {
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    checked={config.errorHandling?.rateLimitHandling?.microsoftThrottling || false}
-                    onChange={(e) => handleFieldChange('errorHandling.rateLimitHandling.microsoftThrottling', e.target.checked)}
+                    checked={
+                      config.errorHandling?.rateLimitHandling
+                        ?.microsoftThrottling || false
+                    }
+                    onChange={(e) =>
+                      handleFieldChange(
+                        'errorHandling.rateLimitHandling.microsoftThrottling',
+                        e.target.checked
+                      )
+                    }
                     className="rounded"
                   />
                   <span>Microsoft Throttling Handling</span>
@@ -885,22 +1177,36 @@ export function IntCalendarSpec() {
             <h3 className="text-lg font-semibold mb-4">Metadata</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">שעות משוערות</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  שעות משוערות
+                </label>
                 <input
                   type="number"
                   min="1"
                   value={config.metadata?.estimatedHours || 30}
-                  onChange={(e) => handleFieldChange('metadata.estimatedHours', parseInt(e.target.value))}
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'metadata.estimatedHours',
+                      parseInt(e.target.value)
+                    )
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">קריאות API חודשיות</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  קריאות API חודשיות
+                </label>
                 <input
                   type="number"
                   min="0"
                   value={config.metadata?.monthlyApiCalls || 10000}
-                  onChange={(e) => handleFieldChange('metadata.monthlyApiCalls', parseInt(e.target.value))}
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'metadata.monthlyApiCalls',
+                      parseInt(e.target.value)
+                    )
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>

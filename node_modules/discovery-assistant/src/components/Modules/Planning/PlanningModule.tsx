@@ -3,7 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Card } from '../../Common/Card';
-import { TextField, CheckboxGroup, RadioGroup, TextAreaField } from '../../Common/FormFields';
+import {
+  TextField,
+  CheckboxGroup,
+  RadioGroup,
+  TextAreaField,
+} from '../../Common/FormFields';
 import { useBeforeUnload } from '../../../hooks/useBeforeUnload';
 
 export const PlanningModule: React.FC = () => {
@@ -13,27 +18,49 @@ export const PlanningModule: React.FC = () => {
 
   // Vision & Goals
   const [vision, setVision] = useState(moduleData.vision || '');
-  const [primaryGoals, setPrimaryGoals] = useState<string[]>(moduleData.primaryGoals || []);
+  const [primaryGoals, setPrimaryGoals] = useState<string[]>(
+    moduleData.primaryGoals || []
+  );
   const [timeframe, setTimeframe] = useState(moduleData.timeframe || '');
 
   // Priorities
-  const [topPriorities, setTopPriorities] = useState<string[]>(moduleData.priorities?.top || []);
-  const [quickWins, setQuickWins] = useState<string[]>(moduleData.priorities?.quickWins || []);
-  const [longTermProjects, setLongTermProjects] = useState<string[]>(moduleData.priorities?.longTerm || []);
+  const [topPriorities, setTopPriorities] = useState<string[]>(
+    moduleData.priorities?.top || []
+  );
+  const [quickWins, setQuickWins] = useState<string[]>(
+    moduleData.priorities?.quickWins || []
+  );
+  const [longTermProjects, setLongTermProjects] = useState<string[]>(
+    moduleData.priorities?.longTerm || []
+  );
 
   // Implementation
-  const [implementationApproach, setImplementationApproach] = useState(moduleData.implementation?.approach || '');
-  const [teamInvolvement, setTeamInvolvement] = useState(moduleData.implementation?.team || '');
-  const [trainingNeeded, setTrainingNeeded] = useState(moduleData.implementation?.training || '');
+  const [implementationApproach, setImplementationApproach] = useState(
+    moduleData.implementation?.approach || ''
+  );
+  const [teamInvolvement, setTeamInvolvement] = useState(
+    moduleData.implementation?.team || ''
+  );
+  const [trainingNeeded, setTrainingNeeded] = useState(
+    moduleData.implementation?.training || ''
+  );
 
   // Next Steps
-  const [immediateActions, setImmediateActions] = useState(moduleData.nextSteps?.immediate || '');
-  const [followUpDate, setFollowUpDate] = useState(moduleData.nextSteps?.followUp || '');
-  const [decisionMakers, setDecisionMakers] = useState(moduleData.nextSteps?.decisionMakers || '');
+  const [immediateActions, setImmediateActions] = useState(
+    moduleData.nextSteps?.immediate || ''
+  );
+  const [followUpDate, setFollowUpDate] = useState(
+    moduleData.nextSteps?.followUp || ''
+  );
+  const [decisionMakers, setDecisionMakers] = useState(
+    moduleData.nextSteps?.decisionMakers || ''
+  );
 
   // Risks & Concerns
   const [mainRisks, setMainRisks] = useState<string[]>(moduleData.risks || []);
-  const [additionalSupport, setAdditionalSupport] = useState(moduleData.additionalSupport || '');
+  const [additionalSupport, setAdditionalSupport] = useState(
+    moduleData.additionalSupport || ''
+  );
 
   const saveData = () => {
     updateModule('planning', {
@@ -43,20 +70,20 @@ export const PlanningModule: React.FC = () => {
       priorities: {
         top: topPriorities,
         quickWins,
-        longTerm: longTermProjects
+        longTerm: longTermProjects,
       },
       implementation: {
         approach: implementationApproach,
         team: teamInvolvement,
-        training: trainingNeeded
+        training: trainingNeeded,
       },
       nextSteps: {
         immediate: immediateActions,
         followUp: followUpDate,
-        decisionMakers
+        decisionMakers,
       },
       risks: mainRisks,
-      additionalSupport
+      additionalSupport,
     });
   };
 
@@ -66,9 +93,22 @@ export const PlanningModule: React.FC = () => {
     const timer = setTimeout(saveData, 1000);
 
     return () => clearTimeout(timer);
-  }, [vision, primaryGoals, timeframe, topPriorities, quickWins, longTermProjects,
-      implementationApproach, teamInvolvement, trainingNeeded, immediateActions,
-      followUpDate, decisionMakers, mainRisks, additionalSupport]);
+  }, [
+    vision,
+    primaryGoals,
+    timeframe,
+    topPriorities,
+    quickWins,
+    longTermProjects,
+    implementationApproach,
+    teamInvolvement,
+    trainingNeeded,
+    immediateActions,
+    followUpDate,
+    decisionMakers,
+    mainRisks,
+    additionalSupport,
+  ]);
 
   const handleComplete = () => {
     // BUG: This was navigating away without saving. The hook will now save.
@@ -109,8 +149,12 @@ export const PlanningModule: React.FC = () => {
           <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-lg p-6 mb-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold mb-2">סיכום כאבים שזוהו</h2>
-                <p className="text-gray-600">זוהו {painPointsCount} נקודות כאב שדורשות התייחסות</p>
+                <h2 className="text-lg font-semibold mb-2">
+                  סיכום כאבים שזוהו
+                </h2>
+                <p className="text-gray-600">
+                  זוהו {painPointsCount} נקודות כאב שדורשות התייחסות
+                </p>
               </div>
               <div className="text-4xl font-bold text-orange-600">
                 {painPointsCount}
@@ -121,8 +165,7 @@ export const PlanningModule: React.FC = () => {
 
         <div className="space-y-6">
           {/* Vision & Goals */}
-          <Card title="9.1 חזון ויעדים"
-            subtitle="מה המטרה הסופית?">
+          <Card title="9.1 חזון ויעדים" subtitle="מה המטרה הסופית?">
             <div className="space-y-6">
               <TextAreaField
                 label="חזון לאחר יישום האוטומציה"
@@ -136,15 +179,24 @@ export const PlanningModule: React.FC = () => {
                 label="יעדים עיקריים"
                 options={[
                   { value: 'efficiency', label: 'שיפור יעילות תפעולית ב-50%+' },
-                  { value: 'customer_satisfaction', label: 'העלאת שביעות רצון לקוחות' },
+                  {
+                    value: 'customer_satisfaction',
+                    label: 'העלאת שביעות רצון לקוחות',
+                  },
                   { value: 'revenue_growth', label: 'הגדלת הכנסות ב-20%+' },
                   { value: 'cost_reduction', label: 'הפחתת עלויות ב-30%+' },
-                  { value: 'scale', label: 'יכולת להגדיל פעילות בלי תוספת כוח אדם' },
+                  {
+                    value: 'scale',
+                    label: 'יכולת להגדיל פעילות בלי תוספת כוח אדם',
+                  },
                   { value: 'quality', label: 'שיפור איכות ודיוק' },
                   { value: 'speed', label: 'זמני תגובה מהירים יותר' },
                   { value: 'innovation', label: 'יצירת יכולות חדשות' },
                   { value: 'competitive', label: 'יתרון תחרותי בשוק' },
-                  { value: 'employee_satisfaction', label: 'שיפור חוויית עובדים' }
+                  {
+                    value: 'employee_satisfaction',
+                    label: 'שיפור חוויית עובדים',
+                  },
                 ]}
                 values={primaryGoals}
                 onChange={setPrimaryGoals}
@@ -160,15 +212,17 @@ export const PlanningModule: React.FC = () => {
                   { value: '6_months', label: '6 חודשים - קצב סביר' },
                   { value: '12_months', label: 'שנה - יישום מקיף' },
                   { value: '18_months', label: 'שנה וחצי - טרנספורמציה מלאה' },
-                  { value: 'over_18', label: 'מעל שנה וחצי - פרויקט ארוך טווח' }
+                  {
+                    value: 'over_18',
+                    label: 'מעל שנה וחצי - פרויקט ארוך טווח',
+                  },
                 ]}
               />
             </div>
           </Card>
 
           {/* Priorities */}
-          <Card title="9.2 תעדוף"
-            subtitle="מה חשוב לעשות קודם?">
+          <Card title="9.2 תעדוף" subtitle="מה חשוב לעשות קודם?">
             <div className="space-y-6">
               <CheckboxGroup
                 label="פריוריטי טופ (3 הדברים הכי חשובים)"
@@ -177,10 +231,16 @@ export const PlanningModule: React.FC = () => {
                   { value: 'customer_response', label: 'מענה אוטומטי ללקוחות' },
                   { value: 'data_integration', label: 'אינטגרציה בין מערכות' },
                   { value: 'reporting', label: 'דוחות אוטומטיים' },
-                  { value: 'workflow_automation', label: 'אוטומציית תהליכי עבודה' },
+                  {
+                    value: 'workflow_automation',
+                    label: 'אוטומציית תהליכי עבודה',
+                  },
                   { value: 'ai_implementation', label: 'הטמעת AI' },
                   { value: 'data_quality', label: 'שיפור איכות נתונים' },
-                  { value: 'process_optimization', label: 'אופטימיזציה של תהליכים' }
+                  {
+                    value: 'process_optimization',
+                    label: 'אופטימיזציה של תהליכים',
+                  },
                 ]}
                 values={topPriorities}
                 onChange={setTopPriorities}
@@ -190,12 +250,18 @@ export const PlanningModule: React.FC = () => {
               <CheckboxGroup
                 label="Quick Wins (ניתן ליישם מהר)"
                 options={[
-                  { value: 'email_templates', label: 'תבניות אימייל אוטומטיות' },
-                  { value: 'basic_chatbot', label: 'צ\'אטבוט בסיסי' },
+                  {
+                    value: 'email_templates',
+                    label: 'תבניות אימייל אוטומטיות',
+                  },
+                  { value: 'basic_chatbot', label: "צ'אטבוט בסיסי" },
                   { value: 'simple_integrations', label: 'אינטגרציות פשוטות' },
-                  { value: 'automated_notifications', label: 'התראות אוטומטיות' },
+                  {
+                    value: 'automated_notifications',
+                    label: 'התראות אוטומטיות',
+                  },
                   { value: 'basic_reporting', label: 'דוחות בסיסיים' },
-                  { value: 'form_automation', label: 'אוטומציית טפסים' }
+                  { value: 'form_automation', label: 'אוטומציית טפסים' },
                 ]}
                 values={quickWins}
                 onChange={setQuickWins}
@@ -208,9 +274,12 @@ export const PlanningModule: React.FC = () => {
                   { value: 'full_crm', label: 'CRM מלא ומותאם' },
                   { value: 'ai_agents', label: 'סוכני AI מתקדמים' },
                   { value: 'predictive_analytics', label: 'ניתוח חזוי' },
-                  { value: 'complete_automation', label: 'אוטומציה מלאה של התהליך' },
+                  {
+                    value: 'complete_automation',
+                    label: 'אוטומציה מלאה של התהליך',
+                  },
                   { value: 'custom_platform', label: 'פלטפורמה מותאמת אישית' },
-                  { value: 'ml_models', label: 'מודלי למידת מכונה' }
+                  { value: 'ml_models', label: 'מודלי למידת מכונה' },
                 ]}
                 values={longTermProjects}
                 onChange={setLongTermProjects}
@@ -220,8 +289,7 @@ export const PlanningModule: React.FC = () => {
           </Card>
 
           {/* Implementation Approach */}
-          <Card title="9.3 גישת יישום"
-            subtitle="איך מתקדמים?">
+          <Card title="9.3 גישת יישום" subtitle="איך מתקדמים?">
             <div className="space-y-6">
               <RadioGroup
                 label="גישת יישום מועדפת"
@@ -232,7 +300,7 @@ export const PlanningModule: React.FC = () => {
                   { value: 'phased', label: 'בשלבים - מודול אחרי מודול' },
                   { value: 'parallel', label: 'במקביל - כמה פרויקטים יחד' },
                   { value: 'big_bang', label: 'Big Bang - הכל בבת אחת' },
-                  { value: 'agile', label: 'Agile - ספרינטים ושיפור מתמיד' }
+                  { value: 'agile', label: 'Agile - ספרינטים ושיפור מתמיד' },
                 ]}
               />
 
@@ -242,10 +310,13 @@ export const PlanningModule: React.FC = () => {
                 onChange={setTeamInvolvement}
                 options={[
                   { value: 'full', label: 'מעורבות מלאה - כולם שותפים' },
-                  { value: 'champions', label: 'צוות מוביל + אלופים בכל מחלקה' },
+                  {
+                    value: 'champions',
+                    label: 'צוות מוביל + אלופים בכל מחלקה',
+                  },
                   { value: 'it_led', label: 'בהובלת IT עם תמיכת מחלקות' },
                   { value: 'external', label: 'ספק חיצוני עם ליווי פנימי' },
-                  { value: 'mixed', label: 'שילוב של פנימי וחיצוני' }
+                  { value: 'mixed', label: 'שילוב של פנימי וחיצוני' },
                 ]}
               />
 
@@ -257,15 +328,14 @@ export const PlanningModule: React.FC = () => {
                   { value: 'extensive', label: 'נרחב - הדרכות מעמיקות לכולם' },
                   { value: 'moderate', label: 'בינוני - הדרכות למשתמשי מפתח' },
                   { value: 'minimal', label: 'מינימלי - רק הדרכות בסיסיות' },
-                  { value: 'none', label: 'לא נדרש - הכלים אינטואיטיביים' }
+                  { value: 'none', label: 'לא נדרש - הכלים אינטואיטיביים' },
                 ]}
               />
             </div>
           </Card>
 
           {/* Next Steps */}
-          <Card title="9.4 צעדים הבאים"
-            subtitle="מה קורה מכאן?">
+          <Card title="9.4 צעדים הבאים" subtitle="מה קורה מכאן?">
             <div className="space-y-6">
               <TextAreaField
                 label="פעולות מיידיות (תוך שבוע)"
@@ -291,8 +361,7 @@ export const PlanningModule: React.FC = () => {
           </Card>
 
           {/* Risks & Support */}
-          <Card title="9.5 סיכונים ותמיכה"
-            subtitle="מה יכול לעכב ומה נדרש?">
+          <Card title="9.5 סיכונים ותמיכה" subtitle="מה יכול לעכב ומה נדרש?">
             <div className="space-y-6">
               <CheckboxGroup
                 label="סיכונים עיקריים"
@@ -306,7 +375,7 @@ export const PlanningModule: React.FC = () => {
                   { value: 'data', label: 'איכות נתונים גרועה' },
                   { value: 'vendor', label: 'תלות בספקים' },
                   { value: 'compliance', label: 'דרישות רגולציה' },
-                  { value: 'scale', label: 'קושי בהרחבה' }
+                  { value: 'scale', label: 'קושי בהרחבה' },
                 ]}
                 values={mainRisks}
                 onChange={setMainRisks}

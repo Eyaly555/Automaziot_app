@@ -15,7 +15,7 @@ export const RequirementSection: React.FC<RequirementSectionProps> = ({
   sectionData,
   onFieldChange,
   prefilledData,
-  language
+  language,
 }) => {
   // ===== DEFENSIVE CODING: Handle undefined/null section =====
   // This can occur in edge cases:
@@ -25,11 +25,16 @@ export const RequirementSection: React.FC<RequirementSectionProps> = ({
   // 4. Template loaded but section data corrupted
 
   if (!section) {
-    console.error('[RequirementSection] Section prop is undefined or null. This should not happen in normal operation.');
+    console.error(
+      '[RequirementSection] Section prop is undefined or null. This should not happen in normal operation.'
+    );
     console.error('[RequirementSection] Context:', { sectionData, language });
 
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6 space-y-4" dir={language === 'he' ? 'rtl' : 'ltr'}>
+      <div
+        className="bg-red-50 border border-red-200 rounded-lg p-6 space-y-4"
+        dir={language === 'he' ? 'rtl' : 'ltr'}
+      >
         <h3 className="text-xl font-bold text-red-800">
           {language === 'he' ? 'שגיאה בטעינת הקטע' : 'Section Loading Error'}
         </h3>
@@ -50,11 +55,16 @@ export const RequirementSection: React.FC<RequirementSectionProps> = ({
 
   // ===== DEFENSIVE CODING: Validate section structure =====
   if (!section.fields || !Array.isArray(section.fields)) {
-    console.error('[RequirementSection] Section has invalid or missing fields array');
+    console.error(
+      '[RequirementSection] Section has invalid or missing fields array'
+    );
     console.error('[RequirementSection] Section data:', section);
 
     return (
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 space-y-4" dir={language === 'he' ? 'rtl' : 'ltr'}>
+      <div
+        className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 space-y-4"
+        dir={language === 'he' ? 'rtl' : 'ltr'}
+      >
         <h3 className="text-xl font-bold text-yellow-800">
           {language === 'he'
             ? section.titleHe || 'קטע ללא כותרת'
@@ -71,11 +81,17 @@ export const RequirementSection: React.FC<RequirementSectionProps> = ({
 
   // ===== SAFE PROPERTY ACCESS: Title with fallback =====
   const title = section
-    ? (language === 'he' ? (section.titleHe || section.title || 'קטע ללא כותרת') : (section.title || section.titleHe || 'Untitled Section'))
-    : (language === 'he' ? 'קטע ללא כותרת' : 'Untitled Section');
+    ? language === 'he'
+      ? section.titleHe || section.title || 'קטע ללא כותרת'
+      : section.title || section.titleHe || 'Untitled Section'
+    : language === 'he'
+      ? 'קטע ללא כותרת'
+      : 'Untitled Section';
 
   const description = section
-    ? (language === 'he' ? section.descriptionHe : section.description)
+    ? language === 'he'
+      ? section.descriptionHe
+      : section.description
     : undefined;
 
   // Check if field should be shown based on dependencies
@@ -91,15 +107,18 @@ export const RequirementSection: React.FC<RequirementSectionProps> = ({
   };
 
   // Filter out any null/undefined fields (defensive)
-  const validFields = section.fields.filter(field => field != null);
+  const validFields = section.fields.filter((field) => field != null);
 
   if (validFields.length === 0) {
-    console.warn('[RequirementSection] Section has no valid fields after filtering');
+    console.warn(
+      '[RequirementSection] Section has no valid fields after filtering'
+    );
     return (
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 space-y-4" dir={language === 'he' ? 'rtl' : 'ltr'}>
-        <h3 className="text-xl font-bold text-gray-800">
-          {title}
-        </h3>
+      <div
+        className="bg-gray-50 border border-gray-200 rounded-lg p-6 space-y-4"
+        dir={language === 'he' ? 'rtl' : 'ltr'}
+      >
+        <h3 className="text-xl font-bold text-gray-800">{title}</h3>
         <p className="text-gray-600">
           {language === 'he'
             ? 'אין שדות זמינים בקטע זה.'
@@ -112,9 +131,7 @@ export const RequirementSection: React.FC<RequirementSectionProps> = ({
   return (
     <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
       <div className="border-b pb-2">
-        <h3 className="text-xl font-bold text-gray-800">
-          {title}
-        </h3>
+        <h3 className="text-xl font-bold text-gray-800">{title}</h3>
         {description && (
           <p className="text-sm text-gray-600 mt-1">{description}</p>
         )}

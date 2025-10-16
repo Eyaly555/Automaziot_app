@@ -13,10 +13,19 @@ import {
   Zap,
   ClipboardList,
   FileCheck,
-  FileText
+  FileText,
 } from 'lucide-react';
-import { ImplementationSpecData, CollectedRequirements, SelectedService } from '../../types';
-import { DetailedSystemSpec, IntegrationFlow, DetailedAIAgentSpec, FunctionalRequirement } from '../../types/phase2';
+import {
+  ImplementationSpecData,
+  CollectedRequirements,
+  SelectedService,
+} from '../../types';
+import {
+  DetailedSystemSpec,
+  IntegrationFlow,
+  DetailedAIAgentSpec,
+  FunctionalRequirement,
+} from '../../types/phase2';
 import { RequirementsNavigator } from '../Requirements/RequirementsNavigator';
 import { getServiceById } from '../../config/servicesDatabase';
 import { getRequirementsTemplate } from '../../config/serviceRequirementsTemplates';
@@ -26,26 +35,48 @@ import { IncompleteServicesAlert } from './IncompleteServicesAlert';
 import { DeveloperRequirementsGuide } from './DeveloperRequirementsGuide';
 import { SmartRequirementsCollector } from './SmartRequirementsCollector';
 
-type SpecSection = 'requirements' | 'systems' | 'integrations' | 'ai_agents' | 'acceptance' | 'guide' | 'smart_collector';
+type SpecSection =
+  | 'requirements'
+  | 'systems'
+  | 'integrations'
+  | 'ai_agents'
+  | 'acceptance'
+  | 'guide'
+  | 'smart_collector';
 
 export const ImplementationSpecDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { currentMeeting, updateMeeting, transitionPhase, canTransitionTo } = useMeetingStore();
-  const [selectedSection, setSelectedSection] = useState<SpecSection>('requirements');
+  const { currentMeeting, updateMeeting, transitionPhase, canTransitionTo } =
+    useMeetingStore();
+  const [selectedSection, setSelectedSection] =
+    useState<SpecSection>('requirements');
 
   // Auto-transition from discovery to implementation_spec if client approved
   useEffect(() => {
-    if (currentMeeting?.phase === 'discovery' && currentMeeting?.status === 'client_approved') {
-      console.log('[ImplementationSpecDashboard] Auto-transitioning from discovery to implementation_spec');
-      transitionPhase('implementation_spec', 'Client approved proposal - auto-transition');
+    if (
+      currentMeeting?.phase === 'discovery' &&
+      currentMeeting?.status === 'client_approved'
+    ) {
+      console.log(
+        '[ImplementationSpecDashboard] Auto-transitioning from discovery to implementation_spec'
+      );
+      transitionPhase(
+        'implementation_spec',
+        'Client approved proposal - auto-transition'
+      );
     }
   }, [currentMeeting?.phase, currentMeeting?.status, transitionPhase]);
 
   if (!currentMeeting) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir="rtl">
+      <div
+        className="min-h-screen bg-gray-50 flex items-center justify-center"
+        dir="rtl"
+      >
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">לא נמצאה פגישה</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            לא נמצאה פגישה
+          </h2>
           <button
             onClick={() => navigate('/dashboard')}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -68,19 +99,22 @@ export const ImplementationSpecDashboard: React.FC = () => {
         functional: [],
         performance: [],
         security: [],
-        usability: []
+        usability: [],
       },
       totalEstimatedHours: 0,
       completionPercentage: 0,
       lastUpdated: new Date(),
-      updatedBy: 'user'
+      updatedBy: 'user',
     };
 
     updateMeeting({ implementationSpec: newSpec });
 
     // Return early to allow React to re-render with the new spec
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir="rtl">
+      <div
+        className="min-h-screen bg-gray-50 flex items-center justify-center"
+        dir="rtl"
+      >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">מאתחל מפרט יישום...</p>
@@ -95,9 +129,14 @@ export const ImplementationSpecDashboard: React.FC = () => {
   // Safety check - if spec is still null, return error state
   if (!spec) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir="rtl">
+      <div
+        className="min-h-screen bg-gray-50 flex items-center justify-center"
+        dir="rtl"
+      >
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-800 mb-4">שגיאה באתחול המפרט</h2>
+          <h2 className="text-2xl font-bold text-red-800 mb-4">
+            שגיאה באתחול המפרט
+          </h2>
           <button
             onClick={() => navigate('/dashboard')}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -113,10 +152,16 @@ export const ImplementationSpecDashboard: React.FC = () => {
   const systems = spec.systems || [];
   const integrations = spec.integrations || [];
   const aiAgents = spec.aiAgents || [];
-  const acceptanceCriteria = spec.acceptanceCriteria || { functional: [], performance: [], security: [], usability: [] };
+  const acceptanceCriteria = spec.acceptanceCriteria || {
+    functional: [],
+    performance: [],
+    security: [],
+    usability: [],
+  };
 
   // Get purchased services from proposal (services client actually bought)
-  const purchasedServicesArray = currentMeeting.modules?.proposal?.purchasedServices || [];
+  const purchasedServicesArray =
+    currentMeeting.modules?.proposal?.purchasedServices || [];
 
   // Add warning if empty
   if (purchasedServicesArray.length === 0) {
@@ -125,40 +170,74 @@ export const ImplementationSpecDashboard: React.FC = () => {
   const requirements = currentMeeting.modules?.requirements || [];
 
   // Extract service IDs from purchased services
-  const purchasedServiceIds = purchasedServicesArray.map((s: SelectedService) => s.id);
+  const purchasedServiceIds = purchasedServicesArray.map(
+    (s: SelectedService) => s.id
+  );
 
   // Debug logging for data flow validation
-  console.log('[ImplementationSpecDashboard] Purchased services:', purchasedServicesArray.length);
-  console.log('[ImplementationSpecDashboard] Service IDs:', purchasedServiceIds);
+  console.log(
+    '[ImplementationSpecDashboard] Purchased services:',
+    purchasedServicesArray.length
+  );
+  console.log(
+    '[ImplementationSpecDashboard] Service IDs:',
+    purchasedServiceIds
+  );
 
   // Filter services that actually have requirement templates
-  const servicesWithRequirements = purchasedServiceIds.filter((serviceId: string) =>
-    getRequirementsTemplate(serviceId) !== null
+  const servicesWithRequirements = purchasedServiceIds.filter(
+    (serviceId: string) => getRequirementsTemplate(serviceId) !== null
   );
 
   // Calculate completion percentages
   // Requirements: Check if all services with templates have requirements collected
-  const requirementsProgress = servicesWithRequirements.length > 0
-    ? (requirements.length / servicesWithRequirements.length * 100)
-    : 100; // If no services need requirements, consider complete
+  const requirementsProgress =
+    servicesWithRequirements.length > 0
+      ? (requirements.length / servicesWithRequirements.length) * 100
+      : 100; // If no services need requirements, consider complete
 
-  const systemsProgress = systems.length > 0 ?
-    (systems.filter((s: DetailedSystemSpec) => s.authentication?.credentialsProvided).length / systems.length * 100) : 0;
+  const systemsProgress =
+    systems.length > 0
+      ? (systems.filter(
+          (s: DetailedSystemSpec) => s.authentication?.credentialsProvided
+        ).length /
+          systems.length) *
+        100
+      : 0;
 
-  const integrationsProgress = integrations.length > 0 ?
-    (integrations.filter((i: IntegrationFlow) => i.testCases?.length > 0).length / integrations.length * 100) : 0;
+  const integrationsProgress =
+    integrations.length > 0
+      ? (integrations.filter((i: IntegrationFlow) => i.testCases?.length > 0)
+          .length /
+          integrations.length) *
+        100
+      : 0;
 
-  const aiAgentsProgress = aiAgents.length > 0 ?
-    (aiAgents.filter((a: DetailedAIAgentSpec) => a.knowledgeBase?.sources?.length > 0).length / aiAgents.length * 100) : 0;
+  const aiAgentsProgress =
+    aiAgents.length > 0
+      ? (aiAgents.filter(
+          (a: DetailedAIAgentSpec) => a.knowledgeBase?.sources?.length > 0
+        ).length /
+          aiAgents.length) *
+        100
+      : 0;
 
   const acceptanceProgress =
-    ((acceptanceCriteria.functional?.length || 0) +
-     (acceptanceCriteria.performance?.length || 0) +
-     (acceptanceCriteria.security?.length || 0) +
-     (acceptanceCriteria.usability?.length || 0)) > 0 ? 50 : 0;
+    (acceptanceCriteria.functional?.length || 0) +
+      (acceptanceCriteria.performance?.length || 0) +
+      (acceptanceCriteria.security?.length || 0) +
+      (acceptanceCriteria.usability?.length || 0) >
+    0
+      ? 50
+      : 0;
 
   const overallProgress = Math.round(
-    (requirementsProgress + systemsProgress + integrationsProgress + aiAgentsProgress + acceptanceProgress) / 5
+    (requirementsProgress +
+      systemsProgress +
+      integrationsProgress +
+      aiAgentsProgress +
+      acceptanceProgress) /
+      5
   );
 
   const sections = [
@@ -169,7 +248,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
       color: 'indigo',
       count: requirements.length,
       progress: requirementsProgress,
-      description: 'דרישות טכניות מפורטות לכל שירות'
+      description: 'דרישות טכניות מפורטות לכל שירות',
     },
     {
       id: 'smart_collector' as SpecSection,
@@ -178,7 +257,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
       color: 'purple',
       count: purchasedServicesArray.length,
       progress: requirementsProgress,
-      description: 'איסוף דרישות טכניות עם זיהוי שדות משותפים'
+      description: 'איסוף דרישות טכניות עם זיהוי שדות משותפים',
     },
     {
       id: 'guide' as SpecSection,
@@ -187,7 +266,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
       color: 'teal',
       count: purchasedServicesArray.length,
       progress: requirementsProgress,
-      description: 'מפרט מלא של כל השדות לאיסוף'
+      description: 'מפרט מלא של כל השדות לאיסוף',
     },
     {
       id: 'systems' as SpecSection,
@@ -196,7 +275,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
       color: 'blue',
       count: systems.length,
       progress: systemsProgress,
-      description: 'פירוט טכני מלא של כל מערכת'
+      description: 'פירוט טכני מלא של כל מערכת',
     },
     {
       id: 'integrations' as SpecSection,
@@ -205,7 +284,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
       color: 'green',
       count: integrations.length,
       progress: integrationsProgress,
-      description: 'הגדרת תהליכי אינטגרציה בין מערכות'
+      description: 'הגדרת תהליכי אינטגרציה בין מערכות',
     },
     {
       id: 'ai_agents' as SpecSection,
@@ -214,7 +293,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
       color: 'purple',
       count: aiAgents.length,
       progress: aiAgentsProgress,
-      description: 'מפרט מלא לכל סוכן AI'
+      description: 'מפרט מלא לכל סוכן AI',
     },
     {
       id: 'acceptance' as SpecSection,
@@ -227,8 +306,8 @@ export const ImplementationSpecDashboard: React.FC = () => {
         (acceptanceCriteria.security?.length || 0) +
         (acceptanceCriteria.usability?.length || 0),
       progress: acceptanceProgress,
-      description: 'דרישות ותנאי סיום'
-    }
+      description: 'דרישות ותנאי סיום',
+    },
   ];
 
   const handleCompleteSpec = () => {
@@ -243,23 +322,28 @@ export const ImplementationSpecDashboard: React.FC = () => {
         implementationSpec: {
           ...spec,
           completionPercentage: overallProgress,
-          lastUpdated: new Date()
-        }
+          lastUpdated: new Date(),
+        },
       });
 
       if (canTransitionTo('development')) {
-        transitionPhase('development', 'Completed implementation specification');
+        transitionPhase(
+          'development',
+          'Completed implementation specification'
+        );
         navigate('/phase3');
       }
     }
   };
 
-  const handleRequirementsComplete = (allRequirements: CollectedRequirements[]) => {
+  const handleRequirementsComplete = (
+    allRequirements: CollectedRequirements[]
+  ) => {
     updateMeeting({
       modules: {
         ...currentMeeting.modules,
-        requirements: allRequirements
-      }
+        requirements: allRequirements,
+      },
     });
     // Move to next section after requirements are complete
     setSelectedSection('systems');
@@ -286,13 +370,21 @@ export const ImplementationSpecDashboard: React.FC = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">מפרט יישום טכני</h1>
-              <p className="text-gray-600 mt-1">פרטים טכניים מלאים לצוות הפיתוח</p>
-              <p className="text-sm text-gray-500 mt-1">לקוח: {currentMeeting.clientName}</p>
+              <h1 className="text-3xl font-bold text-gray-900">
+                מפרט יישום טכני
+              </h1>
+              <p className="text-gray-600 mt-1">
+                פרטים טכניים מלאים לצוות הפיתוח
+              </p>
+              <p className="text-sm text-gray-500 mt-1">
+                לקוח: {currentMeeting.clientName}
+              </p>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-center">
-                <div className="text-4xl font-bold text-blue-600">{overallProgress}%</div>
+                <div className="text-4xl font-bold text-blue-600">
+                  {overallProgress}%
+                </div>
                 <div className="text-sm text-gray-600">השלמה</div>
               </div>
 
@@ -329,7 +421,9 @@ export const ImplementationSpecDashboard: React.FC = () => {
         <div className="mt-6 p-6 bg-white rounded-lg shadow">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">איסוף דרישות טכניות</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                איסוף דרישות טכניות
+              </h3>
               <p className="text-gray-600 mt-1">
                 מלא את הדרישות הטכניות עבור כל השירותים שנרכשו
               </p>
@@ -346,7 +440,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
 
         {/* Section Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 mt-6">
-          {sections.map((section: typeof sections[number]) => {
+          {sections.map((section: (typeof sections)[number]) => {
             const Icon = section.icon;
             const isSelected = selectedSection === section.id;
 
@@ -362,11 +456,17 @@ export const ImplementationSpecDashboard: React.FC = () => {
                   <div className={`p-3 rounded-lg bg-${section.color}-100`}>
                     <Icon className={`w-6 h-6 text-${section.color}-600`} />
                   </div>
-                  <div className="text-2xl font-bold text-gray-900">{section.count}</div>
+                  <div className="text-2xl font-bold text-gray-900">
+                    {section.count}
+                  </div>
                 </div>
 
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{section.name}</h3>
-                <p className="text-sm text-gray-600 mb-4">{section.description}</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {section.name}
+                </h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  {section.description}
+                </p>
 
                 {/* Progress Bar */}
                 <div className="mb-2">
@@ -377,7 +477,9 @@ export const ImplementationSpecDashboard: React.FC = () => {
                     />
                   </div>
                 </div>
-                <div className="text-xs text-gray-500">{Math.round(section.progress)}% מושלם</div>
+                <div className="text-xs text-gray-500">
+                  {Math.round(section.progress)}% מושלם
+                </div>
               </div>
             );
           })}
@@ -387,17 +489,22 @@ export const ImplementationSpecDashboard: React.FC = () => {
         <div className="bg-white rounded-xl shadow-md p-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">
-              {sections.find((s: typeof sections[number]) => s.id === selectedSection)?.name}
+              {
+                sections.find(
+                  (s: (typeof sections)[number]) => s.id === selectedSection
+                )?.name
+              }
             </h2>
-            {selectedSection !== 'requirements' && selectedSection !== 'systems' && (
-              <Button
-                variant="primary"
-                onClick={() => navigate(`/phase2/${selectedSection}/new`)}
-                icon={<Plus className="w-5 h-5" />}
-              >
-                הוסף חדש
-              </Button>
-            )}
+            {selectedSection !== 'requirements' &&
+              selectedSection !== 'systems' && (
+                <Button
+                  variant="primary"
+                  onClick={() => navigate(`/phase2/${selectedSection}/new`)}
+                  icon={<Plus className="w-5 h-5" />}
+                >
+                  הוסף חדש
+                </Button>
+              )}
             {selectedSection === 'systems' && (
               <Button
                 variant="primary"
@@ -414,9 +521,7 @@ export const ImplementationSpecDashboard: React.FC = () => {
             <SmartRequirementsCollector />
           )}
 
-          {selectedSection === 'guide' && (
-            <DeveloperRequirementsGuide />
-          )}
+          {selectedSection === 'guide' && <DeveloperRequirementsGuide />}
 
           {selectedSection === 'requirements' && (
             <div className="space-y-4">
@@ -428,8 +533,12 @@ export const ImplementationSpecDashboard: React.FC = () => {
                         <CheckSquare className="w-6 h-6 text-green-600" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold text-green-900">איסוף הדרישות הושלם</h3>
-                        <p className="text-sm text-green-700">נאספו דרישות עבור {requirements.length} שירותים</p>
+                        <h3 className="text-lg font-bold text-green-900">
+                          איסוף הדרישות הושלם
+                        </h3>
+                        <p className="text-sm text-green-700">
+                          נאספו דרישות עבור {requirements.length} שירותים
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -450,7 +559,12 @@ export const ImplementationSpecDashboard: React.FC = () => {
                                 {service?.nameHe || req.serviceId}
                               </h3>
                               <p className="text-sm text-gray-600">
-                                הושלם בתאריך: {req.completedAt ? new Date(req.completedAt).toLocaleDateString('he-IL') : 'לא הושלם'}
+                                הושלם בתאריך:{' '}
+                                {req.completedAt
+                                  ? new Date(
+                                      req.completedAt
+                                    ).toLocaleDateString('he-IL')
+                                  : 'לא הושלם'}
                               </p>
                               <p className="text-xs text-gray-500 mt-1">
                                 {req.completedSections.length} סעיפים הושלמו
@@ -465,13 +579,19 @@ export const ImplementationSpecDashboard: React.FC = () => {
               ) : (
                 <div className="text-center py-12">
                   <ClipboardList className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-4">יש לאסוף דרישות טכניות עבור השירותים שנבחרו</p>
+                  <p className="text-gray-600 mb-4">
+                    יש לאסוף דרישות טכניות עבור השירותים שנבחרו
+                  </p>
                   <button
                     onClick={() => {
                       // Navigate to requirements gathering
-                      const requirementsSection = document.getElementById('requirements-navigator');
+                      const requirementsSection = document.getElementById(
+                        'requirements-navigator'
+                      );
                       if (requirementsSection) {
-                        requirementsSection.scrollIntoView({ behavior: 'smooth' });
+                        requirementsSection.scrollIntoView({
+                          behavior: 'smooth',
+                        });
                       }
                     }}
                     className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
@@ -500,16 +620,21 @@ export const ImplementationSpecDashboard: React.FC = () => {
                 spec.systems.map((system: DetailedSystemSpec) => (
                   <div
                     key={system.id}
-                    onClick={() => navigate(`/phase2/systems/${system.systemId}/dive`)}
+                    onClick={() =>
+                      navigate(`/phase2/systems/${system.systemId}/dive`)
+                    }
                     className="p-6 border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition-all cursor-pointer"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <Server className="w-8 h-8 text-blue-600" />
                         <div>
-                          <h3 className="text-lg font-semibold text-gray-900">{system.systemName}</h3>
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            {system.systemName}
+                          </h3>
                           <p className="text-sm text-gray-600">
-                            {system.modules.length} מודולים • {system.authentication.method}
+                            {system.modules.length} מודולים •{' '}
+                            {system.authentication.method}
                           </p>
                         </div>
                       </div>
@@ -524,20 +649,24 @@ export const ImplementationSpecDashboard: React.FC = () => {
           {selectedSection === 'integrations' && (
             <div className="space-y-4">
               {/* Auto-suggestion info */}
-              {spec.integrations.length > 0 && spec.integrations.some((i: IntegrationFlow) => i.id) && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <Zap className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="font-semibold text-blue-900 mb-1">אינטגרציות הוצעו אוטומטית</h4>
-                      <p className="text-sm text-blue-800">
-                        {spec.integrations.length} אינטגרציות זוהו מצרכי האינטגרציה שהוגדרו ב-Phase 1.
-                        תוכל לערוך ולהתאים אותן לצרכים המדויקים.
-                      </p>
+              {spec.integrations.length > 0 &&
+                spec.integrations.some((i: IntegrationFlow) => i.id) && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <Zap className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-blue-900 mb-1">
+                          אינטגרציות הוצעו אוטומטית
+                        </h4>
+                        <p className="text-sm text-blue-800">
+                          {spec.integrations.length} אינטגרציות זוהו מצרכי
+                          האינטגרציה שהוגדרו ב-Phase 1. תוכל לערוך ולהתאים אותן
+                          לצרכים המדויקים.
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {spec.integrations.length === 0 ? (
                 <div className="text-center py-12">
@@ -554,26 +683,36 @@ export const ImplementationSpecDashboard: React.FC = () => {
                 spec.integrations.map((integration: IntegrationFlow) => (
                   <div
                     key={integration.id}
-                    onClick={() => navigate(`/phase2/integrations/${integration.id}`)}
+                    onClick={() =>
+                      navigate(`/phase2/integrations/${integration.id}`)
+                    }
                     className="p-6 border border-gray-200 rounded-lg hover:border-green-500 hover:shadow-md transition-all cursor-pointer"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <Link2 className="w-8 h-8 text-green-600" />
                         <div>
-                          <h3 className="text-lg font-semibold text-gray-900">{integration.name}</h3>
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            {integration.name}
+                          </h3>
                           <p className="text-sm text-gray-600">
-                            {integration.sourceSystem} → {integration.targetSystem}
+                            {integration.sourceSystem} →{' '}
+                            {integration.targetSystem}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          integration.priority === 'critical' ? 'bg-red-100 text-red-700' :
-                          integration.priority === 'high' ? 'bg-orange-100 text-orange-700' :
-                          integration.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-green-100 text-green-700'
-                        }`}>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            integration.priority === 'critical'
+                              ? 'bg-red-100 text-red-700'
+                              : integration.priority === 'high'
+                                ? 'bg-orange-100 text-orange-700'
+                                : integration.priority === 'medium'
+                                  ? 'bg-yellow-100 text-yellow-700'
+                                  : 'bg-green-100 text-green-700'
+                          }`}
+                        >
                           {integration.priority}
                         </span>
                         <ChevronRight className="w-6 h-6 text-gray-400" />
@@ -588,25 +727,31 @@ export const ImplementationSpecDashboard: React.FC = () => {
           {selectedSection === 'ai_agents' && (
             <div className="space-y-4">
               {/* Auto-expansion info */}
-              {spec.aiAgents.length > 0 && spec.aiAgents.some((a: DetailedAIAgentSpec) => a.id) && (
-                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <Bot className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="font-semibold text-purple-900 mb-1">סוכני AI הורחבו אוטומטית</h4>
-                      <p className="text-sm text-purple-800">
-                        {spec.aiAgents.length} סוכני AI נוצרו מה-use cases שהוגדרו ב-Phase 1.
-                        מולאו אוטומטית: בסיס ידע, זרימת שיחה, אינטגרציות, ובחירת מודל AI.
-                      </p>
+              {spec.aiAgents.length > 0 &&
+                spec.aiAgents.some((a: DetailedAIAgentSpec) => a.id) && (
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <Bot className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-purple-900 mb-1">
+                          סוכני AI הורחבו אוטומטית
+                        </h4>
+                        <p className="text-sm text-purple-800">
+                          {spec.aiAgents.length} סוכני AI נוצרו מה-use cases
+                          שהוגדרו ב-Phase 1. מולאו אוטומטית: בסיס ידע, זרימת
+                          שיחה, אינטגרציות, ובחירת מודל AI.
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {spec.aiAgents.length === 0 ? (
                 <div className="text-center py-12">
                   <Bot className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-4">טרם הוגדרו סוכני AI מפורטים</p>
+                  <p className="text-gray-600 mb-4">
+                    טרם הוגדרו סוכני AI מפורטים
+                  </p>
                   <button
                     onClick={() => navigate('/phase2/ai-agents/new')}
                     className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
@@ -625,9 +770,12 @@ export const ImplementationSpecDashboard: React.FC = () => {
                       <div className="flex items-center gap-4">
                         <Bot className="w-8 h-8 text-purple-600" />
                         <div>
-                          <h3 className="text-lg font-semibold text-gray-900">{agent.name}</h3>
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            {agent.name}
+                          </h3>
                           <p className="text-sm text-gray-600">
-                            {agent.department} • {agent.knowledgeBase.sources.length} מקורות ידע
+                            {agent.department} •{' '}
+                            {agent.knowledgeBase.sources.length} מקורות ידע
                           </p>
                         </div>
                       </div>
@@ -643,35 +791,50 @@ export const ImplementationSpecDashboard: React.FC = () => {
             <div className="space-y-6">
               {/* Functional Requirements */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">דרישות פונקציונליות</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                  דרישות פונקציונליות
+                </h3>
                 {spec.acceptanceCriteria.functional.length === 0 ? (
                   <p className="text-gray-600 text-sm">טרם הוגדרו דרישות</p>
                 ) : (
                   <div className="space-y-2">
-                    {spec.acceptanceCriteria.functional.map((req: FunctionalRequirement) => (
-                      <div key={req.id} className="p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                                req.priority === 'must_have' ? 'bg-red-100 text-red-700' :
-                                req.priority === 'should_have' ? 'bg-yellow-100 text-yellow-700' :
-                                'bg-green-100 text-green-700'
-                              }`}>
-                                {req.priority}
-                              </span>
-                              <span className={`w-3 h-3 rounded-full ${
-                                req.status === 'passed' ? 'bg-green-500' :
-                                req.status === 'failed' ? 'bg-red-500' :
-                                req.status === 'in_progress' ? 'bg-yellow-500' :
-                                'bg-gray-300'
-                              }`} />
+                    {spec.acceptanceCriteria.functional.map(
+                      (req: FunctionalRequirement) => (
+                        <div key={req.id} className="p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                                    req.priority === 'must_have'
+                                      ? 'bg-red-100 text-red-700'
+                                      : req.priority === 'should_have'
+                                        ? 'bg-yellow-100 text-yellow-700'
+                                        : 'bg-green-100 text-green-700'
+                                  }`}
+                                >
+                                  {req.priority}
+                                </span>
+                                <span
+                                  className={`w-3 h-3 rounded-full ${
+                                    req.status === 'passed'
+                                      ? 'bg-green-500'
+                                      : req.status === 'failed'
+                                        ? 'bg-red-500'
+                                        : req.status === 'in_progress'
+                                          ? 'bg-yellow-500'
+                                          : 'bg-gray-300'
+                                  }`}
+                                />
+                              </div>
+                              <p className="text-sm text-gray-900 mt-2">
+                                {req.description}
+                              </p>
                             </div>
-                            <p className="text-sm text-gray-900 mt-2">{req.description}</p>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    )}
                   </div>
                 )}
               </div>
@@ -691,9 +854,12 @@ export const ImplementationSpecDashboard: React.FC = () => {
           <div className="mt-8 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border border-green-200">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">מוכן להעברה לפיתוח!</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  מוכן להעברה לפיתוח!
+                </h3>
                 <p className="text-gray-700">
-                  המפרט הטכני הושלם ב-{overallProgress}%. כל הדרישות הטכניות מוכנות לשלב הפיתוח.
+                  המפרט הטכני הושלם ב-{overallProgress}%. כל הדרישות הטכניות
+                  מוכנות לשלב הפיתוח.
                 </p>
               </div>
               <Button

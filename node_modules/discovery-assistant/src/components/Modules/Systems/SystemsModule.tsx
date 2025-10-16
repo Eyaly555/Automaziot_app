@@ -12,33 +12,63 @@ export const SystemsModule: React.FC = () => {
   const moduleData = currentMeeting?.modules?.systems || {};
 
   // Current Systems
-  const [currentSystems, setCurrentSystems] = useState<string[]>(moduleData.currentSystems || []);
-  const [customSystems, setCustomSystems] = useState(moduleData.customSystems || '');
+  const [currentSystems, setCurrentSystems] = useState<string[]>(
+    moduleData.currentSystems || []
+  );
+  const [customSystems, setCustomSystems] = useState(
+    moduleData.customSystems || ''
+  );
 
   // Integrations
-  const [integrationLevel, setIntegrationLevel] = useState(moduleData.integrations?.level || '');
-  const [integrationIssues, setIntegrationIssues] = useState<string[]>(moduleData.integrations?.issues || []);
-  const [manualDataTransfer, setManualDataTransfer] = useState(moduleData.integrations?.manualDataTransfer || '');
+  const [integrationLevel, setIntegrationLevel] = useState(
+    moduleData.integrations?.level || ''
+  );
+  const [integrationIssues, setIntegrationIssues] = useState<string[]>(
+    moduleData.integrations?.issues || []
+  );
+  const [manualDataTransfer, setManualDataTransfer] = useState(
+    moduleData.integrations?.manualDataTransfer || ''
+  );
 
   // Data Quality
-  const [dataQuality, setDataQuality] = useState(moduleData.dataQuality?.overall || '');
-  const [duplicateData, setDuplicateData] = useState(moduleData.dataQuality?.duplicates || '');
-  const [dataCompleteness, setDataCompleteness] = useState(moduleData.dataQuality?.completeness || '');
+  const [dataQuality, setDataQuality] = useState(
+    moduleData.dataQuality?.overall || ''
+  );
+  const [duplicateData, setDuplicateData] = useState(
+    moduleData.dataQuality?.duplicates || ''
+  );
+  const [dataCompleteness, setDataCompleteness] = useState(
+    moduleData.dataQuality?.completeness || ''
+  );
 
   // NEW: Consolidated CRM fields (moved from Overview)
-  const [crmStatus, setCrmStatus] = useState<'none' | 'basic' | 'full'>(moduleData.crmStatus || 'none');
+  const [crmStatus, setCrmStatus] = useState<'none' | 'basic' | 'full'>(
+    moduleData.crmStatus || 'none'
+  );
   const [crmName, setCrmName] = useState(moduleData.crmName || '');
-  const [crmSatisfaction, setCrmSatisfaction] = useState<number | undefined>(moduleData.crmSatisfaction);
+  const [crmSatisfaction, setCrmSatisfaction] = useState<number | undefined>(
+    moduleData.crmSatisfaction
+  );
 
   // API & Webhooks
   const [apiUsage, setApiUsage] = useState(moduleData.apiWebhooks?.usage || '');
-  const [webhookUsage, setWebhookUsage] = useState(moduleData.apiWebhooks?.webhooks || '');
-  const [apiNeeds, setApiNeeds] = useState<string[]>(moduleData.apiWebhooks?.needs || []);
+  const [webhookUsage, setWebhookUsage] = useState(
+    moduleData.apiWebhooks?.webhooks || ''
+  );
+  const [apiNeeds, setApiNeeds] = useState<string[]>(
+    moduleData.apiWebhooks?.needs || []
+  );
 
   // Infrastructure
-  const [hostingType, setHostingType] = useState(moduleData.infrastructure?.hosting || '');
-  const [securityMeasures, setSecurityMeasures] = useState<string[]>(moduleData.infrastructure?.security || []);
-  const [backupFrequency, setBackupFrequency] = useState(moduleData.infrastructure?.backup || '');
+  const [hostingType, setHostingType] = useState(
+    moduleData.infrastructure?.hosting || ''
+  );
+  const [securityMeasures, setSecurityMeasures] = useState<string[]>(
+    moduleData.infrastructure?.security || []
+  );
+  const [backupFrequency, setBackupFrequency] = useState(
+    moduleData.infrastructure?.backup || ''
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -48,12 +78,12 @@ export const SystemsModule: React.FC = () => {
         integrations: {
           level: integrationLevel,
           issues: integrationIssues,
-          manualDataTransfer
+          manualDataTransfer,
         },
         dataQuality: {
           overall: dataQuality,
           duplicates: duplicateData,
-          completeness: dataCompleteness
+          completeness: dataCompleteness,
         },
         // NEW: Consolidated CRM fields
         crmStatus,
@@ -62,20 +92,36 @@ export const SystemsModule: React.FC = () => {
         apiWebhooks: {
           usage: apiUsage,
           webhooks: webhookUsage,
-          needs: apiNeeds
+          needs: apiNeeds,
         },
         infrastructure: {
           hosting: hostingType,
           security: securityMeasures,
-          backup: backupFrequency
-        }
+          backup: backupFrequency,
+        },
       });
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [currentSystems, customSystems, integrationLevel, integrationIssues, manualDataTransfer,
-      dataQuality, duplicateData, dataCompleteness, crmStatus, crmName, crmSatisfaction,
-      apiUsage, webhookUsage, apiNeeds, hostingType, securityMeasures, backupFrequency]);
+  }, [
+    currentSystems,
+    customSystems,
+    integrationLevel,
+    integrationIssues,
+    manualDataTransfer,
+    dataQuality,
+    duplicateData,
+    dataCompleteness,
+    crmStatus,
+    crmName,
+    crmSatisfaction,
+    apiUsage,
+    webhookUsage,
+    apiNeeds,
+    hostingType,
+    securityMeasures,
+    backupFrequency,
+  ]);
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
@@ -106,8 +152,10 @@ export const SystemsModule: React.FC = () => {
       <div className="container mx-auto px-4 py-6 max-w-4xl">
         <div className="space-y-6">
           {/* Current Systems */}
-          <Card title="7.1 מערכות קיימות"
-            subtitle="איזה מערכות נמצאות בשימוש כיום?">
+          <Card
+            title="7.1 מערכות קיימות"
+            subtitle="איזה מערכות נמצאות בשימוש כיום?"
+          >
             <div className="space-y-6">
               <CheckboxGroup
                 label="מערכות בשימוש"
@@ -121,7 +169,7 @@ export const SystemsModule: React.FC = () => {
                   { value: 'hr_system', label: 'מערכת משאבי אנוש' },
                   { value: 'inventory', label: 'ניהול מלאי' },
                   { value: 'ecommerce', label: 'מסחר אלקטרוני' },
-                  { value: 'bi_analytics', label: 'BI וניתוח נתונים' }
+                  { value: 'bi_analytics', label: 'BI וניתוח נתונים' },
                 ]}
                 values={currentSystems}
                 onChange={setCurrentSystems}
@@ -146,8 +194,7 @@ export const SystemsModule: React.FC = () => {
           </Card>
 
           {/* Integrations */}
-          <Card title="7.2 אינטגרציות"
-            subtitle="איך המערכות מתקשרות ביניהן?">
+          <Card title="7.2 אינטגרציות" subtitle="איך המערכות מתקשרות ביניהן?">
             <div className="space-y-6">
               <RadioGroup
                 label="רמת אינטגרציה בין מערכות"
@@ -157,7 +204,7 @@ export const SystemsModule: React.FC = () => {
                   { value: 'full', label: 'מלאה - הכל מסונכרן אוטומטית' },
                   { value: 'partial', label: 'חלקית - חלק מהמערכות מחוברות' },
                   { value: 'minimal', label: 'מינימלית - רוב המערכות נפרדות' },
-                  { value: 'none', label: 'אין - כל מערכת עובדת בנפרד' }
+                  { value: 'none', label: 'אין - כל מערכת עובדת בנפרד' },
                 ]}
               />
 
@@ -169,7 +216,7 @@ export const SystemsModule: React.FC = () => {
                   { value: 'duplicate_entry', label: 'הזנות כפולות' },
                   { value: 'format_issues', label: 'בעיות פורמט/תאימות' },
                   { value: 'limited_fields', label: 'העברת שדות מוגבלת' },
-                  { value: 'manual_updates', label: 'צורך בעדכון ידני' }
+                  { value: 'manual_updates', label: 'צורך בעדכון ידני' },
                 ]}
                 values={integrationIssues}
                 onChange={setIntegrationIssues}
@@ -185,11 +232,12 @@ export const SystemsModule: React.FC = () => {
                   { value: '1-2_hours', label: '1-2 שעות בשבוע' },
                   { value: '3-5_hours', label: '3-5 שעות בשבוע' },
                   { value: '6-10_hours', label: '6-10 שעות בשבוע' },
-                  { value: 'over_10', label: 'מעל 10 שעות בשבוע' }
+                  { value: 'over_10', label: 'מעל 10 שעות בשבוע' },
                 ]}
               />
 
-              {(integrationLevel === 'minimal' || integrationLevel === 'none') && (
+              {(integrationLevel === 'minimal' ||
+                integrationLevel === 'none') && (
                 <PainPointFlag
                   severity="high"
                   description="חוסר אינטגרציה - בזבוז זמן משמעותי"
@@ -199,18 +247,20 @@ export const SystemsModule: React.FC = () => {
           </Card>
 
           {/* Data Quality */}
-          <Card title="7.3 איכות נתונים"
-            subtitle="מה מצב הנתונים במערכות?">
+          <Card title="7.3 איכות נתונים" subtitle="מה מצב הנתונים במערכות?">
             <div className="space-y-6">
               <RadioGroup
                 label="איכות נתונים כללית"
                 value={dataQuality}
                 onChange={setDataQuality}
                 options={[
-                  { value: 'excellent', label: 'מצוינת - נתונים נקיים ומדויקים' },
+                  {
+                    value: 'excellent',
+                    label: 'מצוינת - נתונים נקיים ומדויקים',
+                  },
                   { value: 'good', label: 'טובה - בעיות מינוריות' },
                   { value: 'average', label: 'בינונית - יש בעיות שצריך לטפל' },
-                  { value: 'poor', label: 'גרועה - הרבה בעיות ואי דיוקים' }
+                  { value: 'poor', label: 'גרועה - הרבה בעיות ואי דיוקים' },
                 ]}
               />
 
@@ -222,7 +272,7 @@ export const SystemsModule: React.FC = () => {
                   { value: 'none', label: 'אין כפילויות' },
                   { value: 'minimal', label: 'מעט (פחות מ-5%)' },
                   { value: 'moderate', label: 'בינוני (5-15%)' },
-                  { value: 'high', label: 'הרבה (מעל 15%)' }
+                  { value: 'high', label: 'הרבה (מעל 15%)' },
                 ]}
               />
 
@@ -234,7 +284,7 @@ export const SystemsModule: React.FC = () => {
                   { value: 'complete', label: 'מלא - כל השדות החשובים מלאים' },
                   { value: 'mostly_complete', label: 'רוב השדות מלאים' },
                   { value: 'partial', label: 'חלקי - חסרים הרבה נתונים' },
-                  { value: 'poor', label: 'חסר - רוב השדות ריקים' }
+                  { value: 'poor', label: 'חסר - רוב השדות ריקים' },
                 ]}
               />
 
@@ -248,8 +298,10 @@ export const SystemsModule: React.FC = () => {
           </Card>
 
           {/* API & Webhooks */}
-          <Card title="7.4 ממשקי API ו-Webhooks"
-            subtitle="שימוש בממשקים לאוטומציה">
+          <Card
+            title="7.4 ממשקי API ו-Webhooks"
+            subtitle="שימוש בממשקים לאוטומציה"
+          >
             <div className="space-y-6">
               <RadioGroup
                 label="שימוש ב-API"
@@ -259,7 +311,7 @@ export const SystemsModule: React.FC = () => {
                   { value: 'extensive', label: 'נרחב - משתמשים בהרבה ממשקים' },
                   { value: 'moderate', label: 'בינוני - כמה ממשקים פעילים' },
                   { value: 'minimal', label: 'מינימלי - שימוש בסיסי' },
-                  { value: 'none', label: 'אין שימוש בכלל' }
+                  { value: 'none', label: 'אין שימוש בכלל' },
                 ]}
               />
 
@@ -271,7 +323,7 @@ export const SystemsModule: React.FC = () => {
                   { value: 'active', label: 'פעיל - מקבלים התראות בזמן אמת' },
                   { value: 'limited', label: 'מוגבל - רק לדברים קריטיים' },
                   { value: 'none', label: 'אין שימוש' },
-                  { value: 'dont_know', label: 'לא יודע מה זה' }
+                  { value: 'dont_know', label: 'לא יודע מה זה' },
                 ]}
               />
 
@@ -279,11 +331,17 @@ export const SystemsModule: React.FC = () => {
                 label="צרכי ממשקים"
                 options={[
                   { value: 'real_time_sync', label: 'סנכרון בזמן אמת' },
-                  { value: 'automated_workflows', label: 'תהליכי עבודה אוטומטיים' },
-                  { value: 'external_integrations', label: 'חיבור לשירותים חיצוניים' },
+                  {
+                    value: 'automated_workflows',
+                    label: 'תהליכי עבודה אוטומטיים',
+                  },
+                  {
+                    value: 'external_integrations',
+                    label: 'חיבור לשירותים חיצוניים',
+                  },
                   { value: 'data_export', label: 'ייצוא נתונים אוטומטי' },
                   { value: 'event_triggers', label: 'טריגרים לאירועים' },
-                  { value: 'custom_reports', label: 'דוחות מותאמים אישית' }
+                  { value: 'custom_reports', label: 'דוחות מותאמים אישית' },
                 ]}
                 values={apiNeeds}
                 onChange={setApiNeeds}
@@ -293,8 +351,10 @@ export const SystemsModule: React.FC = () => {
           </Card>
 
           {/* Infrastructure */}
-          <Card title="7.5 תשתית ואבטחה"
-            subtitle="איך המערכות מאוחסנות ומאובטחות?">
+          <Card
+            title="7.5 תשתית ואבטחה"
+            subtitle="איך המערכות מאוחסנות ומאובטחות?"
+          >
             <div className="space-y-6">
               <RadioGroup
                 label="סוג אירוח"
@@ -304,7 +364,7 @@ export const SystemsModule: React.FC = () => {
                   { value: 'cloud', label: 'ענן מלא (AWS, Azure, Google)' },
                   { value: 'hybrid', label: 'היברידי - חלק ענן חלק מקומי' },
                   { value: 'on_premise', label: 'מקומי - שרתים בארגון' },
-                  { value: 'mixed_saas', label: 'שילוב של שירותי SaaS' }
+                  { value: 'mixed_saas', label: 'שילוב של שירותי SaaS' },
                 ]}
               />
 
@@ -318,7 +378,7 @@ export const SystemsModule: React.FC = () => {
                   { value: 'audit_logs', label: 'לוגים וביקורת' },
                   { value: 'encryption', label: 'הצפנת נתונים' },
                   { value: 'vpn', label: 'גישה דרך VPN' },
-                  { value: 'firewall', label: 'חומת אש' }
+                  { value: 'firewall', label: 'חומת אש' },
                 ]}
                 values={securityMeasures}
                 onChange={setSecurityMeasures}
@@ -335,7 +395,7 @@ export const SystemsModule: React.FC = () => {
                   { value: 'daily', label: 'יומי' },
                   { value: 'weekly', label: 'שבועי' },
                   { value: 'monthly', label: 'חודשי' },
-                  { value: 'none', label: 'אין גיבויים קבועים' }
+                  { value: 'none', label: 'אין גיבויים קבועים' },
                 ]}
               />
 

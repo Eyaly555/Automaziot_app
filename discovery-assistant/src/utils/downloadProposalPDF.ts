@@ -4,7 +4,9 @@ import { formatHebrewDate } from './exportProposalPDF'; // Import helper functio
 /**
  * Download Professional PDF directly using the shared generateProposalPDF logic.
  */
-export const downloadProposalPDF = async (options: ProposalPDFOptions): Promise<void> => {
+export const downloadProposalPDF = async (
+  options: ProposalPDFOptions
+): Promise<void> => {
   try {
     const pdfBlob = await generateProposalPDF(options); // Use the working function
 
@@ -17,7 +19,6 @@ export const downloadProposalPDF = async (options: ProposalPDFOptions): Promise<
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url); // Clean up the URL
-
   } catch (error) {
     console.error('Error downloading PDF:', error);
     throw error;

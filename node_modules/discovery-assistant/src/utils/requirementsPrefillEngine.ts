@@ -116,9 +116,10 @@ const prefillCRMRequirements = (
       '11-50': 20,
       '51-200': 100,
       '200-500': 300,
-      '500+': 500
+      '500+': 500,
     };
-    prefilled.crm_users_count = employeeRanges[modules?.operations?.hr?.employeeCount] || 10;
+    prefilled.crm_users_count =
+      employeeRanges[modules?.operations?.hr?.employeeCount] || 10;
   }
 
   // If they already have a system, detect it
@@ -126,11 +127,17 @@ const prefillCRMRequirements = (
     const systemsList = systems.currentSystems;
     if (systemsList.some((s: string) => s.toLowerCase().includes('zoho'))) {
       prefilled.crm_preference = 'zoho';
-    } else if (systemsList.some((s: string) => s.toLowerCase().includes('hubspot'))) {
+    } else if (
+      systemsList.some((s: string) => s.toLowerCase().includes('hubspot'))
+    ) {
       prefilled.crm_preference = 'hubspot';
-    } else if (systemsList.some((s: string) => s.toLowerCase().includes('salesforce'))) {
+    } else if (
+      systemsList.some((s: string) => s.toLowerCase().includes('salesforce'))
+    ) {
       prefilled.crm_preference = 'salesforce';
-    } else if (systemsList.some((s: string) => s.toLowerCase().includes('pipedrive'))) {
+    } else if (
+      systemsList.some((s: string) => s.toLowerCase().includes('pipedrive'))
+    ) {
       prefilled.crm_preference = 'pipedrive';
     } else {
       prefilled.crm_preference = 'recommend';
@@ -155,19 +162,20 @@ const prefillCRMRequirements = (
       'Proposal Sent',
       'Negotiation',
       'Closed Won',
-      'Closed Lost'
+      'Closed Lost',
     ];
   }
 
   // Assignment method based on current routing
   if (leads?.leadRouting?.method) {
     const methodMap: Record<string, string> = {
-      'rotation': 'round_robin',
-      'expertise': 'skill',
-      'territory': 'territory',
-      'manual': 'manual'
+      rotation: 'round_robin',
+      expertise: 'skill',
+      territory: 'territory',
+      manual: 'manual',
     };
-    prefilled.auto_assignment = methodMap[leads.leadRouting.method] || 'round_robin';
+    prefilled.auto_assignment =
+      methodMap[leads.leadRouting.method] || 'round_robin';
   }
 
   // Notifications
@@ -181,7 +189,7 @@ const prefillCRMRequirements = (
     'sales_pipeline',
     'conversion_rates',
     'lead_sources',
-    'team_performance'
+    'team_performance',
   ];
 
   // Integrations
@@ -199,16 +207,20 @@ const prefillCRMRequirements = (
 
   // Data migration
   if (systems?.currentSystems && systems.currentSystems.length > 0) {
-    const hasCRM = systems.currentSystems.some((s: string) =>
-      s.toLowerCase().includes('crm') ||
-      s.toLowerCase().includes('salesforce') ||
-      s.toLowerCase().includes('hubspot')
+    const hasCRM = systems.currentSystems.some(
+      (s: string) =>
+        s.toLowerCase().includes('crm') ||
+        s.toLowerCase().includes('salesforce') ||
+        s.toLowerCase().includes('hubspot')
     );
     prefilled.existing_data = hasCRM ? 'yes_crm' : 'yes_spreadsheet';
 
     // Estimate data volume from lead volume
-    const totalLeadVolume = leads?.leadSources?.reduce((sum: number, s) =>
-      sum + (s.volumePerMonth || 0), 0) || 0;
+    const totalLeadVolume =
+      leads?.leadSources?.reduce(
+        (sum: number, s) => sum + (s.volumePerMonth || 0),
+        0
+      ) || 0;
     prefilled.data_volume = totalLeadVolume * 12; // Rough estimate: year of leads
   } else {
     prefilled.existing_data = 'no';
@@ -259,7 +271,7 @@ const prefillAIChatbotRequirements = (
   if (service?.autoResponse?.topQuestions) {
     prefilled.faq_list = service.autoResponse.topQuestions.map((q) => ({
       question: q.question,
-      answer: '' // They'll need to fill answers
+      answer: '', // They'll need to fill answers
     }));
   }
 
@@ -270,11 +282,7 @@ const prefillAIChatbotRequirements = (
   prefilled.greeting_message = 'שלום! אני כאן לעזור לך. במה אוכל לסייע?';
 
   // Quick actions based on their services
-  prefilled.quick_actions = [
-    'שאלות נפוצות',
-    'דבר עם נציג',
-    'בדוק סטטוס'
-  ];
+  prefilled.quick_actions = ['שאלות נפוצות', 'דבר עם נציג', 'בדוק סטטוס'];
 
   // Fallback strategy
   prefilled.fallback_strategy = 'human_handoff';
@@ -309,32 +317,35 @@ const prefillLeadWorkflowRequirements = (
   if (leads?.leadSources) {
     prefilled.lead_sources = leads.leadSources.map((s) => {
       const channelMap: Record<string, string> = {
-        'website': 'website_form',
-        'facebook': 'facebook_ads',
-        'google': 'google_ads',
-        'linkedin': 'linkedin',
-        'whatsapp': 'whatsapp',
-        'phone': 'phone',
-        'email': 'email',
-        'referrals': 'referrals'
+        website: 'website_form',
+        facebook: 'facebook_ads',
+        google: 'google_ads',
+        linkedin: 'linkedin',
+        whatsapp: 'whatsapp',
+        phone: 'phone',
+        email: 'email',
+        referrals: 'referrals',
       };
       return channelMap[s.channel] || s.channel;
     });
 
     // Monthly volume
-    const totalVolume = leads.leadSources.reduce((sum: number, s) =>
-      sum + (s.volumePerMonth || 0), 0);
+    const totalVolume = leads.leadSources.reduce(
+      (sum: number, s) => sum + (s.volumePerMonth || 0),
+      0
+    );
     prefilled.monthly_volume = totalVolume;
   }
 
   // Response time based on speed to lead
   if (leads?.speedToLead?.duringBusinessHours) {
     const speedMap: Record<string, string> = {
-      'immediate': 'immediate',
-      'within_hour': '1hour',
-      'same_day': 'same_day'
+      immediate: 'immediate',
+      within_hour: '1hour',
+      same_day: 'same_day',
     };
-    prefilled.auto_response_time = speedMap[leads.speedToLead.duringBusinessHours] || 'immediate';
+    prefilled.auto_response_time =
+      speedMap[leads.speedToLead.duringBusinessHours] || 'immediate';
   } else {
     prefilled.auto_response_time = 'immediate';
   }
@@ -347,7 +358,8 @@ const prefillLeadWorkflowRequirements = (
   }
 
   // Welcome message template
-  prefilled.welcome_message = 'תודה על פנייתך! קיבלנו את המידע וניצור איתך קשר בהקדם.';
+  prefilled.welcome_message =
+    'תודה על פנייתך! קיבלנו את המידע וניצור איתך קשר בהקדם.';
 
   // Lead enrichment
   prefilled.lead_enrichment = true;
@@ -364,12 +376,13 @@ const prefillLeadWorkflowRequirements = (
   // Assignment method from routing
   if (leads?.leadRouting?.method) {
     const methodMap: Record<string, string> = {
-      'rotation': 'round_robin',
-      'expertise': 'skill',
-      'territory': 'territory',
-      'manual': 'round_robin'
+      rotation: 'round_robin',
+      expertise: 'skill',
+      territory: 'territory',
+      manual: 'round_robin',
     };
-    prefilled.assignment_method = methodMap[leads.leadRouting.method] || 'round_robin';
+    prefilled.assignment_method =
+      methodMap[leads.leadRouting.method] || 'round_robin';
   } else {
     prefilled.assignment_method = 'round_robin';
   }
@@ -399,7 +412,12 @@ const prefillLeadWorkflowRequirements = (
   prefilled.no_response_action = 'nurture';
 
   // Notifications
-  prefilled.notify_events = ['new_lead', 'hot_lead', 'lead_reply', 'no_activity'];
+  prefilled.notify_events = [
+    'new_lead',
+    'hot_lead',
+    'lead_reply',
+    'no_activity',
+  ];
   prefilled.notification_channels = ['email', 'whatsapp', 'crm'];
 
   // Reporting
@@ -419,17 +437,23 @@ const prefillWhatsAppRequirements = (
   const prefilled: Partial<CollectedRequirements['data']> = {};
 
   // Check if they use WhatsApp
-  const hasWhatsApp = service?.channels?.some((ch) => ch.type === 'whatsapp') ||
-                      leads?.leadSources?.some((s) => s.channel === 'whatsapp');
+  const hasWhatsApp =
+    service?.channels?.some((ch) => ch.type === 'whatsapp') ||
+    leads?.leadSources?.some((s) => s.channel === 'whatsapp');
 
   if (hasWhatsApp) {
     // Volume
-    const whatsappChannel = service?.channels?.find((ch) => ch.type === 'whatsapp');
+    const whatsappChannel = service?.channels?.find(
+      (ch) => ch.type === 'whatsapp'
+    );
     prefilled.daily_volume = whatsappChannel?.volumePerDay || 20;
 
     // Response templates from FAQ
     if (service?.autoResponse?.topQuestions) {
-      prefilled.response_templates = service.autoResponse.topQuestions.slice(0, 5);
+      prefilled.response_templates = service.autoResponse.topQuestions.slice(
+        0,
+        5
+      );
     }
   }
 
@@ -460,19 +484,23 @@ const prefillCRMAutoUpdateRequirements = (
   // Form sources
   const formSources: string[] = [];
   if (leads?.leadSources) {
-    if (leads.leadSources.some((s) => s.channel === 'website')) formSources.push('website');
-    if (leads.leadSources.some((s) => s.channel === 'facebook')) formSources.push('facebook');
-    if (leads.leadSources.some((s) => s.channel === 'google')) formSources.push('google');
+    if (leads.leadSources.some((s) => s.channel === 'website'))
+      formSources.push('website');
+    if (leads.leadSources.some((s) => s.channel === 'facebook'))
+      formSources.push('facebook');
+    if (leads.leadSources.some((s) => s.channel === 'google'))
+      formSources.push('google');
   }
   prefilled.form_sources = formSources;
 
   // CRM system
   if (systems?.currentSystems) {
-    const crmSystem = systems.currentSystems.find((s: string) =>
-      s.toLowerCase().includes('crm') ||
-      s.toLowerCase().includes('zoho') ||
-      s.toLowerCase().includes('hubspot') ||
-      s.toLowerCase().includes('salesforce')
+    const crmSystem = systems.currentSystems.find(
+      (s: string) =>
+        s.toLowerCase().includes('crm') ||
+        s.toLowerCase().includes('zoho') ||
+        s.toLowerCase().includes('hubspot') ||
+        s.toLowerCase().includes('salesforce')
     );
     if (crmSystem) {
       prefilled.crm_system = crmSystem.toLowerCase();
@@ -543,7 +571,7 @@ const prefillDocumentManagementRequirements = (
       prefilled.document_types = docMgmt.documentTypes.map((d) => ({
         type: d.type,
         monthly_volume: d.volumePerMonth,
-        time_per_doc: d.timePerDocument
+        time_per_doc: d.timePerDocument,
       }));
     }
 
@@ -583,7 +611,7 @@ const prefillReportingRequirements = (
     prefilled.current_reports = reporting.scheduledReports.map((r) => ({
       name: r.name,
       frequency: r.frequency,
-      time_to_create: r.timeToCreate
+      time_to_create: r.timeToCreate,
     }));
   }
 
@@ -599,7 +627,8 @@ const prefillReportingRequirements = (
 
   // Dashboard preferences
   prefilled.realtime_required = reporting?.dashboards?.realTime || false;
-  prefilled.anomaly_detection = reporting?.dashboards?.anomalyDetection || 'automatic';
+  prefilled.anomaly_detection =
+    reporting?.dashboards?.anomalyDetection || 'automatic';
 
   // Report frequency
   prefilled.report_frequency = 'daily';
@@ -634,8 +663,10 @@ const prefillEmailNotificationsRequirements = (
 
   // Channels
   const channels: string[] = [];
-  if (service?.channels?.some((ch) => ch.type === 'email')) channels.push('email');
-  if (service?.channels?.some((ch) => ch.type === 'whatsapp')) channels.push('whatsapp');
+  if (service?.channels?.some((ch) => ch.type === 'email'))
+    channels.push('email');
+  if (service?.channels?.some((ch) => ch.type === 'whatsapp'))
+    channels.push('whatsapp');
   if (channels.length > 0) prefilled.channels = channels;
 
   return prefilled;
@@ -679,7 +710,7 @@ const prefillMeetingSchedulerRequirements = (
   prefilled.calendar_system = 'google';
 
   // Availability - standard business hours
-  prefilled.availability = 'א\'-ה\' 9:00-17:00';
+  prefilled.availability = "א'-ה' 9:00-17:00";
 
   // Buffer time
   prefilled.buffer_time = 15;
@@ -705,7 +736,8 @@ const prefillMarketingAutomationRequirements = (
   if (modules?.operations?.hr?.employeeCount) {
     const empRange = modules.operations.hr.employeeCount;
     if (empRange === '1-10') prefilled.platform_preference = 'mailchimp';
-    else if (empRange === '11-50') prefilled.platform_preference = 'activecampaign';
+    else if (empRange === '11-50')
+      prefilled.platform_preference = 'activecampaign';
     else prefilled.platform_preference = 'hubspot';
   }
 
@@ -745,9 +777,10 @@ const prefillProjectManagementRequirements = (
       '11-50': 20,
       '51-200': 50,
       '200-500': 150,
-      '500+': 300
+      '500+': 300,
     };
-    prefilled.team_size = employeeRanges[modules?.operations?.hr?.employeeCount] || 10;
+    prefilled.team_size =
+      employeeRanges[modules?.operations?.hr?.employeeCount] || 10;
   }
 
   // Platform - based on size
@@ -828,9 +861,10 @@ const prefillSupportTrainingRequirements = (
       '11-50': 8,
       '51-200': 15,
       '200-500': 30,
-      '500+': 50
+      '500+': 50,
     };
-    prefilled.participants = employeeRanges[modules?.operations?.hr?.employeeCount] || 5;
+    prefilled.participants =
+      employeeRanges[modules?.operations?.hr?.employeeCount] || 5;
   }
 
   // Format - default to remote
@@ -860,7 +894,11 @@ export const isFieldPrefilled = (
   fieldId: string,
   prefilledData: Partial<CollectedRequirements['data']>
 ): boolean => {
-  return prefilledData && prefilledData[fieldId] !== undefined && prefilledData[fieldId] !== null;
+  return (
+    prefilledData &&
+    prefilledData[fieldId] !== undefined &&
+    prefilledData[fieldId] !== null
+  );
 };
 
 // Helper to get the display text for prefilled data

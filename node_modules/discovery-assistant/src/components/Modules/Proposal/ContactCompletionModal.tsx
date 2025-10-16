@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { X, Send, Mail, Phone, Building, User } from 'lucide-react';
 import { Input } from '../../Base';
 import { validateEmail } from '../../../services/emailService';
-import { validatePhone, formatPhoneDisplay } from '../../../services/whatsappService';
+import {
+  validatePhone,
+  formatPhoneDisplay,
+} from '../../../services/whatsappService';
 
 export interface ClientContact {
   name: string;
@@ -93,8 +96,12 @@ export const ContactCompletionModal: React.FC<ContactCompletionModalProps> = ({
     }
   };
 
-  const isFormValid = clientContact.name && clientContact.email && clientContact.phone &&
-    validateEmail(clientContact.email) && validatePhone(clientContact.phone);
+  const isFormValid =
+    clientContact.name &&
+    clientContact.email &&
+    clientContact.phone &&
+    validateEmail(clientContact.email) &&
+    validatePhone(clientContact.phone);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
@@ -104,7 +111,9 @@ export const ContactCompletionModal: React.FC<ContactCompletionModalProps> = ({
           <div className="flex justify-between items-start">
             <div>
               <h3 className="text-2xl font-bold mb-2">פרטי קשר של הלקוח</h3>
-              <p className="text-blue-100 text-sm">נדרשים פרטי קשר לשליחת ההצעה</p>
+              <p className="text-blue-100 text-sm">
+                נדרשים פרטי קשר לשליחת ההצעה
+              </p>
             </div>
             <button
               onClick={onCancel}
@@ -190,15 +199,17 @@ export const ContactCompletionModal: React.FC<ContactCompletionModalProps> = ({
               <p className="text-red-500 text-sm mt-1">{errors.email}</p>
             )}
             {clientContact.email && validateEmail(clientContact.email) && (
-              <p className="text-green-600 text-sm mt-1">✓ כתובת אימייל תקינה</p>
+              <p className="text-green-600 text-sm mt-1">
+                ✓ כתובת אימייל תקינה
+              </p>
             )}
           </div>
 
           {/* Info box */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-800">
-              <strong>💡 טיפ:</strong> ההצעה תישלח באופן אוטומטי ב-WhatsApp ובאימייל.
-              הקובץ PDF יורד אוטומטית למחשב לצירוף ידני.
+              <strong>💡 טיפ:</strong> ההצעה תישלח באופן אוטומטי ב-WhatsApp
+              ובאימייל. הקובץ PDF יורד אוטומטית למחשב לצירוף ידני.
             </p>
           </div>
         </div>

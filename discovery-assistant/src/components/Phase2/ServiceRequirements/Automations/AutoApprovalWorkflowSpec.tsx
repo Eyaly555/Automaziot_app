@@ -5,7 +5,14 @@ import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
 import type { AutoApprovalWorkflowRequirements } from '../../../../types/automationServices';
 import { Card } from '../../../Common/Card';
-import { Plus, Trash2, Save, CheckCircle, AlertCircle, Info } from 'lucide-react';
+import {
+  Plus,
+  Trash2,
+  Save,
+  CheckCircle,
+  AlertCircle,
+  Info,
+} from 'lucide-react';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -17,28 +24,28 @@ export function AutoApprovalWorkflowSpec() {
     fieldId: 'email_provider',
     localPath: 'emailProvider',
     serviceId: 'auto-approval-workflow',
-    autoSave: false
+    autoSave: false,
   });
 
   const crmSystem = useSmartField<string>({
     fieldId: 'crm_system',
     localPath: 'crmSystem',
     serviceId: 'auto-approval-workflow',
-    autoSave: false
+    autoSave: false,
   });
 
   const authMethod = useSmartField<string>({
     fieldId: 'crm_auth_method',
     localPath: 'authMethod',
     serviceId: 'auto-approval-workflow',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'alertEmail',
     serviceId: 'auto-approval-workflow',
-    autoSave: false
+    autoSave: false,
   });
 
   const [config, setConfig] = useState<AutoApprovalWorkflowRequirements>({
@@ -52,18 +59,18 @@ export function AutoApprovalWorkflowSpec() {
           itemId: '',
           status: '',
           currentApprover: '',
-          history: ''
-        }
-      }
+          history: '',
+        },
+      },
     },
     approvalHierarchy: {
       levels: [],
       requireAllApprovers: false,
-      parallelApproval: false
+      parallelApproval: false,
     },
     routingLogic: {
       routingStrategy: 'hierarchy',
-      routingRules: []
+      routingRules: [],
     },
     emailNotifications: {
       provider: 'sendgrid',
@@ -72,16 +79,16 @@ export function AutoApprovalWorkflowSpec() {
         approvalGranted: '',
         approvalDenied: '',
         escalation: '',
-        timeout: ''
-      }
+        timeout: '',
+      },
     },
     approvalMethods: {
       emailBased: true,
-      uiBased: false
+      uiBased: false,
     },
     escalation: {
       enabled: false,
-      escalationTiers: []
+      escalationTiers: [],
     },
     auditTrail: {
       enabled: true,
@@ -92,19 +99,19 @@ export function AutoApprovalWorkflowSpec() {
         decision: true,
         comments: true,
         ipAddress: false,
-        userAgent: false
+        userAgent: false,
       },
-      retentionDays: 365
+      retentionDays: 365,
     },
     multiLevelConfig: {
       enabled: false,
-      maxLevels: 3
+      maxLevels: 3,
     },
     sourceSystem: {
       system: 'crm',
       authMethod: 'oauth',
-      webhookEndpoint: ''
-    }
+      webhookEndpoint: '',
+    },
   });
 
   // Track if we're currently loading data to prevent save loops
@@ -114,7 +121,7 @@ export function AutoApprovalWorkflowSpec() {
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'auto-approval-workflow',
-    category: 'automations'
+    category: 'automations',
   });
 
   useBeforeUnload(() => {
@@ -124,16 +131,20 @@ export function AutoApprovalWorkflowSpec() {
       emailProvider: emailProvider.value,
       crmSystem: crmSystem.value,
       authMethod: authMethod.value,
-      alertEmail: alertEmail.value
+      alertEmail: alertEmail.value,
     };
     saveData(completeConfig);
   });
 
-  const [activeTab, setActiveTab] = useState<'basic' | 'hierarchy' | 'notifications' | 'escalation' | 'audit'>('basic');
+  const [activeTab, setActiveTab] = useState<
+    'basic' | 'hierarchy' | 'notifications' | 'escalation' | 'audit'
+  >('basic');
 
   useEffect(() => {
     const automations = currentMeeting?.implementationSpec?.automations || [];
-    const existing = automations.find((a: any) => a.serviceId === 'auto-approval-workflow');
+    const existing = automations.find(
+      (a: any) => a.serviceId === 'auto-approval-workflow'
+    );
 
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
@@ -157,27 +168,36 @@ export function AutoApprovalWorkflowSpec() {
   // Auto-save is now handled by handleFieldChange callback
 
   // ✅ handleFieldChange - שמירה חכמה כשמשתמש משנה שדות
-  const handleFieldChange = useCallback((field: string, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
+  const handleFieldChange = useCallback(
+    (field: string, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
 
-      // Save after state update (only if not loading)
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = {
-            ...updated,
-            emailProvider: emailProvider.value,
-            crmSystem: crmSystem.value,
-            authMethod: authMethod.value,
-            alertEmail: alertEmail.value
-          };
-          saveData(completeConfig);
-        }
-      }, 0);
+        // Save after state update (only if not loading)
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = {
+              ...updated,
+              emailProvider: emailProvider.value,
+              crmSystem: crmSystem.value,
+              authMethod: authMethod.value,
+              alertEmail: alertEmail.value,
+            };
+            saveData(completeConfig);
+          }
+        }, 0);
 
-      return updated;
-    });
-  }, [saveData, emailProvider.value, crmSystem.value, authMethod.value, alertEmail.value]);
+        return updated;
+      });
+    },
+    [
+      saveData,
+      emailProvider.value,
+      crmSystem.value,
+      authMethod.value,
+      alertEmail.value,
+    ]
+  );
 
   const handleSave = async () => {
     if (isLoadingRef.current) return;
@@ -188,7 +208,7 @@ export function AutoApprovalWorkflowSpec() {
       emailProvider: emailProvider.value,
       crmSystem: crmSystem.value,
       authMethod: authMethod.value,
-      alertEmail: alertEmail.value
+      alertEmail: alertEmail.value,
     };
 
     // Save using auto-save (manual save trigger)
@@ -208,10 +228,10 @@ export function AutoApprovalWorkflowSpec() {
             level: config.approvalHierarchy.levels.length + 1,
             name: '',
             nameHe: '',
-            approvers: []
-          }
-        ]
-      }
+            approvers: [],
+          },
+        ],
+      },
     });
   };
 
@@ -220,8 +240,8 @@ export function AutoApprovalWorkflowSpec() {
       ...config,
       approvalHierarchy: {
         ...config.approvalHierarchy,
-        levels: config.approvalHierarchy.levels.filter((_, i) => i !== index)
-      }
+        levels: config.approvalHierarchy.levels.filter((_, i) => i !== index),
+      },
     });
   };
 
@@ -231,26 +251,28 @@ export function AutoApprovalWorkflowSpec() {
       id: generateId(),
       name: '',
       email: '',
-      role: ''
+      role: '',
     });
     setConfig({
       ...config,
       approvalHierarchy: {
         ...config.approvalHierarchy,
-        levels: updatedLevels
-      }
+        levels: updatedLevels,
+      },
     });
   };
 
   const removeApprover = (levelIndex: number, approverIndex: number) => {
     const updatedLevels = [...config.approvalHierarchy.levels];
-    updatedLevels[levelIndex].approvers = updatedLevels[levelIndex].approvers.filter((_, i) => i !== approverIndex);
+    updatedLevels[levelIndex].approvers = updatedLevels[
+      levelIndex
+    ].approvers.filter((_, i) => i !== approverIndex);
     setConfig({
       ...config,
       approvalHierarchy: {
         ...config.approvalHierarchy,
-        levels: updatedLevels
-      }
+        levels: updatedLevels,
+      },
     });
   };
 
@@ -263,10 +285,10 @@ export function AutoApprovalWorkflowSpec() {
           ...config.routingLogic.routingRules,
           {
             itemType: '',
-            targetLevel: 1
-          }
-        ]
-      }
+            targetLevel: 1,
+          },
+        ],
+      },
     });
   };
 
@@ -275,8 +297,10 @@ export function AutoApprovalWorkflowSpec() {
       ...config,
       routingLogic: {
         ...config.routingLogic,
-        routingRules: config.routingLogic.routingRules.filter((_, i) => i !== index)
-      }
+        routingRules: config.routingLogic.routingRules.filter(
+          (_, i) => i !== index
+        ),
+      },
     });
   };
 
@@ -291,10 +315,10 @@ export function AutoApprovalWorkflowSpec() {
             tier: config.escalation.escalationTiers.length + 1,
             timeoutHours: 24,
             escalateTo: '',
-            notificationMethod: 'email'
-          }
-        ]
-      }
+            notificationMethod: 'email',
+          },
+        ],
+      },
     });
   };
 
@@ -303,8 +327,10 @@ export function AutoApprovalWorkflowSpec() {
       ...config,
       escalation: {
         ...config.escalation,
-        escalationTiers: config.escalation.escalationTiers.filter((_, i) => i !== index)
-      }
+        escalationTiers: config.escalation.escalationTiers.filter(
+          (_, i) => i !== index
+        ),
+      },
     });
   };
 
@@ -324,27 +350,38 @@ export function AutoApprovalWorkflowSpec() {
             </div>
 
             {/* Smart Fields Info Banner */}
-            {(emailProvider.isAutoPopulated || crmSystem.isAutoPopulated || authMethod.isAutoPopulated || alertEmail.isAutoPopulated) && (
+            {(emailProvider.isAutoPopulated ||
+              crmSystem.isAutoPopulated ||
+              authMethod.isAutoPopulated ||
+              alertEmail.isAutoPopulated) && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
                 <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+                  <h4 className="font-semibold text-blue-900 mb-1">
+                    נתונים מולאו אוטומטית משלב 1
+                  </h4>
                   <p className="text-sm text-blue-800">
-                    חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-                    תוכל לערוך אותם במידת הצורך.
+                    חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל
+                    לערוך אותם במידת הצורך.
                   </p>
                 </div>
               </div>
             )}
 
             {/* Conflict Warnings */}
-            {(emailProvider.hasConflict || crmSystem.hasConflict || authMethod.hasConflict || alertEmail.hasConflict) && (
+            {(emailProvider.hasConflict ||
+              crmSystem.hasConflict ||
+              authMethod.hasConflict ||
+              alertEmail.hasConflict) && (
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+                  <h4 className="font-semibold text-orange-900 mb-1">
+                    זוהה אי-התאמה בנתונים
+                  </h4>
                   <p className="text-sm text-orange-800">
-                    נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
+                    נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק
+                    ותקן.
                   </p>
                 </div>
               </div>
@@ -369,8 +406,8 @@ export function AutoApprovalWorkflowSpec() {
                 { id: 'hierarchy', label: 'היררכיית אישורים' },
                 { id: 'notifications', label: 'התראות' },
                 { id: 'escalation', label: 'הסלמה' },
-                { id: 'audit', label: 'Audit Trail' }
-              ].map(tab => (
+                { id: 'audit', label: 'Audit Trail' },
+              ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
@@ -391,7 +428,9 @@ export function AutoApprovalWorkflowSpec() {
             {activeTab === 'basic' && (
               <div className="space-y-6">
                 <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">ניהול מצב Workflow</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    ניהול מצב Workflow
+                  </h3>
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -399,7 +438,12 @@ export function AutoApprovalWorkflowSpec() {
                       </label>
                       <select
                         value={config.stateManagement.storageType}
-                        onChange={(e) => handleFieldChange('stateManagement.storageType', e.target.value as any)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'stateManagement.storageType',
+                            e.target.value as any
+                          )
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="database">Database</option>
@@ -408,7 +452,8 @@ export function AutoApprovalWorkflowSpec() {
                       </select>
                     </div>
 
-                    {(config.stateManagement.storageType === 'database' || config.stateManagement.storageType === 'both') && (
+                    {(config.stateManagement.storageType === 'database' ||
+                      config.stateManagement.storageType === 'both') && (
                       <div className="bg-gray-50 p-4 rounded-lg space-y-4">
                         <h4 className="font-medium">הגדרות Database</h4>
                         <div>
@@ -417,8 +462,16 @@ export function AutoApprovalWorkflowSpec() {
                           </label>
                           <input
                             type="text"
-                            value={config.stateManagement.databaseConfig?.connectionString || ''}
-                            onChange={(e) => handleFieldChange('stateManagement.databaseConfig.connectionString', e.target.value)}
+                            value={
+                              config.stateManagement.databaseConfig
+                                ?.connectionString || ''
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'stateManagement.databaseConfig.connectionString',
+                                e.target.value
+                              )
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="postgresql://..."
                           />
@@ -429,8 +482,16 @@ export function AutoApprovalWorkflowSpec() {
                           </label>
                           <input
                             type="text"
-                            value={config.stateManagement.databaseConfig?.tableName || ''}
-                            onChange={(e) => handleFieldChange('stateManagement.databaseConfig.tableName', e.target.value)}
+                            value={
+                              config.stateManagement.databaseConfig
+                                ?.tableName || ''
+                            }
+                            onChange={(e) =>
+                              handleFieldChange(
+                                'stateManagement.databaseConfig.tableName',
+                                e.target.value
+                              )
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="approvals"
                           />
@@ -438,7 +499,8 @@ export function AutoApprovalWorkflowSpec() {
                       </div>
                     )}
 
-                    {(config.stateManagement.storageType === 'crm' || config.stateManagement.storageType === 'both') && (
+                    {(config.stateManagement.storageType === 'crm' ||
+                      config.stateManagement.storageType === 'both') && (
                       <div className="bg-gray-50 p-4 rounded-lg space-y-4">
                         <h4 className="font-medium">הגדרות CRM</h4>
                         <div className="grid grid-cols-2 gap-4">
@@ -448,8 +510,15 @@ export function AutoApprovalWorkflowSpec() {
                             </label>
                             <input
                               type="text"
-                              value={config.stateManagement.crmConfig?.system || ''}
-                              onChange={(e) => handleFieldChange('stateManagement.crmConfig.system', e.target.value)}
+                              value={
+                                config.stateManagement.crmConfig?.system || ''
+                              }
+                              onChange={(e) =>
+                                handleFieldChange(
+                                  'stateManagement.crmConfig.system',
+                                  e.target.value
+                                )
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                               placeholder="Zoho CRM"
                             />
@@ -460,8 +529,15 @@ export function AutoApprovalWorkflowSpec() {
                             </label>
                             <input
                               type="text"
-                              value={config.stateManagement.crmConfig?.module || ''}
-                              onChange={(e) => handleFieldChange('stateManagement.crmConfig.module', e.target.value)}
+                              value={
+                                config.stateManagement.crmConfig?.module || ''
+                              }
+                              onChange={(e) =>
+                                handleFieldChange(
+                                  'stateManagement.crmConfig.module',
+                                  e.target.value
+                                )
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                               placeholder="Approvals"
                             />
@@ -491,13 +567,17 @@ export function AutoApprovalWorkflowSpec() {
                         value={crmSystem.value || 'crm'}
                         onChange={(e) => crmSystem.setValue(e.target.value)}
                         className={`w-full px-3 py-2 border rounded-lg ${
-                          crmSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                          crmSystem.isAutoPopulated
+                            ? 'border-green-300 bg-green-50'
+                            : 'border-gray-300'
                         } ${crmSystem.hasConflict ? 'border-orange-300' : ''}`}
                       >
                         <option value="crm">CRM</option>
                         <option value="erp">ERP</option>
                         <option value="hrms">HRMS</option>
-                        <option value="document_management">Document Management</option>
+                        <option value="document_management">
+                          Document Management
+                        </option>
                         <option value="custom">Custom</option>
                       </select>
                     </div>
@@ -517,7 +597,9 @@ export function AutoApprovalWorkflowSpec() {
                         value={authMethod.value || 'oauth'}
                         onChange={(e) => authMethod.setValue(e.target.value)}
                         className={`w-full px-3 py-2 border rounded-lg ${
-                          authMethod.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                          authMethod.isAutoPopulated
+                            ? 'border-green-300 bg-green-50'
+                            : 'border-gray-300'
                         } ${authMethod.hasConflict ? 'border-orange-300' : ''}`}
                       >
                         <option value="oauth">OAuth</option>
@@ -533,7 +615,12 @@ export function AutoApprovalWorkflowSpec() {
                     <input
                       type="url"
                       value={config.sourceSystem.webhookEndpoint || ''}
-                      onChange={(e) => handleFieldChange('sourceSystem.webhookEndpoint', e.target.value)}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          'sourceSystem.webhookEndpoint',
+                          e.target.value
+                        )
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       placeholder="https://n8n.example.com/webhook/approvals"
                     />
@@ -547,7 +634,12 @@ export function AutoApprovalWorkflowSpec() {
                       <input
                         type="checkbox"
                         checked={config.multiLevelConfig.enabled}
-                        onChange={(e) => handleFieldChange('multiLevelConfig.enabled', e.target.checked)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'multiLevelConfig.enabled',
+                            e.target.checked
+                          )
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium text-gray-700">
@@ -562,7 +654,12 @@ export function AutoApprovalWorkflowSpec() {
                         <input
                           type="number"
                           value={config.multiLevelConfig.maxLevels}
-                          onChange={(e) => handleFieldChange('multiLevelConfig.maxLevels', parseInt(e.target.value) || 1)}
+                          onChange={(e) =>
+                            handleFieldChange(
+                              'multiLevelConfig.maxLevels',
+                              parseInt(e.target.value) || 1
+                            )
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           min="1"
                           max="10"
@@ -609,9 +706,14 @@ export function AutoApprovalWorkflowSpec() {
                           type="text"
                           value={level.name}
                           onChange={(e) => {
-                            const updatedLevels = [...config.approvalHierarchy.levels];
+                            const updatedLevels = [
+                              ...config.approvalHierarchy.levels,
+                            ];
                             updatedLevels[levelIndex].name = e.target.value;
-                            handleFieldChange('approvalHierarchy.levels', updatedLevels);
+                            handleFieldChange(
+                              'approvalHierarchy.levels',
+                              updatedLevels
+                            );
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           placeholder="Manager Approval"
@@ -625,14 +727,16 @@ export function AutoApprovalWorkflowSpec() {
                           type="text"
                           value={level.nameHe}
                           onChange={(e) => {
-                            const updatedLevels = [...config.approvalHierarchy.levels];
+                            const updatedLevels = [
+                              ...config.approvalHierarchy.levels,
+                            ];
                             updatedLevels[levelIndex].nameHe = e.target.value;
                             setConfig({
                               ...config,
                               approvalHierarchy: {
                                 ...config.approvalHierarchy,
-                                levels: updatedLevels
-                              }
+                                levels: updatedLevels,
+                              },
                             });
                           }}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -654,20 +758,27 @@ export function AutoApprovalWorkflowSpec() {
                       </div>
 
                       {level.approvers.map((approver, approverIndex) => (
-                        <div key={approverIndex} className="bg-gray-50 p-3 rounded-lg mb-2">
+                        <div
+                          key={approverIndex}
+                          className="bg-gray-50 p-3 rounded-lg mb-2"
+                        >
                           <div className="grid grid-cols-3 gap-3 mb-2">
                             <input
                               type="text"
                               value={approver.name}
                               onChange={(e) => {
-                                const updatedLevels = [...config.approvalHierarchy.levels];
-                                updatedLevels[levelIndex].approvers[approverIndex].name = e.target.value;
+                                const updatedLevels = [
+                                  ...config.approvalHierarchy.levels,
+                                ];
+                                updatedLevels[levelIndex].approvers[
+                                  approverIndex
+                                ].name = e.target.value;
                                 setConfig({
                                   ...config,
                                   approvalHierarchy: {
                                     ...config.approvalHierarchy,
-                                    levels: updatedLevels
-                                  }
+                                    levels: updatedLevels,
+                                  },
                                 });
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
@@ -677,14 +788,18 @@ export function AutoApprovalWorkflowSpec() {
                               type="email"
                               value={approver.email}
                               onChange={(e) => {
-                                const updatedLevels = [...config.approvalHierarchy.levels];
-                                updatedLevels[levelIndex].approvers[approverIndex].email = e.target.value;
+                                const updatedLevels = [
+                                  ...config.approvalHierarchy.levels,
+                                ];
+                                updatedLevels[levelIndex].approvers[
+                                  approverIndex
+                                ].email = e.target.value;
                                 setConfig({
                                   ...config,
                                   approvalHierarchy: {
                                     ...config.approvalHierarchy,
-                                    levels: updatedLevels
-                                  }
+                                    levels: updatedLevels,
+                                  },
                                 });
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
@@ -694,14 +809,18 @@ export function AutoApprovalWorkflowSpec() {
                               type="text"
                               value={approver.role}
                               onChange={(e) => {
-                                const updatedLevels = [...config.approvalHierarchy.levels];
-                                updatedLevels[levelIndex].approvers[approverIndex].role = e.target.value;
+                                const updatedLevels = [
+                                  ...config.approvalHierarchy.levels,
+                                ];
+                                updatedLevels[levelIndex].approvers[
+                                  approverIndex
+                                ].role = e.target.value;
                                 setConfig({
                                   ...config,
                                   approvalHierarchy: {
                                     ...config.approvalHierarchy,
-                                    levels: updatedLevels
-                                  }
+                                    levels: updatedLevels,
+                                  },
                                 });
                               }}
                               className="px-2 py-1 border border-gray-300 rounded text-sm"
@@ -709,7 +828,9 @@ export function AutoApprovalWorkflowSpec() {
                             />
                           </div>
                           <button
-                            onClick={() => removeApprover(levelIndex, approverIndex)}
+                            onClick={() =>
+                              removeApprover(levelIndex, approverIndex)
+                            }
                             className="text-red-600 text-xs hover:text-red-700"
                           >
                             הסר מאשר
@@ -727,7 +848,12 @@ export function AutoApprovalWorkflowSpec() {
                       <input
                         type="checkbox"
                         checked={config.approvalHierarchy.requireAllApprovers}
-                        onChange={(e) => handleFieldChange('approvalHierarchy.requireAllApprovers', e.target.checked)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'approvalHierarchy.requireAllApprovers',
+                            e.target.checked
+                          )
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm">דרוש אישור מכל המאשרים</span>
@@ -736,7 +862,12 @@ export function AutoApprovalWorkflowSpec() {
                       <input
                         type="checkbox"
                         checked={config.approvalHierarchy.parallelApproval}
-                        onChange={(e) => handleFieldChange('approvalHierarchy.parallelApproval', e.target.checked)}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            'approvalHierarchy.parallelApproval',
+                            e.target.checked
+                          )
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm">אישורים במקביל (לא סדרתי)</span>
@@ -762,13 +893,15 @@ export function AutoApprovalWorkflowSpec() {
                     </label>
                     <select
                       value={config.routingLogic.routingStrategy}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        routingLogic: {
-                          ...config.routingLogic,
-                          routingStrategy: e.target.value as any
-                        }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          routingLogic: {
+                            ...config.routingLogic,
+                            routingStrategy: e.target.value as any,
+                          },
+                        })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     >
                       <option value="hierarchy">Hierarchy</option>
@@ -785,14 +918,16 @@ export function AutoApprovalWorkflowSpec() {
                           type="text"
                           value={rule.itemType}
                           onChange={(e) => {
-                            const updatedRules = [...config.routingLogic.routingRules];
+                            const updatedRules = [
+                              ...config.routingLogic.routingRules,
+                            ];
                             updatedRules[index].itemType = e.target.value;
                             setConfig({
                               ...config,
                               routingLogic: {
                                 ...config.routingLogic,
-                                routingRules: updatedRules
-                              }
+                                routingRules: updatedRules,
+                              },
                             });
                           }}
                           className="px-2 py-1 border border-gray-300 rounded text-sm"
@@ -802,14 +937,17 @@ export function AutoApprovalWorkflowSpec() {
                           type="number"
                           value={rule.targetLevel}
                           onChange={(e) => {
-                            const updatedRules = [...config.routingLogic.routingRules];
-                            updatedRules[index].targetLevel = parseInt(e.target.value) || 1;
+                            const updatedRules = [
+                              ...config.routingLogic.routingRules,
+                            ];
+                            updatedRules[index].targetLevel =
+                              parseInt(e.target.value) || 1;
                             setConfig({
                               ...config,
                               routingLogic: {
                                 ...config.routingLogic,
-                                routingRules: updatedRules
-                              }
+                                routingRules: updatedRules,
+                              },
                             });
                           }}
                           className="px-2 py-1 border border-gray-300 rounded text-sm"
@@ -851,7 +989,9 @@ export function AutoApprovalWorkflowSpec() {
                         value={emailProvider.value || 'sendgrid'}
                         onChange={(e) => emailProvider.setValue(e.target.value)}
                         className={`w-full px-3 py-2 border rounded-lg ${
-                          emailProvider.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                          emailProvider.isAutoPopulated
+                            ? 'border-green-300 bg-green-50'
+                            : 'border-gray-300'
                         } ${emailProvider.hasConflict ? 'border-orange-300' : ''}`}
                       >
                         <option value="sendgrid">SendGrid</option>
@@ -868,13 +1008,15 @@ export function AutoApprovalWorkflowSpec() {
                         <input
                           type="password"
                           value={config.emailNotifications.apiKey || ''}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            emailNotifications: {
-                              ...config.emailNotifications,
-                              apiKey: e.target.value
-                            }
-                          })}
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              emailNotifications: {
+                                ...config.emailNotifications,
+                                apiKey: e.target.value,
+                              },
+                            })
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         />
                       </div>
@@ -886,65 +1028,89 @@ export function AutoApprovalWorkflowSpec() {
                         <div className="grid grid-cols-2 gap-3">
                           <input
                             type="text"
-                            value={config.emailNotifications.smtpCredentials?.host || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              emailNotifications: {
-                                ...config.emailNotifications,
-                                smtpCredentials: {
-                                  ...config.emailNotifications.smtpCredentials!,
-                                  host: e.target.value
-                                }
-                              }
-                            })}
+                            value={
+                              config.emailNotifications.smtpCredentials?.host ||
+                              ''
+                            }
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                emailNotifications: {
+                                  ...config.emailNotifications,
+                                  smtpCredentials: {
+                                    ...config.emailNotifications
+                                      .smtpCredentials!,
+                                    host: e.target.value,
+                                  },
+                                },
+                              })
+                            }
                             className="px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="SMTP Host"
                           />
                           <input
                             type="number"
-                            value={config.emailNotifications.smtpCredentials?.port || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              emailNotifications: {
-                                ...config.emailNotifications,
-                                smtpCredentials: {
-                                  ...config.emailNotifications.smtpCredentials!,
-                                  port: parseInt(e.target.value) || 587
-                                }
-                              }
-                            })}
+                            value={
+                              config.emailNotifications.smtpCredentials?.port ||
+                              ''
+                            }
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                emailNotifications: {
+                                  ...config.emailNotifications,
+                                  smtpCredentials: {
+                                    ...config.emailNotifications
+                                      .smtpCredentials!,
+                                    port: parseInt(e.target.value) || 587,
+                                  },
+                                },
+                              })
+                            }
                             className="px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="Port"
                           />
                           <input
                             type="text"
-                            value={config.emailNotifications.smtpCredentials?.username || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              emailNotifications: {
-                                ...config.emailNotifications,
-                                smtpCredentials: {
-                                  ...config.emailNotifications.smtpCredentials!,
-                                  username: e.target.value
-                                }
-                              }
-                            })}
+                            value={
+                              config.emailNotifications.smtpCredentials
+                                ?.username || ''
+                            }
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                emailNotifications: {
+                                  ...config.emailNotifications,
+                                  smtpCredentials: {
+                                    ...config.emailNotifications
+                                      .smtpCredentials!,
+                                    username: e.target.value,
+                                  },
+                                },
+                              })
+                            }
                             className="px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="Username"
                           />
                           <input
                             type="password"
-                            value={config.emailNotifications.smtpCredentials?.password || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              emailNotifications: {
-                                ...config.emailNotifications,
-                                smtpCredentials: {
-                                  ...config.emailNotifications.smtpCredentials!,
-                                  password: e.target.value
-                                }
-                              }
-                            })}
+                            value={
+                              config.emailNotifications.smtpCredentials
+                                ?.password || ''
+                            }
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                emailNotifications: {
+                                  ...config.emailNotifications,
+                                  smtpCredentials: {
+                                    ...config.emailNotifications
+                                      .smtpCredentials!,
+                                    password: e.target.value,
+                                  },
+                                },
+                              })
+                            }
                             className="px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="Password"
                           />
@@ -955,7 +1121,9 @@ export function AutoApprovalWorkflowSpec() {
                     <div className="border-t pt-4">
                       <h4 className="font-medium mb-3">תבניות אימייל</h4>
                       <div className="space-y-3">
-                        {Object.entries(config.emailNotifications.templates).map(([key, value]) => (
+                        {Object.entries(
+                          config.emailNotifications.templates
+                        ).map(([key, value]) => (
                           <div key={key}>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                               {key === 'approvalRequest' && 'בקשת אישור'}
@@ -966,16 +1134,18 @@ export function AutoApprovalWorkflowSpec() {
                             </label>
                             <textarea
                               value={value}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                emailNotifications: {
-                                  ...config.emailNotifications,
-                                  templates: {
-                                    ...config.emailNotifications.templates,
-                                    [key]: e.target.value
-                                  }
-                                }
-                              })}
+                              onChange={(e) =>
+                                setConfig({
+                                  ...config,
+                                  emailNotifications: {
+                                    ...config.emailNotifications,
+                                    templates: {
+                                      ...config.emailNotifications.templates,
+                                      [key]: e.target.value,
+                                    },
+                                  },
+                                })
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                               rows={3}
                               placeholder="תבנית אימייל..."
@@ -994,28 +1164,34 @@ export function AutoApprovalWorkflowSpec() {
                       <input
                         type="checkbox"
                         checked={config.approvalMethods.emailBased}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          approvalMethods: {
-                            ...config.approvalMethods,
-                            emailBased: e.target.checked
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            approvalMethods: {
+                              ...config.approvalMethods,
+                              emailBased: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
-                      <span className="text-sm">אישור דרך אימייל (Magic Links)</span>
+                      <span className="text-sm">
+                        אישור דרך אימייל (Magic Links)
+                      </span>
                     </label>
                     <label className="flex items-center gap-2">
                       <input
                         type="checkbox"
                         checked={config.approvalMethods.uiBased}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          approvalMethods: {
-                            ...config.approvalMethods,
-                            uiBased: e.target.checked
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            approvalMethods: {
+                              ...config.approvalMethods,
+                              uiBased: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm">ממשק אישורים ייעודי</span>
@@ -1024,13 +1200,15 @@ export function AutoApprovalWorkflowSpec() {
                       <input
                         type="checkbox"
                         checked={config.approvalMethods.slackBased || false}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          approvalMethods: {
-                            ...config.approvalMethods,
-                            slackBased: e.target.checked
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            approvalMethods: {
+                              ...config.approvalMethods,
+                              slackBased: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm">אישור דרך Slack</span>
@@ -1039,13 +1217,15 @@ export function AutoApprovalWorkflowSpec() {
                       <input
                         type="checkbox"
                         checked={config.approvalMethods.teamsBased || false}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          approvalMethods: {
-                            ...config.approvalMethods,
-                            teamsBased: e.target.checked
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            approvalMethods: {
+                              ...config.approvalMethods,
+                              teamsBased: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm">אישור דרך Microsoft Teams</span>
@@ -1062,17 +1242,23 @@ export function AutoApprovalWorkflowSpec() {
                           </label>
                           <input
                             type="number"
-                            value={config.approvalMethods.magicLinkConfig?.expirationHours || 24}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              approvalMethods: {
-                                ...config.approvalMethods,
-                                magicLinkConfig: {
-                                  ...config.approvalMethods.magicLinkConfig!,
-                                  expirationHours: parseInt(e.target.value) || 24
-                                }
-                              }
-                            })}
+                            value={
+                              config.approvalMethods.magicLinkConfig
+                                ?.expirationHours || 24
+                            }
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                approvalMethods: {
+                                  ...config.approvalMethods,
+                                  magicLinkConfig: {
+                                    ...config.approvalMethods.magicLinkConfig!,
+                                    expirationHours:
+                                      parseInt(e.target.value) || 24,
+                                  },
+                                },
+                              })
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             min="1"
                           />
@@ -1083,17 +1269,22 @@ export function AutoApprovalWorkflowSpec() {
                           </label>
                           <input
                             type="url"
-                            value={config.approvalMethods.magicLinkConfig?.baseUrl || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              approvalMethods: {
-                                ...config.approvalMethods,
-                                magicLinkConfig: {
-                                  ...config.approvalMethods.magicLinkConfig!,
-                                  baseUrl: e.target.value
-                                }
-                              }
-                            })}
+                            value={
+                              config.approvalMethods.magicLinkConfig?.baseUrl ||
+                              ''
+                            }
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                approvalMethods: {
+                                  ...config.approvalMethods,
+                                  magicLinkConfig: {
+                                    ...config.approvalMethods.magicLinkConfig!,
+                                    baseUrl: e.target.value,
+                                  },
+                                },
+                              })
+                            }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             placeholder="https://approvals.example.com"
                           />
@@ -1111,17 +1302,22 @@ export function AutoApprovalWorkflowSpec() {
                         </label>
                         <input
                           type="url"
-                          value={config.approvalMethods.uiConfig?.approvalPageUrl || ''}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            approvalMethods: {
-                              ...config.approvalMethods,
-                              uiConfig: {
-                                ...config.approvalMethods.uiConfig!,
-                                approvalPageUrl: e.target.value
-                              }
-                            }
-                          })}
+                          value={
+                            config.approvalMethods.uiConfig?.approvalPageUrl ||
+                            ''
+                          }
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              approvalMethods: {
+                                ...config.approvalMethods,
+                                uiConfig: {
+                                  ...config.approvalMethods.uiConfig!,
+                                  approvalPageUrl: e.target.value,
+                                },
+                              },
+                            })
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           placeholder="https://app.example.com/approvals"
                         />
@@ -1129,17 +1325,22 @@ export function AutoApprovalWorkflowSpec() {
                       <label className="flex items-center gap-2">
                         <input
                           type="checkbox"
-                          checked={config.approvalMethods.uiConfig?.authenticationRequired || false}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            approvalMethods: {
-                              ...config.approvalMethods,
-                              uiConfig: {
-                                ...config.approvalMethods.uiConfig!,
-                                authenticationRequired: e.target.checked
-                              }
-                            }
-                          })}
+                          checked={
+                            config.approvalMethods.uiConfig
+                              ?.authenticationRequired || false
+                          }
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              approvalMethods: {
+                                ...config.approvalMethods,
+                                uiConfig: {
+                                  ...config.approvalMethods.uiConfig!,
+                                  authenticationRequired: e.target.checked,
+                                },
+                              },
+                            })
+                          }
                           className="rounded border-gray-300"
                         />
                         <span className="text-sm">דרוש אימות</span>
@@ -1160,13 +1361,15 @@ export function AutoApprovalWorkflowSpec() {
                       <input
                         type="checkbox"
                         checked={config.escalation.enabled}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          escalation: {
-                            ...config.escalation,
-                            enabled: e.target.checked
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            escalation: {
+                              ...config.escalation,
+                              enabled: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium">הפעל הסלמה</span>
@@ -1187,7 +1390,10 @@ export function AutoApprovalWorkflowSpec() {
                       </div>
 
                       {config.escalation.escalationTiers.map((tier, index) => (
-                        <div key={index} className="bg-gray-50 p-4 rounded-lg mb-3">
+                        <div
+                          key={index}
+                          className="bg-gray-50 p-4 rounded-lg mb-3"
+                        >
                           <div className="grid grid-cols-3 gap-3 mb-3">
                             <div>
                               <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -1197,14 +1403,17 @@ export function AutoApprovalWorkflowSpec() {
                                 type="number"
                                 value={tier.timeoutHours}
                                 onChange={(e) => {
-                                  const updatedTiers = [...config.escalation.escalationTiers];
-                                  updatedTiers[index].timeoutHours = parseInt(e.target.value) || 24;
+                                  const updatedTiers = [
+                                    ...config.escalation.escalationTiers,
+                                  ];
+                                  updatedTiers[index].timeoutHours =
+                                    parseInt(e.target.value) || 24;
                                   setConfig({
                                     ...config,
                                     escalation: {
                                       ...config.escalation,
-                                      escalationTiers: updatedTiers
-                                    }
+                                      escalationTiers: updatedTiers,
+                                    },
                                   });
                                 }}
                                 className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
@@ -1219,14 +1428,17 @@ export function AutoApprovalWorkflowSpec() {
                                 type="text"
                                 value={tier.escalateTo}
                                 onChange={(e) => {
-                                  const updatedTiers = [...config.escalation.escalationTiers];
-                                  updatedTiers[index].escalateTo = e.target.value;
+                                  const updatedTiers = [
+                                    ...config.escalation.escalationTiers,
+                                  ];
+                                  updatedTiers[index].escalateTo =
+                                    e.target.value;
                                   setConfig({
                                     ...config,
                                     escalation: {
                                       ...config.escalation,
-                                      escalationTiers: updatedTiers
-                                    }
+                                      escalationTiers: updatedTiers,
+                                    },
                                   });
                                 }}
                                 className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
@@ -1240,14 +1452,17 @@ export function AutoApprovalWorkflowSpec() {
                               <select
                                 value={tier.notificationMethod}
                                 onChange={(e) => {
-                                  const updatedTiers = [...config.escalation.escalationTiers];
-                                  updatedTiers[index].notificationMethod = e.target.value as any;
+                                  const updatedTiers = [
+                                    ...config.escalation.escalationTiers,
+                                  ];
+                                  updatedTiers[index].notificationMethod = e
+                                    .target.value as any;
                                   setConfig({
                                     ...config,
                                     escalation: {
                                       ...config.escalation,
-                                      escalationTiers: updatedTiers
-                                    }
+                                      escalationTiers: updatedTiers,
+                                    },
                                   });
                                 }}
                                 className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
@@ -1276,21 +1491,30 @@ export function AutoApprovalWorkflowSpec() {
                               פעולה
                             </label>
                             <select
-                              value={config.escalation.finalEscalation?.action || 'alert_admin'}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                escalation: {
-                                  ...config.escalation,
-                                  finalEscalation: {
-                                    ...config.escalation.finalEscalation,
-                                    action: e.target.value as any
-                                  }
-                                }
-                              })}
+                              value={
+                                config.escalation.finalEscalation?.action ||
+                                'alert_admin'
+                              }
+                              onChange={(e) =>
+                                setConfig({
+                                  ...config,
+                                  escalation: {
+                                    ...config.escalation,
+                                    finalEscalation: {
+                                      ...config.escalation.finalEscalation,
+                                      action: e.target.value as any,
+                                    },
+                                  },
+                                })
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                             >
-                              <option value="auto_approve">אישור אוטומטי</option>
-                              <option value="auto_reject">דחייה אוטומטית</option>
+                              <option value="auto_approve">
+                                אישור אוטומטי
+                              </option>
+                              <option value="auto_reject">
+                                דחייה אוטומטית
+                              </option>
                               <option value="alert_admin">התרעה למנהל</option>
                             </select>
                           </div>
@@ -1300,17 +1524,22 @@ export function AutoApprovalWorkflowSpec() {
                             </label>
                             <input
                               type="email"
-                              value={config.escalation.finalEscalation?.adminEmail || ''}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                escalation: {
-                                  ...config.escalation,
-                                  finalEscalation: {
-                                    ...config.escalation.finalEscalation,
-                                    adminEmail: e.target.value
-                                  }
-                                }
-                              })}
+                              value={
+                                config.escalation.finalEscalation?.adminEmail ||
+                                ''
+                              }
+                              onChange={(e) =>
+                                setConfig({
+                                  ...config,
+                                  escalation: {
+                                    ...config.escalation,
+                                    finalEscalation: {
+                                      ...config.escalation.finalEscalation,
+                                      adminEmail: e.target.value,
+                                    },
+                                  },
+                                })
+                              }
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                               placeholder="admin@example.com"
                             />
@@ -1333,16 +1562,20 @@ export function AutoApprovalWorkflowSpec() {
                       <input
                         type="checkbox"
                         checked={config.auditTrail.enabled}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          auditTrail: {
-                            ...config.auditTrail,
-                            enabled: e.target.checked
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            auditTrail: {
+                              ...config.auditTrail,
+                              enabled: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
-                      <span className="text-sm font-medium">הפעל Audit Trail</span>
+                      <span className="text-sm font-medium">
+                        הפעל Audit Trail
+                      </span>
                     </label>
                   </div>
 
@@ -1354,13 +1587,15 @@ export function AutoApprovalWorkflowSpec() {
                         </label>
                         <select
                           value={config.auditTrail.logStorage}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            auditTrail: {
-                              ...config.auditTrail,
-                              logStorage: e.target.value as any
-                            }
-                          })}
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              auditTrail: {
+                                ...config.auditTrail,
+                                logStorage: e.target.value as any,
+                              },
+                            })
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         >
                           <option value="database">Database</option>
@@ -1376,13 +1611,15 @@ export function AutoApprovalWorkflowSpec() {
                         <input
                           type="number"
                           value={config.auditTrail.retentionDays}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            auditTrail: {
-                              ...config.auditTrail,
-                              retentionDays: parseInt(e.target.value) || 365
-                            }
-                          })}
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              auditTrail: {
+                                ...config.auditTrail,
+                                retentionDays: parseInt(e.target.value) || 365,
+                              },
+                            })
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                           min="1"
                         />
@@ -1391,33 +1628,40 @@ export function AutoApprovalWorkflowSpec() {
                       <div className="border-t pt-4">
                         <h4 className="font-medium mb-3">שדות לרישום</h4>
                         <div className="space-y-2">
-                          {Object.entries(config.auditTrail.logFields).map(([key, value]) => (
-                            <label key={key} className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                checked={value}
-                                onChange={(e) => setConfig({
-                                  ...config,
-                                  auditTrail: {
-                                    ...config.auditTrail,
-                                    logFields: {
-                                      ...config.auditTrail.logFields,
-                                      [key]: e.target.checked
-                                    }
+                          {Object.entries(config.auditTrail.logFields).map(
+                            ([key, value]) => (
+                              <label
+                                key={key}
+                                className="flex items-center gap-2"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={value}
+                                  onChange={(e) =>
+                                    setConfig({
+                                      ...config,
+                                      auditTrail: {
+                                        ...config.auditTrail,
+                                        logFields: {
+                                          ...config.auditTrail.logFields,
+                                          [key]: e.target.checked,
+                                        },
+                                      },
+                                    })
                                   }
-                                })}
-                                className="rounded border-gray-300"
-                              />
-                              <span className="text-sm">
-                                {key === 'timestamp' && 'חותמת זמן'}
-                                {key === 'approverId' && 'מזהה מאשר'}
-                                {key === 'decision' && 'החלטה'}
-                                {key === 'comments' && 'הערות'}
-                                {key === 'ipAddress' && 'כתובת IP'}
-                                {key === 'userAgent' && 'User Agent'}
-                              </span>
-                            </label>
-                          ))}
+                                  className="rounded border-gray-300"
+                                />
+                                <span className="text-sm">
+                                  {key === 'timestamp' && 'חותמת זמן'}
+                                  {key === 'approverId' && 'מזהה מאשר'}
+                                  {key === 'decision' && 'החלטה'}
+                                  {key === 'comments' && 'הערות'}
+                                  {key === 'ipAddress' && 'כתובת IP'}
+                                  {key === 'userAgent' && 'User Agent'}
+                                </span>
+                              </label>
+                            )
+                          )}
                         </div>
                       </div>
                     </div>

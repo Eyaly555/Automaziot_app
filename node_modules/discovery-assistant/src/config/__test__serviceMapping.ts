@@ -12,7 +12,7 @@ import {
   getServicesBySystem,
   getServicesByIntegration,
   getServicesByAIAgent,
-  getAggregatedRequirements
+  getAggregatedRequirements,
 } from './serviceToSystemMapping';
 
 console.log('='.repeat(80));
@@ -29,12 +29,12 @@ if (validation.isValid) {
   console.log('✅ ALL MAPPINGS VALID!');
 } else {
   console.log('❌ VALIDATION FAILED!');
-  validation.errors.forEach(error => console.error(`   ${error}`));
+  validation.errors.forEach((error) => console.error(`   ${error}`));
 }
 
 if (validation.warnings.length > 0) {
   console.log('\n⚠️  WARNINGS:');
-  validation.warnings.forEach(warning => console.warn(`   ${warning}`));
+  validation.warnings.forEach((warning) => console.warn(`   ${warning}`));
 }
 
 console.log('\nStatistics:');
@@ -42,7 +42,9 @@ console.log(`   Total Services: ${validation.stats.totalServices}`);
 console.log(`   Mapped Services: ${validation.stats.mappedServices}`);
 console.log(`   Unmapped: ${validation.stats.unmappedServices}`);
 console.log(`   With Systems: ${validation.stats.servicesWithSystems}`);
-console.log(`   With Integrations: ${validation.stats.servicesWithIntegrations}`);
+console.log(
+  `   With Integrations: ${validation.stats.servicesWithIntegrations}`
+);
 console.log(`   With AI Agents: ${validation.stats.servicesWithAI}`);
 console.log();
 
@@ -51,7 +53,11 @@ console.log('2. HELPER FUNCTION TESTS');
 console.log('-'.repeat(80));
 
 // Test case: Lead management services
-const leadServices = ['auto-lead-response', 'auto-crm-update', 'ai-lead-qualifier'];
+const leadServices = [
+  'auto-lead-response',
+  'auto-crm-update',
+  'ai-lead-qualifier',
+];
 const leadSystems = getRequiredSystemsForServices(leadServices);
 const leadIntegrations = getRequiredIntegrationsForServices(leadServices);
 const leadAI = getRequiredAIAgentsForServices(leadServices);
@@ -60,7 +66,9 @@ console.log('Test: Lead Management Services');
 console.log(`   Services: ${leadServices.join(', ')}`);
 console.log(`   Required Systems: ${leadSystems.join(', ')}`);
 console.log(`   Required Integrations: ${leadIntegrations.join(', ')}`);
-console.log(`   Required AI Agents: ${leadAI.length > 0 ? leadAI.join(', ') : 'None'}`);
+console.log(
+  `   Required AI Agents: ${leadAI.length > 0 ? leadAI.join(', ') : 'None'}`
+);
 console.log();
 
 // Test case: AI services
@@ -91,7 +99,9 @@ console.log(`   All: ${salesAIServices.join(', ')}`);
 console.log();
 
 const websiteCRMIntegrations = getServicesByIntegration('website_to_crm');
-console.log(`Services requiring Website→CRM integration: ${websiteCRMIntegrations.length} services`);
+console.log(
+  `Services requiring Website→CRM integration: ${websiteCRMIntegrations.length} services`
+);
 console.log(`   All: ${websiteCRMIntegrations.join(', ')}`);
 console.log();
 
@@ -100,11 +110,15 @@ console.log('4. SERVICES BY CATEGORY');
 console.log('-'.repeat(80));
 
 const categories = {
-  automations: SERVICES_DATABASE.filter(s => s.category === 'automations'),
-  ai_agents: SERVICES_DATABASE.filter(s => s.category === 'ai_agents'),
-  integrations: SERVICES_DATABASE.filter(s => s.category === 'integrations'),
-  system_implementation: SERVICES_DATABASE.filter(s => s.category === 'system_implementation'),
-  additional_services: SERVICES_DATABASE.filter(s => s.category === 'additional_services')
+  automations: SERVICES_DATABASE.filter((s) => s.category === 'automations'),
+  ai_agents: SERVICES_DATABASE.filter((s) => s.category === 'ai_agents'),
+  integrations: SERVICES_DATABASE.filter((s) => s.category === 'integrations'),
+  system_implementation: SERVICES_DATABASE.filter(
+    (s) => s.category === 'system_implementation'
+  ),
+  additional_services: SERVICES_DATABASE.filter(
+    (s) => s.category === 'additional_services'
+  ),
 };
 
 Object.entries(categories).forEach(([category, services]) => {
@@ -116,11 +130,17 @@ console.log();
 console.log('5. MAPPING SUMMARY');
 console.log('-'.repeat(80));
 console.log(`✅ Validation: ${validation.isValid ? 'PASSED' : 'FAILED'}`);
-console.log(`📊 Coverage: ${validation.stats.mappedServices}/${validation.stats.totalServices} services mapped`);
-console.log(`🎯 Completeness: ${Math.round((validation.stats.mappedServices / validation.stats.totalServices) * 100)}%`);
+console.log(
+  `📊 Coverage: ${validation.stats.mappedServices}/${validation.stats.totalServices} services mapped`
+);
+console.log(
+  `🎯 Completeness: ${Math.round((validation.stats.mappedServices / validation.stats.totalServices) * 100)}%`
+);
 
 if (validation.stats.unmappedServices > 0) {
-  console.log(`⚠️  Missing: ${validation.stats.unmappedServices} services need mapping`);
+  console.log(
+    `⚠️  Missing: ${validation.stats.unmappedServices} services need mapping`
+  );
 }
 
 console.log();

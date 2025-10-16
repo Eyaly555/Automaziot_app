@@ -20,7 +20,9 @@ interface CustomizableCheckboxGroupProps {
   maxCustomEntries?: number;
 }
 
-export const CustomizableCheckboxGroup: React.FC<CustomizableCheckboxGroupProps> = ({
+export const CustomizableCheckboxGroup: React.FC<
+  CustomizableCheckboxGroupProps
+> = ({
   label,
   options,
   value = [],
@@ -34,15 +36,17 @@ export const CustomizableCheckboxGroup: React.FC<CustomizableCheckboxGroupProps>
   moduleId,
   fieldName,
   validateCustom,
-  maxCustomEntries = 10
+  maxCustomEntries = 10,
 }) => {
-  const { getCustomValues, addCustomValue, removeCustomValue } = useMeetingStore();
+  const { getCustomValues, addCustomValue, removeCustomValue } =
+    useMeetingStore();
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [customInputValue, setCustomInputValue] = useState('');
   const [customError, setCustomError] = useState<string>('');
 
   // Get custom values from store
-  const customValues = (moduleId && fieldName) ? getCustomValues(moduleId, fieldName) : [];
+  const customValues =
+    moduleId && fieldName ? getCustomValues(moduleId, fieldName) : [];
 
   // Combine predefined options with custom values
   const allOptions = [...options, ...customValues];
@@ -54,7 +58,7 @@ export const CustomizableCheckboxGroup: React.FC<CustomizableCheckboxGroupProps>
 
     if (currentValues.includes(optionValue)) {
       // Uncheck - remove from array
-      onChange(currentValues.filter(v => v !== optionValue));
+      onChange(currentValues.filter((v) => v !== optionValue));
     } else {
       // Check - add to array if not at max
       if (max && currentValues.length >= max) {
@@ -71,8 +75,8 @@ export const CustomizableCheckboxGroup: React.FC<CustomizableCheckboxGroupProps>
     }
 
     // Check if already exists
-    const exists = allOptions.some(opt =>
-      opt.value.toLowerCase() === customInputValue.trim().toLowerCase()
+    const exists = allOptions.some(
+      (opt) => opt.value.toLowerCase() === customInputValue.trim().toLowerCase()
     );
 
     if (exists) {
@@ -102,7 +106,7 @@ export const CustomizableCheckboxGroup: React.FC<CustomizableCheckboxGroupProps>
     const newOption: SelectOption = {
       value: customInputValue.trim(),
       label: customInputValue.trim(),
-      isCustom: true
+      isCustom: true,
     };
 
     if (moduleId && fieldName) {
@@ -129,7 +133,7 @@ export const CustomizableCheckboxGroup: React.FC<CustomizableCheckboxGroupProps>
     // Unselect if it was selected
     const currentValues = Array.isArray(value) ? value : [];
     if (currentValues.includes(customValue)) {
-      onChange(currentValues.filter(v => v !== customValue));
+      onChange(currentValues.filter((v) => v !== customValue));
     }
   };
 
@@ -155,7 +159,9 @@ export const CustomizableCheckboxGroup: React.FC<CustomizableCheckboxGroupProps>
           {required && <span className="text-red-500 mr-1">*</span>}
         </label>
         {max && (
-          <span className={`text-xs ${isAtMax ? 'text-orange-600' : 'text-gray-500'}`}>
+          <span
+            className={`text-xs ${isAtMax ? 'text-orange-600' : 'text-gray-500'}`}
+          >
             {selectedCount}/{max} נבחרו
           </span>
         )}
@@ -163,12 +169,15 @@ export const CustomizableCheckboxGroup: React.FC<CustomizableCheckboxGroupProps>
 
       {/* Checkbox Options */}
       <div className="space-y-2 max-h-60 overflow-y-auto p-2 border border-gray-200 rounded-md">
-        {allOptions.map(option => {
+        {allOptions.map((option) => {
           const isChecked = value.includes(option.value);
           const isDisabled = disabled || (!isChecked && isAtMax);
 
           return (
-            <div key={option.value} className="flex items-center justify-between group">
+            <div
+              key={option.value}
+              className="flex items-center justify-between group"
+            >
               <label
                 className={`flex items-center gap-2 flex-1 cursor-pointer
                   ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}
@@ -186,7 +195,9 @@ export const CustomizableCheckboxGroup: React.FC<CustomizableCheckboxGroupProps>
                 <span className="text-sm text-gray-700">
                   {option.label}
                   {option.isCustom && (
-                    <span className="text-xs text-gray-500 mr-2">(מותאם אישית)</span>
+                    <span className="text-xs text-gray-500 mr-2">
+                      (מותאם אישית)
+                    </span>
                   )}
                 </span>
               </label>
@@ -212,9 +223,11 @@ export const CustomizableCheckboxGroup: React.FC<CustomizableCheckboxGroupProps>
             disabled={disabled}
             className={`
               w-full flex items-center gap-2 p-2 mt-2
-              ${disabled
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}
+              ${
+                disabled
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+              }
               rounded-md transition-colors text-sm font-medium
             `}
           >
@@ -276,8 +289,8 @@ export const CustomizableCheckboxGroup: React.FC<CustomizableCheckboxGroupProps>
         <div className="mt-2">
           <p className="text-xs text-gray-600 mb-1">נבחרו:</p>
           <div className="flex flex-wrap gap-2">
-            {value.map(val => {
-              const option = allOptions.find(opt => opt.value === val);
+            {value.map((val) => {
+              const option = allOptions.find((opt) => opt.value === val);
               if (!option) return null;
 
               return (
@@ -302,9 +315,7 @@ export const CustomizableCheckboxGroup: React.FC<CustomizableCheckboxGroupProps>
       )}
 
       {/* Error Message */}
-      {error && (
-        <p className="text-sm text-red-600 mt-1">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
     </div>
   );
 };

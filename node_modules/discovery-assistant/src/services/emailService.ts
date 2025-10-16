@@ -322,7 +322,9 @@ export const generateEmailHTML = (
           <span class="summary-label">סה"כ השקעה:</span>
           <span class="summary-value">₪${proposalData.totalPrice.toLocaleString('he-IL')}</span>
         </div>
-        ${includeROI ? `<div class="summary-item">
+        ${
+          includeROI
+            ? `<div class="summary-item">
           <span class="summary-label">חיסכון חודשי צפוי:</span>
           <span class="summary-value">₪${proposalData.monthlySavings.toLocaleString('he-IL')}</span>
         </div>
@@ -333,7 +335,9 @@ export const generateEmailHTML = (
         <div class="summary-item">
           <span class="summary-label">החזר השקעה (ROI):</span>
           <span class="summary-value">${proposalData.expectedROIMonths} חודשים</span>
-        </div>` : ''}
+        </div>`
+            : ''
+        }
       </div>
 
       <div class="benefits">

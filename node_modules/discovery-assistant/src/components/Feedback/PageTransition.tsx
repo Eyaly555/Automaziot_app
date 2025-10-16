@@ -162,10 +162,10 @@ export const StaggerChildren: React.FC<StaggerChildrenProps> = ({
  * Stagger Item Component
  * Individual item in staggered animation
  */
-export const StaggerItem: React.FC<{ children: React.ReactNode; className?: string }> = ({
-  children,
-  className = '',
-}) => {
+export const StaggerItem: React.FC<{
+  children: React.ReactNode;
+  className?: string;
+}> = ({ children, className = '' }) => {
   return (
     <motion.div
       variants={{

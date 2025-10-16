@@ -24,14 +24,14 @@ export function validateEmailTemplate(
       type: 'invalid_html',
       message: 'Email template is empty',
       messageHe: 'תבנית האימייל ריקה',
-      severity: 'error'
+      severity: 'error',
     });
     return {
       isValid: false,
       errors,
       warnings,
       spamScore: 10,
-      estimatedDeliverability: 'poor'
+      estimatedDeliverability: 'poor',
     };
   }
 
@@ -42,8 +42,10 @@ export function validateEmailTemplate(
   if (!hasHtmlTag || !hasBodyTag) {
     warnings.push({
       type: 'html_structure',
-      message: 'Missing <html> or <body> tags. Some email clients may not render correctly.',
-      messageHe: 'חסרים תגי <html> או <body>. חלק מלקוחות האימייל עשויים לא להציג נכון.'
+      message:
+        'Missing <html> or <body> tags. Some email clients may not render correctly.',
+      messageHe:
+        'חסרים תגי <html> או <body>. חלק מלקוחות האימייל עשויים לא להציג נכון.',
     });
     spamScore += 0.5;
   }
@@ -56,19 +58,20 @@ export function validateEmailTemplate(
       type: 'missing_unsubscribe',
       message: 'Missing unsubscribe link (required by CAN-SPAM Act and GDPR)',
       messageHe: 'חסר קישור להסרה מרשימה (נדרש לפי CAN-SPAM ו-GDPR)',
-      severity: 'error'
+      severity: 'error',
     });
   }
 
   // Check for physical address (required by CAN-SPAM)
-  const hasAddressPattern = /\d{1,5}\s\w+\s(street|st|avenue|ave|road|rd|drive|dr)/i.test(htmlContent);
+  const hasAddressPattern =
+    /\d{1,5}\s\w+\s(street|st|avenue|ave|road|rd|drive|dr)/i.test(htmlContent);
 
   if (!hasPhysicalAddress && !hasAddressPattern) {
     errors.push({
       type: 'missing_address',
       message: 'Missing physical address (required by CAN-SPAM Act)',
       messageHe: 'חסרה כתובת פיזית (נדרש לפי CAN-SPAM Act)',
-      severity: 'error'
+      severity: 'error',
     });
   }
 
@@ -79,8 +82,10 @@ export function validateEmailTemplate(
   if (personalizationFields.length > 0 && foundVariables.length === 0) {
     warnings.push({
       type: 'missing_personalization',
-      message: 'No personalization variables found. Consider adding {{firstName}} or similar.',
-      messageHe: 'לא נמצאו משתני התאמה אישית. שקול להוסיף {{firstName}} או דומה.'
+      message:
+        'No personalization variables found. Consider adding {{firstName}} or similar.',
+      messageHe:
+        'לא נמצאו משתני התאמה אישית. שקול להוסיף {{firstName}} או דומה.',
     });
   }
 
@@ -91,7 +96,7 @@ export function validateEmailTemplate(
     warnings.push({
       type: 'too_many_images',
       message: `${imageCount} images found. Emails with many images often go to spam. Recommended: 2-3 images max.`,
-      messageHe: `נמצאו ${imageCount} תמונות. אימיילים עם הרבה תמונות נוטים להגיע לספאם. מומלץ: 2-3 תמונות מקסימום.`
+      messageHe: `נמצאו ${imageCount} תמונות. אימיילים עם הרבה תמונות נוטים להגיע לספאם. מומלץ: 2-3 תמונות מקסימום.`,
     });
     spamScore += Math.min(imageCount - 5, 3);
   }
@@ -103,7 +108,7 @@ export function validateEmailTemplate(
     warnings.push({
       type: 'too_many_links',
       message: `${linkCount} links found. Too many links can trigger spam filters. Recommended: 5-7 links max.`,
-      messageHe: `נמצאו ${linkCount} קישורים. יותר מדי קישורים עלולים להפעיל פילטרי ספאם. מומלץ: 5-7 קישורים מקסימום.`
+      messageHe: `נמצאו ${linkCount} קישורים. יותר מדי קישורים עלולים להפעיל פילטרי ספאם. מומלץ: 5-7 קישורים מקסימום.`,
     });
     spamScore += Math.min(linkCount - 10, 2);
   }
@@ -115,19 +120,33 @@ export function validateEmailTemplate(
     warnings.push({
       type: 'all_caps',
       message: 'Text in ALL CAPS detected. This can trigger spam filters.',
-      messageHe: 'זוהה טקסט באותיות גדולות. זה עלול להפעיל פילטרי ספאם.'
+      messageHe: 'זוהה טקסט באותיות גדולות. זה עלול להפעיל פילטרי ספאם.',
     });
     spamScore += 1;
   }
 
   // Check for spam trigger words
   const spamWords = [
-    'free', 'click here', 'buy now', 'limited time', 'act now', 'winner',
-    'congratulations', 'prize', 'cash', 'earn money', 'make money fast',
-    'זכית', 'חינם', 'לחץ כאן', 'קנה עכשיו', 'זמן מוגבל', 'פעל עכשיו'
+    'free',
+    'click here',
+    'buy now',
+    'limited time',
+    'act now',
+    'winner',
+    'congratulations',
+    'prize',
+    'cash',
+    'earn money',
+    'make money fast',
+    'זכית',
+    'חינם',
+    'לחץ כאן',
+    'קנה עכשיו',
+    'זמן מוגבל',
+    'פעל עכשיו',
   ];
 
-  const foundSpamWords = spamWords.filter(word =>
+  const foundSpamWords = spamWords.filter((word) =>
     new RegExp(`\\b${word}\\b`, 'i').test(htmlContent)
   );
 
@@ -135,7 +154,7 @@ export function validateEmailTemplate(
     warnings.push({
       type: 'spam_words',
       message: `Spam trigger words detected: ${foundSpamWords.slice(0, 3).join(', ')}. Consider rephrasing.`,
-      messageHe: `זוהו מילות ספאם: ${foundSpamWords.slice(0, 3).join(', ')}. שקול לנסח מחדש.`
+      messageHe: `זוהו מילות ספאם: ${foundSpamWords.slice(0, 3).join(', ')}. שקול לנסח מחדש.`,
     });
     spamScore += Math.min(foundSpamWords.length, 2);
   }
@@ -147,8 +166,10 @@ export function validateEmailTemplate(
   if (hasStyleTag && !hasInlineStyles) {
     warnings.push({
       type: 'css_not_inline',
-      message: 'Using <style> tags instead of inline styles. Many email clients strip <style> tags.',
-      messageHe: 'משתמש ב-<style> tags במקום inline styles. הרבה לקוחות אימייל מסירים את תגי ה-<style>.'
+      message:
+        'Using <style> tags instead of inline styles. Many email clients strip <style> tags.',
+      messageHe:
+        'משתמש ב-<style> tags במקום inline styles. הרבה לקוחות אימייל מסירים את תגי ה-<style>.',
     });
   }
 
@@ -159,8 +180,9 @@ export function validateEmailTemplate(
   if (!hasViewportMeta && !hasMediaQueries) {
     warnings.push({
       type: 'not_responsive',
-      message: 'No responsive design detected. 60%+ of emails are opened on mobile.',
-      messageHe: 'לא זוהה עיצוב רספונסיבי. 60%+ מהאימיילים נפתחים במובייל.'
+      message:
+        'No responsive design detected. 60%+ of emails are opened on mobile.',
+      messageHe: 'לא זוהה עיצוב רספונסיבי. 60%+ מהאימיילים נפתחים במובייל.',
     });
     spamScore += 0.5;
   }
@@ -171,19 +193,23 @@ export function validateEmailTemplate(
   if (brokenVariables.length > 0) {
     warnings.push({
       type: 'broken_variables',
-      message: 'Potentially broken personalization variables detected. Check spacing in {{ variable }} syntax.',
-      messageHe: 'זוהו משתנים שעשויים להיות שבורים. בדוק רווחים בתחביר {{ variable }}.'
+      message:
+        'Potentially broken personalization variables detected. Check spacing in {{ variable }} syntax.',
+      messageHe:
+        'זוהו משתנים שעשויים להיות שבורים. בדוק רווחים בתחביר {{ variable }}.',
     });
   }
 
   // Check for missing alt text on images
-  const imagesWithoutAlt = (htmlContent.match(/<img(?![^>]*alt=)[^>]*>/gi) || []).length;
+  const imagesWithoutAlt = (
+    htmlContent.match(/<img(?![^>]*alt=)[^>]*>/gi) || []
+  ).length;
 
   if (imagesWithoutAlt > 0) {
     warnings.push({
       type: 'missing_alt_text',
       message: `${imagesWithoutAlt} images without alt text. Add alt text for better accessibility and deliverability.`,
-      messageHe: `${imagesWithoutAlt} תמונות ללא טקסט חלופי. הוסף alt text לנגישות ושליחות טובה יותר.`
+      messageHe: `${imagesWithoutAlt} תמונות ללא טקסט חלופי. הוסף alt text לנגישות ושליחות טובה יותר.`,
     });
   }
 
@@ -206,7 +232,7 @@ export function validateEmailTemplate(
     errors,
     warnings,
     spamScore: Math.min(spamScore, 10),
-    estimatedDeliverability
+    estimatedDeliverability,
   };
 }
 
@@ -259,7 +285,7 @@ export function validatePersonalizationVariables(
   return {
     isValid: errors.length === 0,
     variables: [...new Set(variables)], // Remove duplicates
-    errors
+    errors,
   };
 }
 
@@ -268,9 +294,7 @@ export function validatePersonalizationVariables(
  * @param subject - Email subject line
  * @returns Spam score (0-10) and warnings
  */
-export function validateEmailSubject(
-  subject: string
-): {
+export function validateEmailSubject(subject: string): {
   spamScore: number;
   warnings: string[];
 } {
@@ -286,13 +310,22 @@ export function validateEmailSubject(
   // Check for excessive punctuation
   const exclamationCount = (subject.match(/!/g) || []).length;
   if (exclamationCount > 1) {
-    warnings.push(`${exclamationCount} exclamation marks detected - avoid excessive punctuation`);
+    warnings.push(
+      `${exclamationCount} exclamation marks detected - avoid excessive punctuation`
+    );
     spamScore += exclamationCount;
   }
 
   // Check for spam trigger words
-  const spamWords = ['free', 'click here', 'buy now', 'winner', 'congratulations', 'act now'];
-  const foundSpamWords = spamWords.filter(word =>
+  const spamWords = [
+    'free',
+    'click here',
+    'buy now',
+    'winner',
+    'congratulations',
+    'act now',
+  ];
+  const foundSpamWords = spamWords.filter((word) =>
     new RegExp(`\\b${word}\\b`, 'i').test(subject)
   );
 
@@ -303,7 +336,9 @@ export function validateEmailSubject(
 
   // Check subject length (optimal: 40-60 characters)
   if (subject.length > 90) {
-    warnings.push('Subject line too long - may be truncated on mobile (recommended: 40-60 characters)');
+    warnings.push(
+      'Subject line too long - may be truncated on mobile (recommended: 40-60 characters)'
+    );
     spamScore += 1;
   } else if (subject.length < 10) {
     warnings.push('Subject line very short - may appear suspicious');
@@ -313,11 +348,13 @@ export function validateEmailSubject(
   // Check for personalization
   const hasPersonalization = /\{\{|\{%|<%=/i.test(subject);
   if (!hasPersonalization) {
-    warnings.push('No personalization in subject - consider adding {{firstName}} or similar');
+    warnings.push(
+      'No personalization in subject - consider adding {{firstName}} or similar'
+    );
   }
 
   return {
     spamScore: Math.min(spamScore, 10),
-    warnings
+    warnings,
   };
 }

@@ -99,7 +99,10 @@ export const Breadcrumbs: React.FC = () => {
           <React.Fragment key={breadcrumb.path}>
             {/* Breadcrumb item */}
             {isLast ? (
-              <span className="text-sm font-medium text-gray-900" aria-current="page">
+              <span
+                className="text-sm font-medium text-gray-900"
+                aria-current="page"
+              >
                 {breadcrumb.label}
               </span>
             ) : (

@@ -6,7 +6,7 @@ import { Card } from '../../../Common/Card';
 export function ImplErpSpec() {
   const { currentMeeting, updateMeeting } = useMeetingStore();
   const [config, setConfig] = useState<any>({
-    ...{ platform: 'sap_s4hana', estimatedMonths: 12 }
+    ...{ platform: 'sap_s4hana', estimatedMonths: 12 },
   });
 
   // Track if we're currently loading data to prevent save loops
@@ -16,12 +16,15 @@ export function ImplErpSpec() {
   // Auto-save hook for immediate saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'impl-erp',
-    category: 'systemImplementations'
+    category: 'systemImplementations',
   });
 
   useEffect(() => {
-    const systemImplementations = currentMeeting?.implementationSpec?.systemImplementations || [];
-    const existing = systemImplementations.find((s: any) => s.serviceId === 'impl-erp');
+    const systemImplementations =
+      currentMeeting?.implementationSpec?.systemImplementations || [];
+    const existing = systemImplementations.find(
+      (s: any) => s.serviceId === 'impl-erp'
+    );
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
 
@@ -47,18 +50,21 @@ export function ImplErpSpec() {
   //   }
   // }, [config]);
 
-  const handleFieldChange = useCallback((field: keyof typeof config, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = { ...updated }; // No smart fields in this component
-          saveData(completeConfig);
-        }
-      }, 0);
-      return updated;
-    });
-  }, [saveData]);
+  const handleFieldChange = useCallback(
+    (field: keyof typeof config, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = { ...updated }; // No smart fields in this component
+            saveData(completeConfig);
+          }
+        }, 0);
+        return updated;
+      });
+    },
+    [saveData]
+  );
 
   // Manual save handler (kept for compatibility, but auto-save is primary)
   const handleSave = useCallback(async () => {
@@ -75,7 +81,9 @@ export function ImplErpSpec() {
       <Card title="שירות #45: הטמעת ERP">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">פלטפורמת ERP</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              פלטפורמת ERP
+            </label>
             <select
               value={config.platform || 'sap_s4hana'}
               onChange={(e) => handleFieldChange('platform', e.target.value)}
@@ -89,11 +97,15 @@ export function ImplErpSpec() {
 
           {config.platform === 'sap_s4hana' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">חודשים משוערים להטמעה</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                חודשים משוערים להטמעה
+              </label>
               <input
                 type="number"
                 value={config.estimatedMonths || 12}
-                onChange={(e) => handleFieldChange('estimatedMonths', parseInt(e.target.value))}
+                onChange={(e) =>
+                  handleFieldChange('estimatedMonths', parseInt(e.target.value))
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               />
             </div>

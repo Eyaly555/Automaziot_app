@@ -3,14 +3,14 @@ import { useMeetingStore } from '../../store/useMeetingStore';
 import {
   exportDiscoveryToExcel,
   exportImplementationSpecToExcel,
-  exportDevelopmentToExcel
+  exportDevelopmentToExcel,
 } from '../../utils/exportExcel';
 import {
   exportTasksToJiraCSV,
   exportTasksToGitHubCSV,
   exportTasksToGenericCSV,
   exportSprintSummaryToCSV,
-  exportBlockersToCSV
+  exportBlockersToCSV,
 } from '../../utils/exportCSV';
 import {
   exportMeetingToJSON,
@@ -22,12 +22,12 @@ import {
   exportTasksToJSON,
   exportN8NWorkflowsToJSON,
   exportPainPointsToJSON,
-  copyMeetingToClipboard
+  copyMeetingToClipboard,
 } from '../../utils/exportJSON';
 import {
   exportDiscoveryPDF,
   exportImplementationSpecPDF,
-  exportDevelopmentPDF
+  exportDevelopmentPDF,
 } from '../../utils/exportTechnicalSpec';
 import { exportToMarkdown, exportToText } from '../../utils/englishExport';
 import type { Meeting } from '../../types';
@@ -41,7 +41,10 @@ interface ExportMenuProps {
  * Unified export menu component providing access to all export formats
  * Supports Discovery, Implementation Spec, and Development phases
  */
-export function ExportMenu({ variant = 'button', className = '' }: ExportMenuProps) {
+export function ExportMenu({
+  variant = 'button',
+  className = '',
+}: ExportMenuProps) {
   const { currentMeeting } = useMeetingStore();
   const [isOpen, setIsOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
@@ -66,7 +69,9 @@ export function ExportMenu({ variant = 'button', className = '' }: ExportMenuPro
 
   const phase = currentMeeting.phase || 'discovery';
 
-  const handleExport = async (exportFn: (meeting: Meeting) => void | Promise<void>) => {
+  const handleExport = async (
+    exportFn: (meeting: Meeting) => void | Promise<void>
+  ) => {
     try {
       await exportFn(currentMeeting);
       setIsOpen(false);
@@ -82,7 +87,10 @@ export function ExportMenu({ variant = 'button', className = '' }: ExportMenuPro
   };
 
   return (
-    <div className={`export-menu-container relative ${className}`} ref={menuRef}>
+    <div
+      className={`export-menu-container relative ${className}`}
+      ref={menuRef}
+    >
       {/* Main button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -99,10 +107,14 @@ export function ExportMenu({ variant = 'button', className = '' }: ExportMenuPro
           gap: '8px',
           fontSize: '14px',
           fontWeight: '500',
-          transition: 'background-color 0.2s'
+          transition: 'background-color 0.2s',
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#4338CA')}
-        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#4F46E5')}
+        onMouseEnter={(e) =>
+          (e.currentTarget.style.backgroundColor = '#4338CA')
+        }
+        onMouseLeave={(e) =>
+          (e.currentTarget.style.backgroundColor = '#4F46E5')
+        }
       >
         <svg
           width="16"
@@ -137,7 +149,7 @@ export function ExportMenu({ variant = 'button', className = '' }: ExportMenuPro
             minWidth: '280px',
             maxHeight: '500px',
             overflowY: 'auto',
-            zIndex: 1000
+            zIndex: 1000,
           }}
         >
           {/* PDF Section */}
@@ -150,7 +162,7 @@ export function ExportMenu({ variant = 'button', className = '' }: ExportMenuPro
                 borderBottom: '1px solid #E5E7EB',
                 fontWeight: '600',
                 fontSize: '13px',
-                color: '#374151'
+                color: '#374151',
               }}
             >
               PDF
@@ -162,7 +174,9 @@ export function ExportMenu({ variant = 'button', className = '' }: ExportMenuPro
               onClick={() => handleExport(exportDiscoveryPDF)}
             />
 
-            {(phase === 'implementation_spec' || phase === 'development' || phase === 'completed') && (
+            {(phase === 'implementation_spec' ||
+              phase === 'development' ||
+              phase === 'completed') && (
               <MenuItem
                 icon="📋"
                 label="מפרט טכני (PDF)"
@@ -189,7 +203,7 @@ export function ExportMenu({ variant = 'button', className = '' }: ExportMenuPro
                 borderBottom: '1px solid #E5E7EB',
                 fontWeight: '600',
                 fontSize: '13px',
-                color: '#374151'
+                color: '#374151',
               }}
             >
               Excel
@@ -201,7 +215,9 @@ export function ExportMenu({ variant = 'button', className = '' }: ExportMenuPro
               onClick={() => handleExport(exportDiscoveryToExcel)}
             />
 
-            {(phase === 'implementation_spec' || phase === 'development' || phase === 'completed') && (
+            {(phase === 'implementation_spec' ||
+              phase === 'development' ||
+              phase === 'completed') && (
               <MenuItem
                 icon="🔧"
                 label="מפרט יישום (Excel)"
@@ -229,7 +245,7 @@ export function ExportMenu({ variant = 'button', className = '' }: ExportMenuPro
                   borderBottom: '1px solid #E5E7EB',
                   fontWeight: '600',
                   fontSize: '13px',
-                  color: '#374151'
+                  color: '#374151',
                 }}
               >
                 CSV
@@ -281,12 +297,19 @@ export function ExportMenu({ variant = 'button', className = '' }: ExportMenuPro
                 cursor: 'pointer',
                 display: 'flex',
                 justifyContent: 'space-between',
-                alignItems: 'center'
+                alignItems: 'center',
               }}
               onClick={() => toggleSubmenu('json')}
             >
               <span>JSON</span>
-              <span style={{ transform: activeSubmenu === 'json' ? 'rotate(180deg)' : 'none' }}>▼</span>
+              <span
+                style={{
+                  transform:
+                    activeSubmenu === 'json' ? 'rotate(180deg)' : 'none',
+                }}
+              >
+                ▼
+              </span>
             </div>
 
             {activeSubmenu === 'json' && (
@@ -305,7 +328,9 @@ export function ExportMenu({ variant = 'button', className = '' }: ExportMenuPro
                   indented
                 />
 
-                {(phase === 'implementation_spec' || phase === 'development' || phase === 'completed') && (
+                {(phase === 'implementation_spec' ||
+                  phase === 'development' ||
+                  phase === 'completed') && (
                   <MenuItem
                     icon="🔧"
                     label="מפרט יישום (JSON)"
@@ -353,7 +378,9 @@ export function ExportMenu({ variant = 'button', className = '' }: ExportMenuPro
                   />
                 )}
 
-                {(phase === 'implementation_spec' || phase === 'development' || phase === 'completed') && (
+                {(phase === 'implementation_spec' ||
+                  phase === 'development' ||
+                  phase === 'completed') && (
                   <MenuItem
                     icon="🔄"
                     label="תבניות n8n (JSON)"
@@ -375,7 +402,7 @@ export function ExportMenu({ variant = 'button', className = '' }: ExportMenuPro
                 borderBottom: '1px solid #E5E7EB',
                 fontWeight: '600',
                 fontSize: '13px',
-                color: '#374151'
+                color: '#374151',
               }}
             >
               טקסט
@@ -429,10 +456,12 @@ function MenuItem({ icon, label, onClick, indented = false }: MenuItemProps) {
         fontSize: '14px',
         color: '#374151',
         textAlign: 'right',
-        transition: 'background-color 0.2s'
+        transition: 'background-color 0.2s',
       }}
       onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#F3F4F6')}
-      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+      onMouseLeave={(e) =>
+        (e.currentTarget.style.backgroundColor = 'transparent')
+      }
     >
       <span>{icon}</span>
       <span>{label}</span>

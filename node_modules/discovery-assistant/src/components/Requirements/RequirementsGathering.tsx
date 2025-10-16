@@ -18,7 +18,7 @@ export const RequirementsGathering: React.FC<RequirementsGatheringProps> = ({
   meeting,
   onComplete,
   onBack,
-  language
+  language,
 }) => {
   const template = getRequirementsTemplate(serviceId);
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
@@ -36,14 +36,15 @@ export const RequirementsGathering: React.FC<RequirementsGatheringProps> = ({
 
   // ===== DEFENSIVE CODING: Validate template exists =====
   if (!template) {
-    console.error('[RequirementsGathering] Template not found for service:', serviceId);
+    console.error(
+      '[RequirementsGathering] Template not found for service:',
+      serviceId
+    );
     return (
       <div className="text-center py-12 px-4">
         <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-2xl mx-auto">
           <h2 className="text-2xl font-bold text-red-800 mb-4">
-            {language === 'he'
-              ? 'תבנית לא נמצאה'
-              : 'Template Not Found'}
+            {language === 'he' ? 'תבנית לא נמצאה' : 'Template Not Found'}
           </h2>
           <p className="text-red-700 mb-4">
             {language === 'he'
@@ -62,8 +63,15 @@ export const RequirementsGathering: React.FC<RequirementsGatheringProps> = ({
   }
 
   // ===== DEFENSIVE CODING: Validate template has sections =====
-  if (!template.sections || !Array.isArray(template.sections) || template.sections.length === 0) {
-    console.error('[RequirementsGathering] Template has no sections:', template);
+  if (
+    !template.sections ||
+    !Array.isArray(template.sections) ||
+    template.sections.length === 0
+  ) {
+    console.error(
+      '[RequirementsGathering] Template has no sections:',
+      template
+    );
     return (
       <div className="text-center py-12 px-4">
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 max-w-2xl mx-auto">
@@ -78,13 +86,15 @@ export const RequirementsGathering: React.FC<RequirementsGatheringProps> = ({
               : `The template for ${template.serviceName} contains no sections. This service may not require additional requirements gathering.`}
           </p>
           <button
-            onClick={() => onComplete({
-              serviceId,
-              data: collectedData,
-              completedSections: [],
-              startedAt,
-              completedAt: new Date()
-            })}
+            onClick={() =>
+              onComplete({
+                serviceId,
+                data: collectedData,
+                completedSections: [],
+                startedAt,
+                completedAt: new Date(),
+              })
+            }
             className="px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 font-medium"
           >
             {language === 'he' ? 'המשך בכל זאת' : 'Continue Anyway'}
@@ -96,13 +106,20 @@ export const RequirementsGathering: React.FC<RequirementsGatheringProps> = ({
 
   // ===== DEFENSIVE CODING: Bounds check for currentSectionIndex =====
   // This prevents out-of-bounds access if state is corrupted
-  const safeSectionIndex = Math.max(0, Math.min(currentSectionIndex, template.sections.length - 1));
+  const safeSectionIndex = Math.max(
+    0,
+    Math.min(currentSectionIndex, template.sections.length - 1)
+  );
 
   // If index was corrected, log warning
   if (safeSectionIndex !== currentSectionIndex) {
     console.warn(
       '[RequirementsGathering] currentSectionIndex out of bounds. Correcting:',
-      { requested: currentSectionIndex, corrected: safeSectionIndex, maxIndex: template.sections.length - 1 }
+      {
+        requested: currentSectionIndex,
+        corrected: safeSectionIndex,
+        maxIndex: template.sections.length - 1,
+      }
     );
     // Auto-correct the state
     setCurrentSectionIndex(safeSectionIndex);
@@ -115,11 +132,13 @@ export const RequirementsGathering: React.FC<RequirementsGatheringProps> = ({
   // ===== DEFENSIVE CODING: Validate current section exists =====
   // This is a final safety check - should never happen after bounds checking
   if (!currentSection) {
-    console.error('[RequirementsGathering] Current section is undefined after bounds check. This is a critical error.');
+    console.error(
+      '[RequirementsGathering] Current section is undefined after bounds check. This is a critical error.'
+    );
     console.error('[RequirementsGathering] Debug info:', {
       safeSectionIndex,
       sectionsLength: template.sections.length,
-      template
+      template,
     });
 
     return (
@@ -147,22 +166,31 @@ export const RequirementsGathering: React.FC<RequirementsGatheringProps> = ({
   const handleFieldChange = (fieldId: string, value: any) => {
     setCollectedData((prev: any) => ({
       ...prev,
-      [fieldId]: value
+      [fieldId]: value,
     }));
   };
 
   const validateSection = () => {
     // ===== DEFENSIVE CODING: Validate section has fields =====
-    if (!currentSection || !currentSection.fields || !Array.isArray(currentSection.fields)) {
-      console.warn('[RequirementsGathering] validateSection called but currentSection has no fields');
+    if (
+      !currentSection ||
+      !currentSection.fields ||
+      !Array.isArray(currentSection.fields)
+    ) {
+      console.warn(
+        '[RequirementsGathering] validateSection called but currentSection has no fields'
+      );
       return true; // Allow progression if no fields to validate
     }
 
-    const requiredFields = currentSection.fields.filter(f => f && f.required);
+    const requiredFields = currentSection.fields.filter((f) => f && f.required);
 
     for (const field of requiredFields) {
       if (!field || !field.id) {
-        console.warn('[RequirementsGathering] Skipping invalid field during validation:', field);
+        console.warn(
+          '[RequirementsGathering] Skipping invalid field during validation:',
+          field
+        );
         continue;
       }
 
@@ -179,9 +207,11 @@ export const RequirementsGathering: React.FC<RequirementsGatheringProps> = ({
 
   const handleNext = () => {
     if (!validateSection()) {
-      alert(language === 'he'
-        ? 'נא למלא את כל השדות הנדרשים'
-        : 'Please fill all required fields');
+      alert(
+        language === 'he'
+          ? 'נא למלא את כל השדות הנדרשים'
+          : 'Please fill all required fields'
+      );
       return;
     }
 
@@ -197,7 +227,7 @@ export const RequirementsGathering: React.FC<RequirementsGatheringProps> = ({
         data: collectedData,
         completedSections,
         startedAt,
-        completedAt: new Date()
+        completedAt: new Date(),
       };
       onComplete(requirements);
     } else {
@@ -218,7 +248,10 @@ export const RequirementsGathering: React.FC<RequirementsGatheringProps> = ({
   const progress = ((currentSectionIndex + 1) / template.sections.length) * 100;
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4" dir={language === 'he' ? 'rtl' : 'ltr'}>
+    <div
+      className="max-w-4xl mx-auto py-8 px-4"
+      dir={language === 'he' ? 'rtl' : 'ltr'}
+    >
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -249,18 +282,22 @@ export const RequirementsGathering: React.FC<RequirementsGatheringProps> = ({
       </div>
 
       {/* Tips */}
-      {template.tips && template.tips.length > 0 && currentSectionIndex === 0 && (
-        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="font-semibold text-blue-900 mb-2">
-            {language === 'he' ? 'טיפים:' : 'Tips:'}
-          </h4>
-          <ul className="list-disc list-inside space-y-1 text-sm text-blue-800">
-            {(language === 'he' ? template.tipsHe : template.tips)?.map((tip, index) => (
-              <li key={index}>{tip}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {template.tips &&
+        template.tips.length > 0 &&
+        currentSectionIndex === 0 && (
+          <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h4 className="font-semibold text-blue-900 mb-2">
+              {language === 'he' ? 'טיפים:' : 'Tips:'}
+            </h4>
+            <ul className="list-disc list-inside space-y-1 text-sm text-blue-800">
+              {(language === 'he' ? template.tipsHe : template.tips)?.map(
+                (tip, index) => (
+                  <li key={index}>{tip}</li>
+                )
+              )}
+            </ul>
+          </div>
+        )}
 
       {/* Current Section */}
       <RequirementSection
@@ -295,8 +332,12 @@ export const RequirementsGathering: React.FC<RequirementsGatheringProps> = ({
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
         >
           {isLastSection
-            ? (language === 'he' ? 'סיים' : 'Complete')
-            : (language === 'he' ? 'הבא' : 'Next')}
+            ? language === 'he'
+              ? 'סיים'
+              : 'Complete'
+            : language === 'he'
+              ? 'הבא'
+              : 'Next'}
         </button>
       </div>
 
@@ -305,7 +346,10 @@ export const RequirementsGathering: React.FC<RequirementsGatheringProps> = ({
         {template.sections.map((section, index) => {
           // ===== DEFENSIVE CODING: Validate section before rendering =====
           if (!section || !section.id) {
-            console.warn('[RequirementsGathering] Invalid section in navigation dots:', section);
+            console.warn(
+              '[RequirementsGathering] Invalid section in navigation dots:',
+              section
+            );
             return null;
           }
 
@@ -317,10 +361,14 @@ export const RequirementsGathering: React.FC<RequirementsGatheringProps> = ({
                 index === safeSectionIndex
                   ? 'bg-blue-600'
                   : completedSections.includes(section.id)
-                  ? 'bg-green-500'
-                  : 'bg-gray-300'
+                    ? 'bg-green-500'
+                    : 'bg-gray-300'
               }`}
-              title={language === 'he' ? (section.titleHe || section.title || 'Untitled') : (section.title || section.titleHe || 'Untitled')}
+              title={
+                language === 'he'
+                  ? section.titleHe || section.title || 'Untitled'
+                  : section.title || section.titleHe || 'Untitled'
+              }
               aria-label={`${language === 'he' ? 'סעיף' : 'Section'} ${index + 1}`}
             />
           );

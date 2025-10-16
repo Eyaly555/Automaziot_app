@@ -86,7 +86,19 @@ export interface ImplCrmRequirements {
   customFields: Array<{
     module: string; // Leads, Contacts, Deals, Accounts, etc.
     fieldName: string;
-    fieldType: 'text' | 'number' | 'date' | 'datetime' | 'picklist' | 'multi_picklist' | 'lookup' | 'checkbox' | 'currency' | 'email' | 'phone' | 'url';
+    fieldType:
+      | 'text'
+      | 'number'
+      | 'date'
+      | 'datetime'
+      | 'picklist'
+      | 'multi_picklist'
+      | 'lookup'
+      | 'checkbox'
+      | 'currency'
+      | 'email'
+      | 'phone'
+      | 'url';
     isRequired: boolean;
     picklistValues?: string[]; // For picklist/multi_picklist
     defaultValue?: string;
@@ -107,10 +119,20 @@ export interface ImplCrmRequirements {
   workflowRules: Array<{
     ruleName: string;
     module: string; // Which CRM module
-    trigger: 'on_create' | 'on_update' | 'on_field_update' | 'on_stage_change' | 'scheduled';
+    trigger:
+      | 'on_create'
+      | 'on_update'
+      | 'on_field_update'
+      | 'on_stage_change'
+      | 'scheduled';
     conditions?: string; // JSON string of conditions
     actions: Array<{
-      type: 'send_email' | 'update_field' | 'create_task' | 'send_notification' | 'webhook';
+      type:
+        | 'send_email'
+        | 'update_field'
+        | 'create_task'
+        | 'send_notification'
+        | 'webhook';
       configuration: Record<string, unknown>;
     }>;
   }>;
@@ -215,9 +237,23 @@ export interface ImplMarketingAutomationRequirements {
   // Automation Workflows
   automationWorkflows: Array<{
     workflowName: string;
-    trigger: 'form_submit' | 'list_join' | 'tag_added' | 'page_visit' | 'email_opened' | 'link_clicked' | 'date_based';
+    trigger:
+      | 'form_submit'
+      | 'list_join'
+      | 'tag_added'
+      | 'page_visit'
+      | 'email_opened'
+      | 'link_clicked'
+      | 'date_based';
     actions: Array<{
-      type: 'send_email' | 'add_tag' | 'update_field' | 'move_to_list' | 'wait' | 'if_else' | 'webhook';
+      type:
+        | 'send_email'
+        | 'add_tag'
+        | 'update_field'
+        | 'move_to_list'
+        | 'wait'
+        | 'if_else'
+        | 'webhook';
       delay?: number; // minutes/hours/days
       configuration?: Record<string, unknown>;
     }>;
@@ -351,7 +387,14 @@ export interface ImplProjectManagementRequirements {
     stages: string[];
     customFields: Array<{
       fieldName: string;
-      fieldType: 'text' | 'number' | 'date' | 'dropdown' | 'people' | 'status' | 'priority';
+      fieldType:
+        | 'text'
+        | 'number'
+        | 'date'
+        | 'dropdown'
+        | 'people'
+        | 'status'
+        | 'priority';
     }>;
   }>;
 
@@ -368,7 +411,14 @@ export interface ImplProjectManagementRequirements {
   // Custom Fields (global or template-specific)
   customFields: Array<{
     fieldName: string;
-    fieldType: 'text' | 'number' | 'date' | 'dropdown' | 'person' | 'dependency' | 'formula';
+    fieldType:
+      | 'text'
+      | 'number'
+      | 'date'
+      | 'dropdown'
+      | 'person'
+      | 'dependency'
+      | 'formula';
     appliesTo: 'all' | string[]; // workspace names or project types
     isRequired: boolean;
   }>;
@@ -396,10 +446,20 @@ export interface ImplProjectManagementRequirements {
   // Automation Rules
   automationRules: Array<{
     ruleName: string;
-    trigger: 'status_change' | 'date_reached' | 'task_created' | 'assignee_changed' | 'custom_field_update';
+    trigger:
+      | 'status_change'
+      | 'date_reached'
+      | 'task_created'
+      | 'assignee_changed'
+      | 'custom_field_update';
     conditions?: string;
     actions: Array<{
-      type: 'notify' | 'update_field' | 'create_task' | 'move_item' | 'send_email';
+      type:
+        | 'notify'
+        | 'update_field'
+        | 'create_task'
+        | 'move_item'
+        | 'send_email';
       configuration: Record<string, unknown>;
     }>;
   }>;
@@ -417,7 +477,9 @@ export interface ImplProjectManagementRequirements {
   trainingStrategy: {
     pilotProject?: boolean; // Recommended before full rollout
     trainingRequired: boolean;
-    trainingAudience: Array<'project_managers' | 'team_members' | 'executives' | 'admins'>;
+    trainingAudience: Array<
+      'project_managers' | 'team_members' | 'executives' | 'admins'
+    >;
   };
 
   // Timeline
@@ -535,7 +597,11 @@ export interface ImplHelpdeskRequirements {
   assignmentRules: Array<{
     ruleName: string;
     conditions: string; // e.g., "Category = 'Technical'"
-    assignTo: 'round_robin' | 'load_balanced' | 'specific_agent' | 'specific_team';
+    assignTo:
+      | 'round_robin'
+      | 'load_balanced'
+      | 'specific_agent'
+      | 'specific_team';
     agentOrTeamId?: string;
   }>;
 
@@ -787,7 +853,14 @@ export interface ImplErpRequirements {
   // Training Strategy
   trainingStrategy: {
     trainingRequired: boolean;
-    audiences: Array<'finance' | 'operations' | 'warehouse' | 'procurement' | 'executives' | 'it_admins'>;
+    audiences: Array<
+      | 'finance'
+      | 'operations'
+      | 'warehouse'
+      | 'procurement'
+      | 'executives'
+      | 'it_admins'
+    >;
     trainingMethod: 'classroom' | 'online' | 'hybrid' | 'train_the_trainer';
     customTrainingMaterialsNeeded?: boolean;
   };
@@ -1109,7 +1182,11 @@ export interface ImplAnalyticsRequirements {
 
   // Business Objectives (affects available reports in GA4)
   businessObjectives?: Array<
-    'generate_leads' | 'increase_purchases' | 'raise_brand_awareness' | 'promote_products' | 'examine_user_behavior'
+    | 'generate_leads'
+    | 'increase_purchases'
+    | 'raise_brand_awareness'
+    | 'promote_products'
+    | 'examine_user_behavior'
   >;
 
   // Enhanced Measurement (GA4 auto-tracking)
@@ -1266,7 +1343,13 @@ export interface ImplWorkflowPlatformRequirements {
 
   // Self-Hosted Setup (n8n only)
   selfHostedSetup?: {
-    serverProvider: 'aws' | 'digitalocean' | 'azure' | 'gcp' | 'hetzner' | 'other';
+    serverProvider:
+      | 'aws'
+      | 'digitalocean'
+      | 'azure'
+      | 'gcp'
+      | 'hetzner'
+      | 'other';
     serverSpecs: {
       ram: string; // Minimum 2GB
       storage: string; // Minimum 20GB
@@ -1457,7 +1540,9 @@ export interface ImplWorkflowPlatformRequirements {
   // Training
   training: {
     trainingRequired: boolean;
-    topics?: Array<'workflow_creation' | 'debugging' | 'best_practices' | 'advanced_logic'>;
+    topics?: Array<
+      'workflow_creation' | 'debugging' | 'best_practices' | 'advanced_logic'
+    >;
     trainingAudience?: string[];
   };
 
@@ -1488,7 +1573,14 @@ export interface ImplCustomRequirements {
   // System Identification
   systemIdentification: {
     systemName: string;
-    systemType: 'web_app' | 'saas_platform' | 'legacy_system' | 'custom_built' | 'no_code_platform' | 'industry_specific' | 'other';
+    systemType:
+      | 'web_app'
+      | 'saas_platform'
+      | 'legacy_system'
+      | 'custom_built'
+      | 'no_code_platform'
+      | 'industry_specific'
+      | 'other';
     vendor?: string;
     version?: string;
     technologyStack?: string[]; // e.g., ["Node.js", "PostgreSQL", "React"]
@@ -1529,7 +1621,13 @@ export interface ImplCustomRequirements {
 
     // Authentication Methods
     authenticationMethods: Array<{
-      method: 'username_password' | 'api_key' | 'oauth2' | 'saml' | 'certificate' | 'vpn';
+      method:
+        | 'username_password'
+        | 'api_key'
+        | 'oauth2'
+        | 'saml'
+        | 'certificate'
+        | 'vpn';
       configured: boolean;
       credentials?: Record<string, string>;
     }>;
@@ -1572,7 +1670,12 @@ export interface ImplCustomRequirements {
     // API Details
     apiBaseUrl?: string;
     apiVersion?: string;
-    authenticationMethod?: 'api_key' | 'oauth2' | 'basic_auth' | 'bearer_token' | 'custom';
+    authenticationMethod?:
+      | 'api_key'
+      | 'oauth2'
+      | 'basic_auth'
+      | 'bearer_token'
+      | 'custom';
 
     // Rate Limits
     rateLimits?: {
@@ -1608,7 +1711,12 @@ export interface ImplCustomRequirements {
   // Integration Endpoints
   integrationEndpoints: Array<{
     targetSystem: string;
-    integrationType: 'api' | 'webhook' | 'file_transfer' | 'database_sync' | 'message_queue';
+    integrationType:
+      | 'api'
+      | 'webhook'
+      | 'file_transfer'
+      | 'database_sync'
+      | 'message_queue';
     direction: 'inbound' | 'outbound' | 'bidirectional';
     dataFormat?: 'json' | 'xml' | 'csv' | 'soap' | 'custom';
     frequency?: 'real_time' | 'scheduled' | 'event_driven';
@@ -1616,7 +1724,9 @@ export interface ImplCustomRequirements {
 
   // Legacy System Specifics (if applicable)
   legacySystemSpecifics?: {
-    protocolsUsed?: Array<'soap' | 'xml_rpc' | 'ftp' | 'sftp' | 'edifact' | 'custom'>;
+    protocolsUsed?: Array<
+      'soap' | 'xml_rpc' | 'ftp' | 'sftp' | 'edifact' | 'custom'
+    >;
     requiresMiddleware?: boolean;
     middlewareType?: 'esb' | 'api_gateway' | 'adapter' | 'custom';
     modernizationPlanned?: boolean;
@@ -1643,7 +1753,9 @@ export interface ImplCustomRequirements {
   // Security Requirements
   securityRequirements: {
     securityAuditCompleted?: boolean;
-    complianceNeeds?: Array<'gdpr' | 'hipaa' | 'soc2' | 'pci_dss' | 'iso_27001'>;
+    complianceNeeds?: Array<
+      'gdpr' | 'hipaa' | 'soc2' | 'pci_dss' | 'iso_27001'
+    >;
     encryptionRequired?: boolean;
     ssoRequired?: boolean;
     mfaEnabled?: boolean;
@@ -1838,7 +1950,10 @@ export interface SystemImplementationServiceEntry {
 export function isImplCrmRequirements(
   config: SystemImplementationServiceConfig
 ): config is ImplCrmRequirements {
-  return 'platform' in config && ['zoho', 'hubspot', 'salesforce'].includes(config.platform);
+  return (
+    'platform' in config &&
+    ['zoho', 'hubspot', 'salesforce'].includes(config.platform)
+  );
 }
 
 /**
@@ -1847,7 +1962,12 @@ export function isImplCrmRequirements(
 export function isImplMarketingAutomationRequirements(
   config: SystemImplementationServiceConfig
 ): config is ImplMarketingAutomationRequirements {
-  return 'platform' in config && ['hubspot_marketing', 'activecampaign', 'mailchimp'].includes(config.platform);
+  return (
+    'platform' in config &&
+    ['hubspot_marketing', 'activecampaign', 'mailchimp'].includes(
+      config.platform
+    )
+  );
 }
 
 /**
@@ -1856,7 +1976,10 @@ export function isImplMarketingAutomationRequirements(
 export function isImplProjectManagementRequirements(
   config: SystemImplementationServiceConfig
 ): config is ImplProjectManagementRequirements {
-  return 'platform' in config && ['monday', 'asana', 'jira', 'clickup'].includes(config.platform);
+  return (
+    'platform' in config &&
+    ['monday', 'asana', 'jira', 'clickup'].includes(config.platform)
+  );
 }
 
 /**
@@ -1865,7 +1988,10 @@ export function isImplProjectManagementRequirements(
 export function isImplHelpdeskRequirements(
   config: SystemImplementationServiceConfig
 ): config is ImplHelpdeskRequirements {
-  return 'platform' in config && ['zendesk', 'freshdesk', 'intercom'].includes(config.platform);
+  return (
+    'platform' in config &&
+    ['zendesk', 'freshdesk', 'intercom'].includes(config.platform)
+  );
 }
 
 /**
@@ -1874,7 +2000,12 @@ export function isImplHelpdeskRequirements(
 export function isImplErpRequirements(
   config: SystemImplementationServiceConfig
 ): config is ImplErpRequirements {
-  return 'platform' in config && ['sap_s4hana', 'oracle_netsuite', 'microsoft_dynamics', 'odoo'].includes(config.platform);
+  return (
+    'platform' in config &&
+    ['sap_s4hana', 'oracle_netsuite', 'microsoft_dynamics', 'odoo'].includes(
+      config.platform
+    )
+  );
 }
 
 /**
@@ -1883,7 +2014,10 @@ export function isImplErpRequirements(
 export function isImplEcommerceRequirements(
   config: SystemImplementationServiceConfig
 ): config is ImplEcommerceRequirements {
-  return 'platform' in config && ['shopify', 'woocommerce', 'magento'].includes(config.platform);
+  return (
+    'platform' in config &&
+    ['shopify', 'woocommerce', 'magento'].includes(config.platform)
+  );
 }
 
 /**
@@ -1892,7 +2026,10 @@ export function isImplEcommerceRequirements(
 export function isImplAnalyticsRequirements(
   config: SystemImplementationServiceConfig
 ): config is ImplAnalyticsRequirements {
-  return 'platform' in config && ['google_analytics_4', 'mixpanel', 'amplitude'].includes(config.platform);
+  return (
+    'platform' in config &&
+    ['google_analytics_4', 'mixpanel', 'amplitude'].includes(config.platform)
+  );
 }
 
 /**
@@ -1901,7 +2038,10 @@ export function isImplAnalyticsRequirements(
 export function isImplWorkflowPlatformRequirements(
   config: SystemImplementationServiceConfig
 ): config is ImplWorkflowPlatformRequirements {
-  return 'platform' in config && ['n8n_selfhosted', 'n8n_cloud', 'zapier', 'make'].includes(config.platform);
+  return (
+    'platform' in config &&
+    ['n8n_selfhosted', 'n8n_cloud', 'zapier', 'make'].includes(config.platform)
+  );
 }
 
 /**
@@ -1954,7 +2094,9 @@ export function getEstimatedTimeline(serviceId: string): string {
 /**
  * Helper function to get complexity level by service ID
  */
-export function getComplexityLevel(serviceId: string): 'low' | 'medium' | 'high' | 'very_high' {
+export function getComplexityLevel(
+  serviceId: string
+): 'low' | 'medium' | 'high' | 'very_high' {
   const complexity: Record<string, 'low' | 'medium' | 'high' | 'very_high'> = {
     'impl-crm': 'high',
     'impl-marketing-automation': 'medium',

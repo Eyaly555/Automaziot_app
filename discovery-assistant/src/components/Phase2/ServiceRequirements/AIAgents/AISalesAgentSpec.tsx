@@ -13,13 +13,19 @@ import {
   Plus,
   Trash2,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react';
 import { useMeetingStore } from '../../../../store/useMeetingStore';
 import { useSmartField } from '../../../../hooks/useSmartField';
 import { useAutoSave } from '../../../../hooks/useAutoSave';
 import { useBeforeUnload } from '../../../../hooks/useBeforeUnload';
-import type { AISalesAgentRequirements, AIProvider, CRMSystem, VectorDatabaseProvider, MessagingChannel } from '../../../../types/aiAgentServices';
+import type {
+  AISalesAgentRequirements,
+  AIProvider,
+  CRMSystem,
+  VectorDatabaseProvider,
+  MessagingChannel,
+} from '../../../../types/aiAgentServices';
 import type { AIAgentServiceEntry } from '../../../../types/aiAgentServices';
 import { Button, Input, Select } from '../../../Base';
 
@@ -27,19 +33,19 @@ const AI_PROVIDERS = [
   { value: 'openai', label: 'OpenAI' },
   { value: 'anthropic', label: 'Anthropic (Claude)' },
   { value: 'google', label: 'Google' },
-  { value: 'azure_openai', label: 'Azure OpenAI' }
+  { value: 'azure_openai', label: 'Azure OpenAI' },
 ];
 
 const OPENAI_MODELS = [
   { value: 'gpt-4o', label: 'GPT-4o (מומלץ)' },
   { value: 'gpt-4o-mini', label: 'GPT-4o Mini' },
-  { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' }
+  { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
 ];
 
 const ANTHROPIC_MODELS = [
   { value: 'claude-sonnet-4.5', label: 'Claude Sonnet 4.5 (מומלץ)' },
   { value: 'claude-3.5-sonnet', label: 'Claude 3.5 Sonnet' },
-  { value: 'claude-3.5-haiku', label: 'Claude 3.5 Haiku' }
+  { value: 'claude-3.5-haiku', label: 'Claude 3.5 Haiku' },
 ];
 
 const VECTOR_DBS = [
@@ -48,7 +54,7 @@ const VECTOR_DBS = [
   { value: 'pinecone_standard', label: 'Pinecone Standard' },
   { value: 'qdrant', label: 'Qdrant' },
   { value: 'weaviate', label: 'Weaviate' },
-  { value: 'chromadb', label: 'ChromaDB' }
+  { value: 'chromadb', label: 'ChromaDB' },
 ];
 
 const CRM_SYSTEMS = [
@@ -57,14 +63,14 @@ const CRM_SYSTEMS = [
   { value: 'hubspot', label: 'HubSpot' },
   { value: 'pipedrive', label: 'Pipedrive' },
   { value: 'monday', label: 'Monday.com' },
-  { value: 'other', label: 'אחר' }
+  { value: 'other', label: 'אחר' },
 ];
 
 const CALENDAR_SYSTEMS = [
   { value: 'google_calendar', label: 'Google Calendar' },
   { value: 'calendly', label: 'Calendly' },
   { value: 'microsoft_outlook', label: 'Microsoft Outlook' },
-  { value: 'other', label: 'אחר' }
+  { value: 'other', label: 'אחר' },
 ];
 
 const MESSAGING_CHANNELS = [
@@ -74,7 +80,7 @@ const MESSAGING_CHANNELS = [
   { value: 'instagram', label: 'Instagram' },
   { value: 'email', label: 'Email' },
   { value: 'sms', label: 'SMS' },
-  { value: 'chat', label: 'Chat' }
+  { value: 'chat', label: 'Chat' },
 ];
 
 export const AISalesAgentSpec: React.FC = () => {
@@ -86,34 +92,36 @@ export const AISalesAgentSpec: React.FC = () => {
     fieldId: 'crm_system',
     localPath: 'crmSystem',
     serviceId: 'ai-sales-agent',
-    autoSave: false
+    autoSave: false,
   });
 
   const aiModel = useSmartField<string>({
     fieldId: 'ai_model_preference',
     localPath: 'aiModel',
     serviceId: 'ai-sales-agent',
-    autoSave: false
+    autoSave: false,
   });
 
   const whatsappApi = useSmartField<string>({
     fieldId: 'whatsapp_api_provider',
     localPath: 'whatsappApi',
     serviceId: 'ai-sales-agent',
-    autoSave: false
+    autoSave: false,
   });
 
   const calendarSystem = useSmartField<string>({
     fieldId: 'calendar_system',
     localPath: 'calendarSystem',
     serviceId: 'ai-sales-agent',
-    autoSave: false
+    autoSave: false,
   });
 
   // Load existing configuration
   useEffect(() => {
     const aiAgents = currentMeeting?.implementationSpec?.aiAgents || [];
-    const existing = aiAgents.find((a: any) => a.serviceId === 'ai-sales-agent');
+    const existing = aiAgents.find(
+      (a: any) => a.serviceId === 'ai-sales-agent'
+    );
     if (existing?.requirements) {
       setConfig(existing.requirements);
     }
@@ -130,22 +138,28 @@ export const AISalesAgentSpec: React.FC = () => {
         pricingInfo: true,
         caseStudies: true,
         competitorComparisons: false,
-        technicalSpecs: true
+        technicalSpecs: true,
       },
       embeddingModel: 'text-embedding-3-small',
-      storageLocation: ''
+      storageLocation: '',
     },
     salesPlaybook: {
       objectionHandling: [
-        { objection: 'המחיר גבוה מדי', response: 'אני מבין את החשש. בואו נסתכל על ROI...' }
+        {
+          objection: 'המחיר גבוה מדי',
+          response: 'אני מבין את החשש. בואו נסתכל על ROI...',
+        },
       ],
       pricingStrategies: ['Value-based pricing', 'Volume discounts'],
-      qualificationQuestions: ['מה הבעיה העיקרית שאתם מנסים לפתור?', 'מה התקציב?'],
+      qualificationQuestions: [
+        'מה הבעיה העיקרית שאתם מנסים לפתור?',
+        'מה התקציב?',
+      ],
       handoffCriteria: {
         budgetThreshold: 50000,
         dealType: ['Enterprise', 'Custom'],
-        complexity: 'high'
-      }
+        complexity: 'high',
+      },
     },
     calendarIntegration: {
       system: 'google_calendar',
@@ -153,65 +167,75 @@ export const AISalesAgentSpec: React.FC = () => {
       availabilityRules: {
         businessHours: {
           start: '09:00',
-          end: '18:00'
+          end: '18:00',
         },
         bufferTime: 15,
         meetingTypes: [
           { type: 'Discovery Call', durationMinutes: 30 },
-          { type: 'Demo', durationMinutes: 60 }
-        ]
-      }
+          { type: 'Demo', durationMinutes: 60 },
+        ],
+      },
     },
     crmIntegration: {
       system: 'zoho',
       realTimeUpdates: true,
       webhooksConfigured: false,
-      fieldsToUpdate: ['Lead Status', 'Last Contact', 'Notes', 'Meeting Scheduled']
+      fieldsToUpdate: [
+        'Lead Status',
+        'Last Contact',
+        'Notes',
+        'Meeting Scheduled',
+      ],
     },
     channels: [
       { channel: 'website', enabled: true },
-      { channel: 'whatsapp', enabled: false }
+      { channel: 'whatsapp', enabled: false },
     ],
     messageTemplates: {
       greeting: 'שלום! אני הסוכן הדיגיטלי שלנו. איך אוכל לעזור לך היום?',
       productPitch: 'הפתרון שלנו עוזר לעסקים כמו שלך לחסוך זמן ולהגדיל הכנסות.',
       meetingInvite: 'אשמח לתאם פגישת היכרות. מתי נוח לך?',
-      followUp: 'רציתי לוודא שקיבלת את המידע. יש שאלות נוספות?'
+      followUp: 'רציתי לוודא שקיבלת את המידע. יש שאלות נוספות?',
     },
     conversationLimits: {
       maxMessages: 20,
-      timeoutMinutes: 30
+      timeoutMinutes: 30,
     },
     performance: {
       dailyConversations: 100,
       targets: {
         conversationToLead: 40,
-        leadToMeeting: 25
-      }
-    }
+        leadToMeeting: 25,
+      },
+    },
   });
 
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'ai-sales-agent',
-    category: 'aiAgentServices'
+    category: 'aiAgentServices',
   });
 
   useBeforeUnload(() => {
     // Force save all data when leaving
     const completeConfig = {
       ...config,
-      aiModel: aiModelPreference.value
+      aiModel: aiModelPreference.value,
     };
     saveData(completeConfig);
   });
 
-  const [activeTab, setActiveTab] = useState<'basic' | 'knowledge' | 'playbook' | 'calendar' | 'channels' | 'performance'>('basic');
+  const [activeTab, setActiveTab] = useState<
+    'basic' | 'knowledge' | 'playbook' | 'calendar' | 'channels' | 'performance'
+  >('basic');
 
   // Load existing config
   useEffect(() => {
-    const aiAgentServices = currentMeeting?.implementationSpec?.aiAgentServices || [];
-    const existing = aiAgentServices.find((a: AIAgentServiceEntry) => a.serviceId === 'ai-sales-agent');
+    const aiAgentServices =
+      currentMeeting?.implementationSpec?.aiAgentServices || [];
+    const existing = aiAgentServices.find(
+      (a: AIAgentServiceEntry) => a.serviceId === 'ai-sales-agent'
+    );
     if (existing?.requirements) {
       setConfig(existing.requirements as AISalesAgentRequirements);
     }
@@ -225,8 +249,8 @@ export const AISalesAgentSpec: React.FC = () => {
         aiModel: aiModelPreference.value,
         crmIntegration: {
           ...config.crmIntegration,
-          system: crmSystem.value
-        }
+          system: crmSystem.value,
+        },
       };
       saveData(completeConfig);
     }
@@ -238,20 +262,20 @@ export const AISalesAgentSpec: React.FC = () => {
       ...config,
       crmIntegration: {
         ...config.crmIntegration,
-        system: crmSystem.value
+        system: crmSystem.value,
       },
       aiProvider: aiModel.value || config.aiProvider,
       messagingChannels: {
         ...config.messagingChannels,
         whatsapp: {
           ...config.messagingChannels.whatsapp,
-          provider: whatsappApi.value
-        }
+          provider: whatsappApi.value,
+        },
       },
       calendarIntegration: {
         ...config.calendarIntegration,
-        system: calendarSystem.value
-      }
+        system: calendarSystem.value,
+      },
     };
 
     // Save using auto-save (manual save trigger)
@@ -261,9 +285,11 @@ export const AISalesAgentSpec: React.FC = () => {
   };
 
   const getModelOptions = () => {
-    return config.aiProvider === 'openai' ? OPENAI_MODELS :
-           config.aiProvider === 'anthropic' ? ANTHROPIC_MODELS :
-           [{ value: 'default', label: 'Default Model' }];
+    return config.aiProvider === 'openai'
+      ? OPENAI_MODELS
+      : config.aiProvider === 'anthropic'
+        ? ANTHROPIC_MODELS
+        : [{ value: 'default', label: 'Default Model' }];
   };
 
   // Objection handlers
@@ -274,9 +300,9 @@ export const AISalesAgentSpec: React.FC = () => {
         ...config.salesPlaybook,
         objectionHandling: [
           ...config.salesPlaybook.objectionHandling,
-          { objection: '', response: '' }
-        ]
-      }
+          { objection: '', response: '' },
+        ],
+      },
     });
   };
 
@@ -287,20 +313,24 @@ export const AISalesAgentSpec: React.FC = () => {
       ...config,
       salesPlaybook: {
         ...config.salesPlaybook,
-        objectionHandling: handlers
-      }
+        objectionHandling: handlers,
+      },
     });
   };
 
-  const updateObjectionHandler = (index: number, field: 'objection' | 'response', value: string) => {
+  const updateObjectionHandler = (
+    index: number,
+    field: 'objection' | 'response',
+    value: string
+  ) => {
     const handlers = [...config.salesPlaybook.objectionHandling];
     handlers[index] = { ...handlers[index], [field]: value };
     setConfig({
       ...config,
       salesPlaybook: {
         ...config.salesPlaybook,
-        objectionHandling: handlers
-      }
+        objectionHandling: handlers,
+      },
     });
   };
 
@@ -314,15 +344,17 @@ export const AISalesAgentSpec: React.FC = () => {
           ...config.calendarIntegration.availabilityRules,
           meetingTypes: [
             ...config.calendarIntegration.availabilityRules.meetingTypes,
-            { type: '', durationMinutes: 30 }
-          ]
-        }
-      }
+            { type: '', durationMinutes: 30 },
+          ],
+        },
+      },
     });
   };
 
   const removeMeetingType = (index: number) => {
-    const types = [...config.calendarIntegration.availabilityRules.meetingTypes];
+    const types = [
+      ...config.calendarIntegration.availabilityRules.meetingTypes,
+    ];
     types.splice(index, 1);
     setConfig({
       ...config,
@@ -330,14 +362,20 @@ export const AISalesAgentSpec: React.FC = () => {
         ...config.calendarIntegration,
         availabilityRules: {
           ...config.calendarIntegration.availabilityRules,
-          meetingTypes: types
-        }
-      }
+          meetingTypes: types,
+        },
+      },
     });
   };
 
-  const updateMeetingType = (index: number, field: 'type' | 'durationMinutes', value: string | number) => {
-    const types = [...config.calendarIntegration.availabilityRules.meetingTypes];
+  const updateMeetingType = (
+    index: number,
+    field: 'type' | 'durationMinutes',
+    value: string | number
+  ) => {
+    const types = [
+      ...config.calendarIntegration.availabilityRules.meetingTypes,
+    ];
     types[index] = { ...types[index], [field]: value };
     setConfig({
       ...config,
@@ -345,9 +383,9 @@ export const AISalesAgentSpec: React.FC = () => {
         ...config.calendarIntegration,
         availabilityRules: {
           ...config.calendarIntegration.availabilityRules,
-          meetingTypes: types
-        }
-      }
+          meetingTypes: types,
+        },
+      },
     });
   };
 
@@ -362,32 +400,44 @@ export const AISalesAgentSpec: React.FC = () => {
                 סוכן AI למכירות מלא
               </h1>
               <p className="text-gray-600">
-                AI Sales Agent - Service #23 - Full Sales Automation with Calendar & CRM
+                AI Sales Agent - Service #23 - Full Sales Automation with
+                Calendar & CRM
               </p>
             </div>
 
             {/* Smart Fields Info Banner */}
-            {(crmSystem.isAutoPopulated || aiModel.isAutoPopulated || whatsappApi.isAutoPopulated || calendarSystem.isAutoPopulated) && (
+            {(crmSystem.isAutoPopulated ||
+              aiModel.isAutoPopulated ||
+              whatsappApi.isAutoPopulated ||
+              calendarSystem.isAutoPopulated) && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
                 <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+                  <h4 className="font-semibold text-blue-900 mb-1">
+                    נתונים מולאו אוטומטית משלב 1
+                  </h4>
                   <p className="text-sm text-blue-800">
-                    חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-                    תוכל לערוך אותם במידת הצורך.
+                    חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל
+                    לערוך אותם במידת הצורך.
                   </p>
                 </div>
               </div>
             )}
 
             {/* Conflict Warnings */}
-            {(crmSystem.hasConflict || aiModel.hasConflict || whatsappApi.hasConflict || calendarSystem.hasConflict) && (
+            {(crmSystem.hasConflict ||
+              aiModel.hasConflict ||
+              whatsappApi.hasConflict ||
+              calendarSystem.hasConflict) && (
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <h4 className="font-semibold text-orange-900 mb-1">זוהה אי-התאמה בנתונים</h4>
+                  <h4 className="font-semibold text-orange-900 mb-1">
+                    זוהה אי-התאמה בנתונים
+                  </h4>
                   <p className="text-sm text-orange-800">
-                    נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק ותקן.
+                    נמצאו ערכים שונים עבור אותו שדה במקומות שונים. אנא בדוק
+                    ותקן.
                   </p>
                 </div>
               </div>
@@ -422,8 +472,8 @@ export const AISalesAgentSpec: React.FC = () => {
                 { id: 'playbook', label: 'Playbook מכירות', icon: Book },
                 { id: 'calendar', label: 'יומן פגישות', icon: Calendar },
                 { id: 'channels', label: 'ערוצי תקשורת', icon: MessageSquare },
-                { id: 'performance', label: 'יעדי ביצועים', icon: TrendingUp }
-              ].map(tab => (
+                { id: 'performance', label: 'יעדי ביצועים', icon: TrendingUp },
+              ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
@@ -461,7 +511,9 @@ export const AISalesAgentSpec: React.FC = () => {
                       value={aiModel.value || config.aiProvider}
                       onChange={(e) => aiModel.setValue(e.target.value)}
                       className={`${
-                        aiModel.isAutoPopulated ? 'border-green-300 bg-green-50' : ''
+                        aiModel.isAutoPopulated
+                          ? 'border-green-300 bg-green-50'
+                          : ''
                       } ${aiModel.hasConflict ? 'border-orange-300' : ''}`}
                       options={AI_PROVIDERS}
                     />
@@ -473,7 +525,9 @@ export const AISalesAgentSpec: React.FC = () => {
                     </label>
                     <Select
                       value={config.model}
-                      onChange={(e) => setConfig({ ...config, model: e.target.value })}
+                      onChange={(e) =>
+                        setConfig({ ...config, model: e.target.value })
+                      }
                       options={getModelOptions()}
                     />
                   </div>
@@ -484,7 +538,13 @@ export const AISalesAgentSpec: React.FC = () => {
                     </label>
                     <Select
                       value={config.vectorDatabase}
-                      onChange={(e) => setConfig({ ...config, vectorDatabase: e.target.value as VectorDatabaseProvider })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          vectorDatabase: e.target
+                            .value as VectorDatabaseProvider,
+                        })
+                      }
                       options={VECTOR_DBS}
                     />
                   </div>
@@ -494,10 +554,13 @@ export const AISalesAgentSpec: React.FC = () => {
                   <div className="flex items-start gap-3">
                     <Info className="w-5 h-5 text-blue-600 mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-blue-900 mb-1">AI Sales Agent</h4>
+                      <h4 className="font-medium text-blue-900 mb-1">
+                        AI Sales Agent
+                      </h4>
                       <p className="text-sm text-blue-700">
-                        סוכן מכירות AI מלא שמנהל שיחות, עונה על שאלות מוצר, מתאם פגישות ומעדכן CRM בזמן אמת.
-                        תומך במספר ערוצים: WhatsApp, אתר, Facebook, Instagram.
+                        סוכן מכירות AI מלא שמנהל שיחות, עונה על שאלות מוצר, מתאם
+                        פגישות ומעדכן CRM בזמן אמת. תומך במספר ערוצים: WhatsApp,
+                        אתר, Facebook, Instagram.
                       </p>
                     </div>
                   </div>
@@ -507,11 +570,13 @@ export const AISalesAgentSpec: React.FC = () => {
                   <div className="flex items-start gap-3">
                     <Info className="w-5 h-5 text-yellow-600 mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-yellow-900 mb-1">עלויות</h4>
+                      <h4 className="font-medium text-yellow-900 mb-1">
+                        עלויות
+                      </h4>
                       <p className="text-sm text-yellow-700">
-                        GPT-4o output tokens עולים פי 4 מ-input ($10 vs $3 לכל 1M tokens).
-                        Prompt caching חוסך 75% על תוכן סטטי.
-                        תקציב משוער: $20-30/יום ל-200 שיחות.
+                        GPT-4o output tokens עולים פי 4 מ-input ($10 vs $3 לכל
+                        1M tokens). Prompt caching חוסך 75% על תוכן סטטי. תקציב
+                        משוער: $20-30/יום ל-200 שיחות.
                       </p>
                     </div>
                   </div>
@@ -531,13 +596,15 @@ export const AISalesAgentSpec: React.FC = () => {
                       type="number"
                       min="1"
                       value={config.productKnowledgeBase.documentCount}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        productKnowledgeBase: {
-                          ...config.productKnowledgeBase,
-                          documentCount: parseInt(e.target.value)
-                        }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          productKnowledgeBase: {
+                            ...config.productKnowledgeBase,
+                            documentCount: parseInt(e.target.value),
+                          },
+                        })
+                      }
                     />
                   </div>
 
@@ -547,17 +614,28 @@ export const AISalesAgentSpec: React.FC = () => {
                     </label>
                     <Select
                       value={config.productKnowledgeBase.embeddingModel}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        productKnowledgeBase: {
-                          ...config.productKnowledgeBase,
-                          embeddingModel: e.target.value
-                        }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          productKnowledgeBase: {
+                            ...config.productKnowledgeBase,
+                            embeddingModel: e.target.value,
+                          },
+                        })
+                      }
                       options={[
-                        { value: 'text-embedding-3-small', label: 'text-embedding-3-small (מומלץ)' },
-                        { value: 'text-embedding-3-large', label: 'text-embedding-3-large' },
-                        { value: 'text-embedding-ada-002', label: 'text-embedding-ada-002' }
+                        {
+                          value: 'text-embedding-3-small',
+                          label: 'text-embedding-3-small (מומלץ)',
+                        },
+                        {
+                          value: 'text-embedding-3-large',
+                          label: 'text-embedding-3-large',
+                        },
+                        {
+                          value: 'text-embedding-ada-002',
+                          label: 'text-embedding-ada-002',
+                        },
                       ]}
                     />
                   </div>
@@ -569,44 +647,56 @@ export const AISalesAgentSpec: React.FC = () => {
                   </label>
                   <Input
                     value={config.productKnowledgeBase.storageLocation}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      productKnowledgeBase: {
-                        ...config.productKnowledgeBase,
-                        storageLocation: e.target.value
-                      }
-                    })}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        productKnowledgeBase: {
+                          ...config.productKnowledgeBase,
+                          storageLocation: e.target.value,
+                        },
+                      })
+                    }
                     placeholder="https://drive.google.com/..."
                   />
                 </div>
 
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <h4 className="font-medium text-gray-900 mb-3">סוגי תוכן כלולים</h4>
+                  <h4 className="font-medium text-gray-900 mb-3">
+                    סוגי תוכן כלולים
+                  </h4>
                   <div className="space-y-3">
                     {[
                       { key: 'productCatalog', label: 'קטלוג מוצרים' },
                       { key: 'pricingInfo', label: 'מידע תמחור' },
                       { key: 'caseStudies', label: 'Case Studies' },
                       { key: 'competitorComparisons', label: 'השוואות מתחרים' },
-                      { key: 'technicalSpecs', label: 'מפרטים טכניים' }
-                    ].map(item => (
+                      { key: 'technicalSpecs', label: 'מפרטים טכניים' },
+                    ].map((item) => (
                       <label key={item.key} className="flex items-center gap-2">
                         <input
                           type="checkbox"
-                          checked={config.productKnowledgeBase.includes[item.key as keyof typeof config.productKnowledgeBase.includes]}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            productKnowledgeBase: {
-                              ...config.productKnowledgeBase,
-                              includes: {
-                                ...config.productKnowledgeBase.includes,
-                                [item.key]: e.target.checked
-                              }
-                            }
-                          })}
+                          checked={
+                            config.productKnowledgeBase.includes[
+                              item.key as keyof typeof config.productKnowledgeBase.includes
+                            ]
+                          }
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              productKnowledgeBase: {
+                                ...config.productKnowledgeBase,
+                                includes: {
+                                  ...config.productKnowledgeBase.includes,
+                                  [item.key]: e.target.checked,
+                                },
+                              },
+                            })
+                          }
                           className="rounded border-gray-300"
                         />
-                        <span className="text-sm text-gray-700">{item.label}</span>
+                        <span className="text-sm text-gray-700">
+                          {item.label}
+                        </span>
                       </label>
                     ))}
                   </div>
@@ -620,25 +710,46 @@ export const AISalesAgentSpec: React.FC = () => {
                 {/* Objection Handling */}
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-medium text-gray-900">טיפול בהתנגדויות</h4>
-                    <Button onClick={addObjectionHandler} size="sm" variant="outline">
+                    <h4 className="font-medium text-gray-900">
+                      טיפול בהתנגדויות
+                    </h4>
+                    <Button
+                      onClick={addObjectionHandler}
+                      size="sm"
+                      variant="outline"
+                    >
                       <Plus className="w-4 h-4 ml-1" />
                       הוסף
                     </Button>
                   </div>
                   <div className="space-y-3">
                     {config.salesPlaybook.objectionHandling.map((obj, idx) => (
-                      <div key={idx} className="bg-white border border-gray-200 rounded p-3 space-y-2">
+                      <div
+                        key={idx}
+                        className="bg-white border border-gray-200 rounded p-3 space-y-2"
+                      >
                         <div className="flex items-start gap-2">
                           <div className="flex-1 space-y-2">
                             <Input
                               value={obj.objection}
-                              onChange={(e) => updateObjectionHandler(idx, 'objection', e.target.value)}
+                              onChange={(e) =>
+                                updateObjectionHandler(
+                                  idx,
+                                  'objection',
+                                  e.target.value
+                                )
+                              }
                               placeholder="התנגדות (למשל: 'המחיר גבוה מדי')"
                             />
                             <textarea
                               value={obj.response}
-                              onChange={(e) => updateObjectionHandler(idx, 'response', e.target.value)}
+                              onChange={(e) =>
+                                updateObjectionHandler(
+                                  idx,
+                                  'response',
+                                  e.target.value
+                                )
+                              }
                               placeholder="תגובה מומלצת..."
                               rows={2}
                               className="w-full rounded-md border border-gray-300 p-2 text-sm"
@@ -663,13 +774,18 @@ export const AISalesAgentSpec: React.FC = () => {
                   </label>
                   <Input
                     value={config.salesPlaybook.pricingStrategies.join(', ')}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      salesPlaybook: {
-                        ...config.salesPlaybook,
-                        pricingStrategies: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                      }
-                    })}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        salesPlaybook: {
+                          ...config.salesPlaybook,
+                          pricingStrategies: e.target.value
+                            .split(',')
+                            .map((s) => s.trim())
+                            .filter(Boolean),
+                        },
+                      })
+                    }
                     placeholder="Value-based pricing, Volume discounts, Bundle pricing"
                   />
                 </div>
@@ -680,14 +796,21 @@ export const AISalesAgentSpec: React.FC = () => {
                     שאלות סינון (מופרדות בפסיק)
                   </label>
                   <textarea
-                    value={config.salesPlaybook.qualificationQuestions.join(', ')}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      salesPlaybook: {
-                        ...config.salesPlaybook,
-                        qualificationQuestions: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                      }
-                    })}
+                    value={config.salesPlaybook.qualificationQuestions.join(
+                      ', '
+                    )}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        salesPlaybook: {
+                          ...config.salesPlaybook,
+                          qualificationQuestions: e.target.value
+                            .split(',')
+                            .map((s) => s.trim())
+                            .filter(Boolean),
+                        },
+                      })
+                    }
                     rows={3}
                     className="w-full rounded-md border border-gray-300 p-2"
                     placeholder="מה הבעיה העיקרית?, מה התקציב?, מתי תרצו להתחיל?"
@@ -696,7 +819,9 @@ export const AISalesAgentSpec: React.FC = () => {
 
                 {/* Handoff Criteria */}
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <h4 className="font-medium text-gray-900 mb-3">קריטריונים להעברה לאדם</h4>
+                  <h4 className="font-medium text-gray-900 mb-3">
+                    קריטריונים להעברה לאדם
+                  </h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -704,17 +829,23 @@ export const AISalesAgentSpec: React.FC = () => {
                       </label>
                       <Input
                         type="number"
-                        value={config.salesPlaybook.handoffCriteria.budgetThreshold || ''}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          salesPlaybook: {
-                            ...config.salesPlaybook,
-                            handoffCriteria: {
-                              ...config.salesPlaybook.handoffCriteria,
-                              budgetThreshold: parseInt(e.target.value) || undefined
-                            }
-                          }
-                        })}
+                        value={
+                          config.salesPlaybook.handoffCriteria
+                            .budgetThreshold || ''
+                        }
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            salesPlaybook: {
+                              ...config.salesPlaybook,
+                              handoffCriteria: {
+                                ...config.salesPlaybook.handoffCriteria,
+                                budgetThreshold:
+                                  parseInt(e.target.value) || undefined,
+                              },
+                            },
+                          })
+                        }
                         placeholder="50000"
                       />
                     </div>
@@ -724,21 +855,29 @@ export const AISalesAgentSpec: React.FC = () => {
                         רמת מורכבות
                       </label>
                       <Select
-                        value={config.salesPlaybook.handoffCriteria.complexity || 'medium'}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          salesPlaybook: {
-                            ...config.salesPlaybook,
-                            handoffCriteria: {
-                              ...config.salesPlaybook.handoffCriteria,
-                              complexity: e.target.value as 'high' | 'medium' | 'low'
-                            }
-                          }
-                        })}
+                        value={
+                          config.salesPlaybook.handoffCriteria.complexity ||
+                          'medium'
+                        }
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            salesPlaybook: {
+                              ...config.salesPlaybook,
+                              handoffCriteria: {
+                                ...config.salesPlaybook.handoffCriteria,
+                                complexity: e.target.value as
+                                  | 'high'
+                                  | 'medium'
+                                  | 'low',
+                              },
+                            },
+                          })
+                        }
                         options={[
                           { value: 'low', label: 'נמוכה' },
                           { value: 'medium', label: 'בינונית' },
-                          { value: 'high', label: 'גבוהה' }
+                          { value: 'high', label: 'גבוהה' },
                         ]}
                       />
                     </div>
@@ -749,17 +888,26 @@ export const AISalesAgentSpec: React.FC = () => {
                       סוגי עסקאות להעברה (מופרדים בפסיק)
                     </label>
                     <Input
-                      value={config.salesPlaybook.handoffCriteria.dealType?.join(', ') || ''}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        salesPlaybook: {
-                          ...config.salesPlaybook,
-                          handoffCriteria: {
-                            ...config.salesPlaybook.handoffCriteria,
-                            dealType: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                          }
-                        }
-                      })}
+                      value={
+                        config.salesPlaybook.handoffCriteria.dealType?.join(
+                          ', '
+                        ) || ''
+                      }
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          salesPlaybook: {
+                            ...config.salesPlaybook,
+                            handoffCriteria: {
+                              ...config.salesPlaybook.handoffCriteria,
+                              dealType: e.target.value
+                                .split(',')
+                                .map((s) => s.trim())
+                                .filter(Boolean),
+                            },
+                          },
+                        })
+                      }
                       placeholder="Enterprise, Custom, Multi-site"
                     />
                   </div>
@@ -784,10 +932,15 @@ export const AISalesAgentSpec: React.FC = () => {
                       )}
                     </div>
                     <Select
-                      value={calendarSystem.value || config.calendarIntegration.system}
+                      value={
+                        calendarSystem.value ||
+                        config.calendarIntegration.system
+                      }
                       onChange={(e) => calendarSystem.setValue(e.target.value)}
                       className={`${
-                        calendarSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : ''
+                        calendarSystem.isAutoPopulated
+                          ? 'border-green-300 bg-green-50'
+                          : ''
                       } ${calendarSystem.hasConflict ? 'border-orange-300' : ''}`}
                       options={CALENDAR_SYSTEMS}
                     />
@@ -798,13 +951,15 @@ export const AISalesAgentSpec: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={config.calendarIntegration.apiConfigured}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          calendarIntegration: {
-                            ...config.calendarIntegration,
-                            apiConfigured: e.target.checked
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            calendarIntegration: {
+                              ...config.calendarIntegration,
+                              apiConfigured: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm font-medium text-gray-700">
@@ -816,7 +971,9 @@ export const AISalesAgentSpec: React.FC = () => {
 
                 {/* Business Hours */}
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <h4 className="font-medium text-gray-900 mb-3">שעות פעילות</h4>
+                  <h4 className="font-medium text-gray-900 mb-3">
+                    שעות פעילות
+                  </h4>
                   <div className="grid grid-cols-3 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -824,20 +981,26 @@ export const AISalesAgentSpec: React.FC = () => {
                       </label>
                       <Input
                         type="time"
-                        value={config.calendarIntegration.availabilityRules.businessHours.start}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          calendarIntegration: {
-                            ...config.calendarIntegration,
-                            availabilityRules: {
-                              ...config.calendarIntegration.availabilityRules,
-                              businessHours: {
-                                ...config.calendarIntegration.availabilityRules.businessHours,
-                                start: e.target.value
-                              }
-                            }
-                          }
-                        })}
+                        value={
+                          config.calendarIntegration.availabilityRules
+                            .businessHours.start
+                        }
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            calendarIntegration: {
+                              ...config.calendarIntegration,
+                              availabilityRules: {
+                                ...config.calendarIntegration.availabilityRules,
+                                businessHours: {
+                                  ...config.calendarIntegration
+                                    .availabilityRules.businessHours,
+                                  start: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
                       />
                     </div>
 
@@ -847,20 +1010,26 @@ export const AISalesAgentSpec: React.FC = () => {
                       </label>
                       <Input
                         type="time"
-                        value={config.calendarIntegration.availabilityRules.businessHours.end}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          calendarIntegration: {
-                            ...config.calendarIntegration,
-                            availabilityRules: {
-                              ...config.calendarIntegration.availabilityRules,
-                              businessHours: {
-                                ...config.calendarIntegration.availabilityRules.businessHours,
-                                end: e.target.value
-                              }
-                            }
-                          }
-                        })}
+                        value={
+                          config.calendarIntegration.availabilityRules
+                            .businessHours.end
+                        }
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            calendarIntegration: {
+                              ...config.calendarIntegration,
+                              availabilityRules: {
+                                ...config.calendarIntegration.availabilityRules,
+                                businessHours: {
+                                  ...config.calendarIntegration
+                                    .availabilityRules.businessHours,
+                                  end: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
                       />
                     </div>
 
@@ -872,17 +1041,22 @@ export const AISalesAgentSpec: React.FC = () => {
                         type="number"
                         min="0"
                         max="60"
-                        value={config.calendarIntegration.availabilityRules.bufferTime}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          calendarIntegration: {
-                            ...config.calendarIntegration,
-                            availabilityRules: {
-                              ...config.calendarIntegration.availabilityRules,
-                              bufferTime: parseInt(e.target.value)
-                            }
-                          }
-                        })}
+                        value={
+                          config.calendarIntegration.availabilityRules
+                            .bufferTime
+                        }
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            calendarIntegration: {
+                              ...config.calendarIntegration,
+                              availabilityRules: {
+                                ...config.calendarIntegration.availabilityRules,
+                                bufferTime: parseInt(e.target.value),
+                              },
+                            },
+                          })
+                        }
                       />
                     </div>
                   </div>
@@ -892,38 +1066,52 @@ export const AISalesAgentSpec: React.FC = () => {
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="font-medium text-gray-900">סוגי פגישות</h4>
-                    <Button onClick={addMeetingType} size="sm" variant="outline">
+                    <Button
+                      onClick={addMeetingType}
+                      size="sm"
+                      variant="outline"
+                    >
                       <Plus className="w-4 h-4 ml-1" />
                       הוסף סוג
                     </Button>
                   </div>
                   <div className="space-y-2">
-                    {config.calendarIntegration.availabilityRules.meetingTypes.map((mt, idx) => (
-                      <div key={idx} className="flex gap-2">
-                        <Input
-                          value={mt.type}
-                          onChange={(e) => updateMeetingType(idx, 'type', e.target.value)}
-                          placeholder="סוג פגישה"
-                          className="flex-1"
-                        />
-                        <Input
-                          type="number"
-                          min="15"
-                          max="240"
-                          step="15"
-                          value={mt.durationMinutes}
-                          onChange={(e) => updateMeetingType(idx, 'durationMinutes', parseInt(e.target.value))}
-                          placeholder="דקות"
-                          className="w-24"
-                        />
-                        <button
-                          onClick={() => removeMeetingType(idx)}
-                          className="text-red-600 hover:text-red-700 px-2"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
+                    {config.calendarIntegration.availabilityRules.meetingTypes.map(
+                      (mt, idx) => (
+                        <div key={idx} className="flex gap-2">
+                          <Input
+                            value={mt.type}
+                            onChange={(e) =>
+                              updateMeetingType(idx, 'type', e.target.value)
+                            }
+                            placeholder="סוג פגישה"
+                            className="flex-1"
+                          />
+                          <Input
+                            type="number"
+                            min="15"
+                            max="240"
+                            step="15"
+                            value={mt.durationMinutes}
+                            onChange={(e) =>
+                              updateMeetingType(
+                                idx,
+                                'durationMinutes',
+                                parseInt(e.target.value)
+                              )
+                            }
+                            placeholder="דקות"
+                            className="w-24"
+                          />
+                          <button
+                            onClick={() => removeMeetingType(idx)}
+                            className="text-red-600 hover:text-red-700 px-2"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )
+                    )}
                   </div>
                 </div>
               </div>
@@ -933,7 +1121,9 @@ export const AISalesAgentSpec: React.FC = () => {
             {activeTab === 'channels' && (
               <div className="space-y-6">
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <h4 className="font-medium text-gray-900 mb-3">ערוצי תקשורת</h4>
+                  <h4 className="font-medium text-gray-900 mb-3">
+                    ערוצי תקשורת
+                  </h4>
                   <div className="space-y-3">
                     {config.channels.map((ch, idx) => (
                       <label key={idx} className="flex items-center gap-2">
@@ -942,13 +1132,18 @@ export const AISalesAgentSpec: React.FC = () => {
                           checked={ch.enabled}
                           onChange={(e) => {
                             const updated = [...config.channels];
-                            updated[idx] = { ...updated[idx], enabled: e.target.checked };
+                            updated[idx] = {
+                              ...updated[idx],
+                              enabled: e.target.checked,
+                            };
                             setConfig({ ...config, channels: updated });
                           }}
                           className="rounded border-gray-300"
                         />
                         <span className="text-sm text-gray-700">
-                          {MESSAGING_CHANNELS.find(c => c.value === ch.channel)?.label || ch.channel}
+                          {MESSAGING_CHANNELS.find(
+                            (c) => c.value === ch.channel
+                          )?.label || ch.channel}
                         </span>
                       </label>
                     ))}
@@ -963,13 +1158,15 @@ export const AISalesAgentSpec: React.FC = () => {
                     </label>
                     <textarea
                       value={config.messageTemplates.greeting}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        messageTemplates: {
-                          ...config.messageTemplates,
-                          greeting: e.target.value
-                        }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          messageTemplates: {
+                            ...config.messageTemplates,
+                            greeting: e.target.value,
+                          },
+                        })
+                      }
                       rows={2}
                       className="w-full rounded-md border border-gray-300 p-2"
                     />
@@ -981,13 +1178,15 @@ export const AISalesAgentSpec: React.FC = () => {
                     </label>
                     <textarea
                       value={config.messageTemplates.productPitch}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        messageTemplates: {
-                          ...config.messageTemplates,
-                          productPitch: e.target.value
-                        }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          messageTemplates: {
+                            ...config.messageTemplates,
+                            productPitch: e.target.value,
+                          },
+                        })
+                      }
                       rows={2}
                       className="w-full rounded-md border border-gray-300 p-2"
                     />
@@ -999,13 +1198,15 @@ export const AISalesAgentSpec: React.FC = () => {
                     </label>
                     <textarea
                       value={config.messageTemplates.meetingInvite}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        messageTemplates: {
-                          ...config.messageTemplates,
-                          meetingInvite: e.target.value
-                        }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          messageTemplates: {
+                            ...config.messageTemplates,
+                            meetingInvite: e.target.value,
+                          },
+                        })
+                      }
                       rows={2}
                       className="w-full rounded-md border border-gray-300 p-2"
                     />
@@ -1017,13 +1218,15 @@ export const AISalesAgentSpec: React.FC = () => {
                     </label>
                     <textarea
                       value={config.messageTemplates.followUp}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        messageTemplates: {
-                          ...config.messageTemplates,
-                          followUp: e.target.value
-                        }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          messageTemplates: {
+                            ...config.messageTemplates,
+                            followUp: e.target.value,
+                          },
+                        })
+                      }
                       rows={2}
                       className="w-full rounded-md border border-gray-300 p-2"
                     />
@@ -1032,7 +1235,9 @@ export const AISalesAgentSpec: React.FC = () => {
 
                 {/* CRM Integration */}
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <h4 className="font-medium text-gray-900 mb-3">CRM Integration</h4>
+                  <h4 className="font-medium text-gray-900 mb-3">
+                    CRM Integration
+                  </h4>
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
                       <div className="flex items-center justify-between mb-2">
@@ -1050,7 +1255,9 @@ export const AISalesAgentSpec: React.FC = () => {
                         value={crmSystem.value || config.crmIntegration.system}
                         onChange={(e) => crmSystem.setValue(e.target.value)}
                         className={`${
-                          crmSystem.isAutoPopulated ? 'border-green-300 bg-green-50' : ''
+                          crmSystem.isAutoPopulated
+                            ? 'border-green-300 bg-green-50'
+                            : ''
                         } ${crmSystem.hasConflict ? 'border-orange-300' : ''}`}
                         options={CRM_SYSTEMS}
                       />
@@ -1062,32 +1269,40 @@ export const AISalesAgentSpec: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={config.crmIntegration.realTimeUpdates}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          crmIntegration: {
-                            ...config.crmIntegration,
-                            realTimeUpdates: e.target.checked
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            crmIntegration: {
+                              ...config.crmIntegration,
+                              realTimeUpdates: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
-                      <span className="text-sm text-gray-700">עדכונים בזמן אמת</span>
+                      <span className="text-sm text-gray-700">
+                        עדכונים בזמן אמת
+                      </span>
                     </label>
 
                     <label className="flex items-center gap-2">
                       <input
                         type="checkbox"
                         checked={config.crmIntegration.webhooksConfigured}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          crmIntegration: {
-                            ...config.crmIntegration,
-                            webhooksConfigured: e.target.checked
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            crmIntegration: {
+                              ...config.crmIntegration,
+                              webhooksConfigured: e.target.checked,
+                            },
+                          })
+                        }
                         className="rounded border-gray-300"
                       />
-                      <span className="text-sm text-gray-700">Webhooks מוגדרים</span>
+                      <span className="text-sm text-gray-700">
+                        Webhooks מוגדרים
+                      </span>
                     </label>
                   </div>
 
@@ -1097,13 +1312,18 @@ export const AISalesAgentSpec: React.FC = () => {
                     </label>
                     <Input
                       value={config.crmIntegration.fieldsToUpdate.join(', ')}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        crmIntegration: {
-                          ...config.crmIntegration,
-                          fieldsToUpdate: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                        }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          crmIntegration: {
+                            ...config.crmIntegration,
+                            fieldsToUpdate: e.target.value
+                              .split(',')
+                              .map((s) => s.trim())
+                              .filter(Boolean),
+                          },
+                        })
+                      }
                       placeholder="Lead Status, Last Contact, Notes"
                     />
                   </div>
@@ -1120,13 +1340,15 @@ export const AISalesAgentSpec: React.FC = () => {
                       min="5"
                       max="50"
                       value={config.conversationLimits.maxMessages}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        conversationLimits: {
-                          ...config.conversationLimits,
-                          maxMessages: parseInt(e.target.value)
-                        }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          conversationLimits: {
+                            ...config.conversationLimits,
+                            maxMessages: parseInt(e.target.value),
+                          },
+                        })
+                      }
                     />
                   </div>
 
@@ -1139,13 +1361,15 @@ export const AISalesAgentSpec: React.FC = () => {
                       min="5"
                       max="120"
                       value={config.conversationLimits.timeoutMinutes}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        conversationLimits: {
-                          ...config.conversationLimits,
-                          timeoutMinutes: parseInt(e.target.value)
-                        }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          conversationLimits: {
+                            ...config.conversationLimits,
+                            timeoutMinutes: parseInt(e.target.value),
+                          },
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -1164,13 +1388,15 @@ export const AISalesAgentSpec: React.FC = () => {
                       type="number"
                       min="1"
                       value={config.performance.dailyConversations}
-                      onChange={(e) => setConfig({
-                        ...config,
-                        performance: {
-                          ...config.performance,
-                          dailyConversations: parseInt(e.target.value)
-                        }
-                      })}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          performance: {
+                            ...config.performance,
+                            dailyConversations: parseInt(e.target.value),
+                          },
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -1187,16 +1413,18 @@ export const AISalesAgentSpec: React.FC = () => {
                         min="0"
                         max="100"
                         value={config.performance.targets.conversationToLead}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          performance: {
-                            ...config.performance,
-                            targets: {
-                              ...config.performance.targets,
-                              conversationToLead: parseInt(e.target.value)
-                            }
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            performance: {
+                              ...config.performance,
+                              targets: {
+                                ...config.performance.targets,
+                                conversationToLead: parseInt(e.target.value),
+                              },
+                            },
+                          })
+                        }
                       />
                     </div>
 
@@ -1209,52 +1437,74 @@ export const AISalesAgentSpec: React.FC = () => {
                         min="0"
                         max="100"
                         value={config.performance.targets.leadToMeeting}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          performance: {
-                            ...config.performance,
-                            targets: {
-                              ...config.performance.targets,
-                              leadToMeeting: parseInt(e.target.value)
-                            }
-                          }
-                        })}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            performance: {
+                              ...config.performance,
+                              targets: {
+                                ...config.performance.targets,
+                                leadToMeeting: parseInt(e.target.value),
+                              },
+                            },
+                          })
+                        }
                       />
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">תחזית ביצועים</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">
+                    תחזית ביצועים
+                  </h3>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-700">שיחות יומיות:</span>
-                      <span className="font-bold text-gray-900">{config.performance.dailyConversations}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-700">לידים יומיים צפויים:</span>
-                      <span className="font-bold text-green-600">
-                        {Math.round(config.performance.dailyConversations * config.performance.targets.conversationToLead / 100)}
+                      <span className="text-sm text-gray-700">
+                        שיחות יומיות:
+                      </span>
+                      <span className="font-bold text-gray-900">
+                        {config.performance.dailyConversations}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-700">פגישות יומיות צפויות:</span>
-                      <span className="text-2xl font-bold text-blue-600">
+                      <span className="text-sm text-gray-700">
+                        לידים יומיים צפויים:
+                      </span>
+                      <span className="font-bold text-green-600">
                         {Math.round(
-                          config.performance.dailyConversations *
-                          config.performance.targets.conversationToLead / 100 *
-                          config.performance.targets.leadToMeeting / 100
+                          (config.performance.dailyConversations *
+                            config.performance.targets.conversationToLead) /
+                            100
                         )}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-700">פגישות חודשיות צפויות:</span>
+                      <span className="text-sm text-gray-700">
+                        פגישות יומיות צפויות:
+                      </span>
+                      <span className="text-2xl font-bold text-blue-600">
+                        {Math.round(
+                          (((config.performance.dailyConversations *
+                            config.performance.targets.conversationToLead) /
+                            100) *
+                            config.performance.targets.leadToMeeting) /
+                            100
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-700">
+                        פגישות חודשיות צפויות:
+                      </span>
                       <span className="text-2xl font-bold text-purple-600">
                         {Math.round(
-                          config.performance.dailyConversations *
-                          config.performance.targets.conversationToLead / 100 *
-                          config.performance.targets.leadToMeeting / 100 *
-                          30
+                          ((((config.performance.dailyConversations *
+                            config.performance.targets.conversationToLead) /
+                            100) *
+                            config.performance.targets.leadToMeeting) /
+                            100) *
+                            30
                         )}
                       </span>
                     </div>
@@ -1270,7 +1520,11 @@ export const AISalesAgentSpec: React.FC = () => {
           <Button onClick={() => navigate('/phase2')} variant="outline">
             ביטול
           </Button>
-          <Button onClick={handleSave} disabled={isSaving} className="flex items-center gap-2">
+          <Button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="flex items-center gap-2"
+          >
             {isSaving ? (
               <>
                 <Loader className="w-4 h-4 animate-spin" />

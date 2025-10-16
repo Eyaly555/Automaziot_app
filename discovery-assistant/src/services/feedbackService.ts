@@ -40,7 +40,7 @@ export const feedbackService = {
    * @returns Feedback entry or undefined
    */
   getById(id: string): FeedbackEntry | undefined {
-    return this.getAll().find(f => f.id === id);
+    return this.getAll().find((f) => f.id === id);
   },
 
   /**
@@ -50,7 +50,7 @@ export const feedbackService = {
    * @returns Filtered feedbacks
    */
   getByStatus(status: FeedbackEntry['status']): FeedbackEntry[] {
-    return this.getAll().filter(f => f.status === status);
+    return this.getAll().filter((f) => f.status === status);
   },
 
   /**
@@ -60,7 +60,7 @@ export const feedbackService = {
    * @returns Filtered feedbacks
    */
   getByCategory(category: FeedbackEntry['category']): FeedbackEntry[] {
-    return this.getAll().filter(f => f.category === category);
+    return this.getAll().filter((f) => f.category === category);
   },
 
   /**
@@ -70,7 +70,7 @@ export const feedbackService = {
    * @returns Filtered feedbacks
    */
   getByComponent(componentName: string): FeedbackEntry[] {
-    return this.getAll().filter(f => f.componentName === componentName);
+    return this.getAll().filter((f) => f.componentName === componentName);
   },
 
   /**
@@ -83,7 +83,7 @@ export const feedbackService = {
     const entry: FeedbackEntry = {
       ...feedback,
       id: crypto.randomUUID(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     const all = this.getAll();
@@ -100,9 +100,12 @@ export const feedbackService = {
    * @param updates - Partial feedback updates
    * @returns Updated feedback or undefined if not found
    */
-  update(id: string, updates: Partial<FeedbackEntry>): FeedbackEntry | undefined {
+  update(
+    id: string,
+    updates: Partial<FeedbackEntry>
+  ): FeedbackEntry | undefined {
     const all = this.getAll();
-    const index = all.findIndex(f => f.id === id);
+    const index = all.findIndex((f) => f.id === id);
 
     if (index === -1) {
       console.warn(`Feedback with id ${id} not found`);
@@ -123,7 +126,7 @@ export const feedbackService = {
    */
   delete(id: string): boolean {
     const all = this.getAll();
-    const filtered = all.filter(f => f.id !== id);
+    const filtered = all.filter((f) => f.id !== id);
 
     if (filtered.length === all.length) {
       return false;
@@ -151,20 +154,20 @@ export const feedbackService = {
   exportMarkdown(): string {
     const feedbacks = this.getAll();
     const grouped = {
-      todo: feedbacks.filter(f => f.status === 'todo'),
-      doing: feedbacks.filter(f => f.status === 'doing'),
-      done: feedbacks.filter(f => f.status === 'done')
+      todo: feedbacks.filter((f) => f.status === 'todo'),
+      doing: feedbacks.filter((f) => f.status === 'doing'),
+      done: feedbacks.filter((f) => f.status === 'done'),
     };
 
     const now = new Date();
     const dateStr = now.toLocaleDateString('he-IL', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
     const timeStr = now.toLocaleTimeString('he-IL', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
 
     let md = `# 🐛 Development Feedback Report\n\n`;
@@ -224,14 +227,14 @@ export const feedbackService = {
       ui_ux: '🎨',
       error: '❌',
       performance: '⚡',
-      note: '📝'
+      note: '📝',
     };
 
     const priorityBadges: Record<FeedbackEntry['priority'], string> = {
       urgent: '🔴 URGENT',
       high: '🟠 High',
       medium: '🟡 Medium',
-      low: '🟢 Low'
+      low: '🟢 Low',
     };
 
     const icon = categoryIcons[feedback.category];
@@ -258,7 +261,7 @@ export const feedbackService = {
     // Console Errors
     if (feedback.consoleErrors && feedback.consoleErrors.length > 0) {
       md += `**Console Errors** (${feedback.consoleErrors.length}):\n\`\`\`\n`;
-      feedback.consoleErrors.forEach(err => {
+      feedback.consoleErrors.forEach((err) => {
         md += `[${err.level.toUpperCase()}] ${err.message}\n`;
         if (err.stack) {
           md += `${err.stack}\n\n`;
@@ -269,12 +272,14 @@ export const feedbackService = {
 
     // Console Logs (if present and different from errors)
     if (feedback.consoleLogs && feedback.consoleLogs.length > 0) {
-      const nonErrorLogs = feedback.consoleLogs.filter(l => l.level !== 'error');
+      const nonErrorLogs = feedback.consoleLogs.filter(
+        (l) => l.level !== 'error'
+      );
       if (nonErrorLogs.length > 0) {
         md += `<details>\n`;
         md += `<summary>Console Logs (${nonErrorLogs.length})</summary>\n\n`;
         md += `\`\`\`\n`;
-        nonErrorLogs.forEach(log => {
+        nonErrorLogs.forEach((log) => {
           md += `[${log.level.toUpperCase()}] ${log.message}\n`;
         });
         md += `\`\`\`\n\n`;
@@ -313,8 +318,8 @@ export const feedbackService = {
 
       // Merge, avoiding duplicates by ID
       const merged = [...existing];
-      imported.forEach(feedback => {
-        if (!merged.find(f => f.id === feedback.id)) {
+      imported.forEach((feedback) => {
+        if (!merged.find((f) => f.id === feedback.id)) {
           merged.push(feedback);
         }
       });
@@ -338,24 +343,24 @@ export const feedbackService = {
     return {
       total: all.length,
       byStatus: {
-        todo: all.filter(f => f.status === 'todo').length,
-        doing: all.filter(f => f.status === 'doing').length,
-        done: all.filter(f => f.status === 'done').length
+        todo: all.filter((f) => f.status === 'todo').length,
+        doing: all.filter((f) => f.status === 'doing').length,
+        done: all.filter((f) => f.status === 'done').length,
       },
       byCategory: {
-        bug: all.filter(f => f.category === 'bug').length,
-        feature: all.filter(f => f.category === 'feature').length,
-        ui_ux: all.filter(f => f.category === 'ui_ux').length,
-        error: all.filter(f => f.category === 'error').length,
-        performance: all.filter(f => f.category === 'performance').length,
-        note: all.filter(f => f.category === 'note').length
+        bug: all.filter((f) => f.category === 'bug').length,
+        feature: all.filter((f) => f.category === 'feature').length,
+        ui_ux: all.filter((f) => f.category === 'ui_ux').length,
+        error: all.filter((f) => f.category === 'error').length,
+        performance: all.filter((f) => f.category === 'performance').length,
+        note: all.filter((f) => f.category === 'note').length,
       },
       byPriority: {
-        urgent: all.filter(f => f.priority === 'urgent').length,
-        high: all.filter(f => f.priority === 'high').length,
-        medium: all.filter(f => f.priority === 'medium').length,
-        low: all.filter(f => f.priority === 'low').length
-      }
+        urgent: all.filter((f) => f.priority === 'urgent').length,
+        high: all.filter((f) => f.priority === 'high').length,
+        medium: all.filter((f) => f.priority === 'medium').length,
+        low: all.filter((f) => f.priority === 'low').length,
+      },
     };
-  }
+  },
 };

@@ -32,10 +32,7 @@ export const generatePDFWithHtml2Pdf = async (
     },
   };
 
-  return html2pdf()
-    .set(opt)
-    .from(element)
-    .output('blob');
+  return html2pdf().set(opt).from(element).output('blob');
 };
 
 /**
@@ -48,7 +45,9 @@ export const generatePDFWithBrowserPrint = (element: HTMLElement): void => {
   const printWindow = window.open('', '_blank');
 
   if (!printWindow) {
-    throw new Error('Failed to open print window. Please allow popups for this site.');
+    throw new Error(
+      'Failed to open print window. Please allow popups for this site.'
+    );
   }
 
   // Write the HTML content to the new window

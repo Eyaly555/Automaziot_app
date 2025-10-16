@@ -78,7 +78,7 @@ export const FeedbackModal: React.FC<Props> = ({ onClose }) => {
         consoleLogs: includeConsoleLogs ? consoleLogger.getLogs(50) : [],
         consoleErrors: includeConsoleLogs ? errors : [],
         screenshot,
-        status: 'todo'
+        status: 'todo',
       });
 
       // Success
@@ -93,13 +93,17 @@ export const FeedbackModal: React.FC<Props> = ({ onClose }) => {
   };
 
   // Category options
-  const categories: Array<{ value: FeedbackCategory; label: string; color: string }> = [
+  const categories: Array<{
+    value: FeedbackCategory;
+    label: string;
+    color: string;
+  }> = [
     { value: 'bug', label: '🐛 באג', color: 'red' },
     { value: 'feature', label: '✨ פיצר', color: 'blue' },
     { value: 'ui_ux', label: '🎨 UI/UX', color: 'purple' },
     { value: 'error', label: '❌ שגיאה', color: 'red' },
     { value: 'performance', label: '⚡ ביצועים', color: 'yellow' },
-    { value: 'note', label: '📝 הערה', color: 'gray' }
+    { value: 'note', label: '📝 הערה', color: 'gray' },
   ];
 
   // Priority options
@@ -107,7 +111,7 @@ export const FeedbackModal: React.FC<Props> = ({ onClose }) => {
     { value: 'low', label: '🟢 נמוך' },
     { value: 'medium', label: '🟡 בינוני' },
     { value: 'high', label: '🟠 גבוה' },
-    { value: 'urgent', label: '🔴 דחוף' }
+    { value: 'urgent', label: '🔴 דחוף' },
   ];
 
   return (
@@ -117,7 +121,7 @@ export const FeedbackModal: React.FC<Props> = ({ onClose }) => {
     >
       <div
         className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-auto"
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
         dir="rtl"
       >
         {/* Header */}
@@ -165,7 +169,7 @@ export const FeedbackModal: React.FC<Props> = ({ onClose }) => {
               סוג הפידבק
             </label>
             <div className="grid grid-cols-3 gap-2">
-              {categories.map(cat => (
+              {categories.map((cat) => (
                 <button
                   key={cat.value}
                   onClick={() => setCategory(cat.value)}
@@ -187,7 +191,7 @@ export const FeedbackModal: React.FC<Props> = ({ onClose }) => {
               עדיפות
             </label>
             <div className="grid grid-cols-4 gap-2">
-              {priorities.map(p => (
+              {priorities.map((p) => (
                 <button
                   key={p.value}
                   onClick={() => setPriority(p.value)}
@@ -211,7 +215,7 @@ export const FeedbackModal: React.FC<Props> = ({ onClose }) => {
             <input
               type="text"
               value={title}
-              onChange={e => setTitle(e.target.value)}
+              onChange={(e) => setTitle(e.target.value)}
               placeholder="לדוגמה: כפתור שמירה לא עובד"
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               autoFocus
@@ -225,7 +229,7 @@ export const FeedbackModal: React.FC<Props> = ({ onClose }) => {
             </label>
             <textarea
               value={description}
-              onChange={e => setDescription(e.target.value)}
+              onChange={(e) => setDescription(e.target.value)}
               placeholder="תאר את הבעיה, הרעיון, או ההערה בפירוט..."
               rows={5}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
@@ -238,7 +242,7 @@ export const FeedbackModal: React.FC<Props> = ({ onClose }) => {
               <input
                 type="checkbox"
                 checked={includeConsoleLogs}
-                onChange={e => setIncludeConsoleLogs(e.target.checked)}
+                onChange={(e) => setIncludeConsoleLogs(e.target.checked)}
                 className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               />
               <span className="text-sm text-gray-700">

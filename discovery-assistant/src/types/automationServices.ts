@@ -7,7 +7,13 @@
 
 export interface AutoLeadResponseConfig {
   // Basic Information
-  formPlatform: 'wix' | 'wordpress' | 'elementor' | 'google_forms' | 'typeform' | 'custom';
+  formPlatform:
+    | 'wix'
+    | 'wordpress'
+    | 'elementor'
+    | 'google_forms'
+    | 'typeform'
+    | 'custom';
   emailService: 'sendgrid' | 'mailgun' | 'smtp' | 'gmail' | 'outlook';
   crmSystem: 'zoho' | 'salesforce' | 'hubspot' | 'pipedrive' | 'other';
   n8nAccess: boolean;
@@ -107,7 +113,13 @@ export interface AutoLeadResponseImplementation {
   requirements: AutoLeadResponseRequirements;
 
   // Implementation progress
-  status: 'not_started' | 'configuring' | 'testing' | 'deployed' | 'active' | 'paused';
+  status:
+    | 'not_started'
+    | 'configuring'
+    | 'testing'
+    | 'deployed'
+    | 'active'
+    | 'paused';
 
   // Setup steps completed
   setupSteps: {
@@ -184,7 +196,14 @@ export type AutoLeadResponseData = Partial<AutoLeadResponseConfig>;
 export interface AutoCRMUpdateConfig {
   // Basic Information
   crmSystem: 'zoho' | 'salesforce' | 'hubspot' | 'pipedrive' | 'other';
-  formPlatform: 'wix' | 'wordpress' | 'elementor' | 'google_forms' | 'typeform' | 'jotform' | 'custom';
+  formPlatform:
+    | 'wix'
+    | 'wordpress'
+    | 'elementor'
+    | 'google_forms'
+    | 'typeform'
+    | 'jotform'
+    | 'custom';
   n8nAccess: boolean;
 
   // CRM Authentication
@@ -201,11 +220,32 @@ export interface AutoCRMUpdateConfig {
   fieldMappings: Array<{
     id: string;
     formField: string;
-    formFieldType: 'text' | 'email' | 'phone' | 'number' | 'date' | 'dropdown' | 'checkbox';
+    formFieldType:
+      | 'text'
+      | 'email'
+      | 'phone'
+      | 'number'
+      | 'date'
+      | 'dropdown'
+      | 'checkbox';
     crmField: string;
-    crmFieldType: 'text' | 'email' | 'phone' | 'number' | 'date' | 'picklist' | 'boolean' | 'lookup';
+    crmFieldType:
+      | 'text'
+      | 'email'
+      | 'phone'
+      | 'number'
+      | 'date'
+      | 'picklist'
+      | 'boolean'
+      | 'lookup';
     required: boolean;
-    transformation?: 'uppercase' | 'lowercase' | 'trim' | 'phone_format' | 'date_format' | 'none';
+    transformation?:
+      | 'uppercase'
+      | 'lowercase'
+      | 'trim'
+      | 'phone_format'
+      | 'date_format'
+      | 'none';
     defaultValue?: string;
     validationRule?: string;
   }>;
@@ -219,18 +259,34 @@ export interface AutoCRMUpdateConfig {
   dataValidationEnabled: boolean;
   validationRules: Array<{
     field: string;
-    rule: 'required' | 'email_format' | 'phone_format' | 'min_length' | 'max_length' | 'regex';
+    rule:
+      | 'required'
+      | 'email_format'
+      | 'phone_format'
+      | 'min_length'
+      | 'max_length'
+      | 'regex';
     value?: string; // For min_length, max_length, regex
     errorMessage: string;
   }>;
 
   // CRM Configuration
-  crmModule: 'leads' | 'contacts' | 'accounts' | 'potentials' | 'deals' | 'custom';
+  crmModule:
+    | 'leads'
+    | 'contacts'
+    | 'accounts'
+    | 'potentials'
+    | 'deals'
+    | 'custom';
   customFieldsReady: boolean;
   customFieldsList?: string[];
 
   // Error Handling
-  errorHandlingStrategy: 'retry' | 'skip_and_log' | 'alert_admin' | 'fallback_to_email';
+  errorHandlingStrategy:
+    | 'retry'
+    | 'skip_and_log'
+    | 'alert_admin'
+    | 'fallback_to_email';
   retryAttempts: number;
   retryDelay: number; // seconds
   errorNotificationEmail: string;
@@ -358,7 +414,13 @@ export interface AutoCRMUpdateImplementation {
   requirements: AutoCRMUpdateRequirements;
 
   // Implementation progress
-  status: 'not_started' | 'configuring' | 'testing' | 'deployed' | 'active' | 'paused';
+  status:
+    | 'not_started'
+    | 'configuring'
+    | 'testing'
+    | 'deployed'
+    | 'active'
+    | 'paused';
 
   // Setup steps completed
   setupSteps: {
@@ -453,7 +515,13 @@ export type AutoCRMUpdateData = Partial<AutoCRMUpdateConfig>;
  */
 export interface AutoEmailTemplatesConfig {
   // Basic Information
-  emailService: 'sendgrid' | 'mailgun' | 'smtp' | 'gmail' | 'outlook' | 'amazon_ses';
+  emailService:
+    | 'sendgrid'
+    | 'mailgun'
+    | 'smtp'
+    | 'gmail'
+    | 'outlook'
+    | 'amazon_ses';
   templateEngine: 'handlebars' | 'liquid' | 'mustache' | 'ejs';
   crmSystem: 'zoho' | 'salesforce' | 'hubspot' | 'pipedrive' | 'other';
   n8nAccess: boolean;
@@ -472,7 +540,15 @@ export interface AutoEmailTemplatesConfig {
     id: string;
     name: string;
     nameHe: string;
-    category: 'welcome' | 'follow_up' | 'proposal' | 'invoice' | 'thank_you' | 'reminder' | 'newsletter' | 'custom';
+    category:
+      | 'welcome'
+      | 'follow_up'
+      | 'proposal'
+      | 'invoice'
+      | 'thank_you'
+      | 'reminder'
+      | 'newsletter'
+      | 'custom';
     subject: string;
     subjectHe?: string;
     htmlContent: string; // HTML with inline CSS
@@ -574,7 +650,13 @@ export interface AutoEmailTemplatesConfig {
 export interface AutoEmailTemplatesRequirements {
   // Email Service Provider Access
   emailServiceAccess: {
-    provider: 'sendgrid' | 'mailgun' | 'smtp' | 'gmail' | 'outlook' | 'amazon_ses';
+    provider:
+      | 'sendgrid'
+      | 'mailgun'
+      | 'smtp'
+      | 'gmail'
+      | 'outlook'
+      | 'amazon_ses';
 
     // SendGrid
     sendgridCredentials?: {
@@ -689,7 +771,13 @@ export interface AutoEmailTemplatesImplementation {
   requirements: AutoEmailTemplatesRequirements;
 
   // Implementation progress
-  status: 'not_started' | 'configuring' | 'testing' | 'deployed' | 'active' | 'paused';
+  status:
+    | 'not_started'
+    | 'configuring'
+    | 'testing'
+    | 'deployed'
+    | 'active'
+    | 'paused';
 
   // Setup steps completed
   setupSteps: {
@@ -825,7 +913,13 @@ export interface EmailTemplateVariable {
 export interface EmailTemplateValidation {
   isValid: boolean;
   errors: Array<{
-    type: 'missing_variable' | 'invalid_html' | 'missing_unsubscribe' | 'missing_address' | 'too_many_images' | 'broken_link';
+    type:
+      | 'missing_variable'
+      | 'invalid_html'
+      | 'missing_unsubscribe'
+      | 'missing_address'
+      | 'too_many_images'
+      | 'broken_link';
     message: string;
     messageHe: string;
     severity: 'error' | 'warning' | 'info';
@@ -867,7 +961,8 @@ export type AutoFormToCrmRequirements = AutoCRMUpdateRequirements;
  * Service implementation status tracking for auto-form-to-crm
  * Extended from AutoCRMUpdateImplementation with service-specific ID
  */
-export interface AutoFormToCrmImplementation extends Omit<AutoCRMUpdateImplementation, 'serviceId'> {
+export interface AutoFormToCrmImplementation
+  extends Omit<AutoCRMUpdateImplementation, 'serviceId'> {
   serviceId: 'auto-form-to-crm';
 }
 
@@ -890,13 +985,24 @@ export type AutoFormToCrmData = Partial<AutoFormToCrmConfig>;
 export interface AIFAQBotConfig {
   // AI Provider Selection
   aiProvider: 'openai' | 'anthropic';
-  model: 'gpt-4o-mini' | 'gpt-3.5-turbo' | 'claude-3.5-sonnet' | 'claude-3.5-haiku';
+  model:
+    | 'gpt-4o-mini'
+    | 'gpt-3.5-turbo'
+    | 'claude-3.5-sonnet'
+    | 'claude-3.5-haiku';
   apiKeyProvided: boolean;
 
   // Vector Database
-  vectorDatabase: 'supabase_pgvector' | 'pinecone_starter' | 'qdrant' | 'weaviate';
+  vectorDatabase:
+    | 'supabase_pgvector'
+    | 'pinecone_starter'
+    | 'qdrant'
+    | 'weaviate';
   vectorDbCredentialsReady: boolean;
-  embeddingModel: 'text-embedding-3-small' | 'text-embedding-3-large' | 'text-embedding-ada-002';
+  embeddingModel:
+    | 'text-embedding-3-small'
+    | 'text-embedding-3-large'
+    | 'text-embedding-ada-002';
 
   // Knowledge Base
   knowledgeBase: {
@@ -1112,7 +1218,13 @@ export interface AIFAQBotImplementation {
   requirements: AIFAQBotRequirements;
 
   // Implementation progress
-  status: 'not_started' | 'configuring' | 'testing' | 'deployed' | 'active' | 'paused';
+  status:
+    | 'not_started'
+    | 'configuring'
+    | 'testing'
+    | 'deployed'
+    | 'active'
+    | 'paused';
 
   // Setup steps completed
   setupSteps: {
@@ -1280,7 +1392,13 @@ export interface RoutingRule {
     target: string; // Team name, person email, or department ID
     backupTarget?: string; // Fallback if primary target unavailable
   };
-  notificationMethod: 'email' | 'sms' | 'whatsapp' | 'slack' | 'teams' | 'multiple';
+  notificationMethod:
+    | 'email'
+    | 'sms'
+    | 'whatsapp'
+    | 'slack'
+    | 'teams'
+    | 'multiple';
   notificationTargets?: string[]; // Email addresses, phone numbers, etc.
   autoAssign?: boolean; // Automatically assign to target without manual intervention
   slaMinutes?: number; // SLA response time in minutes
@@ -1309,7 +1427,11 @@ export interface SentimentAnalysisConfig {
   escalationRules: Array<{
     sentimentThreshold: number; // e.g., -0.5 for negative sentiment
     emotion?: 'frustration' | 'anger' | 'urgency' | 'disappointment';
-    action: 'increase_priority' | 'escalate_to_manager' | 'send_alert' | 'auto_assign_senior';
+    action:
+      | 'increase_priority'
+      | 'escalate_to_manager'
+      | 'send_alert'
+      | 'auto_assign_senior';
     targetPriority?: 'urgent' | 'high';
   }>;
 }
@@ -1323,7 +1445,13 @@ export interface AITriageConfig {
   aiProvider: 'openai' | 'anthropic' | 'google' | 'azure_openai';
   aiModel: string; // e.g., "gpt-4o-mini", "claude-3-haiku", "gemini-pro"
   crmSystem?: 'zoho' | 'salesforce' | 'hubspot' | 'pipedrive' | 'other';
-  ticketingSystem?: 'zendesk' | 'freshdesk' | 'jira_service_desk' | 'helpscout' | 'intercom' | 'other';
+  ticketingSystem?:
+    | 'zendesk'
+    | 'freshdesk'
+    | 'jira_service_desk'
+    | 'helpscout'
+    | 'intercom'
+    | 'other';
   n8nAccess: boolean;
 
   // AI Model Configuration
@@ -1348,14 +1476,21 @@ export interface AITriageConfig {
   // VIP Customer Handling
   vipHandling: {
     enabled: boolean;
-    vipIdentificationMethod: 'crm_field' | 'customer_tier' | 'email_domain' | 'manual_list';
+    vipIdentificationMethod:
+      | 'crm_field'
+      | 'customer_tier'
+      | 'email_domain'
+      | 'manual_list';
     vipField?: string; // CRM field name for VIP flag
     vipTiers?: string[]; // e.g., ['platinum', 'gold']
     vipDomains?: string[]; // e.g., ['enterprise-client.com']
     vipEmails?: string[]; // Manual list of VIP emails
     autoPriorityBoost: boolean; // Auto-increase priority for VIPs
     vipPriority: 'urgent' | 'high';
-    vipNotificationMethod: 'immediate_alert' | 'dedicated_queue' | 'auto_assign_senior';
+    vipNotificationMethod:
+      | 'immediate_alert'
+      | 'dedicated_queue'
+      | 'auto_assign_senior';
   };
 
   // Training Data
@@ -1378,7 +1513,13 @@ export interface AITriageConfig {
 
   // Integration
   integrationChannels: Array<{
-    channel: 'email' | 'web_form' | 'chat' | 'whatsapp' | 'sms' | 'phone_transcript';
+    channel:
+      | 'email'
+      | 'web_form'
+      | 'chat'
+      | 'whatsapp'
+      | 'sms'
+      | 'phone_transcript';
     enabled: boolean;
     webhookUrl?: string;
     apiEndpoint?: string;
@@ -1491,7 +1632,14 @@ export interface AITriageImplementation {
   requirements: AITriageRequirements;
 
   // Implementation progress
-  status: 'not_started' | 'configuring' | 'training' | 'testing' | 'deployed' | 'active' | 'paused';
+  status:
+    | 'not_started'
+    | 'configuring'
+    | 'training'
+    | 'testing'
+    | 'deployed'
+    | 'active'
+    | 'paused';
 
   // Setup steps completed
   setupSteps: {
@@ -1842,7 +1990,15 @@ export interface AutoSmsWhatsappImplementation {
   requirements: AutoSmsWhatsappRequirements;
 
   // Implementation progress
-  status: 'not_started' | 'business_verification' | 'template_approval' | 'configuring' | 'testing' | 'deployed' | 'active' | 'paused';
+  status:
+    | 'not_started'
+    | 'business_verification'
+    | 'template_approval'
+    | 'configuring'
+    | 'testing'
+    | 'deployed'
+    | 'active'
+    | 'paused';
 
   // Setup steps completed
   setupSteps: {
@@ -1961,7 +2117,12 @@ export interface AutoTeamAlertsConfig {
       criterion: string; // e.g., "budget > $10,000"
       criterionHe: string;
       field: string; // CRM field name
-      operator: 'equals' | 'greater_than' | 'less_than' | 'contains' | 'in_list';
+      operator:
+        | 'equals'
+        | 'greater_than'
+        | 'less_than'
+        | 'contains'
+        | 'in_list';
       value: string | number | string[];
       points: number;
     }>;
@@ -2034,7 +2195,12 @@ export interface AutoTeamAlertsConfig {
     trigger: 'new_lead' | 'lead_score_change' | 'field_change' | 'time_based';
     conditions: Array<{
       field: string;
-      operator: 'equals' | 'greater_than' | 'less_than' | 'contains' | 'changed_to';
+      operator:
+        | 'equals'
+        | 'greater_than'
+        | 'less_than'
+        | 'contains'
+        | 'changed_to';
       value: any;
     }>;
     priority: 'urgent' | 'high' | 'medium' | 'low';
@@ -2202,7 +2368,13 @@ export interface AutoTeamAlertsImplementation {
   requirements: AutoTeamAlertsRequirements;
 
   // Implementation progress
-  status: 'not_started' | 'configuring' | 'testing' | 'deployed' | 'active' | 'paused';
+  status:
+    | 'not_started'
+    | 'configuring'
+    | 'testing'
+    | 'deployed'
+    | 'active'
+    | 'paused';
 
   // Setup steps completed
   setupSteps: {
@@ -2330,7 +2502,11 @@ export interface AutoLeadWorkflowRequirements {
 
   // Lead Assignment Logic
   leadAssignment: {
-    strategy: 'round_robin' | 'territory_based' | 'skill_based' | 'load_balanced';
+    strategy:
+      | 'round_robin'
+      | 'territory_based'
+      | 'skill_based'
+      | 'load_balanced';
     salesTeamRoster: Array<{
       agentId: string;
       name: string;
@@ -2479,7 +2655,13 @@ export interface AutoSmartFollowupRequirements {
   // Lead Engagement Scoring
   engagementScoring: {
     scoringRules: Array<{
-      action: 'email_opened' | 'email_clicked' | 'whatsapp_read' | 'whatsapp_replied' | 'website_visit' | 'form_submission';
+      action:
+        | 'email_opened'
+        | 'email_clicked'
+        | 'whatsapp_read'
+        | 'whatsapp_replied'
+        | 'website_visit'
+        | 'form_submission';
       points: number;
       decayDays?: number; // Points decay after X days
     }>;
@@ -2984,7 +3166,11 @@ export interface AutoApprovalWorkflowRequirements {
 
   // Routing Logic
   routingLogic: {
-    routingStrategy: 'hierarchy' | 'round_robin' | 'skill_based' | 'load_balanced';
+    routingStrategy:
+      | 'hierarchy'
+      | 'round_robin'
+      | 'skill_based'
+      | 'load_balanced';
     routingRules: Array<{
       itemType: string;
       condition?: string;
@@ -3237,7 +3423,13 @@ export interface AutoDocumentGenerationRequirements {
     id: string;
     name: string;
     nameHe: string;
-    category: 'contract' | 'invoice' | 'proposal' | 'receipt' | 'report' | 'custom';
+    category:
+      | 'contract'
+      | 'invoice'
+      | 'proposal'
+      | 'receipt'
+      | 'report'
+      | 'custom';
     templateId: string;
     outputFormat: 'pdf' | 'docx' | 'html' | 'xlsx';
     dataMappings: Array<{
@@ -3249,7 +3441,12 @@ export interface AutoDocumentGenerationRequirements {
 
   // Generated Document Storage
   outputStorage: {
-    storageProvider: 'google_drive' | 'dropbox' | 's3' | 'crm_attachment' | 'local';
+    storageProvider:
+      | 'google_drive'
+      | 'dropbox'
+      | 's3'
+      | 'crm_attachment'
+      | 'local';
     folderStructure: 'by_client' | 'by_type' | 'by_date' | 'custom';
     fileNamingConvention: string; // e.g., "{clientName}_{docType}_{date}.pdf"
 
@@ -3371,7 +3568,11 @@ export interface AutoDocumentMgmtRequirements {
 
   // OCR Service
   ocrService: {
-    provider: 'google_cloud_vision' | 'aws_textract' | 'azure_computer_vision' | 'tesseract';
+    provider:
+      | 'google_cloud_vision'
+      | 'aws_textract'
+      | 'azure_computer_vision'
+      | 'tesseract';
 
     googleCloudVisionConfig?: {
       projectId: string;
@@ -3452,7 +3653,12 @@ export interface AutoDocumentMgmtRequirements {
 
   // Cloud Storage
   cloudStorage: {
-    primaryProvider: 'google_drive' | 'dropbox' | 'sharepoint' | 's3' | 'azure_blob';
+    primaryProvider:
+      | 'google_drive'
+      | 'dropbox'
+      | 'sharepoint'
+      | 's3'
+      | 'azure_blob';
 
     googleDriveConfig?: {
       serviceAccountKey: string;
@@ -3491,7 +3697,12 @@ export interface AutoDocumentMgmtRequirements {
 
   // Folder Structure
   folderStructure: {
-    organizationMethod: 'by_client' | 'by_type' | 'by_date' | 'by_department' | 'custom';
+    organizationMethod:
+      | 'by_client'
+      | 'by_type'
+      | 'by_date'
+      | 'by_department'
+      | 'custom';
     folderTemplate: string; // e.g., "{year}/{month}/{client_name}/{doc_type}"
     autoCreateFolders: boolean;
     folderNamingConvention: string;
@@ -3782,7 +3993,14 @@ export interface AutoSystemSyncRequirements {
   systems: Array<{
     id: string;
     name: string;
-    type: 'crm' | 'erp' | 'ecommerce' | 'accounting' | 'shipping' | 'marketing' | 'custom';
+    type:
+      | 'crm'
+      | 'erp'
+      | 'ecommerce'
+      | 'accounting'
+      | 'shipping'
+      | 'marketing'
+      | 'custom';
     authMethod: 'oauth' | 'api_key' | 'basic_auth';
     credentials: {
       clientId?: string;
@@ -4156,7 +4374,16 @@ export interface AutoMultiSystemRequirements {
   systems: Array<{
     id: string;
     name: string;
-    type: 'crm' | 'erp' | 'ecommerce' | 'accounting' | 'shipping' | 'marketing' | 'inventory' | 'support' | 'custom';
+    type:
+      | 'crm'
+      | 'erp'
+      | 'ecommerce'
+      | 'accounting'
+      | 'shipping'
+      | 'marketing'
+      | 'inventory'
+      | 'support'
+      | 'custom';
     priority: 'primary' | 'secondary' | 'tertiary';
     authMethod: 'oauth' | 'api_key' | 'basic_auth' | 'jwt';
     credentials: Record<string, string>;
@@ -4206,7 +4433,12 @@ export interface AutoMultiSystemRequirements {
       entityType: string;
       transformations: Array<{
         field: string;
-        transformationType: 'format' | 'calculate' | 'lookup' | 'aggregate' | 'custom';
+        transformationType:
+          | 'format'
+          | 'calculate'
+          | 'lookup'
+          | 'aggregate'
+          | 'custom';
         logic: string; // JavaScript function or formula
       }>;
     }>;
@@ -4311,7 +4543,9 @@ export interface AutoMultiSystemRequirements {
 
   monitoring: {
     enabled: boolean;
-    metrics: Array<'throughput' | 'latency' | 'error_rate' | 'queue_depth' | 'system_health'>;
+    metrics: Array<
+      'throughput' | 'latency' | 'error_rate' | 'queue_depth' | 'system_health'
+    >;
     dashboardUrl?: string;
     alerting: {
       channels: Array<'email' | 'slack' | 'pagerduty' | 'opsgenie'>;
@@ -4376,13 +4610,24 @@ export interface AutoEndToEndRequirements {
   businessProcess: {
     processName: string;
     processNameHe: string;
-    processCategory: 'sales' | 'operations' | 'finance' | 'hr' | 'customer_service' | 'custom';
+    processCategory:
+      | 'sales'
+      | 'operations'
+      | 'finance'
+      | 'hr'
+      | 'customer_service'
+      | 'custom';
     processDocumentation: string; // URL or path to flowchart
     processSteps: Array<{
       stepId: string;
       stepName: string;
       stepNameHe: string;
-      stepType: 'automatic' | 'manual' | 'approval' | 'decision' | 'notification';
+      stepType:
+        | 'automatic'
+        | 'manual'
+        | 'approval'
+        | 'decision'
+        | 'notification';
       system?: string; // System ID if automatic
       assignedTo?: string; // User/role if manual
       slaMinutes?: number;
@@ -4453,7 +4698,11 @@ export interface AutoEndToEndRequirements {
 
   // Error Handling (Step-by-Step)
   errorHandlingStrategy: {
-    globalStrategy: 'fail_fast' | 'continue_on_error' | 'retry_all' | 'partial_rollback';
+    globalStrategy:
+      | 'fail_fast'
+      | 'continue_on_error'
+      | 'retry_all'
+      | 'partial_rollback';
     stepLevelHandling: Array<{
       stepId: string;
       onError: 'retry' | 'skip' | 'rollback' | 'alert' | 'fallback';
@@ -4486,7 +4735,10 @@ export interface AutoEndToEndRequirements {
     enabled: boolean;
     transactionScope: 'full_process' | 'per_step' | 'grouped';
     rollbackCapability: boolean;
-    rollbackStrategy: 'compensating_transactions' | 'reverse_operations' | 'state_revert';
+    rollbackStrategy:
+      | 'compensating_transactions'
+      | 'reverse_operations'
+      | 'state_revert';
     rollbackSteps: Array<{
       stepId: string;
       rollbackAction: string; // Action to undo the step
@@ -4507,7 +4759,13 @@ export interface AutoEndToEndRequirements {
   // Monitoring & Observability
   monitoring: {
     enabled: boolean;
-    trackMetrics: Array<'process_duration' | 'step_duration' | 'error_rate' | 'throughput' | 'bottlenecks'>;
+    trackMetrics: Array<
+      | 'process_duration'
+      | 'step_duration'
+      | 'error_rate'
+      | 'throughput'
+      | 'bottlenecks'
+    >;
     dashboardUrl?: string;
     processVisualization: boolean;
     realTimeTracking: boolean;
@@ -4598,7 +4856,14 @@ export interface AutoEndToEndRequirements {
 export interface AutoSlaTrackingRequirements {
   // Ticketing System Integration
   ticketingSystem: {
-    system: 'zendesk' | 'freshdesk' | 'zoho_desk' | 'jira_service_desk' | 'helpscout' | 'intercom' | 'custom';
+    system:
+      | 'zendesk'
+      | 'freshdesk'
+      | 'zoho_desk'
+      | 'jira_service_desk'
+      | 'helpscout'
+      | 'intercom'
+      | 'custom';
     authMethod: 'oauth' | 'api_key' | 'basic_auth';
     credentials: {
       apiKey?: string;
@@ -4652,7 +4917,9 @@ export interface AutoSlaTrackingRequirements {
   // SLA Calculator
   slaCalculator: {
     calculationMethod: 'calendar_hours' | 'business_hours';
-    pauseTimerOn: Array<'waiting_on_customer' | 'waiting_on_third_party' | 'on_hold'>;
+    pauseTimerOn: Array<
+      'waiting_on_customer' | 'waiting_on_third_party' | 'on_hold'
+    >;
     resetTimerOn?: string[]; // Ticket status that resets SLA
     bufferMinutes?: number; // Grace period before breach
   };
@@ -4698,12 +4965,12 @@ export interface AutoSlaTrackingRequirements {
     enabled: boolean;
     dashboardUrl?: string;
     metricsToTrack: Array<
-      'sla_compliance_rate' |
-      'average_response_time' |
-      'average_resolution_time' |
-      'breach_count' |
-      'tickets_at_risk' |
-      'team_performance'
+      | 'sla_compliance_rate'
+      | 'average_response_time'
+      | 'average_resolution_time'
+      | 'breach_count'
+      | 'tickets_at_risk'
+      | 'team_performance'
     >;
     reportFormat: 'pdf' | 'excel' | 'dashboard' | 'email';
     reportFrequency: 'daily' | 'weekly' | 'monthly';
@@ -4786,9 +5053,23 @@ export interface AutoCustomRequirements {
   systemsInvolved: Array<{
     systemId: string;
     systemName: string;
-    systemType: 'crm' | 'erp' | 'legacy' | 'proprietary' | 'saas' | 'database' | 'api' | 'custom';
+    systemType:
+      | 'crm'
+      | 'erp'
+      | 'legacy'
+      | 'proprietary'
+      | 'saas'
+      | 'database'
+      | 'api'
+      | 'custom';
     role: 'source' | 'destination' | 'processor' | 'trigger';
-    accessMethod: 'api' | 'database' | 'file' | 'webhook' | 'scraping' | 'custom';
+    accessMethod:
+      | 'api'
+      | 'database'
+      | 'file'
+      | 'webhook'
+      | 'scraping'
+      | 'custom';
     authMethod?: string;
     credentials?: Record<string, string>;
     apiDocumentation?: string;
@@ -4800,7 +5081,12 @@ export interface AutoCustomRequirements {
     required: boolean;
     apiType: 'rest' | 'graphql' | 'soap' | 'grpc' | 'webhook';
     framework: 'express' | 'fastify' | 'nestjs' | 'serverless' | 'custom';
-    hosting: 'vercel' | 'aws_lambda' | 'google_cloud_functions' | 'azure_functions' | 'self_hosted';
+    hosting:
+      | 'vercel'
+      | 'aws_lambda'
+      | 'google_cloud_functions'
+      | 'azure_functions'
+      | 'self_hosted';
     authentication: 'api_key' | 'oauth' | 'jwt' | 'basic_auth' | 'custom';
     rateLimiting: boolean;
     caching: boolean;
@@ -4811,7 +5097,12 @@ export interface AutoCustomRequirements {
   customBusinessLogic: {
     logicDescription: string;
     logicDescriptionHe: string;
-    implementationType: 'javascript' | 'python' | 'no_code' | 'low_code' | 'rule_engine';
+    implementationType:
+      | 'javascript'
+      | 'python'
+      | 'no_code'
+      | 'low_code'
+      | 'rule_engine';
 
     codeImplementation?: {
       language: 'javascript' | 'typescript' | 'python';
@@ -4830,7 +5121,14 @@ export interface AutoCustomRequirements {
   // Data Transformation
   dataTransformation: {
     complexTransformations: boolean;
-    transformationTypes: Array<'format' | 'calculation' | 'aggregation' | 'enrichment' | 'validation' | 'custom'>;
+    transformationTypes: Array<
+      | 'format'
+      | 'calculation'
+      | 'aggregation'
+      | 'enrichment'
+      | 'validation'
+      | 'custom'
+    >;
     transformationLogic: string; // Description or code
     dataValidationRules: Array<{
       field: string;
@@ -4841,9 +5139,21 @@ export interface AutoCustomRequirements {
 
   // Integration Patterns
   integrationPatterns: {
-    patterns: Array<'request_response' | 'event_driven' | 'batch' | 'streaming' | 'pub_sub' | 'custom'>;
+    patterns: Array<
+      | 'request_response'
+      | 'event_driven'
+      | 'batch'
+      | 'streaming'
+      | 'pub_sub'
+      | 'custom'
+    >;
     eventDriven?: {
-      eventBus: 'kafka' | 'rabbitmq' | 'aws_eventbridge' | 'google_pubsub' | 'custom';
+      eventBus:
+        | 'kafka'
+        | 'rabbitmq'
+        | 'aws_eventbridge'
+        | 'google_pubsub'
+        | 'custom';
       eventTypes: string[];
     };
     batchProcessing?: {
@@ -4871,7 +5181,9 @@ export interface AutoCustomRequirements {
     apiDocumentation: boolean;
     runbooks: boolean;
     trainingMaterials: boolean;
-    documentationFormat: Array<'markdown' | 'confluence' | 'notion' | 'pdf' | 'video'>;
+    documentationFormat: Array<
+      'markdown' | 'confluence' | 'notion' | 'pdf' | 'video'
+    >;
   };
 
   // Deployment & Maintenance
@@ -4880,7 +5192,9 @@ export interface AutoCustomRequirements {
     cicdPlatform?: 'github_actions' | 'gitlab_ci' | 'jenkins' | 'circleci';
     hosting: 'cloud' | 'on_premise' | 'hybrid';
     monitoring: boolean;
-    monitoringTools?: Array<'datadog' | 'new_relic' | 'cloudwatch' | 'prometheus' | 'custom'>;
+    monitoringTools?: Array<
+      'datadog' | 'new_relic' | 'cloudwatch' | 'prometheus' | 'custom'
+    >;
     backupStrategy: string;
     disasterRecovery: boolean;
   };
@@ -4892,7 +5206,9 @@ export interface AutoCustomRequirements {
     accessControl: boolean;
     rbacRequired: boolean;
     auditLogging: boolean;
-    complianceRequirements?: Array<'gdpr' | 'hipaa' | 'pci_dss' | 'sox' | 'iso27001'>;
+    complianceRequirements?: Array<
+      'gdpr' | 'hipaa' | 'pci_dss' | 'sox' | 'iso27001'
+    >;
     dataMasking: boolean;
     sensitiveDataHandling: string;
   };
@@ -4988,10 +5304,23 @@ export interface AutomationServiceEntry {
   serviceId: string;
   serviceName: string;
   serviceNameHe: string;
-  category: 'lead_management' | 'communication' | 'crm_sync' | 'team_productivity' | 'ai_agents' | 'custom';
+  category:
+    | 'lead_management'
+    | 'communication'
+    | 'crm_sync'
+    | 'team_productivity'
+    | 'ai_agents'
+    | 'custom';
   config?: AutomationServiceConfig; // Legacy field
   requirements?: any; // Phase 2 collected requirements (typed per service)
-  status: 'not_started' | 'configuring' | 'testing' | 'deployed' | 'active' | 'paused' | 'archived';
+  status:
+    | 'not_started'
+    | 'configuring'
+    | 'testing'
+    | 'deployed'
+    | 'active'
+    | 'paused'
+    | 'archived';
   completedAt?: Date | string;
   updatedAt?: Date;
   createdBy?: string;
@@ -5013,7 +5342,13 @@ export interface AutomationServiceCatalogEntry {
   serviceId: string;
   serviceName: string;
   serviceNameHe: string;
-  category: 'lead_management' | 'communication' | 'crm_sync' | 'team_productivity' | 'ai_agents' | 'custom';
+  category:
+    | 'lead_management'
+    | 'communication'
+    | 'crm_sync'
+    | 'team_productivity'
+    | 'ai_agents'
+    | 'custom';
   description: string;
   descriptionHe: string;
   benefits: string[];
@@ -5089,12 +5424,17 @@ export interface AutoServiceWorkflowRequirements {
   // Workflow Definition
   workflowName: string;
   workflowType: 'support_ticket' | 'service_request' | 'maintenance' | 'custom';
-  
+
   // Steps Configuration
   steps: Array<{
     id: string;
     name: string;
-    action: 'assign' | 'notify' | 'update_status' | 'send_email' | 'create_task';
+    action:
+      | 'assign'
+      | 'notify'
+      | 'update_status'
+      | 'send_email'
+      | 'create_task';
     configuration: Record<string, any>;
   }>;
 
@@ -5128,10 +5468,13 @@ export interface AutoServiceWorkflowRequirements {
 // Export types for use in requirements collection
 export type AutoLeadWorkflowData = Partial<AutoLeadWorkflowRequirements>;
 export type AutoSmartFollowupData = Partial<AutoSmartFollowupRequirements>;
-export type AutoMeetingSchedulerData = Partial<AutoMeetingSchedulerRequirements>;
+export type AutoMeetingSchedulerData =
+  Partial<AutoMeetingSchedulerRequirements>;
 export type AutoNotificationsData = Partial<AutoNotificationsRequirements>;
-export type AutoApprovalWorkflowData = Partial<AutoApprovalWorkflowRequirements>;
-export type AutoDocumentGenerationData = Partial<AutoDocumentGenerationRequirements>;
+export type AutoApprovalWorkflowData =
+  Partial<AutoApprovalWorkflowRequirements>;
+export type AutoDocumentGenerationData =
+  Partial<AutoDocumentGenerationRequirements>;
 export type AutoDocumentMgmtData = Partial<AutoDocumentMgmtRequirements>;
 export type AutoDataSyncData = Partial<AutoDataSyncRequirements>;
 export type AutoSystemSyncData = Partial<AutoSystemSyncRequirements>;

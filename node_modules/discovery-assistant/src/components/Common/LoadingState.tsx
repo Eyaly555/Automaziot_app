@@ -27,7 +27,10 @@ export const SkeletonList: React.FC<{ items?: number }> = ({ items = 3 }) => {
   return (
     <div className="space-y-4">
       {Array.from({ length: items }).map((_, index) => (
-        <div key={index} className="animate-pulse bg-white rounded-lg p-4 shadow">
+        <div
+          key={index}
+          className="animate-pulse bg-white rounded-lg p-4 shadow"
+        >
           <div className="h-4 bg-gray-200 rounded w-1/4 mb-2" />
           <div className="h-3 bg-gray-200 rounded w-3/4 mb-1" />
           <div className="h-3 bg-gray-200 rounded w-1/2" />

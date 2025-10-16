@@ -18,7 +18,9 @@ class ErrorReportingService {
   private maxErrors: number = 100;
 
   // Report error to external service (Sentry, LogRocket, etc.)
-  private async reportToExternalService(errorReport: ErrorReport): Promise<void> {
+  private async reportToExternalService(
+    errorReport: ErrorReport
+  ): Promise<void> {
     try {
       // Here you would integrate with your error reporting service
       // Example: Sentry, LogRocket, Bugsnag, etc.
@@ -39,12 +41,19 @@ class ErrorReportingService {
 
       logger.info('Error reported to external service', { errorReport });
     } catch (reportingError) {
-      logger.error('Failed to report error to external service', reportingError);
+      logger.error(
+        'Failed to report error to external service',
+        reportingError
+      );
     }
   }
 
   // Report React error boundary error
-  async reportReactError(error: Error, errorInfo: React.ErrorInfo, additionalData?: any): Promise<void> {
+  async reportReactError(
+    error: Error,
+    errorInfo: React.ErrorInfo,
+    additionalData?: any
+  ): Promise<void> {
     const errorReport: ErrorReport = {
       message: error.message,
       stack: error.stack,
@@ -86,7 +95,12 @@ class ErrorReportingService {
       timestamp: new Date(),
       url: window.location.href,
       userAgent: navigator.userAgent,
-      additionalData: { type: 'uncaughtError', filename: event.filename, lineno: event.lineno, colno: event.colno },
+      additionalData: {
+        type: 'uncaughtError',
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+      },
     };
 
     this.addToLocalStorage(errorReport);
@@ -131,13 +145,19 @@ class ErrorReportingService {
   }
 
   // Get error summary for debugging
-  getErrorSummary(): { total: number; byType: Record<string, number>; recentErrors: ErrorReport[] } {
+  getErrorSummary(): {
+    total: number;
+    byType: Record<string, number>;
+    recentErrors: ErrorReport[];
+  } {
     const errors = this.getLocalErrors();
     const recentErrors = errors.slice(-10); // Last 10 errors
 
     const byType: Record<string, number> = {};
-    errors.forEach(error => {
-      const type = error.errorBoundary ? 'react' : error.additionalData?.type || 'unknown';
+    errors.forEach((error) => {
+      const type = error.errorBoundary
+        ? 'react'
+        : error.additionalData?.type || 'unknown';
       byType[type] = (byType[type] || 0) + 1;
     });
 

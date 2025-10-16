@@ -17,8 +17,12 @@ export const SystemsModuleEnhanced: React.FC = () => {
   const moduleData = currentMeeting?.modules?.systems || {};
 
   // Current Systems (legacy checkboxes)
-  const [currentSystems, setCurrentSystems] = useState<string[]>(moduleData.currentSystems || []);
-  const [customSystems, setCustomSystems] = useState(moduleData.customSystems || '');
+  const [currentSystems, setCurrentSystems] = useState<string[]>(
+    moduleData.currentSystems || []
+  );
+  const [customSystems, setCustomSystems] = useState(
+    moduleData.customSystems || ''
+  );
 
   // NEW: Detailed Systems
   const [detailedSystems, setDetailedSystems] = useState<DetailedSystemInfo[]>(
@@ -26,24 +30,46 @@ export const SystemsModuleEnhanced: React.FC = () => {
   );
 
   // Integrations
-  const [integrationLevel, setIntegrationLevel] = useState(moduleData.integrations?.level || '');
-  const [integrationIssues, setIntegrationIssues] = useState<string[]>(moduleData.integrations?.issues || []);
-  const [manualDataTransfer, setManualDataTransfer] = useState(moduleData.integrations?.manualDataTransfer || '');
+  const [integrationLevel, setIntegrationLevel] = useState(
+    moduleData.integrations?.level || ''
+  );
+  const [integrationIssues, setIntegrationIssues] = useState<string[]>(
+    moduleData.integrations?.issues || []
+  );
+  const [manualDataTransfer, setManualDataTransfer] = useState(
+    moduleData.integrations?.manualDataTransfer || ''
+  );
 
   // Data Quality
-  const [dataQuality, setDataQuality] = useState(moduleData.dataQuality?.overall || '');
-  const [duplicateData, setDuplicateData] = useState(moduleData.dataQuality?.duplicates || '');
-  const [dataCompleteness, setDataCompleteness] = useState(moduleData.dataQuality?.completeness || '');
+  const [dataQuality, setDataQuality] = useState(
+    moduleData.dataQuality?.overall || ''
+  );
+  const [duplicateData, setDuplicateData] = useState(
+    moduleData.dataQuality?.duplicates || ''
+  );
+  const [dataCompleteness, setDataCompleteness] = useState(
+    moduleData.dataQuality?.completeness || ''
+  );
 
   // API & Webhooks
   const [apiUsage, setApiUsage] = useState(moduleData.apiWebhooks?.usage || '');
-  const [webhookUsage, setWebhookUsage] = useState(moduleData.apiWebhooks?.webhooks || '');
-  const [apiNeeds, setApiNeeds] = useState<string[]>(moduleData.apiWebhooks?.needs || []);
+  const [webhookUsage, setWebhookUsage] = useState(
+    moduleData.apiWebhooks?.webhooks || ''
+  );
+  const [apiNeeds, setApiNeeds] = useState<string[]>(
+    moduleData.apiWebhooks?.needs || []
+  );
 
   // Infrastructure
-  const [hostingType, setHostingType] = useState(moduleData.infrastructure?.hosting || '');
-  const [securityMeasures, setSecurityMeasures] = useState<string[]>(moduleData.infrastructure?.security || []);
-  const [backupFrequency, setBackupFrequency] = useState(moduleData.infrastructure?.backup || '');
+  const [hostingType, setHostingType] = useState(
+    moduleData.infrastructure?.hosting || ''
+  );
+  const [securityMeasures, setSecurityMeasures] = useState<string[]>(
+    moduleData.infrastructure?.security || []
+  );
+  const [backupFrequency, setBackupFrequency] = useState(
+    moduleData.infrastructure?.backup || ''
+  );
 
   const saveData = () => {
     updateModule('systems', {
@@ -53,23 +79,23 @@ export const SystemsModuleEnhanced: React.FC = () => {
       integrations: {
         level: integrationLevel,
         issues: integrationIssues,
-        manualDataTransfer
+        manualDataTransfer,
       },
       dataQuality: {
         overall: dataQuality,
         duplicates: duplicateData,
-        completeness: dataCompleteness
+        completeness: dataCompleteness,
       },
       apiWebhooks: {
         usage: apiUsage,
         webhooks: webhookUsage,
-        needs: apiNeeds
+        needs: apiNeeds,
       },
       infrastructure: {
         hosting: hostingType,
         security: securityMeasures,
-        backup: backupFrequency
-      }
+        backup: backupFrequency,
+      },
     });
   };
 
@@ -79,9 +105,23 @@ export const SystemsModuleEnhanced: React.FC = () => {
     const timer = setTimeout(saveData, 1000);
 
     return () => clearTimeout(timer);
-  }, [currentSystems, customSystems, detailedSystems, integrationLevel, integrationIssues, manualDataTransfer,
-      dataQuality, duplicateData, dataCompleteness, apiUsage, webhookUsage, apiNeeds,
-      hostingType, securityMeasures, backupFrequency]);
+  }, [
+    currentSystems,
+    customSystems,
+    detailedSystems,
+    integrationLevel,
+    integrationIssues,
+    manualDataTransfer,
+    dataQuality,
+    duplicateData,
+    dataCompleteness,
+    apiUsage,
+    webhookUsage,
+    apiNeeds,
+    hostingType,
+    securityMeasures,
+    backupFrequency,
+  ]);
 
   const handleAddDetailedSystem = (category: string) => {
     const newSystem: DetailedSystemInfo = {
@@ -93,19 +133,24 @@ export const SystemsModuleEnhanced: React.FC = () => {
       mainPainPoints: [],
       integrationNeeds: [],
       migrationWillingness: 'open',
-      criticalFeatures: []
+      criticalFeatures: [],
     };
     setDetailedSystems([...detailedSystems, newSystem]);
   };
 
-  const handleUpdateDetailedSystem = (id: string, updates: Partial<DetailedSystemInfo>) => {
-    setDetailedSystems(detailedSystems.map(sys =>
-      sys.id === id ? { ...sys, ...updates } : sys
-    ));
+  const handleUpdateDetailedSystem = (
+    id: string,
+    updates: Partial<DetailedSystemInfo>
+  ) => {
+    setDetailedSystems(
+      detailedSystems.map((sys) =>
+        sys.id === id ? { ...sys, ...updates } : sys
+      )
+    );
   };
 
   const handleRemoveDetailedSystem = (id: string) => {
-    setDetailedSystems(detailedSystems.filter(sys => sys.id !== id));
+    setDetailedSystems(detailedSystems.filter((sys) => sys.id !== id));
   };
 
   return (
@@ -127,7 +172,9 @@ export const SystemsModuleEnhanced: React.FC = () => {
                     <Sparkles className="w-3 h-3 inline" /> משופר
                   </span>
                 </h1>
-                <p className="text-sm text-gray-600">מפרט מפורט למערכות ואינטגרציות</p>
+                <p className="text-sm text-gray-600">
+                  מפרט מפורט למערכות ואינטגרציות
+                </p>
               </div>
             </div>
             <button
@@ -160,7 +207,7 @@ export const SystemsModuleEnhanced: React.FC = () => {
                   { value: 'hr_system', label: 'מערכת משאבי אנוש' },
                   { value: 'inventory', label: 'ניהול מלאי' },
                   { value: 'ecommerce', label: 'מסחר אלקטרוני' },
-                  { value: 'bi_analytics', label: 'BI וניתוח נתונים' }
+                  { value: 'bi_analytics', label: 'BI וניתוח נתונים' },
                 ]}
                 values={currentSystems}
                 onChange={setCurrentSystems}
@@ -197,14 +244,15 @@ export const SystemsModuleEnhanced: React.FC = () => {
                     חדש! מפרט מפורט למפתחים
                   </p>
                   <p className="text-xs text-gray-600">
-                    הוסף פרטים טכניים מדויקים לכל מערכת כדי ליצור מפרט אוטומטי למפתחים
+                    הוסף פרטים טכניים מדויקים לכל מערכת כדי ליצור מפרט אוטומטי
+                    למפתחים
                   </p>
                 </div>
               </div>
 
               {/* Add System Buttons */}
               <div className="grid grid-cols-2 gap-2">
-                {SYSTEM_CATEGORIES.map(category => (
+                {SYSTEM_CATEGORIES.map((category) => (
                   <button
                     key={category.id}
                     onClick={() => handleAddDetailedSystem(category.id)}
@@ -220,15 +268,19 @@ export const SystemsModuleEnhanced: React.FC = () => {
               {detailedSystems.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <p className="mb-2">לא הוספת מערכות מפורטות עדיין</p>
-                  <p className="text-sm">לחץ על אחד הכפתורים למעלה כדי להוסיף מערכת</p>
+                  <p className="text-sm">
+                    לחץ על אחד הכפתורים למעלה כדי להוסיף מערכת
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {detailedSystems.map(system => (
+                  {detailedSystems.map((system) => (
                     <DetailedSystemCard
                       key={system.id}
                       system={system}
-                      onUpdate={(updates) => handleUpdateDetailedSystem(system.id, updates)}
+                      onUpdate={(updates) =>
+                        handleUpdateDetailedSystem(system.id, updates)
+                      }
                       onRemove={() => handleRemoveDetailedSystem(system.id)}
                       allSystems={detailedSystems}
                     />
@@ -239,8 +291,10 @@ export const SystemsModuleEnhanced: React.FC = () => {
           </Card>
 
           {/* Integrations - Keep existing */}
-          <Card title="7.3 אינטגרציות כלליות"
-            subtitle="איך המערכות מתקשרות ביניהן?">
+          <Card
+            title="7.3 אינטגרציות כלליות"
+            subtitle="איך המערכות מתקשרות ביניהן?"
+          >
             <div className="space-y-6">
               <RadioGroup
                 label="רמת אינטגרציה בין מערכות"
@@ -250,7 +304,7 @@ export const SystemsModuleEnhanced: React.FC = () => {
                   { value: 'full', label: 'מלאה - הכל מסונכרן אוטומטית' },
                   { value: 'partial', label: 'חלקית - חלק מהמערכות מחוברות' },
                   { value: 'minimal', label: 'מינימלית - רוב המערכות נפרדות' },
-                  { value: 'none', label: 'אין - כל מערכת עובדת בנפרד' }
+                  { value: 'none', label: 'אין - כל מערכת עובדת בנפרד' },
                 ]}
               />
 
@@ -262,7 +316,7 @@ export const SystemsModuleEnhanced: React.FC = () => {
                   { value: 'duplicate_entry', label: 'הזנות כפולות' },
                   { value: 'format_issues', label: 'בעיות פורמט/תאימות' },
                   { value: 'limited_fields', label: 'העברת שדות מוגבלת' },
-                  { value: 'manual_updates', label: 'צורך בעדכון ידני' }
+                  { value: 'manual_updates', label: 'צורך בעדכון ידני' },
                 ]}
                 values={integrationIssues}
                 onChange={setIntegrationIssues}
@@ -278,11 +332,12 @@ export const SystemsModuleEnhanced: React.FC = () => {
                   { value: '1-2_hours', label: '1-2 שעות בשבוע' },
                   { value: '3-5_hours', label: '3-5 שעות בשבוע' },
                   { value: '6-10_hours', label: '6-10 שעות בשבוע' },
-                  { value: 'over_10', label: 'מעל 10 שעות בשבוע' }
+                  { value: 'over_10', label: 'מעל 10 שעות בשבוע' },
                 ]}
               />
 
-              {(integrationLevel === 'minimal' || integrationLevel === 'none') && (
+              {(integrationLevel === 'minimal' ||
+                integrationLevel === 'none') && (
                 <PainPointFlag
                   severity="high"
                   description="חוסר אינטגרציה - בזבוז זמן משמעותי"
@@ -292,18 +347,20 @@ export const SystemsModuleEnhanced: React.FC = () => {
           </Card>
 
           {/* Data Quality - Keep existing */}
-          <Card title="7.4 איכות נתונים"
-            subtitle="מה מצב הנתונים במערכות?">
+          <Card title="7.4 איכות נתונים" subtitle="מה מצב הנתונים במערכות?">
             <div className="space-y-6">
               <RadioGroup
                 label="איכות נתונים כללית"
                 value={dataQuality}
                 onChange={setDataQuality}
                 options={[
-                  { value: 'excellent', label: 'מצוינת - נתונים נקיים ומדויקים' },
+                  {
+                    value: 'excellent',
+                    label: 'מצוינת - נתונים נקיים ומדויקים',
+                  },
                   { value: 'good', label: 'טובה - בעיות מינוריות' },
                   { value: 'average', label: 'בינונית - יש בעיות שצריך לטפל' },
-                  { value: 'poor', label: 'גרועה - הרבה בעיות ואי דיוקים' }
+                  { value: 'poor', label: 'גרועה - הרבה בעיות ואי דיוקים' },
                 ]}
               />
 
@@ -315,7 +372,7 @@ export const SystemsModuleEnhanced: React.FC = () => {
                   { value: 'none', label: 'אין כפילויות' },
                   { value: 'minimal', label: 'מעט (פחות מ-5%)' },
                   { value: 'moderate', label: 'בינוני (5-15%)' },
-                  { value: 'high', label: 'הרבה (מעל 15%)' }
+                  { value: 'high', label: 'הרבה (מעל 15%)' },
                 ]}
               />
 
@@ -327,7 +384,7 @@ export const SystemsModuleEnhanced: React.FC = () => {
                   { value: 'complete', label: 'מלא - כל השדות החשובים מלאים' },
                   { value: 'mostly_complete', label: 'רוב השדות מלאים' },
                   { value: 'partial', label: 'חלקי - חסרים הרבה נתונים' },
-                  { value: 'poor', label: 'חסר - רוב השדות ריקים' }
+                  { value: 'poor', label: 'חסר - רוב השדות ריקים' },
                 ]}
               />
 
@@ -341,8 +398,10 @@ export const SystemsModuleEnhanced: React.FC = () => {
           </Card>
 
           {/* API & Webhooks - Keep existing */}
-          <Card title="7.5 ממשקי API ו-Webhooks"
-            subtitle="שימוש בממשקים לאוטומציה">
+          <Card
+            title="7.5 ממשקי API ו-Webhooks"
+            subtitle="שימוש בממשקים לאוטומציה"
+          >
             <div className="space-y-6">
               <RadioGroup
                 label="שימוש ב-API"
@@ -352,7 +411,7 @@ export const SystemsModuleEnhanced: React.FC = () => {
                   { value: 'extensive', label: 'נרחב - משתמשים בהרבה ממשקים' },
                   { value: 'moderate', label: 'בינוני - כמה ממשקים פעילים' },
                   { value: 'minimal', label: 'מינימלי - שימוש בסיסי' },
-                  { value: 'none', label: 'אין שימוש בכלל' }
+                  { value: 'none', label: 'אין שימוש בכלל' },
                 ]}
               />
 
@@ -364,7 +423,7 @@ export const SystemsModuleEnhanced: React.FC = () => {
                   { value: 'active', label: 'פעיל - מקבלים התראות בזמן אמת' },
                   { value: 'limited', label: 'מוגבל - רק לדברים קריטיים' },
                   { value: 'none', label: 'אין שימוש' },
-                  { value: 'dont_know', label: 'לא יודע מה זה' }
+                  { value: 'dont_know', label: 'לא יודע מה זה' },
                 ]}
               />
 
@@ -372,11 +431,17 @@ export const SystemsModuleEnhanced: React.FC = () => {
                 label="צרכי ממשקים"
                 options={[
                   { value: 'real_time_sync', label: 'סנכרון בזמן אמת' },
-                  { value: 'automated_workflows', label: 'תהליכי עבודה אוטומטיים' },
-                  { value: 'external_integrations', label: 'חיבור לשירותים חיצוניים' },
+                  {
+                    value: 'automated_workflows',
+                    label: 'תהליכי עבודה אוטומטיים',
+                  },
+                  {
+                    value: 'external_integrations',
+                    label: 'חיבור לשירותים חיצוניים',
+                  },
                   { value: 'data_export', label: 'ייצוא נתונים אוטומטי' },
                   { value: 'event_triggers', label: 'טריגרים לאירועים' },
-                  { value: 'custom_reports', label: 'דוחות מותאמים אישית' }
+                  { value: 'custom_reports', label: 'דוחות מותאמים אישית' },
                 ]}
                 values={apiNeeds}
                 onChange={setApiNeeds}
@@ -386,8 +451,10 @@ export const SystemsModuleEnhanced: React.FC = () => {
           </Card>
 
           {/* Infrastructure - Keep existing */}
-          <Card title="7.6 תשתית ואבטחה"
-            subtitle="איך המערכות מאוחסנות ומאובטחות?">
+          <Card
+            title="7.6 תשתית ואבטחה"
+            subtitle="איך המערכות מאוחסנות ומאובטחות?"
+          >
             <div className="space-y-6">
               <RadioGroup
                 label="סוג אירוח"
@@ -397,7 +464,7 @@ export const SystemsModuleEnhanced: React.FC = () => {
                   { value: 'cloud', label: 'ענן מלא (AWS, Azure, Google)' },
                   { value: 'hybrid', label: 'היברידי - חלק ענן חלק מקומי' },
                   { value: 'on_premise', label: 'מקומי - שרתים בארגון' },
-                  { value: 'mixed_saas', label: 'שילוב של שירותי SaaS' }
+                  { value: 'mixed_saas', label: 'שילוב של שירותי SaaS' },
                 ]}
               />
 
@@ -411,7 +478,7 @@ export const SystemsModuleEnhanced: React.FC = () => {
                   { value: 'audit_logs', label: 'לוגים וביקורת' },
                   { value: 'encryption', label: 'הצפנת נתונים' },
                   { value: 'vpn', label: 'גישה דרך VPN' },
-                  { value: 'firewall', label: 'חומת אש' }
+                  { value: 'firewall', label: 'חומת אש' },
                 ]}
                 values={securityMeasures}
                 onChange={setSecurityMeasures}
@@ -428,7 +495,7 @@ export const SystemsModuleEnhanced: React.FC = () => {
                   { value: 'daily', label: 'יומי' },
                   { value: 'weekly', label: 'שבועי' },
                   { value: 'monthly', label: 'חודשי' },
-                  { value: 'none', label: 'אין גיבויים קבועים' }
+                  { value: 'none', label: 'אין גיבויים קבועים' },
                 ]}
               />
 
@@ -452,7 +519,9 @@ export const SystemsModuleEnhanced: React.FC = () => {
           {detailedSystems.length > 0 && (
             <div className="mt-8">
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">🔗 מפת אינטגרציות</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  🔗 מפת אינטגרציות
+                </h2>
                 <p className="text-gray-700">
                   תצוגה ויזואלית של מערכות וקישוריות ביניהן
                 </p>

@@ -3,7 +3,11 @@ import { Meeting } from '../types';
 /**
  * Download file helper
  */
-function downloadFile(content: string, filename: string, mimeType: string): void {
+function downloadFile(
+  content: string,
+  filename: string,
+  mimeType: string
+): void {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -47,7 +51,7 @@ export function exportDiscoveryToJSON(meeting: Meeting): void {
     notes: meeting.notes,
     zohoIntegration: meeting.zohoIntegration,
     exportedAt: new Date().toISOString(),
-    exportVersion: '1.0'
+    exportVersion: '1.0',
   };
 
   const jsonData = JSON.stringify(discoveryData, null, 2);
@@ -79,10 +83,10 @@ export function exportImplementationSpecToJSON(meeting: Meeting): void {
     discoveryModules: {
       overview: meeting.modules.overview,
       systems: meeting.modules.systems,
-      proposal: meeting.modules.proposal
+      proposal: meeting.modules.proposal,
     },
     exportedAt: new Date().toISOString(),
-    exportVersion: '1.0'
+    exportVersion: '1.0',
   };
 
   const jsonData = JSON.stringify(phase2Data, null, 2);
@@ -114,10 +118,10 @@ export function exportDevelopmentToJSON(meeting: Meeting): void {
     projectContext: {
       overview: meeting.modules.overview,
       totalROI: meeting.totalROI,
-      proposedServices: meeting.modules.proposal?.selectedServices
+      proposedServices: meeting.modules.proposal?.selectedServices,
     },
     exportedAt: new Date().toISOString(),
-    exportVersion: '1.0'
+    exportVersion: '1.0',
   };
 
   const jsonData = JSON.stringify(phase3Data, null, 2);
@@ -142,11 +146,14 @@ export function exportSystemsInventoryToJSON(meeting: Meeting): void {
       integrationNeeds: meeting.modules.systems?.integrationNeeds,
       // Calculate average satisfaction from detailed systems
       satisfactionScore: meeting.modules.systems?.detailedSystems?.length
-        ? meeting.modules.systems.detailedSystems.reduce((sum, sys) => sum + sys.satisfactionScore, 0) / meeting.modules.systems.detailedSystems.length
-        : undefined
+        ? meeting.modules.systems.detailedSystems.reduce(
+            (sum, sys) => sum + sys.satisfactionScore,
+            0
+          ) / meeting.modules.systems.detailedSystems.length
+        : undefined,
     },
     implementationPhase: meeting.implementationSpec?.systems || [],
-    exportVersion: '1.0'
+    exportVersion: '1.0',
   };
 
   const jsonData = JSON.stringify(systemsData, null, 2);
@@ -170,7 +177,7 @@ export function exportROIAnalysisToJSON(meeting: Meeting): void {
     roiModule: meeting.modules.roi,
     painPoints: meeting.painPoints,
     proposedServices: meeting.modules.proposal?.selectedServices || [],
-    exportVersion: '1.0'
+    exportVersion: '1.0',
   };
 
   const jsonData = JSON.stringify(roiData, null, 2);
@@ -199,7 +206,7 @@ export function exportTasksToJSON(meeting: Meeting): void {
     sprints: meeting.developmentTracking.sprints || [],
     blockers: meeting.developmentTracking.blockers || [],
     teamMembers: meeting.developmentTracking.teamMembers || [],
-    exportVersion: '1.0'
+    exportVersion: '1.0',
   };
 
   const jsonData = JSON.stringify(tasksData, null, 2);
@@ -221,39 +228,41 @@ export function exportN8NWorkflowsToJSON(meeting: Meeting): void {
     return;
   }
 
-  const workflows = meeting.implementationSpec.integrations.map((flow: any) => ({
-    name: flow.name,
-    nodes: [
-      {
-        parameters: {},
-        name: 'Trigger',
-        type: flow.trigger?.type || 'webhook',
-        typeVersion: 1,
-        position: [250, 300]
-      },
-      ...(flow.steps || []).map((step: any, index: number) => ({
-        parameters: {
-          operation: step.type,
-          endpoint: step.endpoint || '',
-          authentication: 'predefinedCredentialType'
+  const workflows = meeting.implementationSpec.integrations.map(
+    (flow: any) => ({
+      name: flow.name,
+      nodes: [
+        {
+          parameters: {},
+          name: 'Trigger',
+          type: flow.trigger?.type || 'webhook',
+          typeVersion: 1,
+          position: [250, 300],
         },
-        name: step.description || `Step ${index + 1}`,
-        type: step.type === 'api_call' ? 'httpRequest' : step.type,
-        typeVersion: 1,
-        position: [250 + (index + 1) * 200, 300]
-      }))
-    ],
-    connections: {},
-    settings: {
-      executionOrder: 'v1'
-    }
-  }));
+        ...(flow.steps || []).map((step: any, index: number) => ({
+          parameters: {
+            operation: step.type,
+            endpoint: step.endpoint || '',
+            authentication: 'predefinedCredentialType',
+          },
+          name: step.description || `Step ${index + 1}`,
+          type: step.type === 'api_call' ? 'httpRequest' : step.type,
+          typeVersion: 1,
+          position: [250 + (index + 1) * 200, 300],
+        })),
+      ],
+      connections: {},
+      settings: {
+        executionOrder: 'v1',
+      },
+    })
+  );
 
   const n8nData = {
     clientName: meeting.clientName,
     exportDate: new Date().toISOString(),
     workflows,
-    exportVersion: '1.0'
+    exportVersion: '1.0',
   };
 
   const jsonData = JSON.stringify(n8nData, null, 2);
@@ -276,27 +285,43 @@ export function exportPainPointsToJSON(meeting: Meeting): void {
     painPoints: meeting.painPoints || [],
     summary: {
       totalCount: meeting.painPoints?.length || 0,
-      criticalCount: meeting.painPoints?.filter(p => p.severity === 'critical').length || 0,
-      highCount: meeting.painPoints?.filter(p => p.severity === 'high').length || 0,
-      mediumCount: meeting.painPoints?.filter(p => p.severity === 'medium').length || 0,
-      lowCount: meeting.painPoints?.filter(p => p.severity === 'low').length || 0,
-      totalPotentialSavings: meeting.painPoints?.reduce((sum, p) => sum + (p.potentialSaving || 0), 0) || 0,
-      totalPotentialHours: meeting.painPoints?.reduce((sum, p) => sum + (p.potentialHours || 0), 0) || 0
+      criticalCount:
+        meeting.painPoints?.filter((p) => p.severity === 'critical').length ||
+        0,
+      highCount:
+        meeting.painPoints?.filter((p) => p.severity === 'high').length || 0,
+      mediumCount:
+        meeting.painPoints?.filter((p) => p.severity === 'medium').length || 0,
+      lowCount:
+        meeting.painPoints?.filter((p) => p.severity === 'low').length || 0,
+      totalPotentialSavings:
+        meeting.painPoints?.reduce(
+          (sum, p) => sum + (p.potentialSaving || 0),
+          0
+        ) || 0,
+      totalPotentialHours:
+        meeting.painPoints?.reduce(
+          (sum, p) => sum + (p.potentialHours || 0),
+          0
+        ) || 0,
     },
     byModule: Object.entries(
-      (meeting.painPoints || []).reduce((acc, p) => {
-        if (!acc[p.module]) {
-          acc[p.module] = [];
-        }
-        acc[p.module].push(p);
-        return acc;
-      }, {} as Record<string, typeof meeting.painPoints>)
+      (meeting.painPoints || []).reduce(
+        (acc, p) => {
+          if (!acc[p.module]) {
+            acc[p.module] = [];
+          }
+          acc[p.module].push(p);
+          return acc;
+        },
+        {} as Record<string, typeof meeting.painPoints>
+      )
     ).map(([module, points]) => ({
       module,
       count: points.length,
-      points
+      points,
     })),
-    exportVersion: '1.0'
+    exportVersion: '1.0',
   };
 
   const jsonData = JSON.stringify(painPointsData, null, 2);
@@ -312,7 +337,9 @@ export function exportPainPointsToJSON(meeting: Meeting): void {
  * Import meeting data from JSON
  * Can be used to restore backups
  */
-export async function importMeetingFromJSON(file: File): Promise<Meeting | null> {
+export async function importMeetingFromJSON(
+  file: File
+): Promise<Meeting | null> {
   try {
     const text = await file.text();
     const data = JSON.parse(text);
@@ -330,7 +357,7 @@ export async function importMeetingFromJSON(file: File): Promise<Meeting | null>
     if (data.phaseHistory) {
       data.phaseHistory = data.phaseHistory.map((transition: any) => ({
         ...transition,
-        timestamp: new Date(transition.timestamp)
+        timestamp: new Date(transition.timestamp),
       }));
     }
 
@@ -359,7 +386,10 @@ export async function copyMeetingToClipboard(meeting: Meeting): Promise<void> {
 /**
  * Copy specific phase data to clipboard as JSON
  */
-export async function copyPhaseDataToClipboard(meeting: Meeting, phase: 'discovery' | 'implementation_spec' | 'development'): Promise<void> {
+export async function copyPhaseDataToClipboard(
+  meeting: Meeting,
+  phase: 'discovery' | 'implementation_spec' | 'development'
+): Promise<void> {
   try {
     let data: any;
 
@@ -368,7 +398,7 @@ export async function copyPhaseDataToClipboard(meeting: Meeting, phase: 'discove
         data = {
           modules: meeting.modules,
           painPoints: meeting.painPoints,
-          totalROI: meeting.totalROI
+          totalROI: meeting.totalROI,
         };
         break;
       case 'implementation_spec':

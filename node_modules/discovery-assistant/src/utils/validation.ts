@@ -13,7 +13,10 @@ export type ValidationRule = {
  * @param rules - Array of validation rules to apply
  * @returns Error message if validation fails, null if successful
  */
-export const validate = (value: any, rules: ValidationRule[]): string | null => {
+export const validate = (
+  value: any,
+  rules: ValidationRule[]
+): string | null => {
   for (const rule of rules) {
     switch (rule.type) {
       case 'required':
@@ -101,14 +104,14 @@ export const useFormValidation = <T extends Record<string, any>>(
    * Handles field value changes with optional validation
    */
   const handleChange = (name: keyof T, value: any) => {
-    setValues(prev => ({ ...prev, [name]: value }));
+    setValues((prev) => ({ ...prev, [name]: value }));
 
     // Validate on change if field was touched
     if (touched[name]) {
       const error = validateField(name, value);
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: error || undefined
+        [name]: error || undefined,
       }));
     }
   };
@@ -117,11 +120,11 @@ export const useFormValidation = <T extends Record<string, any>>(
    * Handles field blur events and triggers validation
    */
   const handleBlur = (name: keyof T) => {
-    setTouched(prev => ({ ...prev, [name]: true }));
+    setTouched((prev) => ({ ...prev, [name]: true }));
     const error = validateField(name, values[name]);
-    setErrors(prev => ({
+    setErrors((prev) => ({
       ...prev,
-      [name]: error || undefined
+      [name]: error || undefined,
     }));
   };
 
@@ -134,7 +137,7 @@ export const useFormValidation = <T extends Record<string, any>>(
     const newTouched: Partial<Record<keyof T, boolean>> = {};
     let isValid = true;
 
-    (Object.keys(validationRules) as (keyof T)[]).forEach(name => {
+    (Object.keys(validationRules) as (keyof T)[]).forEach((name) => {
       const error = validateField(name, values[name]);
       newTouched[name] = true;
       if (error) {
@@ -162,14 +165,14 @@ export const useFormValidation = <T extends Record<string, any>>(
    * Sets a specific field error manually
    */
   const setFieldError = (name: keyof T, error: string) => {
-    setErrors(prev => ({ ...prev, [name]: error }));
+    setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
   /**
    * Clears a specific field error
    */
   const clearFieldError = (name: keyof T) => {
-    setErrors(prev => {
+    setErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[name];
       return newErrors;
@@ -213,7 +216,7 @@ export const useFormValidation = <T extends Record<string, any>>(
     isFieldTouched,
     hasFieldError,
     getFieldError,
-    setIsSubmitting
+    setIsSubmitting,
   };
 };
 
@@ -221,72 +224,75 @@ export const useFormValidation = <T extends Record<string, any>>(
 export const commonValidations = {
   required: (fieldName: string): ValidationRule => ({
     type: 'required',
-    message: `${fieldName} הוא שדה חובה`
+    message: `${fieldName} הוא שדה חובה`,
   }),
 
   email: (): ValidationRule => ({
     type: 'email',
-    message: 'כתובת אימייל לא תקינה'
+    message: 'כתובת אימייל לא תקינה',
   }),
 
   minLength: (min: number, fieldName: string = 'שדה זה'): ValidationRule => ({
     type: 'min',
     value: min,
-    message: `${fieldName} חייב להכיל לפחות ${min} תווים`
+    message: `${fieldName} חייב להכיל לפחות ${min} תווים`,
   }),
 
   maxLength: (max: number, fieldName: string = 'שדה זה'): ValidationRule => ({
     type: 'max',
     value: max,
-    message: `${fieldName} לא יכול להכיל יותר מ-${max} תווים`
+    message: `${fieldName} לא יכול להכיל יותר מ-${max} תווים`,
   }),
 
   minValue: (min: number, fieldName: string = 'ערך זה'): ValidationRule => ({
     type: 'min',
     value: min,
-    message: `${fieldName} חייב להיות לפחות ${min}`
+    message: `${fieldName} חייב להיות לפחות ${min}`,
   }),
 
   maxValue: (max: number, fieldName: string = 'ערך זה'): ValidationRule => ({
     type: 'max',
     value: max,
-    message: `${fieldName} לא יכול להיות יותר מ-${max}`
+    message: `${fieldName} לא יכול להיות יותר מ-${max}`,
   }),
 
   pattern: (regex: RegExp, message: string): ValidationRule => ({
     type: 'pattern',
     value: regex,
-    message
+    message,
   }),
 
   phone: (): ValidationRule => ({
     type: 'pattern',
     value: /^0[0-9]{1,2}-?[0-9]{7}$/,
-    message: 'מספר טלפון לא תקין'
+    message: 'מספר טלפון לא תקין',
   }),
 
   url: (): ValidationRule => ({
     type: 'pattern',
     value: /^https?:\/\/.+/,
-    message: 'כתובת URL לא תקינה'
+    message: 'כתובת URL לא תקינה',
   }),
 
-  custom: (validator: (value: any) => boolean, message: string): ValidationRule => ({
+  custom: (
+    validator: (value: any) => boolean,
+    message: string
+  ): ValidationRule => ({
     type: 'custom',
     validator,
-    message
-  })
+    message,
+  }),
 };
 
 // Pre-configured validation rule sets for common form fields
 export const emailRules: ValidationRule[] = [
   commonValidations.required('אימייל'),
-  commonValidations.email()
+  commonValidations.email(),
 ];
 
 export const phoneRules: ValidationRule[] = [
   commonValidations.required('טלפון'),
-  commonValidations.phone()
+  commonValidations.phone(),
 ];
 
 export const numberRules: ValidationRule[] = [
@@ -294,8 +300,8 @@ export const numberRules: ValidationRule[] = [
   {
     type: 'pattern',
     value: /^[0-9]+$/,
-    message: 'יש להזין מספר תקין'
-  }
+    message: 'יש להזין מספר תקין',
+  },
 ];
 
 export const hebrewTextRules: ValidationRule[] = [
@@ -303,6 +309,6 @@ export const hebrewTextRules: ValidationRule[] = [
   {
     type: 'pattern',
     value: /^[\u0590-\u05FF\s]+$/,
-    message: 'יש להזין טקסט בעברית בלבד'
-  }
+    message: 'יש להזין טקסט בעברית בלבד',
+  },
 ];

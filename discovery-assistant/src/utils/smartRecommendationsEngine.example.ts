@@ -11,7 +11,7 @@ import {
   getQuickWins,
   getSmartRecommendations,
   prioritizeRecommendations,
-  SmartRecommendation
+  SmartRecommendation,
 } from './smartRecommendationsEngine';
 import { Meeting } from '../types';
 
@@ -32,10 +32,12 @@ export function exampleBasicUsage(meeting: Meeting) {
   // Display top 3 recommendations
   const top3 = engine.getTopRecommendations(3);
   console.log('Top 3 Recommendations:');
-  top3.forEach(rec => {
+  top3.forEach((rec) => {
     console.log(`${rec.priority}. ${rec.titleHebrew}`);
     console.log(`   Category: ${rec.category}`);
-    console.log(`   Impact: ${rec.impactScore}/10, Effort: ${rec.effortScore}/10`);
+    console.log(
+      `   Impact: ${rec.impactScore}/10, Effort: ${rec.effortScore}/10`
+    );
     console.log(`   Quick Win: ${rec.quickWin ? 'Yes' : 'No'}`);
     console.log(`   Estimated ROI: ₪${rec.estimatedROI.toLocaleString()}\n`);
   });
@@ -56,8 +58,12 @@ export function examplePatternAnalysis(meeting: Meeting) {
   const analysis = analyzePatterns(meeting);
 
   console.log('Detected Patterns:');
-  console.log(`- Automation Opportunities: ${analysis.automationOpportunities}`);
-  console.log(`- Total Potential Savings: ₪${analysis.totalPotentialSavings.toLocaleString()}\n`);
+  console.log(
+    `- Automation Opportunities: ${analysis.automationOpportunities}`
+  );
+  console.log(
+    `- Total Potential Savings: ₪${analysis.totalPotentialSavings.toLocaleString()}\n`
+  );
 
   console.log('Critical Issues:');
   analysis.criticalIssues.forEach((issue, index) => {
@@ -70,11 +76,13 @@ export function examplePatternAnalysis(meeting: Meeting) {
   });
 
   console.log('\nDetailed Pattern Analysis:');
-  analysis.detectedPatterns.forEach(pattern => {
+  analysis.detectedPatterns.forEach((pattern) => {
     console.log(`\nType: ${pattern.type}`);
     console.log(`Description: ${pattern.description}`);
     console.log(`Severity: ${pattern.severity}`);
-    console.log(`Estimated Impact: ₪${pattern.estimatedImpact.toLocaleString()}`);
+    console.log(
+      `Estimated Impact: ₪${pattern.estimatedImpact.toLocaleString()}`
+    );
     console.log(`Affected Modules: ${pattern.affectedModules.join(', ')}`);
   });
 }
@@ -94,7 +102,9 @@ export function exampleQuickWins(meeting: Meeting) {
   quickWins.forEach((rec, index) => {
     console.log(`${index + 1}. ${rec.titleHebrew}`);
     console.log(`   ${rec.description}`);
-    console.log(`   Impact: ${rec.impactScore}/10, Effort: ${rec.effortScore}/10`);
+    console.log(
+      `   Impact: ${rec.impactScore}/10, Effort: ${rec.effortScore}/10`
+    );
     console.log(`   ROI: ₪${rec.estimatedROI.toLocaleString()}`);
     console.log(`   Affected Systems: ${rec.affectedSystems.join(', ')}`);
     console.log(`   Tools: ${rec.suggestedTools.join(', ')}`);
@@ -119,16 +129,20 @@ export function exampleCategoryFiltering(meeting: Meeting) {
     'integration',
     'automation',
     'ai_agent',
-    'process_improvement'
+    'process_improvement',
   ];
 
-  categories.forEach(category => {
+  categories.forEach((category) => {
     const recs = engine.getByCategory(category);
-    console.log(`\n${category.toUpperCase()} (${recs.length} recommendations):`);
+    console.log(
+      `\n${category.toUpperCase()} (${recs.length} recommendations):`
+    );
 
-    recs.forEach(rec => {
+    recs.forEach((rec) => {
       console.log(`  - ${rec.titleHebrew} (Priority: ${rec.priority})`);
-      console.log(`    ROI: ₪${rec.estimatedROI.toLocaleString()}, Quick Win: ${rec.quickWin ? 'Yes' : 'No'}`);
+      console.log(
+        `    ROI: ₪${rec.estimatedROI.toLocaleString()}, Quick Win: ${rec.quickWin ? 'Yes' : 'No'}`
+      );
     });
   });
 }
@@ -142,9 +156,11 @@ export function exampleWorkflowTemplates(meeting: Meeting) {
 
   const recommendations = getSmartRecommendations(meeting);
 
-  const withTemplates = recommendations.filter(r => r.n8nWorkflowTemplate);
+  const withTemplates = recommendations.filter((r) => r.n8nWorkflowTemplate);
 
-  console.log(`Found ${withTemplates.length} recommendations with n8n templates:\n`);
+  console.log(
+    `Found ${withTemplates.length} recommendations with n8n templates:\n`
+  );
 
   withTemplates.forEach((rec, index) => {
     const template = rec.n8nWorkflowTemplate!;
@@ -157,20 +173,22 @@ export function exampleWorkflowTemplates(meeting: Meeting) {
     console.log(`   Connections: ${template.connections.length}`);
 
     console.log(`   Node Types:`);
-    const nodeTypeSet = new Set(template.nodes.map(n => n.type));
+    const nodeTypeSet = new Set(template.nodes.map((n) => n.type));
     const nodeTypes = Array.from(nodeTypeSet);
-    nodeTypes.forEach(type => {
-      const count = template.nodes.filter(n => n.type === type).length;
+    nodeTypes.forEach((type) => {
+      const count = template.nodes.filter((n) => n.type === type).length;
       console.log(`      - ${type}: ${count}`);
     });
 
     console.log(`   Workflow Structure:`);
-    template.nodes.forEach(node => {
-      console.log(`      [${node.type}] ${node.name} @ (${node.position[0]}, ${node.position[1]})`);
+    template.nodes.forEach((node) => {
+      console.log(
+        `      [${node.type}] ${node.name} @ (${node.position[0]}, ${node.position[1]})`
+      );
     });
 
     console.log(`   Connections:`);
-    template.connections.forEach(conn => {
+    template.connections.forEach((conn) => {
       console.log(`      ${conn.from} -> ${conn.to}`);
     });
 
@@ -200,7 +218,7 @@ export function exampleCustomPrioritization() {
       affectedSystems: ['CRM', 'WhatsApp'],
       suggestedTools: ['n8n'],
       implementationSteps: ['Step 1', 'Step 2'],
-      priority: 0
+      priority: 0,
     },
     {
       id: '2',
@@ -215,7 +233,7 @@ export function exampleCustomPrioritization() {
       affectedSystems: ['Accounting'],
       suggestedTools: ['n8n'],
       implementationSteps: ['Step 1', 'Step 2'],
-      priority: 0
+      priority: 0,
     },
     {
       id: '3',
@@ -230,15 +248,15 @@ export function exampleCustomPrioritization() {
       affectedSystems: ['ERP'],
       suggestedTools: [],
       implementationSteps: ['Step 1', 'Step 2'],
-      priority: 0
-    }
+      priority: 0,
+    },
   ];
 
   // Prioritize using the utility function
   const prioritized = prioritizeRecommendations(mockRecommendations);
 
   console.log('Prioritized Recommendations:\n');
-  prioritized.forEach(rec => {
+  prioritized.forEach((rec) => {
     const ratio = (rec.impactScore / rec.effortScore).toFixed(2);
     console.log(`${rec.priority}. ${rec.titleHebrew}`);
     console.log(`   Impact/Effort Ratio: ${ratio}`);
@@ -258,7 +276,7 @@ export function exampleExportForReporting(meeting: Meeting) {
   const recommendations = engine.getRecommendations();
 
   // Format for CSV export
-  const csvData = recommendations.map(rec => ({
+  const csvData = recommendations.map((rec) => ({
     Priority: rec.priority,
     Title: rec.titleHebrew,
     Category: rec.category,
@@ -267,7 +285,7 @@ export function exampleExportForReporting(meeting: Meeting) {
     QuickWin: rec.quickWin,
     EstimatedROI: rec.estimatedROI,
     AffectedSystems: rec.affectedSystems.join(';'),
-    SuggestedTools: rec.suggestedTools.join(';')
+    SuggestedTools: rec.suggestedTools.join(';'),
   }));
 
   console.log('CSV Export Format:');
@@ -276,19 +294,23 @@ export function exampleExportForReporting(meeting: Meeting) {
   // Format for executive summary
   const summary = {
     totalRecommendations: recommendations.length,
-    quickWins: recommendations.filter(r => r.quickWin).length,
+    quickWins: recommendations.filter((r) => r.quickWin).length,
     totalEstimatedROI: engine.getTotalEstimatedROI(),
     byCategory: {
-      integration: recommendations.filter(r => r.category === 'integration').length,
-      automation: recommendations.filter(r => r.category === 'automation').length,
-      ai_agent: recommendations.filter(r => r.category === 'ai_agent').length,
-      process_improvement: recommendations.filter(r => r.category === 'process_improvement').length
+      integration: recommendations.filter((r) => r.category === 'integration')
+        .length,
+      automation: recommendations.filter((r) => r.category === 'automation')
+        .length,
+      ai_agent: recommendations.filter((r) => r.category === 'ai_agent').length,
+      process_improvement: recommendations.filter(
+        (r) => r.category === 'process_improvement'
+      ).length,
     },
-    top5: engine.getTopRecommendations(5).map(r => ({
+    top5: engine.getTopRecommendations(5).map((r) => ({
       priority: r.priority,
       title: r.titleHebrew,
-      roi: r.estimatedROI
-    }))
+      roi: r.estimatedROI,
+    })),
   };
 
   console.log('\nExecutive Summary:');
@@ -310,22 +332,22 @@ export function exampleUIIntegration(meeting: Meeting) {
     summary: {
       totalRecommendations: engine.getRecommendations().length,
       quickWinsCount: engine.getQuickWins().length,
-      totalROI: engine.getTotalEstimatedROI()
+      totalROI: engine.getTotalEstimatedROI(),
     },
 
     // For quick wins section
-    quickWins: engine.getQuickWins().map(rec => ({
+    quickWins: engine.getQuickWins().map((rec) => ({
       id: rec.id,
       title: rec.titleHebrew,
       description: rec.description,
       roi: rec.estimatedROI,
       impactScore: rec.impactScore,
       effortScore: rec.effortScore,
-      badge: 'Quick Win'
+      badge: 'Quick Win',
     })),
 
     // For full recommendations list
-    allRecommendations: engine.getRecommendations().map(rec => ({
+    allRecommendations: engine.getRecommendations().map((rec) => ({
       id: rec.id,
       priority: rec.priority,
       title: rec.titleHebrew,
@@ -337,11 +359,11 @@ export function exampleUIIntegration(meeting: Meeting) {
       affectedSystems: rec.affectedSystems,
       tools: rec.suggestedTools,
       steps: rec.implementationSteps,
-      hasWorkflow: !!rec.n8nWorkflowTemplate
+      hasWorkflow: !!rec.n8nWorkflowTemplate,
     })),
 
     // For pattern analysis visualization
-    patterns: analyzePatterns(meeting)
+    patterns: analyzePatterns(meeting),
   };
 
   console.log('UI Data Structure:');

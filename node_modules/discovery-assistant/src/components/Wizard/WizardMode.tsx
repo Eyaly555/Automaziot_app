@@ -18,7 +18,7 @@ export const WizardMode: React.FC = () => {
     updateModule,
     wizardState,
     initializeWizard,
-    syncWizardToModules
+    syncWizardToModules,
   } = useMeetingStore();
 
   const [currentStep, setCurrentStep] = useState<WizardStep | undefined>();
@@ -58,44 +58,47 @@ export const WizardMode: React.FC = () => {
   }, [currentMeeting, navigate]);
 
   // Handle field changes
-  const handleFieldChange = useCallback((fieldPath: string, value: any) => {
-    if (!currentStep || !currentMeeting) return;
+  const handleFieldChange = useCallback(
+    (fieldPath: string, value: any) => {
+      if (!currentStep || !currentMeeting) return;
 
-    // Parse field path (e.g., "speedToLead.duringBusinessHours" -> module: leadsAndSales, field: speedToLead.duringBusinessHours)
-    const moduleId = currentStep.moduleId;
-    const fieldParts = fieldPath.split('.');
+      // Parse field path (e.g., "speedToLead.duringBusinessHours" -> module: leadsAndSales, field: speedToLead.duringBusinessHours)
+      const moduleId = currentStep.moduleId;
+      const fieldParts = fieldPath.split('.');
 
-    // Get current module data
-    const moduleData = currentMeeting.modules[moduleId] || {};
+      // Get current module data
+      const moduleData = currentMeeting.modules[moduleId] || {};
 
-    // Helper function to set nested value
-    const setNestedValue = (obj: any, path: string[], value: any): any => {
-      if (path.length === 1) {
-        return { ...obj, [path[0]]: value };
-      }
+      // Helper function to set nested value
+      const setNestedValue = (obj: any, path: string[], value: any): any => {
+        if (path.length === 1) {
+          return { ...obj, [path[0]]: value };
+        }
 
-      const [first, ...rest] = path;
-      return {
-        ...obj,
-        [first]: setNestedValue(obj[first] || {}, rest, value)
+        const [first, ...rest] = path;
+        return {
+          ...obj,
+          [first]: setNestedValue(obj[first] || {}, rest, value),
+        };
       };
-    };
 
-    // Update nested field
-    const updatedModuleData = setNestedValue(moduleData, fieldParts, value);
+      // Update nested field
+      const updatedModuleData = setNestedValue(moduleData, fieldParts, value);
 
-    updateModule(moduleId, updatedModuleData);
+      updateModule(moduleId, updatedModuleData);
 
-    // Clear error for this field
-    setErrors(prev => {
-      const newErrors = { ...prev };
-      delete newErrors[fieldPath];
-      return newErrors;
-    });
+      // Clear error for this field
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[fieldPath];
+        return newErrors;
+      });
 
-    // Sync to modules
-    syncWizardToModules();
-  }, [currentStep, currentMeeting, updateModule, syncWizardToModules]);
+      // Sync to modules
+      syncWizardToModules();
+    },
+    [currentStep, currentMeeting, updateModule, syncWizardToModules]
+  );
 
   // DEPRECATED: Commented out unused validation function - kept for potential future use
   // Validation is now handled through WizardStepContent component
@@ -217,11 +220,7 @@ export const WizardMode: React.FC = () => {
                 {showSummary ? 'סיכום' : currentStep?.sectionName}
               </p>
             </div>
-            <Button
-              onClick={handleExitWizard}
-              variant="secondary"
-              size="md"
-            >
+            <Button onClick={handleExitWizard} variant="secondary" size="md">
               יציאה לדשבורד
             </Button>
           </div>
@@ -233,10 +232,7 @@ export const WizardMode: React.FC = () => {
         {/* Main Content */}
         <div className="mb-6 mt-6">
           {showSummary ? (
-            <WizardSummary
-              meeting={currentMeeting}
-              onEdit={handleJumpToStep}
-            />
+            <WizardSummary meeting={currentMeeting} onEdit={handleJumpToStep} />
           ) : currentStep ? (
             <Card className="p-6">
               <WizardStepContent

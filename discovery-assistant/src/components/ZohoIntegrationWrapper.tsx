@@ -7,7 +7,9 @@ interface ZohoIntegrationWrapperProps {
   children: React.ReactNode;
 }
 
-export const ZohoIntegrationWrapper: React.FC<ZohoIntegrationWrapperProps> = ({ children }) => {
+export const ZohoIntegrationWrapper: React.FC<ZohoIntegrationWrapperProps> = ({
+  children,
+}) => {
   const { isZohoMode } = useZohoIntegration();
 
   return (

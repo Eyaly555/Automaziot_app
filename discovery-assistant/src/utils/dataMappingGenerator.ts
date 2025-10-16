@@ -49,11 +49,14 @@ export const generateDataMappings = (
     targetName: targetSystem.specificSystem,
     mappings,
     triggers: generateTriggers(sourceSystem, targetSystem),
-    errorHandling: generateErrorHandling(sourceSystem, targetSystem)
+    errorHandling: generateErrorHandling(sourceSystem, targetSystem),
   };
 };
 
-const generateCRMMappings = (source: DetailedSystemInfo, target: DetailedSystemInfo): DataMapping[] => {
+const generateCRMMappings = (
+  source: DetailedSystemInfo,
+  target: DetailedSystemInfo
+): DataMapping[] => {
   const commonMappings: DataMapping[] = [
     {
       id: 'lead_name',
@@ -65,7 +68,7 @@ const generateCRMMappings = (source: DetailedSystemInfo, target: DetailedSystemI
       destinationType: 'string',
       required: true,
       example: 'John Doe',
-      transformation: 'none'
+      transformation: 'none',
     },
     {
       id: 'lead_email',
@@ -77,7 +80,7 @@ const generateCRMMappings = (source: DetailedSystemInfo, target: DetailedSystemI
       destinationType: 'email',
       required: true,
       example: 'john@example.com',
-      validation: 'regex: /^[^@]+@[^@]+\\.[^@]+$/'
+      validation: 'regex: /^[^@]+@[^@]+\\.[^@]+$/',
     },
     {
       id: 'lead_phone',
@@ -90,7 +93,7 @@ const generateCRMMappings = (source: DetailedSystemInfo, target: DetailedSystemI
       required: false,
       example: '050-1234567',
       transformation: 'format_israeli_phone',
-      validation: 'regex: /^05\\d{8}$/ (Israeli format)'
+      validation: 'regex: /^05\\d{8}$/ (Israeli format)',
     },
     {
       id: 'lead_company',
@@ -101,7 +104,7 @@ const generateCRMMappings = (source: DetailedSystemInfo, target: DetailedSystemI
       destinationField: 'company_name',
       destinationType: 'string',
       required: false,
-      example: 'Acme Corp'
+      example: 'Acme Corp',
     },
     {
       id: 'lead_status',
@@ -113,7 +116,7 @@ const generateCRMMappings = (source: DetailedSystemInfo, target: DetailedSystemI
       destinationType: 'enum',
       required: true,
       example: 'New',
-      transformation: 'map_status_values'
+      transformation: 'map_status_values',
     },
     {
       id: 'lead_source',
@@ -124,7 +127,7 @@ const generateCRMMappings = (source: DetailedSystemInfo, target: DetailedSystemI
       destinationField: 'lead_source',
       destinationType: 'string',
       required: false,
-      example: 'Website'
+      example: 'Website',
     },
     {
       id: 'created_date',
@@ -136,14 +139,17 @@ const generateCRMMappings = (source: DetailedSystemInfo, target: DetailedSystemI
       destinationType: 'timestamp',
       required: true,
       example: '2025-01-15T10:30:00Z',
-      transformation: 'convert_to_timestamp'
-    }
+      transformation: 'convert_to_timestamp',
+    },
   ];
 
   return commonMappings;
 };
 
-const generateERPMappings = (source: DetailedSystemInfo, target: DetailedSystemInfo): DataMapping[] => {
+const generateERPMappings = (
+  source: DetailedSystemInfo,
+  target: DetailedSystemInfo
+): DataMapping[] => {
   return [
     {
       id: 'invoice_number',
@@ -154,7 +160,7 @@ const generateERPMappings = (source: DetailedSystemInfo, target: DetailedSystemI
       destinationField: 'invoice_id',
       destinationType: 'string',
       required: true,
-      example: 'INV-2025-001'
+      example: 'INV-2025-001',
     },
     {
       id: 'invoice_date',
@@ -166,7 +172,7 @@ const generateERPMappings = (source: DetailedSystemInfo, target: DetailedSystemI
       destinationType: 'date',
       required: true,
       example: '2025-01-15',
-      transformation: 'format_to_iso_date'
+      transformation: 'format_to_iso_date',
     },
     {
       id: 'customer_id',
@@ -177,7 +183,7 @@ const generateERPMappings = (source: DetailedSystemInfo, target: DetailedSystemI
       destinationField: 'customer_id',
       destinationType: 'string',
       required: true,
-      example: 'CUST-123'
+      example: 'CUST-123',
     },
     {
       id: 'total_amount',
@@ -189,7 +195,7 @@ const generateERPMappings = (source: DetailedSystemInfo, target: DetailedSystemI
       destinationType: 'decimal',
       required: true,
       example: '1500.00',
-      transformation: 'convert_to_decimal'
+      transformation: 'convert_to_decimal',
     },
     {
       id: 'currency',
@@ -200,12 +206,15 @@ const generateERPMappings = (source: DetailedSystemInfo, target: DetailedSystemI
       destinationField: 'currency',
       destinationType: 'string',
       required: true,
-      example: 'ILS'
-    }
+      example: 'ILS',
+    },
   ];
 };
 
-const generateEcommerceMappings = (source: DetailedSystemInfo, target: DetailedSystemInfo): DataMapping[] => {
+const generateEcommerceMappings = (
+  source: DetailedSystemInfo,
+  target: DetailedSystemInfo
+): DataMapping[] => {
   return [
     {
       id: 'order_id',
@@ -216,7 +225,7 @@ const generateEcommerceMappings = (source: DetailedSystemInfo, target: DetailedS
       destinationField: 'order_number',
       destinationType: 'string',
       required: true,
-      example: 'ORD-20250115-001'
+      example: 'ORD-20250115-001',
     },
     {
       id: 'customer_email',
@@ -228,7 +237,7 @@ const generateEcommerceMappings = (source: DetailedSystemInfo, target: DetailedS
       destinationType: 'email',
       required: true,
       example: 'customer@example.com',
-      validation: 'email_format'
+      validation: 'email_format',
     },
     {
       id: 'order_total',
@@ -239,7 +248,7 @@ const generateEcommerceMappings = (source: DetailedSystemInfo, target: DetailedS
       destinationField: 'order_amount',
       destinationType: 'decimal',
       required: true,
-      example: '299.99'
+      example: '299.99',
     },
     {
       id: 'order_status',
@@ -251,7 +260,7 @@ const generateEcommerceMappings = (source: DetailedSystemInfo, target: DetailedS
       destinationType: 'string',
       required: true,
       example: 'processing',
-      transformation: 'lowercase'
+      transformation: 'lowercase',
     },
     {
       id: 'shipping_address',
@@ -263,12 +272,15 @@ const generateEcommerceMappings = (source: DetailedSystemInfo, target: DetailedS
       destinationType: 'json',
       required: true,
       example: '{"street": "123 Main St", "city": "Tel Aviv", "zip": "12345"}',
-      transformation: 'serialize_to_json'
-    }
+      transformation: 'serialize_to_json',
+    },
   ];
 };
 
-const generateTriggers = (source: DetailedSystemInfo, _target: DetailedSystemInfo): string[] => {
+const generateTriggers = (
+  source: DetailedSystemInfo,
+  _target: DetailedSystemInfo
+): string[] => {
   const triggers = [];
 
   if (source.category === 'crm') {
@@ -292,7 +304,10 @@ const generateTriggers = (source: DetailedSystemInfo, _target: DetailedSystemInf
   return triggers;
 };
 
-const generateErrorHandling = (_source: DetailedSystemInfo, _target: DetailedSystemInfo): string[] => {
+const generateErrorHandling = (
+  _source: DetailedSystemInfo,
+  _target: DetailedSystemInfo
+): string[] => {
   return [
     'Retry failed requests up to 3 times with exponential backoff',
     'Log all errors to error_logs table with full context',
@@ -301,34 +316,48 @@ const generateErrorHandling = (_source: DetailedSystemInfo, _target: DetailedSys
     'Validate all required fields before sending',
     'Handle API rate limit errors gracefully',
     'Rollback on partial failures',
-    'Monitor and alert on error rate > 5%'
+    'Monitor and alert on error rate > 5%',
   ];
 };
 
-export const exportDataMappingAsCode = (spec: DataMappingSpec, format: 'javascript' | 'python' | 'n8n'): string => {
+export const exportDataMappingAsCode = (
+  spec: DataMappingSpec,
+  format: 'javascript' | 'python' | 'n8n'
+): string => {
   if (format === 'javascript') {
     return `
 // Data Mapping: ${spec.sourceName} → ${spec.targetName}
 
 const mapData = (sourceData) => {
   return {
-${spec.mappings.map(m => `    ${m.destinationField}: ${m.transformation ? `transform_${m.transformation}(sourceData.${m.sourceField})` : `sourceData.${m.sourceField}`}${m.required ? ' // Required' : ' // Optional'}`).join(',\n')}
+${spec.mappings.map((m) => `    ${m.destinationField}: ${m.transformation ? `transform_${m.transformation}(sourceData.${m.sourceField})` : `sourceData.${m.sourceField}`}${m.required ? ' // Required' : ' // Optional'}`).join(',\n')}
   };
 };
 
 // Transformation functions
-${spec.mappings.filter(m => m.transformation && m.transformation !== 'none').map(m => `
+${spec.mappings
+  .filter((m) => m.transformation && m.transformation !== 'none')
+  .map(
+    (m) => `
 const transform_${m.transformation} = (value) => {
   // TODO: Implement ${m.transformation} transformation
   // Example: ${m.example}
   return value;
 };
-`).join('\n')}
+`
+  )
+  .join('\n')}
 
 // Validation
 const validate = (data) => {
   const errors = [];
-${spec.mappings.filter(m => m.required).map(m => `  if (!data.${m.destinationField}) errors.push('${m.destinationField} is required');`).join('\n')}
+${spec.mappings
+  .filter((m) => m.required)
+  .map(
+    (m) =>
+      `  if (!data.${m.destinationField}) errors.push('${m.destinationField} is required');`
+  )
+  .join('\n')}
   return errors;
 };
 `.trim();
@@ -340,11 +369,14 @@ ${spec.mappings.filter(m => m.required).map(m => `  if (!data.${m.destinationFie
 
 def map_data(source_data: dict) -> dict:
     return {
-${spec.mappings.map(m => `        "${m.destinationField}": ${m.transformation ? `transform_${m.transformation}(source_data.get("${m.sourceField}"))` : `source_data.get("${m.sourceField}")`}${m.required ? '  # Required' : '  # Optional'}`).join(',\n')}
+${spec.mappings.map((m) => `        "${m.destinationField}": ${m.transformation ? `transform_${m.transformation}(source_data.get("${m.sourceField}"))` : `source_data.get("${m.sourceField}")`}${m.required ? '  # Required' : '  # Optional'}`).join(',\n')}
     }
 
 # Transformation functions
-${spec.mappings.filter(m => m.transformation && m.transformation !== 'none').map(m => `
+${spec.mappings
+  .filter((m) => m.transformation && m.transformation !== 'none')
+  .map(
+    (m) => `
 def transform_${m.transformation}(value):
     """
     Transform: ${m.transformation}
@@ -352,61 +384,72 @@ def transform_${m.transformation}(value):
     """
     # TODO: Implement transformation
     return value
-`).join('\n')}
+`
+  )
+  .join('\n')}
 
 # Validation
 def validate(data: dict) -> list:
     errors = []
-${spec.mappings.filter(m => m.required).map(m => `    if not data.get("${m.destinationField}"):
-        errors.append("${m.destinationField} is required")`).join('\n')}
+${spec.mappings
+  .filter((m) => m.required)
+  .map(
+    (m) => `    if not data.get("${m.destinationField}"):
+        errors.append("${m.destinationField} is required")`
+  )
+  .join('\n')}
     return errors
 `.trim();
   }
 
   // n8n format
-  return JSON.stringify({
-    name: `${spec.sourceName} to ${spec.targetName} Mapping`,
-    nodes: [
-      {
-        parameters: {},
-        name: "Webhook",
-        type: "n8n-nodes-base.webhook",
-        position: [250, 300]
-      },
-      {
-        parameters: {
-          functionCode: `
+  return JSON.stringify(
+    {
+      name: `${spec.sourceName} to ${spec.targetName} Mapping`,
+      nodes: [
+        {
+          parameters: {},
+          name: 'Webhook',
+          type: 'n8n-nodes-base.webhook',
+          position: [250, 300],
+        },
+        {
+          parameters: {
+            functionCode: `
 // Map data from ${spec.sourceName} to ${spec.targetName}
 const sourceData = items[0].json;
 
 return items.map(item => ({
   json: {
-${spec.mappings.map(m => `    ${m.destinationField}: item.json.${m.sourceField}${m.transformation ? ` // Transform: ${m.transformation}` : ''}`).join(',\n')}
+${spec.mappings.map((m) => `    ${m.destinationField}: item.json.${m.sourceField}${m.transformation ? ` // Transform: ${m.transformation}` : ''}`).join(',\n')}
   }
 }));
-`.trim()
+`.trim(),
+          },
+          name: 'Data Mapping',
+          type: 'n8n-nodes-base.function',
+          position: [450, 300],
         },
-        name: "Data Mapping",
-        type: "n8n-nodes-base.function",
-        position: [450, 300]
-      },
-      {
-        parameters: {
-          resource: target.specificSystem,
-          operation: "create"
+        {
+          parameters: {
+            resource: target.specificSystem,
+            operation: 'create',
+          },
+          name: target.specificSystem,
+          type: `n8n-nodes-base.${target.category}`,
+          position: [650, 300],
         },
-        name: target.specificSystem,
-        type: `n8n-nodes-base.${target.category}`,
-        position: [650, 300]
-      }
-    ],
-    connections: {
-      "Webhook": {
-        "main": [[{ "node": "Data Mapping", "type": "main", "index": 0 }]]
+      ],
+      connections: {
+        Webhook: {
+          main: [[{ node: 'Data Mapping', type: 'main', index: 0 }]],
+        },
+        'Data Mapping': {
+          main: [[{ node: target.specificSystem, type: 'main', index: 0 }]],
+        },
       },
-      "Data Mapping": {
-        "main": [[{ "node": target.specificSystem, "type": "main", "index": 0 }]]
-      }
-    }
-  }, null, 2);
+    },
+    null,
+    2
+  );
 };

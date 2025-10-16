@@ -14,14 +14,17 @@ const lossReasonOptions = [
   { value: 'competition', label: 'בחרו במתחרה' },
   { value: 'not_relevant', label: 'הליד לא רלוונטי' },
   { value: 'timing', label: 'טיימינג לא מתאים' },
-  { value: 'lost_in_system', label: 'אבד במערכת' }
+  { value: 'lost_in_system', label: 'אבד במערכת' },
 ];
 
 export const LeadManagementSection: React.FC<LeadManagementSectionProps> = ({
   data = {},
-  onChange
+  onChange,
 }) => {
-  const updateField = <K extends keyof typeof data>(field: K, value: typeof data[K]) => {
+  const updateField = <K extends keyof typeof data>(
+    field: K,
+    value: (typeof data)[K]
+  ) => {
     onChange({ [field]: value });
   };
 

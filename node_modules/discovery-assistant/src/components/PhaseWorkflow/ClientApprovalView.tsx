@@ -13,7 +13,7 @@ import {
   Edit3,
   ChevronDown,
   ChevronUp,
-  Percent
+  Percent,
 } from 'lucide-react';
 import { useMeetingStore } from '../../store/useMeetingStore';
 import { Card } from '../Common/Card';
@@ -30,7 +30,7 @@ interface SectionProps {
 const CollapsibleSection: React.FC<SectionProps> = ({
   title,
   children,
-  defaultExpanded = true
+  defaultExpanded = true,
 }) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
@@ -61,7 +61,7 @@ interface RejectionModalProps {
 const RejectionModal: React.FC<RejectionModalProps> = ({
   isOpen,
   onClose,
-  onSubmit
+  onSubmit,
 }) => {
   const [feedback, setFeedback] = useState('');
 
@@ -76,15 +76,18 @@ const RejectionModal: React.FC<RejectionModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-2xl w-full p-6 shadow-2xl" dir="rtl">
+      <div
+        className="bg-white rounded-xl max-w-2xl w-full p-6 shadow-2xl"
+        dir="rtl"
+      >
         <div className="flex items-center gap-3 mb-4">
           <AlertCircle className="w-6 h-6 text-orange-600" />
           <h2 className="text-2xl font-bold text-gray-900">בקשת שינויים</h2>
         </div>
 
         <p className="text-gray-600 mb-4">
-          אנא פרט מה תרצה לשנות או להוסיף להצעה. המשוב שלך יעזור לנו לשפר את ההצעה
-          ולהתאים אותה בצורה מיטבית לצרכים שלך.
+          אנא פרט מה תרצה לשנות או להוסיף להצעה. המשוב שלך יעזור לנו לשפר את
+          ההצעה ולהתאים אותה בצורה מיטבית לצרכים שלך.
         </p>
 
         <textarea
@@ -117,11 +120,7 @@ const RejectionModal: React.FC<RejectionModalProps> = ({
 
 export const ClientApprovalView: React.FC = () => {
   const navigate = useNavigate();
-  const {
-    currentMeeting,
-    updateModule,
-    updatePhaseStatus
-  } = useMeetingStore();
+  const { currentMeeting, updateModule, updatePhaseStatus } = useMeetingStore();
 
   const signaturePadRef = useRef<SignatureCanvas | null>(null);
   const [clientName, setClientName] = useState('');
@@ -132,13 +131,18 @@ export const ClientApprovalView: React.FC = () => {
   const [discountPercentage, setDiscountPercentage] = useState<number>(0);
 
   // Get proposal data
-  const proposalData = currentMeeting?.modules?.proposal as ProposalData | undefined;
+  const proposalData = currentMeeting?.modules?.proposal as
+    | ProposalData
+    | undefined;
   const selectedServices = proposalData?.selectedServices || [];
   const roiData = currentMeeting?.modules?.roi;
 
   // Track which services client actually purchased
   const [purchasedServiceIds, setPurchasedServiceIds] = useState<Set<string>>(
-    new Set(proposalData?.purchasedServices?.map(s => s.id) || selectedServices.map(s => s.id))
+    new Set(
+      proposalData?.purchasedServices?.map((s) => s.id) ||
+        selectedServices.map((s) => s.id)
+    )
   );
 
   // Initialize client name from meeting
@@ -173,7 +177,7 @@ export const ClientApprovalView: React.FC = () => {
   };
 
   const toggleServicePurchase = (serviceId: string) => {
-    setPurchasedServiceIds(prev => {
+    setPurchasedServiceIds((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(serviceId)) {
         newSet.delete(serviceId);
@@ -206,7 +210,9 @@ export const ClientApprovalView: React.FC = () => {
     setValidationError('');
 
     // Get only the purchased services
-    const purchasedServices = selectedServices.filter(s => purchasedServiceIds.has(s.id));
+    const purchasedServices = selectedServices.filter((s) =>
+      purchasedServiceIds.has(s.id)
+    );
 
     // Save signature, approval data, and purchased services to meeting
     const updatedProposal: ProposalData = {
@@ -215,7 +221,7 @@ export const ClientApprovalView: React.FC = () => {
       approvalSignature: signatureData,
       approvedBy: clientName.trim(),
       approvedAt: new Date().toISOString(),
-      approvalNotes: notes.trim() || undefined
+      approvalNotes: notes.trim() || undefined,
     };
 
     updateModule('proposal', updatedProposal);
@@ -242,7 +248,7 @@ export const ClientApprovalView: React.FC = () => {
     const updatedProposal: ProposalData = {
       ...proposalData!,
       rejectionFeedback: feedback,
-      rejectedAt: new Date().toISOString()
+      rejectedAt: new Date().toISOString(),
     };
 
     updateModule('proposal', updatedProposal);
@@ -260,7 +266,9 @@ export const ClientApprovalView: React.FC = () => {
   }
 
   // Calculate totals for PURCHASED services only
-  const purchasedServices = selectedServices.filter(s => purchasedServiceIds.has(s.id));
+  const purchasedServices = selectedServices.filter((s) =>
+    purchasedServiceIds.has(s.id)
+  );
 
   // חישוב מחיר בסיס ללא הנחות (כבר מופחת ב-30%)
   const baseTotalPrice = purchasedServices.reduce(
@@ -283,27 +291,30 @@ export const ClientApprovalView: React.FC = () => {
   const totalPriceWithVat = baseTotalPrice * (1 + VAT_RATE);
 
   // מחיר לאחר הנחה נוספת (ללא מע"מ)
-  const discountedPrice = baseTotalPrice * (1 - (discountPercentage / 100));
+  const discountedPrice = baseTotalPrice * (1 - discountPercentage / 100);
 
   // מחיר סופי עם מע"מ לאחר הנחה נוספת
   const finalPriceWithVat = discountedPrice * (1 + VAT_RATE);
 
   // Group ALL PROPOSED services by category (for display)
-  const servicesByCategory = selectedServices.reduce((acc, service) => {
-    const category = service.category;
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(service);
-    return acc;
-  }, {} as Record<string, SelectedService[]>);
+  const servicesByCategory = selectedServices.reduce(
+    (acc, service) => {
+      const category = service.category;
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(service);
+      return acc;
+    },
+    {} as Record<string, SelectedService[]>
+  );
 
   const categoryNames: Record<string, string> = {
     automations: 'אוטומציות',
     ai_agents: 'סוכני AI',
     integrations: 'אינטגרציות',
     system_implementation: 'הטמעת מערכות',
-    additional_services: 'שירותים נוספים'
+    additional_services: 'שירותים נוספים',
   };
 
   return (
@@ -333,7 +344,10 @@ export const ClientApprovalView: React.FC = () => {
       />
 
       {/* Main Content */}
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4" dir="rtl">
+      <div
+        className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4"
+        dir="rtl"
+      >
         <div className="max-w-5xl mx-auto">
           {/* Header */}
           <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border-t-4 border-blue-600">
@@ -403,7 +417,8 @@ export const ClientApprovalView: React.FC = () => {
                   <div>
                     <p className="text-sm text-gray-600 mb-1">סוג עסק</p>
                     <p className="text-lg font-semibold text-gray-900">
-                      {currentMeeting.modules?.overview?.businessType || 'לא צוין'}
+                      {currentMeeting.modules?.overview?.businessType ||
+                        'לא צוין'}
                     </p>
                   </div>
                   <div>
@@ -415,7 +430,8 @@ export const ClientApprovalView: React.FC = () => {
                   <div>
                     <p className="text-sm text-gray-600 mb-1">אתגר מרכזי</p>
                     <p className="text-lg font-semibold text-gray-900">
-                      {currentMeeting.modules?.overview?.mainChallenge || 'לא צוין'}
+                      {currentMeeting.modules?.overview?.mainChallenge ||
+                        'לא צוין'}
                     </p>
                   </div>
                 </div>
@@ -423,114 +439,152 @@ export const ClientApprovalView: React.FC = () => {
             </CollapsibleSection>
 
             {/* Selected Services - with checkboxes for purchase selection */}
-            <CollapsibleSection title="שירותים מוצעים - סמן מה הלקוח רכש" defaultExpanded={true}>
+            <CollapsibleSection
+              title="שירותים מוצעים - סמן מה הלקוח רכש"
+              defaultExpanded={true}
+            >
               <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-sm text-blue-800">
-                  <strong>הוראות:</strong> סמן את השירותים שהלקוח החליט לרכוש. רק שירותים מסומנים יועברו לשלב מפרט היישום.
+                  <strong>הוראות:</strong> סמן את השירותים שהלקוח החליט לרכוש.
+                  רק שירותים מסומנים יועברו לשלב מפרט היישום.
                 </p>
                 <p className="text-sm text-blue-700 mt-2">
-                  שירותים שנבחרו: <strong>{purchasedServiceIds.size}</strong> מתוך {selectedServices.length}
+                  שירותים שנבחרו: <strong>{purchasedServiceIds.size}</strong>{' '}
+                  מתוך {selectedServices.length}
                 </p>
               </div>
 
               <div className="space-y-4">
-                {Object.entries(servicesByCategory).map(([category, services]) => (
-                  <Card key={category} className="bg-gradient-to-br from-white to-blue-50">
-                    <div className="mb-4 pb-3 border-b border-blue-200">
-                      <h4 className="text-xl font-bold text-blue-900">
-                        {categoryNames[category] || category}
-                      </h4>
-                    </div>
+                {Object.entries(servicesByCategory).map(
+                  ([category, services]) => (
+                    <Card
+                      key={category}
+                      className="bg-gradient-to-br from-white to-blue-50"
+                    >
+                      <div className="mb-4 pb-3 border-b border-blue-200">
+                        <h4 className="text-xl font-bold text-blue-900">
+                          {categoryNames[category] || category}
+                        </h4>
+                      </div>
 
-                    <div className="space-y-4">
-                      {services.map((service, idx) => {
-                        const isPurchased = purchasedServiceIds.has(service.id);
-                        return (
-                          <div
-                            key={idx}
-                            className={`p-4 bg-white rounded-lg border-2 transition-all cursor-pointer ${
-                              isPurchased
-                                ? 'border-green-500 shadow-md ring-2 ring-green-200'
-                                : 'border-gray-200 hover:border-blue-300'
-                            }`}
-                            onClick={() => toggleServicePurchase(service.id)}
-                          >
-                            <div className="flex items-start gap-4">
-                              {/* Checkbox */}
-                              <div className="flex-shrink-0 mt-1">
-                                <input
-                                  type="checkbox"
-                                  checked={isPurchased}
-                                  onChange={() => toggleServicePurchase(service.id)}
-                                  className="w-6 h-6 text-green-600 rounded focus:ring-2 focus:ring-green-500 cursor-pointer"
-                                  onClick={(e) => e.stopPropagation()}
-                                />
-                              </div>
-
-                              {/* Service Details */}
-                              <div className="flex-1">
-                                <div className="flex items-start justify-between mb-2">
-                                  <h5 className="text-lg font-semibold text-gray-900">
-                                    {service.nameHe}
-                                  </h5>
-                                  <div className="text-right">
-                                    <div className={`text-lg font-bold ${isPurchased ? 'text-green-600' : 'text-blue-600'}`}>
-                                      {formatCurrency(service.customPrice || service.basePrice)}
-                                    </div>
-                                    <div className="text-xs text-gray-500">
-                                      כולל מע"מ (18%)
-                                    </div>
-                                  </div>
+                      <div className="space-y-4">
+                        {services.map((service, idx) => {
+                          const isPurchased = purchasedServiceIds.has(
+                            service.id
+                          );
+                          return (
+                            <div
+                              key={idx}
+                              className={`p-4 bg-white rounded-lg border-2 transition-all cursor-pointer ${
+                                isPurchased
+                                  ? 'border-green-500 shadow-md ring-2 ring-green-200'
+                                  : 'border-gray-200 hover:border-blue-300'
+                              }`}
+                              onClick={() => toggleServicePurchase(service.id)}
+                            >
+                              <div className="flex items-start gap-4">
+                                {/* Checkbox */}
+                                <div className="flex-shrink-0 mt-1">
+                                  <input
+                                    type="checkbox"
+                                    checked={isPurchased}
+                                    onChange={() =>
+                                      toggleServicePurchase(service.id)
+                                    }
+                                    className="w-6 h-6 text-green-600 rounded focus:ring-2 focus:ring-green-500 cursor-pointer"
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
                                 </div>
 
-                                <p className="text-gray-600 mb-3">
-                                  {service.customDescriptionHe || service.descriptionHe}
-                                </p>
+                                {/* Service Details */}
+                                <div className="flex-1">
+                                  <div className="flex items-start justify-between mb-2">
+                                    <h5 className="text-lg font-semibold text-gray-900">
+                                      {service.nameHe}
+                                    </h5>
+                                    <div className="text-right">
+                                      <div
+                                        className={`text-lg font-bold ${isPurchased ? 'text-green-600' : 'text-blue-600'}`}
+                                      >
+                                        {formatCurrency(
+                                          service.customPrice ||
+                                            service.basePrice
+                                        )}
+                                      </div>
+                                      <div className="text-xs text-gray-500">
+                                        כולל מע"מ (18%)
+                                      </div>
+                                    </div>
+                                  </div>
 
-                                <div className="flex items-center gap-6 text-sm">
-                                  <div className="flex items-center gap-2 text-gray-600">
-                                    <Clock className="w-4 h-4" />
-                                    <span>משך זמן משוער: {Math.max(1, (service.estimatedDays || 0) - 1)} ימי עבודה</span>
+                                  <p className="text-gray-600 mb-3">
+                                    {service.customDescriptionHe ||
+                                      service.descriptionHe}
+                                  </p>
+
+                                  <div className="flex items-center gap-6 text-sm">
+                                    <div className="flex items-center gap-2 text-gray-600">
+                                      <Clock className="w-4 h-4" />
+                                      <span>
+                                        משך זמן משוער:{' '}
+                                        {Math.max(
+                                          1,
+                                          (service.estimatedDays || 0) - 1
+                                        )}{' '}
+                                        ימי עבודה
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-gray-600">
+                                      <TrendingUp className="w-4 h-4" />
+                                      <span>
+                                        רמת מורכבות:{' '}
+                                        {service.complexity === 'simple'
+                                          ? 'פשוט'
+                                          : service.complexity === 'medium'
+                                            ? 'בינוני'
+                                            : 'מורכב'}
+                                      </span>
+                                    </div>
                                   </div>
-                                  <div className="flex items-center gap-2 text-gray-600">
-                                    <TrendingUp className="w-4 h-4" />
-                                    <span>רמת מורכבות: {
-                                      service.complexity === 'simple' ? 'פשוט' :
-                                      service.complexity === 'medium' ? 'בינוני' : 'מורכב'
-                                    }</span>
-                                  </div>
+
+                                  {service.notes && (
+                                    <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                      <p className="text-sm text-gray-700">
+                                        <span className="font-semibold">
+                                          הערות:
+                                        </span>{' '}
+                                        {service.notes}
+                                      </p>
+                                    </div>
+                                  )}
+
+                                  {isPurchased && (
+                                    <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                                      <CheckCircle className="w-4 h-4" />
+                                      נבחר לרכישה
+                                    </div>
+                                  )}
                                 </div>
-
-                                {service.notes && (
-                                  <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                    <p className="text-sm text-gray-700">
-                                      <span className="font-semibold">הערות:</span> {service.notes}
-                                    </p>
-                                  </div>
-                                )}
-
-                                {isPurchased && (
-                                  <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                                    <CheckCircle className="w-4 h-4" />
-                                    נבחר לרכישה
-                                  </div>
-                                )}
                               </div>
                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </Card>
-                ))}
+                          );
+                        })}
+                      </div>
+                    </Card>
+                  )
+                )}
               </div>
             </CollapsibleSection>
 
             {/* Pricing & Timeline - for PURCHASED services */}
-            <CollapsibleSection title="מחיר ולוח זמנים (שירותים שנרכשו)" defaultExpanded={true}>
+            <CollapsibleSection
+              title="מחיר ולוח זמנים (שירותים שנרכשו)"
+              defaultExpanded={true}
+            >
               <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                 <p className="text-sm text-amber-800">
-                  <strong>שים לב:</strong> המחיר והזמן המוצגים כאן מתייחסים רק לשירותים שסומנו כנרכשו.
+                  <strong>שים לב:</strong> המחיר והזמן המוצגים כאן מתייחסים רק
+                  לשירותים שסומנו כנרכשו.
                 </p>
               </div>
 
@@ -538,14 +592,18 @@ export const ClientApprovalView: React.FC = () => {
               <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <div className="flex items-center gap-2 mb-3">
                   <Percent className="w-5 h-5 text-blue-600" />
-                  <label className="text-sm font-medium text-blue-800">אחוז הנחה נוסף</label>
+                  <label className="text-sm font-medium text-blue-800">
+                    אחוז הנחה נוסף
+                  </label>
                 </div>
                 <Input
                   type="number"
                   min="0"
                   max="100"
                   value={discountPercentage}
-                  onChange={(e) => setDiscountPercentage(Number(e.target.value) || 0)}
+                  onChange={(e) =>
+                    setDiscountPercentage(Number(e.target.value) || 0)
+                  }
                   placeholder="0"
                   className="w-32"
                   dir="rtl"
@@ -559,19 +617,26 @@ export const ClientApprovalView: React.FC = () => {
                 <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-green-700 mb-1">מחיר בסיס (כבר מופחת ב-30%, ללא מע"מ)</p>
+                      <p className="text-sm text-green-700 mb-1">
+                        מחיר בסיס (כבר מופחת ב-30%, ללא מע"מ)
+                      </p>
                       <p className="text-xl font-bold text-green-900">
                         {formatCurrency(baseTotalPrice)}
                       </p>
                       {discountPercentage > 0 && (
                         <>
-                          <p className="text-sm text-green-700 mb-1 mt-2">מחיר לאחר הנחה נוספת ({discountPercentage}%) (ללא מע"מ)</p>
+                          <p className="text-sm text-green-700 mb-1 mt-2">
+                            מחיר לאחר הנחה נוספת ({discountPercentage}%) (ללא
+                            מע"מ)
+                          </p>
                           <p className="text-xl font-bold text-green-900">
                             {formatCurrency(discountedPrice)}
                           </p>
                         </>
                       )}
-                      <p className="text-sm text-green-700 mb-1 mt-2">מחיר סופי כולל מע"מ (18%)</p>
+                      <p className="text-sm text-green-700 mb-1 mt-2">
+                        מחיר סופי כולל מע"מ (18%)
+                      </p>
                       <p className="text-2xl font-bold text-green-900">
                         {formatCurrency(finalPriceWithVat)}
                       </p>
@@ -588,7 +653,9 @@ export const ClientApprovalView: React.FC = () => {
                 <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-blue-700 mb-1">משך הפרויקט המשוער</p>
+                      <p className="text-sm text-blue-700 mb-1">
+                        משך הפרויקט המשוער
+                      </p>
                       <p className="text-3xl font-bold text-blue-900">
                         {totalDays} ימי עבודה
                       </p>
@@ -610,17 +677,25 @@ export const ClientApprovalView: React.FC = () => {
                 <Card>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <p className="text-sm text-blue-700 mb-2">שעות חודשיות נחסכות</p>
+                      <p className="text-sm text-blue-700 mb-2">
+                        שעות חודשיות נחסכות
+                      </p>
                       <p className="text-3xl font-bold text-blue-900">
-                        {roiData.scenarios?.realistic?.monthlySavingsHours?.toFixed(0) || 0}
+                        {roiData.scenarios?.realistic?.monthlySavingsHours?.toFixed(
+                          0
+                        ) || 0}
                       </p>
                       <p className="text-xs text-blue-600 mt-1">שעות/חודש</p>
                     </div>
 
                     <div className="text-center p-4 bg-green-50 rounded-lg">
-                      <p className="text-sm text-green-700 mb-2">חיסכון חודשי</p>
+                      <p className="text-sm text-green-700 mb-2">
+                        חיסכון חודשי
+                      </p>
                       <p className="text-3xl font-bold text-green-900">
-                        {formatCurrency(roiData.scenarios?.realistic?.monthlySavings || 0)}
+                        {formatCurrency(
+                          roiData.scenarios?.realistic?.monthlySavings || 0
+                        )}
                       </p>
                       <p className="text-xs text-green-600 mt-1">₪/חודש</p>
                     </div>
@@ -628,7 +703,9 @@ export const ClientApprovalView: React.FC = () => {
                     <div className="text-center p-4 bg-purple-50 rounded-lg">
                       <p className="text-sm text-purple-700 mb-2">תקופת החזר</p>
                       <p className="text-3xl font-bold text-purple-900">
-                        {roiData.scenarios?.realistic?.paybackMonths?.toFixed(1) || 0}
+                        {roiData.scenarios?.realistic?.paybackMonths?.toFixed(
+                          1
+                        ) || 0}
                       </p>
                       <p className="text-xs text-purple-600 mt-1">חודשים</p>
                     </div>
@@ -644,12 +721,19 @@ export const ClientApprovalView: React.FC = () => {
                         <p className="text-sm text-gray-700">
                           בתרחיש ריאליסטי, הפרויקט צפוי לחסוך{' '}
                           <span className="font-bold text-green-700">
-                            {formatCurrency((roiData.scenarios?.realistic?.monthlySavings || 0) * 12)}
-                          </span>
-                          {' '}בשנה הראשונה, עם החזר על ההשקעה תוך{' '}
+                            {formatCurrency(
+                              (roiData.scenarios?.realistic?.monthlySavings ||
+                                0) * 12
+                            )}
+                          </span>{' '}
+                          בשנה הראשונה, עם החזר על ההשקעה תוך{' '}
                           <span className="font-bold text-blue-700">
-                            {roiData.scenarios?.realistic?.paybackMonths?.toFixed(1) || 0} חודשים
-                          </span>.
+                            {roiData.scenarios?.realistic?.paybackMonths?.toFixed(
+                              1
+                            ) || 0}{' '}
+                            חודשים
+                          </span>
+                          .
                         </p>
                       </div>
                     </div>
@@ -661,7 +745,9 @@ export const ClientApprovalView: React.FC = () => {
             {/* Signature Section */}
             <Card className="bg-white border-2 border-blue-200">
               <div className="mb-6">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">חתימה ואישור</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  חתימה ואישור
+                </h3>
                 <p className="text-gray-600">
                   נא לחתום על ההצעה להמשך הפרויקט למפרט טכני והיישום
                 </p>
@@ -701,7 +787,7 @@ export const ClientApprovalView: React.FC = () => {
                     ref={signaturePadRef}
                     canvasProps={{
                       className: 'w-full h-48 md:h-64 cursor-crosshair',
-                      style: { touchAction: 'none' }
+                      style: { touchAction: 'none' },
                     }}
                     backgroundColor="white"
                   />

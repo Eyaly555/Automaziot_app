@@ -1,12 +1,19 @@
 /**
  * Restore Backup Menu
- * 
+ *
  * Displays available backups for the current meeting and allows restoration.
  * Shows backup metadata including timestamp, reason, and progress.
  */
 
 import React, { useState, useEffect } from 'react';
-import { X, RotateCcw, Clock, AlertCircle, CheckCircle, Database } from 'lucide-react';
+import {
+  X,
+  RotateCcw,
+  Clock,
+  AlertCircle,
+  CheckCircle,
+  Database,
+} from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { BackupMetadata } from '../../../types/backup';
 import toast from 'react-hot-toast';
@@ -20,12 +27,14 @@ interface RestoreBackupMenuProps {
 export const RestoreBackupMenu: React.FC<RestoreBackupMenuProps> = ({
   isOpen,
   onClose,
-  onSuccess
+  onSuccess,
 }) => {
   const currentMeeting = useMeetingStore((state) => state.currentMeeting);
-  const getAvailableBackups = useMeetingStore((state) => state.getAvailableBackups);
+  const getAvailableBackups = useMeetingStore(
+    (state) => state.getAvailableBackups
+  );
   const restoreFromBackup = useMeetingStore((state) => state.restoreFromBackup);
-  
+
   const [backups, setBackups] = useState<BackupMetadata[]>([]);
   const [selectedBackupId, setSelectedBackupId] = useState<string | null>(null);
   const [isRestoring, setIsRestoring] = useState(false);
@@ -72,7 +81,7 @@ export const RestoreBackupMenu: React.FC<RestoreBackupMenuProps> = ({
         toast.success('המידע שוחזר בהצלחה מהגיבוי!', {
           icon: '✅',
           duration: 5000,
-          position: 'top-center'
+          position: 'top-center',
         });
         handleClose();
         onSuccess?.();
@@ -80,7 +89,7 @@ export const RestoreBackupMenu: React.FC<RestoreBackupMenuProps> = ({
         toast.error('שגיאה בשחזור המידע מהגיבוי', {
           icon: '❌',
           duration: 5000,
-          position: 'top-center'
+          position: 'top-center',
         });
       }
     } catch (error) {
@@ -88,7 +97,7 @@ export const RestoreBackupMenu: React.FC<RestoreBackupMenuProps> = ({
       toast.error('שגיאה בשחזור המידע', {
         icon: '❌',
         duration: 5000,
-        position: 'top-center'
+        position: 'top-center',
       });
     } finally {
       setIsRestoring(false);
@@ -97,18 +106,18 @@ export const RestoreBackupMenu: React.FC<RestoreBackupMenuProps> = ({
 
   const getReasonLabel = (reason: string): string => {
     const labels: Record<string, string> = {
-      'pre_reset': 'לפני איפוס',
-      'manual_backup': 'גיבוי ידני',
-      'auto_backup': 'גיבוי אוטומטי'
+      pre_reset: 'לפני איפוס',
+      manual_backup: 'גיבוי ידני',
+      auto_backup: 'גיבוי אוטומטי',
     };
     return labels[reason] || reason;
   };
 
   const getReasonColor = (reason: string): string => {
     const colors: Record<string, string> = {
-      'pre_reset': 'bg-orange-100 text-orange-700 border-orange-200',
-      'manual_backup': 'bg-blue-100 text-blue-700 border-blue-200',
-      'auto_backup': 'bg-gray-100 text-gray-700 border-gray-200'
+      pre_reset: 'bg-orange-100 text-orange-700 border-orange-200',
+      manual_backup: 'bg-blue-100 text-blue-700 border-blue-200',
+      auto_backup: 'bg-gray-100 text-gray-700 border-gray-200',
     };
     return colors[reason] || 'bg-gray-100 text-gray-700 border-gray-200';
   };
@@ -129,7 +138,7 @@ export const RestoreBackupMenu: React.FC<RestoreBackupMenuProps> = ({
         month: '2-digit',
         year: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
       });
     }
   };
@@ -148,7 +157,7 @@ export const RestoreBackupMenu: React.FC<RestoreBackupMenuProps> = ({
 
   if (!isOpen || !currentMeeting) return null;
 
-  const selectedBackup = backups.find(b => b.id === selectedBackupId);
+  const selectedBackup = backups.find((b) => b.id === selectedBackupId);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
@@ -181,7 +190,9 @@ export const RestoreBackupMenu: React.FC<RestoreBackupMenuProps> = ({
             // No backups
             <div className="text-center py-12">
               <Database className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">אין גיבויים זמינים</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                אין גיבויים זמינים
+              </h3>
               <p className="text-sm text-gray-600">
                 טרם נוצרו גיבויים עבור פגישה זו.
               </p>
@@ -194,24 +205,28 @@ export const RestoreBackupMenu: React.FC<RestoreBackupMenuProps> = ({
                 <div className="text-sm text-blue-800">
                   <p className="font-semibold mb-1">שחזור מגיבוי</p>
                   <p>
-                    בחר גיבוי מהרשימה למטה. שחזור יחליף את כל המידע הנוכחי במידע מהגיבוי.
+                    בחר גיבוי מהרשימה למטה. שחזור יחליף את כל המידע הנוכחי במידע
+                    מהגיבוי.
                   </p>
                 </div>
               </div>
 
               {/* Backups list */}
               <div className="space-y-3">
-                <h3 className="font-semibold text-gray-900">גיבויים זמינים ({backups.length}):</h3>
-                
+                <h3 className="font-semibold text-gray-900">
+                  גיבויים זמינים ({backups.length}):
+                </h3>
+
                 {backups.map((backup) => (
                   <div
                     key={backup.id}
                     onClick={() => handleSelectBackup(backup.id)}
                     className={`
                       border-2 rounded-xl p-4 cursor-pointer transition-all
-                      ${selectedBackupId === backup.id 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200 hover:border-blue-300 bg-white'
+                      ${
+                        selectedBackupId === backup.id
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-200 hover:border-blue-300 bg-white'
                       }
                     `}
                   >
@@ -219,10 +234,12 @@ export const RestoreBackupMenu: React.FC<RestoreBackupMenuProps> = ({
                       {/* Left side - info */}
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <span className={`
+                          <span
+                            className={`
                             px-2 py-1 rounded-lg text-xs font-semibold border
                             ${getReasonColor(backup.reason)}
-                          `}>
+                          `}
+                          >
                             {getReasonLabel(backup.reason)}
                           </span>
                           <span className="text-sm text-gray-600 flex items-center gap-1">
@@ -230,16 +247,20 @@ export const RestoreBackupMenu: React.FC<RestoreBackupMenuProps> = ({
                             {formatDate(backup.timestamp)}
                           </span>
                         </div>
-                        
+
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-gray-700">התקדמות:</span>
+                            <span className="text-sm font-medium text-gray-700">
+                              התקדמות:
+                            </span>
                             <div className="flex-1 max-w-xs">
                               <div className="flex items-center gap-2">
                                 <div className="flex-1 bg-gray-200 rounded-full h-2">
                                   <div
                                     className="bg-blue-500 h-2 rounded-full transition-all"
-                                    style={{ width: `${backup.overallProgress}%` }}
+                                    style={{
+                                      width: `${backup.overallProgress}%`,
+                                    }}
                                   />
                                 </div>
                                 <span className="text-sm font-semibold text-gray-700 min-w-[3rem] text-right">
@@ -248,10 +269,12 @@ export const RestoreBackupMenu: React.FC<RestoreBackupMenuProps> = ({
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="text-xs text-gray-500 flex items-center gap-1">
                             <Clock className="w-3 h-3" />
-                            <span>יפוג בעוד: {getExpiresIn(backup.expiresAt)}</span>
+                            <span>
+                              יפוג בעוד: {getExpiresIn(backup.expiresAt)}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -284,8 +307,9 @@ export const RestoreBackupMenu: React.FC<RestoreBackupMenuProps> = ({
                         אני מאשר שחזור מגיבוי
                       </span>
                       <span className="text-sm text-orange-700">
-                        המידע הנוכחי יוחלף במידע מהגיבוי שנוצר {formatDate(selectedBackup.timestamp)}.
-                        פעולה זו תדרוס את כל השינויים שנעשו מאז יצירת הגיבוי.
+                        המידע הנוכחי יוחלף במידע מהגיבוי שנוצר{' '}
+                        {formatDate(selectedBackup.timestamp)}. פעולה זו תדרוס
+                        את כל השינויים שנעשו מאז יצירת הגיבוי.
                       </span>
                     </div>
                   </label>
@@ -326,4 +350,3 @@ export const RestoreBackupMenu: React.FC<RestoreBackupMenuProps> = ({
     </div>
   );
 };
-

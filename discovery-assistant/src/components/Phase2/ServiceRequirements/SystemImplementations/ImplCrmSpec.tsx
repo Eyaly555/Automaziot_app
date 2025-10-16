@@ -27,14 +27,14 @@ export function ImplCrmSpec() {
     adminAccess: {
       email: '',
       role: 'admin',
-      hasApiAccess: false
+      hasApiAccess: false,
     },
     apiCredentials: {},
     dataMigration: undefined,
     customFields: [],
     salesPipeline: {
       pipelineName: '',
-      stages: []
+      stages: [],
     },
     leadSources: [],
     workflowRules: [],
@@ -43,7 +43,7 @@ export function ImplCrmSpec() {
     trainingRequired: true,
     supportLevel: 'basic',
     estimatedWeeks: 6,
-    hasRollbackPlan: false
+    hasRollbackPlan: false,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -55,13 +55,16 @@ export function ImplCrmSpec() {
   // Auto-save hook for immediate saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'impl-crm',
-    category: 'systemImplementations'
+    category: 'systemImplementations',
   });
 
   // Load existing data
   useEffect(() => {
-    const systemImplementations = currentMeeting?.implementationSpec?.systemImplementations || [];
-    const existing = systemImplementations.find(item => item.serviceId === 'impl-crm');
+    const systemImplementations =
+      currentMeeting?.implementationSpec?.systemImplementations || [];
+    const existing = systemImplementations.find(
+      (item) => item.serviceId === 'impl-crm'
+    );
 
     if (existing?.requirements) {
       const existingConfigJson = JSON.stringify(existing.requirements);
@@ -88,18 +91,21 @@ export function ImplCrmSpec() {
   //   }
   // }, [config]);
 
-  const handleFieldChange = useCallback((field: keyof ImplCrmRequirements, value: any) => {
-    setConfig(prev => {
-      const updated = { ...prev, [field]: value };
-      setTimeout(() => {
-        if (!isLoadingRef.current) {
-          const completeConfig = { ...updated }; // No smart fields in this component
-          saveData(completeConfig);
-        }
-      }, 0);
-      return updated;
-    });
-  }, [saveData]);
+  const handleFieldChange = useCallback(
+    (field: keyof ImplCrmRequirements, value: any) => {
+      setConfig((prev) => {
+        const updated = { ...prev, [field]: value };
+        setTimeout(() => {
+          if (!isLoadingRef.current) {
+            const completeConfig = { ...updated }; // No smart fields in this component
+            saveData(completeConfig);
+          }
+        }, 0);
+        return updated;
+      });
+    },
+    [saveData]
+  );
 
   // Validation function
   const validateForm = (): boolean => {
@@ -129,18 +135,23 @@ export function ImplCrmSpec() {
         module: 'Leads',
         fieldName: '',
         fieldType: 'text',
-        isRequired: false
-      }
+        isRequired: false,
+      },
     ];
     handleFieldChange('customFields', updatedCustomFields);
   };
 
   const removeCustomField = (index: number) => {
-    const updatedCustomFields = config.customFields.filter((_, i) => i !== index);
+    const updatedCustomFields = config.customFields.filter(
+      (_, i) => i !== index
+    );
     handleFieldChange('customFields', updatedCustomFields);
   };
 
-  const updateCustomField = (index: number, field: Partial<typeof config.customFields[0]>) => {
+  const updateCustomField = (
+    index: number,
+    field: Partial<(typeof config.customFields)[0]>
+  ) => {
     const updated = [...config.customFields];
     updated[index] = { ...updated[index], ...field };
     handleFieldChange('customFields', updated);
@@ -153,14 +164,16 @@ export function ImplCrmSpec() {
         ruleName: '',
         module: 'Leads',
         trigger: 'on_create',
-        actions: []
-      }
+        actions: [],
+      },
     ];
     handleFieldChange('workflowRules', updatedWorkflowRules);
   };
 
   const removeWorkflowRule = (index: number) => {
-    const updatedWorkflowRules = config.workflowRules.filter((_, i) => i !== index);
+    const updatedWorkflowRules = config.workflowRules.filter(
+      (_, i) => i !== index
+    );
     handleFieldChange('workflowRules', updatedWorkflowRules);
   };
 
@@ -170,8 +183,8 @@ export function ImplCrmSpec() {
       {
         roleName: '',
         permissions: [],
-        userCount: 0
-      }
+        userCount: 0,
+      },
     ];
     handleFieldChange('userRoles', updatedUserRoles);
   };
@@ -209,7 +222,9 @@ export function ImplCrmSpec() {
   };
 
   const removePipelineStage = (index: number) => {
-    const updatedStages = config.salesPipeline.stages.filter((_, i) => i !== index);
+    const updatedStages = config.salesPipeline.stages.filter(
+      (_, i) => i !== index
+    );
     handleFieldChange('salesPipeline.stages', updatedStages);
   };
 
@@ -232,7 +247,9 @@ export function ImplCrmSpec() {
   return (
     <div className="space-y-6 p-8" dir="rtl">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">שירות #41: הטמעת CRM</h2>
+        <h2 className="text-2xl font-bold text-gray-900">
+          שירות #41: הטמעת CRM
+        </h2>
         <p className="text-gray-600 mt-2">הטמעה מלאה של מערכת CRM בארגון</p>
       </div>
 
@@ -247,7 +264,9 @@ export function ImplCrmSpec() {
             </label>
             <select
               value={config.platform || ''}
-              onChange={(e) => handleFieldChange('platform', e.target.value as any)}
+              onChange={(e) =>
+                handleFieldChange('platform', e.target.value as any)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             >
               <option value="">בחר פלטפורמה</option>
@@ -255,7 +274,9 @@ export function ImplCrmSpec() {
               <option value="salesforce">Salesforce</option>
               <option value="hubspot">HubSpot</option>
             </select>
-            {errors.platform && <p className="text-red-500 text-sm mt-1">{errors.platform}</p>}
+            {errors.platform && (
+              <p className="text-red-500 text-sm mt-1">{errors.platform}</p>
+            )}
           </div>
 
           {/* Subscription Tier */}
@@ -266,11 +287,15 @@ export function ImplCrmSpec() {
             <input
               type="text"
               value={config.subscriptionTier || ''}
-              onChange={(e) => handleFieldChange('subscriptionTier', e.target.value)}
+              onChange={(e) =>
+                handleFieldChange('subscriptionTier', e.target.value)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               placeholder="Professional, Enterprise, וכו'"
             />
-            {errors.tier && <p className="text-red-500 text-sm mt-1">{errors.tier}</p>}
+            {errors.tier && (
+              <p className="text-red-500 text-sm mt-1">{errors.tier}</p>
+            )}
           </div>
         </div>
       </Card>
@@ -286,18 +311,26 @@ export function ImplCrmSpec() {
             <input
               type="email"
               value={config.adminAccess.email}
-              onChange={(e) => handleFieldChange('adminAccess.email', e.target.value)}
+              onChange={(e) =>
+                handleFieldChange('adminAccess.email', e.target.value)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               placeholder="admin@company.com"
             />
-            {errors.adminEmail && <p className="text-red-500 text-sm mt-1">{errors.adminEmail}</p>}
+            {errors.adminEmail && (
+              <p className="text-red-500 text-sm mt-1">{errors.adminEmail}</p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">תפקיד</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              תפקיד
+            </label>
             <select
               value={config.adminAccess.role}
-              onChange={(e) => handleFieldChange('adminAccess.role', e.target.value as any)}
+              onChange={(e) =>
+                handleFieldChange('adminAccess.role', e.target.value as any)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             >
               <option value="owner">Owner</option>
@@ -311,7 +344,9 @@ export function ImplCrmSpec() {
             <input
               type="checkbox"
               checked={config.adminAccess.hasApiAccess}
-              onChange={(e) => handleFieldChange('adminAccess.hasApiAccess', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange('adminAccess.hasApiAccess', e.target.checked)
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">יש גישה ל-API</span>
@@ -324,11 +359,15 @@ export function ImplCrmSpec() {
         <h3 className="text-lg font-semibold mb-4">צינור מכירות</h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">שם צינור</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              שם צינור
+            </label>
             <input
               type="text"
               value={config.salesPipeline.pipelineName}
-              onChange={(e) => handleFieldChange('salesPipeline.pipelineName', e.target.value)}
+              onChange={(e) =>
+                handleFieldChange('salesPipeline.pipelineName', e.target.value)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               placeholder="Sales Pipeline"
             />
@@ -336,7 +375,9 @@ export function ImplCrmSpec() {
 
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label className="block text-sm font-medium text-gray-700">שלבים בצינור</label>
+              <label className="block text-sm font-medium text-gray-700">
+                שלבים בצינור
+              </label>
               <button
                 type="button"
                 onClick={addPipelineStage}
@@ -420,10 +461,14 @@ export function ImplCrmSpec() {
             <div key={index} className="border border-gray-200 p-4 rounded-lg">
               <div className="grid grid-cols-2 gap-4 mb-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">מודול</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    מודול
+                  </label>
                   <select
                     value={field.module}
-                    onChange={(e) => updateCustomField(index, { module: e.target.value })}
+                    onChange={(e) =>
+                      updateCustomField(index, { module: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   >
                     <option value="Leads">Leads</option>
@@ -434,11 +479,15 @@ export function ImplCrmSpec() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">שם שדה</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    שם שדה
+                  </label>
                   <input
                     type="text"
                     value={field.fieldName}
-                    onChange={(e) => updateCustomField(index, { fieldName: e.target.value })}
+                    onChange={(e) =>
+                      updateCustomField(index, { fieldName: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                     placeholder="שם השדה"
                   />
@@ -446,10 +495,16 @@ export function ImplCrmSpec() {
               </div>
               <div className="grid grid-cols-2 gap-4 mb-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">סוג שדה</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    סוג שדה
+                  </label>
                   <select
                     value={field.fieldType}
-                    onChange={(e) => updateCustomField(index, { fieldType: e.target.value as any })}
+                    onChange={(e) =>
+                      updateCustomField(index, {
+                        fieldType: e.target.value as any,
+                      })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   >
                     <option value="text">טקסט</option>
@@ -467,7 +522,11 @@ export function ImplCrmSpec() {
                     <input
                       type="checkbox"
                       checked={field.isRequired}
-                      onChange={(e) => updateCustomField(index, { isRequired: e.target.checked })}
+                      onChange={(e) =>
+                        updateCustomField(index, {
+                          isRequired: e.target.checked,
+                        })
+                      }
                       className="rounded border-gray-300"
                     />
                     <span className="text-sm">שדה חובה</span>
@@ -503,13 +562,18 @@ export function ImplCrmSpec() {
             <div key={index} className="border border-gray-200 p-4 rounded-lg">
               <div className="grid grid-cols-2 gap-4 mb-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">שם כלל</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    שם כלל
+                  </label>
                   <input
                     type="text"
                     value={rule.ruleName}
                     onChange={(e) => {
                       const updated = [...config.workflowRules];
-                      updated[index] = { ...updated[index], ruleName: e.target.value };
+                      updated[index] = {
+                        ...updated[index],
+                        ruleName: e.target.value,
+                      };
                       handleFieldChange('workflowRules', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
@@ -517,12 +581,17 @@ export function ImplCrmSpec() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">מודול</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    מודול
+                  </label>
                   <select
                     value={rule.module}
                     onChange={(e) => {
                       const updated = [...config.workflowRules];
-                      updated[index] = { ...updated[index], module: e.target.value };
+                      updated[index] = {
+                        ...updated[index],
+                        module: e.target.value,
+                      };
                       handleFieldChange('workflowRules', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
@@ -535,12 +604,17 @@ export function ImplCrmSpec() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">טריגר</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  טריגר
+                </label>
                 <select
                   value={rule.trigger}
                   onChange={(e) => {
                     const updated = [...config.workflowRules];
-                    updated[index] = { ...updated[index], trigger: e.target.value as any };
+                    updated[index] = {
+                      ...updated[index],
+                      trigger: e.target.value as any,
+                    };
                     handleFieldChange('workflowRules', updated);
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
@@ -581,13 +655,18 @@ export function ImplCrmSpec() {
             <div key={index} className="border border-gray-200 p-4 rounded-lg">
               <div className="grid grid-cols-2 gap-4 mb-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">שם תפקיד</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    שם תפקיד
+                  </label>
                   <input
                     type="text"
                     value={role.roleName}
                     onChange={(e) => {
                       const updated = [...config.userRoles];
-                      updated[index] = { ...updated[index], roleName: e.target.value };
+                      updated[index] = {
+                        ...updated[index],
+                        roleName: e.target.value,
+                      };
                       handleFieldChange('userRoles', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
@@ -595,13 +674,18 @@ export function ImplCrmSpec() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">מספר משתמשים</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    מספר משתמשים
+                  </label>
                   <input
                     type="number"
                     value={role.userCount}
                     onChange={(e) => {
                       const updated = [...config.userRoles];
-                      updated[index] = { ...updated[index], userCount: parseInt(e.target.value) || 0 };
+                      updated[index] = {
+                        ...updated[index],
+                        userCount: parseInt(e.target.value) || 0,
+                      };
                       handleFieldChange('userRoles', updated);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
@@ -629,7 +713,9 @@ export function ImplCrmSpec() {
             <input
               type="checkbox"
               checked={config.integrations?.email || false}
-              onChange={(e) => handleFieldChange('integrations.email', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange('integrations.email', e.target.checked)
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">סנכרון אימייל (Gmail/Outlook)</span>
@@ -639,7 +725,9 @@ export function ImplCrmSpec() {
             <input
               type="checkbox"
               checked={config.integrations?.calendar || false}
-              onChange={(e) => handleFieldChange('integrations.calendar', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange('integrations.calendar', e.target.checked)
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">סנכרון יומן</span>
@@ -649,7 +737,9 @@ export function ImplCrmSpec() {
             <input
               type="checkbox"
               checked={config.integrations?.website || false}
-              onChange={(e) => handleFieldChange('integrations.website', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange('integrations.website', e.target.checked)
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">טפסים באתר</span>
@@ -659,7 +749,12 @@ export function ImplCrmSpec() {
             <input
               type="checkbox"
               checked={config.integrations?.emailMarketing || false}
-              onChange={(e) => handleFieldChange('integrations.emailMarketing', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'integrations.emailMarketing',
+                  e.target.checked
+                )
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">שיווק באימייל</span>
@@ -669,7 +764,9 @@ export function ImplCrmSpec() {
             <input
               type="checkbox"
               checked={config.integrations?.phoneSystem || false}
-              onChange={(e) => handleFieldChange('integrations.phoneSystem', e.target.checked)}
+              onChange={(e) =>
+                handleFieldChange('integrations.phoneSystem', e.target.checked)
+              }
               className="rounded border-gray-300"
             />
             <span className="text-sm">מערכת טלפון</span>
@@ -686,7 +783,9 @@ export function ImplCrmSpec() {
               <input
                 type="checkbox"
                 checked={config.trainingRequired}
-                onChange={(e) => handleFieldChange('trainingRequired', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange('trainingRequired', e.target.checked)
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">נדרשת הדרכה למשתמשים</span>
@@ -694,10 +793,14 @@ export function ImplCrmSpec() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">רמת תמיכה</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              רמת תמיכה
+            </label>
             <select
               value={config.supportLevel}
-              onChange={(e) => handleFieldChange('supportLevel', e.target.value as any)}
+              onChange={(e) =>
+                handleFieldChange('supportLevel', e.target.value as any)
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             >
               <option value="basic">בסיסית</option>
@@ -707,11 +810,18 @@ export function ImplCrmSpec() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">משך הטמעה משוער (שבועות)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              משך הטמעה משוער (שבועות)
+            </label>
             <input
               type="number"
               value={config.estimatedWeeks}
-              onChange={(e) => handleFieldChange('estimatedWeeks', parseInt(e.target.value) || 0)}
+              onChange={(e) =>
+                handleFieldChange(
+                  'estimatedWeeks',
+                  parseInt(e.target.value) || 0
+                )
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               min="1"
             />
@@ -722,7 +832,9 @@ export function ImplCrmSpec() {
               <input
                 type="checkbox"
                 checked={config.hasRollbackPlan}
-                onChange={(e) => handleFieldChange('hasRollbackPlan', e.target.checked)}
+                onChange={(e) =>
+                  handleFieldChange('hasRollbackPlan', e.target.checked)
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">יש תכנית rollback</span>

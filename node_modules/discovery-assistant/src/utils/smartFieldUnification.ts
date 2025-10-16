@@ -25,29 +25,34 @@ export interface UnifiedFieldCollection {
 /**
  * Analyze purchased services and identify common fields
  */
-export function analyzeFieldUnification(purchasedServiceIds: string[]): UnifiedFieldCollection {
+export function analyzeFieldUnification(
+  purchasedServiceIds: string[]
+): UnifiedFieldCollection {
   const serviceTemplates = purchasedServiceIds
-    .map(id => getRequirementsTemplate(id))
-    .filter(template => template !== null) as ServiceRequirementsTemplate[];
+    .map((id) => getRequirementsTemplate(id))
+    .filter((template) => template !== null) as ServiceRequirementsTemplate[];
 
   if (serviceTemplates.length === 0) {
     return {
       unifiedFields: [],
       serviceSpecificFields: {},
-      totalEstimatedTime: 0
+      totalEstimatedTime: 0,
     };
   }
 
   // Collect all fields from all services
-  const fieldMap = new Map<string, {
-    field: any;
-    usedByServices: string[];
-    sources: string[];
-  }>();
+  const fieldMap = new Map<
+    string,
+    {
+      field: any;
+      usedByServices: string[];
+      sources: string[];
+    }
+  >();
 
-  serviceTemplates.forEach(template => {
-    template.sections.forEach(section => {
-      section.fields.forEach(field => {
+  serviceTemplates.forEach((template) => {
+    template.sections.forEach((section) => {
+      section.fields.forEach((field) => {
         const fieldKey = `${field.id}_${field.type}`;
 
         if (fieldMap.has(fieldKey)) {
@@ -58,7 +63,7 @@ export function analyzeFieldUnification(purchasedServiceIds: string[]): UnifiedF
           fieldMap.set(fieldKey, {
             field,
             usedByServices: [template.serviceId],
-            sources: [template.serviceNameHe]
+            sources: [template.serviceNameHe],
           });
         }
       });
@@ -81,7 +86,7 @@ export function analyzeFieldUnification(purchasedServiceIds: string[]): UnifiedF
         usedByServices,
         suggestedValue: suggestUnifiedValue(field, usedByServices),
         sourceService: sources[0],
-        confidence: calculateConfidence(field, usedByServices)
+        confidence: calculateConfidence(field, usedByServices),
       });
     } else {
       // Service-specific field
@@ -101,7 +106,7 @@ export function analyzeFieldUnification(purchasedServiceIds: string[]): UnifiedF
   return {
     unifiedFields,
     serviceSpecificFields,
-    totalEstimatedTime
+    totalEstimatedTime,
   };
 }
 
@@ -139,7 +144,10 @@ function calculateConfidence(field: any, serviceIds: string[]): number {
 /**
  * Generate optimized collection strategy
  */
-export function generateCollectionStrategy(unifiedFields: FieldUnification[], serviceSpecificFields: Record<string, any[]>): {
+export function generateCollectionStrategy(
+  unifiedFields: FieldUnification[],
+  serviceSpecificFields: Record<string, any[]>
+): {
   collectionOrder: string[];
   estimatedTimePerService: Record<string, number>;
   totalEstimatedTime: number;
@@ -162,9 +170,9 @@ export function generateCollectionStrategy(unifiedFields: FieldUnification[], se
   const estimatedTimePerService: Record<string, number> = {};
   let totalEstimatedTime = 0;
 
-  sortedServices.forEach(serviceId => {
+  sortedServices.forEach((serviceId) => {
     const fields = serviceSpecificFields[serviceId];
-    const unifiedCount = unifiedFields.filter(uf =>
+    const unifiedCount = unifiedFields.filter((uf) =>
       uf.usedByServices.includes(serviceId)
     ).length;
 
@@ -176,7 +184,7 @@ export function generateCollectionStrategy(unifiedFields: FieldUnification[], se
 
   // Generate smart defaults based on unified fields
   const smartDefaults: Record<string, any> = {};
-  unifiedFields.forEach(field => {
+  unifiedFields.forEach((field) => {
     if (field.suggestedValue) {
       smartDefaults[field.fieldId] = field.suggestedValue;
     }
@@ -186,19 +194,22 @@ export function generateCollectionStrategy(unifiedFields: FieldUnification[], se
     collectionOrder: sortedServices,
     estimatedTimePerService,
     totalEstimatedTime,
-    smartDefaults
+    smartDefaults,
   };
 }
 
 /**
  * Check if a service has all required data collected
  */
-export function isServiceComplete(serviceId: string, collectedData: Record<string, any>): boolean {
+export function isServiceComplete(
+  serviceId: string,
+  collectedData: Record<string, any>
+): boolean {
   const template = getRequirementsTemplate(serviceId);
   if (!template) return false;
 
-  return template.sections.every(section =>
-    section.fields.every(field => {
+  return template.sections.every((section) =>
+    section.fields.every((field) => {
       if (!field.required) return true;
 
       const value = collectedData[field.id];
@@ -210,7 +221,10 @@ export function isServiceComplete(serviceId: string, collectedData: Record<strin
 /**
  * Get completion status for all services
  */
-export function getServiceCompletionStatus(purchasedServices: string[], collectedData: Record<string, Record<string, any>>): {
+export function getServiceCompletionStatus(
+  purchasedServices: string[],
+  collectedData: Record<string, Record<string, any>>
+): {
   completed: string[];
   incomplete: string[];
   completionPercentage: number;
@@ -218,7 +232,7 @@ export function getServiceCompletionStatus(purchasedServices: string[], collecte
   const completed: string[] = [];
   const incomplete: string[] = [];
 
-  purchasedServices.forEach(serviceId => {
+  purchasedServices.forEach((serviceId) => {
     if (isServiceComplete(serviceId, collectedData[serviceId] || {})) {
       completed.push(serviceId);
     } else {
@@ -226,13 +240,14 @@ export function getServiceCompletionStatus(purchasedServices: string[], collecte
     }
   });
 
-  const completionPercentage = purchasedServices.length > 0
-    ? (completed.length / purchasedServices.length) * 100
-    : 0;
+  const completionPercentage =
+    purchasedServices.length > 0
+      ? (completed.length / purchasedServices.length) * 100
+      : 0;
 
   return {
     completed,
     incomplete,
-    completionPercentage: Math.round(completionPercentage)
+    completionPercentage: Math.round(completionPercentage),
   };
 }

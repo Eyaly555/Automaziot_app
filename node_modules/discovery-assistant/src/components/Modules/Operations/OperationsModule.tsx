@@ -1,13 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Plus, X, ChevronDown, ChevronUp, Info, Sparkles, AlertTriangle, Settings, FileText, FolderOpen, Users, Package } from 'lucide-react';
+import {
+  ArrowRight,
+  Plus,
+  X,
+  ChevronDown,
+  ChevronUp,
+  Info,
+  Sparkles,
+  AlertTriangle,
+  Settings,
+  FileText,
+  FolderOpen,
+  Users,
+  Package,
+} from 'lucide-react';
 import { useMeetingStore } from '../../../store/useMeetingStore';
 import { Card } from '../../Common/Card';
 import { Input, Select, TextArea, Button } from '../../Base';
-import {
-  CheckboxGroup,
-  RadioGroup
-} from '../../Common/FormFields';
+import { CheckboxGroup, RadioGroup } from '../../Common/FormFields';
 import { PainPointFlag } from '../../Common/PainPointFlag/PainPointFlag';
 import { PhaseReadOnlyBanner } from '../../Common/PhaseReadOnlyBanner';
 import { useBeforeUnload } from '../../../hooks/useBeforeUnload';
@@ -46,7 +57,9 @@ export const OperationsModule: React.FC = () => {
   const { currentMeeting, updateModule } = useMeetingStore();
   const moduleData = currentMeeting?.modules?.operations || {};
 
-  const [expandedSections, setExpandedSections] = useState<string[]>(['workProcesses']);
+  const [expandedSections, setExpandedSections] = useState<string[]>([
+    'workProcesses',
+  ]);
 
   // 4.1 תהליכי עבודה - Work Processes
   const [workProcesses, setWorkProcesses] = useState<WorkProcess[]>(
@@ -58,7 +71,7 @@ export const OperationsModule: React.FC = () => {
     stepCount: 0,
     bottleneck: '',
     failurePoint: '',
-    estimatedTime: 0
+    estimatedTime: 0,
   });
   const [commonFailures, setCommonFailures] = useState<string[]>(
     moduleData.workProcesses?.commonFailures || []
@@ -82,7 +95,7 @@ export const OperationsModule: React.FC = () => {
     volumePerMonth: 0,
     timePerDocument: 0,
     requiresApproval: false,
-    versionControlNeeded: false
+    versionControlNeeded: false,
   });
   const [storageLocations, setStorageLocations] = useState<string[]>(
     moduleData.documentManagement?.storageLocations || []
@@ -113,7 +126,7 @@ export const OperationsModule: React.FC = () => {
   const [newProjectIssue, setNewProjectIssue] = useState<ProjectIssue>({
     area: '',
     frequency: '',
-    impact: 'medium'
+    impact: 'medium',
   });
   const [resourceAllocationMethod, setResourceAllocationMethod] = useState(
     moduleData.projectManagement?.resourceAllocationMethod || ''
@@ -135,7 +148,7 @@ export const OperationsModule: React.FC = () => {
   const [newDepartment, setNewDepartment] = useState<Department>({
     name: '',
     employeeCount: 0,
-    systems: []
+    systems: [],
   });
   const [onboardingSteps, setOnboardingSteps] = useState(
     moduleData.hr?.onboardingSteps || 0
@@ -157,7 +170,9 @@ export const OperationsModule: React.FC = () => {
   );
 
   // NEW: Consolidated employee count (moved from Overview)
-  const [employeeCount, setEmployeeCount] = useState(moduleData.hr?.employeeCount || 0);
+  const [employeeCount, setEmployeeCount] = useState(
+    moduleData.hr?.employeeCount || 0
+  );
 
   // 4.5 לוגיסטיקה - Logistics
   const [inventoryMethod, setInventoryMethod] = useState(
@@ -192,7 +207,7 @@ export const OperationsModule: React.FC = () => {
         commonFailures,
         errorTrackingSystem,
         processDocumentation,
-        automationReadiness
+        automationReadiness,
       },
       documentManagement: {
         flows: documentFlows,
@@ -200,7 +215,7 @@ export const OperationsModule: React.FC = () => {
         searchDifficulties,
         versionControlMethod,
         approvalWorkflow,
-        documentRetention
+        documentRetention,
       },
       projectManagement: {
         tools: projectTools,
@@ -209,7 +224,7 @@ export const OperationsModule: React.FC = () => {
         resourceAllocationMethod,
         timelineAccuracy,
         projectVisibility,
-        deadlineMissRate
+        deadlineMissRate,
       },
       hr: {
         employeeCount, // NEW consolidated field
@@ -219,7 +234,7 @@ export const OperationsModule: React.FC = () => {
         trainingRequirements,
         performanceReviewFrequency,
         employeeTurnoverRate,
-        hrSystemsInUse
+        hrSystemsInUse,
       },
       logistics: {
         inventoryMethod,
@@ -229,8 +244,8 @@ export const OperationsModule: React.FC = () => {
         warehouseOperations,
         deliveryIssues,
         returnProcessTime,
-        inventoryAccuracy
-      }
+        inventoryAccuracy,
+      },
     });
   };
 
@@ -242,17 +257,48 @@ export const OperationsModule: React.FC = () => {
 
     return () => clearTimeout(timer);
   }, [
-    workProcesses, commonFailures, errorTrackingSystem, processDocumentation, automationReadiness,
-    documentFlows, storageLocations, searchDifficulties, versionControlMethod, approvalWorkflow, documentRetention,
-    projectTools, taskCreationSources, projectIssues, resourceAllocationMethod, timelineAccuracy, projectVisibility, deadlineMissRate,
-    employeeCount, departments, onboardingSteps, onboardingDuration, trainingRequirements, performanceReviewFrequency, employeeTurnoverRate, hrSystemsInUse,
-    inventoryMethod, shippingProcesses, supplierCount, orderFulfillmentTime, warehouseOperations, deliveryIssues, returnProcessTime, inventoryAccuracy,
-    updateModule
+    workProcesses,
+    commonFailures,
+    errorTrackingSystem,
+    processDocumentation,
+    automationReadiness,
+    documentFlows,
+    storageLocations,
+    searchDifficulties,
+    versionControlMethod,
+    approvalWorkflow,
+    documentRetention,
+    projectTools,
+    taskCreationSources,
+    projectIssues,
+    resourceAllocationMethod,
+    timelineAccuracy,
+    projectVisibility,
+    deadlineMissRate,
+    employeeCount,
+    departments,
+    onboardingSteps,
+    onboardingDuration,
+    trainingRequirements,
+    performanceReviewFrequency,
+    employeeTurnoverRate,
+    hrSystemsInUse,
+    inventoryMethod,
+    shippingProcesses,
+    supplierCount,
+    orderFulfillmentTime,
+    warehouseOperations,
+    deliveryIssues,
+    returnProcessTime,
+    inventoryAccuracy,
+    updateModule,
   ]);
 
   const toggleSection = (section: string) => {
-    setExpandedSections(prev =>
-      prev.includes(section) ? prev.filter(s => s !== section) : [...prev, section]
+    setExpandedSections((prev) =>
+      prev.includes(section)
+        ? prev.filter((s) => s !== section)
+        : [...prev, section]
     );
   };
 
@@ -261,12 +307,17 @@ export const OperationsModule: React.FC = () => {
 
     // Process automation potential
     if (workProcesses.length > 0) {
-      const avgSteps = workProcesses.reduce((sum, p) => sum + p.stepCount, 0) / workProcesses.length;
+      const avgSteps =
+        workProcesses.reduce((sum, p) => sum + p.stepCount, 0) /
+        workProcesses.length;
       if (avgSteps > 5) potential += 30;
     }
 
     // Document automation potential
-    const totalDocTime = documentFlows.reduce((sum, d) => sum + (d.volumePerMonth * d.timePerDocument), 0);
+    const totalDocTime = documentFlows.reduce(
+      (sum, d) => sum + d.volumePerMonth * d.timePerDocument,
+      0
+    );
     if (totalDocTime > 1000) potential += 30;
 
     // Project management automation
@@ -287,7 +338,7 @@ export const OperationsModule: React.FC = () => {
         stepCount: 0,
         bottleneck: '',
         failurePoint: '',
-        estimatedTime: 0
+        estimatedTime: 0,
       });
     }
   };
@@ -300,7 +351,7 @@ export const OperationsModule: React.FC = () => {
         volumePerMonth: 0,
         timePerDocument: 0,
         requiresApproval: false,
-        versionControlNeeded: false
+        versionControlNeeded: false,
       });
     }
   };
@@ -311,7 +362,7 @@ export const OperationsModule: React.FC = () => {
       setNewProjectIssue({
         area: '',
         frequency: '',
-        impact: 'medium'
+        impact: 'medium',
       });
     }
   };
@@ -322,7 +373,7 @@ export const OperationsModule: React.FC = () => {
       setNewDepartment({
         name: '',
         employeeCount: 0,
-        systems: []
+        systems: [],
       });
     }
   };
@@ -343,7 +394,10 @@ export const OperationsModule: React.FC = () => {
 
               {/* Breadcrumbs */}
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span className="hover:text-gray-900 cursor-pointer" onClick={() => navigate('/dashboard')}>
+                <span
+                  className="hover:text-gray-900 cursor-pointer"
+                  onClick={() => navigate('/dashboard')}
+                >
                   ראשי
                 </span>
                 <span>/</span>
@@ -381,7 +435,6 @@ export const OperationsModule: React.FC = () => {
         <PhaseReadOnlyBanner moduleName="תפעול פנימי" />
 
         <div className="space-y-4">
-
           {/* Module Overview Card */}
           <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
             <div className="flex items-center justify-between">
@@ -391,7 +444,8 @@ export const OperationsModule: React.FC = () => {
                   מודול 4: תפעול פנימי
                 </h2>
                 <p className="text-gray-600 mt-2">
-                  ניתוח תהליכי עבודה, ניהול מסמכים, פרויקטים, משאבי אנוש ולוגיסטיקה
+                  ניתוח תהליכי עבודה, ניהול מסמכים, פרויקטים, משאבי אנוש
+                  ולוגיסטיקה
                 </p>
               </div>
               <div className="text-5xl">⚙️</div>
@@ -416,16 +470,16 @@ export const OperationsModule: React.FC = () => {
                 </div>
               </div>
               <div className="transform transition-transform duration-300">
-                {expandedSections.includes('workProcesses') ?
-                  <ChevronUp className="w-5 h-5" /> :
+                {expandedSections.includes('workProcesses') ? (
+                  <ChevronUp className="w-5 h-5" />
+                ) : (
                   <ChevronDown className="w-5 h-5" />
-                }
+                )}
               </div>
             </button>
 
             {expandedSections.includes('workProcesses') && (
               <div className="mt-6 space-y-6 animate-fadeIn">
-
                 {/* Process List */}
                 <div>
                   <label className="block text-sm font-medium mb-3 flex items-center gap-2">
@@ -434,76 +488,108 @@ export const OperationsModule: React.FC = () => {
                   </label>
                   <div className="space-y-3 mb-4">
                     {/* Defensive check: Ensure workProcesses is an array before mapping */}
-                    {Array.isArray(workProcesses) && workProcesses.map((process, index) => (
-                      <div key={index} className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900">{process.name}</h4>
-                            <p className="text-sm text-gray-600 mt-1">{process.description}</p>
-                            <div className="flex flex-wrap gap-4 mt-2 text-sm">
-                              <span className="text-blue-700">
-                                <strong>{process.stepCount}</strong> שלבים
-                              </span>
-                              <span className="text-orange-700">
-                                <strong>{process.estimatedTime}</strong> דקות
-                              </span>
-                              {process.bottleneck && (
-                                <span className="text-red-700">
-                                  צוואר בקבוק: {process.bottleneck}
+                    {Array.isArray(workProcesses) &&
+                      workProcesses.map((process, index) => (
+                        <div
+                          key={index}
+                          className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-medium text-gray-900">
+                                {process.name}
+                              </h4>
+                              <p className="text-sm text-gray-600 mt-1">
+                                {process.description}
+                              </p>
+                              <div className="flex flex-wrap gap-4 mt-2 text-sm">
+                                <span className="text-blue-700">
+                                  <strong>{process.stepCount}</strong> שלבים
                                 </span>
-                              )}
+                                <span className="text-orange-700">
+                                  <strong>{process.estimatedTime}</strong> דקות
+                                </span>
+                                {process.bottleneck && (
+                                  <span className="text-red-700">
+                                    צוואר בקבוק: {process.bottleneck}
+                                  </span>
+                                )}
+                              </div>
                             </div>
+                            <button
+                              onClick={() =>
+                                setWorkProcesses(
+                                  workProcesses.filter((_, i) => i !== index)
+                                )
+                              }
+                              className="text-red-500 hover:text-red-700 p-1"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
                           </div>
-                          <button
-                            onClick={() => setWorkProcesses(workProcesses.filter((_, i) => i !== index))}
-                            className="text-red-500 hover:text-red-700 p-1"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
 
                   {/* Add New Process */}
                   <div className="bg-blue-50 p-4 rounded-lg space-y-3">
-                    <h4 className="font-medium text-blue-900">הוסף תהליך חדש</h4>
+                    <h4 className="font-medium text-blue-900">
+                      הוסף תהליך חדש
+                    </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <Input
                         value={newProcess.name}
-                        onChange={(v) => setNewProcess({ ...newProcess, name: v })}
+                        onChange={(v) =>
+                          setNewProcess({ ...newProcess, name: v })
+                        }
                         placeholder="שם התהליך"
                         dir="rtl"
                       />
                       <Input
                         value={newProcess.description}
-                        onChange={(v) => setNewProcess({ ...newProcess, description: v })}
+                        onChange={(v) =>
+                          setNewProcess({ ...newProcess, description: v })
+                        }
                         placeholder="תיאור קצר"
                         dir="rtl"
                       />
                       <Input
                         type="number"
                         value={newProcess.stepCount?.toString() || ''}
-                        onChange={(v) => setNewProcess({ ...newProcess, stepCount: v ? parseInt(v) : 0 })}
+                        onChange={(v) =>
+                          setNewProcess({
+                            ...newProcess,
+                            stepCount: v ? parseInt(v) : 0,
+                          })
+                        }
                         placeholder="מספר שלבים"
                         dir="rtl"
                       />
                       <Input
                         type="number"
                         value={newProcess.estimatedTime?.toString() || ''}
-                        onChange={(v) => setNewProcess({ ...newProcess, estimatedTime: v ? parseInt(v) : 0 })}
+                        onChange={(v) =>
+                          setNewProcess({
+                            ...newProcess,
+                            estimatedTime: v ? parseInt(v) : 0,
+                          })
+                        }
                         placeholder="זמן משוער (דקות)"
                         dir="rtl"
                       />
                       <Input
                         value={newProcess.bottleneck}
-                        onChange={(v) => setNewProcess({ ...newProcess, bottleneck: v })}
+                        onChange={(v) =>
+                          setNewProcess({ ...newProcess, bottleneck: v })
+                        }
                         placeholder="צוואר בקבוק עיקרי"
                         dir="rtl"
                       />
                       <Input
                         value={newProcess.failurePoint}
-                        onChange={(v) => setNewProcess({ ...newProcess, failurePoint: v })}
+                        onChange={(v) =>
+                          setNewProcess({ ...newProcess, failurePoint: v })
+                        }
                         placeholder="נקודת כשל נפוצה"
                         dir="rtl"
                       />
@@ -528,7 +614,7 @@ export const OperationsModule: React.FC = () => {
                     { value: 'missing_info', label: 'מידע חסר' },
                     { value: 'communication', label: 'תקשורת לקויה' },
                     { value: 'approval_delays', label: 'עיכובי אישורים' },
-                    { value: 'resource_shortage', label: 'מחסור במשאבים' }
+                    { value: 'resource_shortage', label: 'מחסור במשאבים' },
                   ]}
                   values={commonFailures}
                   onChange={setCommonFailures}
@@ -537,7 +623,9 @@ export const OperationsModule: React.FC = () => {
 
                 {/* Error Tracking */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">מערכת מעקב שגיאות</label>
+                  <label className="block text-sm font-medium mb-2">
+                    מערכת מעקב שגיאות
+                  </label>
                   <Select
                     value={errorTrackingSystem}
                     onChange={setErrorTrackingSystem}
@@ -546,7 +634,7 @@ export const OperationsModule: React.FC = () => {
                       { value: 'manual', label: 'רישום ידני' },
                       { value: 'excel', label: 'Excel' },
                       { value: 'system', label: 'מערכת ייעודית' },
-                      { value: 'crm', label: 'ב-CRM' }
+                      { value: 'crm', label: 'ב-CRM' },
                     ]}
                     dir="rtl"
                   />
@@ -554,7 +642,9 @@ export const OperationsModule: React.FC = () => {
 
                 {/* Process Documentation */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">תיעוד תהליכים</label>
+                  <label className="block text-sm font-medium mb-2">
+                    תיעוד תהליכים
+                  </label>
                   <TextArea
                     value={processDocumentation}
                     onChange={setProcessDocumentation}
@@ -575,7 +665,9 @@ export const OperationsModule: React.FC = () => {
                       min="0"
                       max="100"
                       value={automationReadiness}
-                      onChange={(e) => setAutomationReadiness(parseInt(e.target.value))}
+                      onChange={(e) =>
+                        setAutomationReadiness(parseInt(e.target.value))
+                      }
                       className="flex-1"
                     />
                     <span className="w-12 text-center font-bold text-blue-600">
@@ -625,16 +717,16 @@ export const OperationsModule: React.FC = () => {
                 </div>
               </div>
               <div className="transform transition-transform duration-300">
-                {expandedSections.includes('documents') ?
-                  <ChevronUp className="w-5 h-5" /> :
+                {expandedSections.includes('documents') ? (
+                  <ChevronUp className="w-5 h-5" />
+                ) : (
                   <ChevronDown className="w-5 h-5" />
-                }
+                )}
               </div>
             </button>
 
             {expandedSections.includes('documents') && (
               <div className="mt-6 space-y-6 animate-fadeIn">
-
                 {/* Document Flows */}
                 <div>
                   <label className="block text-sm font-medium mb-3">
@@ -642,52 +734,76 @@ export const OperationsModule: React.FC = () => {
                   </label>
                   <div className="space-y-3 mb-4">
                     {/* Defensive check: Ensure documentFlows is an array before mapping */}
-                    {Array.isArray(documentFlows) && documentFlows.map((flow, index) => (
-                      <div key={index} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <span className="font-medium">{flow.type}</span>
-                            <div className="flex gap-4 mt-1 text-sm text-gray-600">
-                              <span>{flow.volumePerMonth} בחודש</span>
-                              <span>{flow.timePerDocument} דקות למסמך</span>
-                              {flow.requiresApproval && (
-                                <span className="text-orange-600">דורש אישור</span>
-                              )}
-                              {flow.versionControlNeeded && (
-                                <span className="text-blue-600">נדרש בקרת גרסאות</span>
-                              )}
+                    {Array.isArray(documentFlows) &&
+                      documentFlows.map((flow, index) => (
+                        <div
+                          key={index}
+                          className="p-3 bg-gray-50 rounded-lg border border-gray-200"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <span className="font-medium">{flow.type}</span>
+                              <div className="flex gap-4 mt-1 text-sm text-gray-600">
+                                <span>{flow.volumePerMonth} בחודש</span>
+                                <span>{flow.timePerDocument} דקות למסמך</span>
+                                {flow.requiresApproval && (
+                                  <span className="text-orange-600">
+                                    דורש אישור
+                                  </span>
+                                )}
+                                {flow.versionControlNeeded && (
+                                  <span className="text-blue-600">
+                                    נדרש בקרת גרסאות
+                                  </span>
+                                )}
+                              </div>
                             </div>
+                            <button
+                              onClick={() =>
+                                setDocumentFlows(
+                                  documentFlows.filter((_, i) => i !== index)
+                                )
+                              }
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
                           </div>
-                          <button
-                            onClick={() => setDocumentFlows(documentFlows.filter((_, i) => i !== index))}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
 
                   {/* Add Document Flow */}
                   <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
                     <Input
                       value={newDocFlow.type}
-                      onChange={(v) => setNewDocFlow({ ...newDocFlow, type: v })}
+                      onChange={(v) =>
+                        setNewDocFlow({ ...newDocFlow, type: v })
+                      }
                       placeholder="סוג מסמך"
                       dir="rtl"
                     />
                     <Input
                       type="number"
                       value={newDocFlow.volumePerMonth?.toString() || ''}
-                      onChange={(v) => setNewDocFlow({ ...newDocFlow, volumePerMonth: v ? parseInt(v) : 0 })}
+                      onChange={(v) =>
+                        setNewDocFlow({
+                          ...newDocFlow,
+                          volumePerMonth: v ? parseInt(v) : 0,
+                        })
+                      }
                       placeholder="כמות בחודש"
                       dir="rtl"
                     />
                     <Input
                       type="number"
                       value={newDocFlow.timePerDocument?.toString() || ''}
-                      onChange={(v) => setNewDocFlow({ ...newDocFlow, timePerDocument: v ? parseInt(v) : 0 })}
+                      onChange={(v) =>
+                        setNewDocFlow({
+                          ...newDocFlow,
+                          timePerDocument: v ? parseInt(v) : 0,
+                        })
+                      }
                       placeholder="דקות למסמך"
                       dir="rtl"
                     />
@@ -695,15 +811,17 @@ export const OperationsModule: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={newDocFlow.requiresApproval}
-                        onChange={(e) => setNewDocFlow({ ...newDocFlow, requiresApproval: e.target.checked })}
+                        onChange={(e) =>
+                          setNewDocFlow({
+                            ...newDocFlow,
+                            requiresApproval: e.target.checked,
+                          })
+                        }
                         className="rounded"
                       />
                       <label className="text-sm">דורש אישור</label>
                     </div>
-                    <Button
-                      onClick={addDocumentFlow}
-                      variant="primary"
-                    >
+                    <Button onClick={addDocumentFlow} variant="primary">
                       <Plus className="w-5 h-5" />
                     </Button>
                   </div>
@@ -718,7 +836,7 @@ export const OperationsModule: React.FC = () => {
                     { value: 'sharepoint', label: 'SharePoint' },
                     { value: 'local_server', label: 'שרת מקומי' },
                     { value: 'physical', label: 'ארכיב פיזי' },
-                    { value: 'cloud', label: 'ענן אחר' }
+                    { value: 'cloud', label: 'ענן אחר' },
                   ]}
                   values={storageLocations}
                   onChange={setStorageLocations}
@@ -727,7 +845,9 @@ export const OperationsModule: React.FC = () => {
 
                 {/* Search Difficulties */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">קשיים באיתור מסמכים</label>
+                  <label className="block text-sm font-medium mb-2">
+                    קשיים באיתור מסמכים
+                  </label>
                   <TextArea
                     value={searchDifficulties}
                     onChange={setSearchDifficulties}
@@ -739,7 +859,9 @@ export const OperationsModule: React.FC = () => {
 
                 {/* Version Control */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">בקרת גרסאות</label>
+                  <label className="block text-sm font-medium mb-2">
+                    בקרת גרסאות
+                  </label>
                   <Select
                     value={versionControlMethod}
                     onChange={setVersionControlMethod}
@@ -748,7 +870,7 @@ export const OperationsModule: React.FC = () => {
                       { value: 'manual_naming', label: 'שמות ידניים (v1, v2)' },
                       { value: 'system', label: 'מערכת אוטומטית' },
                       { value: 'sharepoint', label: 'SharePoint versions' },
-                      { value: 'git', label: 'Git או דומה' }
+                      { value: 'git', label: 'Git או דומה' },
                     ]}
                     dir="rtl"
                   />
@@ -756,7 +878,9 @@ export const OperationsModule: React.FC = () => {
 
                 {/* Approval Workflow */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">תהליכי אישור</label>
+                  <label className="block text-sm font-medium mb-2">
+                    תהליכי אישור
+                  </label>
                   <Input
                     value={approvalWorkflow}
                     onChange={setApprovalWorkflow}
@@ -767,7 +891,9 @@ export const OperationsModule: React.FC = () => {
 
                 {/* Document Retention */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">תקופת שמירת מסמכים (שנים)</label>
+                  <label className="block text-sm font-medium mb-2">
+                    תקופת שמירת מסמכים (שנים)
+                  </label>
                   <Input
                     type="number"
                     value={documentRetention?.toString() || ''}
@@ -777,7 +903,10 @@ export const OperationsModule: React.FC = () => {
                 </div>
 
                 {/* Pain Points */}
-                {documentFlows.reduce((sum, f) => sum + (f.volumePerMonth * f.timePerDocument), 0) > 2000 && (
+                {documentFlows.reduce(
+                  (sum, f) => sum + f.volumePerMonth * f.timePerDocument,
+                  0
+                ) > 2000 && (
                   <PainPointFlag
                     module="operations"
                     subModule="documents"
@@ -808,16 +937,16 @@ export const OperationsModule: React.FC = () => {
                 </div>
               </div>
               <div className="transform transition-transform duration-300">
-                {expandedSections.includes('projects') ?
-                  <ChevronUp className="w-5 h-5" /> :
+                {expandedSections.includes('projects') ? (
+                  <ChevronUp className="w-5 h-5" />
+                ) : (
                   <ChevronDown className="w-5 h-5" />
-                }
+                )}
               </div>
             </button>
 
             {expandedSections.includes('projects') && (
               <div className="mt-6 space-y-6 animate-fadeIn">
-
                 {/* Project Tools */}
                 <CheckboxGroup
                   label="כלי ניהול פרויקטים"
@@ -828,7 +957,7 @@ export const OperationsModule: React.FC = () => {
                     { value: 'jira', label: 'Jira' },
                     { value: 'notion', label: 'Notion' },
                     { value: 'excel', label: 'Excel' },
-                    { value: 'ms_project', label: 'MS Project' }
+                    { value: 'ms_project', label: 'MS Project' },
                   ]}
                   values={projectTools}
                   onChange={setProjectTools}
@@ -845,7 +974,7 @@ export const OperationsModule: React.FC = () => {
                     { value: 'whatsapp', label: 'WhatsApp' },
                     { value: 'crm', label: 'CRM' },
                     { value: 'customers', label: 'פניות לקוחות' },
-                    { value: 'internal', label: 'יוזמות פנימיות' }
+                    { value: 'internal', label: 'יוזמות פנימיות' },
                   ]}
                   values={taskCreationSources}
                   onChange={setTaskCreationSources}
@@ -859,58 +988,82 @@ export const OperationsModule: React.FC = () => {
                   </label>
                   <div className="space-y-2 mb-3">
                     {/* Defensive check: Ensure projectIssues is an array before mapping */}
-                    {Array.isArray(projectIssues) && projectIssues.map((issue, index) => (
-                      <div key={index} className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                        <div className="flex-1">
-                          <span className="font-medium">{issue.area}</span>
-                          <span className="mx-2">|</span>
-                          <span className="text-sm text-gray-600">{issue.frequency}</span>
-                          <span className="mx-2">|</span>
-                          <span className={`text-sm font-medium ${
-                            issue.impact === 'high' ? 'text-red-600' :
-                            issue.impact === 'medium' ? 'text-orange-600' :
-                            'text-yellow-600'
-                          }`}>
-                            השפעה {issue.impact === 'high' ? 'גבוהה' :
-                                   issue.impact === 'medium' ? 'בינונית' : 'נמוכה'}
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => setProjectIssues(projectIssues.filter((_, i) => i !== index))}
-                          className="text-red-500 hover:text-red-700"
+                    {Array.isArray(projectIssues) &&
+                      projectIssues.map((issue, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200"
                         >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
+                          <div className="flex-1">
+                            <span className="font-medium">{issue.area}</span>
+                            <span className="mx-2">|</span>
+                            <span className="text-sm text-gray-600">
+                              {issue.frequency}
+                            </span>
+                            <span className="mx-2">|</span>
+                            <span
+                              className={`text-sm font-medium ${
+                                issue.impact === 'high'
+                                  ? 'text-red-600'
+                                  : issue.impact === 'medium'
+                                    ? 'text-orange-600'
+                                    : 'text-yellow-600'
+                              }`}
+                            >
+                              השפעה{' '}
+                              {issue.impact === 'high'
+                                ? 'גבוהה'
+                                : issue.impact === 'medium'
+                                  ? 'בינונית'
+                                  : 'נמוכה'}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() =>
+                              setProjectIssues(
+                                projectIssues.filter((_, i) => i !== index)
+                              )
+                            }
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                     <Input
                       value={newProjectIssue.area}
-                      onChange={(v) => setNewProjectIssue({ ...newProjectIssue, area: v })}
+                      onChange={(v) =>
+                        setNewProjectIssue({ ...newProjectIssue, area: v })
+                      }
                       placeholder="תחום הבעיה"
                       dir="rtl"
                     />
                     <Input
                       value={newProjectIssue.frequency}
-                      onChange={(v) => setNewProjectIssue({ ...newProjectIssue, frequency: v })}
+                      onChange={(v) =>
+                        setNewProjectIssue({ ...newProjectIssue, frequency: v })
+                      }
                       placeholder="תדירות"
                       dir="rtl"
                     />
                     <Select
                       value={newProjectIssue.impact}
-                      onChange={(v) => setNewProjectIssue({ ...newProjectIssue, impact: v as 'high' | 'medium' | 'low' })}
+                      onChange={(v) =>
+                        setNewProjectIssue({
+                          ...newProjectIssue,
+                          impact: v as 'high' | 'medium' | 'low',
+                        })
+                      }
                       options={[
                         { value: 'high', label: 'השפעה גבוהה' },
                         { value: 'medium', label: 'השפעה בינונית' },
-                        { value: 'low', label: 'השפעה נמוכה' }
+                        { value: 'low', label: 'השפעה נמוכה' },
                       ]}
                       dir="rtl"
                     />
-                    <Button
-                      onClick={addProjectIssue}
-                      variant="primary"
-                    >
+                    <Button onClick={addProjectIssue} variant="primary">
                       <Plus className="w-5 h-5" />
                     </Button>
                   </div>
@@ -918,7 +1071,9 @@ export const OperationsModule: React.FC = () => {
 
                 {/* Resource Allocation */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">שיטת הקצאת משאבים</label>
+                  <label className="block text-sm font-medium mb-2">
+                    שיטת הקצאת משאבים
+                  </label>
                   <Select
                     value={resourceAllocationMethod}
                     onChange={setResourceAllocationMethod}
@@ -927,7 +1082,7 @@ export const OperationsModule: React.FC = () => {
                       { value: 'manual', label: 'ידני לפי זמינות' },
                       { value: 'rotation', label: 'תורנות' },
                       { value: 'skills', label: 'לפי כישורים' },
-                      { value: 'automated', label: 'אוטומטי במערכת' }
+                      { value: 'automated', label: 'אוטומטי במערכת' },
                     ]}
                     dir="rtl"
                   />
@@ -944,7 +1099,9 @@ export const OperationsModule: React.FC = () => {
                       min="0"
                       max="100"
                       value={timelineAccuracy}
-                      onChange={(e) => setTimelineAccuracy(parseInt(e.target.value))}
+                      onChange={(e) =>
+                        setTimelineAccuracy(parseInt(e.target.value))
+                      }
                       className="flex-1"
                     />
                     <span className="w-12 text-center font-bold text-purple-600">
@@ -967,14 +1124,16 @@ export const OperationsModule: React.FC = () => {
                     { value: 'none', label: 'אין שקיפות' },
                     { value: 'meetings', label: 'רק בישיבות' },
                     { value: 'dashboard', label: 'דשבורד משותף' },
-                    { value: 'realtime', label: 'עדכון בזמן אמת' }
+                    { value: 'realtime', label: 'עדכון בזמן אמת' },
                   ]}
                   orientation="horizontal"
                 />
 
                 {/* Deadline Miss Rate */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">אחוז פרויקטים שחורגים מלוח הזמנים</label>
+                  <label className="block text-sm font-medium mb-2">
+                    אחוז פרויקטים שחורגים מלוח הזמנים
+                  </label>
                   <Input
                     type="number"
                     value={deadlineMissRate?.toString() || ''}
@@ -993,7 +1152,8 @@ export const OperationsModule: React.FC = () => {
                     condition={true}
                   />
                 )}
-                {projectIssues.filter(i => i.impact === 'high').length > 2 && (
+                {projectIssues.filter((i) => i.impact === 'high').length >
+                  2 && (
                   <PainPointFlag
                     module="operations"
                     subModule="projects"
@@ -1024,16 +1184,16 @@ export const OperationsModule: React.FC = () => {
                 </div>
               </div>
               <div className="transform transition-transform duration-300">
-                {expandedSections.includes('hr') ?
-                  <ChevronUp className="w-5 h-5" /> :
+                {expandedSections.includes('hr') ? (
+                  <ChevronUp className="w-5 h-5" />
+                ) : (
                   <ChevronDown className="w-5 h-5" />
-                }
+                )}
               </div>
             </button>
 
             {expandedSections.includes('hr') && (
               <div className="mt-6 space-y-6 animate-fadeIn">
-
                 {/* Departments */}
                 <div>
                   <label className="block text-sm font-medium mb-3">
@@ -1041,38 +1201,52 @@ export const OperationsModule: React.FC = () => {
                   </label>
                   <div className="space-y-2 mb-3">
                     {/* Defensive check: Ensure departments is an array before mapping */}
-                    {Array.isArray(departments) && departments.map((dept, index) => (
-                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <Users className="w-5 h-5 text-gray-600" />
-                        <span className="font-medium">{dept.name}</span>
-                        <span className="text-sm text-gray-600">{dept.employeeCount} עובדים</span>
-                        <button
-                          onClick={() => setDepartments(departments.filter((_, i) => i !== index))}
-                          className="mr-auto text-red-500 hover:text-red-700"
+                    {Array.isArray(departments) &&
+                      departments.map((dept, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
                         >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
+                          <Users className="w-5 h-5 text-gray-600" />
+                          <span className="font-medium">{dept.name}</span>
+                          <span className="text-sm text-gray-600">
+                            {dept.employeeCount} עובדים
+                          </span>
+                          <button
+                            onClick={() =>
+                              setDepartments(
+                                departments.filter((_, i) => i !== index)
+                              )
+                            }
+                            className="mr-auto text-red-500 hover:text-red-700"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                     <Input
                       value={newDepartment.name}
-                      onChange={(v) => setNewDepartment({ ...newDepartment, name: v })}
+                      onChange={(v) =>
+                        setNewDepartment({ ...newDepartment, name: v })
+                      }
                       placeholder="שם מחלקה"
                       dir="rtl"
                     />
                     <Input
                       type="number"
                       value={newDepartment.employeeCount?.toString() || ''}
-                      onChange={(v) => setNewDepartment({ ...newDepartment, employeeCount: v ? parseInt(v) : 0 })}
+                      onChange={(v) =>
+                        setNewDepartment({
+                          ...newDepartment,
+                          employeeCount: v ? parseInt(v) : 0,
+                        })
+                      }
                       placeholder="מספר עובדים"
                       dir="rtl"
                     />
-                    <Button
-                      onClick={addDepartment}
-                      variant="primary"
-                    >
+                    <Button onClick={addDepartment} variant="primary">
                       <Plus className="w-5 h-5" />
                     </Button>
                   </div>
@@ -1081,7 +1255,9 @@ export const OperationsModule: React.FC = () => {
                 {/* Onboarding */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">מספר שלבים בקליטת עובד</label>
+                    <label className="block text-sm font-medium mb-2">
+                      מספר שלבים בקליטת עובד
+                    </label>
                     <Input
                       type="number"
                       value={onboardingSteps?.toString() || ''}
@@ -1090,11 +1266,15 @@ export const OperationsModule: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">משך קליטת עובד (ימים)</label>
+                    <label className="block text-sm font-medium mb-2">
+                      משך קליטת עובד (ימים)
+                    </label>
                     <Input
                       type="number"
                       value={onboardingDuration?.toString() || ''}
-                      onChange={(v) => setOnboardingDuration(v ? parseInt(v) : 0)}
+                      onChange={(v) =>
+                        setOnboardingDuration(v ? parseInt(v) : 0)
+                      }
                       dir="rtl"
                     />
                   </div>
@@ -1110,7 +1290,7 @@ export const OperationsModule: React.FC = () => {
                     { value: 'safety', label: 'בטיחות' },
                     { value: 'compliance', label: 'ציות ורגולציה' },
                     { value: 'soft_skills', label: 'מיומנויות רכות' },
-                    { value: 'technical', label: 'הכשרה טכנית' }
+                    { value: 'technical', label: 'הכשרה טכנית' },
                   ]}
                   values={trainingRequirements}
                   onChange={setTrainingRequirements}
@@ -1119,7 +1299,9 @@ export const OperationsModule: React.FC = () => {
 
                 {/* Performance Reviews */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">תדירות הערכות עובדים</label>
+                  <label className="block text-sm font-medium mb-2">
+                    תדירות הערכות עובדים
+                  </label>
                   <Select
                     value={performanceReviewFrequency}
                     onChange={setPerformanceReviewFrequency}
@@ -1128,7 +1310,7 @@ export const OperationsModule: React.FC = () => {
                       { value: 'annual', label: 'שנתי' },
                       { value: 'biannual', label: 'חצי שנתי' },
                       { value: 'quarterly', label: 'רבעוני' },
-                      { value: 'monthly', label: 'חודשי' }
+                      { value: 'monthly', label: 'חודשי' },
                     ]}
                     dir="rtl"
                   />
@@ -1136,11 +1318,15 @@ export const OperationsModule: React.FC = () => {
 
                 {/* Turnover Rate */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">שיעור תחלופת עובדים שנתי</label>
+                  <label className="block text-sm font-medium mb-2">
+                    שיעור תחלופת עובדים שנתי
+                  </label>
                   <Input
                     type="number"
                     value={employeeTurnoverRate?.toString() || ''}
-                    onChange={(v) => setEmployeeTurnoverRate(v ? parseInt(v) : 0)}
+                    onChange={(v) =>
+                      setEmployeeTurnoverRate(v ? parseInt(v) : 0)
+                    }
                     dir="rtl"
                   />
                 </div>
@@ -1154,7 +1340,7 @@ export const OperationsModule: React.FC = () => {
                     { value: 'sap', label: 'SAP' },
                     { value: 'workday', label: 'Workday' },
                     { value: 'excel', label: 'Excel' },
-                    { value: 'paper', label: 'ידני/נייר' }
+                    { value: 'paper', label: 'ידני/נייר' },
                   ]}
                   values={hrSystemsInUse}
                   onChange={setHrSystemsInUse}
@@ -1202,19 +1388,21 @@ export const OperationsModule: React.FC = () => {
                 </div>
               </div>
               <div className="transform transition-transform duration-300">
-                {expandedSections.includes('logistics') ?
-                  <ChevronUp className="w-5 h-5" /> :
+                {expandedSections.includes('logistics') ? (
+                  <ChevronUp className="w-5 h-5" />
+                ) : (
                   <ChevronDown className="w-5 h-5" />
-                }
+                )}
               </div>
             </button>
 
             {expandedSections.includes('logistics') && (
               <div className="mt-6 space-y-6 animate-fadeIn">
-
                 {/* Inventory Method */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">שיטת ניהול מלאי</label>
+                  <label className="block text-sm font-medium mb-2">
+                    שיטת ניהול מלאי
+                  </label>
                   <Select
                     value={inventoryMethod}
                     onChange={setInventoryMethod}
@@ -1224,7 +1412,7 @@ export const OperationsModule: React.FC = () => {
                       { value: 'excel', label: 'Excel' },
                       { value: 'erp', label: 'מערכת ERP' },
                       { value: 'wms', label: 'מערכת WMS' },
-                      { value: 'rfid', label: 'RFID/ברקוד' }
+                      { value: 'rfid', label: 'RFID/ברקוד' },
                     ]}
                     dir="rtl"
                   />
@@ -1239,7 +1427,7 @@ export const OperationsModule: React.FC = () => {
                     { value: 'post', label: 'דואר ישראל' },
                     { value: 'pickup', label: 'איסוף עצמי' },
                     { value: 'dropshipping', label: 'Dropshipping' },
-                    { value: 'third_party', label: 'צד שלישי' }
+                    { value: 'third_party', label: 'צד שלישי' },
                   ]}
                   values={shippingProcesses}
                   onChange={setShippingProcesses}
@@ -1248,7 +1436,9 @@ export const OperationsModule: React.FC = () => {
 
                 {/* Supplier Management */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">מספר ספקים פעילים</label>
+                  <label className="block text-sm font-medium mb-2">
+                    מספר ספקים פעילים
+                  </label>
                   <Input
                     type="number"
                     value={supplierCount?.toString() || ''}
@@ -1259,11 +1449,15 @@ export const OperationsModule: React.FC = () => {
 
                 {/* Order Fulfillment */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">זמן ממוצע למימוש הזמנה (ימים)</label>
+                  <label className="block text-sm font-medium mb-2">
+                    זמן ממוצע למימוש הזמנה (ימים)
+                  </label>
                   <Input
                     type="number"
                     value={orderFulfillmentTime?.toString() || ''}
-                    onChange={(v) => setOrderFulfillmentTime(v ? parseInt(v) : 0)}
+                    onChange={(v) =>
+                      setOrderFulfillmentTime(v ? parseInt(v) : 0)
+                    }
                     dir="rtl"
                   />
                 </div>
@@ -1278,7 +1472,7 @@ export const OperationsModule: React.FC = () => {
                     { value: 'picking', label: 'ליקוט' },
                     { value: 'packing', label: 'אריזה' },
                     { value: 'shipping', label: 'משלוח' },
-                    { value: 'returns', label: 'החזרות' }
+                    { value: 'returns', label: 'החזרות' },
                   ]}
                   values={warehouseOperations}
                   onChange={setWarehouseOperations}
@@ -1287,7 +1481,9 @@ export const OperationsModule: React.FC = () => {
 
                 {/* Delivery Issues */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">בעיות במשלוחים</label>
+                  <label className="block text-sm font-medium mb-2">
+                    בעיות במשלוחים
+                  </label>
                   <TextArea
                     value={deliveryIssues}
                     onChange={setDeliveryIssues}
@@ -1299,7 +1495,9 @@ export const OperationsModule: React.FC = () => {
 
                 {/* Return Process */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">זמן טיפול בהחזרה (ימים)</label>
+                  <label className="block text-sm font-medium mb-2">
+                    זמן טיפול בהחזרה (ימים)
+                  </label>
                   <Input
                     type="number"
                     value={returnProcessTime?.toString() || ''}
@@ -1319,7 +1517,9 @@ export const OperationsModule: React.FC = () => {
                       min="0"
                       max="100"
                       value={inventoryAccuracy}
-                      onChange={(e) => setInventoryAccuracy(parseInt(e.target.value))}
+                      onChange={(e) =>
+                        setInventoryAccuracy(parseInt(e.target.value))
+                      }
                       className="flex-1"
                     />
                     <span className="w-12 text-center font-bold text-indigo-600">
@@ -1363,14 +1563,18 @@ export const OperationsModule: React.FC = () => {
               <div>
                 <h3 className="font-semibold text-gray-900">סיכום ממצאים</h3>
                 <p className="text-sm text-gray-600 mt-1">
-                  זוהו {workProcesses.filter(p => p.bottleneck).length} צווארי בקבוק בתהליכים,
-                  {' '}זמן עיבוד מסמכים של {documentFlows.reduce((sum, d) => sum + (d.volumePerMonth * d.timePerDocument), 0)} דקות בחודש,
-                  {' '}ופוטנציאל אוטומציה של {calculateAutomationPotential()}%
+                  זוהו {workProcesses.filter((p) => p.bottleneck).length} צווארי
+                  בקבוק בתהליכים, זמן עיבוד מסמכים של{' '}
+                  {documentFlows.reduce(
+                    (sum, d) => sum + d.volumePerMonth * d.timePerDocument,
+                    0
+                  )}{' '}
+                  דקות בחודש, ופוטנציאל אוטומציה של{' '}
+                  {calculateAutomationPotential()}%
                 </p>
               </div>
             </div>
           </Card>
-
         </div>
       </div>
     </div>

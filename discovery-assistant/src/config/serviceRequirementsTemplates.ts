@@ -15,12 +15,12 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
     tips: [
       'Think about your entire sales process from lead to close',
       'Consider which integrations are critical vs nice-to-have',
-      'Identify who will be the system admin and power users'
+      'Identify who will be the system admin and power users',
     ],
     tipsHe: [
       'חשוב על כל תהליך המכירה מליד ועד סגירה',
       'שקול אילו אינטגרציות קריטיות לעומת רצויות',
-      'זהה מי יהיה מנהל המערכת ומשתמשי העל'
+      'זהה מי יהיה מנהל המערכת ומשתמשי העל',
     ],
     sections: [
       {
@@ -35,7 +35,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Number of users who will use the CRM',
             labelHe: 'מספר משתמשים שישתמשו ב-CRM',
             required: true,
-            validation: { min: 1, max: 1000 }
+            validation: { min: 1, max: 1000 },
           },
           {
             id: 'crm_preference',
@@ -46,10 +46,18 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'zoho', label: 'Zoho CRM', labelHe: 'Zoho CRM' },
               { value: 'hubspot', label: 'HubSpot', labelHe: 'HubSpot' },
-              { value: 'salesforce', label: 'Salesforce', labelHe: 'Salesforce' },
+              {
+                value: 'salesforce',
+                label: 'Salesforce',
+                labelHe: 'Salesforce',
+              },
               { value: 'pipedrive', label: 'Pipedrive', labelHe: 'Pipedrive' },
-              { value: 'recommend', label: 'I need a recommendation', labelHe: 'אני צריך המלצה' }
-            ]
+              {
+                value: 'recommend',
+                label: 'I need a recommendation',
+                labelHe: 'אני צריך המלצה',
+              },
+            ],
           },
           {
             id: 'budget_range',
@@ -58,13 +66,29 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'תקציב חודשי לרישיונות CRM',
             required: true,
             options: [
-              { value: 'under_500', label: 'Under ₪500/month', labelHe: 'מתחת ל-₪500/חודש' },
-              { value: '500-2000', label: '₪500-2,000/month', labelHe: '₪500-2,000/חודש' },
-              { value: '2000-5000', label: '₪2,000-5,000/month', labelHe: '₪2,000-5,000/חודש' },
-              { value: 'over_5000', label: 'Over ₪5,000/month', labelHe: 'מעל ₪5,000/חודש' }
-            ]
-          }
-        ]
+              {
+                value: 'under_500',
+                label: 'Under ₪500/month',
+                labelHe: 'מתחת ל-₪500/חודש',
+              },
+              {
+                value: '500-2000',
+                label: '₪500-2,000/month',
+                labelHe: '₪500-2,000/חודש',
+              },
+              {
+                value: '2000-5000',
+                label: '₪2,000-5,000/month',
+                labelHe: '₪2,000-5,000/חודש',
+              },
+              {
+                value: 'over_5000',
+                label: 'Over ₪5,000/month',
+                labelHe: 'מעל ₪5,000/חודש',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'crm-lead-fields',
@@ -87,11 +111,19 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'company', label: 'Company Name', labelHe: 'שם חברה' },
               { value: 'position', label: 'Job Title', labelHe: 'תפקיד' },
               { value: 'industry', label: 'Industry', labelHe: 'תעשייה' },
-              { value: 'company_size', label: 'Company Size', labelHe: 'גודל חברה' },
+              {
+                value: 'company_size',
+                label: 'Company Size',
+                labelHe: 'גודל חברה',
+              },
               { value: 'website', label: 'Website', labelHe: 'אתר' },
               { value: 'address', label: 'Address', labelHe: 'כתובת' },
-              { value: 'social', label: 'Social Media Links', labelHe: 'קישורים לרשתות חברתיות' }
-            ]
+              {
+                value: 'social',
+                label: 'Social Media Links',
+                labelHe: 'קישורים לרשתות חברתיות',
+              },
+            ],
           },
           {
             id: 'custom_fields',
@@ -100,7 +132,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'שדות מותאמים אישית שאתה צריך (הוסף כמה שצריך)',
             required: false,
             placeholderHe: 'לדוגמא: תאריך חידוש חוזה, סוג מנוי, מקור ההפניה...',
-            placeholder: 'e.g., Contract Renewal Date, Subscription Type, Referral Source...'
+            placeholder:
+              'e.g., Contract Renewal Date, Subscription Type, Referral Source...',
           },
           {
             id: 'lead_source_tracking',
@@ -108,9 +141,10 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Do you want to track lead source automatically?',
             labelHe: 'האם אתה רוצה לעקוב אחר מקור הליד אוטומטית?',
             required: false,
-            helperTextHe: 'נתעד מאיזה ערוץ הגיע כל ליד (פייסבוק, גוגל, אתר וכו\')'
-          }
-        ]
+            helperTextHe:
+              "נתעד מאיזה ערוץ הגיע כל ליד (פייסבוק, גוגל, אתר וכו')",
+          },
+        ],
       },
       {
         id: 'crm-sales-pipeline',
@@ -126,9 +160,25 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Sales stages (in order)',
             labelHe: 'שלבי מכירה (לפי סדר)',
             required: true,
-            examplesHe: ['ליד חדש', 'יצירת קשר', 'פגישה נקבעה', 'הצעת מחיר נשלחה', 'משא ומתן', 'נסגר (won)', 'אבוד (lost)'],
-            examples: ['New Lead', 'Contacted', 'Meeting Scheduled', 'Proposal Sent', 'Negotiation', 'Closed Won', 'Closed Lost'],
-            helperTextHe: 'רשום את כל השלבים שליד עובר מרגע שנכנס ועד סגירה'
+            examplesHe: [
+              'ליד חדש',
+              'יצירת קשר',
+              'פגישה נקבעה',
+              'הצעת מחיר נשלחה',
+              'משא ומתן',
+              'נסגר (won)',
+              'אבוד (lost)',
+            ],
+            examples: [
+              'New Lead',
+              'Contacted',
+              'Meeting Scheduled',
+              'Proposal Sent',
+              'Negotiation',
+              'Closed Won',
+              'Closed Lost',
+            ],
+            helperTextHe: 'רשום את כל השלבים שליד עובר מרגע שנכנס ועד סגירה',
           },
           {
             id: 'win_probability',
@@ -136,16 +186,17 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Assign win probability to each stage',
             labelHe: 'הקצה אחוז סגירה לכל שלב',
             required: false,
-            helperTextHe: 'עוזר לחזות הכנסות - כל שלב יקבל אחוז הצלחה (10%, 25%, 50% וכו\')'
+            helperTextHe:
+              "עוזר לחזות הכנסות - כל שלב יקבל אחוז הצלחה (10%, 25%, 50% וכו')",
           },
           {
             id: 'deal_value_required',
             type: 'checkbox',
             label: 'Require deal value for every opportunity',
             labelHe: 'חייב ערך עסקה לכל הזדמנות',
-            required: false
-          }
-        ]
+            required: false,
+          },
+        ],
       },
       {
         id: 'crm-automation',
@@ -160,11 +211,27 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'איך לידים צריכים להתחלק לאנשי מכירות?',
             required: true,
             options: [
-              { value: 'round_robin', label: 'Round Robin (Equal Distribution)', labelHe: 'סיבוב אחיד (חלוקה שווה)' },
-              { value: 'territory', label: 'By Territory/Region', labelHe: 'לפי אזור' },
-              { value: 'source', label: 'By Lead Source', labelHe: 'לפי מקור הליד' },
-              { value: 'manual', label: 'Manual Assignment', labelHe: 'הקצאה ידנית' }
-            ]
+              {
+                value: 'round_robin',
+                label: 'Round Robin (Equal Distribution)',
+                labelHe: 'סיבוב אחיד (חלוקה שווה)',
+              },
+              {
+                value: 'territory',
+                label: 'By Territory/Region',
+                labelHe: 'לפי אזור',
+              },
+              {
+                value: 'source',
+                label: 'By Lead Source',
+                labelHe: 'לפי מקור הליד',
+              },
+              {
+                value: 'manual',
+                label: 'Manual Assignment',
+                labelHe: 'הקצאה ידנית',
+              },
+            ],
           },
           {
             id: 'notifications',
@@ -173,12 +240,28 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מתי הצוות צריך לקבל התראות?',
             required: true,
             options: [
-              { value: 'new_lead', label: 'New Lead Arrives', labelHe: 'ליד חדש מגיע' },
-              { value: 'hot_lead', label: 'Hot Lead (High Score)', labelHe: 'ליד חם (ציון גבוה)' },
-              { value: 'stage_change', label: 'Deal Stage Changes', labelHe: 'שינוי שלב בעסקה' },
-              { value: 'no_activity', label: 'No Activity for X Days', labelHe: 'אין פעילות X ימים' },
-              { value: 'deal_won', label: 'Deal Won', labelHe: 'עסקה נסגרה' }
-            ]
+              {
+                value: 'new_lead',
+                label: 'New Lead Arrives',
+                labelHe: 'ליד חדש מגיע',
+              },
+              {
+                value: 'hot_lead',
+                label: 'Hot Lead (High Score)',
+                labelHe: 'ליד חם (ציון גבוה)',
+              },
+              {
+                value: 'stage_change',
+                label: 'Deal Stage Changes',
+                labelHe: 'שינוי שלב בעסקה',
+              },
+              {
+                value: 'no_activity',
+                label: 'No Activity for X Days',
+                labelHe: 'אין פעילות X ימים',
+              },
+              { value: 'deal_won', label: 'Deal Won', labelHe: 'עסקה נסגרה' },
+            ],
           },
           {
             id: 'email_integration',
@@ -190,10 +273,10 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'gmail', label: 'Gmail', labelHe: 'Gmail' },
               { value: 'outlook', label: 'Outlook', labelHe: 'Outlook' },
               { value: 'both', label: 'Both', labelHe: 'שניהם' },
-              { value: 'none', label: 'Not needed', labelHe: 'לא נדרש' }
-            ]
-          }
-        ]
+              { value: 'none', label: 'Not needed', labelHe: 'לא נדרש' },
+            ],
+          },
+        ],
       },
       {
         id: 'crm-reporting',
@@ -208,13 +291,37 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'אילו דוחות אתה צריך?',
             required: true,
             options: [
-              { value: 'sales_pipeline', label: 'Sales Pipeline Report', labelHe: 'דוח צינור מכירות' },
-              { value: 'conversion_rates', label: 'Conversion Rates by Stage', labelHe: 'אחוזי המרה לפי שלב' },
-              { value: 'lead_sources', label: 'Lead Sources Performance', labelHe: 'ביצועי מקורות לידים' },
-              { value: 'sales_forecast', label: 'Sales Forecast', labelHe: 'תחזית מכירות' },
-              { value: 'team_performance', label: 'Team Performance', labelHe: 'ביצועי צוות' },
-              { value: 'activity_report', label: 'Activity Report', labelHe: 'דוח פעילות' }
-            ]
+              {
+                value: 'sales_pipeline',
+                label: 'Sales Pipeline Report',
+                labelHe: 'דוח צינור מכירות',
+              },
+              {
+                value: 'conversion_rates',
+                label: 'Conversion Rates by Stage',
+                labelHe: 'אחוזי המרה לפי שלב',
+              },
+              {
+                value: 'lead_sources',
+                label: 'Lead Sources Performance',
+                labelHe: 'ביצועי מקורות לידים',
+              },
+              {
+                value: 'sales_forecast',
+                label: 'Sales Forecast',
+                labelHe: 'תחזית מכירות',
+              },
+              {
+                value: 'team_performance',
+                label: 'Team Performance',
+                labelHe: 'ביצועי צוות',
+              },
+              {
+                value: 'activity_report',
+                label: 'Activity Report',
+                labelHe: 'דוח פעילות',
+              },
+            ],
           },
           {
             id: 'dashboard',
@@ -222,9 +329,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Create real-time dashboard',
             labelHe: 'צור דשבורד real-time',
             required: false,
-            helperTextHe: 'דשבורד שמתעדכן בזמן אמת עם כל המדדים החשובים'
-          }
-        ]
+            helperTextHe: 'דשבורד שמתעדכן בזמן אמת עם כל המדדים החשובים',
+          },
+        ],
       },
       {
         id: 'crm-integrations',
@@ -239,16 +346,40 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'אילו מערכות צריכות להשתלב עם ה-CRM?',
             required: false,
             options: [
-              { value: 'whatsapp', label: 'WhatsApp Business', labelHe: 'WhatsApp Business' },
-              { value: 'facebook', label: 'Facebook Lead Ads', labelHe: 'Facebook Lead Ads' },
+              {
+                value: 'whatsapp',
+                label: 'WhatsApp Business',
+                labelHe: 'WhatsApp Business',
+              },
+              {
+                value: 'facebook',
+                label: 'Facebook Lead Ads',
+                labelHe: 'Facebook Lead Ads',
+              },
               { value: 'website', label: 'Website Forms', labelHe: 'טפסי אתר' },
-              { value: 'accounting', label: 'Accounting Software', labelHe: 'תוכנת הנהלת חשבונות' },
-              { value: 'marketing', label: 'Email Marketing Tool', labelHe: 'כלי Email Marketing' },
-              { value: 'calendar', label: 'Calendar (Google/Outlook)', labelHe: 'לוח שנה' },
-              { value: 'calling', label: 'Phone System', labelHe: 'מערכת טלפוניה' }
-            ]
-          }
-        ]
+              {
+                value: 'accounting',
+                label: 'Accounting Software',
+                labelHe: 'תוכנת הנהלת חשבונות',
+              },
+              {
+                value: 'marketing',
+                label: 'Email Marketing Tool',
+                labelHe: 'כלי Email Marketing',
+              },
+              {
+                value: 'calendar',
+                label: 'Calendar (Google/Outlook)',
+                labelHe: 'לוח שנה',
+              },
+              {
+                value: 'calling',
+                label: 'Phone System',
+                labelHe: 'מערכת טלפוניה',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'crm-data-migration',
@@ -263,11 +394,27 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'האם יש לך נתוני לקוחות/לידים קיימים להעביר?',
             required: true,
             options: [
-              { value: 'yes_crm', label: 'Yes, from another CRM', labelHe: 'כן, מ-CRM אחר' },
-              { value: 'yes_spreadsheet', label: 'Yes, from spreadsheets', labelHe: 'כן, מגיליונות אלקטרוניים' },
-              { value: 'yes_mixed', label: 'Yes, from multiple sources', labelHe: 'כן, ממספר מקורות' },
-              { value: 'no', label: 'No, starting fresh', labelHe: 'לא, מתחילים מאפס' }
-            ]
+              {
+                value: 'yes_crm',
+                label: 'Yes, from another CRM',
+                labelHe: 'כן, מ-CRM אחר',
+              },
+              {
+                value: 'yes_spreadsheet',
+                label: 'Yes, from spreadsheets',
+                labelHe: 'כן, מגיליונות אלקטרוניים',
+              },
+              {
+                value: 'yes_mixed',
+                label: 'Yes, from multiple sources',
+                labelHe: 'כן, ממספר מקורות',
+              },
+              {
+                value: 'no',
+                label: 'No, starting fresh',
+                labelHe: 'לא, מתחילים מאפס',
+              },
+            ],
           },
           {
             id: 'data_volume',
@@ -275,8 +422,11 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Approximately how many records?',
             labelHe: 'כמה רשומות בערך?',
             required: false,
-            dependsOn: { fieldId: 'existing_data', value: ['yes_crm', 'yes_spreadsheet', 'yes_mixed'] },
-            helperTextHe: 'מספר משוער של לקוחות/לידים שצריך להעביר'
+            dependsOn: {
+              fieldId: 'existing_data',
+              value: ['yes_crm', 'yes_spreadsheet', 'yes_mixed'],
+            },
+            helperTextHe: 'מספר משוער של לקוחות/לידים שצריך להעביר',
           },
           {
             id: 'data_cleaning',
@@ -284,28 +434,31 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Need data cleaning/deduplication before migration?',
             labelHe: 'צריך ניקוי/הסרת כפילויות לפני ההעברה?',
             required: false,
-            dependsOn: { fieldId: 'existing_data', value: ['yes_crm', 'yes_spreadsheet', 'yes_mixed'] }
-          }
-        ]
-      }
-    ]
+            dependsOn: {
+              fieldId: 'existing_data',
+              value: ['yes_crm', 'yes_spreadsheet', 'yes_mixed'],
+            },
+          },
+        ],
+      },
+    ],
   },
 
   // ==================== AI FAQ CHATBOT ====================
   {
     serviceId: 'ai-faq-bot',
     serviceName: 'FAQ Chatbot',
-    serviceNameHe: 'צ\'אטבוט למענה על שאלות נפוצות',
+    serviceNameHe: "צ'אטבוט למענה על שאלות נפוצות",
     estimatedTimeMinutes: 20,
     tips: [
       'Collect your top 10-20 most common questions',
-      'Think about where customers should be redirected if AI can\'t answer',
-      'Consider what tone/personality the bot should have'
+      "Think about where customers should be redirected if AI can't answer",
+      'Consider what tone/personality the bot should have',
     ],
     tipsHe: [
       'אסוף את 10-20 השאלות הכי נפוצות',
       'חשוב לאן לקוחות צריכים להיות מופנים אם הAI לא יכול לענות',
-      'שקול איזה טון/אישיות הבוט צריך להיות'
+      'שקול איזה טון/אישיות הבוט צריך להיות',
     ],
     sections: [
       {
@@ -321,20 +474,24 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'שם הבוט',
             required: true,
             placeholderHe: 'לדוגמא: עוזר אוטומט, תמיכה אוטומטית',
-            helperTextHe: 'השם שהלקוחות יראו כשהם מדברים עם הבוט'
+            helperTextHe: 'השם שהלקוחות יראו כשהם מדברים עם הבוט',
           },
           {
             id: 'channels',
             type: 'multiselect',
             label: 'Where should the chatbot be available?',
-            labelHe: 'איפה הצ\'אטבוט צריך להיות זמין?',
+            labelHe: "איפה הצ'אטבוט צריך להיות זמין?",
             required: true,
             options: [
               { value: 'website', label: 'Website', labelHe: 'אתר' },
               { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' },
-              { value: 'facebook', label: 'Facebook Messenger', labelHe: 'Facebook Messenger' },
-              { value: 'instagram', label: 'Instagram', labelHe: 'Instagram' }
-            ]
+              {
+                value: 'facebook',
+                label: 'Facebook Messenger',
+                labelHe: 'Facebook Messenger',
+              },
+              { value: 'instagram', label: 'Instagram', labelHe: 'Instagram' },
+            ],
           },
           {
             id: 'language',
@@ -346,8 +503,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'he', label: 'Hebrew', labelHe: 'עברית' },
               { value: 'en', label: 'English', labelHe: 'אנגלית' },
               { value: 'ar', label: 'Arabic', labelHe: 'ערבית' },
-              { value: 'ru', label: 'Russian', labelHe: 'רוסית' }
-            ]
+              { value: 'ru', label: 'Russian', labelHe: 'רוסית' },
+            ],
           },
           {
             id: 'personality',
@@ -356,19 +513,31 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'אישיות הבוט',
             required: true,
             options: [
-              { value: 'professional', label: 'Professional & Formal', labelHe: 'מקצועי ופורמלי' },
-              { value: 'friendly', label: 'Friendly & Casual', labelHe: 'ידידותי וחברי' },
-              { value: 'enthusiastic', label: 'Enthusiastic & Energetic', labelHe: 'נלהב ואנרגטי' }
-            ]
-          }
-        ]
+              {
+                value: 'professional',
+                label: 'Professional & Formal',
+                labelHe: 'מקצועי ופורמלי',
+              },
+              {
+                value: 'friendly',
+                label: 'Friendly & Casual',
+                labelHe: 'ידידותי וחברי',
+              },
+              {
+                value: 'enthusiastic',
+                label: 'Enthusiastic & Energetic',
+                labelHe: 'נלהב ואנרגטי',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'chatbot-knowledge',
         title: 'Knowledge Base',
         titleHe: 'בסיס ידע',
         description: 'What should the chatbot know?',
-        descriptionHe: 'מה הצ\'אטבוט צריך לדעת?',
+        descriptionHe: "מה הצ'אטבוט צריך לדעת?",
         order: 2,
         fields: [
           {
@@ -377,22 +546,23 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Frequent Questions & Answers',
             labelHe: 'שאלות ותשובות נפוצות',
             required: true,
-            placeholderHe: 'רשום שאלה ותשובה - לדוגמא: "מה שעות הפעילות שלכם?" - "אנחנו פתוחים ימים א\'-ה\' 9:00-17:00"',
-            helperTextHe: 'הוסף לפחות 10-15 שאלות ותשובות'
+            placeholderHe:
+              'רשום שאלה ותשובה - לדוגמא: "מה שעות הפעילות שלכם?" - "אנחנו פתוחים ימים א\'-ה\' 9:00-17:00"',
+            helperTextHe: 'הוסף לפחות 10-15 שאלות ותשובות',
           },
           {
             id: 'product_info',
             type: 'checkbox',
             label: 'Include product/service information',
             labelHe: 'כלול מידע על מוצרים/שירותים',
-            required: false
+            required: false,
           },
           {
             id: 'pricing_info',
             type: 'checkbox',
             label: 'Include pricing information',
             labelHe: 'כלול מידע על מחירים',
-            required: false
+            required: false,
           },
           {
             id: 'docs_url',
@@ -400,9 +570,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Documentation/Help Center URL',
             labelHe: 'קישור למרכז עזרה/תיעוד',
             required: false,
-            helperTextHe: 'אם יש לך מרכז עזרה קיים, הבוט יכול ללמוד ממנו'
-          }
-        ]
+            helperTextHe: 'אם יש לך מרכז עזרה קיים, הבוט יכול ללמוד ממנו',
+          },
+        ],
       },
       {
         id: 'chatbot-flow',
@@ -416,7 +586,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Welcome Message',
             labelHe: 'הודעת ברוכים הבאים',
             required: true,
-            placeholderHe: 'לדוגמא: שלום! אני כאן לעזור לך. במה אוכל לסייע?'
+            placeholderHe: 'לדוגמא: שלום! אני כאן לעזור לך. במה אוכל לסייע?',
           },
           {
             id: 'quick_actions',
@@ -424,29 +594,42 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Quick Action Buttons',
             labelHe: 'כפתורי פעולה מהירה',
             required: false,
-            placeholderHe: 'לדוגמא: "שאלות נפוצות", "דבר עם נציג", "בדוק סטטוס הזמנה"',
-            helperTextHe: 'כפתורים שהלקוח רואה בתחילת השיחה'
+            placeholderHe:
+              'לדוגמא: "שאלות נפוצות", "דבר עם נציג", "בדוק סטטוס הזמנה"',
+            helperTextHe: 'כפתורים שהלקוח רואה בתחילת השיחה',
           },
           {
             id: 'fallback_strategy',
             type: 'radio',
-            label: 'What happens if bot can\'t answer?',
+            label: "What happens if bot can't answer?",
             labelHe: 'מה קורה אם הבוט לא יכול לענות?',
             required: true,
             options: [
-              { value: 'human_handoff', label: 'Transfer to Human Agent', labelHe: 'העברה לנציג אנושי' },
-              { value: 'leave_message', label: 'Let customer leave message', labelHe: 'מאפשר ללקוח להשאיר הודעה' },
-              { value: 'suggest_faq', label: 'Suggest related FAQ', labelHe: 'מציע שאלות נפוצות רלוונטיות' }
-            ]
+              {
+                value: 'human_handoff',
+                label: 'Transfer to Human Agent',
+                labelHe: 'העברה לנציג אנושי',
+              },
+              {
+                value: 'leave_message',
+                label: 'Let customer leave message',
+                labelHe: 'מאפשר ללקוח להשאיר הודעה',
+              },
+              {
+                value: 'suggest_faq',
+                label: 'Suggest related FAQ',
+                labelHe: 'מציע שאלות נפוצות רלוונטיות',
+              },
+            ],
           },
           {
             id: 'collect_email',
             type: 'checkbox',
             label: 'Collect email for follow-up',
             labelHe: 'אסוף אימייל למעקב',
-            required: false
-          }
-        ]
+            required: false,
+          },
+        ],
       },
       {
         id: 'chatbot-handoff',
@@ -461,11 +644,27 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מתי הבוט צריך להעביר לנציג?',
             required: true,
             options: [
-              { value: 'request', label: 'Customer Requests', labelHe: 'לקוח מבקש' },
-              { value: 'complex', label: 'Complex Question Detected', labelHe: 'שאלה מורכבת התגלתה' },
-              { value: 'frustrated', label: 'Customer Seems Frustrated', labelHe: 'לקוח נראה מתוסכל' },
-              { value: 'urgent', label: 'Urgent Keywords Detected', labelHe: 'מילות מפתח דחופות' }
-            ]
+              {
+                value: 'request',
+                label: 'Customer Requests',
+                labelHe: 'לקוח מבקש',
+              },
+              {
+                value: 'complex',
+                label: 'Complex Question Detected',
+                labelHe: 'שאלה מורכבת התגלתה',
+              },
+              {
+                value: 'frustrated',
+                label: 'Customer Seems Frustrated',
+                labelHe: 'לקוח נראה מתוסכל',
+              },
+              {
+                value: 'urgent',
+                label: 'Urgent Keywords Detected',
+                labelHe: 'מילות מפתח דחופות',
+              },
+            ],
           },
           {
             id: 'business_hours',
@@ -473,7 +672,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Support Hours',
             labelHe: 'שעות תמיכה',
             required: true,
-            placeholderHe: 'לדוגמא: א\'-ה\' 9:00-17:00'
+            placeholderHe: "לדוגמא: א'-ה' 9:00-17:00",
           },
           {
             id: 'after_hours_action',
@@ -482,12 +681,24 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מה קורה מחוץ לשעות העבודה?',
             required: true,
             options: [
-              { value: 'bot_only', label: 'Bot continues alone', labelHe: 'הבוט ממשיך לבד' },
-              { value: 'leave_message', label: 'Take message for tomorrow', labelHe: 'לוקח הודעה למחר' },
-              { value: 'email_alert', label: 'Send urgent email alert', labelHe: 'שולח התראת אימייל דחופה' }
-            ]
-          }
-        ]
+              {
+                value: 'bot_only',
+                label: 'Bot continues alone',
+                labelHe: 'הבוט ממשיך לבד',
+              },
+              {
+                value: 'leave_message',
+                label: 'Take message for tomorrow',
+                labelHe: 'לוקח הודעה למחר',
+              },
+              {
+                value: 'email_alert',
+                label: 'Send urgent email alert',
+                labelHe: 'שולח התראת אימייל דחופה',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'chatbot-integration',
@@ -500,14 +711,14 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             type: 'checkbox',
             label: 'Save conversations to CRM',
             labelHe: 'שמור שיחות ב-CRM',
-            required: false
+            required: false,
           },
           {
             id: 'analytics',
             type: 'checkbox',
             label: 'Track analytics (most asked questions, satisfaction)',
             labelHe: 'עקוב אחר ניתוחים (שאלות נפוצות, שביעות רצון)',
-            required: false
+            required: false,
           },
           {
             id: 'notification_channel',
@@ -519,12 +730,12 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'email', label: 'Email', labelHe: 'אימייל' },
               { value: 'slack', label: 'Slack', labelHe: 'Slack' },
               { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' },
-              { value: 'sms', label: 'SMS', labelHe: 'SMS' }
-            ]
-          }
-        ]
-      }
-    ]
+              { value: 'sms', label: 'SMS', labelHe: 'SMS' },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   // ==================== LEAD WORKFLOW AUTOMATION ====================
@@ -536,12 +747,12 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
     tips: [
       'Map your entire lead journey from capture to close',
       'Think about who should get notified at each stage',
-      'Consider how quickly you want to respond to new leads'
+      'Consider how quickly you want to respond to new leads',
     ],
     tipsHe: [
       'מפה את כל מסע הליד מקליטה ועד סגירה',
       'חשוב מי צריך לקבל התראות בכל שלב',
-      'שקול כמה מהר אתה רוצה להגיב ללידים חדשים'
+      'שקול כמה מהר אתה רוצה להגיב ללידים חדשים',
     ],
     sections: [
       {
@@ -559,15 +770,35 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'בחר את כל מקורות הלידים',
             required: true,
             options: [
-              { value: 'website_form', label: 'Website Contact Form', labelHe: 'טופס יצירת קשר באתר' },
-              { value: 'facebook_ads', label: 'Facebook Lead Ads', labelHe: 'Facebook Lead Ads' },
-              { value: 'google_ads', label: 'Google Ads', labelHe: 'Google Ads' },
+              {
+                value: 'website_form',
+                label: 'Website Contact Form',
+                labelHe: 'טופס יצירת קשר באתר',
+              },
+              {
+                value: 'facebook_ads',
+                label: 'Facebook Lead Ads',
+                labelHe: 'Facebook Lead Ads',
+              },
+              {
+                value: 'google_ads',
+                label: 'Google Ads',
+                labelHe: 'Google Ads',
+              },
               { value: 'linkedin', label: 'LinkedIn', labelHe: 'LinkedIn' },
-              { value: 'whatsapp', label: 'WhatsApp Inquiries', labelHe: 'פניות WhatsApp' },
+              {
+                value: 'whatsapp',
+                label: 'WhatsApp Inquiries',
+                labelHe: 'פניות WhatsApp',
+              },
               { value: 'phone', label: 'Phone Calls', labelHe: 'שיחות טלפון' },
-              { value: 'email', label: 'Email Inquiries', labelHe: 'פניות אימייל' },
-              { value: 'referrals', label: 'Referrals', labelHe: 'המלצות' }
-            ]
+              {
+                value: 'email',
+                label: 'Email Inquiries',
+                labelHe: 'פניות אימייל',
+              },
+              { value: 'referrals', label: 'Referrals', labelHe: 'המלצות' },
+            ],
           },
           {
             id: 'monthly_volume',
@@ -575,9 +806,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Approximate leads per month (all sources)',
             labelHe: 'לידים משוערים לחודש (כל המקורות)',
             required: true,
-            validation: { min: 1, max: 10000 }
-          }
-        ]
+            validation: { min: 1, max: 10000 },
+          },
+        ],
       },
       {
         id: 'lead-capture',
@@ -592,11 +823,23 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'כמה מהר צריך להגיב ללידים חדשים?',
             required: true,
             options: [
-              { value: 'immediate', label: 'Immediately (< 1 minute)', labelHe: 'מיד (< דקה)' },
-              { value: '5min', label: 'Within 5 minutes', labelHe: 'תוך 5 דקות' },
+              {
+                value: 'immediate',
+                label: 'Immediately (< 1 minute)',
+                labelHe: 'מיד (< דקה)',
+              },
+              {
+                value: '5min',
+                label: 'Within 5 minutes',
+                labelHe: 'תוך 5 דקות',
+              },
               { value: '1hour', label: 'Within 1 hour', labelHe: 'תוך שעה' },
-              { value: 'same_day', label: 'Same business day', labelHe: 'באותו יום עבודה' }
-            ]
+              {
+                value: 'same_day',
+                label: 'Same business day',
+                labelHe: 'באותו יום עבודה',
+              },
+            ],
           },
           {
             id: 'auto_response_channel',
@@ -607,8 +850,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'email', label: 'Email', labelHe: 'אימייל' },
               { value: 'sms', label: 'SMS', labelHe: 'SMS' },
-              { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' }
-            ]
+              { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' },
+            ],
           },
           {
             id: 'welcome_message',
@@ -616,17 +859,18 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Auto-response message template',
             labelHe: 'תבנית הודעת תגובה אוטומטית',
             required: true,
-            placeholderHe: 'לדוגמא: תודה על פנייתך! אנחנו נחזור אליך בקרוב...'
+            placeholderHe: 'לדוגמא: תודה על פנייתך! אנחנו נחזור אליך בקרוב...',
           },
           {
             id: 'lead_enrichment',
             type: 'checkbox',
-            label: 'Enrich lead data automatically (company info, social profiles)',
+            label:
+              'Enrich lead data automatically (company info, social profiles)',
             labelHe: 'העשר נתוני ליד אוטומטית (מידע על חברה, פרופילי רשתות)',
             required: false,
-            helperTextHe: 'מוסיף מידע נוסף על הליד מבסיסי נתונים חיצוניים'
-          }
-        ]
+            helperTextHe: 'מוסיף מידע נוסף על הליד מבסיסי נתונים חיצוניים',
+          },
+        ],
       },
       {
         id: 'lead-scoring',
@@ -641,9 +885,17 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'להשתמש בניקוד לידים?',
             required: true,
             options: [
-              { value: 'yes', label: 'Yes - score and prioritize leads', labelHe: 'כן - נקד ותעדף לידים' },
-              { value: 'no', label: 'No - all leads equal priority', labelHe: 'לא - כל הלידים בעדיפות שווה' }
-            ]
+              {
+                value: 'yes',
+                label: 'Yes - score and prioritize leads',
+                labelHe: 'כן - נקד ותעדף לידים',
+              },
+              {
+                value: 'no',
+                label: 'No - all leads equal priority',
+                labelHe: 'לא - כל הלידים בעדיפות שווה',
+              },
+            ],
           },
           {
             id: 'hot_lead_criteria',
@@ -653,12 +905,28 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: false,
             dependsOn: { fieldId: 'use_lead_scoring', value: 'yes' },
             options: [
-              { value: 'high_budget', label: 'High Budget Indicated', labelHe: 'תקציב גבוה צוין' },
+              {
+                value: 'high_budget',
+                label: 'High Budget Indicated',
+                labelHe: 'תקציב גבוה צוין',
+              },
               { value: 'urgent', label: 'Urgent Need', labelHe: 'צורך דחוף' },
-              { value: 'company_size', label: 'Large Company', labelHe: 'חברה גדולה' },
-              { value: 'source', label: 'From Premium Source', labelHe: 'ממקור פרימיום' },
-              { value: 'engagement', label: 'High Engagement (opened emails, visited site)', labelHe: 'מעורבות גבוהה' }
-            ]
+              {
+                value: 'company_size',
+                label: 'Large Company',
+                labelHe: 'חברה גדולה',
+              },
+              {
+                value: 'source',
+                label: 'From Premium Source',
+                labelHe: 'ממקור פרימיום',
+              },
+              {
+                value: 'engagement',
+                label: 'High Engagement (opened emails, visited site)',
+                labelHe: 'מעורבות גבוהה',
+              },
+            ],
           },
           {
             id: 'disqualification_rules',
@@ -667,9 +935,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'כללי פסילה אוטומטית (אופציונלי)',
             required: false,
             placeholderHe: 'לדוגמא: אם התקציב פחות מX, אם מאזור Y...',
-            helperTextHe: 'לידים שעונים על הכללים האלה לא יועברו לצוות המכירות'
-          }
-        ]
+            helperTextHe: 'לידים שעונים על הכללים האלה לא יועברו לצוות המכירות',
+          },
+        ],
       },
       {
         id: 'lead-assignment',
@@ -684,12 +952,32 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'איך להקצות לידים לאנשי מכירות?',
             required: true,
             options: [
-              { value: 'round_robin', label: 'Round Robin (Equal Distribution)', labelHe: 'סיבוב (חלוקה שווה)' },
-              { value: 'load_balanced', label: 'Load Balanced (by current workload)', labelHe: 'איזון עומס (לפי עומס נוכחי)' },
-              { value: 'territory', label: 'By Territory/Region', labelHe: 'לפי אזור/טריטוריה' },
-              { value: 'source', label: 'By Lead Source', labelHe: 'לפי מקור ליד' },
-              { value: 'skill', label: 'By Skill/Expertise', labelHe: 'לפי מומחיות' }
-            ]
+              {
+                value: 'round_robin',
+                label: 'Round Robin (Equal Distribution)',
+                labelHe: 'סיבוב (חלוקה שווה)',
+              },
+              {
+                value: 'load_balanced',
+                label: 'Load Balanced (by current workload)',
+                labelHe: 'איזון עומס (לפי עומס נוכחי)',
+              },
+              {
+                value: 'territory',
+                label: 'By Territory/Region',
+                labelHe: 'לפי אזור/טריטוריה',
+              },
+              {
+                value: 'source',
+                label: 'By Lead Source',
+                labelHe: 'לפי מקור ליד',
+              },
+              {
+                value: 'skill',
+                label: 'By Skill/Expertise',
+                labelHe: 'לפי מומחיות',
+              },
+            ],
           },
           {
             id: 'hot_lead_handling',
@@ -698,11 +986,27 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'טיפול מיוחד בלידים חמים',
             required: true,
             options: [
-              { value: 'senior', label: 'Assign to senior/best closer', labelHe: 'הקצה לסוגר מנוסה' },
-              { value: 'multiple', label: 'Notify multiple reps simultaneously', labelHe: 'התראה למספר נציגים בו זמנית' },
-              { value: 'immediate', label: 'Immediate phone call + SMS alert', labelHe: 'שיחת טלפון מיידית + התראת SMS' },
-              { value: 'normal', label: 'Normal assignment', labelHe: 'הקצאה רגילה' }
-            ]
+              {
+                value: 'senior',
+                label: 'Assign to senior/best closer',
+                labelHe: 'הקצה לסוגר מנוסה',
+              },
+              {
+                value: 'multiple',
+                label: 'Notify multiple reps simultaneously',
+                labelHe: 'התראה למספר נציגים בו זמנית',
+              },
+              {
+                value: 'immediate',
+                label: 'Immediate phone call + SMS alert',
+                labelHe: 'שיחת טלפון מיידית + התראת SMS',
+              },
+              {
+                value: 'normal',
+                label: 'Normal assignment',
+                labelHe: 'הקצאה רגילה',
+              },
+            ],
           },
           {
             id: 'reassignment_rules',
@@ -710,9 +1014,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Auto-reassign if no response within X hours',
             labelHe: 'הקצאה חוזרת אוטומטית אם אין תגובה תוך X שעות',
             required: false,
-            helperTextHe: 'מונע שלידים "ייתקעו" אצל נציג שלא מגיב'
-          }
-        ]
+            helperTextHe: 'מונע שלידים "ייתקעו" אצל נציג שלא מגיב',
+          },
+        ],
       },
       {
         id: 'lead-followup',
@@ -727,11 +1031,27 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'רצף מעקבים אוטומטי',
             required: true,
             options: [
-              { value: 'aggressive', label: 'Aggressive (Day 1, 2, 4, 7)', labelHe: 'אגרסיבי (יום 1, 2, 4, 7)' },
-              { value: 'moderate', label: 'Moderate (Day 1, 3, 7, 14)', labelHe: 'מתון (יום 1, 3, 7, 14)' },
-              { value: 'gentle', label: 'Gentle (Day 1, 7, 14)', labelHe: 'עדין (יום 1, 7, 14)' },
-              { value: 'custom', label: 'Custom Schedule', labelHe: 'לוח זמנים מותאם' }
-            ]
+              {
+                value: 'aggressive',
+                label: 'Aggressive (Day 1, 2, 4, 7)',
+                labelHe: 'אגרסיבי (יום 1, 2, 4, 7)',
+              },
+              {
+                value: 'moderate',
+                label: 'Moderate (Day 1, 3, 7, 14)',
+                labelHe: 'מתון (יום 1, 3, 7, 14)',
+              },
+              {
+                value: 'gentle',
+                label: 'Gentle (Day 1, 7, 14)',
+                labelHe: 'עדין (יום 1, 7, 14)',
+              },
+              {
+                value: 'custom',
+                label: 'Custom Schedule',
+                labelHe: 'לוח זמנים מותאם',
+              },
+            ],
           },
           {
             id: 'followup_channels',
@@ -743,8 +1063,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'email', label: 'Email', labelHe: 'אימייל' },
               { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' },
               { value: 'sms', label: 'SMS', labelHe: 'SMS' },
-              { value: 'phone', label: 'Phone Call', labelHe: 'שיחת טלפון' }
-            ]
+              { value: 'phone', label: 'Phone Call', labelHe: 'שיחת טלפון' },
+            ],
           },
           {
             id: 'no_response_action',
@@ -753,12 +1073,24 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מה לעשות אם אין תגובה אחרי כל הניסיונות?',
             required: true,
             options: [
-              { value: 'nurture', label: 'Move to long-term nurturing', labelHe: 'העבר לטיפוח ארוך טווח' },
-              { value: 'close_lost', label: 'Mark as Closed Lost', labelHe: 'סמן כאבוד' },
-              { value: 'future_followup', label: 'Schedule for 3-6 months follow-up', labelHe: 'תזמן למעקב בעוד 3-6 חודשים' }
-            ]
-          }
-        ]
+              {
+                value: 'nurture',
+                label: 'Move to long-term nurturing',
+                labelHe: 'העבר לטיפוח ארוך טווח',
+              },
+              {
+                value: 'close_lost',
+                label: 'Mark as Closed Lost',
+                labelHe: 'סמן כאבוד',
+              },
+              {
+                value: 'future_followup',
+                label: 'Schedule for 3-6 months follow-up',
+                labelHe: 'תזמן למעקב בעוד 3-6 חודשים',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'lead-notifications',
@@ -773,12 +1105,32 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מתי להתריע לצוות מכירות?',
             required: true,
             options: [
-              { value: 'new_lead', label: 'New Lead Arrives', labelHe: 'ליד חדש מגיע' },
-              { value: 'hot_lead', label: 'Hot Lead Detected', labelHe: 'ליד חם זוהה' },
-              { value: 'lead_reply', label: 'Lead Replies', labelHe: 'ליד מגיב' },
-              { value: 'no_activity', label: 'No Activity for 3 Days', labelHe: 'אין פעילות 3 ימים' },
-              { value: 'meeting_booked', label: 'Meeting Booked', labelHe: 'פגישה נקבעה' }
-            ]
+              {
+                value: 'new_lead',
+                label: 'New Lead Arrives',
+                labelHe: 'ליד חדש מגיע',
+              },
+              {
+                value: 'hot_lead',
+                label: 'Hot Lead Detected',
+                labelHe: 'ליד חם זוהה',
+              },
+              {
+                value: 'lead_reply',
+                label: 'Lead Replies',
+                labelHe: 'ליד מגיב',
+              },
+              {
+                value: 'no_activity',
+                label: 'No Activity for 3 Days',
+                labelHe: 'אין פעילות 3 ימים',
+              },
+              {
+                value: 'meeting_booked',
+                label: 'Meeting Booked',
+                labelHe: 'פגישה נקבעה',
+              },
+            ],
           },
           {
             id: 'notification_channels',
@@ -791,10 +1143,14 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'sms', label: 'SMS', labelHe: 'SMS' },
               { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' },
               { value: 'slack', label: 'Slack', labelHe: 'Slack' },
-              { value: 'crm', label: 'In-CRM Notification', labelHe: 'התראה בתוך ה-CRM' }
-            ]
-          }
-        ]
+              {
+                value: 'crm',
+                label: 'In-CRM Notification',
+                labelHe: 'התראה בתוך ה-CRM',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'lead-reporting',
@@ -805,27 +1161,28 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
           {
             id: 'daily_summary',
             type: 'checkbox',
-            label: 'Daily summary report (new leads, response rates, conversions)',
+            label:
+              'Daily summary report (new leads, response rates, conversions)',
             labelHe: 'דוח סיכום יומי (לידים חדשים, אחוזי תגובה, המרות)',
-            required: false
+            required: false,
           },
           {
             id: 'weekly_analysis',
             type: 'checkbox',
             label: 'Weekly performance analysis',
             labelHe: 'ניתוח ביצועים שבועי',
-            required: false
+            required: false,
           },
           {
             id: 'dashboard',
             type: 'checkbox',
             label: 'Real-time dashboard with key metrics',
             labelHe: 'דשבורד real-time עם מדדי מפתח',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   // ==================== WHATSAPP BUSINESS API ====================
@@ -848,9 +1205,17 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'האם יש לך WhatsApp Business כבר?',
             required: true,
             options: [
-              { value: 'yes', label: 'Yes, using WhatsApp Business app', labelHe: 'כן, משתמש באפליקציית WhatsApp Business' },
-              { value: 'no', label: 'No, need to set up', labelHe: 'לא, צריך להקים' }
-            ]
+              {
+                value: 'yes',
+                label: 'Yes, using WhatsApp Business app',
+                labelHe: 'כן, משתמש באפליקציית WhatsApp Business',
+              },
+              {
+                value: 'no',
+                label: 'No, need to set up',
+                labelHe: 'לא, צריך להקים',
+              },
+            ],
           },
           {
             id: 'phone_number',
@@ -858,16 +1223,16 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Business phone number for WhatsApp',
             labelHe: 'מספר טלפון עסקי ל-WhatsApp',
             required: true,
-            helperTextHe: 'המספר שיחובר ל-API (חייב להיות מספר ייעודי)'
+            helperTextHe: 'המספר שיחובר ל-API (חייב להיות מספר ייעודי)',
           },
           {
             id: 'display_name',
             type: 'text',
             label: 'Business display name',
             labelHe: 'שם עסק להצגה',
-            required: true
-          }
-        ]
+            required: true,
+          },
+        ],
       },
       {
         id: 'whatsapp-usage',
@@ -882,11 +1247,27 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'נפח הודעות חודשי צפוי',
             required: true,
             options: [
-              { value: 'under_1000', label: 'Under 1,000 messages/month', labelHe: 'מתחת 1,000 הודעות/חודש' },
-              { value: '1000-5000', label: '1,000-5,000 messages/month', labelHe: '1,000-5,000 הודעות/חודש' },
-              { value: '5000-10000', label: '5,000-10,000 messages/month', labelHe: '5,000-10,000 הודעות/חודש' },
-              { value: 'over_10000', label: 'Over 10,000 messages/month', labelHe: 'מעל 10,000 הודעות/חודש' }
-            ]
+              {
+                value: 'under_1000',
+                label: 'Under 1,000 messages/month',
+                labelHe: 'מתחת 1,000 הודעות/חודש',
+              },
+              {
+                value: '1000-5000',
+                label: '1,000-5,000 messages/month',
+                labelHe: '1,000-5,000 הודעות/חודש',
+              },
+              {
+                value: '5000-10000',
+                label: '5,000-10,000 messages/month',
+                labelHe: '5,000-10,000 הודעות/חודש',
+              },
+              {
+                value: 'over_10000',
+                label: 'Over 10,000 messages/month',
+                labelHe: 'מעל 10,000 הודעות/חודש',
+              },
+            ],
           },
           {
             id: 'use_cases',
@@ -895,22 +1276,44 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'למה תשתמש ב-WhatsApp?',
             required: true,
             options: [
-              { value: 'customer_support', label: 'Customer Support', labelHe: 'תמיכת לקוחות' },
-              { value: 'sales', label: 'Sales & Lead Follow-up', labelHe: 'מכירות ומעקב לידים' },
-              { value: 'notifications', label: 'Order/Appointment Notifications', labelHe: 'התראות על הזמנות/פגישות' },
-              { value: 'marketing', label: 'Marketing Messages', labelHe: 'הודעות שיווקיות' },
-              { value: 'chatbot', label: 'Automated Chatbot', labelHe: 'צ\'אטבוט אוטומטי' }
-            ]
+              {
+                value: 'customer_support',
+                label: 'Customer Support',
+                labelHe: 'תמיכת לקוחות',
+              },
+              {
+                value: 'sales',
+                label: 'Sales & Lead Follow-up',
+                labelHe: 'מכירות ומעקב לידים',
+              },
+              {
+                value: 'notifications',
+                label: 'Order/Appointment Notifications',
+                labelHe: 'התראות על הזמנות/פגישות',
+              },
+              {
+                value: 'marketing',
+                label: 'Marketing Messages',
+                labelHe: 'הודעות שיווקיות',
+              },
+              {
+                value: 'chatbot',
+                label: 'Automated Chatbot',
+                labelHe: "צ'אטבוט אוטומטי",
+              },
+            ],
           },
           {
             id: 'message_templates',
             type: 'list',
-            label: 'Message templates you need (e.g., order confirmation, appointment reminder)',
-            labelHe: 'תבניות הודעות שאתה צריך (לדוגמא: אישור הזמנה, תזכורת לפגישה)',
+            label:
+              'Message templates you need (e.g., order confirmation, appointment reminder)',
+            labelHe:
+              'תבניות הודעות שאתה צריך (לדוגמא: אישור הזמנה, תזכורת לפגישה)',
             required: true,
-            helperTextHe: 'כל תבנית צריכה אישור מ-WhatsApp לפני שימוש'
-          }
-        ]
+            helperTextHe: 'כל תבנית צריכה אישור מ-WhatsApp לפני שימוש',
+          },
+        ],
       },
       {
         id: 'whatsapp-integration',
@@ -923,7 +1326,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             type: 'checkbox',
             label: 'Sync conversations with CRM',
             labelHe: 'סנכרן שיחות עם CRM',
-            required: false
+            required: false,
           },
           {
             id: 'team_inbox',
@@ -932,14 +1335,26 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'איך הצוות צריך לגשת ל-WhatsApp?',
             required: true,
             options: [
-              { value: 'shared', label: 'Shared inbox (multiple users)', labelHe: 'תיבת דואר משותפת (מספר משתמשים)' },
-              { value: 'assigned', label: 'Assign conversations to specific agents', labelHe: 'הקצה שיחות לנציגים ספציפיים' },
-              { value: 'single', label: 'Single user only', labelHe: 'משתמש יחיד בלבד' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'shared',
+                label: 'Shared inbox (multiple users)',
+                labelHe: 'תיבת דואר משותפת (מספר משתמשים)',
+              },
+              {
+                value: 'assigned',
+                label: 'Assign conversations to specific agents',
+                labelHe: 'הקצה שיחות לנציגים ספציפיים',
+              },
+              {
+                value: 'single',
+                label: 'Single user only',
+                labelHe: 'משתמש יחיד בלבד',
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   // ==================== SIMPLE AUTOMATION SERVICES ====================
@@ -961,8 +1376,13 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'List all email templates needed',
             labelHe: 'רשום את כל תבניות האימייל הנדרשות',
             required: true,
-            examplesHe: ['תודה על פנייתך', 'אישור פגישה', 'הצעת מחיר', 'תזכורת'],
-            helperTextHe: 'לכל תבנית תהיה אפשרות לערוך תוכן, נושא, ומועד שליחה'
+            examplesHe: [
+              'תודה על פנייתך',
+              'אישור פגישה',
+              'הצעת מחיר',
+              'תזכורת',
+            ],
+            helperTextHe: 'לכל תבנית תהיה אפשרות לערוך תוכן, נושא, ומועד שליחה',
           },
           {
             id: 'personalization',
@@ -973,10 +1393,18 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'name', label: 'Customer Name', labelHe: 'שם לקוח' },
               { value: 'company', label: 'Company Name', labelHe: 'שם חברה' },
-              { value: 'product', label: 'Product/Service Name', labelHe: 'שם מוצר/שירות' },
-              { value: 'date', label: 'Appointment/Delivery Date', labelHe: 'תאריך פגישה/משלוח' },
-              { value: 'price', label: 'Price/Quote', labelHe: 'מחיר/הצעה' }
-            ]
+              {
+                value: 'product',
+                label: 'Product/Service Name',
+                labelHe: 'שם מוצר/שירות',
+              },
+              {
+                value: 'date',
+                label: 'Appointment/Delivery Date',
+                labelHe: 'תאריך פגישה/משלוח',
+              },
+              { value: 'price', label: 'Price/Quote', labelHe: 'מחיר/הצעה' },
+            ],
           },
           {
             id: 'trigger',
@@ -985,16 +1413,36 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מתי אימיילים צריכים להישלח?',
             required: true,
             options: [
-              { value: 'lead_submit', label: 'Immediately after lead submission', labelHe: 'מיד אחרי הגשת ליד' },
-              { value: 'meeting_booked', label: 'When meeting is booked', labelHe: 'כשפגישה נקבעת' },
-              { value: 'quote_sent', label: 'After quote is created', labelHe: 'אחרי יצירת הצעת מחיר' },
-              { value: 'reminder', label: 'X days before appointment', labelHe: 'X ימים לפני פגישה' },
-              { value: 'followup', label: 'X days after last contact', labelHe: 'X ימים אחרי קשר אחרון' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'lead_submit',
+                label: 'Immediately after lead submission',
+                labelHe: 'מיד אחרי הגשת ליד',
+              },
+              {
+                value: 'meeting_booked',
+                label: 'When meeting is booked',
+                labelHe: 'כשפגישה נקבעת',
+              },
+              {
+                value: 'quote_sent',
+                label: 'After quote is created',
+                labelHe: 'אחרי יצירת הצעת מחיר',
+              },
+              {
+                value: 'reminder',
+                label: 'X days before appointment',
+                labelHe: 'X ימים לפני פגישה',
+              },
+              {
+                value: 'followup',
+                label: 'X days after last contact',
+                labelHe: 'X ימים אחרי קשר אחרון',
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -1019,11 +1467,23 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'new_lead', label: 'New Lead', labelHe: 'ליד חדש' },
               { value: 'hot_lead', label: 'Hot Lead', labelHe: 'ליד חם' },
               { value: 'new_order', label: 'New Order', labelHe: 'הזמנה חדשה' },
-              { value: 'customer_message', label: 'Customer Message', labelHe: 'הודעה מלקוח' },
-              { value: 'task_overdue', label: 'Task Overdue', labelHe: 'משימה באיחור' },
+              {
+                value: 'customer_message',
+                label: 'Customer Message',
+                labelHe: 'הודעה מלקוח',
+              },
+              {
+                value: 'task_overdue',
+                label: 'Task Overdue',
+                labelHe: 'משימה באיחור',
+              },
               { value: 'deal_won', label: 'Deal Won', labelHe: 'עסקה נסגרה' },
-              { value: 'payment_received', label: 'Payment Received', labelHe: 'תשלום התקבל' }
-            ]
+              {
+                value: 'payment_received',
+                label: 'Payment Received',
+                labelHe: 'תשלום התקבל',
+              },
+            ],
           },
           {
             id: 'channels',
@@ -1036,8 +1496,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'sms', label: 'SMS', labelHe: 'SMS' },
               { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' },
               { value: 'slack', label: 'Slack', labelHe: 'Slack' },
-              { value: 'telegram', label: 'Telegram', labelHe: 'Telegram' }
-            ]
+              { value: 'telegram', label: 'Telegram', labelHe: 'Telegram' },
+            ],
           },
           {
             id: 'recipients',
@@ -1045,11 +1505,11 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Who should receive notifications?',
             labelHe: 'מי צריך לקבל התראות?',
             required: true,
-            placeholderHe: 'לדוגמא: מנהל מכירות, צוות תמיכה, כל הצוות...'
-          }
-        ]
-      }
-    ]
+            placeholderHe: 'לדוגמא: מנהל מכירות, צוות תמיכה, כל הצוות...',
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -1070,7 +1530,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'First System',
             labelHe: 'מערכת ראשונה',
             required: true,
-            placeholderHe: 'לדוגמא: Zoho CRM'
+            placeholderHe: 'לדוגמא: Zoho CRM',
           },
           {
             id: 'system_b',
@@ -1078,7 +1538,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Second System',
             labelHe: 'מערכת שנייה',
             required: true,
-            placeholderHe: 'לדוגמא: Google Sheets'
+            placeholderHe: 'לדוגמא: Google Sheets',
           },
           {
             id: 'data_types',
@@ -1089,11 +1549,15 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'contacts', label: 'Contacts', labelHe: 'אנשי קשר' },
               { value: 'leads', label: 'Leads', labelHe: 'לידים' },
-              { value: 'deals', label: 'Deals/Opportunities', labelHe: 'עסקאות/הזדמנויות' },
+              {
+                value: 'deals',
+                label: 'Deals/Opportunities',
+                labelHe: 'עסקאות/הזדמנויות',
+              },
               { value: 'tasks', label: 'Tasks', labelHe: 'משימות' },
               { value: 'orders', label: 'Orders', labelHe: 'הזמנות' },
-              { value: 'products', label: 'Products', labelHe: 'מוצרים' }
-            ]
+              { value: 'products', label: 'Products', labelHe: 'מוצרים' },
+            ],
           },
           {
             id: 'sync_frequency',
@@ -1102,11 +1566,15 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'באיזו תדירות לסנכרן?',
             required: true,
             options: [
-              { value: 'realtime', label: 'Real-time (instant)', labelHe: 'Real-time (מיידי)' },
+              {
+                value: 'realtime',
+                label: 'Real-time (instant)',
+                labelHe: 'Real-time (מיידי)',
+              },
               { value: '5min', label: 'Every 5 minutes', labelHe: 'כל 5 דקות' },
               { value: '1hour', label: 'Every hour', labelHe: 'כל שעה' },
-              { value: 'daily', label: 'Once per day', labelHe: 'פעם ביום' }
-            ]
+              { value: 'daily', label: 'Once per day', labelHe: 'פעם ביום' },
+            ],
           },
           {
             id: 'conflict_resolution',
@@ -1115,15 +1583,31 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'אם יש סתירה בנתונים, איזו מערכת "מנצחת"?',
             required: true,
             options: [
-              { value: 'system_a', label: 'System A always wins', labelHe: 'מערכת A תמיד מנצחת' },
-              { value: 'system_b', label: 'System B always wins', labelHe: 'מערכת B תמיד מנצחת' },
-              { value: 'latest', label: 'Latest update wins', labelHe: 'העדכון האחרון מנצח' },
-              { value: 'manual', label: 'Manual review needed', labelHe: 'דרוש סקירה ידנית' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'system_a',
+                label: 'System A always wins',
+                labelHe: 'מערכת A תמיד מנצחת',
+              },
+              {
+                value: 'system_b',
+                label: 'System B always wins',
+                labelHe: 'מערכת B תמיד מנצחת',
+              },
+              {
+                value: 'latest',
+                label: 'Latest update wins',
+                labelHe: 'העדכון האחרון מנצח',
+              },
+              {
+                value: 'manual',
+                label: 'Manual review needed',
+                labelHe: 'דרוש סקירה ידנית',
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   // ==================== SYSTEM INTEGRATIONS ====================
@@ -1145,7 +1629,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Source System (where data comes from)',
             labelHe: 'מערכת מקור (מאיפה הנתונים מגיעים)',
             required: true,
-            placeholderHe: 'לדוגמא: Facebook Lead Ads'
+            placeholderHe: 'לדוגמא: Facebook Lead Ads',
           },
           {
             id: 'target_system',
@@ -1153,7 +1637,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Target System (where data goes to)',
             labelHe: 'מערכת יעד (לאן הנתונים הולכים)',
             required: true,
-            placeholderHe: 'לדוגמא: Zoho CRM'
+            placeholderHe: 'לדוגמא: Zoho CRM',
           },
           {
             id: 'trigger_event',
@@ -1161,7 +1645,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'What triggers this integration?',
             labelHe: 'מה מפעיל את האינטגרציה?',
             required: true,
-            placeholderHe: 'לדוגמא: ליד חדש נוצר, טופס נשלח, הזמנה בוצעה...'
+            placeholderHe: 'לדוגמא: ליד חדש נוצר, טופס נשלח, הזמנה בוצעה...',
           },
           {
             id: 'data_mapping',
@@ -1169,8 +1653,12 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Field Mapping (Source Field → Target Field)',
             labelHe: 'מיפוי שדות (שדה מקור → שדה יעד)',
             required: true,
-            examplesHe: ['שם מלא → Full Name', 'אימייל → Email', 'טלפון → Phone'],
-            helperTextHe: 'רשום איזה שדה מהמקור הולך לאיזה שדה ביעד'
+            examplesHe: [
+              'שם מלא → Full Name',
+              'אימייל → Email',
+              'טלפון → Phone',
+            ],
+            helperTextHe: 'רשום איזה שדה מהמקור הולך לאיזה שדה ביעד',
           },
           {
             id: 'has_api_access',
@@ -1180,13 +1668,21 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             options: [
               { value: 'yes', label: 'Yes', labelHe: 'כן' },
-              { value: 'no', label: 'No, need help setting up', labelHe: 'לא, צריך עזרה להקים' },
-              { value: 'partial', label: 'Only for one system', labelHe: 'רק למערכת אחת' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'no',
+                label: 'No, need help setting up',
+                labelHe: 'לא, צריך עזרה להקים',
+              },
+              {
+                value: 'partial',
+                label: 'Only for one system',
+                labelHe: 'רק למערכת אחת',
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -1207,7 +1703,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'List all systems that need to be connected',
             labelHe: 'רשום את כל המערכות שצריכות להתחבר',
             required: true,
-            helperTextHe: 'לפחות 3 מערכות'
+            helperTextHe: 'לפחות 3 מערכות',
           },
           {
             id: 'central_system',
@@ -1215,9 +1711,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Central/Hub System (if any)',
             labelHe: 'מערכת מרכזית (אם יש)',
             required: false,
-            helperTextHe: 'לדוגמא: CRM שמקבל נתונים מכולם'
-          }
-        ]
+            helperTextHe: 'לדוגמא: CRM שמקבל נתונים מכולם',
+          },
+        ],
       },
       {
         id: 'complex-flow',
@@ -1231,15 +1727,18 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Describe the data flow',
             labelHe: 'תאר את זרימת הנתונים',
             required: true,
-            placeholderHe: 'לדוגמא: ליד מגיע מפייסבוק → נכנס ל-CRM → מתעדכן בגוגל שיטס → נשלחת הודעה ב-WhatsApp...',
-            rows: 4
+            placeholderHe:
+              'לדוגמא: ליד מגיע מפייסבוק → נכנס ל-CRM → מתעדכן בגוגל שיטס → נשלחת הודעה ב-WhatsApp...',
+            rows: 4,
           },
           {
             id: 'transformations',
             type: 'checkbox',
-            label: 'Need data transformations? (format changes, calculations, enrichment)',
-            labelHe: 'צריך טרנספורמציות של נתונים? (שינוי פורמט, חישובים, העשרה)',
-            required: false
+            label:
+              'Need data transformations? (format changes, calculations, enrichment)',
+            labelHe:
+              'צריך טרנספורמציות של נתונים? (שינוי פורמט, חישובים, העשרה)',
+            required: false,
           },
           {
             id: 'error_handling',
@@ -1248,14 +1747,26 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'אסטרטגיית טיפול בשגיאות',
             required: true,
             options: [
-              { value: 'retry', label: 'Retry automatically', labelHe: 'נסה שוב אוטומטית' },
-              { value: 'alert', label: 'Alert team immediately', labelHe: 'התראה לצוות מיידית' },
-              { value: 'log', label: 'Log and continue', labelHe: 'תיעוד והמשך' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'retry',
+                label: 'Retry automatically',
+                labelHe: 'נסה שוב אוטומטית',
+              },
+              {
+                value: 'alert',
+                label: 'Alert team immediately',
+                labelHe: 'התראה לצוות מיידית',
+              },
+              {
+                value: 'log',
+                label: 'Log and continue',
+                labelHe: 'תיעוד והמשך',
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   // ==================== AI AGENT VARIATIONS ====================
@@ -1276,7 +1787,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             type: 'text',
             label: 'Agent Name',
             labelHe: 'שם הסוכן',
-            required: true
+            required: true,
           },
           {
             id: 'capabilities',
@@ -1285,13 +1796,37 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מה הסוכן צריך להיות מסוגל לעשות?',
             required: true,
             options: [
-              { value: 'answer_faq', label: 'Answer FAQs', labelHe: 'ענה על שאלות נפוצות' },
-              { value: 'check_status', label: 'Check Order/Ticket Status', labelHe: 'בדוק סטטוס הזמנה/פנייה' },
-              { value: 'book_appointment', label: 'Book Appointments', labelHe: 'קבע פגישות' },
-              { value: 'process_return', label: 'Process Returns/Refunds', labelHe: 'עבד החזרות/זיכויים' },
-              { value: 'update_info', label: 'Update Customer Info', labelHe: 'עדכן מידע לקוח' },
-              { value: 'escalate', label: 'Escalate to Human', labelHe: 'העבר לנציג אנושי' }
-            ]
+              {
+                value: 'answer_faq',
+                label: 'Answer FAQs',
+                labelHe: 'ענה על שאלות נפוצות',
+              },
+              {
+                value: 'check_status',
+                label: 'Check Order/Ticket Status',
+                labelHe: 'בדוק סטטוס הזמנה/פנייה',
+              },
+              {
+                value: 'book_appointment',
+                label: 'Book Appointments',
+                labelHe: 'קבע פגישות',
+              },
+              {
+                value: 'process_return',
+                label: 'Process Returns/Refunds',
+                labelHe: 'עבד החזרות/זיכויים',
+              },
+              {
+                value: 'update_info',
+                label: 'Update Customer Info',
+                labelHe: 'עדכן מידע לקוח',
+              },
+              {
+                value: 'escalate',
+                label: 'Escalate to Human',
+                labelHe: 'העבר לנציג אנושי',
+              },
+            ],
           },
           {
             id: 'knowledge_sources',
@@ -1300,14 +1835,30 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מקורות ידע לסוכן',
             required: true,
             options: [
-              { value: 'faq', label: 'FAQ Document', labelHe: 'מסמך שאלות נפוצות' },
+              {
+                value: 'faq',
+                label: 'FAQ Document',
+                labelHe: 'מסמך שאלות נפוצות',
+              },
               { value: 'kb', label: 'Knowledge Base', labelHe: 'בסיס ידע' },
-              { value: 'docs', label: 'Product Documentation', labelHe: 'תיעוד מוצרים' },
-              { value: 'policies', label: 'Company Policies', labelHe: 'מדיניות החברה' },
-              { value: 'crm', label: 'CRM Data (customer history)', labelHe: 'נתוני CRM (היסטוריית לקוח)' }
-            ]
-          }
-        ]
+              {
+                value: 'docs',
+                label: 'Product Documentation',
+                labelHe: 'תיעוד מוצרים',
+              },
+              {
+                value: 'policies',
+                label: 'Company Policies',
+                labelHe: 'מדיניות החברה',
+              },
+              {
+                value: 'crm',
+                label: 'CRM Data (customer history)',
+                labelHe: 'נתוני CRM (היסטוריית לקוח)',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'service-agent-actions',
@@ -1323,11 +1874,23 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             options: [
               { value: 'crm', label: 'CRM', labelHe: 'CRM' },
-              { value: 'ticketing', label: 'Ticketing System', labelHe: 'מערכת פניות' },
-              { value: 'orders', label: 'Order Management', labelHe: 'ניהול הזמנות' },
-              { value: 'calendar', label: 'Calendar/Scheduling', labelHe: 'לוח שנה/תזמון' },
-              { value: 'inventory', label: 'Inventory', labelHe: 'מלאי' }
-            ]
+              {
+                value: 'ticketing',
+                label: 'Ticketing System',
+                labelHe: 'מערכת פניות',
+              },
+              {
+                value: 'orders',
+                label: 'Order Management',
+                labelHe: 'ניהול הזמנות',
+              },
+              {
+                value: 'calendar',
+                label: 'Calendar/Scheduling',
+                labelHe: 'לוח שנה/תזמון',
+              },
+              { value: 'inventory', label: 'Inventory', labelHe: 'מלאי' },
+            ],
           },
           {
             id: 'approval_needed',
@@ -1336,15 +1899,31 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'אילו פעולות דורשות אישור אנושי?',
             required: true,
             options: [
-              { value: 'refund', label: 'Issue Refund', labelHe: 'ביצוע זיכוי' },
-              { value: 'discount', label: 'Apply Discount', labelHe: 'מתן הנחה' },
-              { value: 'cancel', label: 'Cancel Order', labelHe: 'ביטול הזמנה' },
-              { value: 'none', label: 'No approval needed (full autonomy)', labelHe: 'אין צורך באישור (אוטונומיה מלאה)' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'refund',
+                label: 'Issue Refund',
+                labelHe: 'ביצוע זיכוי',
+              },
+              {
+                value: 'discount',
+                label: 'Apply Discount',
+                labelHe: 'מתן הנחה',
+              },
+              {
+                value: 'cancel',
+                label: 'Cancel Order',
+                labelHe: 'ביטול הזמנה',
+              },
+              {
+                value: 'none',
+                label: 'No approval needed (full autonomy)',
+                labelHe: 'אין צורך באישור (אוטונומיה מלאה)',
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -1366,10 +1945,22 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'גישת מכירה',
             required: true,
             options: [
-              { value: 'consultative', label: 'Consultative (ask questions, understand needs)', labelHe: 'ייעוצית (שאל שאלות, הבן צרכים)' },
-              { value: 'direct', label: 'Direct (pitch product quickly)', labelHe: 'ישירה (הצג מוצר מהר)' },
-              { value: 'educational', label: 'Educational (teach first, sell second)', labelHe: 'חינוכית (לימד קודם, מכור אחר כך)' }
-            ]
+              {
+                value: 'consultative',
+                label: 'Consultative (ask questions, understand needs)',
+                labelHe: 'ייעוצית (שאל שאלות, הבן צרכים)',
+              },
+              {
+                value: 'direct',
+                label: 'Direct (pitch product quickly)',
+                labelHe: 'ישירה (הצג מוצר מהר)',
+              },
+              {
+                value: 'educational',
+                label: 'Educational (teach first, sell second)',
+                labelHe: 'חינוכית (לימד קודם, מכור אחר כך)',
+              },
+            ],
           },
           {
             id: 'qualification_questions',
@@ -1377,15 +1968,19 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Qualification questions the agent should ask',
             labelHe: 'שאלות סינון שהסוכן צריך לשאול',
             required: true,
-            examplesHe: ['מה התקציב שלך?', 'מתי אתה מעוניין להתחיל?', 'מה הבעיה העיקרית שאתה מנסה לפתור?'],
-            helperTextHe: 'שאלות שעוזרות לזהות אם הליד מתאים'
+            examplesHe: [
+              'מה התקציב שלך?',
+              'מתי אתה מעוניין להתחיל?',
+              'מה הבעיה העיקרית שאתה מנסה לפתור?',
+            ],
+            helperTextHe: 'שאלות שעוזרות לזהות אם הליד מתאים',
           },
           {
             id: 'products_services',
             type: 'list',
             label: 'Products/Services the agent can sell',
             labelHe: 'מוצרים/שירותים שהסוכן יכול למכור',
-            required: true
+            required: true,
           },
           {
             id: 'pricing_authority',
@@ -1394,13 +1989,29 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'סמכות תמחור',
             required: true,
             options: [
-              { value: 'fixed', label: 'Fixed prices only', labelHe: 'מחירים קבועים בלבד' },
-              { value: 'discount_up_to', label: 'Can offer discount up to X%', labelHe: 'יכול להציע הנחה עד X%' },
-              { value: 'custom', label: 'Create custom quotes', labelHe: 'יצירת הצעות מחיר מותאמות' },
-              { value: 'none', label: 'No pricing authority (human needed)', labelHe: 'אין סמכות תמחור (דרוש אנושי)' }
-            ]
-          }
-        ]
+              {
+                value: 'fixed',
+                label: 'Fixed prices only',
+                labelHe: 'מחירים קבועים בלבד',
+              },
+              {
+                value: 'discount_up_to',
+                label: 'Can offer discount up to X%',
+                labelHe: 'יכול להציע הנחה עד X%',
+              },
+              {
+                value: 'custom',
+                label: 'Create custom quotes',
+                labelHe: 'יצירת הצעות מחיר מותאמות',
+              },
+              {
+                value: 'none',
+                label: 'No pricing authority (human needed)',
+                labelHe: 'אין סמכות תמחור (דרוש אנושי)',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'sales-agent-process',
@@ -1413,14 +2024,14 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             type: 'checkbox',
             label: 'Agent can book sales meetings',
             labelHe: 'הסוכן יכול לקבוע פגישות מכירה',
-            required: false
+            required: false,
           },
           {
             id: 'send_proposals',
             type: 'checkbox',
             label: 'Agent can send proposals/quotes automatically',
             labelHe: 'הסוכן יכול לשלוח הצעות מחיר אוטומטית',
-            required: false
+            required: false,
           },
           {
             id: 'followup_strategy',
@@ -1429,10 +2040,22 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'אסטרטגיית מעקב עבור מי שלא מגיב',
             required: true,
             options: [
-              { value: 'persistent', label: 'Persistent (5-7 touches)', labelHe: 'מתמיד (5-7 מגעים)' },
-              { value: 'moderate', label: 'Moderate (3-4 touches)', labelHe: 'מתון (3-4 מגעים)' },
-              { value: 'light', label: 'Light (1-2 touches)', labelHe: 'קל (1-2 מגעים)' }
-            ]
+              {
+                value: 'persistent',
+                label: 'Persistent (5-7 touches)',
+                labelHe: 'מתמיד (5-7 מגעים)',
+              },
+              {
+                value: 'moderate',
+                label: 'Moderate (3-4 touches)',
+                labelHe: 'מתון (3-4 מגעים)',
+              },
+              {
+                value: 'light',
+                label: 'Light (1-2 touches)',
+                labelHe: 'קל (1-2 מגעים)',
+              },
+            ],
           },
           {
             id: 'handoff_criteria',
@@ -1441,15 +2064,31 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מתי להעביר לנציג מכירות אנושי?',
             required: true,
             options: [
-              { value: 'high_value', label: 'High-value deal (>$X)', labelHe: 'עסקה בעלת ערך גבוה' },
-              { value: 'complex', label: 'Complex requirements', labelHe: 'דרישות מורכבות' },
-              { value: 'objections', label: 'Multiple objections', labelHe: 'התנגדויות מרובות' },
-              { value: 'request', label: 'Customer requests human', labelHe: 'לקוח מבקש נציג אנושי' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'high_value',
+                label: 'High-value deal (>$X)',
+                labelHe: 'עסקה בעלת ערך גבוה',
+              },
+              {
+                value: 'complex',
+                label: 'Complex requirements',
+                labelHe: 'דרישות מורכבות',
+              },
+              {
+                value: 'objections',
+                label: 'Multiple objections',
+                labelHe: 'התנגדויות מרובות',
+              },
+              {
+                value: 'request',
+                label: 'Customer requests human',
+                labelHe: 'לקוח מבקש נציג אנושי',
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   // ==================== MORE AUTOMATION SERVICES ====================
@@ -1472,13 +2111,25 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מה דורש אישור?',
             required: true,
             options: [
-              { value: 'quotes', label: 'Quotes/Proposals', labelHe: 'הצעות מחיר' },
+              {
+                value: 'quotes',
+                label: 'Quotes/Proposals',
+                labelHe: 'הצעות מחיר',
+              },
               { value: 'discounts', label: 'Discounts', labelHe: 'הנחות' },
               { value: 'expenses', label: 'Expenses', labelHe: 'הוצאות' },
-              { value: 'purchases', label: 'Purchase Orders', labelHe: 'הזמנות רכש' },
+              {
+                value: 'purchases',
+                label: 'Purchase Orders',
+                labelHe: 'הזמנות רכש',
+              },
               { value: 'contracts', label: 'Contracts', labelHe: 'חוזים' },
-              { value: 'time_off', label: 'Time Off Requests', labelHe: 'בקשות חופשה' }
-            ]
+              {
+                value: 'time_off',
+                label: 'Time Off Requests',
+                labelHe: 'בקשות חופשה',
+              },
+            ],
           },
           {
             id: 'approval_chain',
@@ -1487,18 +2138,34 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מבנה שרשרת אישורים',
             required: true,
             options: [
-              { value: 'single', label: 'Single Approver', labelHe: 'מאשר יחיד' },
-              { value: 'sequential', label: 'Sequential (one after another)', labelHe: 'רצף (אחד אחרי השני)' },
-              { value: 'parallel', label: 'Parallel (all at once)', labelHe: 'מקבילי (כולם ביחד)' },
-              { value: 'conditional', label: 'Conditional (based on amount/type)', labelHe: 'מותנה (לפי סכום/סוג)' }
-            ]
+              {
+                value: 'single',
+                label: 'Single Approver',
+                labelHe: 'מאשר יחיד',
+              },
+              {
+                value: 'sequential',
+                label: 'Sequential (one after another)',
+                labelHe: 'רצף (אחד אחרי השני)',
+              },
+              {
+                value: 'parallel',
+                label: 'Parallel (all at once)',
+                labelHe: 'מקבילי (כולם ביחד)',
+              },
+              {
+                value: 'conditional',
+                label: 'Conditional (based on amount/type)',
+                labelHe: 'מותנה (לפי סכום/סוג)',
+              },
+            ],
           },
           {
             id: 'escalation',
             type: 'checkbox',
             label: 'Auto-escalate if no response in X days',
             labelHe: 'העלאה אוטומטית אם אין תגובה תוך X ימים',
-            required: false
+            required: false,
           },
           {
             id: 'notification_method',
@@ -1510,12 +2177,12 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'email', label: 'Email', labelHe: 'אימייל' },
               { value: 'sms', label: 'SMS', labelHe: 'SMS' },
               { value: 'slack', label: 'Slack', labelHe: 'Slack' },
-              { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' }
-            ]
-          }
-        ]
-      }
-    ]
+              { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -1527,13 +2194,13 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
       'Map all form fields to CRM fields before deployment',
       'Test with sample form submissions to verify data flow',
       'Set up spam protection to avoid polluting your CRM',
-      'Configure duplicate detection to prevent multiple records for the same lead'
+      'Configure duplicate detection to prevent multiple records for the same lead',
     ],
     tipsHe: [
       'מפה את כל שדות הטופס לשדות ה-CRM לפני הפעלה',
       'בדוק עם הגשות טופס לדוגמא כדי לוודא זרימת נתונים',
       'הגדר הגנת ספאם כדי להימנע מזיהום ה-CRM',
-      'הגדר זיהוי כפילויות כדי למנוע רשומות מרובות עבור אותו ליד'
+      'הגדר זיהוי כפילויות כדי למנוע רשומות מרובות עבור אותו ליד',
     ],
     sections: [
       {
@@ -1550,13 +2217,29 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             options: [
               { value: 'wix', label: 'Wix Forms', labelHe: 'טפסי Wix' },
-              { value: 'wordpress', label: 'WordPress (Contact Form 7, Gravity Forms)', labelHe: 'WordPress (Contact Form 7, Gravity Forms)' },
-              { value: 'elementor', label: 'Elementor Forms', labelHe: 'טפסי Elementor' },
+              {
+                value: 'wordpress',
+                label: 'WordPress (Contact Form 7, Gravity Forms)',
+                labelHe: 'WordPress (Contact Form 7, Gravity Forms)',
+              },
+              {
+                value: 'elementor',
+                label: 'Elementor Forms',
+                labelHe: 'טפסי Elementor',
+              },
               { value: 'typeform', label: 'Typeform', labelHe: 'Typeform' },
-              { value: 'google_forms', label: 'Google Forms', labelHe: 'Google Forms' },
+              {
+                value: 'google_forms',
+                label: 'Google Forms',
+                labelHe: 'Google Forms',
+              },
               { value: 'jotform', label: 'JotForm', labelHe: 'JotForm' },
-              { value: 'custom', label: 'Custom HTML Form', labelHe: 'טופס HTML מותאם' }
-            ]
+              {
+                value: 'custom',
+                label: 'Custom HTML Form',
+                labelHe: 'טופס HTML מותאם',
+              },
+            ],
           },
           {
             id: 'form_url',
@@ -1565,7 +2248,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'כתובת הטופס',
             required: true,
             placeholderHe: 'https://example.com/contact-us',
-            helperTextHe: 'הכתובת המלאה של הטופס באתר'
+            helperTextHe: 'הכתובת המלאה של הטופס באתר',
           },
           {
             id: 'webhook_support',
@@ -1574,11 +2257,23 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'האם פלטפורמת הטפסים תומכת ב-webhooks?',
             required: true,
             options: [
-              { value: 'yes', label: 'Yes, native webhook support', labelHe: 'כן, תמיכה מקורית ב-webhooks' },
-              { value: 'plugin_required', label: 'Yes, with a plugin/add-on', labelHe: 'כן, עם plugin/תוסף' },
-              { value: 'no', label: 'No, need polling/integration workaround', labelHe: 'לא, צריך polling/פתרון חלופי' }
+              {
+                value: 'yes',
+                label: 'Yes, native webhook support',
+                labelHe: 'כן, תמיכה מקורית ב-webhooks',
+              },
+              {
+                value: 'plugin_required',
+                label: 'Yes, with a plugin/add-on',
+                labelHe: 'כן, עם plugin/תוסף',
+              },
+              {
+                value: 'no',
+                label: 'No, need polling/integration workaround',
+                labelHe: 'לא, צריך polling/פתרון חלופי',
+              },
             ],
-            helperTextHe: 'Webhooks מאפשרים עדכון מיידי ב-CRM כשטופס מוגש'
+            helperTextHe: 'Webhooks מאפשרים עדכון מיידי ב-CRM כשטופס מוגש',
           },
           {
             id: 'crm_system',
@@ -1588,12 +2283,16 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             options: [
               { value: 'zoho', label: 'Zoho CRM', labelHe: 'Zoho CRM' },
-              { value: 'salesforce', label: 'Salesforce', labelHe: 'Salesforce' },
+              {
+                value: 'salesforce',
+                label: 'Salesforce',
+                labelHe: 'Salesforce',
+              },
               { value: 'hubspot', label: 'HubSpot', labelHe: 'HubSpot' },
               { value: 'pipedrive', label: 'Pipedrive', labelHe: 'Pipedrive' },
               { value: 'monday', label: 'Monday.com', labelHe: 'Monday.com' },
-              { value: 'other', label: 'Other', labelHe: 'אחר' }
-            ]
+              { value: 'other', label: 'Other', labelHe: 'אחר' },
+            ],
           },
           {
             id: 'crm_credentials_ready',
@@ -1601,7 +2300,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'CRM API credentials are ready',
             labelHe: 'קרדנשיאלים ל-API של ה-CRM מוכנים',
             required: false,
-            helperTextHe: 'Client ID, Client Secret, API Key או Refresh Token'
+            helperTextHe: 'Client ID, Client Secret, API Key או Refresh Token',
           },
           {
             id: 'crm_module',
@@ -1613,11 +2312,19 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'leads', label: 'Leads', labelHe: 'לידים' },
               { value: 'contacts', label: 'Contacts', labelHe: 'אנשי קשר' },
               { value: 'accounts', label: 'Accounts', labelHe: 'חשבונות' },
-              { value: 'deals', label: 'Deals/Opportunities', labelHe: 'עסקאות/הזדמנויות' },
-              { value: 'custom', label: 'Custom Module', labelHe: 'מודול מותאם' }
-            ]
-          }
-        ]
+              {
+                value: 'deals',
+                label: 'Deals/Opportunities',
+                labelHe: 'עסקאות/הזדמנויות',
+              },
+              {
+                value: 'custom',
+                label: 'Custom Module',
+                labelHe: 'מודול מותאם',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'form-crm-field-mapping',
@@ -1634,7 +2341,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'רשום את כל שדות הטופס',
             required: true,
             placeholderHe: 'לדוגמא: שם מלא, אימייל, טלפון, הודעה...',
-            helperTextHe: 'רשום את כל השדות שהטופס אוסף'
+            helperTextHe: 'רשום את כל השדות שהטופס אוסף',
           },
           {
             id: 'crm_fields_ready',
@@ -1642,7 +2349,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'CRM fields are configured and ready',
             labelHe: 'שדות ה-CRM מוגדרים ומוכנים',
             required: false,
-            helperTextHe: 'האם ה-CRM כבר מכיל את כל השדות הנדרשים?'
+            helperTextHe: 'האם ה-CRM כבר מכיל את כל השדות הנדרשים?',
           },
           {
             id: 'field_mapping_document',
@@ -1650,8 +2357,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Field Mapping (Form Field → CRM Field)',
             labelHe: 'מיפוי שדות (שדה טופס → שדה CRM)',
             required: true,
-            placeholderHe: 'לדוגמא:\nשם מלא → Full_Name\nאימייל → Email\nטלפון → Phone\nחברה → Company',
-            helperTextHe: 'כל שורה: שדה טופס ← חץ ← שדה CRM'
+            placeholderHe:
+              'לדוגמא:\nשם מלא → Full_Name\nאימייל → Email\nטלפון → Phone\nחברה → Company',
+            helperTextHe: 'כל שורה: שדה טופס ← חץ ← שדה CRM',
           },
           {
             id: 'require_field_transformation',
@@ -1659,9 +2367,10 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Need data transformation (formatting, cleaning)',
             labelHe: 'צריך טרנספורמציה של נתונים (עיצוב, ניקוי)',
             required: false,
-            helperTextHe: 'לדוגמא: עיצוב טלפון (+972...), תאריך, אותיות גדולות/קטנות'
-          }
-        ]
+            helperTextHe:
+              'לדוגמא: עיצוב טלפון (+972...), תאריך, אותיות גדולות/קטנות',
+          },
+        ],
       },
       {
         id: 'form-crm-duplicate-handling',
@@ -1675,7 +2384,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Enable duplicate detection',
             labelHe: 'אפשר זיהוי כפילויות',
             required: false,
-            helperTextHe: 'בודק אם ליד/איש קשר כבר קיים לפני יצירת רשומה חדשה'
+            helperTextHe: 'בודק אם ליד/איש קשר כבר קיים לפני יצירת רשומה חדשה',
           },
           {
             id: 'duplicate_check_field',
@@ -1683,13 +2392,20 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Check duplicates by:',
             labelHe: 'בדוק כפילויות לפי:',
             required: false,
-            dependsOn: { fieldId: 'duplicate_detection_enabled', value: ['true'] },
+            dependsOn: {
+              fieldId: 'duplicate_detection_enabled',
+              value: ['true'],
+            },
             options: [
-              { value: 'email', label: 'Email Address', labelHe: 'כתובת אימייל' },
+              {
+                value: 'email',
+                label: 'Email Address',
+                labelHe: 'כתובת אימייל',
+              },
               { value: 'phone', label: 'Phone Number', labelHe: 'מספר טלפון' },
               { value: 'company', label: 'Company Name', labelHe: 'שם חברה' },
-              { value: 'custom', label: 'Custom Field', labelHe: 'שדה מותאם' }
-            ]
+              { value: 'custom', label: 'Custom Field', labelHe: 'שדה מותאם' },
+            ],
           },
           {
             id: 'duplicate_strategy',
@@ -1697,15 +2413,34 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'What to do when duplicate found?',
             labelHe: 'מה לעשות כשנמצאה כפילות?',
             required: false,
-            dependsOn: { fieldId: 'duplicate_detection_enabled', value: ['true'] },
+            dependsOn: {
+              fieldId: 'duplicate_detection_enabled',
+              value: ['true'],
+            },
             options: [
-              { value: 'update_existing', label: 'Update existing record', labelHe: 'עדכן רשומה קיימת' },
-              { value: 'skip', label: 'Skip (don\'t create)', labelHe: 'דלג (אל תיצור)' },
-              { value: 'create_new', label: 'Create new anyway', labelHe: 'צור חדש בכל מקרה' },
-              { value: 'merge', label: 'Merge data into existing', labelHe: 'מזג נתונים לקיים' }
-            ]
-          }
-        ]
+              {
+                value: 'update_existing',
+                label: 'Update existing record',
+                labelHe: 'עדכן רשומה קיימת',
+              },
+              {
+                value: 'skip',
+                label: "Skip (don't create)",
+                labelHe: 'דלג (אל תיצור)',
+              },
+              {
+                value: 'create_new',
+                label: 'Create new anyway',
+                labelHe: 'צור חדש בכל מקרה',
+              },
+              {
+                value: 'merge',
+                label: 'Merge data into existing',
+                labelHe: 'מזג נתונים לקיים',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'form-crm-validation',
@@ -1721,14 +2456,14 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Validate email format',
             labelHe: 'וולידציה של פורמט אימייל',
             required: false,
-            helperTextHe: 'בודק שכתובת האימייל תקינה לפני יצירת רשומה'
+            helperTextHe: 'בודק שכתובת האימייל תקינה לפני יצירת רשומה',
           },
           {
             id: 'phone_validation',
             type: 'checkbox',
             label: 'Validate phone number format',
             labelHe: 'וולידציה של פורמט טלפון',
-            required: false
+            required: false,
           },
           {
             id: 'phone_format',
@@ -1738,10 +2473,22 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: false,
             dependsOn: { fieldId: 'phone_validation', value: ['true'] },
             options: [
-              { value: 'international', label: 'International (+972...)', labelHe: 'בינלאומי (+972...)' },
-              { value: 'local', label: 'Local (0501234567)', labelHe: 'מקומי (0501234567)' },
-              { value: 'any', label: 'Any format (will normalize)', labelHe: 'כל פורמט (ינרמל)' }
-            ]
+              {
+                value: 'international',
+                label: 'International (+972...)',
+                labelHe: 'בינלאומי (+972...)',
+              },
+              {
+                value: 'local',
+                label: 'Local (0501234567)',
+                labelHe: 'מקומי (0501234567)',
+              },
+              {
+                value: 'any',
+                label: 'Any format (will normalize)',
+                labelHe: 'כל פורמט (ינרמל)',
+              },
+            ],
           },
           {
             id: 'required_fields',
@@ -1754,11 +2501,15 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'phone', label: 'Phone', labelHe: 'טלפון' },
               { value: 'name', label: 'Full Name', labelHe: 'שם מלא' },
               { value: 'company', label: 'Company', labelHe: 'חברה' },
-              { value: 'message', label: 'Message/Details', labelHe: 'הודעה/פרטים' }
+              {
+                value: 'message',
+                label: 'Message/Details',
+                labelHe: 'הודעה/פרטים',
+              },
             ],
-            helperTextHe: 'אם שדה חובה חסר, ההגשה תדחה'
-          }
-        ]
+            helperTextHe: 'אם שדה חובה חסר, ההגשה תדחה',
+          },
+        ],
       },
       {
         id: 'form-crm-spam-protection',
@@ -1774,7 +2525,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Enable CAPTCHA on form',
             labelHe: 'אפשר CAPTCHA בטופס',
             required: false,
-            helperTextHe: 'Google reCAPTCHA, hCaptcha או Cloudflare Turnstile'
+            helperTextHe: 'Google reCAPTCHA, hCaptcha או Cloudflare Turnstile',
           },
           {
             id: 'captcha_type',
@@ -1784,10 +2535,18 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: false,
             dependsOn: { fieldId: 'captcha_enabled', value: ['true'] },
             options: [
-              { value: 'recaptcha', label: 'Google reCAPTCHA v3', labelHe: 'Google reCAPTCHA v3' },
+              {
+                value: 'recaptcha',
+                label: 'Google reCAPTCHA v3',
+                labelHe: 'Google reCAPTCHA v3',
+              },
               { value: 'hcaptcha', label: 'hCaptcha', labelHe: 'hCaptcha' },
-              { value: 'turnstile', label: 'Cloudflare Turnstile', labelHe: 'Cloudflare Turnstile' }
-            ]
+              {
+                value: 'turnstile',
+                label: 'Cloudflare Turnstile',
+                labelHe: 'Cloudflare Turnstile',
+              },
+            ],
           },
           {
             id: 'honeypot_field',
@@ -1795,16 +2554,17 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Add honeypot field (hidden spam trap)',
             labelHe: 'הוסף שדה honeypot (מלכודת ספאם נסתרת)',
             required: false,
-            helperTextHe: 'שדה נסתר שבוטים ממלאים ובני אדם לא'
+            helperTextHe: 'שדה נסתר שבוטים ממלאים ובני אדם לא',
           },
           {
             id: 'suspicious_pattern_detection',
             type: 'checkbox',
-            label: 'Detect suspicious patterns (gibberish, repeated characters)',
+            label:
+              'Detect suspicious patterns (gibberish, repeated characters)',
             labelHe: 'זהה דפוסים חשודים (שטויות, תווים חוזרים)',
-            required: false
-          }
-        ]
+            required: false,
+          },
+        ],
       },
       {
         id: 'form-crm-error-handling',
@@ -1819,7 +2579,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'שלח התראות שגיאה ל:',
             required: true,
             placeholderHe: 'admin@example.com',
-            helperTextHe: 'כתובת אימייל לקבלת התראות כשסנכרון נכשל'
+            helperTextHe: 'כתובת אימייל לקבלת התראות כשסנכרון נכשל',
           },
           {
             id: 'retry_attempts',
@@ -1829,7 +2589,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             validation: { min: 1, max: 10 },
             placeholder: '3',
-            helperTextHe: 'כמה פעמים לנסות שוב לפני שליחת שגיאה'
+            helperTextHe: 'כמה פעמים לנסות שוב לפני שליחת שגיאה',
           },
           {
             id: 'retry_delay',
@@ -1839,7 +2599,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             validation: { min: 5, max: 300 },
             placeholder: '30',
-            helperTextHe: 'כמה זמן לחכות לפני ניסיון חוזר'
+            helperTextHe: 'כמה זמן לחכות לפני ניסיון חוזר',
           },
           {
             id: 'log_failed_submissions',
@@ -1847,7 +2607,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Log failed submissions for manual review',
             labelHe: 'תעד הגשות שנכשלו לבדיקה ידנית',
             required: false,
-            helperTextHe: 'שמור הגשות שנכשלו כדי לטפל בהן מאוחר יותר'
+            helperTextHe: 'שמור הגשות שנכשלו כדי לטפל בהן מאוחר יותר',
           },
           {
             id: 'fallback_action',
@@ -1856,12 +2616,24 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'פעולת גיבוי אם כל הניסיונות נכשלו:',
             required: true,
             options: [
-              { value: 'queue', label: 'Queue for later processing', labelHe: 'תור לעיבוד מאוחר יותר' },
-              { value: 'email_admin', label: 'Email admin with submission data', labelHe: 'שלח אימייל למנהל עם הנתונים' },
-              { value: 'save_to_spreadsheet', label: 'Save to Google Sheets/Excel', labelHe: 'שמור ב-Google Sheets/Excel' }
-            ]
-          }
-        ]
+              {
+                value: 'queue',
+                label: 'Queue for later processing',
+                labelHe: 'תור לעיבוד מאוחר יותר',
+              },
+              {
+                value: 'email_admin',
+                label: 'Email admin with submission data',
+                labelHe: 'שלח אימייל למנהל עם הנתונים',
+              },
+              {
+                value: 'save_to_spreadsheet',
+                label: 'Save to Google Sheets/Excel',
+                labelHe: 'שמור ב-Google Sheets/Excel',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'form-crm-success-actions',
@@ -1877,7 +2649,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Send confirmation email to lead',
             labelHe: 'שלח אימייל אישור ללקוח',
             required: false,
-            helperTextHe: 'אימייל אוטומטי "קיבלנו את פנייתך"'
+            helperTextHe: 'אימייל אוטומטי "קיבלנו את פנייתך"',
           },
           {
             id: 'redirect_url',
@@ -1886,7 +2658,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'הפנה לכתובת אחרי הגשה',
             required: false,
             placeholderHe: 'https://example.com/thank-you',
-            helperTextHe: 'דף תודה או דף נחיתה'
+            helperTextHe: 'דף תודה או דף נחיתה',
           },
           {
             id: 'auto_assign_sales_rep',
@@ -1894,11 +2666,11 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Auto-assign to sales rep in CRM',
             labelHe: 'הקצאה אוטומטית לנציג מכירות ב-CRM',
             required: false,
-            helperTextHe: 'מחלק לידים באופן אוטומטי לצוות המכירות'
-          }
-        ]
-      }
-    ]
+            helperTextHe: 'מחלק לידים באופן אוטומטי לצוות המכירות',
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -1920,13 +2692,21 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'אילו מסמכים לאוטומט?',
             required: true,
             options: [
-              { value: 'quotes', label: 'Quotes/Proposals', labelHe: 'הצעות מחיר' },
+              {
+                value: 'quotes',
+                label: 'Quotes/Proposals',
+                labelHe: 'הצעות מחיר',
+              },
               { value: 'contracts', label: 'Contracts', labelHe: 'חוזים' },
               { value: 'invoices', label: 'Invoices', labelHe: 'חשבוניות' },
               { value: 'receipts', label: 'Receipts', labelHe: 'קבלות' },
               { value: 'reports', label: 'Reports', labelHe: 'דוחות' },
-              { value: 'certificates', label: 'Certificates', labelHe: 'תעודות' }
-            ]
+              {
+                value: 'certificates',
+                label: 'Certificates',
+                labelHe: 'תעודות',
+              },
+            ],
           },
           {
             id: 'template_exists',
@@ -1935,11 +2715,19 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'האם יש לך תבניות קיימות?',
             required: true,
             options: [
-              { value: 'yes', label: 'Yes, I have Word/PDF templates', labelHe: 'כן, יש לי תבניות Word/PDF' },
-              { value: 'no', label: 'No, need to create templates', labelHe: 'לא, צריך ליצור תבניות' }
-            ]
-          }
-        ]
+              {
+                value: 'yes',
+                label: 'Yes, I have Word/PDF templates',
+                labelHe: 'כן, יש לי תבניות Word/PDF',
+              },
+              {
+                value: 'no',
+                label: 'No, need to create templates',
+                labelHe: 'לא, צריך ליצור תבניות',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'doc-process',
@@ -1953,7 +2741,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Where does document data come from?',
             labelHe: 'מאיפה מגיע מידע למסמך?',
             required: true,
-            placeholderHe: 'לדוגמא: CRM, Google Sheets, טופס...'
+            placeholderHe: 'לדוגמא: CRM, Google Sheets, טופס...',
           },
           {
             id: 'trigger',
@@ -1961,7 +2749,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'When to generate document?',
             labelHe: 'מתי ליצור מסמך?',
             required: true,
-            placeholderHe: 'לדוגמא: כשעסקה מגיעה לשלב "הצעת מחיר נשלחה"'
+            placeholderHe: 'לדוגמא: כשעסקה מגיעה לשלב "הצעת מחיר נשלחה"',
           },
           {
             id: 'delivery',
@@ -1970,23 +2758,39 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'איך למסור מסמך שנוצר?',
             required: true,
             options: [
-              { value: 'email', label: 'Email to Customer', labelHe: 'אימייל ללקוח' },
+              {
+                value: 'email',
+                label: 'Email to Customer',
+                labelHe: 'אימייל ללקוח',
+              },
               { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' },
-              { value: 'crm', label: 'Attach to CRM Record', labelHe: 'צרף לרשומה ב-CRM' },
-              { value: 'drive', label: 'Save to Google Drive', labelHe: 'שמור ב-Google Drive' },
-              { value: 'signature', label: 'Send for Digital Signature', labelHe: 'שלח לחתימה דיגיטלית' }
-            ]
+              {
+                value: 'crm',
+                label: 'Attach to CRM Record',
+                labelHe: 'צרף לרשומה ב-CRM',
+              },
+              {
+                value: 'drive',
+                label: 'Save to Google Drive',
+                labelHe: 'שמור ב-Google Drive',
+              },
+              {
+                value: 'signature',
+                label: 'Send for Digital Signature',
+                labelHe: 'שלח לחתימה דיגיטלית',
+              },
+            ],
           },
           {
             id: 'e_signature',
             type: 'checkbox',
             label: 'Integrate with e-signature platform (DocuSign, etc.)',
             labelHe: 'אינטגרציה עם פלטפורמת חתימה דיגיטלית',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -2007,7 +2811,11 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Types of meetings to schedule',
             labelHe: 'סוגי פגישות לתזמון',
             required: true,
-            examplesHe: ['פגישת היכרות (15 דקות)', 'פגישת מכירה (30 דקות)', 'פגישת דמו (45 דקות)']
+            examplesHe: [
+              'פגישת היכרות (15 דקות)',
+              'פגישת מכירה (30 דקות)',
+              'פגישת דמו (45 דקות)',
+            ],
           },
           {
             id: 'calendar_system',
@@ -2016,10 +2824,18 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מערכת לוח שנה',
             required: true,
             options: [
-              { value: 'google', label: 'Google Calendar', labelHe: 'Google Calendar' },
-              { value: 'outlook', label: 'Outlook Calendar', labelHe: 'Outlook Calendar' },
-              { value: 'both', label: 'Both', labelHe: 'שניהם' }
-            ]
+              {
+                value: 'google',
+                label: 'Google Calendar',
+                labelHe: 'Google Calendar',
+              },
+              {
+                value: 'outlook',
+                label: 'Outlook Calendar',
+                labelHe: 'Outlook Calendar',
+              },
+              { value: 'both', label: 'Both', labelHe: 'שניהם' },
+            ],
           },
           {
             id: 'availability',
@@ -2027,7 +2843,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Default availability hours',
             labelHe: 'שעות זמינות ברירת מחדל',
             required: true,
-            placeholderHe: 'לדוגמא: א\'-ה\' 9:00-17:00'
+            placeholderHe: "לדוגמא: א'-ה' 9:00-17:00",
           },
           {
             id: 'buffer_time',
@@ -2035,7 +2851,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Buffer time between meetings (minutes)',
             labelHe: 'זמן מרווח בין פגישות (דקות)',
             required: true,
-            validation: { min: 0, max: 60 }
+            validation: { min: 0, max: 60 },
           },
           {
             id: 'confirmations',
@@ -2046,8 +2862,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'email', label: 'Email', labelHe: 'אימייל' },
               { value: 'sms', label: 'SMS', labelHe: 'SMS' },
-              { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' }
-            ]
+              { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' },
+            ],
           },
           {
             id: 'video_integration',
@@ -2058,13 +2874,17 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'zoom', label: 'Zoom', labelHe: 'Zoom' },
               { value: 'meet', label: 'Google Meet', labelHe: 'Google Meet' },
-              { value: 'teams', label: 'Microsoft Teams', labelHe: 'Microsoft Teams' },
-              { value: 'none', label: 'Not needed', labelHe: 'לא נדרש' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'teams',
+                label: 'Microsoft Teams',
+                labelHe: 'Microsoft Teams',
+              },
+              { value: 'none', label: 'Not needed', labelHe: 'לא נדרש' },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   // ==================== REPORTING & ANALYTICS ====================
@@ -2087,14 +2907,42 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'אילו דוחות אתה צריך?',
             required: true,
             options: [
-              { value: 'sales', label: 'Sales Performance', labelHe: 'ביצועי מכירות' },
-              { value: 'leads', label: 'Lead Sources & Conversion', labelHe: 'מקורות לידים והמרות' },
-              { value: 'pipeline', label: 'Sales Pipeline Status', labelHe: 'סטטוס צינור מכירות' },
-              { value: 'customer', label: 'Customer Service Metrics', labelHe: 'מדדי שירות לקוחות' },
-              { value: 'operations', label: 'Operations/Efficiency', labelHe: 'תפעול/יעילות' },
-              { value: 'financial', label: 'Financial Summary', labelHe: 'סיכום פיננסי' },
-              { value: 'marketing', label: 'Marketing ROI', labelHe: 'תשואת השקעה שיווקית' }
-            ]
+              {
+                value: 'sales',
+                label: 'Sales Performance',
+                labelHe: 'ביצועי מכירות',
+              },
+              {
+                value: 'leads',
+                label: 'Lead Sources & Conversion',
+                labelHe: 'מקורות לידים והמרות',
+              },
+              {
+                value: 'pipeline',
+                label: 'Sales Pipeline Status',
+                labelHe: 'סטטוס צינור מכירות',
+              },
+              {
+                value: 'customer',
+                label: 'Customer Service Metrics',
+                labelHe: 'מדדי שירות לקוחות',
+              },
+              {
+                value: 'operations',
+                label: 'Operations/Efficiency',
+                labelHe: 'תפעול/יעילות',
+              },
+              {
+                value: 'financial',
+                label: 'Financial Summary',
+                labelHe: 'סיכום פיננסי',
+              },
+              {
+                value: 'marketing',
+                label: 'Marketing ROI',
+                labelHe: 'תשואת השקעה שיווקית',
+              },
+            ],
           },
           {
             id: 'frequency',
@@ -2107,10 +2955,10 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'weekly', label: 'Weekly', labelHe: 'שבועי' },
               { value: 'monthly', label: 'Monthly', labelHe: 'חודשי' },
               { value: 'quarterly', label: 'Quarterly', labelHe: 'רבעוני' },
-              { value: 'on_demand', label: 'On-Demand', labelHe: 'לפי דרישה' }
-            ]
-          }
-        ]
+              { value: 'on_demand', label: 'On-Demand', labelHe: 'לפי דרישה' },
+            ],
+          },
+        ],
       },
       {
         id: 'report-data',
@@ -2126,12 +2974,32 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             options: [
               { value: 'crm', label: 'CRM', labelHe: 'CRM' },
-              { value: 'sheets', label: 'Google Sheets', labelHe: 'Google Sheets' },
-              { value: 'accounting', label: 'Accounting Software', labelHe: 'תוכנת הנהלת חשבונות' },
-              { value: 'analytics', label: 'Google Analytics', labelHe: 'Google Analytics' },
-              { value: 'ads', label: 'Facebook/Google Ads', labelHe: 'פייסבוק/גוגל Ads' },
-              { value: 'other', label: 'Other Systems', labelHe: 'מערכות אחרות' }
-            ]
+              {
+                value: 'sheets',
+                label: 'Google Sheets',
+                labelHe: 'Google Sheets',
+              },
+              {
+                value: 'accounting',
+                label: 'Accounting Software',
+                labelHe: 'תוכנת הנהלת חשבונות',
+              },
+              {
+                value: 'analytics',
+                label: 'Google Analytics',
+                labelHe: 'Google Analytics',
+              },
+              {
+                value: 'ads',
+                label: 'Facebook/Google Ads',
+                labelHe: 'פייסבוק/גוגל Ads',
+              },
+              {
+                value: 'other',
+                label: 'Other Systems',
+                labelHe: 'מערכות אחרות',
+              },
+            ],
           },
           {
             id: 'kpi_tracking',
@@ -2139,9 +3007,14 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Key KPIs to track',
             labelHe: 'KPIs עיקריים למעקב',
             required: true,
-            examplesHe: ['מספר לידים חדשים', 'אחוז המרה', 'זמן תגובה ממוצע', 'הכנסות חודשיות']
-          }
-        ]
+            examplesHe: [
+              'מספר לידים חדשים',
+              'אחוז המרה',
+              'זמן תגובה ממוצע',
+              'הכנסות חודשיות',
+            ],
+          },
+        ],
       },
       {
         id: 'report-delivery',
@@ -2156,11 +3029,23 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'איך למסור דוחות?',
             required: true,
             options: [
-              { value: 'email', label: 'Email (PDF/Excel)', labelHe: 'אימייל (PDF/Excel)' },
-              { value: 'dashboard', label: 'Live Dashboard (web link)', labelHe: 'דשבורד חי (קישור)' },
+              {
+                value: 'email',
+                label: 'Email (PDF/Excel)',
+                labelHe: 'אימייל (PDF/Excel)',
+              },
+              {
+                value: 'dashboard',
+                label: 'Live Dashboard (web link)',
+                labelHe: 'דשבורד חי (קישור)',
+              },
               { value: 'slack', label: 'Slack Channel', labelHe: 'ערוץ Slack' },
-              { value: 'drive', label: 'Google Drive Folder', labelHe: 'תיקיית Google Drive' }
-            ]
+              {
+                value: 'drive',
+                label: 'Google Drive Folder',
+                labelHe: 'תיקיית Google Drive',
+              },
+            ],
           },
           {
             id: 'recipients',
@@ -2168,18 +3053,18 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Who should receive reports?',
             labelHe: 'מי צריך לקבל דוחות?',
             required: true,
-            placeholderHe: 'לדוגמא: מנכ"ל, מנהל מכירות, צוות הנהלה...'
+            placeholderHe: 'לדוגמא: מנכ"ל, מנהל מכירות, צוות הנהלה...',
           },
           {
             id: 'interactive_dashboard',
             type: 'checkbox',
             label: 'Create interactive dashboard (drill-down, filters)',
             labelHe: 'צור דשבורד אינטראקטיבי (ניתוח מעמיק, פילטרים)',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   // ==================== SYSTEM IMPLEMENTATIONS ====================
@@ -2204,9 +3089,17 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'hubspot', label: 'HubSpot', labelHe: 'HubSpot' },
               { value: 'mailchimp', label: 'Mailchimp', labelHe: 'Mailchimp' },
-              { value: 'activecampaign', label: 'ActiveCampaign', labelHe: 'ActiveCampaign' },
-              { value: 'recommend', label: 'Need recommendation', labelHe: 'צריך המלצה' }
-            ]
+              {
+                value: 'activecampaign',
+                label: 'ActiveCampaign',
+                labelHe: 'ActiveCampaign',
+              },
+              {
+                value: 'recommend',
+                label: 'Need recommendation',
+                labelHe: 'צריך המלצה',
+              },
+            ],
           },
           {
             id: 'list_size',
@@ -2215,13 +3108,29 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'גודל רשימת אנשי קשר משוער',
             required: true,
             options: [
-              { value: 'under_1000', label: 'Under 1,000', labelHe: 'מתחת 1,000' },
-              { value: '1000-5000', label: '1,000-5,000', labelHe: '1,000-5,000' },
-              { value: '5000-20000', label: '5,000-20,000', labelHe: '5,000-20,000' },
-              { value: 'over_20000', label: 'Over 20,000', labelHe: 'מעל 20,000' }
-            ]
-          }
-        ]
+              {
+                value: 'under_1000',
+                label: 'Under 1,000',
+                labelHe: 'מתחת 1,000',
+              },
+              {
+                value: '1000-5000',
+                label: '1,000-5,000',
+                labelHe: '1,000-5,000',
+              },
+              {
+                value: '5000-20000',
+                label: '5,000-20,000',
+                labelHe: '5,000-20,000',
+              },
+              {
+                value: 'over_20000',
+                label: 'Over 20,000',
+                labelHe: 'מעל 20,000',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'marketing-campaigns',
@@ -2236,13 +3145,33 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'אילו קמפיינים לאוטומט?',
             required: true,
             options: [
-              { value: 'welcome', label: 'Welcome Series', labelHe: 'סדרת ברוכים הבאים' },
-              { value: 'nurture', label: 'Lead Nurturing', labelHe: 'טיפוח לידים' },
-              { value: 'promotional', label: 'Promotional Campaigns', labelHe: 'קמפיינים פרומוטיביים' },
-              { value: 'abandoned', label: 'Abandoned Cart', labelHe: 'עגלה נטושה' },
-              { value: 'reengagement', label: 'Re-engagement', labelHe: 'שיווק חוזר' },
-              { value: 'newsletter', label: 'Newsletter', labelHe: 'ניוזלטר' }
-            ]
+              {
+                value: 'welcome',
+                label: 'Welcome Series',
+                labelHe: 'סדרת ברוכים הבאים',
+              },
+              {
+                value: 'nurture',
+                label: 'Lead Nurturing',
+                labelHe: 'טיפוח לידים',
+              },
+              {
+                value: 'promotional',
+                label: 'Promotional Campaigns',
+                labelHe: 'קמפיינים פרומוטיביים',
+              },
+              {
+                value: 'abandoned',
+                label: 'Abandoned Cart',
+                labelHe: 'עגלה נטושה',
+              },
+              {
+                value: 'reengagement',
+                label: 'Re-engagement',
+                labelHe: 'שיווק חוזר',
+              },
+              { value: 'newsletter', label: 'Newsletter', labelHe: 'ניוזלטר' },
+            ],
           },
           {
             id: 'segmentation',
@@ -2251,12 +3180,28 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'איך לפלח קהל?',
             required: true,
             options: [
-              { value: 'behavior', label: 'By Behavior (clicks, opens)', labelHe: 'לפי התנהגות' },
-              { value: 'demographics', label: 'Demographics', labelHe: 'דמוגרפיה' },
-              { value: 'lead_score', label: 'Lead Score', labelHe: 'ניקוד ליד' },
-              { value: 'purchase_history', label: 'Purchase History', labelHe: 'היסטוריית רכישות' },
-              { value: 'stage', label: 'Sales Stage', labelHe: 'שלב מכירה' }
-            ]
+              {
+                value: 'behavior',
+                label: 'By Behavior (clicks, opens)',
+                labelHe: 'לפי התנהגות',
+              },
+              {
+                value: 'demographics',
+                label: 'Demographics',
+                labelHe: 'דמוגרפיה',
+              },
+              {
+                value: 'lead_score',
+                label: 'Lead Score',
+                labelHe: 'ניקוד ליד',
+              },
+              {
+                value: 'purchase_history',
+                label: 'Purchase History',
+                labelHe: 'היסטוריית רכישות',
+              },
+              { value: 'stage', label: 'Sales Stage', labelHe: 'שלב מכירה' },
+            ],
           },
           {
             id: 'personalization',
@@ -2264,9 +3209,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Dynamic content personalization',
             labelHe: 'התאמה אישית דינמית של תוכן',
             required: false,
-            helperTextHe: 'תוכן משתנה לפי פרופיל המקבל'
-          }
-        ]
+            helperTextHe: 'תוכן משתנה לפי פרופיל המקבל',
+          },
+        ],
       },
       {
         id: 'marketing-integration',
@@ -2279,18 +3224,18 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             type: 'checkbox',
             label: 'Sync with CRM',
             labelHe: 'סנכרון עם CRM',
-            required: false
+            required: false,
           },
           {
             id: 'analytics_tracking',
             type: 'checkbox',
             label: 'Track ROI & attribution',
             labelHe: 'עקוב אחר ROI וייחוס',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -2316,8 +3261,12 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'monday', label: 'Monday.com', labelHe: 'Monday.com' },
               { value: 'clickup', label: 'ClickUp', labelHe: 'ClickUp' },
               { value: 'notion', label: 'Notion', labelHe: 'Notion' },
-              { value: 'recommend', label: 'Need recommendation', labelHe: 'צריך המלצה' }
-            ]
+              {
+                value: 'recommend',
+                label: 'Need recommendation',
+                labelHe: 'צריך המלצה',
+              },
+            ],
           },
           {
             id: 'team_size',
@@ -2325,9 +3274,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Number of team members',
             labelHe: 'מספר חברי צוות',
             required: true,
-            validation: { min: 1, max: 500 }
-          }
-        ]
+            validation: { min: 1, max: 500 },
+          },
+        ],
       },
       {
         id: 'pm-features',
@@ -2342,13 +3291,33 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'אילו תכונות אתה צריך?',
             required: true,
             options: [
-              { value: 'tasks', label: 'Task Management', labelHe: 'ניהול משימות' },
-              { value: 'timeline', label: 'Timeline/Gantt Chart', labelHe: 'ציר זמן/גנט' },
-              { value: 'resources', label: 'Resource Allocation', labelHe: 'הקצאת משאבים' },
-              { value: 'time_tracking', label: 'Time Tracking', labelHe: 'מעקב זמן' },
+              {
+                value: 'tasks',
+                label: 'Task Management',
+                labelHe: 'ניהול משימות',
+              },
+              {
+                value: 'timeline',
+                label: 'Timeline/Gantt Chart',
+                labelHe: 'ציר זמן/גנט',
+              },
+              {
+                value: 'resources',
+                label: 'Resource Allocation',
+                labelHe: 'הקצאת משאבים',
+              },
+              {
+                value: 'time_tracking',
+                label: 'Time Tracking',
+                labelHe: 'מעקב זמן',
+              },
               { value: 'docs', label: 'Documentation', labelHe: 'תיעוד' },
-              { value: 'reporting', label: 'Progress Reports', labelHe: 'דוחות התקדמות' }
-            ]
+              {
+                value: 'reporting',
+                label: 'Progress Reports',
+                labelHe: 'דוחות התקדמות',
+              },
+            ],
           },
           {
             id: 'automation_needs',
@@ -2357,15 +3326,31 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מה לאוטומט?',
             required: false,
             options: [
-              { value: 'task_creation', label: 'Auto-create tasks from templates', labelHe: 'יצירת משימות אוטומטית מתבניות' },
-              { value: 'assignments', label: 'Auto-assign tasks', labelHe: 'הקצאת משימות אוטומטית' },
-              { value: 'notifications', label: 'Smart notifications', labelHe: 'התראות חכמות' },
-              { value: 'status_updates', label: 'Status updates from other systems', labelHe: 'עדכוני סטטוס ממערכות אחרות' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'task_creation',
+                label: 'Auto-create tasks from templates',
+                labelHe: 'יצירת משימות אוטומטית מתבניות',
+              },
+              {
+                value: 'assignments',
+                label: 'Auto-assign tasks',
+                labelHe: 'הקצאת משימות אוטומטית',
+              },
+              {
+                value: 'notifications',
+                label: 'Smart notifications',
+                labelHe: 'התראות חכמות',
+              },
+              {
+                value: 'status_updates',
+                label: 'Status updates from other systems',
+                labelHe: 'עדכוני סטטוס ממערכות אחרות',
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   // ==================== DATA & ANALYTICS ====================
@@ -2387,7 +3372,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Where is the data stored?',
             labelHe: 'איפה הנתונים מאוחסנים?',
             required: true,
-            placeholderHe: 'לדוגמא: Zoho CRM, Google Sheets, Excel...'
+            placeholderHe: 'לדוגמא: Zoho CRM, Google Sheets, Excel...',
           },
           {
             id: 'record_count',
@@ -2396,11 +3381,27 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מספר רשומות משוער',
             required: true,
             options: [
-              { value: 'under_1000', label: 'Under 1,000', labelHe: 'מתחת 1,000' },
-              { value: '1000-10000', label: '1,000-10,000', labelHe: '1,000-10,000' },
-              { value: '10000-50000', label: '10,000-50,000', labelHe: '10,000-50,000' },
-              { value: 'over_50000', label: 'Over 50,000', labelHe: 'מעל 50,000' }
-            ]
+              {
+                value: 'under_1000',
+                label: 'Under 1,000',
+                labelHe: 'מתחת 1,000',
+              },
+              {
+                value: '1000-10000',
+                label: '1,000-10,000',
+                labelHe: '1,000-10,000',
+              },
+              {
+                value: '10000-50000',
+                label: '10,000-50,000',
+                labelHe: '10,000-50,000',
+              },
+              {
+                value: 'over_50000',
+                label: 'Over 50,000',
+                labelHe: 'מעל 50,000',
+              },
+            ],
           },
           {
             id: 'issues',
@@ -2409,14 +3410,34 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'אילו בעיות נתונים קיימות?',
             required: true,
             options: [
-              { value: 'duplicates', label: 'Duplicate Records', labelHe: 'רשומות כפולות' },
-              { value: 'incomplete', label: 'Incomplete Data', labelHe: 'נתונים חלקיים' },
-              { value: 'formatting', label: 'Inconsistent Formatting', labelHe: 'פורמט לא אחיד' },
-              { value: 'outdated', label: 'Outdated Information', labelHe: 'מידע לא מעודכן' },
-              { value: 'invalid', label: 'Invalid Data (bad emails/phones)', labelHe: 'נתונים לא תקינים' }
-            ]
-          }
-        ]
+              {
+                value: 'duplicates',
+                label: 'Duplicate Records',
+                labelHe: 'רשומות כפולות',
+              },
+              {
+                value: 'incomplete',
+                label: 'Incomplete Data',
+                labelHe: 'נתונים חלקיים',
+              },
+              {
+                value: 'formatting',
+                label: 'Inconsistent Formatting',
+                labelHe: 'פורמט לא אחיד',
+              },
+              {
+                value: 'outdated',
+                label: 'Outdated Information',
+                labelHe: 'מידע לא מעודכן',
+              },
+              {
+                value: 'invalid',
+                label: 'Invalid Data (bad emails/phones)',
+                labelHe: 'נתונים לא תקינים',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'cleanup-actions',
@@ -2431,28 +3452,40 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'אסטרטגיית מיזוג כפילויות',
             required: true,
             options: [
-              { value: 'auto', label: 'Auto-merge (keep most complete)', labelHe: 'מיזוג אוטומטי (שמור הכי מלא)' },
-              { value: 'manual', label: 'Flag for manual review', labelHe: 'סמן לבדיקה ידנית' },
-              { value: 'rules', label: 'Custom merge rules', labelHe: 'כללי מיזוג מותאמים' }
-            ]
+              {
+                value: 'auto',
+                label: 'Auto-merge (keep most complete)',
+                labelHe: 'מיזוג אוטומטי (שמור הכי מלא)',
+              },
+              {
+                value: 'manual',
+                label: 'Flag for manual review',
+                labelHe: 'סמן לבדיקה ידנית',
+              },
+              {
+                value: 'rules',
+                label: 'Custom merge rules',
+                labelHe: 'כללי מיזוג מותאמים',
+              },
+            ],
           },
           {
             id: 'validation',
             type: 'checkbox',
             label: 'Validate email addresses and phone numbers',
             labelHe: 'אמת כתובות אימייל ומספרי טלפון',
-            required: false
+            required: false,
           },
           {
             id: 'enrichment',
             type: 'checkbox',
             label: 'Enrich missing data from external sources',
             labelHe: 'השלם נתונים חסרים ממקורות חיצוניים',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   // ==================== ADVANCED AI AGENTS ====================
@@ -2475,7 +3508,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'תאר מה סוכן ה-AI הזה צריך לעשות',
             required: true,
             rows: 4,
-            placeholderHe: 'לדוגמא: לנהל תהליך מורכב של אישורי קרדיט, תיאום בין מספר מחלקות, עיבוד הזמנות מותאמות אישית...'
+            placeholderHe:
+              'לדוגמא: לנהל תהליך מורכב של אישורי קרדיט, תיאום בין מספר מחלקות, עיבוד הזמנות מותאמות אישית...',
           },
           {
             id: 'complexity_level',
@@ -2484,12 +3518,24 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'רמת מורכבות',
             required: true,
             options: [
-              { value: 'medium', label: 'Medium (3-5 decision points)', labelHe: 'בינונית (3-5 נקודות החלטה)' },
-              { value: 'high', label: 'High (6-10 decision points)', labelHe: 'גבוהה (6-10 נקודות החלטה)' },
-              { value: 'very_high', label: 'Very High (10+ decision points)', labelHe: 'מאוד גבוהה (10+ נקודות החלטה)' }
-            ]
-          }
-        ]
+              {
+                value: 'medium',
+                label: 'Medium (3-5 decision points)',
+                labelHe: 'בינונית (3-5 נקודות החלטה)',
+              },
+              {
+                value: 'high',
+                label: 'High (6-10 decision points)',
+                labelHe: 'גבוהה (6-10 נקודות החלטה)',
+              },
+              {
+                value: 'very_high',
+                label: 'Very High (10+ decision points)',
+                labelHe: 'מאוד גבוהה (10+ נקודות החלטה)',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'complex-ai-workflow',
@@ -2503,7 +3549,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'List main workflow steps',
             labelHe: 'רשום שלבים עיקריים בתהליך',
             required: true,
-            helperTextHe: 'לכל שלב יכולות להיות תת-החלטות ופעולות'
+            helperTextHe: 'לכל שלב יכולות להיות תת-החלטות ופעולות',
           },
           {
             id: 'decision_logic',
@@ -2512,16 +3558,17 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'לוגיקת החלטות ותנאים',
             required: true,
             rows: 4,
-            placeholderHe: 'לדוגמא: אם סכום > 10,000₪ → דרוש אישור מנהל\nאם לקוח VIP → העבר לנציג בכיר\nאם מלאי < 10 → התראה לרכש'
+            placeholderHe:
+              'לדוגמא: אם סכום > 10,000₪ → דרוש אישור מנהל\nאם לקוח VIP → העבר לנציג בכיר\nאם מלאי < 10 → התראה לרכש',
           },
           {
             id: 'systems_involved',
             type: 'list',
             label: 'Systems/APIs the agent needs access to',
             labelHe: 'מערכות/APIs שהסוכן צריך גישה אליהם',
-            required: true
-          }
-        ]
+            required: true,
+          },
+        ],
       },
       {
         id: 'complex-ai-intelligence',
@@ -2534,7 +3581,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             type: 'checkbox',
             label: 'Agent should learn from past decisions',
             labelHe: 'הסוכן צריך ללמוד מהחלטות קודמות',
-            required: false
+            required: false,
           },
           {
             id: 'human_oversight',
@@ -2543,14 +3590,26 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'רמת פיקוח אנושי',
             required: true,
             options: [
-              { value: 'full_autonomy', label: 'Full Autonomy', labelHe: 'אוטונומיה מלאה' },
-              { value: 'approval_for_critical', label: 'Approval for critical actions', labelHe: 'אישור לפעולות קריטיות' },
-              { value: 'approval_for_all', label: 'Approval for all actions', labelHe: 'אישור לכל הפעולות' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'full_autonomy',
+                label: 'Full Autonomy',
+                labelHe: 'אוטונומיה מלאה',
+              },
+              {
+                value: 'approval_for_critical',
+                label: 'Approval for critical actions',
+                labelHe: 'אישור לפעולות קריטיות',
+              },
+              {
+                value: 'approval_for_all',
+                label: 'Approval for all actions',
+                labelHe: 'אישור לכל הפעולות',
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -2572,14 +3631,42 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'אילו פעולות הסוכן יכול לבצע?',
             required: true,
             options: [
-              { value: 'data_entry', label: 'Data Entry', labelHe: 'הזנת נתונים' },
-              { value: 'update_records', label: 'Update Records', labelHe: 'עדכון רשומות' },
-              { value: 'send_messages', label: 'Send Messages', labelHe: 'שליחת הודעות' },
-              { value: 'create_tasks', label: 'Create Tasks', labelHe: 'יצירת משימות' },
-              { value: 'schedule', label: 'Schedule Appointments', labelHe: 'קביעת פגישות' },
-              { value: 'process_payments', label: 'Process Payments', labelHe: 'עיבוד תשלומים' },
-              { value: 'generate_docs', label: 'Generate Documents', labelHe: 'יצירת מסמכים' }
-            ]
+              {
+                value: 'data_entry',
+                label: 'Data Entry',
+                labelHe: 'הזנת נתונים',
+              },
+              {
+                value: 'update_records',
+                label: 'Update Records',
+                labelHe: 'עדכון רשומות',
+              },
+              {
+                value: 'send_messages',
+                label: 'Send Messages',
+                labelHe: 'שליחת הודעות',
+              },
+              {
+                value: 'create_tasks',
+                label: 'Create Tasks',
+                labelHe: 'יצירת משימות',
+              },
+              {
+                value: 'schedule',
+                label: 'Schedule Appointments',
+                labelHe: 'קביעת פגישות',
+              },
+              {
+                value: 'process_payments',
+                label: 'Process Payments',
+                labelHe: 'עיבוד תשלומים',
+              },
+              {
+                value: 'generate_docs',
+                label: 'Generate Documents',
+                labelHe: 'יצירת מסמכים',
+              },
+            ],
           },
           {
             id: 'action_triggers',
@@ -2587,7 +3674,11 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'What triggers the agent to act?',
             labelHe: 'מה מפעיל את הסוכן לפעולה?',
             required: true,
-            examplesHe: ['הגעת אימייל חדש', 'עדכון סטטוס בCRM', 'לקוח ממלא טופס']
+            examplesHe: [
+              'הגעת אימייל חדש',
+              'עדכון סטטוס בCRM',
+              'לקוח ממלא טופס',
+            ],
           },
           {
             id: 'success_criteria',
@@ -2596,11 +3687,12 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'איך למדוד הצלחה?',
             required: true,
             rows: 2,
-            placeholderHe: 'לדוגמא: משימה הושלמה, לקוח קיבל תגובה תוך 5 דקות, נתונים עודכנו בהצלחה...'
-          }
-        ]
-      }
-    ]
+            placeholderHe:
+              'לדוגמא: משימה הושלמה, לקוח קיבל תגובה תוך 5 דקות, נתונים עודכנו בהצלחה...',
+          },
+        ],
+      },
+    ],
   },
 
   // ==================== SUPPORT & MAINTENANCE ====================
@@ -2623,11 +3715,19 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'זמינות תמיכה',
             required: true,
             options: [
-              { value: 'business', label: 'Business Hours (9-5, Sun-Thu)', labelHe: 'שעות עבודה (9-17, א\'-ה\')' },
-              { value: 'extended', label: 'Extended (8-8, Sun-Thu)', labelHe: 'מורחבות (8-20, א\'-ה\')' },
+              {
+                value: 'business',
+                label: 'Business Hours (9-5, Sun-Thu)',
+                labelHe: "שעות עבודה (9-17, א'-ה')",
+              },
+              {
+                value: 'extended',
+                label: 'Extended (8-8, Sun-Thu)',
+                labelHe: "מורחבות (8-20, א'-ה')",
+              },
               { value: '24_5', label: '24/5', labelHe: '24/5' },
-              { value: '24_7', label: '24/7', labelHe: '24/7' }
-            ]
+              { value: '24_7', label: '24/7', labelHe: '24/7' },
+            ],
           },
           {
             id: 'response_time',
@@ -2637,10 +3737,22 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             options: [
               { value: '1hour', label: 'Within 1 hour', labelHe: 'תוך שעה' },
-              { value: '4hours', label: 'Within 4 hours', labelHe: 'תוך 4 שעות' },
-              { value: 'same_day', label: 'Same business day', labelHe: 'באותו יום עבודה' },
-              { value: 'next_day', label: 'Next business day', labelHe: 'יום עבודה הבא' }
-            ]
+              {
+                value: '4hours',
+                label: 'Within 4 hours',
+                labelHe: 'תוך 4 שעות',
+              },
+              {
+                value: 'same_day',
+                label: 'Same business day',
+                labelHe: 'באותו יום עבודה',
+              },
+              {
+                value: 'next_day',
+                label: 'Next business day',
+                labelHe: 'יום עבודה הבא',
+              },
+            ],
           },
           {
             id: 'support_channels',
@@ -2652,12 +3764,12 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'email', label: 'Email', labelHe: 'אימייל' },
               { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' },
               { value: 'phone', label: 'Phone', labelHe: 'טלפון' },
-              { value: 'slack', label: 'Slack Channel', labelHe: 'ערוץ Slack' }
-            ]
-          }
-        ]
-      }
-    ]
+              { value: 'slack', label: 'Slack Channel', labelHe: 'ערוץ Slack' },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -2679,12 +3791,32 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'נושאי הדרכה',
             required: true,
             options: [
-              { value: 'system_basics', label: 'System Basics', labelHe: 'יסודות המערכת' },
-              { value: 'advanced_features', label: 'Advanced Features', labelHe: 'תכונות מתקדמות' },
-              { value: 'automation_building', label: 'Building Automations', labelHe: 'בניית אוטומציות' },
-              { value: 'reporting', label: 'Reports & Analytics', labelHe: 'דוחות וניתוחים' },
-              { value: 'ai_usage', label: 'Using AI Features', labelHe: 'שימוש בתכונות AI' }
-            ]
+              {
+                value: 'system_basics',
+                label: 'System Basics',
+                labelHe: 'יסודות המערכת',
+              },
+              {
+                value: 'advanced_features',
+                label: 'Advanced Features',
+                labelHe: 'תכונות מתקדמות',
+              },
+              {
+                value: 'automation_building',
+                label: 'Building Automations',
+                labelHe: 'בניית אוטומציות',
+              },
+              {
+                value: 'reporting',
+                label: 'Reports & Analytics',
+                labelHe: 'דוחות וניתוחים',
+              },
+              {
+                value: 'ai_usage',
+                label: 'Using AI Features',
+                labelHe: 'שימוש בתכונות AI',
+              },
+            ],
           },
           {
             id: 'participants',
@@ -2692,7 +3824,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Number of participants',
             labelHe: 'מספר משתתפים',
             required: true,
-            validation: { min: 1, max: 100 }
+            validation: { min: 1, max: 100 },
           },
           {
             id: 'format',
@@ -2702,14 +3834,22 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             options: [
               { value: 'onsite', label: 'On-site', labelHe: 'באתר' },
-              { value: 'remote', label: 'Remote (Zoom)', labelHe: 'מרחוק (Zoom)' },
+              {
+                value: 'remote',
+                label: 'Remote (Zoom)',
+                labelHe: 'מרחוק (Zoom)',
+              },
               { value: 'hybrid', label: 'Hybrid', labelHe: 'היברידי' },
-              { value: 'recorded', label: 'Recorded Videos', labelHe: 'סרטונים מוקלטים' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'recorded',
+                label: 'Recorded Videos',
+                labelHe: 'סרטונים מוקלטים',
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   // ==================== ADDITIONAL AUTOMATION SERVICES ====================
@@ -2723,13 +3863,13 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
       'Critical response time: Must respond within 2-5 minutes for best conversion',
       'Domain verification is mandatory to avoid spam filters',
       'Prepare fallback mechanism if primary email service fails',
-      'Forms often don\'t support webhooks (Wix needs Velo, WordPress needs plugin)'
+      "Forms often don't support webhooks (Wix needs Velo, WordPress needs plugin)",
     ],
     tipsHe: [
       'זמן תגובה קריטי: חובה להגיב תוך 2-5 דקות להמרה מיטבית',
       'אימות דומיין חובה כדי למנוע מסנני ספאם',
       'הכן מנגנון גיבוי במקרה שהשירות הראשי נכשל',
-      'טפסים רבים לא תומכים ב-webhooks (Wix דורש Velo, WordPress צריך plugin)'
+      'טפסים רבים לא תומכים ב-webhooks (Wix דורש Velo, WordPress צריך plugin)',
     ],
     sections: [
       {
@@ -2748,13 +3888,29 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             options: [
               { value: 'wix', label: 'Wix Forms', labelHe: 'Wix Forms' },
-              { value: 'wordpress', label: 'WordPress (Contact Form 7/Gravity/WPForms)', labelHe: 'WordPress (Contact Form 7/Gravity/WPForms)' },
-              { value: 'elementor', label: 'Elementor Forms', labelHe: 'Elementor Forms' },
-              { value: 'google_forms', label: 'Google Forms', labelHe: 'Google Forms' },
+              {
+                value: 'wordpress',
+                label: 'WordPress (Contact Form 7/Gravity/WPForms)',
+                labelHe: 'WordPress (Contact Form 7/Gravity/WPForms)',
+              },
+              {
+                value: 'elementor',
+                label: 'Elementor Forms',
+                labelHe: 'Elementor Forms',
+              },
+              {
+                value: 'google_forms',
+                label: 'Google Forms',
+                labelHe: 'Google Forms',
+              },
               { value: 'typeform', label: 'Typeform', labelHe: 'Typeform' },
-              { value: 'custom', label: 'Custom HTML Form', labelHe: 'טופס HTML מותאם' }
+              {
+                value: 'custom',
+                label: 'Custom HTML Form',
+                labelHe: 'טופס HTML מותאם',
+              },
             ],
-            helperTextHe: 'הפלטפורמה בה הטופס נמצא'
+            helperTextHe: 'הפלטפורמה בה הטופס נמצא',
           },
           {
             id: 'email_service',
@@ -2765,11 +3921,19 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'sendgrid', label: 'SendGrid', labelHe: 'SendGrid' },
               { value: 'mailgun', label: 'Mailgun', labelHe: 'Mailgun' },
-              { value: 'smtp', label: 'SMTP (Generic)', labelHe: 'SMTP (כללי)' },
+              {
+                value: 'smtp',
+                label: 'SMTP (Generic)',
+                labelHe: 'SMTP (כללי)',
+              },
               { value: 'gmail', label: 'Gmail SMTP', labelHe: 'Gmail SMTP' },
-              { value: 'outlook', label: 'Outlook/Office 365', labelHe: 'Outlook/Office 365' }
+              {
+                value: 'outlook',
+                label: 'Outlook/Office 365',
+                labelHe: 'Outlook/Office 365',
+              },
             ],
-            helperTextHe: 'השירות שישמש לשליחת אימיילים'
+            helperTextHe: 'השירות שישמש לשליחת אימיילים',
           },
           {
             id: 'crm_system',
@@ -2779,12 +3943,16 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             options: [
               { value: 'zoho', label: 'Zoho CRM', labelHe: 'Zoho CRM' },
-              { value: 'salesforce', label: 'Salesforce', labelHe: 'Salesforce' },
+              {
+                value: 'salesforce',
+                label: 'Salesforce',
+                labelHe: 'Salesforce',
+              },
               { value: 'hubspot', label: 'HubSpot', labelHe: 'HubSpot' },
               { value: 'pipedrive', label: 'Pipedrive', labelHe: 'Pipedrive' },
-              { value: 'other', label: 'Other CRM', labelHe: 'CRM אחר' }
+              { value: 'other', label: 'Other CRM', labelHe: 'CRM אחר' },
             ],
-            helperTextHe: 'ה-CRM בו יישמרו הלידים'
+            helperTextHe: 'ה-CRM בו יישמרו הלידים',
           },
           {
             id: 'n8n_access',
@@ -2792,9 +3960,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Do you have an n8n instance with HTTPS endpoint?',
             labelHe: 'האם יש לך instance של n8n עם HTTPS endpoint?',
             required: false,
-            helperTextHe: 'נדרש לקבלת webhooks מהטופס'
-          }
-        ]
+            helperTextHe: 'נדרש לקבלת webhooks מהטופס',
+          },
+        ],
       },
       {
         id: 'form-config',
@@ -2811,11 +3979,23 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'האם פלטפורמת הטפסים תומכת ב-webhooks?',
             required: true,
             options: [
-              { value: 'yes', label: 'Yes, webhooks are supported', labelHe: 'כן, webhooks נתמכים' },
-              { value: 'plugin', label: 'Needs plugin/extension', labelHe: 'צריך plugin/הרחבה' },
-              { value: 'no', label: 'No webhook support', labelHe: 'אין תמיכה ב-webhooks' }
+              {
+                value: 'yes',
+                label: 'Yes, webhooks are supported',
+                labelHe: 'כן, webhooks נתמכים',
+              },
+              {
+                value: 'plugin',
+                label: 'Needs plugin/extension',
+                labelHe: 'צריך plugin/הרחבה',
+              },
+              {
+                value: 'no',
+                label: 'No webhook support',
+                labelHe: 'אין תמיכה ב-webhooks',
+              },
             ],
-            helperTextHe: 'Wix דורש Velo, WordPress דורש plugin'
+            helperTextHe: 'Wix דורש Velo, WordPress דורש plugin',
           },
           {
             id: 'form_fields',
@@ -2825,7 +4005,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             placeholderHe: 'לדוגמא: שם, אימייל, טלפון, הודעה...',
             placeholder: 'e.g., Name, Email, Phone, Message...',
-            helperTextHe: 'רשום את כל השדות שקיימים בטופס'
+            helperTextHe: 'רשום את כל השדות שקיימים בטופס',
           },
           {
             id: 'form_url',
@@ -2834,9 +4014,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'URL של הטופס (היכן הטופס נמצא)',
             required: true,
             placeholder: 'https://example.com/contact',
-            placeholderHe: 'https://example.com/contact'
-          }
-        ]
+            placeholderHe: 'https://example.com/contact',
+          },
+        ],
       },
       {
         id: 'email-setup',
@@ -2852,7 +4032,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Do you have email service API credentials ready?',
             labelHe: 'האם יש לך אישורי API של שירות האימייל מוכנים?',
             required: false,
-            helperTextHe: 'SendGrid API Key, Mailgun API Key, או SMTP username/password'
+            helperTextHe:
+              'SendGrid API Key, Mailgun API Key, או SMTP username/password',
           },
           {
             id: 'domain_verified',
@@ -2860,7 +4041,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Is your sending domain verified (SPF/DKIM)?',
             labelHe: 'האם הדומיין השולח מאומת (SPF/DKIM)?',
             required: false,
-            helperTextHe: 'חובה לאימות דומיין כדי למנוע ספאם. אם לא, נסייע בהגדרה.'
+            helperTextHe:
+              'חובה לאימות דומיין כדי למנוע ספאם. אם לא, נסייע בהגדרה.',
           },
           {
             id: 'email_template',
@@ -2868,9 +4050,11 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Email response template (HTML or plain text)',
             labelHe: 'תבנית תגובת אימייל (HTML או טקסט רגיל)',
             required: true,
-            placeholder: 'Dear {{name}},\n\nThank you for your inquiry! We received your message and will contact you within 24 hours.\n\nBest regards,\nYour Team',
-            placeholderHe: 'שלום {{name}},\n\nתודה על פנייתך! קיבלנו את הודעתך וניצור קשר תוך 24 שעות.\n\nבברכה,\nהצוות שלך',
-            helperTextHe: 'השתמש ב-{{name}}, {{email}}, {{phone}} להתאמה אישית'
+            placeholder:
+              'Dear {{name}},\n\nThank you for your inquiry! We received your message and will contact you within 24 hours.\n\nBest regards,\nYour Team',
+            placeholderHe:
+              'שלום {{name}},\n\nתודה על פנייתך! קיבלנו את הודעתך וניצור קשר תוך 24 שעות.\n\nבברכה,\nהצוות שלך',
+            helperTextHe: 'השתמש ב-{{name}}, {{email}}, {{phone}} להתאמה אישית',
           },
           {
             id: 'sender_name',
@@ -2879,7 +4063,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'שם השולח (From name)',
             required: true,
             placeholder: 'Customer Service',
-            placeholderHe: 'שירות לקוחות'
+            placeholderHe: 'שירות לקוחות',
           },
           {
             id: 'sender_email',
@@ -2892,8 +4076,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             validation: {
               pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
               message: 'Please enter a valid email address',
-              messageHe: 'אנא הזן כתובת אימייל תקינה'
-            }
+              messageHe: 'אנא הזן כתובת אימייל תקינה',
+            },
           },
           {
             id: 'rate_limit_known',
@@ -2901,9 +4085,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Are you aware of your email service rate limits?',
             labelHe: 'האם את/ה מודע/ת למגבלות קצב השירות?',
             required: false,
-            helperTextHe: 'SendGrid Free: 100/יום, Mailgun Free: 5,000/חודש'
-          }
-        ]
+            helperTextHe: 'SendGrid Free: 100/יום, Mailgun Free: 5,000/חודש',
+          },
+        ],
       },
       {
         id: 'crm-integration',
@@ -2919,7 +4103,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Do you have CRM API credentials?',
             labelHe: 'האם יש לך אישורי API של ה-CRM?',
             required: false,
-            helperTextHe: 'Zoho: OAuth Token, Salesforce: API Key, HubSpot: API Key'
+            helperTextHe:
+              'Zoho: OAuth Token, Salesforce: API Key, HubSpot: API Key',
           },
           {
             id: 'crm_module',
@@ -2930,8 +4115,12 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'leads', label: 'Leads', labelHe: 'לידים' },
               { value: 'contacts', label: 'Contacts', labelHe: 'אנשי קשר' },
-              { value: 'potentials', label: 'Potentials/Deals', labelHe: 'הזדמנויות/עסקאות' }
-            ]
+              {
+                value: 'potentials',
+                label: 'Potentials/Deals',
+                labelHe: 'הזדמנויות/עסקאות',
+              },
+            ],
           },
           {
             id: 'crm_field_mapping',
@@ -2939,9 +4128,11 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Field mapping (Form field → CRM field)',
             labelHe: 'מיפוי שדות (שדה טופס → שדה CRM)',
             required: true,
-            placeholderHe: 'לדוגמא: name → Full_Name, email → Email, phone → Phone...',
-            placeholder: 'e.g., name → Full_Name, email → Email, phone → Phone...',
-            helperTextHe: 'ציין איזה שדה בטופס מתאים לאיזה שדה ב-CRM'
+            placeholderHe:
+              'לדוגמא: name → Full_Name, email → Email, phone → Phone...',
+            placeholder:
+              'e.g., name → Full_Name, email → Email, phone → Phone...',
+            helperTextHe: 'ציין איזה שדה בטופס מתאים לאיזה שדה ב-CRM',
           },
           {
             id: 'log_response_in_crm',
@@ -2949,9 +4140,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Log auto-response in CRM activity',
             labelHe: 'תעד תגובה אוטומטית בפעילות CRM',
             required: false,
-            helperTextHe: 'יתעד שהליד קיבל תגובה אוטומטית'
-          }
-        ]
+            helperTextHe: 'יתעד שהליד קיבל תגובה אוטומטית',
+          },
+        ],
       },
       {
         id: 'response-config',
@@ -2968,11 +4159,23 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'זמן תגובה יעד',
             required: true,
             options: [
-              { value: 'immediate', label: 'Immediate (< 1 minute)', labelHe: 'מיידי (< דקה)' },
-              { value: '2-5min', label: 'Within 2-5 minutes (recommended)', labelHe: 'תוך 2-5 דקות (מומלץ)' },
-              { value: '15min', label: 'Within 15 minutes', labelHe: 'תוך 15 דקות' }
+              {
+                value: 'immediate',
+                label: 'Immediate (< 1 minute)',
+                labelHe: 'מיידי (< דקה)',
+              },
+              {
+                value: '2-5min',
+                label: 'Within 2-5 minutes (recommended)',
+                labelHe: 'תוך 2-5 דקות (מומלץ)',
+              },
+              {
+                value: '15min',
+                label: 'Within 15 minutes',
+                labelHe: 'תוך 15 דקות',
+              },
             ],
-            helperTextHe: 'מחקרים מראים ש-2-5 דקות הוא האופטימלי'
+            helperTextHe: 'מחקרים מראים ש-2-5 דקות הוא האופטימלי',
           },
           {
             id: 'business_hours_only',
@@ -2980,7 +4183,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Send responses only during business hours?',
             labelHe: 'לשלוח תגובות רק בשעות עבודה?',
             required: false,
-            helperTextHe: 'אם לא, תגובות יישלחו 24/7'
+            helperTextHe: 'אם לא, תגובות יישלחו 24/7',
           },
           {
             id: 'fallback_mechanism',
@@ -2989,10 +4192,22 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'גיבוי במקרה ששירות האימייל נכשל',
             required: true,
             options: [
-              { value: 'queue', label: 'Queue and retry later', labelHe: 'שמור בתור ונסה שוב מאוחר יותר' },
-              { value: 'alternative', label: 'Use alternative email service', labelHe: 'השתמש בשירות אימייל חלופי' },
-              { value: 'alert', label: 'Send alert to admin only', labelHe: 'שלח התראה למנהל בלבד' }
-            ]
+              {
+                value: 'queue',
+                label: 'Queue and retry later',
+                labelHe: 'שמור בתור ונסה שוב מאוחר יותר',
+              },
+              {
+                value: 'alternative',
+                label: 'Use alternative email service',
+                labelHe: 'השתמש בשירות אימייל חלופי',
+              },
+              {
+                value: 'alert',
+                label: 'Send alert to admin only',
+                labelHe: 'שלח התראה למנהל בלבד',
+              },
+            ],
           },
           {
             id: 'duplicate_check',
@@ -3000,9 +4215,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Check for duplicate leads before sending response',
             labelHe: 'בדוק לידים כפולים לפני שליחת תגובה',
             required: false,
-            helperTextHe: 'מונע שליחת מספר תגובות לאותו ליד'
-          }
-        ]
+            helperTextHe: 'מונע שליחת מספר תגובות לאותו ליד',
+          },
+        ],
       },
       {
         id: 'n8n-workflow',
@@ -3020,7 +4235,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: false,
             placeholder: 'https://your-n8n-instance.com/webhook/...',
             placeholderHe: 'https://your-n8n-instance.com/webhook/...',
-            helperTextHe: 'אם אין לך עדיין, נגדיר ביחד'
+            helperTextHe: 'אם אין לך עדיין, נגדיר ביחד',
           },
           {
             id: 'error_notification_email',
@@ -3033,8 +4248,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             validation: {
               pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
               message: 'Please enter a valid email address',
-              messageHe: 'אנא הזן כתובת אימייל תקינה'
-            }
+              messageHe: 'אנא הזן כתובת אימייל תקינה',
+            },
           },
           {
             id: 'retry_attempts',
@@ -3043,7 +4258,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מספר ניסיונות חוזרים בכשלון',
             required: true,
             validation: { min: 1, max: 5 },
-            helperTextHe: 'כמה פעמים לנסות שוב אם שליחה נכשלה'
+            helperTextHe: 'כמה פעמים לנסות שוב אם שליחה נכשלה',
           },
           {
             id: 'test_mode',
@@ -3051,11 +4266,11 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Start in test mode (send to test email only)',
             labelHe: 'התחל במצב בדיקה (שלח לאימייל בדיקה בלבד)',
             required: false,
-            helperTextHe: 'מומלץ לבדוק לפני הפעלה מלאה'
-          }
-        ]
-      }
-    ]
+            helperTextHe: 'מומלץ לבדוק לפני הפעלה מלאה',
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -3078,9 +4293,17 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             options: [
               { value: 'sms', label: 'SMS only', labelHe: 'SMS בלבד' },
-              { value: 'whatsapp', label: 'WhatsApp only', labelHe: 'WhatsApp בלבד' },
-              { value: 'both', label: 'Both (SMS first, WhatsApp fallback)', labelHe: 'שניהם (SMS קודם, WhatsApp גיבוי)' }
-            ]
+              {
+                value: 'whatsapp',
+                label: 'WhatsApp only',
+                labelHe: 'WhatsApp בלבד',
+              },
+              {
+                value: 'both',
+                label: 'Both (SMS first, WhatsApp fallback)',
+                labelHe: 'שניהם (SMS קודם, WhatsApp גיבוי)',
+              },
+            ],
           },
           {
             id: 'message_templates',
@@ -3089,9 +4312,19 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'תבניות הודעות',
             required: true,
             itemFields: [
-              { id: 'trigger', type: 'text', label: 'Trigger', labelHe: 'טריגר' },
-              { id: 'message', type: 'textarea', label: 'Message', labelHe: 'הודעה' }
-            ]
+              {
+                id: 'trigger',
+                type: 'text',
+                label: 'Trigger',
+                labelHe: 'טריגר',
+              },
+              {
+                id: 'message',
+                type: 'textarea',
+                label: 'Message',
+                labelHe: 'הודעה',
+              },
+            ],
           },
           {
             id: 'daily_limit',
@@ -3099,11 +4332,11 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Daily message limit (to avoid spam)',
             labelHe: 'מגבלת הודעות יומית (למניעת ספאם)',
             required: true,
-            validation: { min: 10, max: 1000 }
-          }
-        ]
-      }
-    ]
+            validation: { min: 10, max: 1000 },
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -3127,10 +4360,14 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'zoho', label: 'Zoho CRM', labelHe: 'Zoho CRM' },
               { value: 'hubspot', label: 'HubSpot', labelHe: 'HubSpot' },
-              { value: 'salesforce', label: 'Salesforce', labelHe: 'Salesforce' },
+              {
+                value: 'salesforce',
+                label: 'Salesforce',
+                labelHe: 'Salesforce',
+              },
               { value: 'pipedrive', label: 'Pipedrive', labelHe: 'Pipedrive' },
-              { value: 'other', label: 'Other', labelHe: 'אחר' }
-            ]
+              { value: 'other', label: 'Other', labelHe: 'אחר' },
+            ],
           },
           {
             id: 'form_sources',
@@ -3140,21 +4377,29 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             options: [
               { value: 'website', label: 'Website Forms', labelHe: 'טפסי אתר' },
-              { value: 'facebook', label: 'Facebook Lead Ads', labelHe: 'Facebook Lead Ads' },
+              {
+                value: 'facebook',
+                label: 'Facebook Lead Ads',
+                labelHe: 'Facebook Lead Ads',
+              },
               { value: 'google', label: 'Google Ads', labelHe: 'Google Ads' },
-              { value: 'landing_pages', label: 'Landing Pages', labelHe: 'דפי נחיתה' }
-            ]
+              {
+                value: 'landing_pages',
+                label: 'Landing Pages',
+                labelHe: 'דפי נחיתה',
+              },
+            ],
           },
           {
             id: 'duplicate_check',
             type: 'checkbox',
             label: 'Check for duplicates before creating new lead',
             labelHe: 'בדוק כפילויות לפני יצירת ליד חדש',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -3166,15 +4411,15 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
       'Alert fatigue is real - too many alerts means team ignores them all',
       'Priority logic must be clear - not every lead is "important"',
       'Slack rate limit: 1 message/second per webhook',
-      'Configure Do Not Disturb hours - don\'t send alerts at night/weekends',
-      'Teams webhooks sometimes fail - implement retry mechanism'
+      "Configure Do Not Disturb hours - don't send alerts at night/weekends",
+      'Teams webhooks sometimes fail - implement retry mechanism',
     ],
     tipsHe: [
       'עייפות מהתראות היא בעיה אמיתית - יותר מדי התראות = הצוות מתעלם מהכל',
       'לוגיקת העדיפות חייבת להיות ברורה - לא כל ליד הוא "חשוב"',
       'מגבלת קצב Slack: הודעה אחת לשנייה לכל webhook',
       'הגדר שעות אל תפריע - אל תשלח התראות בלילה/סופ"ש',
-      'webhooks של Teams לפעמים נכשלים - יש ליישם מנגנון חזרה'
+      'webhooks של Teams לפעמים נכשלים - יש ליישם מנגנון חזרה',
     ],
     sections: [
       {
@@ -3193,12 +4438,16 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             options: [
               { value: 'zoho', label: 'Zoho CRM', labelHe: 'Zoho CRM' },
-              { value: 'salesforce', label: 'Salesforce', labelHe: 'Salesforce' },
+              {
+                value: 'salesforce',
+                label: 'Salesforce',
+                labelHe: 'Salesforce',
+              },
               { value: 'hubspot', label: 'HubSpot', labelHe: 'HubSpot' },
               { value: 'pipedrive', label: 'Pipedrive', labelHe: 'Pipedrive' },
-              { value: 'other', label: 'Other CRM', labelHe: 'CRM אחר' }
+              { value: 'other', label: 'Other CRM', labelHe: 'CRM אחר' },
             ],
-            helperTextHe: 'המערכת ממנה יזוהו לידים חשובים'
+            helperTextHe: 'המערכת ממנה יזוהו לידים חשובים',
           },
           {
             id: 'notification_channels',
@@ -3208,12 +4457,20 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             options: [
               { value: 'slack', label: 'Slack', labelHe: 'Slack' },
-              { value: 'teams', label: 'Microsoft Teams', labelHe: 'Microsoft Teams' },
+              {
+                value: 'teams',
+                label: 'Microsoft Teams',
+                labelHe: 'Microsoft Teams',
+              },
               { value: 'email', label: 'Email', labelHe: 'אימייל' },
               { value: 'sms', label: 'SMS (Twilio)', labelHe: 'SMS (Twilio)' },
-              { value: 'push', label: 'Push Notifications', labelHe: 'התראות Push' }
+              {
+                value: 'push',
+                label: 'Push Notifications',
+                labelHe: 'התראות Push',
+              },
             ],
-            helperTextHe: 'בחר את כל הערוצים שבהם תרצה לקבל התראות'
+            helperTextHe: 'בחר את כל הערוצים שבהם תרצה לקבל התראות',
           },
           {
             id: 'n8n_instance',
@@ -3221,9 +4478,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Do you have an n8n instance for routing logic?',
             labelHe: 'האם יש לך instance של n8n ללוגיקת ניתוב?',
             required: false,
-            helperTextHe: 'n8n נדרש לניתוב התראות לפי כללים'
-          }
-        ]
+            helperTextHe: 'n8n נדרש לניתוב התראות לפי כללים',
+          },
+        ],
       },
       {
         id: 'lead-scoring',
@@ -3240,16 +4497,48 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מה הופך ליד ל"חשוב"?',
             required: true,
             options: [
-              { value: 'high_budget', label: 'High budget/value', labelHe: 'תקציב/ערך גבוה' },
-              { value: 'urgent_timeline', label: 'Urgent timeline', labelHe: 'לוח זמנים דחוף' },
-              { value: 'decision_maker', label: 'Contact is decision maker', labelHe: 'איש קשר הוא מקבל החלטות' },
-              { value: 'specific_industry', label: 'Specific industry/vertical', labelHe: 'תעשייה/ורטיקל ספציפי' },
-              { value: 'company_size', label: 'Large company size', labelHe: 'גודל חברה גדול' },
-              { value: 'referral', label: 'Referral from existing client', labelHe: 'הפניה מלקוח קיים' },
-              { value: 'competitor', label: 'Currently with competitor', labelHe: 'כרגע עם מתחרה' },
-              { value: 'form_specific', label: 'Came from specific form/campaign', labelHe: 'הגיע מטופס/קמפיין ספציפי' }
+              {
+                value: 'high_budget',
+                label: 'High budget/value',
+                labelHe: 'תקציב/ערך גבוה',
+              },
+              {
+                value: 'urgent_timeline',
+                label: 'Urgent timeline',
+                labelHe: 'לוח זמנים דחוף',
+              },
+              {
+                value: 'decision_maker',
+                label: 'Contact is decision maker',
+                labelHe: 'איש קשר הוא מקבל החלטות',
+              },
+              {
+                value: 'specific_industry',
+                label: 'Specific industry/vertical',
+                labelHe: 'תעשייה/ורטיקל ספציפי',
+              },
+              {
+                value: 'company_size',
+                label: 'Large company size',
+                labelHe: 'גודל חברה גדול',
+              },
+              {
+                value: 'referral',
+                label: 'Referral from existing client',
+                labelHe: 'הפניה מלקוח קיים',
+              },
+              {
+                value: 'competitor',
+                label: 'Currently with competitor',
+                labelHe: 'כרגע עם מתחרה',
+              },
+              {
+                value: 'form_specific',
+                label: 'Came from specific form/campaign',
+                labelHe: 'הגיע מטופס/קמפיין ספציפי',
+              },
             ],
-            helperTextHe: 'בחר את כל הקריטריונים הרלוונטיים'
+            helperTextHe: 'בחר את כל הקריטריונים הרלוונטיים',
           },
           {
             id: 'budget_threshold',
@@ -3259,7 +4548,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: false,
             placeholder: '₪50,000',
             placeholderHe: '₪50,000',
-            helperTextHe: 'השאר ריק אם לא רלוונטי'
+            helperTextHe: 'השאר ריק אם לא רלוונטי',
           },
           {
             id: 'target_industries',
@@ -3269,7 +4558,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: false,
             placeholder: 'e.g., Healthcare, Finance, Technology',
             placeholderHe: 'לדוגמא: בריאות, פיננסים, טכנולוגיה',
-            helperTextHe: 'השאר ריק אם לא רלוונטי'
+            helperTextHe: 'השאר ריק אם לא רלוונטי',
           },
           {
             id: 'company_size_threshold',
@@ -3281,9 +4570,17 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'any', label: 'Any size', labelHe: 'כל גודל' },
               { value: '10+', label: '10+ employees', labelHe: '10+ עובדים' },
               { value: '50+', label: '50+ employees', labelHe: '50+ עובדים' },
-              { value: '100+', label: '100+ employees', labelHe: '100+ עובדים' },
-              { value: '500+', label: '500+ employees', labelHe: '500+ עובדים' }
-            ]
+              {
+                value: '100+',
+                label: '100+ employees',
+                labelHe: '100+ עובדים',
+              },
+              {
+                value: '500+',
+                label: '500+ employees',
+                labelHe: '500+ עובדים',
+              },
+            ],
           },
           {
             id: 'scoring_logic',
@@ -3291,11 +4588,13 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Additional scoring logic/rules',
             labelHe: 'לוגיקת ניקוד/כללים נוספים',
             required: false,
-            placeholder: 'e.g., "If budget > ₪100K AND industry = Healthcare, send to CEO"\n"If referral from VIP client, mark as urgent"',
-            placeholderHe: 'לדוגמא: "אם תקציב > ₪100K וגם תעשייה = בריאות, שלח למנכ״ל"\n"אם הפניה מלקוח VIP, סמן כדחוף"',
-            helperTextHe: 'תאר בעברית את הכללים המיוחדים'
-          }
-        ]
+            placeholder:
+              'e.g., "If budget > ₪100K AND industry = Healthcare, send to CEO"\n"If referral from VIP client, mark as urgent"',
+            placeholderHe:
+              'לדוגמא: "אם תקציב > ₪100K וגם תעשייה = בריאות, שלח למנכ״ל"\n"אם הפניה מלקוח VIP, סמן כדחוף"',
+            helperTextHe: 'תאר בעברית את הכללים המיוחדים',
+          },
+        ],
       },
       {
         id: 'slack-config',
@@ -3307,16 +4606,17 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
         conditionalDisplay: {
           fieldId: 'notification_channels',
           operator: 'includes',
-          value: 'slack'
+          value: 'slack',
         },
         fields: [
           {
             id: 'slack_workspace_ready',
             type: 'checkbox',
-            label: 'Do you have a Slack workspace with incoming webhooks enabled?',
+            label:
+              'Do you have a Slack workspace with incoming webhooks enabled?',
             labelHe: 'האם יש לך Slack workspace עם incoming webhooks מופעלים?',
             required: false,
-            helperTextHe: 'צריך הרשאות מנהל ב-Slack ליצירת webhooks'
+            helperTextHe: 'צריך הרשאות מנהל ב-Slack ליצירת webhooks',
           },
           {
             id: 'slack_webhook_url',
@@ -3324,9 +4624,11 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Slack Webhook URL (if you have one ready)',
             labelHe: 'Slack Webhook URL (אם כבר יש לך)',
             required: false,
-            placeholder: 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX',
-            placeholderHe: 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX',
-            helperTextHe: 'נוכל לעזור להגדיר אם אין לך'
+            placeholder:
+              'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX',
+            placeholderHe:
+              'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX',
+            helperTextHe: 'נוכל לעזור להגדיר אם אין לך',
           },
           {
             id: 'slack_channel_name',
@@ -3336,7 +4638,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: false,
             placeholder: '#sales-hot-leads',
             placeholderHe: '#sales-hot-leads',
-            helperTextHe: 'לדוגמא: #sales-leads, #urgent-leads'
+            helperTextHe: 'לדוגמא: #sales-leads, #urgent-leads',
           },
           {
             id: 'slack_message_format',
@@ -3344,11 +4646,13 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Slack message template',
             labelHe: 'תבנית הודעת Slack',
             required: false,
-            placeholder: '🔥 *Hot Lead Alert!*\nName: {{leadName}}\nCompany: {{companyName}}\nBudget: {{budget}}\nSource: {{source}}',
-            placeholderHe: '🔥 *התראת ליד חם!*\nשם: {{leadName}}\nחברה: {{companyName}}\nתקציב: {{budget}}\nמקור: {{source}}',
-            helperTextHe: 'השתמש ב-{{משתנים}} להתאמה אישית'
-          }
-        ]
+            placeholder:
+              '🔥 *Hot Lead Alert!*\nName: {{leadName}}\nCompany: {{companyName}}\nBudget: {{budget}}\nSource: {{source}}',
+            placeholderHe:
+              '🔥 *התראת ליד חם!*\nשם: {{leadName}}\nחברה: {{companyName}}\nתקציב: {{budget}}\nמקור: {{source}}',
+            helperTextHe: 'השתמש ב-{{משתנים}} להתאמה אישית',
+          },
+        ],
       },
       {
         id: 'teams-config',
@@ -3360,16 +4664,17 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
         conditionalDisplay: {
           fieldId: 'notification_channels',
           operator: 'includes',
-          value: 'teams'
+          value: 'teams',
         },
         fields: [
           {
             id: 'teams_channel_ready',
             type: 'checkbox',
-            label: 'Do you have a Teams channel with webhook connector installed?',
+            label:
+              'Do you have a Teams channel with webhook connector installed?',
             labelHe: 'האם יש לך ערוץ Teams עם webhook connector מותקן?',
             required: false,
-            helperTextHe: 'צריך הרשאות בערוץ להוספת connectors'
+            helperTextHe: 'צריך הרשאות בערוץ להוספת connectors',
           },
           {
             id: 'teams_webhook_url',
@@ -3379,17 +4684,19 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: false,
             placeholder: 'https://outlook.office.com/webhook/...',
             placeholderHe: 'https://outlook.office.com/webhook/...',
-            helperTextHe: 'נוכל לעזור להגדיר אם אין לך'
+            helperTextHe: 'נוכל לעזור להגדיר אם אין לך',
           },
           {
             id: 'teams_retry_enabled',
             type: 'checkbox',
-            label: 'Enable retry mechanism (recommended - Teams webhooks can fail)',
-            labelHe: 'הפעל מנגנון חזרה (מומלץ - webhooks של Teams יכולים להיכשל)',
+            label:
+              'Enable retry mechanism (recommended - Teams webhooks can fail)',
+            labelHe:
+              'הפעל מנגנון חזרה (מומלץ - webhooks של Teams יכולים להיכשל)',
             required: false,
-            helperTextHe: 'ינסה שוב אם ההודעה נכשלה בפעם הראשונה'
-          }
-        ]
+            helperTextHe: 'ינסה שוב אם ההודעה נכשלה בפעם הראשונה',
+          },
+        ],
       },
       {
         id: 'email-config',
@@ -3401,7 +4708,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
         conditionalDisplay: {
           fieldId: 'notification_channels',
           operator: 'includes',
-          value: 'email'
+          value: 'email',
         },
         fields: [
           {
@@ -3411,12 +4718,16 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'ספק שירות אימייל',
             required: false,
             options: [
-              { value: 'smtp', label: 'SMTP (Generic)', labelHe: 'SMTP (כללי)' },
+              {
+                value: 'smtp',
+                label: 'SMTP (Generic)',
+                labelHe: 'SMTP (כללי)',
+              },
               { value: 'sendgrid', label: 'SendGrid', labelHe: 'SendGrid' },
               { value: 'mailgun', label: 'Mailgun', labelHe: 'Mailgun' },
-              { value: 'gmail', label: 'Gmail SMTP', labelHe: 'Gmail SMTP' }
+              { value: 'gmail', label: 'Gmail SMTP', labelHe: 'Gmail SMTP' },
             ],
-            helperTextHe: 'השירות שישמש לשליחת התראות באימייל'
+            helperTextHe: 'השירות שישמש לשליחת התראות באימייל',
           },
           {
             id: 'email_credentials_ready',
@@ -3424,9 +4735,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Do you have email service credentials ready?',
             labelHe: 'האם יש לך אישורי שירות אימייל מוכנים?',
             required: false,
-            helperTextHe: 'API Key או SMTP username/password'
-          }
-        ]
+            helperTextHe: 'API Key או SMTP username/password',
+          },
+        ],
       },
       {
         id: 'sms-config',
@@ -3438,16 +4749,17 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
         conditionalDisplay: {
           fieldId: 'notification_channels',
           operator: 'includes',
-          value: 'sms'
+          value: 'sms',
         },
         fields: [
           {
             id: 'twilio_account',
             type: 'checkbox',
-            label: 'Do you have a Twilio account with Account SID and Auth Token?',
+            label:
+              'Do you have a Twilio account with Account SID and Auth Token?',
             labelHe: 'האם יש לך חשבון Twilio עם Account SID ו-Auth Token?',
             required: false,
-            helperTextHe: 'נדרש לשליחת SMS'
+            helperTextHe: 'נדרש לשליחת SMS',
           },
           {
             id: 'sms_priority_only',
@@ -3455,9 +4767,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Send SMS only for highest priority leads',
             labelHe: 'שלח SMS רק עבור לידים בעדיפות הגבוהה ביותר',
             required: false,
-            helperTextHe: 'SMS עולה כסף - מומלץ לשמור רק ללידים הכי חשובים'
-          }
-        ]
+            helperTextHe: 'SMS עולה כסף - מומלץ לשמור רק ללידים הכי חשובים',
+          },
+        ],
       },
       {
         id: 'push-config',
@@ -3469,7 +4781,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
         conditionalDisplay: {
           fieldId: 'notification_channels',
           operator: 'includes',
-          value: 'push'
+          value: 'push',
         },
         fields: [
           {
@@ -3480,9 +4792,13 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: false,
             options: [
               { value: 'onesignal', label: 'OneSignal', labelHe: 'OneSignal' },
-              { value: 'firebase', label: 'Firebase Cloud Messaging', labelHe: 'Firebase Cloud Messaging' }
+              {
+                value: 'firebase',
+                label: 'Firebase Cloud Messaging',
+                labelHe: 'Firebase Cloud Messaging',
+              },
             ],
-            helperTextHe: 'בחר את השירות שבו תשתמש'
+            helperTextHe: 'בחר את השירות שבו תשתמש',
           },
           {
             id: 'push_credentials_ready',
@@ -3490,9 +4806,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Do you have API credentials for your push service?',
             labelHe: 'האם יש לך אישורי API לשירות ה-Push?',
             required: false,
-            helperTextHe: 'OneSignal API Key או Firebase Server Key'
-          }
-        ]
+            helperTextHe: 'OneSignal API Key או Firebase Server Key',
+          },
+        ],
       },
       {
         id: 'team-config',
@@ -3514,7 +4830,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
                 type: 'text',
                 label: 'Name',
                 labelHe: 'שם',
-                required: true
+                required: true,
               },
               {
                 id: 'member_role',
@@ -3522,7 +4838,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
                 label: 'Role',
                 labelHe: 'תפקיד',
                 placeholder: 'e.g., Sales Manager, CEO',
-                placeholderHe: 'לדוגמא: מנהל מכירות, מנכ״ל'
+                placeholderHe: 'לדוגמא: מנהל מכירות, מנכ״ל',
               },
               {
                 id: 'member_channels',
@@ -3530,16 +4846,16 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
                 label: 'Preferred channels',
                 labelHe: 'ערוצים מועדפים',
                 placeholder: 'Slack, Email, SMS',
-                placeholderHe: 'Slack, אימייל, SMS'
+                placeholderHe: 'Slack, אימייל, SMS',
               },
               {
                 id: 'member_contact',
                 type: 'text',
                 label: 'Contact (email/phone)',
-                labelHe: 'איש קשר (אימייל/טלפון)'
-              }
+                labelHe: 'איש קשר (אימייל/טלפון)',
+              },
             ],
-            helperTextHe: 'הוסף את כל חברי הצוות שצריכים התראות'
+            helperTextHe: 'הוסף את כל חברי הצוות שצריכים התראות',
           },
           {
             id: 'routing_rules',
@@ -3547,11 +4863,13 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Alert routing rules',
             labelHe: 'כללי ניתוב התראות',
             required: false,
-            placeholder: 'e.g., "Budget > ₪200K → notify CEO\nBudget ₪50K-200K → notify Sales Manager\nAll leads → notify to #sales-leads Slack channel"',
-            placeholderHe: 'לדוגמא: "תקציב > ₪200K → הודע למנכ״ל\nתקציב ₪50K-200K → הודע למנהל מכירות\nכל הלידים → הודע לערוץ #sales-leads ב-Slack"',
-            helperTextHe: 'תאר מי אמור לקבל אילו סוגי התראות'
-          }
-        ]
+            placeholder:
+              'e.g., "Budget > ₪200K → notify CEO\nBudget ₪50K-200K → notify Sales Manager\nAll leads → notify to #sales-leads Slack channel"',
+            placeholderHe:
+              'לדוגמא: "תקציב > ₪200K → הודע למנכ״ל\nתקציב ₪50K-200K → הודע למנהל מכירות\nכל הלידים → הודע לערוץ #sales-leads ב-Slack"',
+            helperTextHe: 'תאר מי אמור לקבל אילו סוגי התראות',
+          },
+        ],
       },
       {
         id: 'alert-rules',
@@ -3567,7 +4885,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Enable Do Not Disturb hours',
             labelHe: 'הפעל שעות אל תפריע',
             required: false,
-            helperTextHe: 'מומלץ מאוד - אל תשלח התראות בלילה או בסופ״ש'
+            helperTextHe: 'מומלץ מאוד - אל תשלח התראות בלילה או בסופ״ש',
           },
           {
             id: 'dnd_hours',
@@ -3577,7 +4895,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: false,
             placeholder: '22:00-08:00 weekdays, all day Saturday',
             placeholderHe: '22:00-08:00 ימי חול, כל יום שבת',
-            helperTextHe: 'מתי לא לשלוח התראות'
+            helperTextHe: 'מתי לא לשלוח התראות',
           },
           {
             id: 'max_alerts_per_day',
@@ -3588,7 +4906,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             placeholder: '20',
             placeholderHe: '20',
             validation: { min: 1, max: 200 },
-            helperTextHe: 'מגביל כמות התראות כדי שהצוות לא יתעלם'
+            helperTextHe: 'מגביל כמות התראות כדי שהצוות לא יתעלם',
           },
           {
             id: 'priority_levels',
@@ -3597,20 +4915,37 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'רמות עדיפות להתראות ליישום',
             required: true,
             options: [
-              { value: 'critical', label: 'Critical (immediate action required)', labelHe: 'קריטי (דרוש פעולה מיידית)' },
-              { value: 'high', label: 'High (respond within 1 hour)', labelHe: 'גבוה (תגובה תוך שעה)' },
-              { value: 'medium', label: 'Medium (respond within 4 hours)', labelHe: 'בינוני (תגובה תוך 4 שעות)' },
-              { value: 'low', label: 'Low (informational)', labelHe: 'נמוך (למידע בלבד)' }
+              {
+                value: 'critical',
+                label: 'Critical (immediate action required)',
+                labelHe: 'קריטי (דרוש פעולה מיידית)',
+              },
+              {
+                value: 'high',
+                label: 'High (respond within 1 hour)',
+                labelHe: 'גבוה (תגובה תוך שעה)',
+              },
+              {
+                value: 'medium',
+                label: 'Medium (respond within 4 hours)',
+                labelHe: 'בינוני (תגובה תוך 4 שעות)',
+              },
+              {
+                value: 'low',
+                label: 'Low (informational)',
+                labelHe: 'נמוך (למידע בלבד)',
+              },
             ],
-            helperTextHe: 'ככל שיותר רמות, כך יותר מורכב הניהול'
+            helperTextHe: 'ככל שיותר רמות, כך יותר מורכב הניהול',
           },
           {
             id: 'alert_deduplication',
             type: 'checkbox',
-            label: 'Enable alert deduplication (prevent duplicate alerts for same lead)',
+            label:
+              'Enable alert deduplication (prevent duplicate alerts for same lead)',
             labelHe: 'הפעל deduplication (מניעת התראות כפולות לאותו ליד)',
             required: false,
-            helperTextHe: 'מומלץ - מונע שליחת אותה התראה פעמיים'
+            helperTextHe: 'מומלץ - מונע שליחת אותה התראה פעמיים',
           },
           {
             id: 'escalation_enabled',
@@ -3618,7 +4953,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Enable escalation (notify manager if no response)',
             labelHe: 'הפעל escalation (הודע למנהל אם אין תגובה)',
             required: false,
-            helperTextHe: 'אם נציג לא מגיב תוך X זמן, הודע למנהל'
+            helperTextHe: 'אם נציג לא מגיב תוך X זמן, הודע למנהל',
           },
           {
             id: 'escalation_timeout',
@@ -3629,11 +4964,11 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             placeholder: '30',
             placeholderHe: '30',
             validation: { min: 5, max: 480 },
-            helperTextHe: 'כמה זמן לחכות לפני העברה למנהל'
-          }
-        ]
-      }
-    ]
+            helperTextHe: 'כמה זמן לחכות לפני העברה למנהל',
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -3655,11 +4990,19 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מתי לשלוח תזכורות?',
             required: true,
             options: [
-              { value: '24h', label: '24 hours before', labelHe: '24 שעות לפני' },
+              {
+                value: '24h',
+                label: '24 hours before',
+                labelHe: '24 שעות לפני',
+              },
               { value: '3h', label: '3 hours before', labelHe: '3 שעות לפני' },
               { value: '1h', label: '1 hour before', labelHe: 'שעה לפני' },
-              { value: '30min', label: '30 minutes before', labelHe: '30 דקות לפני' }
-            ]
+              {
+                value: '30min',
+                label: '30 minutes before',
+                labelHe: '30 דקות לפני',
+              },
+            ],
           },
           {
             id: 'reminder_channel',
@@ -3670,8 +5013,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'email', label: 'Email', labelHe: 'אימייל' },
               { value: 'sms', label: 'SMS', labelHe: 'SMS' },
-              { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' }
-            ]
+              { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' },
+            ],
           },
           {
             id: 'calendar_system',
@@ -3680,14 +5023,26 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מערכת לוח שנה',
             required: true,
             options: [
-              { value: 'google', label: 'Google Calendar', labelHe: 'Google Calendar' },
-              { value: 'outlook', label: 'Outlook/Office 365', labelHe: 'Outlook/Office 365' },
-              { value: 'zoho', label: 'Zoho Calendar', labelHe: 'Zoho Calendar' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'google',
+                label: 'Google Calendar',
+                labelHe: 'Google Calendar',
+              },
+              {
+                value: 'outlook',
+                label: 'Outlook/Office 365',
+                labelHe: 'Outlook/Office 365',
+              },
+              {
+                value: 'zoho',
+                label: 'Zoho Calendar',
+                labelHe: 'Zoho Calendar',
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -3709,10 +5064,22 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'שלח אימייל ברוכים הבאים כאשר...',
             required: true,
             options: [
-              { value: 'lead_submit', label: 'Lead submits form', labelHe: 'ליד מגיש טופס' },
-              { value: 'account_created', label: 'Account created', labelHe: 'חשבון נוצר' },
-              { value: 'purchase', label: 'First purchase', labelHe: 'רכישה ראשונה' }
-            ]
+              {
+                value: 'lead_submit',
+                label: 'Lead submits form',
+                labelHe: 'ליד מגיש טופס',
+              },
+              {
+                value: 'account_created',
+                label: 'Account created',
+                labelHe: 'חשבון נוצר',
+              },
+              {
+                value: 'purchase',
+                label: 'First purchase',
+                labelHe: 'רכישה ראשונה',
+              },
+            ],
           },
           {
             id: 'email_content',
@@ -3720,18 +5087,18 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Email content',
             labelHe: 'תוכן האימייל',
             required: true,
-            placeholder: "Welcome! We're excited to have you..."
+            placeholder: "Welcome! We're excited to have you...",
           },
           {
             id: 'include_next_steps',
             type: 'checkbox',
             label: 'Include next steps/call-to-action',
             labelHe: 'כלול צעדים הבאים/קריאה לפעולה',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -3752,7 +5119,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Number of follow-up attempts',
             labelHe: 'מספר ניסיונות מעקב',
             required: true,
-            validation: { min: 1, max: 10 }
+            validation: { min: 1, max: 10 },
           },
           {
             id: 'time_intervals',
@@ -3761,8 +5128,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מרווחי זמן בין מעקבים',
             required: true,
             itemFields: [
-              { id: 'days', type: 'number', label: 'Days', labelHe: 'ימים' }
-            ]
+              { id: 'days', type: 'number', label: 'Days', labelHe: 'ימים' },
+            ],
           },
           {
             id: 'channels',
@@ -3774,19 +5141,23 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'email', label: 'Email', labelHe: 'אימייל' },
               { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' },
               { value: 'sms', label: 'SMS', labelHe: 'SMS' },
-              { value: 'phone', label: 'Phone call task', labelHe: 'משימת שיחת טלפון' }
-            ]
+              {
+                value: 'phone',
+                label: 'Phone call task',
+                labelHe: 'משימת שיחת טלפון',
+              },
+            ],
           },
           {
             id: 'stop_on_reply',
             type: 'checkbox',
             label: 'Stop sequence when lead replies',
             labelHe: 'עצור רצף כאשר ליד עונה',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -3808,8 +5179,13 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מערכות לסנכרון',
             required: true,
             itemFields: [
-              { id: 'system_name', type: 'text', label: 'System Name', labelHe: 'שם מערכת' }
-            ]
+              {
+                id: 'system_name',
+                type: 'text',
+                label: 'System Name',
+                labelHe: 'שם מערכת',
+              },
+            ],
           },
           {
             id: 'sync_frequency',
@@ -3818,10 +5194,14 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'תדירות סנכרון',
             required: true,
             options: [
-              { value: 'realtime', label: 'Real-time (webhook)', labelHe: 'זמן אמת (webhook)' },
+              {
+                value: 'realtime',
+                label: 'Real-time (webhook)',
+                labelHe: 'זמן אמת (webhook)',
+              },
               { value: 'hourly', label: 'Every hour', labelHe: 'כל שעה' },
-              { value: 'daily', label: 'Daily', labelHe: 'יומי' }
-            ]
+              { value: 'daily', label: 'Daily', labelHe: 'יומי' },
+            ],
           },
           {
             id: 'sync_direction',
@@ -3830,13 +5210,21 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'כיוון סנכרון',
             required: true,
             options: [
-              { value: 'one_way', label: 'One-way (source → target)', labelHe: 'חד-כיווני (מקור → יעד)' },
-              { value: 'bidirectional', label: 'Bi-directional', labelHe: 'דו-כיווני' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'one_way',
+                label: 'One-way (source → target)',
+                labelHe: 'חד-כיווני (מקור → יעד)',
+              },
+              {
+                value: 'bidirectional',
+                label: 'Bi-directional',
+                labelHe: 'דו-כיווני',
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -3861,15 +5249,15 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'email', label: 'Email', labelHe: 'אימייל' },
               { value: 'whatsapp', label: 'WhatsApp', labelHe: 'WhatsApp' },
               { value: 'website', label: 'Website Form', labelHe: 'טופס אתר' },
-              { value: 'phone', label: 'Phone', labelHe: 'טלפון' }
-            ]
+              { value: 'phone', label: 'Phone', labelHe: 'טלפון' },
+            ],
           },
           {
             id: 'auto_categorization',
             type: 'checkbox',
             label: 'Auto-categorize tickets by topic',
             labelHe: 'סווג אוטומטי של פניות לפי נושא',
-            required: false
+            required: false,
           },
           {
             id: 'routing_method',
@@ -3878,14 +5266,22 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'שיטת ניתוב',
             required: true,
             options: [
-              { value: 'round_robin', label: 'Round Robin', labelHe: 'Round Robin' },
-              { value: 'skill', label: 'By skill/expertise', labelHe: 'לפי מיומנות' },
-              { value: 'load', label: 'By workload', labelHe: 'לפי עומס' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'round_robin',
+                label: 'Round Robin',
+                labelHe: 'Round Robin',
+              },
+              {
+                value: 'skill',
+                label: 'By skill/expertise',
+                labelHe: 'לפי מיומנות',
+              },
+              { value: 'load', label: 'By workload', labelHe: 'לפי עומס' },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -3907,11 +5303,27 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'סוגי דוחות',
             required: true,
             options: [
-              { value: 'sales', label: 'Sales Performance', labelHe: 'ביצועי מכירות' },
-              { value: 'leads', label: 'Lead Activity', labelHe: 'פעילות לידים' },
-              { value: 'service', label: 'Service Tickets', labelHe: 'פניות שירות' },
-              { value: 'marketing', label: 'Marketing Metrics', labelHe: 'מדדי שיווק' }
-            ]
+              {
+                value: 'sales',
+                label: 'Sales Performance',
+                labelHe: 'ביצועי מכירות',
+              },
+              {
+                value: 'leads',
+                label: 'Lead Activity',
+                labelHe: 'פעילות לידים',
+              },
+              {
+                value: 'service',
+                label: 'Service Tickets',
+                labelHe: 'פניות שירות',
+              },
+              {
+                value: 'marketing',
+                label: 'Marketing Metrics',
+                labelHe: 'מדדי שיווק',
+              },
+            ],
           },
           {
             id: 'frequency',
@@ -3922,8 +5334,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'daily', label: 'Daily', labelHe: 'יומי' },
               { value: 'weekly', label: 'Weekly', labelHe: 'שבועי' },
-              { value: 'monthly', label: 'Monthly', labelHe: 'חודשי' }
-            ]
+              { value: 'monthly', label: 'Monthly', labelHe: 'חודשי' },
+            ],
           },
           {
             id: 'recipients',
@@ -3932,12 +5344,12 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'נמעני דוח',
             required: true,
             itemFields: [
-              { id: 'email', type: 'text', label: 'Email', labelHe: 'אימייל' }
-            ]
-          }
-        ]
-      }
-    ]
+              { id: 'email', type: 'text', label: 'Email', labelHe: 'אימייל' },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -3963,8 +5375,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'contracts', label: 'Contracts', labelHe: 'חוזים' },
               { value: 'receipts', label: 'Receipts', labelHe: 'קבלות' },
               { value: 'forms', label: 'Forms', labelHe: 'טפסים' },
-              { value: 'other', label: 'Other', labelHe: 'אחר' }
-            ]
+              { value: 'other', label: 'Other', labelHe: 'אחר' },
+            ],
           },
           {
             id: 'storage_location',
@@ -3973,22 +5385,30 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מיקום אחסון',
             required: true,
             options: [
-              { value: 'google_drive', label: 'Google Drive', labelHe: 'Google Drive' },
+              {
+                value: 'google_drive',
+                label: 'Google Drive',
+                labelHe: 'Google Drive',
+              },
               { value: 'dropbox', label: 'Dropbox', labelHe: 'Dropbox' },
               { value: 'onedrive', label: 'OneDrive', labelHe: 'OneDrive' },
-              { value: 'zoho', label: 'Zoho WorkDrive', labelHe: 'Zoho WorkDrive' }
-            ]
+              {
+                value: 'zoho',
+                label: 'Zoho WorkDrive',
+                labelHe: 'Zoho WorkDrive',
+              },
+            ],
           },
           {
             id: 'auto_extract',
             type: 'checkbox',
             label: 'Auto-extract data from documents',
             labelHe: 'חילוץ אוטומטי של נתונים ממסמכים',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4008,14 +5428,14 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             type: 'text',
             label: 'Process name',
             labelHe: 'שם תהליך',
-            required: true
+            required: true,
           },
           {
             id: 'process_steps',
             type: 'textarea',
             label: 'Describe the current manual process step-by-step',
             labelHe: 'תאר את התהליך הידני הנוכחי שלב אחר שלב',
-            required: true
+            required: true,
           },
           {
             id: 'weekly_volume',
@@ -4023,7 +5443,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'How many times per week does this process run?',
             labelHe: 'כמה פעמים בשבוע התהליך מתבצע?',
             required: true,
-            validation: { min: 1, max: 1000 }
+            validation: { min: 1, max: 1000 },
           },
           {
             id: 'time_per_instance',
@@ -4031,18 +5451,18 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Time per instance (minutes)',
             labelHe: 'זמן למופע (דקות)',
             required: true,
-            validation: { min: 1, max: 480 }
+            validation: { min: 1, max: 480 },
           },
           {
             id: 'pain_points',
             type: 'textarea',
             label: 'What are the main pain points in this process?',
             labelHe: 'מהן נקודות הכאב העיקריות בתהליך?',
-            required: true
-          }
-        ]
-      }
-    ]
+            required: true,
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4065,26 +5485,26 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             itemFields: [
               { id: 'system', type: 'text', label: 'System', labelHe: 'מערכת' },
-              { id: 'role', type: 'text', label: 'Role', labelHe: 'תפקיד' }
-            ]
+              { id: 'role', type: 'text', label: 'Role', labelHe: 'תפקיד' },
+            ],
           },
           {
             id: 'data_flow',
             type: 'textarea',
             label: 'Describe the desired data flow between systems',
             labelHe: 'תאר את זרימת הנתונים הרצויה בין המערכות',
-            required: true
+            required: true,
           },
           {
             id: 'realtime_required',
             type: 'checkbox',
             label: 'Real-time sync required',
             labelHe: 'נדרש סנכרון בזמן אמת',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4104,7 +5524,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             type: 'textarea',
             label: 'Describe the business rules and conditional logic',
             labelHe: 'תאר את הכללים העסקיים והלוגיקה המותנית',
-            required: true
+            required: true,
           },
           {
             id: 'decision_points',
@@ -4113,20 +5533,25 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'נקודות החלטה מרכזיות',
             required: true,
             itemFields: [
-              { id: 'condition', type: 'text', label: 'Condition', labelHe: 'תנאי' },
-              { id: 'action', type: 'text', label: 'Action', labelHe: 'פעולה' }
-            ]
+              {
+                id: 'condition',
+                type: 'text',
+                label: 'Condition',
+                labelHe: 'תנאי',
+              },
+              { id: 'action', type: 'text', label: 'Action', labelHe: 'פעולה' },
+            ],
           },
           {
             id: 'exceptions',
             type: 'textarea',
             label: 'Edge cases and exceptions to handle',
             labelHe: 'מקרי קצה וחריגים לטיפול',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4148,8 +5573,13 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'שלבי Pipeline',
             required: true,
             itemFields: [
-              { id: 'stage_name', type: 'text', label: 'Stage Name', labelHe: 'שם שלב' }
-            ]
+              {
+                id: 'stage_name',
+                type: 'text',
+                label: 'Stage Name',
+                labelHe: 'שם שלב',
+              },
+            ],
           },
           {
             id: 'kpis',
@@ -4158,11 +5588,23 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'KPIs למעקב',
             required: true,
             options: [
-              { value: 'conversion_rate', label: 'Conversion Rate', labelHe: 'שיעור המרה' },
-              { value: 'avg_deal_size', label: 'Average Deal Size', labelHe: 'גודל עסקה ממוצע' },
-              { value: 'sales_cycle', label: 'Sales Cycle Length', labelHe: 'אורך מחזור מכירות' },
-              { value: 'win_rate', label: 'Win Rate', labelHe: 'שיעור זכייה' }
-            ]
+              {
+                value: 'conversion_rate',
+                label: 'Conversion Rate',
+                labelHe: 'שיעור המרה',
+              },
+              {
+                value: 'avg_deal_size',
+                label: 'Average Deal Size',
+                labelHe: 'גודל עסקה ממוצע',
+              },
+              {
+                value: 'sales_cycle',
+                label: 'Sales Cycle Length',
+                labelHe: 'אורך מחזור מכירות',
+              },
+              { value: 'win_rate', label: 'Win Rate', labelHe: 'שיעור זכייה' },
+            ],
           },
           {
             id: 'dashboard_users',
@@ -4171,12 +5613,12 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מי צריך גישה לדשבורד?',
             required: true,
             itemFields: [
-              { id: 'name', type: 'text', label: 'Name', labelHe: 'שם' }
-            ]
-          }
-        ]
-      }
-    ]
+              { id: 'name', type: 'text', label: 'Name', labelHe: 'שם' },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4198,26 +5640,31 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מחלקות מעורבות',
             required: true,
             itemFields: [
-              { id: 'dept', type: 'text', label: 'Department', labelHe: 'מחלקה' }
-            ]
+              {
+                id: 'dept',
+                type: 'text',
+                label: 'Department',
+                labelHe: 'מחלקה',
+              },
+            ],
           },
           {
             id: 'handoff_points',
             type: 'textarea',
             label: 'Describe the handoff points between departments',
             labelHe: 'תאר נקודות העברה בין מחלקות',
-            required: true
+            required: true,
           },
           {
             id: 'approval_required',
             type: 'checkbox',
             label: 'Approvals required between handoffs',
             labelHe: 'נדרשים אישורים בין העברות',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4240,10 +5687,22 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             options: [
               { value: 'invoicing', label: 'Invoicing', labelHe: 'חשבוניות' },
-              { value: 'payments', label: 'Payment Processing', labelHe: 'עיבוד תשלומים' },
-              { value: 'reconciliation', label: 'Reconciliation', labelHe: 'התאמות' },
-              { value: 'expense', label: 'Expense Management', labelHe: 'ניהול הוצאות' }
-            ]
+              {
+                value: 'payments',
+                label: 'Payment Processing',
+                labelHe: 'עיבוד תשלומים',
+              },
+              {
+                value: 'reconciliation',
+                label: 'Reconciliation',
+                labelHe: 'התאמות',
+              },
+              {
+                value: 'expense',
+                label: 'Expense Management',
+                labelHe: 'ניהול הוצאות',
+              },
+            ],
           },
           {
             id: 'accounting_system',
@@ -4252,15 +5711,23 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מערכת הנהלת חשבונות',
             required: true,
             options: [
-              { value: 'quickbooks', label: 'QuickBooks', labelHe: 'QuickBooks' },
+              {
+                value: 'quickbooks',
+                label: 'QuickBooks',
+                labelHe: 'QuickBooks',
+              },
               { value: 'xero', label: 'Xero', labelHe: 'Xero' },
-              { value: 'zoho_books', label: 'Zoho Books', labelHe: 'Zoho Books' },
-              { value: 'other', label: 'Other', labelHe: 'אחר' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'zoho_books',
+                label: 'Zoho Books',
+                labelHe: 'Zoho Books',
+              },
+              { value: 'other', label: 'Other', labelHe: 'אחר' },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4285,26 +5752,26 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'asana', label: 'Asana', labelHe: 'Asana' },
               { value: 'monday', label: 'Monday.com', labelHe: 'Monday.com' },
               { value: 'clickup', label: 'ClickUp', labelHe: 'ClickUp' },
-              { value: 'jira', label: 'Jira', labelHe: 'Jira' }
-            ]
+              { value: 'jira', label: 'Jira', labelHe: 'Jira' },
+            ],
           },
           {
             id: 'auto_project_creation',
             type: 'checkbox',
             label: 'Auto-create projects from CRM deals',
             labelHe: 'יצירה אוטומטית של פרויקטים מעסקאות CRM',
-            required: false
+            required: false,
           },
           {
             id: 'task_templates',
             type: 'checkbox',
             label: 'Use task templates for recurring projects',
             labelHe: 'שימוש בתבניות משימות לפרויקטים חוזרים',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   // ==================== ADDITIONAL AI AGENT SERVICES ====================
@@ -4328,15 +5795,20 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'שאלות הסמכה',
             required: true,
             itemFields: [
-              { id: 'question', type: 'text', label: 'Question', labelHe: 'שאלה' }
-            ]
+              {
+                id: 'question',
+                type: 'text',
+                label: 'Question',
+                labelHe: 'שאלה',
+              },
+            ],
           },
           {
             id: 'lead_scoring',
             type: 'checkbox',
             label: 'Enable AI lead scoring',
             labelHe: 'אפשר ציון לידים באמצעות AI',
-            required: false
+            required: false,
           },
           {
             id: 'handoff_threshold',
@@ -4345,14 +5817,26 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מתי להעביר לאדם?',
             required: true,
             options: [
-              { value: 'high_score', label: 'High score leads only', labelHe: 'רק לידים עם ציון גבוה' },
-              { value: 'request', label: 'When lead requests', labelHe: 'כשליד מבקש' },
-              { value: 'always', label: 'After qualification', labelHe: 'אחרי הסמכה' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'high_score',
+                label: 'High score leads only',
+                labelHe: 'רק לידים עם ציון גבוה',
+              },
+              {
+                value: 'request',
+                label: 'When lead requests',
+                labelHe: 'כשליד מבקש',
+              },
+              {
+                value: 'always',
+                label: 'After qualification',
+                labelHe: 'אחרי הסמכה',
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4372,7 +5856,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             type: 'text',
             label: 'Form URL',
             labelHe: 'כתובת טופס',
-            required: true
+            required: true,
           },
           {
             id: 'help_triggers',
@@ -4381,21 +5865,33 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מתי AI צריך להציע עזרה?',
             required: true,
             options: [
-              { value: 'field_hover', label: 'User hovers over field', labelHe: 'משתמש מרחף מעל שדה' },
-              { value: 'validation_error', label: 'Validation error', labelHe: 'שגיאת ולידציה' },
-              { value: 'abandonment', label: 'Abandonment risk', labelHe: 'סיכון לנטישה' }
-            ]
+              {
+                value: 'field_hover',
+                label: 'User hovers over field',
+                labelHe: 'משתמש מרחף מעל שדה',
+              },
+              {
+                value: 'validation_error',
+                label: 'Validation error',
+                labelHe: 'שגיאת ולידציה',
+              },
+              {
+                value: 'abandonment',
+                label: 'Abandonment risk',
+                labelHe: 'סיכון לנטישה',
+              },
+            ],
           },
           {
             id: 'completion_incentive',
             type: 'text',
             label: 'Completion incentive message',
             labelHe: 'הודעת תמריץ להשלמה',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4417,8 +5913,13 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'קטגוריות פניות',
             required: true,
             itemFields: [
-              { id: 'category', type: 'text', label: 'Category', labelHe: 'קטגוריה' }
-            ]
+              {
+                id: 'category',
+                type: 'text',
+                label: 'Category',
+                labelHe: 'קטגוריה',
+              },
+            ],
           },
           {
             id: 'routing_rules',
@@ -4427,20 +5928,30 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'כללי ניתוב',
             required: true,
             itemFields: [
-              { id: 'category', type: 'text', label: 'Category', labelHe: 'קטגוריה' },
-              { id: 'route_to', type: 'text', label: 'Route to', labelHe: 'נתב אל' }
-            ]
+              {
+                id: 'category',
+                type: 'text',
+                label: 'Category',
+                labelHe: 'קטגוריה',
+              },
+              {
+                id: 'route_to',
+                type: 'text',
+                label: 'Route to',
+                labelHe: 'נתב אל',
+              },
+            ],
           },
           {
             id: 'urgency_detection',
             type: 'checkbox',
             label: 'Detect urgency and prioritize',
             labelHe: 'זהה דחיפות ותעדף',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4462,11 +5973,27 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'ממה ה-AI צריך ללמוד?',
             required: true,
             options: [
-              { value: 'conversations', label: 'Successful conversations', labelHe: 'שיחות מוצלחות' },
-              { value: 'corrections', label: 'Human corrections', labelHe: 'תיקונים אנושיים' },
-              { value: 'feedback', label: 'User feedback', labelHe: 'משוב משתמשים' },
-              { value: 'outcomes', label: 'Outcomes (conversions)', labelHe: 'תוצאות (המרות)' }
-            ]
+              {
+                value: 'conversations',
+                label: 'Successful conversations',
+                labelHe: 'שיחות מוצלחות',
+              },
+              {
+                value: 'corrections',
+                label: 'Human corrections',
+                labelHe: 'תיקונים אנושיים',
+              },
+              {
+                value: 'feedback',
+                label: 'User feedback',
+                labelHe: 'משוב משתמשים',
+              },
+              {
+                value: 'outcomes',
+                label: 'Outcomes (conversions)',
+                labelHe: 'תוצאות (המרות)',
+              },
+            ],
           },
           {
             id: 'review_frequency',
@@ -4477,12 +6004,12 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'weekly', label: 'Weekly', labelHe: 'שבועי' },
               { value: 'biweekly', label: 'Bi-weekly', labelHe: 'דו-שבועי' },
-              { value: 'monthly', label: 'Monthly', labelHe: 'חודשי' }
-            ]
-          }
-        ]
-      }
-    ]
+              { value: 'monthly', label: 'Monthly', labelHe: 'חודשי' },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4504,27 +6031,37 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'סוכני AI נדרשים',
             required: true,
             itemFields: [
-              { id: 'agent_name', type: 'text', label: 'Agent Name', labelHe: 'שם סוכן' },
-              { id: 'specialty', type: 'text', label: 'Specialty', labelHe: 'התמחות' }
-            ]
+              {
+                id: 'agent_name',
+                type: 'text',
+                label: 'Agent Name',
+                labelHe: 'שם סוכן',
+              },
+              {
+                id: 'specialty',
+                type: 'text',
+                label: 'Specialty',
+                labelHe: 'התמחות',
+              },
+            ],
           },
           {
             id: 'handoff_rules',
             type: 'textarea',
             label: 'Describe when to hand off between agents',
             labelHe: 'תאר מתי להעביר בין סוכנים',
-            required: true
+            required: true,
           },
           {
             id: 'unified_knowledge',
             type: 'checkbox',
             label: 'Share knowledge base across agents',
             labelHe: 'שתף מאגר ידע בין סוכנים',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4546,18 +6083,26 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'קול מותג',
             required: true,
             options: [
-              { value: 'professional', label: 'Professional', labelHe: 'מקצועי' },
+              {
+                value: 'professional',
+                label: 'Professional',
+                labelHe: 'מקצועי',
+              },
               { value: 'friendly', label: 'Friendly', labelHe: 'ידידותי' },
               { value: 'playful', label: 'Playful', labelHe: 'משחקי' },
-              { value: 'authoritative', label: 'Authoritative', labelHe: 'סמכותי' }
-            ]
+              {
+                value: 'authoritative',
+                label: 'Authoritative',
+                labelHe: 'סמכותי',
+              },
+            ],
           },
           {
             id: 'brand_values',
             type: 'textarea',
             label: 'Brand values to reflect',
             labelHe: 'ערכי מותג לשיקוף',
-            required: true
+            required: true,
           },
           {
             id: 'prohibited_terms',
@@ -4566,12 +6111,12 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מילים/ביטויים להימנע',
             required: false,
             itemFields: [
-              { id: 'term', type: 'text', label: 'Term', labelHe: 'ביטוי' }
-            ]
-          }
-        ]
-      }
-    ]
+              { id: 'term', type: 'text', label: 'Term', labelHe: 'ביטוי' },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4593,8 +6138,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מערכות לאינטגרציה',
             required: true,
             itemFields: [
-              { id: 'system', type: 'text', label: 'System', labelHe: 'מערכת' }
-            ]
+              { id: 'system', type: 'text', label: 'System', labelHe: 'מערכת' },
+            ],
           },
           {
             id: 'ai_actions',
@@ -4603,22 +6148,38 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'אילו פעולות AI יכול לבצע?',
             required: true,
             options: [
-              { value: 'create_records', label: 'Create records', labelHe: 'יצירת רשומות' },
-              { value: 'update_data', label: 'Update data', labelHe: 'עדכון נתונים' },
-              { value: 'send_messages', label: 'Send messages', labelHe: 'שליחת הודעות' },
-              { value: 'schedule_tasks', label: 'Schedule tasks', labelHe: 'תזמון משימות' }
-            ]
+              {
+                value: 'create_records',
+                label: 'Create records',
+                labelHe: 'יצירת רשומות',
+              },
+              {
+                value: 'update_data',
+                label: 'Update data',
+                labelHe: 'עדכון נתונים',
+              },
+              {
+                value: 'send_messages',
+                label: 'Send messages',
+                labelHe: 'שליחת הודעות',
+              },
+              {
+                value: 'schedule_tasks',
+                label: 'Schedule tasks',
+                labelHe: 'תזמון משימות',
+              },
+            ],
           },
           {
             id: 'approval_required',
             type: 'checkbox',
             label: 'Require human approval for AI actions',
             labelHe: 'דרוש אישור אנושי לפעולות AI',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4643,15 +6204,19 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'text', label: 'Text', labelHe: 'טקסט' },
               { value: 'voice', label: 'Voice', labelHe: 'קול' },
               { value: 'images', label: 'Images', labelHe: 'תמונות' },
-              { value: 'documents', label: 'Documents (PDF)', labelHe: 'מסמכים (PDF)' }
-            ]
+              {
+                value: 'documents',
+                label: 'Documents (PDF)',
+                labelHe: 'מסמכים (PDF)',
+              },
+            ],
           },
           {
             id: 'use_cases',
             type: 'textarea',
             label: 'Describe the use cases for each input type',
             labelHe: 'תאר את מקרי השימוש לכל סוג קלט',
-            required: true
+            required: true,
           },
           {
             id: 'voice_language',
@@ -4662,12 +6227,12 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'he', label: 'Hebrew', labelHe: 'עברית' },
               { value: 'en', label: 'English', labelHe: 'אנגלית' },
-              { value: 'ar', label: 'Arabic', labelHe: 'ערבית' }
-            ]
-          }
-        ]
-      }
-    ]
+              { value: 'ar', label: 'Arabic', labelHe: 'ערבית' },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4689,11 +6254,27 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מה לחזות?',
             required: true,
             options: [
-              { value: 'churn', label: 'Customer churn', labelHe: 'נטישת לקוחות' },
-              { value: 'conversion', label: 'Lead conversion', labelHe: 'המרת לידים' },
-              { value: 'revenue', label: 'Revenue forecast', labelHe: 'תחזית הכנסות' },
-              { value: 'demand', label: 'Demand forecast', labelHe: 'תחזית ביקוש' }
-            ]
+              {
+                value: 'churn',
+                label: 'Customer churn',
+                labelHe: 'נטישת לקוחות',
+              },
+              {
+                value: 'conversion',
+                label: 'Lead conversion',
+                labelHe: 'המרת לידים',
+              },
+              {
+                value: 'revenue',
+                label: 'Revenue forecast',
+                labelHe: 'תחזית הכנסות',
+              },
+              {
+                value: 'demand',
+                label: 'Demand forecast',
+                labelHe: 'תחזית ביקוש',
+              },
+            ],
           },
           {
             id: 'data_sources',
@@ -4702,19 +6283,19 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מקורות נתונים לאימון',
             required: true,
             itemFields: [
-              { id: 'source', type: 'text', label: 'Source', labelHe: 'מקור' }
-            ]
+              { id: 'source', type: 'text', label: 'Source', labelHe: 'מקור' },
+            ],
           },
           {
             id: 'alert_threshold',
             type: 'text',
             label: 'When to alert (e.g., "80% churn risk")',
             labelHe: 'מתי להתריע (לדוגמה: "80% סיכון לנטישה")',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   // ==================== ADDITIONAL INTEGRATION SERVICES ====================
@@ -4736,14 +6317,14 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             type: 'text',
             label: 'Source system (sending webhook)',
             labelHe: 'מערכת מקור (שולחת webhook)',
-            required: true
+            required: true,
           },
           {
             id: 'target_system',
             type: 'text',
             label: 'Target system (receiving webhook)',
             labelHe: 'מערכת יעד (מקבלת webhook)',
-            required: true
+            required: true,
           },
           {
             id: 'events',
@@ -4752,19 +6333,19 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'אירועים להפעלת webhook',
             required: true,
             itemFields: [
-              { id: 'event', type: 'text', label: 'Event', labelHe: 'אירוע' }
-            ]
+              { id: 'event', type: 'text', label: 'Event', labelHe: 'אירוע' },
+            ],
           },
           {
             id: 'retry_logic',
             type: 'checkbox',
             label: 'Enable retry logic for failed webhooks',
             labelHe: 'אפשר לוגיקת ניסיון חוזר ל-webhooks כושלים',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4786,27 +6367,37 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מיפוי שדות',
             required: true,
             itemFields: [
-              { id: 'source_field', type: 'text', label: 'Source Field', labelHe: 'שדה מקור' },
-              { id: 'target_field', type: 'text', label: 'Target Field', labelHe: 'שדה יעד' }
-            ]
+              {
+                id: 'source_field',
+                type: 'text',
+                label: 'Source Field',
+                labelHe: 'שדה מקור',
+              },
+              {
+                id: 'target_field',
+                type: 'text',
+                label: 'Target Field',
+                labelHe: 'שדה יעד',
+              },
+            ],
           },
           {
             id: 'transformations',
             type: 'textarea',
             label: 'Describe data transformations needed',
             labelHe: 'תאר טרנספורמציות נתונים נדרשות',
-            required: true
+            required: true,
           },
           {
             id: 'validation_rules',
             type: 'textarea',
             label: 'Validation rules',
             labelHe: 'כללי ולידציה',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4826,7 +6417,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             type: 'textarea',
             label: 'API purpose and use case',
             labelHe: 'מטרת API ומקרה שימוש',
-            required: true
+            required: true,
           },
           {
             id: 'endpoints',
@@ -4835,9 +6426,19 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'Endpoints נדרשים',
             required: true,
             itemFields: [
-              { id: 'endpoint', type: 'text', label: 'Endpoint', labelHe: 'Endpoint' },
-              { id: 'method', type: 'text', label: 'Method', labelHe: 'Method' }
-            ]
+              {
+                id: 'endpoint',
+                type: 'text',
+                label: 'Endpoint',
+                labelHe: 'Endpoint',
+              },
+              {
+                id: 'method',
+                type: 'text',
+                label: 'Method',
+                labelHe: 'Method',
+              },
+            ],
           },
           {
             id: 'authentication',
@@ -4848,19 +6449,19 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'api_key', label: 'API Key', labelHe: 'API Key' },
               { value: 'oauth', label: 'OAuth 2.0', labelHe: 'OAuth 2.0' },
-              { value: 'jwt', label: 'JWT', labelHe: 'JWT' }
-            ]
+              { value: 'jwt', label: 'JWT', labelHe: 'JWT' },
+            ],
           },
           {
             id: 'rate_limiting',
             type: 'checkbox',
             label: 'Implement rate limiting',
             labelHe: 'יישם הגבלת קצב',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4880,14 +6481,14 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             type: 'text',
             label: 'Legacy system name',
             labelHe: 'שם מערכת ישנה',
-            required: true
+            required: true,
           },
           {
             id: 'system_age',
             type: 'text',
             label: 'System age/version',
             labelHe: 'גיל/גרסה של מערכת',
-            required: false
+            required: false,
           },
           {
             id: 'access_method',
@@ -4896,22 +6497,34 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'איך אפשר לגשת למערכת?',
             required: true,
             options: [
-              { value: 'database', label: 'Direct database access', labelHe: 'גישה ישירה לבסיס נתונים' },
-              { value: 'file_export', label: 'File export/import', labelHe: 'ייצוא/ייבוא קובץ' },
-              { value: 'screen_scraping', label: 'Screen scraping', labelHe: 'Screen scraping' },
-              { value: 'api', label: 'Legacy API', labelHe: 'API ישן' }
-            ]
+              {
+                value: 'database',
+                label: 'Direct database access',
+                labelHe: 'גישה ישירה לבסיס נתונים',
+              },
+              {
+                value: 'file_export',
+                label: 'File export/import',
+                labelHe: 'ייצוא/ייבוא קובץ',
+              },
+              {
+                value: 'screen_scraping',
+                label: 'Screen scraping',
+                labelHe: 'Screen scraping',
+              },
+              { value: 'api', label: 'Legacy API', labelHe: 'API ישן' },
+            ],
           },
           {
             id: 'challenges',
             type: 'textarea',
             label: 'Known challenges or limitations',
             labelHe: 'אתגרים או מגבלות ידועות',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   // ==================== ADDITIONAL SYSTEM IMPLEMENTATION ====================
@@ -4936,10 +6549,22 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             options: [
               { value: 'mailchimp', label: 'Mailchimp', labelHe: 'Mailchimp' },
-              { value: 'activecampaign', label: 'ActiveCampaign', labelHe: 'ActiveCampaign' },
-              { value: 'hubspot', label: 'HubSpot Marketing', labelHe: 'HubSpot Marketing' },
-              { value: 'zoho_campaigns', label: 'Zoho Campaigns', labelHe: 'Zoho Campaigns' }
-            ]
+              {
+                value: 'activecampaign',
+                label: 'ActiveCampaign',
+                labelHe: 'ActiveCampaign',
+              },
+              {
+                value: 'hubspot',
+                label: 'HubSpot Marketing',
+                labelHe: 'HubSpot Marketing',
+              },
+              {
+                value: 'zoho_campaigns',
+                label: 'Zoho Campaigns',
+                labelHe: 'Zoho Campaigns',
+              },
+            ],
           },
           {
             id: 'list_size',
@@ -4948,11 +6573,27 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'גודל רשימת אימיילים',
             required: true,
             options: [
-              { value: 'under_1000', label: 'Under 1,000', labelHe: 'מתחת ל-1,000' },
-              { value: '1000-5000', label: '1,000-5,000', labelHe: '1,000-5,000' },
-              { value: '5000-20000', label: '5,000-20,000', labelHe: '5,000-20,000' },
-              { value: 'over_20000', label: 'Over 20,000', labelHe: 'מעל 20,000' }
-            ]
+              {
+                value: 'under_1000',
+                label: 'Under 1,000',
+                labelHe: 'מתחת ל-1,000',
+              },
+              {
+                value: '1000-5000',
+                label: '1,000-5,000',
+                labelHe: '1,000-5,000',
+              },
+              {
+                value: '5000-20000',
+                label: '5,000-20,000',
+                labelHe: '5,000-20,000',
+              },
+              {
+                value: 'over_20000',
+                label: 'Over 20,000',
+                labelHe: 'מעל 20,000',
+              },
+            ],
           },
           {
             id: 'campaign_types',
@@ -4961,15 +6602,27 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'סוגי קמפיינים',
             required: true,
             options: [
-              { value: 'welcome', label: 'Welcome series', labelHe: 'סדרת ברוכים הבאים' },
-              { value: 'nurture', label: 'Lead nurture', labelHe: 'טיפוח לידים' },
-              { value: 'promotional', label: 'Promotional', labelHe: 'קידום מכירות' },
-              { value: 'newsletter', label: 'Newsletter', labelHe: 'ניוזלטר' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'welcome',
+                label: 'Welcome series',
+                labelHe: 'סדרת ברוכים הבאים',
+              },
+              {
+                value: 'nurture',
+                label: 'Lead nurture',
+                labelHe: 'טיפוח לידים',
+              },
+              {
+                value: 'promotional',
+                label: 'Promotional',
+                labelHe: 'קידום מכירות',
+              },
+              { value: 'newsletter', label: 'Newsletter', labelHe: 'ניוזלטר' },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -4994,8 +6647,12 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'odoo', label: 'Odoo', labelHe: 'Odoo' },
               { value: 'netsuite', label: 'NetSuite', labelHe: 'NetSuite' },
               { value: 'sap', label: 'SAP', labelHe: 'SAP' },
-              { value: 'microsoft_dynamics', label: 'Microsoft Dynamics', labelHe: 'Microsoft Dynamics' }
-            ]
+              {
+                value: 'microsoft_dynamics',
+                label: 'Microsoft Dynamics',
+                labelHe: 'Microsoft Dynamics',
+              },
+            ],
           },
           {
             id: 'modules_needed',
@@ -5004,13 +6661,21 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מודולי ERP נדרשים',
             required: true,
             options: [
-              { value: 'accounting', label: 'Accounting', labelHe: 'הנהלת חשבונות' },
+              {
+                value: 'accounting',
+                label: 'Accounting',
+                labelHe: 'הנהלת חשבונות',
+              },
               { value: 'inventory', label: 'Inventory', labelHe: 'מלאי' },
               { value: 'purchasing', label: 'Purchasing', labelHe: 'רכש' },
               { value: 'sales', label: 'Sales', labelHe: 'מכירות' },
               { value: 'hr', label: 'HR', labelHe: 'משאבי אנוש' },
-              { value: 'manufacturing', label: 'Manufacturing', labelHe: 'ייצור' }
-            ]
+              {
+                value: 'manufacturing',
+                label: 'Manufacturing',
+                labelHe: 'ייצור',
+              },
+            ],
           },
           {
             id: 'company_size',
@@ -5018,11 +6683,11 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Number of employees',
             labelHe: 'מספר עובדים',
             required: true,
-            validation: { min: 1, max: 10000 }
-          }
-        ]
-      }
-    ]
+            validation: { min: 1, max: 10000 },
+          },
+        ],
+      },
+    ],
   },
 
   // ==================== ADDITIONAL SERVICES ====================
@@ -5046,8 +6711,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'KPIs להצגה',
             required: true,
             itemFields: [
-              { id: 'kpi', type: 'text', label: 'KPI', labelHe: 'KPI' }
-            ]
+              { id: 'kpi', type: 'text', label: 'KPI', labelHe: 'KPI' },
+            ],
           },
           {
             id: 'data_sources',
@@ -5056,8 +6721,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מקורות נתונים',
             required: true,
             itemFields: [
-              { id: 'source', type: 'text', label: 'Source', labelHe: 'מקור' }
-            ]
+              { id: 'source', type: 'text', label: 'Source', labelHe: 'מקור' },
+            ],
           },
           {
             id: 'refresh_rate',
@@ -5068,19 +6733,19 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'realtime', label: 'Real-time', labelHe: 'זמן אמת' },
               { value: '5min', label: 'Every 5 minutes', labelHe: 'כל 5 דקות' },
-              { value: 'hourly', label: 'Hourly', labelHe: 'שעתי' }
-            ]
+              { value: 'hourly', label: 'Hourly', labelHe: 'שעתי' },
+            ],
           },
           {
             id: 'access_control',
             type: 'checkbox',
             label: 'Role-based access control',
             labelHe: 'בקרת גישה מבוססת תפקיד',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   {
@@ -5102,9 +6767,19 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'דוחות נדרשים',
             required: true,
             itemFields: [
-              { id: 'report_name', type: 'text', label: 'Report Name', labelHe: 'שם דוח' },
-              { id: 'frequency', type: 'text', label: 'Frequency', labelHe: 'תדירות' }
-            ]
+              {
+                id: 'report_name',
+                type: 'text',
+                label: 'Report Name',
+                labelHe: 'שם דוח',
+              },
+              {
+                id: 'frequency',
+                type: 'text',
+                label: 'Frequency',
+                labelHe: 'תדירות',
+              },
+            ],
           },
           {
             id: 'format',
@@ -5115,8 +6790,12 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'pdf', label: 'PDF', labelHe: 'PDF' },
               { value: 'excel', label: 'Excel', labelHe: 'Excel' },
-              { value: 'email', label: 'Email (HTML)', labelHe: 'אימייל (HTML)' }
-            ]
+              {
+                value: 'email',
+                label: 'Email (HTML)',
+                labelHe: 'אימייל (HTML)',
+              },
+            ],
           },
           {
             id: 'recipients',
@@ -5125,12 +6804,12 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'נמעני דוח',
             required: true,
             itemFields: [
-              { id: 'email', type: 'text', label: 'Email', labelHe: 'אימייל' }
-            ]
-          }
-        ]
-      }
-    ]
+              { id: 'email', type: 'text', label: 'Email', labelHe: 'אימייל' },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   // ==================== MISSING SERVICES ====================
@@ -5145,13 +6824,13 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
       'Define clear SLA parameters for each service level',
       'Set up escalation procedures for SLA breaches',
       'Consider integration with ticketing systems',
-      'Monitor SLA performance regularly'
+      'Monitor SLA performance regularly',
     ],
     tipsHe: [
       'הגדר פרמטרי SLA ברורים לכל רמת שירות',
       'הגדר נהלי הסלמה למקרה של הפרת SLA',
       'שקול אינטגרציה עם מערכות כרטיסים',
-      'עקוב אחר ביצועי SLA באופן קבוע'
+      'עקוב אחר ביצועי SLA באופן קבוע',
     ],
     sections: [
       {
@@ -5167,11 +6846,27 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'יעדי SLA למעקב',
             required: true,
             options: [
-              { value: 'response_time', label: 'Response Time', labelHe: 'זמן תגובה' },
-              { value: 'resolution_time', label: 'Resolution Time', labelHe: 'זמן פתרון' },
-              { value: 'first_reply_time', label: 'First Reply Time', labelHe: 'זמן תגובה ראשונה' },
-              { value: 'customer_satisfaction', label: 'Customer Satisfaction', labelHe: 'שביעות רצון לקוח' }
-            ]
+              {
+                value: 'response_time',
+                label: 'Response Time',
+                labelHe: 'זמן תגובה',
+              },
+              {
+                value: 'resolution_time',
+                label: 'Resolution Time',
+                labelHe: 'זמן פתרון',
+              },
+              {
+                value: 'first_reply_time',
+                label: 'First Reply Time',
+                labelHe: 'זמן תגובה ראשונה',
+              },
+              {
+                value: 'customer_satisfaction',
+                label: 'Customer Satisfaction',
+                labelHe: 'שביעות רצון לקוח',
+              },
+            ],
           },
           {
             id: 'sla_levels',
@@ -5180,10 +6875,22 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'רמות SLA',
             required: true,
             options: [
-              { value: 'gold', label: 'Gold (Premium)', labelHe: 'זהב (פרימיום)' },
-              { value: 'silver', label: 'Silver (Standard)', labelHe: 'כסף (סטנדרט)' },
-              { value: 'bronze', label: 'Bronze (Basic)', labelHe: 'ברונזה (בסיסי)' }
-            ]
+              {
+                value: 'gold',
+                label: 'Gold (Premium)',
+                labelHe: 'זהב (פרימיום)',
+              },
+              {
+                value: 'silver',
+                label: 'Silver (Standard)',
+                labelHe: 'כסף (סטנדרט)',
+              },
+              {
+                value: 'bronze',
+                label: 'Bronze (Basic)',
+                labelHe: 'ברונזה (בסיסי)',
+              },
+            ],
           },
           {
             id: 'escalation_rules',
@@ -5191,9 +6898,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Escalation rules and procedures',
             labelHe: 'כללי הסלמה ונהלים',
             required: true,
-            validation: { minLength: 50 }
-          }
-        ]
+            validation: { minLength: 50 },
+          },
+        ],
       },
       {
         id: 'monitoring',
@@ -5211,8 +6918,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'realtime', label: 'Real-time', labelHe: 'זמן אמת' },
               { value: 'hourly', label: 'Hourly', labelHe: 'שעתי' },
               { value: 'daily', label: 'Daily', labelHe: 'יומי' },
-              { value: 'weekly', label: 'Weekly', labelHe: 'שבועי' }
-            ]
+              { value: 'weekly', label: 'Weekly', labelHe: 'שבועי' },
+            ],
           },
           {
             id: 'reporting_recipients',
@@ -5220,18 +6927,18 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Who should receive SLA reports?',
             labelHe: 'מי צריך לקבל דוחות SLA?',
             required: true,
-            placeholder: 'Enter email addresses or team names'
+            placeholder: 'Enter email addresses or team names',
           },
           {
             id: 'breach_notifications',
             type: 'checkbox',
             label: 'Send notifications when SLA is breached',
             labelHe: 'שלח התראות כאשר ה-SLA מופר',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   // auto-custom
@@ -5244,13 +6951,13 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
       'Clearly define the business process to automate',
       'Identify all stakeholders and decision points',
       'Consider edge cases and error scenarios',
-      'Plan for future modifications and maintenance'
+      'Plan for future modifications and maintenance',
     ],
     tipsHe: [
       'הגדר בבירור את תהליך העסקי לאוטומציה',
       'זהה את כל בעלי העניין ונקודות החלטה',
       'שקול מקרי קצה ותרחישי שגיאה',
-      'תכנן לשינויים ותחזוקה עתידיים'
+      'תכנן לשינויים ותחזוקה עתידיים',
     ],
     sections: [
       {
@@ -5265,7 +6972,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Name of the process to automate',
             labelHe: 'שם התהליך לאוטומציה',
             required: true,
-            validation: { minLength: 5, maxLength: 100 }
+            validation: { minLength: 5, maxLength: 100 },
           },
           {
             id: 'process_description',
@@ -5273,7 +6980,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Detailed description of the process',
             labelHe: 'תיאור מפורט של התהליך',
             required: true,
-            validation: { minLength: 50, maxLength: 1000 }
+            validation: { minLength: 50, maxLength: 1000 },
           },
           {
             id: 'process_frequency',
@@ -5282,15 +6989,19 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'באיזה תדירות מתרחש התהליך?',
             required: true,
             options: [
-              { value: 'realtime', label: 'Real-time (immediate)', labelHe: 'זמן אמת (מיידי)' },
+              {
+                value: 'realtime',
+                label: 'Real-time (immediate)',
+                labelHe: 'זמן אמת (מיידי)',
+              },
               { value: 'hourly', label: 'Hourly', labelHe: 'שעתי' },
               { value: 'daily', label: 'Daily', labelHe: 'יומי' },
               { value: 'weekly', label: 'Weekly', labelHe: 'שבועי' },
               { value: 'monthly', label: 'Monthly', labelHe: 'חודשי' },
-              { value: 'ondemand', label: 'On-demand', labelHe: 'על פי דרישה' }
-            ]
-          }
-        ]
+              { value: 'ondemand', label: 'On-demand', labelHe: 'על פי דרישה' },
+            ],
+          },
+        ],
       },
       {
         id: 'stakeholders',
@@ -5304,7 +7015,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Who owns this process?',
             labelHe: 'מי הבעלים של התהליך?',
             required: true,
-            placeholder: 'Enter name or department'
+            placeholder: 'Enter name or department',
           },
           {
             id: 'approvers',
@@ -5312,7 +7023,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Who needs to approve changes?',
             labelHe: 'מי צריך לאשר שינויים?',
             required: true,
-            placeholder: 'Enter names, roles, or departments'
+            placeholder: 'Enter names, roles, or departments',
           },
           {
             id: 'stakeholders',
@@ -5320,9 +7031,9 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'All stakeholders affected by this process',
             labelHe: 'כל בעלי העניין המושפעים מהתהליך',
             required: false,
-            placeholder: 'Enter all relevant stakeholders'
-          }
-        ]
+            placeholder: 'Enter all relevant stakeholders',
+          },
+        ],
       },
       {
         id: 'technical-details',
@@ -5336,7 +7047,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Data sources and systems involved',
             labelHe: 'מקורות נתונים ומערכות מעורבות',
             required: true,
-            placeholder: 'List all systems, databases, APIs, etc.'
+            placeholder: 'List all systems, databases, APIs, etc.',
           },
           {
             id: 'error_handling',
@@ -5344,18 +7055,18 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'How should errors be handled?',
             labelHe: 'איך יש לטפל בשגיאות?',
             required: true,
-            validation: { minLength: 30 }
+            validation: { minLength: 30 },
           },
           {
             id: 'logging_requirements',
             type: 'checkbox',
             label: 'Detailed logging required',
             labelHe: 'נדרש לוג מפורט',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   // int-crm-marketing
@@ -5368,13 +7079,13 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
       'Ensure lead scoring is synchronized between systems',
       'Set up automated campaign triggers based on CRM data',
       'Consider data privacy and consent management',
-      'Plan for lead nurturing workflows'
+      'Plan for lead nurturing workflows',
     ],
     tipsHe: [
       'ודא שציון הלידים מסונכרן בין המערכות',
       'הגדר טריגרים אוטומטיים לקמפיינים על בסיס נתוני CRM',
       'שקול פרטיות נתונים וניהול הסכמה',
-      'תכנן זרימות טיפוח לידים'
+      'תכנן זרימות טיפוח לידים',
     ],
     sections: [
       {
@@ -5392,10 +7103,18 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'zoho', label: 'Zoho CRM', labelHe: 'Zoho CRM' },
               { value: 'hubspot', label: 'HubSpot', labelHe: 'HubSpot' },
-              { value: 'salesforce', label: 'Salesforce', labelHe: 'Salesforce' },
+              {
+                value: 'salesforce',
+                label: 'Salesforce',
+                labelHe: 'Salesforce',
+              },
               { value: 'pipedrive', label: 'Pipedrive', labelHe: 'Pipedrive' },
-              { value: 'custom', label: 'Custom/Other', labelHe: 'מותאם אישית/אחר' }
-            ]
+              {
+                value: 'custom',
+                label: 'Custom/Other',
+                labelHe: 'מותאם אישית/אחר',
+              },
+            ],
           },
           {
             id: 'lead_stages',
@@ -5407,13 +7126,29 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'new', label: 'New Leads', labelHe: 'לידים חדשים' },
               { value: 'contacted', label: 'Contacted', labelHe: 'נוצר קשר' },
               { value: 'qualified', label: 'Qualified', labelHe: 'מוסמך' },
-              { value: 'proposal', label: 'Proposal Sent', labelHe: 'הצעה נשלחה' },
-              { value: 'negotiation', label: 'Negotiation', labelHe: 'משא ומתן' },
-              { value: 'closed_won', label: 'Closed Won', labelHe: 'נסגר בהצלחה' },
-              { value: 'closed_lost', label: 'Closed Lost', labelHe: 'נסגר ללא הצלחה' }
-            ]
-          }
-        ]
+              {
+                value: 'proposal',
+                label: 'Proposal Sent',
+                labelHe: 'הצעה נשלחה',
+              },
+              {
+                value: 'negotiation',
+                label: 'Negotiation',
+                labelHe: 'משא ומתן',
+              },
+              {
+                value: 'closed_won',
+                label: 'Closed Won',
+                labelHe: 'נסגר בהצלחה',
+              },
+              {
+                value: 'closed_lost',
+                label: 'Closed Lost',
+                labelHe: 'נסגר ללא הצלחה',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'marketing-system',
@@ -5429,11 +7164,27 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             options: [
               { value: 'mailchimp', label: 'Mailchimp', labelHe: 'Mailchimp' },
-              { value: 'activecampaign', label: 'ActiveCampaign', labelHe: 'ActiveCampaign' },
-              { value: 'hubspot_marketing', label: 'HubSpot Marketing', labelHe: 'HubSpot שיווק' },
-              { value: 'sendinblue', label: 'Sendinblue', labelHe: 'Sendinblue' },
-              { value: 'custom', label: 'Custom/Other', labelHe: 'מותאם אישית/אחר' }
-            ]
+              {
+                value: 'activecampaign',
+                label: 'ActiveCampaign',
+                labelHe: 'ActiveCampaign',
+              },
+              {
+                value: 'hubspot_marketing',
+                label: 'HubSpot Marketing',
+                labelHe: 'HubSpot שיווק',
+              },
+              {
+                value: 'sendinblue',
+                label: 'Sendinblue',
+                labelHe: 'Sendinblue',
+              },
+              {
+                value: 'custom',
+                label: 'Custom/Other',
+                labelHe: 'מותאם אישית/אחר',
+              },
+            ],
           },
           {
             id: 'campaign_triggers',
@@ -5442,13 +7193,29 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'טריגרי קמפיינים על בסיס נתוני CRM',
             required: true,
             options: [
-              { value: 'new_lead', label: 'New Lead Created', labelHe: 'ליד חדש נוצר' },
-              { value: 'stage_change', label: 'Lead Stage Changed', labelHe: 'שלב ליד השתנה' },
-              { value: 'score_threshold', label: 'Lead Score Threshold', labelHe: 'סף ציון ליד' },
-              { value: 'inactivity', label: 'Lead Inactivity', labelHe: 'חוסר פעילות ליד' }
-            ]
-          }
-        ]
+              {
+                value: 'new_lead',
+                label: 'New Lead Created',
+                labelHe: 'ליד חדש נוצר',
+              },
+              {
+                value: 'stage_change',
+                label: 'Lead Stage Changed',
+                labelHe: 'שלב ליד השתנה',
+              },
+              {
+                value: 'score_threshold',
+                label: 'Lead Score Threshold',
+                labelHe: 'סף ציון ליד',
+              },
+              {
+                value: 'inactivity',
+                label: 'Lead Inactivity',
+                labelHe: 'חוסר פעילות ליד',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'data-sync',
@@ -5463,10 +7230,22 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'כיוון סנכרון נתונים',
             required: true,
             options: [
-              { value: 'bidirectional', label: 'Bidirectional', labelHe: 'דו-כיווני' },
-              { value: 'crm_to_marketing', label: 'CRM → Marketing', labelHe: 'CRM ← שיווק' },
-              { value: 'marketing_to_crm', label: 'Marketing → CRM', labelHe: 'שיווק ← CRM' }
-            ]
+              {
+                value: 'bidirectional',
+                label: 'Bidirectional',
+                labelHe: 'דו-כיווני',
+              },
+              {
+                value: 'crm_to_marketing',
+                label: 'CRM → Marketing',
+                labelHe: 'CRM ← שיווק',
+              },
+              {
+                value: 'marketing_to_crm',
+                label: 'Marketing → CRM',
+                labelHe: 'שיווק ← CRM',
+              },
+            ],
           },
           {
             id: 'sync_frequency',
@@ -5476,10 +7255,14 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             options: [
               { value: 'realtime', label: 'Real-time', labelHe: 'זמן אמת' },
-              { value: '15min', label: 'Every 15 minutes', labelHe: 'כל 15 דקות' },
+              {
+                value: '15min',
+                label: 'Every 15 minutes',
+                labelHe: 'כל 15 דקות',
+              },
               { value: 'hourly', label: 'Hourly', labelHe: 'שעתי' },
-              { value: 'daily', label: 'Daily', labelHe: 'יומי' }
-            ]
+              { value: 'daily', label: 'Daily', labelHe: 'יומי' },
+            ],
           },
           {
             id: 'conflict_resolution',
@@ -5488,15 +7271,31 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'איך לטפל בסכסוכי נתונים?',
             required: true,
             options: [
-              { value: 'crm_priority', label: 'CRM data takes priority', labelHe: 'נתוני CRM מקבלים עדיפות' },
-              { value: 'marketing_priority', label: 'Marketing data takes priority', labelHe: 'נתוני שיווק מקבלים עדיפות' },
-              { value: 'manual_review', label: 'Manual review required', labelHe: 'נדרש בדיקה ידנית' },
-              { value: 'timestamp_based', label: 'Latest timestamp wins', labelHe: 'החותמת הזמן האחרונה מנצחת' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'crm_priority',
+                label: 'CRM data takes priority',
+                labelHe: 'נתוני CRM מקבלים עדיפות',
+              },
+              {
+                value: 'marketing_priority',
+                label: 'Marketing data takes priority',
+                labelHe: 'נתוני שיווק מקבלים עדיפות',
+              },
+              {
+                value: 'manual_review',
+                label: 'Manual review required',
+                labelHe: 'נדרש בדיקה ידנית',
+              },
+              {
+                value: 'timestamp_based',
+                label: 'Latest timestamp wins',
+                labelHe: 'החותמת הזמן האחרונה מנצחת',
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   // int-crm-accounting
@@ -5509,13 +7308,13 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
       'Ensure financial data accuracy and compliance',
       'Set up proper audit trails for financial transactions',
       'Consider tax implications of automated invoicing',
-      'Plan for multi-currency support if needed'
+      'Plan for multi-currency support if needed',
     ],
     tipsHe: [
       'ודא דיוק ותאימות של נתונים פיננסיים',
       'הגדר מסלולי ביקורת נכונים לעסקאות פיננסיות',
       'שקול השלכות מס של חיוב אוטומטי',
-      'תכנן תמיכה במטבעות מרובים אם נדרש'
+      'תכנן תמיכה במטבעות מרובים אם נדרש',
     ],
     sections: [
       {
@@ -5531,15 +7330,27 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'פלטפורמת חשבונאות',
             required: true,
             options: [
-              { value: 'quickbooks', label: 'QuickBooks', labelHe: 'QuickBooks' },
+              {
+                value: 'quickbooks',
+                label: 'QuickBooks',
+                labelHe: 'QuickBooks',
+              },
               { value: 'xero', label: 'Xero', labelHe: 'Xero' },
-              { value: 'freshbooks', label: 'FreshBooks', labelHe: 'FreshBooks' },
+              {
+                value: 'freshbooks',
+                label: 'FreshBooks',
+                labelHe: 'FreshBooks',
+              },
               { value: 'sage', label: 'Sage', labelHe: 'Sage' },
               { value: 'netsuite', label: 'NetSuite', labelHe: 'NetSuite' },
-              { value: 'custom', label: 'Custom/Other', labelHe: 'מותאם אישית/אחר' }
-            ]
-          }
-        ]
+              {
+                value: 'custom',
+                label: 'Custom/Other',
+                labelHe: 'מותאם אישית/אחר',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'financial-mapping',
@@ -5554,11 +7365,27 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'מתי יש ליצור חשבוניות?',
             required: true,
             options: [
-              { value: 'deal_closed_won', label: 'Deal Closed Won', labelHe: 'עסקה נסגרה בהצלחה' },
-              { value: 'payment_received', label: 'Payment Received', labelHe: 'תשלום התקבל' },
-              { value: 'subscription_renewal', label: 'Subscription Renewal', labelHe: 'חידוש מנוי' },
-              { value: 'manual_trigger', label: 'Manual Trigger', labelHe: 'הפעלה ידנית' }
-            ]
+              {
+                value: 'deal_closed_won',
+                label: 'Deal Closed Won',
+                labelHe: 'עסקה נסגרה בהצלחה',
+              },
+              {
+                value: 'payment_received',
+                label: 'Payment Received',
+                labelHe: 'תשלום התקבל',
+              },
+              {
+                value: 'subscription_renewal',
+                label: 'Subscription Renewal',
+                labelHe: 'חידוש מנוי',
+              },
+              {
+                value: 'manual_trigger',
+                label: 'Manual Trigger',
+                labelHe: 'הפעלה ידנית',
+              },
+            ],
           },
           {
             id: 'payment_methods',
@@ -5567,12 +7394,20 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'אמצעי תשלום לתמיכה',
             required: true,
             options: [
-              { value: 'credit_card', label: 'Credit Card', labelHe: 'כרטיס אשראי' },
-              { value: 'bank_transfer', label: 'Bank Transfer', labelHe: 'העברה בנקאית' },
+              {
+                value: 'credit_card',
+                label: 'Credit Card',
+                labelHe: 'כרטיס אשראי',
+              },
+              {
+                value: 'bank_transfer',
+                label: 'Bank Transfer',
+                labelHe: 'העברה בנקאית',
+              },
               { value: 'paypal', label: 'PayPal', labelHe: 'PayPal' },
-              { value: 'check', label: 'Check', labelHe: 'צ\'ק' },
-              { value: 'cash', label: 'Cash', labelHe: 'מזומן' }
-            ]
+              { value: 'check', label: 'Check', labelHe: "צ'ק" },
+              { value: 'cash', label: 'Cash', labelHe: 'מזומן' },
+            ],
           },
           {
             id: 'tax_handling',
@@ -5581,12 +7416,20 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'שיטת חישוב מס',
             required: true,
             options: [
-              { value: 'automatic', label: 'Automatic (system calculates)', labelHe: 'אוטומטית (המערכת מחשבת)' },
+              {
+                value: 'automatic',
+                label: 'Automatic (system calculates)',
+                labelHe: 'אוטומטית (המערכת מחשבת)',
+              },
               { value: 'manual', label: 'Manual entry', labelHe: 'הזנה ידנית' },
-              { value: 'external_service', label: 'External tax service', labelHe: 'שירות מס חיצוני' }
-            ]
-          }
-        ]
+              {
+                value: 'external_service',
+                label: 'External tax service',
+                labelHe: 'שירות מס חיצוני',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'reporting',
@@ -5601,10 +7444,22 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'שיטת זיהוי הכנסות',
             required: true,
             options: [
-              { value: 'immediate', label: 'Immediate (on deal close)', labelHe: 'מיידי (עם סגירת עסקה)' },
-              { value: 'milestone', label: 'Milestone-based', labelHe: 'מבוסס אבני דרך' },
-              { value: 'subscription', label: 'Subscription-based', labelHe: 'מבוסס מנוי' }
-            ]
+              {
+                value: 'immediate',
+                label: 'Immediate (on deal close)',
+                labelHe: 'מיידי (עם סגירת עסקה)',
+              },
+              {
+                value: 'milestone',
+                label: 'Milestone-based',
+                labelHe: 'מבוסס אבני דרך',
+              },
+              {
+                value: 'subscription',
+                label: 'Subscription-based',
+                labelHe: 'מבוסס מנוי',
+              },
+            ],
           },
           {
             id: 'financial_reports',
@@ -5613,16 +7468,32 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'דוחות פיננסיים נדרשים',
             required: true,
             options: [
-              { value: 'revenue_report', label: 'Revenue Report', labelHe: 'דוח הכנסות' },
-              { value: 'invoice_report', label: 'Invoice Report', labelHe: 'דוח חשבוניות' },
-              { value: 'payment_report', label: 'Payment Report', labelHe: 'דוח תשלומים' },
+              {
+                value: 'revenue_report',
+                label: 'Revenue Report',
+                labelHe: 'דוח הכנסות',
+              },
+              {
+                value: 'invoice_report',
+                label: 'Invoice Report',
+                labelHe: 'דוח חשבוניות',
+              },
+              {
+                value: 'payment_report',
+                label: 'Payment Report',
+                labelHe: 'דוח תשלומים',
+              },
               { value: 'tax_report', label: 'Tax Report', labelHe: 'דוח מס' },
-              { value: 'profit_loss', label: 'Profit & Loss', labelHe: 'רווח והפסד' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'profit_loss',
+                label: 'Profit & Loss',
+                labelHe: 'רווח והפסד',
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   // int-crm-support
@@ -5634,12 +7505,12 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
     tips: [
       'Ensure customer context is available in support tickets',
       'Set up automated ticket creation from CRM activities',
-      'Consider customer satisfaction tracking integration'
+      'Consider customer satisfaction tracking integration',
     ],
     tipsHe: [
       'ודא שהקשר הלקוח זמין בכרטיסי התמיכה',
       'הגדר יצירה אוטומטית של כרטיסים מפעילויות CRM',
-      'שקול אינטגרציה של מעקב שביעות רצון לקוחות'
+      'שקול אינטגרציה של מעקב שביעות רצון לקוחות',
     ],
     sections: [
       {
@@ -5658,11 +7529,19 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'zendesk', label: 'Zendesk', labelHe: 'Zendesk' },
               { value: 'freshdesk', label: 'Freshdesk', labelHe: 'Freshdesk' },
               { value: 'intercom', label: 'Intercom', labelHe: 'Intercom' },
-              { value: 'helpscout', label: 'Help Scout', labelHe: 'Help Scout' },
-              { value: 'custom', label: 'Custom/Other', labelHe: 'מותאם אישית/אחר' }
-            ]
-          }
-        ]
+              {
+                value: 'helpscout',
+                label: 'Help Scout',
+                labelHe: 'Help Scout',
+              },
+              {
+                value: 'custom',
+                label: 'Custom/Other',
+                labelHe: 'מותאם אישית/אחר',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'ticket-creation',
@@ -5677,11 +7556,27 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'יצירת כרטיסים אוטומטית עבור',
             required: true,
             options: [
-              { value: 'customer_complaints', label: 'Customer Complaints', labelHe: 'תלונות לקוחות' },
-              { value: 'technical_issues', label: 'Technical Issues', labelHe: 'בעיות טכניות' },
-              { value: 'feature_requests', label: 'Feature Requests', labelHe: 'בקשות תכונות' },
-              { value: 'billing_issues', label: 'Billing Issues', labelHe: 'בעיות חיוב' }
-            ]
+              {
+                value: 'customer_complaints',
+                label: 'Customer Complaints',
+                labelHe: 'תלונות לקוחות',
+              },
+              {
+                value: 'technical_issues',
+                label: 'Technical Issues',
+                labelHe: 'בעיות טכניות',
+              },
+              {
+                value: 'feature_requests',
+                label: 'Feature Requests',
+                labelHe: 'בקשות תכונות',
+              },
+              {
+                value: 'billing_issues',
+                label: 'Billing Issues',
+                labelHe: 'בעיות חיוב',
+              },
+            ],
           },
           {
             id: 'ticket_priority',
@@ -5693,10 +7588,10 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'low', label: 'Low', labelHe: 'נמוך' },
               { value: 'medium', label: 'Medium', labelHe: 'בינוני' },
               { value: 'high', label: 'High', labelHe: 'גבוה' },
-              { value: 'urgent', label: 'Urgent', labelHe: 'דחוף' }
-            ]
-          }
-        ]
+              { value: 'urgent', label: 'Urgent', labelHe: 'דחוף' },
+            ],
+          },
+        ],
       },
       {
         id: 'customer-context',
@@ -5711,22 +7606,38 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'נתוני לקוח לכלול בכרטיסים',
             required: true,
             options: [
-              { value: 'contact_info', label: 'Contact Information', labelHe: 'מידע קשר' },
-              { value: 'purchase_history', label: 'Purchase History', labelHe: 'היסטוריית רכישות' },
-              { value: 'support_history', label: 'Previous Support History', labelHe: 'היסטוריית תמיכה קודמת' },
-              { value: 'account_manager', label: 'Account Manager', labelHe: 'מנהל חשבון' }
-            ]
+              {
+                value: 'contact_info',
+                label: 'Contact Information',
+                labelHe: 'מידע קשר',
+              },
+              {
+                value: 'purchase_history',
+                label: 'Purchase History',
+                labelHe: 'היסטוריית רכישות',
+              },
+              {
+                value: 'support_history',
+                label: 'Previous Support History',
+                labelHe: 'היסטוריית תמיכה קודמת',
+              },
+              {
+                value: 'account_manager',
+                label: 'Account Manager',
+                labelHe: 'מנהל חשבון',
+              },
+            ],
           },
           {
             id: 'satisfaction_tracking',
             type: 'checkbox',
             label: 'Track customer satisfaction in CRM',
             labelHe: 'עקוב אחר שביעות רצון לקוחות ב-CRM',
-            required: false
-          }
-        ]
-      }
-    ]
+            required: false,
+          },
+        ],
+      },
+    ],
   },
 
   // int-calendar
@@ -5739,13 +7650,13 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
       'Ensure no double-booking occurs',
       'Set up proper timezone handling',
       'Consider buffer time between meetings',
-      'Plan for recurring meeting patterns'
+      'Plan for recurring meeting patterns',
     ],
     tipsHe: [
       'ודא שלא מתרחשת כפילות הזמנות',
       'הגדר טיפול נכון באזורי זמן',
       'שקול זמן חוצץ בין פגישות',
-      'תכנן דפוסי פגישות חוזרות'
+      'תכנן דפוסי פגישות חוזרות',
     ],
     sections: [
       {
@@ -5761,13 +7672,21 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'פלטפורמת לוח שנה',
             required: true,
             options: [
-              { value: 'google_calendar', label: 'Google Calendar', labelHe: 'Google Calendar' },
+              {
+                value: 'google_calendar',
+                label: 'Google Calendar',
+                labelHe: 'Google Calendar',
+              },
               { value: 'outlook', label: 'Outlook', labelHe: 'Outlook' },
               { value: 'ical', label: 'iCal', labelHe: 'iCal' },
-              { value: 'custom', label: 'Custom/Other', labelHe: 'מותאם אישית/אחר' }
-            ]
-          }
-        ]
+              {
+                value: 'custom',
+                label: 'Custom/Other',
+                labelHe: 'מותאם אישית/אחר',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'meeting-settings',
@@ -5782,11 +7701,27 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'סוגי פגישות לסנכרון',
             required: true,
             options: [
-              { value: 'sales_calls', label: 'Sales Calls', labelHe: 'שיחות מכירה' },
-              { value: 'client_meetings', label: 'Client Meetings', labelHe: 'פגישות לקוח' },
-              { value: 'team_meetings', label: 'Team Meetings', labelHe: 'פגישות צוות' },
-              { value: 'training_sessions', label: 'Training Sessions', labelHe: 'הדרכות' }
-            ]
+              {
+                value: 'sales_calls',
+                label: 'Sales Calls',
+                labelHe: 'שיחות מכירה',
+              },
+              {
+                value: 'client_meetings',
+                label: 'Client Meetings',
+                labelHe: 'פגישות לקוח',
+              },
+              {
+                value: 'team_meetings',
+                label: 'Team Meetings',
+                labelHe: 'פגישות צוות',
+              },
+              {
+                value: 'training_sessions',
+                label: 'Training Sessions',
+                labelHe: 'הדרכות',
+              },
+            ],
           },
           {
             id: 'buffer_time',
@@ -5794,7 +7729,7 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             label: 'Buffer time between meetings (minutes)',
             labelHe: 'זמן חוצץ בין פגישות (דקות)',
             required: true,
-            validation: { min: 0, max: 60 }
+            validation: { min: 0, max: 60 },
           },
           {
             id: 'timezone_handling',
@@ -5803,12 +7738,24 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'טיפול באזורי זמן',
             required: true,
             options: [
-              { value: 'system_default', label: 'Use system default', labelHe: 'השתמש בברירת מחדל המערכת' },
-              { value: 'user_timezone', label: 'Use user\'s timezone', labelHe: 'השתמש באזור זמן של המשתמש' },
-              { value: 'meeting_timezone', label: 'Use meeting location timezone', labelHe: 'השתמש באזור זמן של מיקום הפגישה' }
-            ]
-          }
-        ]
+              {
+                value: 'system_default',
+                label: 'Use system default',
+                labelHe: 'השתמש בברירת מחדל המערכת',
+              },
+              {
+                value: 'user_timezone',
+                label: "Use user's timezone",
+                labelHe: 'השתמש באזור זמן של המשתמש',
+              },
+              {
+                value: 'meeting_timezone',
+                label: 'Use meeting location timezone',
+                labelHe: 'השתמש באזור זמן של מיקום הפגישה',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'notifications',
@@ -5826,8 +7773,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: '15min', label: '15 minutes', labelHe: '15 דקות' },
               { value: '30min', label: '30 minutes', labelHe: '30 דקות' },
               { value: '1hour', label: '1 hour', labelHe: 'שעה' },
-              { value: '1day', label: '1 day', labelHe: 'יום' }
-            ]
+              { value: '1day', label: '1 day', labelHe: 'יום' },
+            ],
           },
           {
             id: 'notification_channels',
@@ -5838,13 +7785,17 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             options: [
               { value: 'email', label: 'Email', labelHe: 'אימייל' },
               { value: 'sms', label: 'SMS', labelHe: 'SMS' },
-              { value: 'calendar_app', label: 'Calendar App', labelHe: 'אפליקציית לוח שנה' },
-              { value: 'slack', label: 'Slack', labelHe: 'Slack' }
-            ]
-          }
-        ]
-      }
-    ]
+              {
+                value: 'calendar_app',
+                label: 'Calendar App',
+                labelHe: 'אפליקציית לוח שנה',
+              },
+              { value: 'slack', label: 'Slack', labelHe: 'Slack' },
+            ],
+          },
+        ],
+      },
+    ],
   },
 
   // int-ecommerce
@@ -5857,13 +7808,13 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
       'Ensure real-time inventory synchronization',
       'Set up proper order status tracking',
       'Consider payment gateway integration',
-      'Plan for returns and refunds handling'
+      'Plan for returns and refunds handling',
     ],
     tipsHe: [
       'ודא סנכרון מלאי בזמן אמת',
       'הגדר מעקב סטטוס הזמנות נכון',
       'שקול אינטגרציה עם שער תשלומים',
-      'תכנן טיפול בהחזרות והחזרי כספים'
+      'תכנן טיפול בהחזרות והחזרי כספים',
     ],
     sections: [
       {
@@ -5880,13 +7831,25 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             required: true,
             options: [
               { value: 'shopify', label: 'Shopify', labelHe: 'Shopify' },
-              { value: 'woocommerce', label: 'WooCommerce', labelHe: 'WooCommerce' },
+              {
+                value: 'woocommerce',
+                label: 'WooCommerce',
+                labelHe: 'WooCommerce',
+              },
               { value: 'magento', label: 'Magento', labelHe: 'Magento' },
-              { value: 'bigcommerce', label: 'BigCommerce', labelHe: 'BigCommerce' },
-              { value: 'custom', label: 'Custom/Other', labelHe: 'מותאם אישית/אחר' }
-            ]
-          }
-        ]
+              {
+                value: 'bigcommerce',
+                label: 'BigCommerce',
+                labelHe: 'BigCommerce',
+              },
+              {
+                value: 'custom',
+                label: 'Custom/Other',
+                labelHe: 'מותאם אישית/אחר',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'product-sync',
@@ -5901,26 +7864,38 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
             labelHe: 'כיוון סנכרון מוצרים',
             required: true,
             options: [
-              { value: 'bidirectional', label: 'Bidirectional', labelHe: 'דו-כיווני' },
-              { value: 'crm_to_ecommerce', label: 'CRM → E-commerce', labelHe: 'CRM ← מסחר אלקטרוני' },
-              { value: 'ecommerce_to_crm', label: 'E-commerce → CRM', labelHe: 'מסחר אלקטרוני ← CRM' }
-            ]
+              {
+                value: 'bidirectional',
+                label: 'Bidirectional',
+                labelHe: 'דו-כיווני',
+              },
+              {
+                value: 'crm_to_ecommerce',
+                label: 'CRM → E-commerce',
+                labelHe: 'CRM ← מסחר אלקטרוני',
+              },
+              {
+                value: 'ecommerce_to_crm',
+                label: 'E-commerce → CRM',
+                labelHe: 'מסחר אלקטרוני ← CRM',
+              },
+            ],
           },
           {
             id: 'inventory_tracking',
             type: 'checkbox',
             label: 'Real-time inventory tracking',
             labelHe: 'מעקב מלאי בזמן אמת',
-            required: false
+            required: false,
           },
           {
             id: 'price_sync',
             type: 'checkbox',
             label: 'Automatic price synchronization',
             labelHe: 'סנכרון מחירים אוטומטי',
-            required: false
-          }
-        ]
+            required: false,
+          },
+        ],
       },
       {
         id: 'order-management',
@@ -5940,8 +7915,8 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'shipped', label: 'Shipped', labelHe: 'נשלח' },
               { value: 'delivered', label: 'Delivered', labelHe: 'נמסר' },
               { value: 'cancelled', label: 'Cancelled', labelHe: 'בוטל' },
-              { value: 'refunded', label: 'Refunded', labelHe: 'הוחזר' }
-            ]
+              { value: 'refunded', label: 'Refunded', labelHe: 'הוחזר' },
+            ],
           },
           {
             id: 'payment_integration',
@@ -5953,25 +7928,43 @@ export const SERVICE_REQUIREMENTS_TEMPLATES: ServiceRequirementsTemplate[] = [
               { value: 'stripe', label: 'Stripe', labelHe: 'Stripe' },
               { value: 'paypal', label: 'PayPal', labelHe: 'PayPal' },
               { value: 'square', label: 'Square', labelHe: 'Square' },
-              { value: 'authorize_net', label: 'Authorize.Net', labelHe: 'Authorize.Net' },
-              { value: 'none', label: 'No integration needed', labelHe: 'אין צורך באינטגרציה' }
-            ]
-          }
-        ]
-      }
-    ]
-  }
-
+              {
+                value: 'authorize_net',
+                label: 'Authorize.Net',
+                labelHe: 'Authorize.Net',
+              },
+              {
+                value: 'none',
+                label: 'No integration needed',
+                labelHe: 'אין צורך באינטגרציה',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 // Helper function to get requirements template by service ID
-export const getRequirementsTemplate = (serviceId: string): ServiceRequirementsTemplate | null => {
-  return SERVICE_REQUIREMENTS_TEMPLATES.find(template => template.serviceId === serviceId) || null;
+export const getRequirementsTemplate = (
+  serviceId: string
+): ServiceRequirementsTemplate | null => {
+  return (
+    SERVICE_REQUIREMENTS_TEMPLATES.find(
+      (template) => template.serviceId === serviceId
+    ) || null
+  );
 };
 
 // Helper function to get all templates for selected services
-export const getRequirementsForServices = (serviceIds: string[]): ServiceRequirementsTemplate[] => {
+export const getRequirementsForServices = (
+  serviceIds: string[]
+): ServiceRequirementsTemplate[] => {
   return serviceIds
-    .map(id => getRequirementsTemplate(id))
-    .filter((template): template is ServiceRequirementsTemplate => template !== undefined);
+    .map((id) => getRequirementsTemplate(id))
+    .filter(
+      (template): template is ServiceRequirementsTemplate =>
+        template !== undefined
+    );
 };

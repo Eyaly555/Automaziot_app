@@ -15,14 +15,14 @@ export function TrainingOngoingSpec() {
     fieldId: 'database_type',
     localPath: 'databaseType',
     serviceId: 'training-ongoing',
-    autoSave: false
+    autoSave: false,
   });
 
   const alertEmail = useSmartField<string>({
     fieldId: 'alert_email',
     localPath: 'alertEmail',
     serviceId: 'training-ongoing',
-    autoSave: false
+    autoSave: false,
   });
 
   const [config, setConfig] = useState<TrainingOngoingRequirements>({
@@ -33,31 +33,31 @@ export function TrainingOngoingSpec() {
       skillLevel: 'intermediate',
       deliveryMethod: 'remote',
       materialsProvided: true,
-      assessmentIncluded: false
+      assessmentIncluded: false,
     },
     support: {
       supportLevel: 'standard',
       responseTime: '24h',
       supportChannels: ['email', 'chat'],
-      escalationProcess: true
+      escalationProcess: true,
     },
     frequency: {
       trainingSessions: 'monthly',
       reviewMeetings: 'quarterly',
-      progressReports: 'monthly'
+      progressReports: 'monthly',
     },
     deliverables: {
       trainingMaterials: true,
       progressReports: true,
       certificates: false,
-      accessPortal: true
-    }
+      accessPortal: true,
+    },
   });
 
   // Auto-save hook for immediate and debounced saving
   const { saveData, isSaving, saveError } = useAutoSave({
     serviceId: 'training-ongoing',
-    category: 'additionalServices'
+    category: 'additionalServices',
   });
 
   useBeforeUnload(() => {
@@ -65,15 +65,18 @@ export function TrainingOngoingSpec() {
     const completeConfig = {
       ...config,
       databaseType: databaseType.value,
-      alertEmail: alertEmail.value
+      alertEmail: alertEmail.value,
     };
     saveData(completeConfig);
   });
 
   // Load existing data
   useEffect(() => {
-    const category = currentMeeting?.implementationSpec?.additionalServices || [];
-    const existing = category.find((s: any) => s.serviceId === 'training-ongoing');
+    const category =
+      currentMeeting?.implementationSpec?.additionalServices || [];
+    const existing = category.find(
+      (s: any) => s.serviceId === 'training-ongoing'
+    );
     if (existing?.requirements) {
       setConfig(existing.requirements as TrainingOngoingRequirements);
     }
@@ -84,7 +87,7 @@ export function TrainingOngoingSpec() {
     const completeConfig = {
       ...config,
       databaseType: databaseType.value,
-      alertEmail: alertEmail.value
+      alertEmail: alertEmail.value,
     };
 
     await saveData(completeConfig);
@@ -101,10 +104,10 @@ export function TrainingOngoingSpec() {
           {
             topic: '',
             duration: 1,
-            skillLevel: 'beginner'
-          }
-        ]
-      }
+            skillLevel: 'beginner',
+          },
+        ],
+      },
     });
   };
 
@@ -113,8 +116,10 @@ export function TrainingOngoingSpec() {
       ...config,
       training: {
         ...config.training,
-        trainingTopics: config.training.trainingTopics.filter((_, i) => i !== index)
-      }
+        trainingTopics: config.training.trainingTopics.filter(
+          (_, i) => i !== index
+        ),
+      },
     });
   };
 
@@ -125,10 +130,12 @@ export function TrainingOngoingSpec() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
           <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-semibold text-blue-900 mb-1">נתונים מולאו אוטומטית משלב 1</h4>
+            <h4 className="font-semibold text-blue-900 mb-1">
+              נתונים מולאו אוטומטית משלב 1
+            </h4>
             <p className="text-sm text-blue-800">
-              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1.
-              תוכל לערוך אותם במידת הצורך.
+              חלק מהשדות מולאו באופן אוטומטי מהנתונים שנאספו בשלב 1. תוכל לערוך
+              אותם במידת הצורך.
             </p>
           </div>
         </div>
@@ -141,14 +148,21 @@ export function TrainingOngoingSpec() {
             <h4 className="font-medium mb-3">הגדרות הדרכה</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">משך ההדרכה (חודשים)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  משך ההדרכה (חודשים)
+                </label>
                 <input
                   type="number"
                   value={config.training.durationMonths}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    training: { ...config.training, durationMonths: parseInt(e.target.value) || 6 }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      training: {
+                        ...config.training,
+                        durationMonths: parseInt(e.target.value) || 6,
+                      },
+                    })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   min="1"
                   max="24"
@@ -156,14 +170,21 @@ export function TrainingOngoingSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">שעות הדרכה לחודש</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  שעות הדרכה לחודש
+                </label>
                 <input
                   type="number"
                   value={config.training.hoursPerMonth}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    training: { ...config.training, hoursPerMonth: parseInt(e.target.value) || 4 }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      training: {
+                        ...config.training,
+                        hoursPerMonth: parseInt(e.target.value) || 4,
+                      },
+                    })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   min="1"
                   max="40"
@@ -171,13 +192,20 @@ export function TrainingOngoingSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">רמת מיומנות</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  רמת מיומנות
+                </label>
                 <select
                   value={config.training.skillLevel}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    training: { ...config.training, skillLevel: e.target.value as any }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      training: {
+                        ...config.training,
+                        skillLevel: e.target.value as any,
+                      },
+                    })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="beginner">מתחיל</option>
@@ -187,13 +215,20 @@ export function TrainingOngoingSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">שיטת לימוד</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  שיטת לימוד
+                </label>
                 <select
                   value={config.training.deliveryMethod}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    training: { ...config.training, deliveryMethod: e.target.value as any }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      training: {
+                        ...config.training,
+                        deliveryMethod: e.target.value as any,
+                      },
+                    })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="remote">מרחוק</option>
@@ -208,10 +243,15 @@ export function TrainingOngoingSpec() {
                 <input
                   type="checkbox"
                   checked={config.training.materialsProvided}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    training: { ...config.training, materialsProvided: e.target.checked }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      training: {
+                        ...config.training,
+                        materialsProvided: e.target.checked,
+                      },
+                    })
+                  }
                   className="rounded border-gray-300"
                 />
                 <span className="text-sm">חומרי לימוד מסופקים</span>
@@ -221,10 +261,15 @@ export function TrainingOngoingSpec() {
                 <input
                   type="checkbox"
                   checked={config.training.assessmentIncluded}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    training: { ...config.training, assessmentIncluded: e.target.checked }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      training: {
+                        ...config.training,
+                        assessmentIncluded: e.target.checked,
+                      },
+                    })
+                  }
                   className="rounded border-gray-300"
                 />
                 <span className="text-sm">הערכה כלולה</span>
@@ -237,13 +282,20 @@ export function TrainingOngoingSpec() {
             <h4 className="font-medium mb-3">תמיכה</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">רמת תמיכה</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  רמת תמיכה
+                </label>
                 <select
                   value={config.support.supportLevel}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    support: { ...config.support, supportLevel: e.target.value as any }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      support: {
+                        ...config.support,
+                        supportLevel: e.target.value as any,
+                      },
+                    })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="basic">בסיסי</option>
@@ -253,13 +305,20 @@ export function TrainingOngoingSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">זמן תגובה</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  זמן תגובה
+                </label>
                 <select
                   value={config.support.responseTime}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    support: { ...config.support, responseTime: e.target.value as any }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      support: {
+                        ...config.support,
+                        responseTime: e.target.value as any,
+                      },
+                    })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="24h">24 שעות</option>
@@ -271,9 +330,11 @@ export function TrainingOngoingSpec() {
             </div>
 
             <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">ערוצי תמיכה</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ערוצי תמיכה
+              </label>
               <div className="grid grid-cols-2 gap-2">
-                {['email', 'chat', 'phone', 'video'].map(channel => (
+                {['email', 'chat', 'phone', 'video'].map((channel) => (
                   <label key={channel} className="flex items-center gap-2">
                     <input
                       type="checkbox"
@@ -281,17 +342,22 @@ export function TrainingOngoingSpec() {
                       onChange={(e) => {
                         const channels = e.target.checked
                           ? [...config.support.supportChannels, channel]
-                          : config.support.supportChannels.filter(c => c !== channel);
+                          : config.support.supportChannels.filter(
+                              (c) => c !== channel
+                            );
                         setConfig({
                           ...config,
-                          support: { ...config.support, supportChannels: channels }
+                          support: {
+                            ...config.support,
+                            supportChannels: channels,
+                          },
                         });
                       }}
                       className="rounded border-gray-300"
                     />
                     <span className="text-sm">
                       {channel === 'email' && 'אימייל'}
-                      {channel === 'chat' && 'צ\'אט'}
+                      {channel === 'chat' && "צ'אט"}
                       {channel === 'phone' && 'טלפון'}
                       {channel === 'video' && 'וידאו'}
                     </span>
@@ -304,10 +370,15 @@ export function TrainingOngoingSpec() {
               <input
                 type="checkbox"
                 checked={config.support.escalationProcess}
-                onChange={(e) => setConfig({
-                  ...config,
-                  support: { ...config.support, escalationProcess: e.target.checked }
-                })}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    support: {
+                      ...config.support,
+                      escalationProcess: e.target.checked,
+                    },
+                  })
+                }
                 className="rounded border-gray-300"
               />
               <span className="text-sm">תהליך הסלמה</span>
@@ -319,13 +390,20 @@ export function TrainingOngoingSpec() {
             <h4 className="font-medium mb-3">תדירות</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">הדרכות</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  הדרכות
+                </label>
                 <select
                   value={config.frequency.trainingSessions}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    frequency: { ...config.frequency, trainingSessions: e.target.value as any }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      frequency: {
+                        ...config.frequency,
+                        trainingSessions: e.target.value as any,
+                      },
+                    })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="weekly">שבועי</option>
@@ -335,13 +413,20 @@ export function TrainingOngoingSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">פגישות ביקורת</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  פגישות ביקורת
+                </label>
                 <select
                   value={config.frequency.reviewMeetings}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    frequency: { ...config.frequency, reviewMeetings: e.target.value as any }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      frequency: {
+                        ...config.frequency,
+                        reviewMeetings: e.target.value as any,
+                      },
+                    })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="monthly">חודשי</option>
@@ -351,13 +436,20 @@ export function TrainingOngoingSpec() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">דוחות התקדמות</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  דוחות התקדמות
+                </label>
                 <select
                   value={config.frequency.progressReports}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    frequency: { ...config.frequency, progressReports: e.target.value as any }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      frequency: {
+                        ...config.frequency,
+                        progressReports: e.target.value as any,
+                      },
+                    })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="weekly">שבועי</option>
@@ -376,10 +468,15 @@ export function TrainingOngoingSpec() {
                 <input
                   type="checkbox"
                   checked={config.deliverables.trainingMaterials}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    deliverables: { ...config.deliverables, trainingMaterials: e.target.checked }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      deliverables: {
+                        ...config.deliverables,
+                        trainingMaterials: e.target.checked,
+                      },
+                    })
+                  }
                   className="rounded border-gray-300"
                 />
                 <span className="text-sm">חומרי הדרכה</span>
@@ -389,10 +486,15 @@ export function TrainingOngoingSpec() {
                 <input
                   type="checkbox"
                   checked={config.deliverables.progressReports}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    deliverables: { ...config.deliverables, progressReports: e.target.checked }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      deliverables: {
+                        ...config.deliverables,
+                        progressReports: e.target.checked,
+                      },
+                    })
+                  }
                   className="rounded border-gray-300"
                 />
                 <span className="text-sm">דוחות התקדמות</span>
@@ -402,10 +504,15 @@ export function TrainingOngoingSpec() {
                 <input
                   type="checkbox"
                   checked={config.deliverables.certificates}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    deliverables: { ...config.deliverables, certificates: e.target.checked }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      deliverables: {
+                        ...config.deliverables,
+                        certificates: e.target.checked,
+                      },
+                    })
+                  }
                   className="rounded border-gray-300"
                 />
                 <span className="text-sm">תעודות</span>
@@ -415,10 +522,15 @@ export function TrainingOngoingSpec() {
                 <input
                   type="checkbox"
                   checked={config.deliverables.accessPortal}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    deliverables: { ...config.deliverables, accessPortal: e.target.checked }
-                  })}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      deliverables: {
+                        ...config.deliverables,
+                        accessPortal: e.target.checked,
+                      },
+                    })
+                  }
                   className="rounded border-gray-300"
                 />
                 <span className="text-sm">פורטל גישה</span>
@@ -446,10 +558,14 @@ export function TrainingOngoingSpec() {
                   value={databaseType.value || 'default'}
                   onChange={(e) => databaseType.setValue(e.target.value)}
                   className={`w-full px-3 py-2 border rounded-md ${
-                    databaseType.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    databaseType.isAutoPopulated
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-300'
                   } ${databaseType.hasConflict ? 'border-orange-300' : ''}`}
                 >
-                  <option value="default" disabled>בחר סוג מסד נתונים</option>
+                  <option value="default" disabled>
+                    בחר סוג מסד נתונים
+                  </option>
                   <option value="postgresql">PostgreSQL</option>
                   <option value="mysql">MySQL</option>
                   <option value="sql_server">SQL Server</option>
@@ -480,7 +596,9 @@ export function TrainingOngoingSpec() {
                   value={alertEmail.value || ''}
                   onChange={(e) => alertEmail.setValue(e.target.value)}
                   className={`w-full px-3 py-2 border rounded-md ${
-                    alertEmail.isAutoPopulated ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                    alertEmail.isAutoPopulated
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-300'
                   } ${alertEmail.hasConflict ? 'border-orange-300' : ''}`}
                   placeholder="admin@company.com"
                 />
@@ -508,12 +626,14 @@ export function TrainingOngoingSpec() {
                   <span className="text-sm">שגיאה בשמירה</span>
                 </div>
               )}
-              {!isSaving && !saveError && config.training.durationMonths > 0 && (
-                <div className="flex items-center gap-2 text-green-600">
-                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                  <span className="text-sm">נשמר אוטומטית</span>
-                </div>
-              )}
+              {!isSaving &&
+                !saveError &&
+                config.training.durationMonths > 0 && (
+                  <div className="flex items-center gap-2 text-green-600">
+                    <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                    <span className="text-sm">נשמר אוטומטית</span>
+                  </div>
+                )}
             </div>
             <button
               onClick={handleSave}
