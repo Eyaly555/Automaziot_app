@@ -12,7 +12,7 @@ interface AISectionProps {
 
 export const AISection: React.FC<AISectionProps> = ({ data, onChange }) => {
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-6">
       {/* Icon & Title - Optimized for mobile screens */}
       <div className="text-center">
         {/* Responsive icon sizing: smaller on tiny screens, larger on tablets */}
