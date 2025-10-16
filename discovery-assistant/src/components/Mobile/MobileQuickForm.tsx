@@ -262,7 +262,7 @@ export const MobileQuickForm: React.FC = () => {
         role="banner"
         aria-label="כותרת שאלון מהיר"
       >
-        <div className="container mx-auto px-4 py-4">
+        <div className="px-4 py-4">
           <h1 className="text-xl font-bold text-gray-900">
             שאלון מהיר {currentSectionInfo.icon}
           </h1>

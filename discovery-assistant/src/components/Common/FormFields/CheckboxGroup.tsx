@@ -59,24 +59,22 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
             {label}
           </label>
         )}
-        <div className={`grid ${gridCols} gap-3`}>
-          {options.map(option => (
-            <label
-              key={option.value}
-              className={`mobile-checkbox-option ${selectedValues.includes(option.value) ? 'selected' : ''}
-                ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              <input
-                type="checkbox"
-                checked={selectedValues.includes(option.value)}
-                onChange={() => !disabled && handleToggle(option.value)}
-                disabled={disabled}
-                className="mobile-checkbox-option input"
-              />
-              <span className="mobile-checkbox-option label">{option.label}</span>
-            </label>
-          ))}
-        </div>
+        {options.map(option => (
+          <label
+            key={option.value}
+            className={`mobile-checkbox-option ${selectedValues.includes(option.value) ? 'selected' : ''}
+              ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            <input
+              type="checkbox"
+              checked={selectedValues.includes(option.value)}
+              onChange={() => !disabled && handleToggle(option.value)}
+              disabled={disabled}
+              className="mobile-checkbox-option input"
+            />
+            <span className="mobile-checkbox-option label">{option.label}</span>
+          </label>
+        ))}
         {helperText && (
           <p className="mobile-helper-text">{helperText}</p>
         )}
