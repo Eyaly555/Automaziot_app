@@ -191,6 +191,7 @@ STEP 1: COMPREHENSION PHASE
 - Identify the customer's industry, pain points, and context
 - Note explicit statements vs. implied information
 - Flag ambiguous or contradictory information
+- Pay attention to conversation flow, key turning points, and relationship dynamics
 
 STEP 2: CONFIDENCE ASSESSMENT
 For each potential data point, evaluate:
@@ -219,7 +220,7 @@ Generate actionable next steps based on:
 <json_output_schema>
 You MUST return a valid JSON object with this EXACT structure. Use this schema as your template:
 {
-  "summary": "תקציר תמציתי של השיחה בעברית (2-3 משפטים) - חובה למלא",
+  "summary": "סיכום מפורט ומקיף של השיחה בעברית (10-15 משפטים או יותר לפי הצורך) - חובה למלא בפירוט רב",
   "confidence": "high|medium|low - הערכת ביטחון כוללת",
   "extractedFields": {
     "overview": {
@@ -325,6 +326,60 @@ When generating recommendedSolutions, consider:
 Match solution complexity to business size and budget indicators.
 </solution_matching_logic>
 
+<summary_guidelines>
+**CRITICAL: The summary field is the MOST IMPORTANT part of your output.**
+
+Your summary must be comprehensive and detailed (10-15 sentences minimum, more if needed). Include ALL of the following:
+
+1. **Who is the contact?**
+   - Name (if mentioned), role, background
+   - Example: "דום, מפתח עסקי שחזר לאחרונה מארה\"ב לאחר 6 שנים"
+
+2. **What is their business situation?**
+   - Current business model, clients they serve, team size
+   - Example: "הוא מייצג מספר לקוחות כולל מרפאות שיניים ומסעדה, ומתחיל להביא לקוחות בשבועיים האחרונים"
+
+3. **What are their specific needs/pain points?**
+   - Detailed description of each challenge mentioned
+   - Example: "הלקוח של דום (מסעדה) מעוניין בצ'אט בוט קולי לשירות לקוחות. למרפאות השיניים הוא צריך אוטומציה לתזכורות ווטסאפ וניהול פגישות"
+
+4. **What solutions were discussed?**
+   - Services mentioned, pricing discussed, technical details
+   - Example: "דובר על מחיר של ₪2,500-5,000 לפרויקט, בהתאם למורכבות ההטמעה. הוזכרה בעיית האינטגרציה עם תוכנת Rapid"
+
+5. **Technical environment and constraints:**
+   - Current systems, integration challenges, technical limitations
+   - Example: "מרפאות השיניים משתמשות ב-Rapid (לא Rapid One), שלא תומך ב-API. נדון בפתרון יצירתי דרך אימיילים או ממשקים אחרים"
+
+6. **Relationship and business opportunity:**
+   - Type of relationship (partner/client), urgency, decision timeline
+   - Example: "דום מעוניין בשיתוף פעולה כשותף עסקי עם מבנה עמלות. הזמין להצטרף לפגישות עם לקוחות (מחר ובשבוע הבא)"
+
+7. **Next meeting/timeline:**
+   - Specific dates, commitments made
+   - Example: "יש לו פגישה עם מרפאת שיניים מחר ועוד שתיים ביום ראשון. הציע להצטרף אליו בזום לפגישות"
+
+8. **Key insights and strategic notes:**
+   - Important points for follow-up, potential objections addressed, competitive mentions
+   - Example: "דום השווה ל-VoiceSpin. הוסבר לו שהטכנולוגיה זהה והיתרון שלנו בהתאמה אישית. הדגיש את המגבלות של Voice AI בעברית"
+
+**Format instructions:**
+- Write in natural Hebrew, flowing paragraphs
+- Use specific details from the conversation (names, numbers, dates)
+- Maintain chronological flow when relevant
+- Include direct quotes when impactful
+- Be thorough but organized - group related information together
+- Aim for 200-400 words in Hebrew
+
+**Example of a GOOD detailed summary:**
+"שיחת היכרות עם דוד (דום) לוי, מפתח עסקי בעל ניסיון של 6 שנים בארה\"ב (ניו יורק ופלורידה) שחזר לאחרונה לארץ ומתחיל להביא לקוחות בתחום האוטומציות וה-AI. דום מייצג מספר לקוחות כולל מרפאות שיניים ומסעדה, והוא מחפש ספק טכני אמין לביצוע פרויקטים. העניין המרכזי בשיחה: מסעדה שמעוניינת בצ'אט בוט קולי, ומרפאות שיניים שצריכות אוטומציה לתזכורות ווטסאפ וניהול פגישות. דובר על טווח מחירים של ₪2,500-5,000 לפרויקט, בהתאם למורכבות ההטמעה והכלים שיידרשו. הוזכרה בעיה מרכזית: מרפאות השיניים משתמשות בתוכנת Rapid (לא Rapid One) שלא תומכת ב-API, ונדונו פתרונות יצירתיים כמו אוטומציה דרך אימיילים. דום הציג עצמו כמי שמתחיל לפעול בשוק - כבר סגר כמה לקוחות ויש לו פגישות מתוכננות מחר ובשבוע הבא. הוא הביע עניין ברור בשיתוף פעולה כשותף עסקי עם מבנה עמלות על לקוחות שיסגור, והזמין להצטרף אליו לפגישות הקרובות בזום (במילואים שבוע הבא אז ממילא יהיה דרך זום). בשיחה הוזכר VoiceSpin כמתחרה, והוסבר לדום שהטכנולוגיה זהה אבל היתרון שלנו בהתאמה אישית ובגמישות כחברה קטנה (3 עובדים). הודגש שVoice AI בעברית עדיין לא מושלם ויש מגבלות שצריך להיות שקוף לגביהן. דום הראה מוכנות טכנית גבוהה - הוא מכיר כלים כמו Claude Code, Cursor, N8N, ומבין היטב את עולם ה-AI והאוטומציות. נדונו גם העדפות CRM - Zoho על פני Monday בשל הגמישות והמודולריות. האווירה בשיחה הייתה חיובית ושיתופית, עם תחושה ברורה של potential לשותפות ארוכת טווח."
+
+**Example of a BAD summary (too short):**
+"שיחה עם דום, מפתח עסקי. הוא מחפש פתרונות אוטומציה ללקוחות שלו. דובר על מחירים ועל שיתוף פעולה."
+
+Your summary should be closer to the GOOD example - detailed, specific, and comprehensive.
+</summary_guidelines>
+
 <next_steps_guidelines>
 Generate specific, actionable next steps such as:
 ✓ "לקבוע פגישת זום של 30 דקות להדגמת סוכן AI למכירות"
@@ -346,6 +401,9 @@ Generate specific, actionable next steps such as:
 <quality_checklist>
 Before returning your JSON, verify:
 □ JSON is valid and parseable (no trailing commas, proper quotes)
+□ **Summary is DETAILED and COMPREHENSIVE (10-15 sentences minimum)**
+□ Summary includes all 8 required components (who, what, needs, solutions, technical, relationship, timeline, insights)
+□ Summary uses specific details from the conversation (names, numbers, dates, systems mentioned)
 □ All extracted information has HIGH confidence
 □ Hebrew content is properly encoded
 □ Enum values match exactly (e.g., "high" not "High")
