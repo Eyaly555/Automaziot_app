@@ -19,8 +19,6 @@ This directory contains webhook endpoints that allow external systems to send tr
 }
 ```
 
-**⚠️ שים לב**: לא צריך לשלוח `zohoIntegration` - המערכת תשתמש אוטומטית ב-`clientId` כ-`recordId` ו-`"Potentials1"` כ-module.
-
 **Response**:
 ```json
 {
@@ -42,18 +40,16 @@ This directory contains webhook endpoints that allow external systems to send tr
       "nextSteps": ["צעד 1", "צעד 2"],
       "rawAnalysis": "..."
     },
-  "fieldProcessingResult": {
-    "updatedModules": { ... },
-    "mergeSummary": {
+    "fieldProcessingResult": {
+      "updatedModules": { ... },
+      "mergeSummary": {
+        "totalFieldsFilled": 5,
+        "totalFieldsSkipped": 2,
+        "moduleResults": [...]
+      },
       "totalFieldsFilled": 5,
-      "totalFieldsSkipped": 2,
-      "moduleResults": [...]
+      "modulesAffected": 2
     },
-    "totalFieldsFilled": 5,
-    "totalFieldsSkipped": 0,
-    "modulesAffected": 2,
-    "meetingCreated": false
-  },
     "timestamp": "2024-01-01T00:00:00.000Z",
     "source": "external-webhook"
   },
@@ -154,19 +150,21 @@ curl -X POST https://automaziot-app.vercel.app/api/webhook/external-transcriptio
   -H "Content-Type: application/json" \
   -d '{
     "transcript": "שיחה עם הלקוח על הצרכים שלו...",
-    "clientId": "client-123"
+    "clientId": "client-123",
+    "zohoIntegration": {
+      "recordId": "zoho-record-id",
+      "module": "Potentials1"
+    }
   }'
 ```
 
 **This single call will**:
 1. ✅ Analyze the transcript with Claude AI
-2. ✅ Create/load client meeting automatically
-3. ✅ Extract business fields automatically
-4. ✅ Merge fields into client modules (only empty fields)
-5. ✅ Save everything to Supabase
-6. ✅ Create Zoho note (recordId = clientId, module = "Potentials1")
-7. ✅ Send complete summary to your n8n webhook
-8. ✅ Return detailed results
+2. ✅ Extract business fields automatically
+3. ✅ Merge fields into client modules (only empty fields)
+4. ✅ Create Zoho note (if recordId provided)
+5. ✅ Send complete summary to your n8n webhook
+6. ✅ Return detailed results
 
 ### Option 2: Two-Step Process (Legacy)
 

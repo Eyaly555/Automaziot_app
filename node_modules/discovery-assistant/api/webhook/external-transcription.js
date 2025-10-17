@@ -1,10 +1,51 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
+import { zohoAPI } from '../zoho/service.js';
+import { calculateDiscoveryStatus } from '../zoho/helpers/discoveryStatus.js';
 
-// Supabase client for API
+// Initialize Supabase client
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
+
+// Helper: Generate unique ID (same as useMeetingStore)
+const generateId = () => Math.random().toString(36).substr(2, 9);
+
+// Helper: Calculate progress percentage (same as sync.js)
+function calculateProgress(meeting) {
+  if (!meeting?.modules) return 0;
+
+  const moduleWeights = {
+    overview: 6,
+    leadsAndSales: 5,
+    customerService: 6,
+    operations: 6,
+    reporting: 4,
+    aiAgents: 3,
+    systems: 3,
+    roi: 2,
+    planning: 4
+  };
+
+  let totalFields = 0;
+  let completedFields = 0;
+
+  for (const [moduleName, weight] of Object.entries(moduleWeights)) {
+    totalFields += weight;
+    const moduleData = meeting.modules[moduleName];
+    if (moduleData && typeof moduleData === 'object') {
+      const filledFields = Object.values(moduleData).filter(value => {
+        if (value === null || value === undefined || value === '') return false;
+        if (Array.isArray(value)) return value.length > 0;
+        if (typeof value === 'object') return Object.keys(value).length > 0;
+        return true;
+      }).length;
+      completedFields += Math.min(filledFields, weight);
+    }
+  }
+
+  return totalFields > 0 ? Math.round((completedFields / totalFields) * 100) : 0;
+}
 
 // Helper function to check if a field value is considered empty
 function isFieldEmpty(value) {
@@ -86,19 +127,6 @@ function mergeExtractedFields(currentModules, extractedFields) {
 
   return { updatedModules, summary };
 }
-
-// Generate ID function (from useMeetingStore.ts)
-const generateId = () => Math.random().toString(36).substr(2, 9);
-
-// Normalize phase function (from useMeetingStore.ts)
-const normalizePhase = (phase) => {
-  if (!phase) return 'discovery';
-  const normalized = phase.toLowerCase();
-  if (['discovery', 'implementation_spec', 'development', 'completed'].includes(normalized)) {
-    return normalized;
-  }
-  return 'discovery';
-};
 
 export default async function handler(req, res) {
   // Only allow POST requests
@@ -387,216 +415,303 @@ Before returning your JSON, verify:
       source: 'external-webhook'
     };
 
-    // Load or create meeting (like createOrLoadMeeting in store)
+    // STEP 1: Load or create meeting from Supabase
     let currentMeeting = null;
     let meetingCreated = false;
-    let fieldProcessingResult = null;
-    let zohoNoteCreated = false;
-    let zohoError = null;
+    let supabaseSaved = false;
+    let supabaseError = null;
 
-    try {
-      // Try to load existing meeting from Supabase
-      if (supabase) {
+    // Try to load existing meeting from Supabase
+    if (supabase) {
+      try {
         const { data, error } = await supabase
           .schema('automaziot')
           .from('meetings')
           .select('meeting_json')
           .eq('zoho_record_id', clientId)
           .single();
-
-        if (!error && data) {
+        
+        if (!error && data && data.meeting_json) {
           currentMeeting = data.meeting_json;
-          console.log('[External Transcription] ✓ Loaded existing meeting');
+          console.log('[External Transcription] ✓ Found existing meeting in Supabase');
+        } else if (error && error.code !== 'PGRST116') {
+          // PGRST116 = no rows found, which is OK for new client
+          console.error('[External Transcription] ⚠️ Supabase load error:', error);
+          supabaseError = error.message;
         }
+      } catch (loadError) {
+        console.error('[External Transcription] ⚠️ Failed to load from Supabase:', loadError);
+        supabaseError = loadError.message;
       }
+    }
 
-      // If no meeting exists, create new one (like createMeeting in store)
-      if (!currentMeeting) {
-        console.log('[External Transcription] Creating new meeting for client:', clientId);
+    // Create new meeting if not found
+    if (!currentMeeting) {
+      currentMeeting = {
+        meetingId: clientId,
+        id: clientId,
+        clientName: `Client ${clientId}`,
+        date: new Date(),
+        timer: 0,
+        dataVersion: 5,
+        modules: {
+          overview: {},
+          leadsAndSales: {},
+          customerService: {},
+          operations: {},
+          reporting: {},
+          aiAgents: {},
+          systems: {},
+          roi: {},
+          planning: {},
+        },
+        painPoints: [],
+        notes: '',
+        phase: 'discovery',
+        status: 'discovery_in_progress',
+        phaseHistory: [{
+          fromPhase: null,
+          toPhase: 'discovery',
+          timestamp: new Date(),
+          transitionedBy: 'webhook-automation'
+        }],
+        implementationSpec: undefined,
+        developmentTracking: undefined,
+        zohoIntegration: {
+          recordId: clientId,
+          module: 'Potentials1',
+          syncEnabled: true
+        }
+      };
+      meetingCreated = true;
+      console.log('[External Transcription] ✓ Created new meeting structure');
+    }
 
-        currentMeeting = {
-          meetingId: clientId,
-          id: clientId,
-          clientName: `Client ${clientId}`,
-          date: new Date(),
-          timer: 0,
-          dataVersion: 5, // CURRENT_DATA_VERSION
-          modules: {
-            overview: {},
-            leadsAndSales: {},
-            customerService: {},
-            operations: {},
-            reporting: {},
-            aiAgents: {},
-            systems: {},
-            roi: {},
-            planning: {},
-          },
-          painPoints: [],
-          notes: '',
-          phase: 'discovery',
-          status: 'discovery_in_progress',
-          phaseHistory: [{
-            fromPhase: null,
-            toPhase: 'discovery',
-            timestamp: new Date(),
-            transitionedBy: 'system'
-          }],
-          zohoIntegration: {
-            recordId: clientId,
-            module: 'Potentials1',
-            syncEnabled: true
-          }
-        };
+    // STEP 2: Save conversation analysis to meeting
+    currentMeeting.conversationAnalysis = completeResult;
 
-        meetingCreated = true;
-        console.log('[External Transcription] ✓ Created new meeting');
-      }
-
-      // Save conversation analysis to meeting (like ConversationAnalyzer)
-      currentMeeting.conversationAnalysis = completeResult;
-
-      // Apply field merging logic (like ConversationAnalyzer)
+    // STEP 3: Merge extracted fields with existing modules
+    let fieldProcessingResult = null;
+    let zohoNoteCreated = false;
+    let zohoError = null;
+    
+    try {
+      // Apply field merging logic
       const { updatedModules, summary: mergeSummary } = mergeExtractedFields(
         currentMeeting.modules,
         analysisResult.extractedFields
       );
 
-      // Update modules
-      currentMeeting.modules = { ...currentMeeting.modules, ...updatedModules };
-
-      // Save to Supabase (like supabaseService.saveMeeting)
-      if (supabase) {
-        await supabase
-          .schema('automaziot')
-          .from('meetings')
-          .upsert({
-            zoho_record_id: clientId,
-            meeting_json: currentMeeting
-          }, {
-            onConflict: 'zoho_record_id'
-          });
-
-        console.log('[External Transcription] ✓ Saved to Supabase');
-      }
+      // Update meeting modules with merged data
+      currentMeeting.modules = {
+        ...currentMeeting.modules,
+        ...updatedModules
+      };
 
       fieldProcessingResult = {
         updatedModules,
         mergeSummary,
         totalFieldsFilled: mergeSummary.totalFieldsFilled,
         totalFieldsSkipped: mergeSummary.totalFieldsSkipped,
-        modulesAffected: mergeSummary.moduleResults.filter(m => m.fieldsFilled.length > 0).length,
-        meetingCreated
+        modulesAffected: mergeSummary.moduleResults.filter(m => m.fieldsFilled.length > 0).length
       };
 
+      console.log('[External Transcription] ✓ Field processing completed:', {
+        fieldsFilled: mergeSummary.totalFieldsFilled,
+        modulesAffected: fieldProcessingResult.modulesAffected
+      });
+
     } catch (fieldError) {
-      console.error('[External Transcription] ⚠️ Meeting/field processing failed:', fieldError);
+      console.error('[External Transcription] ⚠️ Field processing failed:', fieldError);
       fieldProcessingResult = { error: fieldError.message };
     }
 
-    // Always create Zoho note (recordId = clientId, module = 'Potentials1')
-    try {
-        // Format the note content - include ALL information
-        const noteTitle = `תמלול וסיכום שיחת גילוי - ${new Date().toLocaleDateString(
-          'he-IL',
-          {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          }
-        )}`;
-
-        // Build comprehensive note content
-        const contentParts = [
-          '=== סיכום השיחה ===',
-          analysisResult.summary || 'לא זמין',
-          '',
-        ];
-
-        // Add confidence level
-        const confidenceText =
-          analysisResult.confidence === 'high'
-            ? 'גבוהה'
-            : analysisResult.confidence === 'medium'
-              ? 'בינונית'
-              : 'נמוכה';
-        contentParts.push(`רמת ביטחון: ${confidenceText}`);
-        contentParts.push('');
-
-        // Add fields filled summary if available
-        if (fieldProcessingResult && fieldProcessingResult.mergeSummary && fieldProcessingResult.mergeSummary.totalFieldsFilled > 0) {
-          contentParts.push('=== שדות שהתמלאו ===');
-          contentParts.push(
-            `סה"כ שדות שהתמלאו: ${fieldProcessingResult.mergeSummary.totalFieldsFilled}`
-          );
-
-          // Add details per module
-          fieldProcessingResult.mergeSummary.moduleResults.forEach((result) => {
-            if (result.fieldsFilled.length > 0) {
-              const moduleNames = {
-                overview: 'סקירה כללית',
-                leadsAndSales: 'לידים ומכירות',
-                customerService: 'שירות לקוחות',
-                aiAgents: 'סוכני AI',
-                roi: 'ROI',
-              };
-
-              const moduleNameHebrew = moduleNames[result.moduleName] || result.moduleName;
-              contentParts.push(
-                `  • ${moduleNameHebrew}: ${result.fieldsFilled.length} שדות`
-              );
+    // STEP 4: Save to Supabase
+    if (supabase && currentMeeting) {
+      try {
+        const { error: saveError } = await supabase
+          .schema('automaziot')
+          .from('meetings')
+          .upsert(
+            {
+              zoho_record_id: clientId,
+              meeting_json: currentMeeting
+            },
+            {
+              onConflict: 'zoho_record_id'
             }
-          });
-          contentParts.push('');
-        }
+          )
+          .select();
 
-        // Add next steps if available
-        if (analysisResult.nextSteps && analysisResult.nextSteps.length > 0) {
-          contentParts.push('=== צעדים הבאים מומלצים ===');
-          analysisResult.nextSteps.forEach((step, index) => {
-            contentParts.push(`${index + 1}. ${step}`);
-          });
-          contentParts.push('');
-        }
-
-        // Add full transcript
-        contentParts.push('=== תמלול מלא ===');
-        contentParts.push(transcript);
-        contentParts.push('');
-
-        contentParts.push(
-          `--- נוצר אוטומטית על ידי Discovery Assistant | ${new Date().toLocaleString('he-IL')}`
-        );
-
-        const noteContent = contentParts.join('\n');
-
-        // Call Zoho API endpoint directly (like createZohoNote does)
-        const zohoResponse = await fetch('/api/zoho/notes/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            recordId: clientId,
-            title: noteTitle,
-            content: noteContent,
-            module: 'Potentials1'
-          })
-        });
-
-        if (zohoResponse.ok) {
-          zohoNoteCreated = true;
-          console.log('[External Transcription] ✓ Zoho note created successfully');
+        if (saveError) {
+          console.error('[External Transcription] ⚠️ Supabase save failed:', saveError);
+          supabaseError = saveError.message;
         } else {
-          throw new Error(`Zoho API failed: ${zohoResponse.status}`);
+          supabaseSaved = true;
+          console.log('[External Transcription] ✓ Saved to Supabase successfully');
         }
-      } catch (noteError) {
-        zohoError = noteError.message;
-        console.error('[External Transcription] ⚠️ Failed to create Zoho note:', noteError);
+      } catch (saveError) {
+        console.error('[External Transcription] ⚠️ Failed to save to Supabase:', saveError);
+        supabaseError = saveError.message;
       }
     }
 
-    // Send summary to external webhook
+    // STEP 5: Create Zoho note (always, using clientId)
+    try {
+      // Format the note content - include ALL information
+      const noteTitle = `תמלול וסיכום שיחת גילוי - ${new Date().toLocaleDateString(
+        'he-IL',
+        {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }
+      )}`;
+
+      // Build comprehensive note content
+      const contentParts = [
+        '=== סיכום השיחה ===',
+        analysisResult.summary || 'לא זמין',
+        '',
+      ];
+
+      // Add confidence level
+      const confidenceText =
+        analysisResult.confidence === 'high'
+          ? 'גבוהה'
+          : analysisResult.confidence === 'medium'
+            ? 'בינונית'
+            : 'נמוכה';
+      contentParts.push(`רמת ביטחון: ${confidenceText}`);
+      contentParts.push('');
+
+      // Add fields filled summary if available
+      if (fieldProcessingResult && fieldProcessingResult.mergeSummary && fieldProcessingResult.mergeSummary.totalFieldsFilled > 0) {
+        contentParts.push('=== שדות שהתמלאו ===');
+        contentParts.push(
+          `סה"כ שדות שהתמלאו: ${fieldProcessingResult.mergeSummary.totalFieldsFilled}`
+        );
+
+        // Add details per module
+        fieldProcessingResult.mergeSummary.moduleResults.forEach((result) => {
+          if (result.fieldsFilled.length > 0) {
+            const moduleNames = {
+              overview: 'סקירה כללית',
+              leadsAndSales: 'לידים ומכירות',
+              customerService: 'שירות לקוחות',
+              aiAgents: 'סוכני AI',
+              roi: 'ROI',
+            };
+
+            const moduleNameHebrew = moduleNames[result.moduleName] || result.moduleName;
+            contentParts.push(
+              `  • ${moduleNameHebrew}: ${result.fieldsFilled.length} שדות`
+            );
+          }
+        });
+        contentParts.push('');
+      }
+
+      // Add next steps if available
+      if (analysisResult.nextSteps && analysisResult.nextSteps.length > 0) {
+        contentParts.push('=== צעדים הבאים מומלצים ===');
+        analysisResult.nextSteps.forEach((step, index) => {
+          contentParts.push(`${index + 1}. ${step}`);
+        });
+        contentParts.push('');
+      }
+
+      // Add full transcript
+      contentParts.push('=== תמלול מלא ===');
+      contentParts.push(transcript);
+      contentParts.push('');
+
+      contentParts.push(
+        `--- נוצר אוטומטית על ידי Discovery Assistant | ${new Date().toLocaleString('he-IL')}`
+      );
+
+      const noteContent = contentParts.join('\n');
+
+      // Create Zoho note using zohoAPI
+      const noteResponse = await zohoAPI('/crm/v8/Notes', {
+        method: 'POST',
+        body: JSON.stringify({
+          data: [{
+            Note_Content: noteContent,
+            Parent_Id: {
+              module: {
+                api_name: 'Potentials1'
+              },
+              id: clientId
+            }
+          }]
+        })
+      });
+
+      // Check for success
+      if (noteResponse.data && noteResponse.data[0]?.code === 'SUCCESS') {
+        const noteId = noteResponse.data[0].details.id;
+        zohoNoteCreated = true;
+        console.log('[External Transcription] ✓ Zoho note created successfully:', noteId);
+      } else {
+        const errorMsg = noteResponse.data?.[0]?.message || 'Unknown error';
+        throw new Error(`Note creation failed: ${errorMsg}`);
+      }
+    } catch (noteError) {
+      zohoError = noteError.message;
+      console.error('[External Transcription] ⚠️ Failed to create Zoho note:', noteError);
+    }
+
+    // STEP 6: Update Zoho Discovery fields
+    let zohoFieldsUpdated = false;
+    let zohoFieldsError = null;
+
+    try {
+      const progressPercentage = calculateProgress(currentMeeting);
+      const discoveryStatus = calculateDiscoveryStatus(currentMeeting);
+      const now = new Date();
+
+      const zohoData = {
+        Discovery_Progress: JSON.stringify(currentMeeting),
+        Discovery_Last_Update: now.toISOString().split('.')[0] + '+00:00',
+        Discovery_Completion: `${progressPercentage}%`,
+        Discovery_Status: discoveryStatus,
+        Discovery_Date: now.toISOString().split('T')[0],
+        Discovery_Modules_Completed: Object.keys(currentMeeting.modules || {}).filter(
+          key => {
+            const mod = currentMeeting.modules[key];
+            return mod && typeof mod === 'object' && Object.keys(mod).length > 0;
+          }
+        ).length,
+        Meeting_Data_JS: JSON.stringify(currentMeeting)
+      };
+
+      console.log('[External Transcription] Updating Zoho fields:', {
+        recordId: clientId,
+        progress: progressPercentage,
+        status: discoveryStatus
+      });
+
+      const updateResponse = await zohoAPI(`/crm/v8/Potentials1/${clientId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ data: [zohoData] })
+      });
+
+      if (updateResponse.data && updateResponse.data[0]?.code === 'SUCCESS') {
+        zohoFieldsUpdated = true;
+        console.log('[External Transcription] ✓ Zoho fields updated successfully');
+      } else {
+        const errorMsg = updateResponse.data?.[0]?.message || 'Unknown error';
+        throw new Error(`Zoho update failed: ${errorMsg}`);
+      }
+    } catch (zohoUpdateError) {
+      zohoFieldsError = zohoUpdateError.message;
+      console.error('[External Transcription] ⚠️ Failed to update Zoho fields:', zohoUpdateError);
+    }
+
+    // STEP 7: Send summary to external webhook
     let externalWebhookSent = false;
     let externalWebhookError = null;
     
@@ -615,8 +730,13 @@ Before returning your JSON, verify:
         source: 'external-transcription-webhook',
         analysisComplete: true,
         fieldsProcessed: true,
+        meetingCreated,
+        supabaseSaved,
+        supabaseError,
         zohoNoteCreated,
-        zohoError
+        zohoError,
+        zohoFieldsUpdated,
+        zohoFieldsError
       };
 
       const webhookResponse = await fetch(externalWebhookUrl, {
@@ -646,8 +766,13 @@ Before returning your JSON, verify:
       data: {
         ...completeResult,
         fieldProcessingResult,
+        meetingCreated,
+        supabaseSaved,
+        supabaseError,
         zohoNoteCreated,
-        zohoError
+        zohoError,
+        zohoFieldsUpdated,
+        zohoFieldsError
       },
       // Include the extracted fields for easy access
       extractedFields: analysisResult.extractedFields,
@@ -659,14 +784,18 @@ Before returning your JSON, verify:
       totalFieldsFilled: fieldProcessingResult?.totalFieldsFilled || 0,
       modulesAffected: fieldProcessingResult?.modulesAffected || 0,
       // Integration results
+      meetingCreated,
+      supabaseSaved,
+      supabaseError,
       zohoNoteCreated,
       zohoError,
+      zohoFieldsUpdated,
+      zohoFieldsError,
       externalWebhookSent,
       externalWebhookError,
       // Processing status
       processingComplete: true,
-      fieldsProcessed: true,
-      zohoIntegrationAttempted: true
+      fieldsProcessed: true
     });
 
   } catch (error) {
