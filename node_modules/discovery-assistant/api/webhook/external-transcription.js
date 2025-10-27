@@ -435,13 +435,27 @@ Before returning your JSON, verify:
     // Try to parse the JSON response
     let analysisResult;
     try {
-      // Extract JSON from the response (in case Claude adds extra text)
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        analysisResult = JSON.parse(jsonMatch[0]);
-      } else {
-        analysisResult = JSON.parse(responseText);
+      // Remove markdown code blocks if present
+      let cleanedResponse = responseText.trim();
+
+      // Remove ```json from start
+      if (cleanedResponse.startsWith('```json')) {
+        cleanedResponse = cleanedResponse.substring(7);
+      } else if (cleanedResponse.startsWith('```')) {
+        cleanedResponse = cleanedResponse.substring(3);
       }
+
+      // Remove ``` from end
+      if (cleanedResponse.endsWith('```')) {
+        cleanedResponse = cleanedResponse.substring(0, cleanedResponse.length - 3);
+      }
+
+      // Trim whitespace again
+      cleanedResponse = cleanedResponse.trim();
+
+      // Parse the JSON
+      analysisResult = JSON.parse(cleanedResponse);
+
     } catch (parseError) {
       console.error('Failed to parse Claude response as JSON:', responseText);
       return res.status(500).json({

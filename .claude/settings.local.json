@@ -74,7 +74,8 @@
       "mcp__chrome-devtools__take_snapshot",
       "mcp__chrome-devtools__click",
       "Skill(llm-application-dev:prompt-engineering-patterns)",
-      "Read(//c/Users/eyaly/**)"
+      "Read(//c/Users/eyaly/**)",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []
