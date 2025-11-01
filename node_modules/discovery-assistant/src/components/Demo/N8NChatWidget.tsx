@@ -31,7 +31,7 @@ export const N8NChatWidget: React.FC<N8NChatWidgetProps> = ({
   chatInputKey = 'chatInput',
   chatSessionKey = 'sessionId',
   loadPreviousSession = true,
-  enableStreaming = false,
+  enableStreaming = true,
   metadata = {},
   onClose
 }) => {
