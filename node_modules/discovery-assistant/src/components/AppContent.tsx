@@ -54,6 +54,9 @@ import { AutoSaveIndicator } from './Feedback/AutoSaveIndicator';
 import { FeedbackButton } from './Feedback/FeedbackButton';
 import { FeedbackViewer } from './Feedback/FeedbackViewer';
 
+// Demo Page
+import { DemoPage } from './Demo/DemoPage';
+
 export const AppContent = () => {
   const { currentMeeting } = useMeetingStore();
   const location = useLocation();
@@ -131,6 +134,7 @@ export const AppContent = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/meeting/:recordId" element={<Dashboard />} />
         <Route path="/clients" element={<ClientsListView />} />
+        <Route path="/demo" element={<DemoPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/test-pdf" element={<PDFTestPage />} />
         <Route path="/summary" element={<SummaryTab />} />
