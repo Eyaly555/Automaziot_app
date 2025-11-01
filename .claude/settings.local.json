@@ -75,7 +75,8 @@
       "mcp__chrome-devtools__click",
       "Skill(llm-application-dev:prompt-engineering-patterns)",
       "Read(//c/Users/eyaly/**)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(netstat:*)"
     ],
     "deny": [],
     "ask": []

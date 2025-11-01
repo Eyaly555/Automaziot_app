@@ -73,10 +73,11 @@ export const usePhaseGuard = (language: 'he' | 'en' = 'he') => {
   useEffect(() => {
     // Skip guard if no meeting is loaded
     if (!currentMeeting) {
-      // Allow access to login, clients list, and dashboard
+      // Allow access to login, clients list, dashboard, and demo page
       if (
         !location.pathname.includes('/login') &&
         !location.pathname.includes('/clients') &&
+        !location.pathname.includes('/demo') &&
         location.pathname !== '/' &&
         location.pathname !== '/dashboard'
       ) {

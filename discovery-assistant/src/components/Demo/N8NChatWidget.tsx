@@ -1,9 +1,10 @@
 /**
  * N8N Chat Widget Wrapper Component
  * Handles initialization and customization of N8N Chat widget
+ * Fully optimized for mobile, tablet, and desktop viewports
  */
 
-import { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import '@n8n/chat/style.css';
 import { createChat } from '@n8n/chat';
 
@@ -24,7 +25,11 @@ export interface N8NChatWidgetProps {
  * Creates and manages the N8N Chat widget instance
  * Handles proper cleanup and customization for Hebrew language
  */
-export const N8NChatWidget: React.FC<N8NChatWidgetProps> = ({
+/**
+ * Memoized component to prevent unnecessary re-renders
+ * Only re-renders when props actually change
+ */
+const N8NChatWidgetComponent: React.FC<N8NChatWidgetProps> = ({
   webhookUrl,
   agentName,
   initialMessages,
@@ -37,6 +42,12 @@ export const N8NChatWidget: React.FC<N8NChatWidgetProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const chatInstanceRef = useRef<any>(null);
+
+  // Memoize metadata to prevent unnecessary re-renders
+  const memoizedMetadata = useMemo(() => ({
+    agentName,
+    ...metadata
+  }), [agentName, metadata]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -59,10 +70,7 @@ export const N8NChatWidget: React.FC<N8NChatWidgetProps> = ({
         chatSessionKey,
         loadPreviousSession,
         enableStreaming,
-        metadata: {
-          agentName,
-          ...metadata
-        },
+        metadata: memoizedMetadata,
         defaultLanguage: 'he',
         initialMessages,
         showWelcomeScreen: false,
@@ -91,17 +99,31 @@ export const N8NChatWidget: React.FC<N8NChatWidgetProps> = ({
         chatContainer.remove();
       }
     };
-  }, [webhookUrl, agentName, initialMessages, chatInputKey, chatSessionKey, loadPreviousSession, enableStreaming, metadata]);
+  }, [webhookUrl, agentName, initialMessages, chatInputKey, chatSessionKey, loadPreviousSession, enableStreaming, memoizedMetadata]);
 
   return (
     <div
       ref={containerRef}
       className="w-full h-full flex flex-col"
       dir="rtl"
+      style={{
+        minHeight: '200px',
+        /* Ensure proper touch scrolling on mobile */
+        WebkitOverflowScrolling: 'touch',
+        /* Prevent content from being cut off by iOS notch */
+        paddingLeft: 'max(0px, env(safe-area-inset-left))',
+        paddingRight: 'max(0px, env(safe-area-inset-right))'
+      }}
     >
-      {/* Chat widget will be injected here by N8N createChat */}
+      {/* Chat widget will be injected here by N8N createChat - fully responsive across all devices */}
     </div>
   );
 };
+
+/**
+ * Export memoized component to prevent unnecessary re-renders
+ * This prevents the chat from being destroyed/recreated when parent re-renders
+ */
+export const N8NChatWidget = React.memo(N8NChatWidgetComponent);
 
 export default N8NChatWidget;

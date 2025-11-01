@@ -1,9 +1,10 @@
 /**
  * Airtable Embed Component
  * Displays embedded Airtable table that updates in real-time
+ * Fully optimized for mobile, tablet, and desktop viewports
  */
 
-import { useEffect } from 'react';
+import React from 'react';
 
 export interface AirtableEmbedProps {
   embedUrl: string;
@@ -14,37 +15,28 @@ export interface AirtableEmbedProps {
 /**
  * AirtableEmbed Component
  * Wraps Airtable iframe embed for displaying live tables
+ * Mobile-optimized with responsive padding and typography
  */
 export const AirtableEmbed: React.FC<AirtableEmbedProps> = ({
   embedUrl,
   title
 }) => {
-  // Load Airtable embed script if not already loaded
-  useEffect(() => {
-    if (!(window as any).airtable) {
-      const script = document.createElement('script');
-      script.src = 'https://airtable.com/embed.js';
-      script.async = true;
-      script.defer = true;
-      document.head.appendChild(script);
-    }
-  }, []);
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-slate-800 rounded-lg shadow-lg overflow-hidden">
-      {/* Header */}
+      {/* Header - Mobile optimized spacing and text sizes */}
       {title && (
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <div className="px-3 py-2 sm:px-6 sm:py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900 dark:text-white truncate">
             {title}
           </h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
             מתעדכנת בזמן אמת
           </p>
         </div>
       )}
 
-      {/* Airtable Embed */}
+      {/* Airtable Embed - Responsive iframe */}
       <div className="flex-1 overflow-hidden">
         <iframe
           className="airtable-embed w-full h-full border-0"
@@ -53,17 +45,19 @@ export const AirtableEmbed: React.FC<AirtableEmbedProps> = ({
           title={title || 'Airtable Table'}
           allow="camera; microphone; geolocation"
           sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-presentation"
+          loading="lazy"
           style={{
             height: '100%',
             width: '100%',
-            background: 'transparent'
+            background: 'transparent',
+            minHeight: '200px'
           }}
         />
       </div>
 
-      {/* Footer Info */}
-      <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-slate-900">
-        <p className="text-xs text-gray-500 dark:text-gray-400">
+      {/* Footer Info - Mobile optimized padding */}
+      <div className="px-3 py-2 sm:px-6 sm:py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-slate-900">
+        <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
           הטבלה מתעדכנת אוטומטית כאשר סוכן ה-AI יוצר או משנה רשומות
         </p>
       </div>
