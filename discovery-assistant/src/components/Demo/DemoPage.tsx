@@ -12,6 +12,7 @@ import { DEMO_AGENTS } from '../../config/demoAgents';
 import { Button } from '../Base/Button';
 import { AgentCard } from './AgentCard';
 import { N8NChatWidget } from './N8NChatWidget';
+import { AirtableEmbed } from './AirtableEmbed';
 import { FadeIn, SlideIn, StaggerChildren, StaggerItem } from '../Feedback/PageTransition';
 
 /**
@@ -112,11 +113,13 @@ export const DemoPage: React.FC = () => {
   }
 
   // Chat view
+  const hasAirtable = selectedAgent.airtableEmbedUrl;
+
   return (
     <div className="h-screen flex flex-col bg-white dark:bg-slate-900" dir="rtl">
       {/* Chat Header */}
       <header className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-        <div className="flex items-center justify-between max-w-full">
+        <div className="flex items-center justify-between">
           <FadeIn>
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-500">
@@ -130,6 +133,7 @@ export const DemoPage: React.FC = () => {
                 </h2>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   {selectedAgent.category}
+                  {hasAirtable && ' • מחובר לנתונים בזמן אמת'}
                 </p>
               </div>
             </div>
@@ -147,17 +151,33 @@ export const DemoPage: React.FC = () => {
         </div>
       </header>
 
-      {/* Chat Container */}
-      <div className="flex-1 overflow-hidden bg-gray-50 dark:bg-slate-900">
-        <N8NChatWidget
-          webhookUrl={selectedAgent.webhookUrl}
-          agentName={selectedAgent.name}
-          initialMessages={selectedAgent.initialMessages}
-          metadata={{
-            agentId: selectedAgent.id,
-            agentCategory: selectedAgent.category
-          }}
-        />
+      {/* Main Content - Split Layout or Chat Only */}
+      <div className={`flex-1 overflow-hidden flex gap-4 p-4 bg-gray-50 dark:bg-slate-900 ${hasAirtable ? 'flex-row' : ''}`}>
+        {/* Chat Container */}
+        <div className={`${hasAirtable ? 'flex-1 min-w-0' : 'w-full'} bg-white dark:bg-slate-800 rounded-lg overflow-hidden shadow-lg`}>
+          <N8NChatWidget
+            webhookUrl={selectedAgent.webhookUrl}
+            agentName={selectedAgent.name}
+            initialMessages={selectedAgent.initialMessages}
+            metadata={{
+              agentId: selectedAgent.id,
+              agentCategory: selectedAgent.category
+            }}
+          />
+        </div>
+
+        {/* Airtable Embed - Right Panel */}
+        {hasAirtable && (
+          <div className="flex-1 min-w-0">
+            <SlideIn direction="right" delay={0.2}>
+              <AirtableEmbed
+                embedUrl={selectedAgent.airtableEmbedUrl}
+                title={selectedAgent.airtableTitle}
+                height="100%"
+              />
+            </SlideIn>
+          </div>
+        )}
       </div>
     </div>
   );

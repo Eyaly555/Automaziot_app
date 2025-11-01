@@ -18,7 +18,9 @@ export const DEMO_AGENTS: DemoAgent[] = [
       'שלום! 👋',
       'אני סוכן הנדלן שלך. כיצד אוכל לעזור לך היום? האם אתה מעוניין לקנות, למכור, או לשכור נכס?'
     ],
-    disabled: false
+    disabled: false,
+    airtableEmbedUrl: 'https://airtable.com/embed/appuvQDTNtKRR6yah/shrcwRFmonnRktxVm?layout=card&viewControls=on',
+    airtableTitle: 'נתונים בזמן אמת - נכסים וחיפושים'
   },
   {
     id: 'sales-agent',

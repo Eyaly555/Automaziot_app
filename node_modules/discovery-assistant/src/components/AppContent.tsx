@@ -56,6 +56,7 @@ import { FeedbackViewer } from './Feedback/FeedbackViewer';
 
 // Demo Page
 import { DemoPage } from './Demo/DemoPage';
+import { DemoErrorBoundary } from './Demo/DemoErrorBoundary';
 
 export const AppContent = () => {
   const { currentMeeting } = useMeetingStore();
@@ -134,7 +135,7 @@ export const AppContent = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/meeting/:recordId" element={<Dashboard />} />
         <Route path="/clients" element={<ClientsListView />} />
-        <Route path="/demo" element={<DemoPage />} />
+        <Route path="/demo" element={<DemoErrorBoundary><DemoPage /></DemoErrorBoundary>} />
         <Route path="/login" element={<Login />} />
         <Route path="/test-pdf" element={<PDFTestPage />} />
         <Route path="/summary" element={<SummaryTab />} />

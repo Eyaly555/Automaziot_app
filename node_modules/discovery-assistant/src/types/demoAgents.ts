@@ -14,6 +14,8 @@ export interface DemoAgent {
   initialMessages: string[];
   disabled?: boolean;
   disabledReason?: string;
+  airtableEmbedUrl?: string;
+  airtableTitle?: string;
 }
 
 export interface DemoAgentCategory {
