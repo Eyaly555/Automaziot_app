@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Airtable Embed Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .status.info {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .error-details {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Airtable Embed Test</h1>
+
+        <div class="test-section">
+            <h2>Test 1: Direct Airtable Embed (Plain HTML)</h2>
+            <div class="status info">
+                🔄 Loading the Airtable embed directly...
+            </div>
+            <div class="iframe-container" id="test1-container">
+                <iframe
+                    class="airtable-embed"
+                    src="https://airtable.com/embed/appuvQDTNtKRR6yah/shrcwRFmonnRktxVm?layout=card&viewControls=on"
+                    frameBorder="0"
+                    title="נתונים בזמן אמת - נכסים וחיפושים"
+                    style="width: 100%; height: 100%; border: none; background: transparent;"
+                    onload="handleIframeLoad()"
+                    onerror="handleIframeError()"
+                ></iframe>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 2: Diagnostic Information</h2>
+            <div class="status info">ℹ️ Current Environment</div>
+            <div class="error-details" id="diagnostics"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 3: Troubleshooting Steps</h2>
+            <ul>
+                <li><strong>If iframe loads:</strong> The URL works fine. Issue is in React implementation.</li>
+                <li><strong>If iframe shows blank:</strong> Airtable base might not have public embedding enabled.</li>
+                <li><strong>If iframe shows error:</strong> CORS or permission issue on Airtable side.</li>
+            </ul>
+
+            <h3>To Enable Public Sharing in Airtable:</h3>
+            <ol>
+                <li>Open your Airtable base in the web browser</li>
+                <li>Click the <strong>Share</strong> button (top-right corner)</li>
+                <li>Ensure <strong>"General access"</strong> is set to anyone can view (or edit)</li>
+                <li>Copy the share link provided</li>
+                <li>Check if a published grid/form has "Embed" option enabled</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 4: Console Messages</h2>
+            <div class="error-details" id="console-logs"></div>
+        </div>
+    </div>
+
+    <script>
+        // Diagnostic information
+        function updateDiagnostics() {
+            const diagnostics = document.getElementById('diagnostics');
+            const info = {
+                'URL': window.location.href,
+                'User Agent': navigator.userAgent.substring(0, 80),
+                'Language': navigator.language,
+                'Online': navigator.onLine ? '✅ Yes' : '❌ No',
+                'Cookies Enabled': navigator.cookieEnabled ? '✅ Yes' : '❌ No',
+                'Current Time': new Date().toISOString(),
+                'Security Protocol': window.location.protocol,
+            };
+
+            let html = '<strong>Browser & Environment:</strong><br>';
+            Object.entries(info).forEach(([key, value]) => {
+                html += `${key}: ${value}<br>`;
+            });
+
+            diagnostics.innerHTML = html;
+        }
+
+        // Handle iframe load
+        function handleIframeLoad() {
+            console.log('✅ Airtable iframe loaded successfully');
+        }
+
+        // Handle iframe error
+        function handleIframeError() {
+            console.error('❌ Airtable iframe failed to load');
+        }
+
+        // Capture console messages
+        const consoleLogs = document.getElementById('console-logs');
+        const logContainer = consoleLogs;
+        let logCount = 0;
+
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addLog('LOG', args.join(' '));
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addLog('ERROR', args.join(' '));
+        };
+
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addLog('WARN', args.join(' '));
+        };
+
+        function addLog(type, message) {
+            logCount++;
+            if (logCount > 20) return; // Limit logs shown
+
+            const logColor = {
+                'LOG': '#666',
+                'ERROR': '#d32f2f',
+                'WARN': '#f57c00'
+            };
+
+            const div = document.createElement('div');
+            div.style.color = logColor[type];
+            div.style.marginBottom = '5px';
+            div.innerHTML = `<strong>[${type}]</strong> ${message.substring(0, 200)}`;
+            logContainer.appendChild(div);
+        }
+
+        // Initialize
+        updateDiagnostics();
+        console.log('Airtable Test Page Loaded - Check console for errors');
+
+        // Also capture messages that might be sent to iframe
+        window.addEventListener('message', (event) => {
+            console.log('PostMessage received:', event.data);
+        });
+    </script>
+
+    <!-- Load Airtable's own embed script if it exists -->
+    <script src="https://airtable.com/embed.js" defer></script>
+</body>
+</html>

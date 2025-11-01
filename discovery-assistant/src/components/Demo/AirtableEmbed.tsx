@@ -3,6 +3,8 @@
  * Displays embedded Airtable table that updates in real-time
  */
 
+import { useEffect } from 'react';
+
 export interface AirtableEmbedProps {
   embedUrl: string;
   title?: string;
@@ -15,9 +17,19 @@ export interface AirtableEmbedProps {
  */
 export const AirtableEmbed: React.FC<AirtableEmbedProps> = ({
   embedUrl,
-  title,
-  height = '600px'
+  title
 }) => {
+  // Load Airtable embed script if not already loaded
+  useEffect(() => {
+    if (!(window as any).airtable) {
+      const script = document.createElement('script');
+      script.src = 'https://airtable.com/embed.js';
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+  }, []);
+
   return (
     <div className="flex flex-col h-full bg-white dark:bg-slate-800 rounded-lg shadow-lg overflow-hidden">
       {/* Header */}
@@ -39,6 +51,8 @@ export const AirtableEmbed: React.FC<AirtableEmbedProps> = ({
           src={embedUrl}
           frameBorder="0"
           title={title || 'Airtable Table'}
+          allow="camera; microphone; geolocation"
+          sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-presentation"
           style={{
             height: '100%',
             width: '100%',
