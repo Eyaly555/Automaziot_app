@@ -294,6 +294,7 @@ You MUST return a valid JSON object with this EXACT structure. Use this schema a
 5. Do NOT use null values - simply omit the field
 6. Arrays can be empty [] if no information exists
 7. Enums must use EXACT values shown (e.g., "high" not "High" or "גבוה")
+8. **CRITICAL: Escape all double quotes inside string values!** Hebrew abbreviations like מנכ"ל, בע"מ, ת"א must be written as מנכ\"ל, בע\"מ, ת\"א to produce valid JSON
 
 <confidence_calibration>
 Examples of confidence levels:
@@ -453,8 +454,49 @@ Before returning your JSON, verify:
       // Trim whitespace again
       cleanedResponse = cleanedResponse.trim();
 
-      // Parse the JSON
-      analysisResult = JSON.parse(cleanedResponse);
+      // Try to parse the JSON
+      try {
+        analysisResult = JSON.parse(cleanedResponse);
+      } catch (firstParseError) {
+        // Fallback: Try to fix common Hebrew abbreviation issues
+        // Hebrew abbreviations like מנכ"ל, בע"מ, ת"א have unescaped quotes
+        console.log('[External Transcription] First parse failed, attempting to fix Hebrew abbreviation quotes...');
+
+        // Fix unescaped quotes in Hebrew abbreviations (within string values)
+        // Common patterns: מנכ"ל, בע"מ, ת"א, צה"ל, רה"מ, etc.
+        let fixedResponse = cleanedResponse;
+
+        // Replace common Hebrew abbreviations with escaped versions
+        const hebrewAbbreviations = [
+          ['מנכ"ל', 'מנכ\\"ל'],
+          ['בע"מ', 'בע\\"מ'],
+          ['ת"א', 'ת\\"א'],
+          ['צה"ל', 'צה\\"ל'],
+          ['רה"מ', 'רה\\"מ'],
+          ['ע"י', 'ע\\"י'],
+          ['ע"ש', 'ע\\"ש'],
+          ['וכו"', 'וכו\\"'],
+          ['כד"', 'כד\\"'],
+          ['ק"מ', 'ק\\"מ'],
+          ['ד"ר', 'ד\\"ר'],
+          ['פרופ"', 'פרופ\\"'],
+          ['עו"ד', 'עו\\"ד'],
+          ['רו"ח', 'רו\\"ח'],
+        ];
+
+        for (const [original, escaped] of hebrewAbbreviations) {
+          fixedResponse = fixedResponse.split(original).join(escaped);
+        }
+
+        // Try parsing again with fixed response
+        try {
+          analysisResult = JSON.parse(fixedResponse);
+          console.log('[External Transcription] ✓ Successfully parsed after fixing Hebrew abbreviations');
+        } catch (secondParseError) {
+          // If still failing, throw the original error
+          throw firstParseError;
+        }
+      }
 
     } catch (parseError) {
       console.error('Failed to parse Claude response as JSON:', responseText);
